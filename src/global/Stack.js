@@ -3,8 +3,9 @@
  * and the position pointer for stack position.
  *
  * @author DeadbraiN
+ * TODO: use Uint32Array for id's. It should be faster
  */
-class Stack {
+export default class Stack {
     /**
      * Creates Stack instance of specified size. Internal pointer
      * will be set to the bottom of stack.
