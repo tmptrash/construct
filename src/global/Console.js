@@ -7,9 +7,9 @@
  *
  * @author DeadbraiN
  */
-export const MODE_QUIET_ALL       = 0;
-export const MODE_QUIET_IMPORTANT = 1;
-export const MODE_QUIET_NO        = 2;
+const MODE_QUIET_ALL       = 0;
+const MODE_QUIET_IMPORTANT = 1;
+const MODE_QUIET_NO        = 2;
 
 export default class Console {
     static msg(msg) {
@@ -18,5 +18,17 @@ export default class Console {
 
     static mode(mode = MODE_QUIET_IMPORTANT) {
         this._mode = mode;
+    }
+
+    static get MODE_QUIET_ALL() {
+        return MODE_QUIET_ALL;
+    }
+
+    static get MODE_QUIET_IMPORTANT() {
+        return MODE_QUIET_IMPORTANT;
+    }
+
+    static get MODE_QUIET_NO() {
+        return MODE_QUIET_NO;
     }
 }

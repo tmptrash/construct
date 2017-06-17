@@ -63,11 +63,134 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 5);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__organism_Organism__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Helper__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Console__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Stack__ = __webpack_require__(5);
+/**
+ * Main class of application. Contains entry point of jevo
+ *
+ * Usage:
+ *   const manager = new Manager()
+ *
+ * @author DeadbraiN
+ */
+
+
+
+
+
+
+class Manager {
+    constructor() {
+        this._world     = null;
+        this._positions = {};
+        this._tasks     = null;
+        this._killed    = null;
+        this._orgId     = 1;
+        this._quiet     = __WEBPACK_IMPORTED_MODULE_3__global_Console__["a" /* default */].MODE_QUIET_IMPORTANT;
+        this._ips       = 0;
+        this._loop      = this._loopFn.bind(this);
+
+        this._initTasks();
+        this._initFastLoop();
+    }
+
+    run () {
+        window.zeroTimeout(this._loop);
+    }
+
+    _loopFn () {
+        debugger;
+        window.zeroTimeout(this._loop);
+    }
+
+    _initTasks () {
+        const worldMaxOrgs = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldMaxOrgs;
+
+        this._tasks  = new Array(worldMaxOrgs);
+        this._killed = new __WEBPACK_IMPORTED_MODULE_4__global_Stack__["a" /* default */](worldMaxOrgs);
+        for (let i = 0; i < worldMaxOrgs; i++) {
+            //
+            // We create temporary organisms to prevent keeping empty slots in array. All
+            // these organisms will be removed later, during application working.
+            //
+            const org = new __WEBPACK_IMPORTED_MODULE_1__organism_Organism__["a" /* default */](i);
+            org.alive = false;
+            this._tasks[i] = {org: org, task: null};
+            this._killed.push(i);
+        }
+    }
+
+    /**
+     * This hacky function is obtained from here: https://dbaron.org/log/20100309-faster-timeouts
+     * It runs a setTimeout() based infinite loop, but faster, then simply using native setTimeout().
+     * See this article for details.
+     * @return {Boolean} Initialization status. false if function has already exist
+     * @private
+     * @hack
+     */
+    _initFastLoop() {
+        if (window.zeroTimeout) {return false;}
+        //
+        // Only add zeroTimeout to the window object, and hide everything
+        // else in a closure.
+        //
+        (() => {
+            let   callbacks = [];
+            const msgName   = 'zmsg';
+
+            window.addEventListener('message', (event) => {
+                if (event.source === window && event.data === msgName) {
+                    event.stopPropagation();
+                    if (callbacks.length > 0) {
+                        callbacks.shift()();
+                    }
+                }
+            }, true);
+            //
+            // Like setTimeout, but only takes a function argument. There's
+            // no time argument (always zero) and no arguments (you have to
+            // use a closure).
+            //
+            window.zeroTimeout = (fn) => {
+                callbacks.push(fn);
+                window.postMessage(msgName, '*');
+            };
+        })();
+
+        return true;
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = Manager;
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_Manager__ = __webpack_require__(0);
+/**
+ * @author DeadbraiN
+ */
+
+
+const manager = new __WEBPACK_IMPORTED_MODULE_0__manager_Manager__["a" /* default */]()
+manager.run();
+
+/***/ }),
+/* 2 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -85,11 +208,11 @@ const Config = {
      */
     worldMaxOrgs: 900
 };
-/* unused harmony export Config */
 
+/* harmony default export */ __webpack_exports__["a"] = (Config);
 
 /***/ }),
-/* 1 */
+/* 3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -103,14 +226,8 @@ const Config = {
  * @author DeadbraiN
  */
 const MODE_QUIET_ALL       = 0;
-/* unused harmony export MODE_QUIET_ALL */
-
 const MODE_QUIET_IMPORTANT = 1;
-/* unused harmony export MODE_QUIET_IMPORTANT */
-
 const MODE_QUIET_NO        = 2;
-/* unused harmony export MODE_QUIET_NO */
-
 
 class Console {
     static msg(msg) {
@@ -120,12 +237,24 @@ class Console {
     static mode(mode = MODE_QUIET_IMPORTANT) {
         this._mode = mode;
     }
+
+    static get MODE_QUIET_ALL() {
+        return MODE_QUIET_ALL;
+    }
+
+    static get MODE_QUIET_IMPORTANT() {
+        return MODE_QUIET_IMPORTANT;
+    }
+
+    static get MODE_QUIET_NO() {
+        return MODE_QUIET_NO;
+    }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Console;
 
 
 /***/ }),
-/* 2 */
+/* 4 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -139,7 +268,7 @@ class Helper {
 
 
 /***/ }),
-/* 3 */
+/* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -187,7 +316,7 @@ class Stack {
 
 
 /***/ }),
-/* 4 */
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -201,115 +330,6 @@ class Organism {
 /* harmony export (immutable) */ __webpack_exports__["a"] = Organism;
 
 
-/***/ }),
-/* 5 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__organism_Organism__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Helper__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Console__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Stack__ = __webpack_require__(3);
-/**
- * Main class of application. Contains entry point of jevo
- *
- * Usage:
- *   const manager = new Manager()
- *
- *   @author DeadbraiN
- */
-
-
-
-
-
-
-class Manager {
-	constructor() {
-        this._world     = null;
-        this._positions = {};
-        this._tasks     = null;
-        this._killed    = null;
-        this._orgId     = 1;
-        this._quiet     = __WEBPACK_IMPORTED_MODULE_3__global_Console__["a" /* default */].MODE_QUIET_IMPORTANT;
-        this._ips       = 0;
-        this._loop      = this._loopFn.bind(this);
-
-        this._initTasks();
-        this._initFastLoop();
-    }
-
-    run () {
-        window.zeroTimeout(this._loop);
-    }
-
-    _loopFn () {
-	    debugger;
-        window.zeroTimeout(this._loop);
-    }
-
-    _initTasks () {
-	    const worldMaxOrgs = __WEBPACK_IMPORTED_MODULE_0__global_Config__["default"].worldMaxOrgs;
-
-        this._tasks  = new Array(worldMaxOrgs);
-        this._killed = new __WEBPACK_IMPORTED_MODULE_4__global_Stack__["a" /* default */](worldMaxOrgs);
-        for (let i = 0; i < worldMaxOrgs; i++) {
-            //
-            // We create temporary organisms to prevent keeping empty slots in array. All
-            // these organisms will be removed later, during application working.
-            //
-            const org = new __WEBPACK_IMPORTED_MODULE_1__organism_Organism__["a" /* default */](i);
-            org.alive = false;
-            this._tasks[i] = {org: org, task: null};
-            this._killed.push(i);
-        }
-    }
-
-    /**
-     * This hacky function is obtained from here: https://dbaron.org/log/20100309-faster-timeouts
-     * It runs a setTimeout() based infinite loop, but faster, then simply using native setTimeout().
-     * See this article for details.
-     * @return {Boolean} Initialization status. false if function has already exist
-     * @private
-     * @hack
-     */
-    _initFastLoop() {
-        if (!window.zeroTimeout) {return false;}
-        //
-        // Only add zeroTimeout to the window object, and hide everything
-        // else in a closure.
-        //
-        (() => {
-            let   callbacks = [];
-            const msgName   = 'zmsg';
-
-            window.addEventListener('message', (event) => {
-                if (event.source === window && event.data === msgName) {
-                    event.stopPropagation();
-                    if (callbacks.length > 0) {
-                        callbacks.shift()();
-                    }
-                }
-            }, true);
-            //
-            // Like setTimeout, but only takes a function argument. There's
-            // no time argument (always zero) and no arguments (you have to
-            // use a closure).
-            //
-            window.zeroTimeout = (fn) => {
-                callbacks.push(fn);
-                window.postMessage(msgName, '*');
-            };
-        })();
-
-        return true;
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["default"] = Manager;
-
-
 /***/ })
 /******/ ]);
-//# sourceMappingURL=manager.js.map
+//# sourceMappingURL=app.js.map

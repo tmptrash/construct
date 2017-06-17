@@ -4,7 +4,7 @@
  * Usage:
  *   const manager = new Manager()
  *
- *   @author DeadbraiN
+ * @author DeadbraiN
  */
 import Config   from './../global/Config';
 import Organism from './../organism/Organism';
@@ -13,7 +13,7 @@ import Console  from './../global/Console';
 import Stack    from './../global/Stack';
 
 export default class Manager {
-	constructor() {
+    constructor() {
         this._world     = null;
         this._positions = {};
         this._tasks     = null;
@@ -32,12 +32,12 @@ export default class Manager {
     }
 
     _loopFn () {
-	    debugger;
+        debugger;
         window.zeroTimeout(this._loop);
     }
 
     _initTasks () {
-	    const worldMaxOrgs = Config.worldMaxOrgs;
+        const worldMaxOrgs = Config.worldMaxOrgs;
 
         this._tasks  = new Array(worldMaxOrgs);
         this._killed = new Stack(worldMaxOrgs);
@@ -62,7 +62,7 @@ export default class Manager {
      * @hack
      */
     _initFastLoop() {
-        if (!window.zeroTimeout) {return false;}
+        if (window.zeroTimeout) {return false;}
         //
         // Only add zeroTimeout to the window object, and hide everything
         // else in a closure.

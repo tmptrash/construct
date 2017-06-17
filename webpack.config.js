@@ -1,10 +1,10 @@
 var path = require('path');
 
 module.exports = {
-  entry: './src/manager/Manager.js',
+  entry: './src/App.js',
   devtool: 'source-map',
   output: {
-    filename: 'manager.js',
+    filename: 'app.js',
     path: path.resolve(__dirname, 'dist')
   }
 };

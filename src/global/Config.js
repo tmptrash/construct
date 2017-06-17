@@ -3,7 +3,7 @@
  *
  * @author DeadbraiN
  */
-export const Config = {
+const Config = {
     /**
      * {Number}
      * Maximum amount of organisms in a world. If some organisms will
@@ -12,3 +12,5 @@ export const Config = {
      */
     worldMaxOrgs: 900
 };
+
+export default Config;
