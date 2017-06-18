@@ -77,10 +77,14 @@
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Console__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Stack__ = __webpack_require__(5);
 /**
- * Main class of application. Contains entry point of jevo
+ * Main manager class of application. Contains all parts of jevo.js app
+ * like World, Connection, Console etc... Runs infinite loop inside run()
+ * method.
  *
  * Usage:
- *   const manager = new Manager()
+ *   import Manager from '.../Manager';
+ *   const manager = new Manager();
+ *   manager.run();
  *
  * @author DeadbraiN
  */
@@ -96,22 +100,22 @@ class Manager {
         this._positions = {};
         this._tasks     = null;
         this._killed    = null;
-        this._orgId     = 1;
         this._quiet     = __WEBPACK_IMPORTED_MODULE_3__global_Console__["a" /* default */].MODE_QUIET_IMPORTANT;
         this._ips       = 0;
-        this._loop      = this._loopFn.bind(this);
+        this._loopFn    = this._loop.bind(this);
 
         this._initTasks();
-        this._initFastLoop();
+        this._initLoop();
     }
 
     run () {
-        window.zeroTimeout(this._loop);
+        window.zeroTimeout(this._loopFn);
     }
 
-    _loopFn () {
-        debugger;
-        window.zeroTimeout(this._loop);
+
+    _loop () {
+      // TODO: code should be here...
+        window.zeroTimeout(this._loopFn); 
     }
 
     _initTasks () {
@@ -139,7 +143,7 @@ class Manager {
      * @private
      * @hack
      */
-    _initFastLoop() {
+    _initLoop() {
         if (window.zeroTimeout) {return false;}
         //
         // Only add zeroTimeout to the window object, and hide everything
@@ -182,11 +186,17 @@ class Manager {
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_Manager__ = __webpack_require__(0);
 /**
+ * This is an entry point of jevo.js application. Compiled version of
+ * this file should be included into index.html
+ *
+ * Usage:
+ *   <script src="./app.js"></script>
+ *
  * @author DeadbraiN
  */
 
 
-const manager = new __WEBPACK_IMPORTED_MODULE_0__manager_Manager__["a" /* default */]()
+const manager = new __WEBPACK_IMPORTED_MODULE_0__manager_Manager__["a" /* default */]();
 manager.run();
 
 /***/ }),
@@ -325,7 +335,7 @@ class Stack {
  * @author DeadbraiN
  */
 class Organism {
-
+    // TODO: remove id field from Organism. We should use index instead.
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Organism;
 

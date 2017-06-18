@@ -1,8 +1,12 @@
 /**
- * Main class of application. Contains entry point of jevo
+ * Main manager class of application. Contains all parts of jevo.js app
+ * like World, Connection, Console etc... Runs infinite loop inside run()
+ * method.
  *
  * Usage:
- *   const manager = new Manager()
+ *   import Manager from '.../Manager';
+ *   const manager = new Manager();
+ *   manager.run();
  *
  * @author DeadbraiN
  */
@@ -18,37 +22,38 @@ export default class Manager {
         this._positions = {};
         this._tasks     = null;
         this._killed    = null;
-        this._orgId     = 1;
         this._quiet     = Console.MODE_QUIET_IMPORTANT;
         this._ips       = 0;
-        this._loop      = this._loopFn.bind(this);
 
         this._initTasks();
-        this._initFastLoop();
+        this._initLoop();
     }
 
     run () {
-        window.zeroTimeout(this._loop);
+        let counter   = 1;
+        let stamp     = Date.now();
+        //
+        // Main loop of application
+        //
+        function loop () {
+            // TODO: code is here...
+            counter++;
+            stamp = Date.now();
+            window.zeroTimeout(loop);
+        }
+
+        window.zeroTimeout(loop);
     }
 
-    _loopFn () {
-        debugger;
-        window.zeroTimeout(this._loop);
-    }
 
     _initTasks () {
         const worldMaxOrgs = Config.worldMaxOrgs;
 
         this._tasks  = new Array(worldMaxOrgs);
         this._killed = new Stack(worldMaxOrgs);
+
         for (let i = 0; i < worldMaxOrgs; i++) {
-            //
-            // We create temporary organisms to prevent keeping empty slots in array. All
-            // these organisms will be removed later, during application working.
-            //
-            const org = new Organism(i);
-            org.alive = false;
-            this._tasks[i] = {org: org, task: null};
+            this._tasks[i] = {org: new Organism(i, false), task: null};
             this._killed.push(i);
         }
     }
@@ -61,7 +66,7 @@ export default class Manager {
      * @private
      * @hack
      */
-    _initFastLoop() {
+    _initLoop() {
         if (window.zeroTimeout) {return false;}
         //
         // Only add zeroTimeout to the window object, and hide everything
