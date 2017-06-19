@@ -46,7 +46,7 @@ export default class Helper {
      * Checks if position is empty. x == y == 0 - this is empty
      * @param {Object} pos Position to check
      */
-    static empty(pos) {return pos.x === pos.y === 0;}
+    static empty(pos) {return pos.x === 0 && pos.y === 0;}
     /**
      * Saves custom data into the file. If file exists, it will
      * be overrided. It's only rewrites existing file and not
