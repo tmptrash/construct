@@ -5,6 +5,7 @@
  * @author DeadbraiN
  */
 const Config = {
+    // TODO: find and remove unused values
     /**
      * {Array} Probabilities with which mutator decides what to do: 
      * add, change, delete character of the code; change amount of
@@ -94,6 +95,14 @@ const Config = {
      */
     orgGarbagePeriod: 20,
     /**
+     * {Number} Size of organism stack (internal memory)
+     */
+    orgMemSize: 64,
+    /**
+     * {Number} Percent of energy, which will be given to the child
+     */
+    orgCloneEnergyPercent: 0.5,
+    /**
      * {Number} Amount of errors in organisms codes in current population
      */
     orgErrors: 0,
@@ -133,6 +142,16 @@ const Config = {
      * organism reaches code size limit Config.codeMaxSize
      */
     codeSizeCoef: 10,
+    /**
+     * {Number} Amount of local variables of organism's script
+     */
+    codeVarAmount: 5,
+    /**
+     * {Number} The value from -X/2 to X/2, which is used for setting
+     * default value, while organism is delivering. So, if the value is
+     * 1000, then ragne will be: -500..500
+     */
+    codeVarInitRange: 1000,
     /**
      * {Number} World width
      */

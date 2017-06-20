@@ -15,10 +15,11 @@ import Organism from './../organism/Organism';
 import Helper   from './../global/Helper';
 import Console  from './../global/Console';
 import Stack    from './../global/Stack';
+import World    from './../visual/World';
 
 export default class Manager {
     constructor() {
-        this._world     = null;
+        this._world     = new World(Config.worldWidth, Config.worldHeight);
         this._positions = {};
         this._tasks     = null;
         this._killed    = null;
@@ -53,7 +54,7 @@ export default class Manager {
         this._killed = new Stack(worldMaxOrgs);
 
         for (let i = 0; i < worldMaxOrgs; i++) {
-            this._tasks[i] = {org: new Organism(i, false), task: null};
+            this._tasks[i] = {org: new Organism(i, 0, 0, false), task: null};
             this._killed.push(i);
         }
     }
