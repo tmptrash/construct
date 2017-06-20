@@ -11,10 +11,10 @@ import Observer from './../global/Observer';
 export default class Organism extends Observer {
     constructor(id, x, y, alive) {
         super();
-        this.id                    = id;
-        this.x                     = x;
-        this.y                     = y;
-        this.alive                 = alive;
+        this._id                   = id;
+        this._x                    = x;
+        this._y                    = y;
+        this._alive                = alive;
 
         this._mutationProbs        = Config.orgMutationProbs;
         this._mutationClonePercent = Config.orgCloneMutation;
@@ -32,6 +32,14 @@ export default class Organism extends Observer {
         this._compiled             = this._compile(this._code);
         this._gen                  = this._compiled();
     }
+
+    get alive() {return this._alive;}
+
+    get x() {return this._x;}
+
+    get y() {return this._y;}
+
+    get id() {return this._id;}
 
     /**
      * Runs one code iteration and returns
@@ -80,10 +88,12 @@ export default class Organism extends Observer {
      * @private
      */
     _compile() {
-        const header = 'this.__compiled=function* dna(){var rand=Math.random;while(true){yield;';
-        const vars   = this._getVars();
-        const footer = '}}';
-        eval(header + vars + this._code.join(';') + footer);
+        const header1 = 'this.__compiled=function* dna(){var rand=Math.random;';
+        const vars    = this._getVars();
+        const header2 = ';while(true){yield;';
+        const footer  = '}}';
+
+        eval(header1 + vars + header2 + this._code.join(';') + footer);
 
         return this.__compiled;
     }

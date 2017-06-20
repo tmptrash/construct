@@ -75,15 +75,13 @@ export default class Manager extends Observer {
         // else in a closure.
         //
         (() => {
-            let   callbacks = [];
-            const msgName   = 'zmsg';
+            let   callback;
+            const msgName   = 'zm';
 
             window.addEventListener('message', (event) => {
-                if (event.source === window && event.data === msgName) {
+                if (event.data === msgName) {
                     event.stopPropagation();
-                    if (callbacks.length > 0) {
-                        callbacks.shift()();
-                    }
+                    callback();
                 }
             }, true);
             //
@@ -92,7 +90,7 @@ export default class Manager extends Observer {
             // use a closure).
             //
             this.zeroTimeout = (fn) => {
-                callbacks.push(fn);
+                callback = fn;
                 window.postMessage(msgName, '*');
             };
         })();

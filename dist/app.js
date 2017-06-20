@@ -719,15 +719,13 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
         // else in a closure.
         //
         (() => {
-            let   callbacks = [];
-            const msgName   = 'zmsg';
+            let   callback;
+            const msgName   = 'zm';
 
             window.addEventListener('message', (event) => {
-                if (event.source === window && event.data === msgName) {
+                if (event.data === msgName) {
                     event.stopPropagation();
-                    if (callbacks.length > 0) {
-                        callbacks.shift()();
-                    }
+                    callback();
                 }
             }, true);
             //
@@ -736,7 +734,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
             // use a closure).
             //
             this.zeroTimeout = (fn) => {
-                callbacks.push(fn);
+                callback = fn;
                 window.postMessage(msgName, '*');
             };
         })();
@@ -867,7 +865,7 @@ class Organisms {
      */
     _onIteration(counter, stamp) {
         for (let t of this._orgs) {
-            if (t.alive) {
+            if (t.alive === true) {
                 t.run();
             }
         }
@@ -916,10 +914,10 @@ class Organisms {
 class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default */] {
     constructor(id, x, y, alive) {
         super();
-        this.id                    = id;
-        this.x                     = x;
-        this.y                     = y;
-        this.alive                 = alive;
+        this._id                   = id;
+        this._x                    = x;
+        this._y                    = y;
+        this._alive                = alive;
 
         this._mutationProbs        = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgMutationProbs;
         this._mutationClonePercent = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgCloneMutation;
@@ -937,6 +935,14 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
         this._compiled             = this._compile(this._code);
         this._gen                  = this._compiled();
     }
+
+    get alive() {return this._alive;}
+
+    get x() {return this._x;}
+
+    get y() {return this._y;}
+
+    get id() {return this._id;}
 
     /**
      * Runs one code iteration and returns
@@ -985,10 +991,12 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
      * @private
      */
     _compile() {
-        const header = 'this.__compiled=function* dna(){var rand=Math.random;while(true){yield;';
-        const vars   = this._getVars();
-        const footer = '}}';
-        eval(header + vars + this._code.join(';') + footer);
+        const header1 = 'this.__compiled=function* dna(){var rand=Math.random;';
+        const vars    = this._getVars();
+        const header2 = ';while(true){yield;';
+        const footer  = '}}';
+
+        eval(header1 + vars + header2 + this._code.join(';') + footer);
 
         return this.__compiled;
     }

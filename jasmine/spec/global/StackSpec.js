@@ -39,4 +39,10 @@ describe("src/global/Stack", function() {
         expect(stack.push(1)).toEqual(false);
         expect(stack.pop()).toEqual(null);
     });
+
+    it("Checking size() method", () => {
+        stack = new Stack(10);
+        expect(stack.push(1)).toEqual(true);
+        expect(stack.size()).toEqual(1);
+    });
 });

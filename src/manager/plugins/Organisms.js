@@ -46,7 +46,7 @@ export default class Organisms {
      */
     _onIteration(counter, stamp) {
         for (let t of this._orgs) {
-            if (t.alive) {
+            if (t.alive === true) {
                 t.run();
             }
         }
