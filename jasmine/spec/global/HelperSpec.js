@@ -19,7 +19,7 @@ describe("src/global/Helper", () => {
         let zero = 0;
         let one  = 0;
 
-        for (let i=0; i<10000000; i++) {
+        for (let i=0; i<5000000; i++) {
             if (Helper.probIndex([2,4]) === 0) {
                 zero++;
             } else {
