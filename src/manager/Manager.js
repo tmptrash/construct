@@ -10,54 +10,51 @@
  *
  * @author DeadbraiN
  */
-import Config   from './../global/Config';
-import Organism from './../organism/Organism';
-import Helper   from './../global/Helper';
-import Console  from './../global/Console';
-import Stack    from './../global/Stack';
-import World    from './../visual/World';
+import Config    from './../global/Config';
+import World     from './../visual/World';
+import Organisms from './plugins/Organisms';
+/**
+ * {Array} Plugins for Manager
+ */
+const PLUGINS = [
+    Organisms
+];
 
 export default class Manager {
+    /**
+     * Is called on every iteration in main loop. May be overridden in plugins
+     * @abstract
+     */
+    onIteration() {}
+
     constructor() {
         this._world     = new World(Config.worldWidth, Config.worldHeight);
         this._positions = {};
-        this._tasks     = null;
-        this._killed    = null;
-        this._quiet     = Console.MODE_QUIET_IMPORTANT;
         this._ips       = 0;
+        this._plugins   = new Array(PLUGINS.length);
 
-        this._initTasks();
         this._initLoop();
+        this._initPlugins();
     }
 
     run () {
-        let counter   = 1;
-        let stamp     = Date.now();
+        let counter = 1;
+        let stamp   = Date.now();
+        let call    = this.zeroTimeout;
+        let me      = this;
         //
         // Main loop of application
         //
         function loop () {
-            // TODO: code is here...
+            me.onIteration();
+
             counter++;
             stamp = Date.now();
-            window.zeroTimeout(loop);
+            call(loop);
         }
-
-        window.zeroTimeout(loop);
+        call(loop);
     }
 
-
-    _initTasks () {
-        const worldMaxOrgs = Config.worldMaxOrgs;
-
-        this._tasks  = new Array(worldMaxOrgs);
-        this._killed = new Stack(worldMaxOrgs);
-
-        for (let i = 0; i < worldMaxOrgs; i++) {
-            this._tasks[i] = {org: new Organism(i, 0, 0, false), task: null};
-            this._killed.push(i);
-        }
-    }
 
     /**
      * This hacky function is obtained from here: https://dbaron.org/log/20100309-faster-timeouts
@@ -68,9 +65,9 @@ export default class Manager {
      * @hack
      */
     _initLoop() {
-        if (window.zeroTimeout) {return false;}
+        if (this.zeroTimeout) {return false;}
         //
-        // Only add zeroTimeout to the window object, and hide everything
+        // Only add zeroTimeout to the Manager object, and hide everything
         // else in a closure.
         //
         (() => {
@@ -90,12 +87,18 @@ export default class Manager {
             // no time argument (always zero) and no arguments (you have to
             // use a closure).
             //
-            window.zeroTimeout = (fn) => {
+            this.zeroTimeout = (fn) => {
                 callbacks.push(fn);
                 window.postMessage(msgName, '*');
             };
         })();
 
         return true;
+    }
+
+    _initPlugins() {
+        for (let i = 0; i < PLUGINS.length; i++) {
+            this._plugins[i] = new PLUGINS[i](this);
+        }
     }
 }

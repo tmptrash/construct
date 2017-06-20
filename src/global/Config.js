@@ -3,9 +3,21 @@
  * instance. Other instances may have different configuration values
  *
  * @author DeadbraiN
+ * TODO: find and remove unused values
  */
+const QUIET_ALL       = 0;
+const QUIET_IMPORTANT = 1;
+const QUIET_NO        = 2;
+
 const Config = {
-    // TODO: find and remove unused values
+    /**
+     * Constants of quite mode. This mode affects on amount and
+     * types of console messages. For example in QUIET_IMPORTANT
+     * mode info messages will be hidden.
+     */
+    QUIET_ALL      : QUIET_ALL,
+    QUIET_IMPORTANT: QUIET_IMPORTANT,
+    QUIET_NO       : QUIET_NO,
     /**
      * {Array} Probabilities with which mutator decides what to do: 
      * add, change, delete character of the code; change amount of
@@ -209,6 +221,12 @@ const Config = {
      * to zoom them with a coefficient.
      */
     worldZoom: 1,
+    /**
+     * {Number} Quite mode. This mode affects on amount and
+     * types of console messages. For example in QUIET_IMPORTANT
+     * mode info messages will be hidden.
+     */
+    worldQuiteMode: QUIET_IMPORTANT,
     /**
      * {Number} Period of seconds, which is user for checking IPS value. It's
      * possible to increase it to reduce amount of requests and additional

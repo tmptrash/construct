@@ -28,11 +28,15 @@ export default class Organism extends Observer {
         this._varId                = 0;
         this._fnId                 = 0;
         this._code                 = [];
-        this._byteCode             = this._compile(this._code);
+        this._compiled             = this._compile(this._code);
+        this._gen                  = this._compiled();
     }
 
-    born() {
-
+    /**
+     * Runs one code iteration and returns
+     */
+    run() {
+        this._gen.next();
     }
 
     getEnergy() {}

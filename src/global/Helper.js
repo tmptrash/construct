@@ -5,6 +5,28 @@
  */
 export default class Helper {
     /**
+     * Overrides specified function in two ways: softly - by
+     * calling new function and after that original; hardly - by
+     * erasing old function by new one. It's still possible to
+     * revert erasing by copy old function from fn.fn property.
+     * @param {Object} obj Destination object, we want to override
+     * @param {String} fnName Function name
+     * @param {Function} fn Destination function
+     * @param {Boolean} hard true - erase old function, false - call
+     * new function and aol after that.
+     */
+    static override(obj, fnName, fn, hard = false) {
+        fn.fn = obj[fnName];
+        if (!hard) {
+            obj[fnName] = (...args) => {
+                fn(...args);
+                fn.fn.apply(obj, args);
+            };
+            return;
+        }
+        obj[fnName] = fn;
+    }
+    /**
      * Generates random Int number in range 0:n-1
      * @param {Number} n Right number value in a range
      * @return {Number}

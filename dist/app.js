@@ -76,9 +76,21 @@
  * instance. Other instances may have different configuration values
  *
  * @author DeadbraiN
+ * TODO: find and remove unused values
  */
+const QUIET_ALL       = 0;
+const QUIET_IMPORTANT = 1;
+const QUIET_NO        = 2;
+
 const Config = {
-    // TODO: find and remove unused values
+    /**
+     * Constants of quite mode. This mode affects on amount and
+     * types of console messages. For example in QUIET_IMPORTANT
+     * mode info messages will be hidden.
+     */
+    QUIET_ALL      : QUIET_ALL,
+    QUIET_IMPORTANT: QUIET_IMPORTANT,
+    QUIET_NO       : QUIET_NO,
     /**
      * {Array} Probabilities with which mutator decides what to do: 
      * add, change, delete character of the code; change amount of
@@ -283,6 +295,12 @@ const Config = {
      */
     worldZoom: 1,
     /**
+     * {Number} Quite mode. This mode affects on amount and
+     * types of console messages. For example in QUIET_IMPORTANT
+     * mode info messages will be hidden.
+     */
+    worldQuiteMode: QUIET_IMPORTANT,
+    /**
      * {Number} Period of seconds, which is user for checking IPS value. It's
      * possible to increase it to reduce amount of requests and additional
      * code in main loop
@@ -421,6 +439,28 @@ const Config = {
  * @author DeadbraiN
  */
 class Helper {
+    /**
+     * Overrides specified function in two ways: softly - by
+     * calling new function and after that original; hardly - by
+     * erasing old function by new one. It's still possible to
+     * revert erasing by copy old function from fn.fn property.
+     * @param {Object} obj Destination object, we want to override
+     * @param {String} fnName Function name
+     * @param {Function} fn Destination function
+     * @param {Boolean} hard true - erase old function, false - call
+     * new function and aol after that.
+     */
+    static override(obj, fnName, fn, hard = false) {
+        fn.fn = obj[fnName];
+        if (!hard) {
+            obj[fnName] = (...args) => {
+                fn(...args);
+                fn.fn.apply(obj, args);
+            };
+            return;
+        }
+        obj[fnName] = fn;
+    }
     /**
      * Generates random Int number in range 0:n-1
      * @param {Number} n Right number value in a range
@@ -595,11 +635,8 @@ class Stack {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__organism_Organism__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Helper__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Console__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Stack__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__visual_World__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__visual_World__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__plugins_Organisms__ = __webpack_require__(6);
 /**
  * Main manager class of application. Contains all parts of jevo.js app
  * like World, Connection, Console etc... Runs infinite loop inside run()
@@ -615,51 +652,48 @@ class Stack {
 
 
 
-
-
-
+/**
+ * {Array} Plugins for Manager
+ */
+const PLUGINS = [
+    __WEBPACK_IMPORTED_MODULE_2__plugins_Organisms__["a" /* default */]
+];
 
 class Manager {
-    constructor() {
-        this._world     = new __WEBPACK_IMPORTED_MODULE_5__visual_World__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldWidth, __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldHeight);
-        this._positions = {};
-        this._tasks     = null;
-        this._killed    = null;
-        this._quiet     = __WEBPACK_IMPORTED_MODULE_3__global_Console__["a" /* default */].MODE_QUIET_IMPORTANT;
-        this._ips       = 0;
+    /**
+     * Is called on every iteration in main loop. May be overridden in plugins
+     * @abstract
+     */
+    onIteration() {}
 
-        this._initTasks();
+    constructor() {
+        this._world     = new __WEBPACK_IMPORTED_MODULE_1__visual_World__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldWidth, __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldHeight);
+        this._positions = {};
+        this._ips       = 0;
+        this._plugins   = new Array(PLUGINS.length);
+
         this._initLoop();
+        this._initPlugins();
     }
 
     run () {
-        let counter   = 1;
-        let stamp     = Date.now();
+        let counter = 1;
+        let stamp   = Date.now();
+        let call    = this.zeroTimeout;
+        let me      = this;
         //
         // Main loop of application
         //
         function loop () {
-            // TODO: code is here...
+            me.onIteration();
+
             counter++;
             stamp = Date.now();
-            window.zeroTimeout(loop);
+            call(loop);
         }
-
-        window.zeroTimeout(loop);
+        call(loop);
     }
 
-
-    _initTasks () {
-        const worldMaxOrgs = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldMaxOrgs;
-
-        this._tasks  = new Array(worldMaxOrgs);
-        this._killed = new __WEBPACK_IMPORTED_MODULE_4__global_Stack__["a" /* default */](worldMaxOrgs);
-
-        for (let i = 0; i < worldMaxOrgs; i++) {
-            this._tasks[i] = {org: new __WEBPACK_IMPORTED_MODULE_1__organism_Organism__["a" /* default */](i, 0, 0, false), task: null};
-            this._killed.push(i);
-        }
-    }
 
     /**
      * This hacky function is obtained from here: https://dbaron.org/log/20100309-faster-timeouts
@@ -670,9 +704,9 @@ class Manager {
      * @hack
      */
     _initLoop() {
-        if (window.zeroTimeout) {return false;}
+        if (this.zeroTimeout) {return false;}
         //
-        // Only add zeroTimeout to the window object, and hide everything
+        // Only add zeroTimeout to the Manager object, and hide everything
         // else in a closure.
         //
         (() => {
@@ -692,13 +726,19 @@ class Manager {
             // no time argument (always zero) and no arguments (you have to
             // use a closure).
             //
-            window.zeroTimeout = (fn) => {
+            this.zeroTimeout = (fn) => {
                 callbacks.push(fn);
                 window.postMessage(msgName, '*');
             };
         })();
 
         return true;
+    }
+
+    _initPlugins() {
+        for (let i = 0; i < PLUGINS.length; i++) {
+            this._plugins[i] = new PLUGINS[i](this);
+        }
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Manager;
@@ -730,39 +770,50 @@ manager.run();
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Stack__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__organism_Organism__ = __webpack_require__(7);
 /**
- * Module for working with a browser console
- *
- * Usage:
- *   import Console from '.../Console';
- *   Console.msg('msg');
+ * Plugin for Manager module, which handles organisms population
  *
  * @author DeadbraiN
  */
-const MODE_QUIET_ALL       = 0;
-const MODE_QUIET_IMPORTANT = 1;
-const MODE_QUIET_NO        = 2;
 
-class Console {
-    static get MODE_QUIET_ALL()       {return MODE_QUIET_ALL;}
-    static get MODE_QUIET_IMPORTANT() {return MODE_QUIET_IMPORTANT;}
-    static get MODE_QUIET_NO()        {return MODE_QUIET_NO;}
 
-    static error(msg) {
-        if (this._mode === MODE_QUIET_NO) {return;}
-        console.log(`%c${msg}`, 'background: #fff; color: #aa0000');
+
+
+
+class Organisms {
+    constructor(manager) {
+        this._manager   = manager;
+        this._tasks     = null;
+        this._killed    = null;
+
+        this._initTasks();
+
+        __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].override(manager, 'onIteration', this._onIterationCb.bind(this));
     }
-    static warn (msg) {
-        if (this._mode === MODE_QUIET_NO) {return;}
-        console.log(`%c${msg}`, 'background: #fff; color: #cc7a00');
+
+    _initTasks () {
+        const worldMaxOrgs = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs;
+
+        this._tasks  = new Array(worldMaxOrgs);
+        this._killed = new __WEBPACK_IMPORTED_MODULE_2__global_Stack__["a" /* default */](worldMaxOrgs);
+
+        for (let i = 0; i < worldMaxOrgs; i++) {
+            this._tasks[i] = {org: new __WEBPACK_IMPORTED_MODULE_3__organism_Organism__["a" /* default */](i, 0, 0, false), task: null};
+            this._killed.push(i);
+        }
     }
-    static info (msg) {
-        if (this._mode !== MODE_QUIET_ALL) {return;}
-        console.log(`%c${msg}`, 'background: #fff; color: #1a1a00');
+
+    _onIterationCb() {
+        for (let org of this._tasks) {
+
+        }
     }
-    static mode (mode = MODE_QUIET_IMPORTANT) {this._mode = mode;}
 }
-/* harmony export (immutable) */ __webpack_exports__["a"] = Console;
+/* harmony export (immutable) */ __webpack_exports__["a"] = Organisms;
 
 
 /***/ }),
@@ -803,11 +854,15 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
         this._varId                = 0;
         this._fnId                 = 0;
         this._code                 = [];
-        this._byteCode             = this._compile(this._code);
+        this._compiled             = this._compile(this._code);
+        this._gen                  = this._compiled();
     }
 
-    born() {
-
+    /**
+     * Runs one code iteration and returns
+     */
+    run() {
+        this._gen.next();
     }
 
     getEnergy() {}
