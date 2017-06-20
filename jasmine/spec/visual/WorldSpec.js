@@ -175,4 +175,40 @@ describe("src/visual/World", () => {
 
         world.destroy();
     });
+
+    it("Checking 'dot' event with setDot() method", () => {
+        let width  = 10;
+        let height = 10;
+        let world  = new World(width, height);
+        let inc    = 0;
+
+        world.on('dot', (x,y,c) => {
+            expect(x).toEqual(3);
+            expect(y).toEqual(4);
+            expect(c).toEqual(2);
+            inc++;
+        });
+        expect(world.setDot(3,4,2)).toEqual(true);
+        expect(inc).toEqual(1);
+
+        world.destroy();
+    });
+    it("Checking 'dot' event with grabDot() method", () => {
+        let width  = 10;
+        let height = 10;
+        let world  = new World(width, height);
+        let inc    = 0;
+
+        world.on('dot', (x,y,c) => {
+            expect(c).toEqual(2 - inc);
+            expect(x).toEqual(3);
+            expect(y).toEqual(4);
+            inc++;
+        });
+        expect(world.setDot(3,4,2)).toEqual(true);
+        expect(world.grabDot(3,4,1)).toEqual(1);
+        expect(inc).toEqual(2);
+
+        world.destroy();
+    });
 });

@@ -9,23 +9,23 @@
  * Usage:
  *   import World from '.../World';
  *   let world = new World(100, 100);
- *   world.getDot(50, 50, 0xFF00AA);
+ *   world.setDot(50, 50, 0xFF00AA);
  *   world.getDot(50, 50); // 0xFF00AA
  *
  * Events:
- *   TODO:
+ *   dot(x,y,color) Fires if one dot in a worlds field changed it's color
  *
  * @author DeadbraiN
  */
 import Observer from './../global/Observer';
 import Helper   from './../global/Helper';
 
-export default class {
+export default class World extends Observer {
     constructor (width, height) {
+        super();
         this._data   = [];
         this._width  = width;
         this._height = height;
-        this._obs    = new Observer();
 
         for (let x = 0; x < width; x++) {
             this._data[x] = (new Array(height)).fill(0);
@@ -33,8 +33,8 @@ export default class {
     }
 
     destroy() {
-        this._data = [];
-        this._obs.clear();
+        this.clear();
+        this._data   = null;
         this._width  = 0;
         this._height = 0;
     }
@@ -42,7 +42,7 @@ export default class {
     setDot(x, y, color) {
         if (x < 0 || x >= this._width || y < 0 || y >= this._height) {return false;}
         this._data[x][y] = color;
-        this._obs.fire('dot', x, y, color)
+        this.fire('dot', x, y, color)
 
         return true;
     }
@@ -56,7 +56,7 @@ export default class {
         let dot = Math.min(this.getDot(x, y), amount)
 
         if (dot > 0) {
-            this._obs.fire('dot', x, y, (this._data[x][y] -= dot));
+            this.fire('dot', x, y, (this._data[x][y] -= dot));
         }
 
         return dot;
