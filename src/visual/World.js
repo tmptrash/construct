@@ -79,7 +79,25 @@ export default class {
         return i > 0 ? {x: x, y: y} : false
     }
 
-    getNearFreePos() {
+    getNearFreePos(x, y) {
+        const positions = [
+            x + 1, y,     // right
+            x + 1, y + 1, // right down
+            x    , y + 1, // down
+            x - 1, y + 1, // down left
+            x - 1, y,     // left
+            x - 1, y - 1, // left up
+            x    , y - 1, // up
+            x + 1, y - 1  // up right
+        ];
 
+        for (let i = 0, j = 0; i < 8; i++) {
+            x = positions[j]
+            y = positions[j + 1]
+            if (this.getDot(x, y) === 0) {return {x: x, y: y};}
+            j += 2;
+        }
+
+        return false;
     }
 }

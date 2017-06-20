@@ -90,4 +90,89 @@ describe("src/visual/World", () => {
 
         world.destroy();
     });
+
+    it("Checking getNearFreePos() with left free pos", () => {
+        let width  = 3;
+        let height = 3;
+        let world  = new World(width, height);
+        let pos;
+
+        expect(world.setDot(0,0,1)).toEqual(true);
+        expect(world.setDot(1,0,1)).toEqual(true);
+        expect(world.setDot(2,0,1)).toEqual(true);
+        //expect(world.setDot(0,1,1)).toEqual(true);
+        //expect(world.setDot(1,1,1)).toEqual(true); // center
+        expect(world.setDot(2,1,1)).toEqual(true);
+        expect(world.setDot(0,2,1)).toEqual(true);
+        expect(world.setDot(1,2,1)).toEqual(true);
+        expect(world.setDot(2,2,1)).toEqual(true);
+        pos = world.getNearFreePos(1,1);
+        expect(pos !== false).toEqual(true);
+        expect(pos.x === 0 && pos.y === 1).toEqual(true);
+
+        world.destroy();
+    });
+    it("Checking getNearFreePos() with up free pos", () => {
+        let width  = 3;
+        let height = 3;
+        let world  = new World(width, height);
+        let pos;
+
+        expect(world.setDot(0,0,1)).toEqual(true);
+        //expect(world.setDot(1,0,1)).toEqual(true);
+        expect(world.setDot(2,0,1)).toEqual(true);
+        expect(world.setDot(0,1,1)).toEqual(true);
+        //expect(world.setDot(1,1,1)).toEqual(true); // center
+        expect(world.setDot(2,1,1)).toEqual(true);
+        expect(world.setDot(0,2,1)).toEqual(true);
+        expect(world.setDot(1,2,1)).toEqual(true);
+        expect(world.setDot(2,2,1)).toEqual(true);
+        pos = world.getNearFreePos(1,1);
+        expect(pos !== false).toEqual(true);
+        expect(pos.x === 1 && pos.y === 0).toEqual(true);
+
+        world.destroy();
+    });
+    it("Checking getNearFreePos() with right free pos", () => {
+        let width  = 3;
+        let height = 3;
+        let world  = new World(width, height);
+        let pos;
+
+        expect(world.setDot(0,0,1)).toEqual(true);
+        expect(world.setDot(1,0,1)).toEqual(true);
+        expect(world.setDot(2,0,1)).toEqual(true);
+        expect(world.setDot(0,1,1)).toEqual(true);
+        //expect(world.setDot(1,1,1)).toEqual(true); // center
+        //expect(world.setDot(2,1,1)).toEqual(true);
+        expect(world.setDot(0,2,1)).toEqual(true);
+        expect(world.setDot(1,2,1)).toEqual(true);
+        expect(world.setDot(2,2,1)).toEqual(true);
+        pos = world.getNearFreePos(1,1);
+        expect(pos !== false).toEqual(true);
+        expect(pos.x === 2 && pos.y === 1).toEqual(true);
+
+        world.destroy();
+    });
+    it("Checking getNearFreePos() with down free pos", () => {
+        let width  = 3;
+        let height = 3;
+        let world  = new World(width, height);
+        let pos;
+
+        expect(world.setDot(0,0,1)).toEqual(true);
+        expect(world.setDot(1,0,1)).toEqual(true);
+        expect(world.setDot(2,0,1)).toEqual(true);
+        expect(world.setDot(0,1,1)).toEqual(true);
+        //expect(world.setDot(1,1,1)).toEqual(true); // center
+        expect(world.setDot(2,1,1)).toEqual(true);
+        expect(world.setDot(0,2,1)).toEqual(true);
+        //expect(world.setDot(1,2,1)).toEqual(true);
+        expect(world.setDot(2,2,1)).toEqual(true);
+        pos = world.getNearFreePos(1,1);
+        expect(pos !== false).toEqual(true);
+        expect(pos.x === 1 && pos.y === 2).toEqual(true);
+
+        world.destroy();
+    });
 });
