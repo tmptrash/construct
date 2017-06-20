@@ -11,7 +11,11 @@ import Observer from './../global/Observer';
 export default class Organism extends Observer {
     constructor(id, x, y, alive) {
         super();
-        this._id                   = id;
+        this.id                    = id;
+        this.x                     = x;
+        this.y                     = y;
+        this.alive                 = alive;
+
         this._mutationProbs        = Config.orgMutationProbs;
         this._mutationClonePercent = Config.orgCloneMutation;
         this._mutationPeriod       = Config.orgRainMutationPeriod;
@@ -20,11 +24,8 @@ export default class Organism extends Observer {
         this._energy               = Config.orgStartEnergy;
         this._color                = Config.orgStartColor;
         this._mem                  = new Stack(Config.orgMemSize);
-        this._x                    = x;
-        this._y                    = y;
         this._age                  = 0;
         this._cloneEnergyPercent   = Config.orgCloneEnergyPercent;
-        this._alive                = alive;
         this._varId                = 0;
         this._fnId                 = 0;
         this._code                 = [];

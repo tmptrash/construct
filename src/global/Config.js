@@ -228,11 +228,11 @@ const Config = {
      */
     worldQuiteMode: QUIET_IMPORTANT,
     /**
-     * {Number} Period of seconds, which is user for checking IPS value. It's
+     * {Number} Period of milliseconds, which is user for checking IPS value. It's
      * possible to increase it to reduce amount of requests and additional
      * code in main loop
      */
-    worldIpsPeriod: 1.0,
+    worldIpsPeriodMs: 1000,
     /**
      * {Number} Period of making automatic backup of application. In seconds
      */

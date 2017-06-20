@@ -11,6 +11,7 @@
  * @author DeadbraiN
  */
 import Config    from './../global/Config';
+import Observer  from './../global/Observer';
 import World     from './../visual/World';
 import Organisms from './plugins/Organisms';
 /**
@@ -20,7 +21,7 @@ const PLUGINS = [
     Organisms
 ];
 
-export default class Manager {
+export default class Manager extends Observer {
     /**
      * Is called on every iteration in main loop. May be overridden in plugins
      * @abstract
@@ -28,6 +29,7 @@ export default class Manager {
     onIteration() {}
 
     constructor() {
+        super();
         this._world     = new World(Config.worldWidth, Config.worldHeight);
         this._positions = {};
         this._ips       = 0;
@@ -37,19 +39,21 @@ export default class Manager {
         this._initPlugins();
     }
 
+    /**
+     * Runs main infinite loop of application
+     */
     run () {
         let counter = 1;
-        let stamp   = Date.now();
+        let timer   = Date.now;
+        let stamp   = timer();
         let call    = this.zeroTimeout;
         let me      = this;
-        //
-        // Main loop of application
-        //
+
         function loop () {
-            me.onIteration();
+            me.onIteration(counter, stamp);
 
             counter++;
-            stamp = Date.now();
+            stamp = timer();
             call(loop);
         }
         call(loop);

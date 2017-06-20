@@ -10,17 +10,17 @@
 import Config from './Config';
 
 export default class Console {
-    static error(msg) {
+    static error(...msg) {
         if (this._mode === Config.QUIET_NO) {return;}
-        console.log(`%c${msg}`, 'background: #fff; color: #aa0000');
+        console.log(`%c${msg.join('')}`, 'background: #fff; color: #aa0000');
     }
-    static warn (msg) {
+    static warn (...msg) {
         if (this._mode === Config.QUIET_NO) {return;}
-        console.log(`%c${msg}`, 'background: #fff; color: #cc7a00');
+        console.log(`%c${msg.join('')}`, 'background: #fff; color: #cc7a00');
     }
-    static info (msg) {
+    static info (...msg) {
         if (this._mode !== Config.QUIET_ALL) {return;}
-        console.log(`%c${msg}`, 'background: #fff; color: #1a1a00');
+        console.log(`%c${msg.join('')}`, 'background: #fff; color: #1a1a00');
     }
     static mode (mode = Config.QUIET_IMPORTANT) {this._mode = mode;}
 }

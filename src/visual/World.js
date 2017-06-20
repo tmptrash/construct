@@ -42,7 +42,7 @@ export default class World extends Observer {
     setDot(x, y, color) {
         if (x < 0 || x >= this._width || y < 0 || y >= this._height) {return false;}
         this._data[x][y] = color;
-        this.fire('dot', x, y, color)
+        this.fire('dot', x, y, color);
 
         return true;
     }
@@ -53,7 +53,7 @@ export default class World extends Observer {
     }
 
     grabDot(x, y, amount) {
-        let dot = Math.min(this.getDot(x, y), amount)
+        let dot = Math.min(this.getDot(x, y), amount);
 
         if (dot > 0) {
             this.fire('dot', x, y, (this._data[x][y] -= dot));
@@ -92,8 +92,8 @@ export default class World extends Observer {
         ];
 
         for (let i = 0, j = 0; i < 8; i++) {
-            x = positions[j]
-            y = positions[j + 1]
+            x = positions[j];
+            y = positions[j + 1];
             if (this.getDot(x, y) === 0) {return {x: x, y: y};}
             j += 2;
         }
