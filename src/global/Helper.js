@@ -26,6 +26,17 @@ export default class Helper {
         }
         obj[fnName] = fn;
     }
+
+    /**
+     * Opposite to override. Removes overridden method.
+     * @param {Object} obj Destination object, we want to override
+     * @param {String} fnName Function name
+     * @param {Function} fn Destination function
+     */
+    static revert(obj, fnName, fn) {
+        obj[fnName] = fn.fn;
+        delete fn.fn;
+    }
     /**
      * Generates random Int number in range 0:n-1
      * @param {Number} n Right number value in a range

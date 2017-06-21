@@ -1,6 +1,46 @@
 describe("src/global/Helper", () => {
     let Helper = require('../../../src/global/Helper').default;
 
+    it("Checking override() method", () => {
+        class Tmp {method() {inc++;}}
+        function oMethod() {inc++;}
+        let inc = 0;
+        let tmp = new Tmp();
+
+        Helper.override(tmp, 'method', oMethod);
+        tmp.method();
+        expect(inc).toEqual(2);
+    });
+    it("Checking two override()/revert() method calls", () => {
+        class Tmp1 {method() {inc++;}}
+        function oMethod1()  {inc++;one++;}
+        function oMethod2()  {inc++;two++;}
+        let inc = 0;
+        let two = 0;
+        let one = 0;
+        let tmp = new Tmp1();
+
+        Helper.override(tmp, 'method', oMethod1);
+        Helper.override(tmp, 'method', oMethod2);
+        tmp.method();
+        expect(inc).toEqual(3);
+        expect(one).toEqual(1);
+        expect(two).toEqual(1);
+        //
+        // revert
+        //
+        Helper.revert(tmp, 'method', oMethod2);
+        tmp.method();
+        expect(inc).toEqual(5);
+        expect(one).toEqual(2);
+        expect(two).toEqual(1);
+
+        Helper.revert(tmp, 'method', oMethod1);
+        tmp.method();
+        expect(inc).toEqual(6);
+        expect(one).toEqual(2);
+        expect(two).toEqual(1);
+    });
     it("Checking rand(2)", () => {
         let val = Helper.rand(2);
         expect(val === 0 || val === 1).toEqual(true);
