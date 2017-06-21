@@ -1,5 +1,6 @@
 describe("src/global/Console", () => {
     let Console = require('../../../src/global/Console').default;
+    let Config  = require('../../../src/global/Config').default;
     let log;
     let inc = 0;
 
@@ -15,23 +16,23 @@ describe("src/global/Console", () => {
         Console.info("msg");
         expect(inc).toEqual(0);
     });
-    it("Checking info() with MODE_QUIET_ALL mode", () => {
+    it("Checking info() with QUIET_ALL mode", () => {
         inc = 0;
-        Console.mode(Console.MODE_QUIET_ALL);
+        Console.mode(Config.QUIET_ALL);
         Console.info("msg");
         expect(inc).toEqual(1);
         Console.mode(undefined);
     });
-    it("Checking info() with MODE_QUIET_IMPORTANT mode", () => {
+    it("Checking info() with QUIET_IMPORTANT mode", () => {
         inc = 0;
-        Console.mode(Console.MODE_QUIET_IMPORTANT);
+        Console.mode(Config.QUIET_IMPORTANT);
         Console.info("msg");
         expect(inc).toEqual(0);
         Console.mode(undefined);
     });
-    it("Checking info() with MODE_QUIET_NO mode", () => {
+    it("Checking info() with QUIET_NO mode", () => {
         inc = 0;
-        Console.mode(Console.MODE_QUIET_NO);
+        Console.mode(Config.QUIET_NO);
         Console.info("msg");
         expect(inc).toEqual(0);
         Console.mode(undefined);
@@ -42,23 +43,23 @@ describe("src/global/Console", () => {
         Console.warn("msg");
         expect(inc).toEqual(1);
     });
-    it("Checking warn() with MODE_QUIET_ALL mode", () => {
+    it("Checking warn() with QUIET_ALL mode", () => {
         inc = 0;
-        Console.mode(Console.MODE_QUIET_ALL);
+        Console.mode(Config.QUIET_ALL);
         Console.warn("msg");
         expect(inc).toEqual(1);
         Console.mode(undefined);
     });
-    it("Checking warn() with MODE_QUIET_IMPORTANT mode", () => {
+    it("Checking warn() with QUIET_IMPORTANT mode", () => {
         inc = 0;
-        Console.mode(Console.MODE_QUIET_IMPORTANT);
+        Console.mode(Config.QUIET_IMPORTANT);
         Console.warn("msg");
         expect(inc).toEqual(1);
         Console.mode(undefined);
     });
-    it("Checking warn() with MODE_QUIET_NO mode", () => {
+    it("Checking warn() with QUIET_NO mode", () => {
         inc = 0;
-        Console.mode(Console.MODE_QUIET_NO);
+        Console.mode(Config.QUIET_NO);
         Console.warn("msg");
         expect(inc).toEqual(0);
         Console.mode(undefined);
@@ -69,23 +70,23 @@ describe("src/global/Console", () => {
         Console.error("msg");
         expect(inc).toEqual(1);
     });
-    it("Checking error() with MODE_QUIET_ALL mode", () => {
+    it("Checking error() with QUIET_ALL mode", () => {
         inc = 0;
-        Console.mode(Console.MODE_QUIET_ALL);
+        Console.mode(Config.QUIET_ALL);
         Console.error("msg");
         expect(inc).toEqual(1);
         Console.mode(undefined);
     });
-    it("Checking error() with MODE_QUIET_IMPORTANT mode", () => {
+    it("Checking error() with QUIET_IMPORTANT mode", () => {
         inc = 0;
-        Console.mode(Console.MODE_QUIET_IMPORTANT);
+        Console.mode(Config.QUIET_IMPORTANT);
         Console.error("msg");
         expect(inc).toEqual(1);
         Console.mode(undefined);
     });
-    it("Checking error() with MODE_QUIET_NO mode", () => {
+    it("Checking error() with QUIET_NO mode", () => {
         inc = 0;
-        Console.mode(Console.MODE_QUIET_NO);
+        Console.mode(Config.QUIET_NO);
         Console.error("msg");
         expect(inc).toEqual(0);
         Console.mode(undefined);
