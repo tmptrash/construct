@@ -48,33 +48,30 @@ export default class Organisms {
      * @private
      */
     _onIteration(counter, stamp) {
-        const alivePeriod    = Config.orgAlivePeriod;
-        const checkAge       = alivePeriod > 0;
-        const minOrgs        = Config.worldMinOrgs;
-        const orgs           = this._orgs;
-        const checkMutations = Config.orgRainMutationPeriod > 0;
-        const needClone      = Config.orgClonePeriod === 0 ? false : counter % Config.orgClonePeriod === 0;
-        let   orgAmount      = orgs.length;
+        const orgs      = this._orgs;
+        const orgAmount = orgs.length;
         let   org;
 
         for (let i = 0; i < orgAmount; i++) {
-            if ((org = orgs[i]).alive === false) {continue;}
+            org = orgs[i];
+            if (org.alive === false) {continue;}
             org.run();
-            if (org.energy < 1 || checkAge && org.age > alivePeriod && this._orgAmount() > minOrgs) {this._kill(i); continue;}
-            if (checkMutations && org.mutationPeriod > 0 && counter % org.mutationPeriod === 0)     {this._mutate(org, false);}
+            this._updateKill(org);
+            if (org.alive === false) {continue;}
+            this._updateMutate(org, counter);
             this._manager.fire('organism', org);
         }
 
-        if ((orgAmount = this._orgAmount()) < 1) {this._create();}
-        if (needClone && orgAmount > 0 && orgAmount < Config.worldMaxOrgs) {this._clone();}
-        if (Config.orgEnergySpendPeriod && counter % Config.orgEnergySpendPeriod === 0) {this._updateEnergy();}
+        this._updateCreate();
+        this._updateClone(counter);
+        this._updateEnergy(counter);
         this._updateIps(stamp);
     }
 
     _updateIps(stamp) {
         const orgs = this._orgAmount();
         const ts   = stamp - this._stamp;
-        let ips;
+        let   ips;
 
         this._codeRuns += orgs;
         if (ts < Config.worldIpsPeriodMs) {return;}
@@ -94,23 +91,54 @@ export default class Organisms {
         return this._orgs.length - this._killed.size();
     }
 
+    _updateKill(org) {
+        const alivePeriod = Config.orgAlivePeriod;
+        const checkAge    = alivePeriod > 0;
+
+        if (org.energy < 1 || checkAge && org.age > alivePeriod && this._orgAmount() > Config.worldMinOrgs) {
+            this._kill(org.id);
+        }
+    }
+
     _kill(index) {
 
+    }
+
+    _updateMutate(org, counter) {
+        if (Config.orgRainMutationPeriod > 0 && org.mutationPeriod > 0 && counter % org.mutationPeriod === 0) {
+            this._mutate(org, false);
+        }
     }
 
     _mutate(org, clone = true) {
         //const mutationPercents = org.mutationPercents;
     }
 
+    _updateCreate() {
+        if (this._orgAmount() < 1) {
+            this._create();
+        }
+    }
+
     _create() {
 
     }
 
+    _updateClone(counter) {
+        const orgAmount = this._orgAmount();
+        const needClone = Config.orgClonePeriod === 0 ? false : counter % Config.orgClonePeriod === 0;
+
+        if (needClone && orgAmount > 0 && orgAmount < Config.worldMaxOrgs) {
+            this._clone();
+        }
+    }
     _clone() {
 
     }
 
-    _updateEnergy() {
+    _updateEnergy(counter) {
+        if (Config.orgEnergySpendPeriod && counter % Config.orgEnergySpendPeriod === 0) {
 
+        }
     }
 }
