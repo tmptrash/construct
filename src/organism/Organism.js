@@ -33,13 +33,13 @@ export default class Organism extends Observer {
         this._gen                  = this._compiled();
     }
 
-    get alive() {return this._alive;}
-
-    get x() {return this._x;}
-
-    get y() {return this._y;}
-
-    get id() {return this._id;}
+    get alive()          {return this._alive;}
+    get x()              {return this._x;}
+    get y()              {return this._y;}
+    get id()             {return this._id;}
+    get age()            {return this._age;}
+    get energy()         {return this._energy;}
+    get mutationPeriod() {return this._mutationPeriod;}
 
     /**
      * Runs one code iteration and returns

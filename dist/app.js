@@ -456,15 +456,15 @@ class Observer {
     off (event, handler) {
         let index;
 
-        if (!this._handlers[event] || (index = this._handlers[event].indexOf(handler)) < 0) {return false;}
+        if (this._handlers[event] === undefined || (index = this._handlers[event].indexOf(handler)) < 0) {return false;}
         this._handlers[event].splice(index, 1);
-        if (!this._handlers[event].length) {delete this._handlers[event];}
+        if (this._handlers[event].length === 0) {delete this._handlers[event];}
 
         return true;
     }
 
     fire (event, ...args) {
-        if (!this._handlers[event]) {return false;}
+        if (this._handlers[event] === undefined) {return false;}
 
         for (let handler of this._handlers[event]) {handler(...args);}
 
@@ -510,6 +510,17 @@ class Helper {
             return;
         }
         obj[fnName] = fn;
+    }
+
+    /**
+     * Opposite to override. Removes overridden method.
+     * @param {Object} obj Destination object, we want to override
+     * @param {String} fnName Function name
+     * @param {Function} fn Destination function
+     */
+    static revert(obj, fnName, fn) {
+        obj[fnName] = fn.fn;
+        delete fn.fn;
     }
     /**
      * Generates random Int number in range 0:n-1
@@ -821,7 +832,8 @@ class Console {
  * Plugin for Manager module, which handles organisms population
  *
  * Events:
- *   ips(ips) Fires if IPS has changed
+ *   ips(ips)      Fires if IPS has changed
+ *   organism(org) Fires after one organism has processed
  *
  * @author DeadbraiN
  */
@@ -852,6 +864,8 @@ class Organisms {
 
         for (let i = 0; i < worldMaxOrgs; i++) {
             this._orgs[i] = new __WEBPACK_IMPORTED_MODULE_3__organism_Organism__["a" /* default */](i, 0, 0, true);
+            // TODO: at the beginning all organisms should be killed
+            // TODO: i have to use createOrganisms() method for that
             //this._killed.push(i);
         }
     }
@@ -864,30 +878,70 @@ class Organisms {
      * @private
      */
     _onIteration(counter, stamp) {
-        for (let t of this._orgs) {
-            if (t.alive === true) {
-                t.run();
-            }
+        const alivePeriod    = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgAlivePeriod;
+        const checkAge       = alivePeriod > 0;
+        const minOrgs        = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMinOrgs;
+        const orgs           = this._orgs;
+        const checkMutations = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgRainMutationPeriod > 0;
+        const needClone      = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgClonePeriod === 0 ? false : counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgClonePeriod === 0;
+        let   orgAmount      = orgs.length;
+        let   org;
+
+        for (let i = 0; i < orgAmount; i++) {
+            if ((org = orgs[i]).alive === false) {continue;}
+            org.run();
+            if (org.energy < 1 || checkAge && org.age > alivePeriod && this._orgAmount() > minOrgs) {this._kill(i); continue;}
+            if (checkMutations && org.mutationPeriod > 0 && counter % org.mutationPeriod === 0)     {this._mutate(org, false);}
+            this._manager.fire('organism', org);
         }
+
+        if ((orgAmount = this._orgAmount()) < 1) {this._create();}
+        if (needClone && orgAmount > 0 && orgAmount < __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {this._clone();}
+        if (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgEnergySpendPeriod && counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgEnergySpendPeriod === 0) {this._updateEnergy();}
         this._updateIps(stamp);
     }
 
     _updateIps(stamp) {
         const orgs = this._orgAmount();
         const ts   = stamp - this._stamp;
+        let ips;
 
         this._codeRuns += orgs;
         if (ts < __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldIpsPeriodMs) {return;}
-        let ips = this._codeRuns / orgs / (ts / 1000);
-
+        ips = this._codeRuns / orgs / (ts / 1000);
         __WEBPACK_IMPORTED_MODULE_4__global_Console__["a" /* default */].warn('ips: ', ips);
         this._manager.fire('ips', ips);
-        this._codeRuns = 0;
-        this._stamp    = stamp;
+        this._codeRuns  = 0;
+        this._stamp     = stamp;
     }
 
+    /**
+     * Returns alive organisms amount
+     * @returns {number}
+     * @private
+     */
     _orgAmount() {
         return this._orgs.length - this._killed.size();
+    }
+
+    _kill(index) {
+
+    }
+
+    _mutate(org, clone = true) {
+        //const mutationPercents = org.mutationPercents;
+    }
+
+    _create() {
+
+    }
+
+    _clone() {
+
+    }
+
+    _updateEnergy() {
+
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Organisms;
@@ -936,13 +990,13 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
         this._gen                  = this._compiled();
     }
 
-    get alive() {return this._alive;}
-
-    get x() {return this._x;}
-
-    get y() {return this._y;}
-
-    get id() {return this._id;}
+    get alive()          {return this._alive;}
+    get x()              {return this._x;}
+    get y()              {return this._y;}
+    get id()             {return this._id;}
+    get age()            {return this._age;}
+    get energy()         {return this._energy;}
+    get mutationPeriod() {return this._mutationPeriod;}
 
     /**
      * Runs one code iteration and returns

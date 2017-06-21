@@ -21,15 +21,15 @@ export default class Observer {
     off (event, handler) {
         let index;
 
-        if (!this._handlers[event] || (index = this._handlers[event].indexOf(handler)) < 0) {return false;}
+        if (this._handlers[event] === undefined || (index = this._handlers[event].indexOf(handler)) < 0) {return false;}
         this._handlers[event].splice(index, 1);
-        if (!this._handlers[event].length) {delete this._handlers[event];}
+        if (this._handlers[event].length === 0) {delete this._handlers[event];}
 
         return true;
     }
 
     fire (event, ...args) {
-        if (!this._handlers[event]) {return false;}
+        if (this._handlers[event] === undefined) {return false;}
 
         for (let handler of this._handlers[event]) {handler(...args);}
 
