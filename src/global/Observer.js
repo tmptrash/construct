@@ -3,9 +3,10 @@
  * handlers
  *
  * Usage:
+ *   import Events from '.../Events.js'
  *   let bus = new Observer();
- *   bus.on('event', () => console.log(arguments));
- *   bus.fire('event', 1, 2, 3);
+ *   bus.on(Events.EVENT, () => console.log(arguments));
+ *   bus.fire(Events.EVENT, 1, 2, 3);
  *
  * @author DeadbraiN
  */

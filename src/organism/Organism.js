@@ -7,6 +7,7 @@
 import Config   from './../global/Config';
 import Stack    from './../global/Stack';
 import Observer from './../global/Observer';
+import Events   from './../global/Events';
 
 export default class Organism extends Observer {
     constructor(id, x, y, alive) {
@@ -91,7 +92,7 @@ export default class Organism extends Observer {
         const header1 = 'this.__compiled=function* dna(){var rand=Math.random;';
         const vars    = this._getVars();
         const header2 = ';while(true){yield;';
-        const footer  = '}}';
+        const footer  = ';this.fire(Events.CODE_END)}}';
 
         eval(header1 + vars + header2 + this._code.join(';') + footer);
 

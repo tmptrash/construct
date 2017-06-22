@@ -6,12 +6,14 @@
  *   organism(org) Fires after one organism has processed
  *
  * @author DeadbraiN
+ * TODO: we have to listen Events.CODE_END event to increase codeRuns and age fields of organism
  */
 import Helper   from './../../global/Helper';
 import Config   from './../../global/Config';
 import Stack    from './../../global/Stack';
-import Organism from './../../organism/Organism';
 import Console  from './../../global/Console';
+import Events   from './../../global/Events';
+import Organism from './../../organism/Organism';
 
 export default class Organisms {
     constructor(manager) {
@@ -42,7 +44,7 @@ export default class Organisms {
 
     /**
      * Override of Manager.onIteration() method. Is called on every
-     * iteration od main loop. The counter is an analog of time.
+     * iteration of main loop. The counter is an analog of time.
      * @param {Number} counter Value of main loop counter.
      * @param {Number} stamp Time stamp of current iteration
      * @private
@@ -50,21 +52,23 @@ export default class Organisms {
     _onIteration(counter, stamp) {
         const orgs      = this._orgs;
         const orgAmount = orgs.length;
+        const man       = this._manager;
         let   org;
 
         for (let i = 0; i < orgAmount; i++) {
             org = orgs[i];
-            if (org.alive === false) {continue;}
+            if (org.alive === false)     {continue;}
             org.run();
-            this._updateKill(org);
-            if (org.alive === false) {continue;}
-            this._updateMutate(org, counter);
-            this._manager.fire('organism', org);
+            man.fire(Events.ORGANISM, org);
+
+            if (this._updateKill(org))   {continue;}
+            if (this._updateClone(org))  {continue;}
+            if (this._updateEnergy(org)) {continue;}
+
+            this._updateMutate(org);
         }
 
         this._updateCreate();
-        this._updateClone(counter);
-        this._updateEnergy(counter);
         this._updateIps(stamp);
     }
 
@@ -77,7 +81,7 @@ export default class Organisms {
         if (ts < Config.worldIpsPeriodMs) {return;}
         ips = this._codeRuns / orgs / (ts / 1000);
         Console.warn('ips: ', ips);
-        this._manager.fire('ips', ips);
+        this._manager.fire(Events.IPS, ips);
         this._codeRuns  = 0;
         this._stamp     = stamp;
     }
@@ -98,14 +102,31 @@ export default class Organisms {
         if (org.energy < 1 || checkAge && org.age > alivePeriod && this._orgAmount() > Config.worldMinOrgs) {
             this._kill(org.id);
         }
+
+        return !org.alive;
     }
 
     _kill(index) {
 
     }
 
-    _updateMutate(org, counter) {
-        if (Config.orgRainMutationPeriod > 0 && org.mutationPeriod > 0 && counter % org.mutationPeriod === 0) {
+    _updateClone(org) {
+        const orgAmount = this._orgAmount();
+        const needClone = Config.orgClonePeriod === 0 ? false : org.age % Config.orgClonePeriod === 0;
+
+        if (needClone && orgAmount > 0 && orgAmount < Config.worldMaxOrgs) {
+            this._clone();
+        }
+
+        return !org.alive;
+    }
+
+    _clone() {
+
+    }
+
+    _updateMutate(org) {
+        if (Config.orgRainMutationPeriod > 0 && org.mutationPeriod > 0 && org.age % org.mutationPeriod === 0) {
             this._mutate(org, false);
         }
     }
@@ -124,21 +145,11 @@ export default class Organisms {
 
     }
 
-    _updateClone(counter) {
-        const orgAmount = this._orgAmount();
-        const needClone = Config.orgClonePeriod === 0 ? false : counter % Config.orgClonePeriod === 0;
-
-        if (needClone && orgAmount > 0 && orgAmount < Config.worldMaxOrgs) {
-            this._clone();
-        }
-    }
-    _clone() {
-
-    }
-
-    _updateEnergy(counter) {
-        if (Config.orgEnergySpendPeriod && counter % Config.orgEnergySpendPeriod === 0) {
+    _updateEnergy(org) {
+        if (Config.orgEnergySpendPeriod && org.age % Config.orgEnergySpendPeriod === 0) {
 
         }
+
+        return !org.alive;
     }
 }

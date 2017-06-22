@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 5);
+/******/ 	return __webpack_require__(__webpack_require__.s = 6);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -438,9 +438,10 @@ const Config = {
  * handlers
  *
  * Usage:
+ *   import Events from '.../Events.js'
  *   let bus = new Observer();
- *   bus.on('event', () => console.log(arguments));
- *   bus.fire('event', 1, 2, 3);
+ *   bus.on(Events.EVENT, () => console.log(arguments));
+ *   bus.fire(Events.EVENT, 1, 2, 3);
  *
  * @author DeadbraiN
  */
@@ -480,6 +481,61 @@ class Observer {
 
 /***/ }),
 /* 2 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/**
+ * List of all available event ids. New events should be added to
+ * the end of the list.
+ *
+ * @author DeadbraiN
+ * TODO: find unused and remove. But after main code is done.
+ */
+const Events = {
+    YIELD: 1,
+    ITERATION: 2,
+    IPS: 3,
+    REQUEST: 4,
+    BACKUP: 5,
+    YIELDTO: 6,
+    ORGANISM: 7,
+    GRAB_ENERGY: 8,
+    UPDATE_ENERGY: 9,
+    KILL_ORGANISM: 10,
+    MUTATIONS: 11,
+    CLONE: 12,
+    EAT_LEFT: 13,
+    EAT_RIGHT: 14,
+    EAT_UP: 15,
+    EAT_DOWN: 16,
+    STEP_LEFT: 17,
+    STEP_RIGHT: 18,
+    STEP_UP: 19,
+    STEP_DOWN: 20,
+    EAT_ORGANISM: 21,
+    EAT_ENERGY: 22,
+    BORN_ORGANISM: 23,
+    DOT_REQUEST: 24,
+    STEP_YIELD: 25,
+    BEFORE_RESPONSE: 26,
+    AFTER_REQUEST: 27,
+    GET_ENERGY: 28,
+    PROP_LEFT: 29,
+    PROP_RIGHT: 30,
+    PROP_UP: 31,
+    PROP_DOWN: 32,
+    DOT: 33,
+    MOVE: 34,
+    GRAB_LEFT: 35,
+    GRAB_RIGHT: 36,
+    GRAB_UP: 37,
+    GRAB_DOWN: 38
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (Events);
+
+/***/ }),
+/* 3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -593,7 +649,7 @@ class Helper {
 
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -645,14 +701,14 @@ class Stack {
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__visual_World__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__plugins_Organisms__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__visual_World__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__plugins_Organisms__ = __webpack_require__(8);
 /**
  * Main manager class of application. Contains all parts of jevo.js app
  * like World, Connection, Console etc... Runs infinite loop inside run()
@@ -763,12 +819,12 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_Manager__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_Manager__ = __webpack_require__(5);
 /**
  * This is an entry point of jevo.js application. Compiled version of
  * this file should be included into index.html
@@ -784,7 +840,7 @@ const manager = new __WEBPACK_IMPORTED_MODULE_0__manager_Manager__["a" /* defaul
 manager.run();
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -819,15 +875,16 @@ class Console {
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Stack__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__organism_Organism__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Console__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Stack__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Console__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Events__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_Organism__ = __webpack_require__(9);
 /**
  * Plugin for Manager module, which handles organisms population
  *
@@ -837,6 +894,7 @@ class Console {
  *
  * @author DeadbraiN
  */
+
 
 
 
@@ -863,7 +921,7 @@ class Organisms {
         this._killed = new __WEBPACK_IMPORTED_MODULE_2__global_Stack__["a" /* default */](worldMaxOrgs);
 
         for (let i = 0; i < worldMaxOrgs; i++) {
-            this._orgs[i] = new __WEBPACK_IMPORTED_MODULE_3__organism_Organism__["a" /* default */](i, 0, 0, true);
+            this._orgs[i] = new __WEBPACK_IMPORTED_MODULE_5__organism_Organism__["a" /* default */](i, 0, 0, true);
             // TODO: at the beginning all organisms should be killed
             // TODO: i have to use createOrganisms() method for that
             //this._killed.push(i);
@@ -872,7 +930,7 @@ class Organisms {
 
     /**
      * Override of Manager.onIteration() method. Is called on every
-     * iteration od main loop. The counter is an analog of time.
+     * iteration of main loop. The counter is an analog of time.
      * @param {Number} counter Value of main loop counter.
      * @param {Number} stamp Time stamp of current iteration
      * @private
@@ -880,21 +938,22 @@ class Organisms {
     _onIteration(counter, stamp) {
         const orgs      = this._orgs;
         const orgAmount = orgs.length;
+        const man       = this._manager;
         let   org;
 
         for (let i = 0; i < orgAmount; i++) {
-            org = orgs[i];
-            if (org.alive === false) {continue;}
+            if ((org = orgs[i]).alive === false)  {continue;}
             org.run();
-            this._updateKill(org);
-            if (org.alive === false) {continue;}
+            man.fire(__WEBPACK_IMPORTED_MODULE_4__global_Events__["a" /* default */].ORGANISM, org);
+
+            if (this._updateKill(org))            {continue;}
+            if (this._updateClone(org, counter))  {continue;}
+            if (this._updateEnergy(org, counter)) {continue;}
+
             this._updateMutate(org, counter);
-            this._manager.fire('organism', org);
         }
 
         this._updateCreate();
-        this._updateClone(counter);
-        this._updateEnergy(counter);
         this._updateIps(stamp);
     }
 
@@ -906,8 +965,8 @@ class Organisms {
         this._codeRuns += orgs;
         if (ts < __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldIpsPeriodMs) {return;}
         ips = this._codeRuns / orgs / (ts / 1000);
-        __WEBPACK_IMPORTED_MODULE_4__global_Console__["a" /* default */].warn('ips: ', ips);
-        this._manager.fire('ips', ips);
+        __WEBPACK_IMPORTED_MODULE_3__global_Console__["a" /* default */].warn('ips: ', ips);
+        this._manager.fire(__WEBPACK_IMPORTED_MODULE_4__global_Events__["a" /* default */].IPS, ips);
         this._codeRuns  = 0;
         this._stamp     = stamp;
     }
@@ -928,6 +987,8 @@ class Organisms {
         if (org.energy < 1 || checkAge && org.age > alivePeriod && this._orgAmount() > __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMinOrgs) {
             this._kill(org.id);
         }
+
+        return !org.alive;
     }
 
     _kill(index) {
@@ -954,34 +1015,38 @@ class Organisms {
 
     }
 
-    _updateClone(counter) {
+    _updateClone(org, counter) {
         const orgAmount = this._orgAmount();
         const needClone = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgClonePeriod === 0 ? false : counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgClonePeriod === 0;
 
         if (needClone && orgAmount > 0 && orgAmount < __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {
             this._clone();
         }
+
+        return !org.alive;
     }
     _clone() {
 
     }
 
-    _updateEnergy(counter) {
+    _updateEnergy(org, counter) {
         if (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgEnergySpendPeriod && counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgEnergySpendPeriod === 0) {
 
         }
+
+        return !org.alive;
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Organisms;
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Stack__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Stack__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Observer__ = __webpack_require__(1);
 /**
  * TODO: add description:
@@ -1088,12 +1153,13 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Observer__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(2);
 /**
  * 2D space, where all organisms are live. In reality this is
  * just a peace of memory, where all organisms are located. It
@@ -1113,6 +1179,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
  *
  * @author DeadbraiN
  */
+
 
 
 
@@ -1138,7 +1205,7 @@ class World extends __WEBPACK_IMPORTED_MODULE_0__global_Observer__["a" /* defaul
     setDot(x, y, color) {
         if (x < 0 || x >= this._width || y < 0 || y >= this._height) {return false;}
         this._data[x][y] = color;
-        this.fire('dot', x, y, color);
+        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].DOT, x, y, color);
 
         return true;
     }
@@ -1152,7 +1219,7 @@ class World extends __WEBPACK_IMPORTED_MODULE_0__global_Observer__["a" /* defaul
         let dot = Math.min(this.getDot(x, y), amount);
 
         if (dot > 0) {
-            this.fire('dot', x, y, (this._data[x][y] -= dot));
+            this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].DOT, x, y, (this._data[x][y] -= dot));
         }
 
         return dot;

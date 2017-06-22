@@ -19,6 +19,7 @@
  */
 import Observer from './../global/Observer';
 import Helper   from './../global/Helper';
+import Events   from './../global/Events';
 
 export default class World extends Observer {
     constructor (width, height) {
@@ -42,7 +43,7 @@ export default class World extends Observer {
     setDot(x, y, color) {
         if (x < 0 || x >= this._width || y < 0 || y >= this._height) {return false;}
         this._data[x][y] = color;
-        this.fire('dot', x, y, color);
+        this.fire(Events.DOT, x, y, color);
 
         return true;
     }
@@ -56,7 +57,7 @@ export default class World extends Observer {
         let dot = Math.min(this.getDot(x, y), amount);
 
         if (dot > 0) {
-            this.fire('dot', x, y, (this._data[x][y] -= dot));
+            this.fire(Events.DOT, x, y, (this._data[x][y] -= dot));
         }
 
         return dot;
