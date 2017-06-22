@@ -50,13 +50,9 @@ export default class Organisms {
      * @private
      */
     _onIteration(counter, stamp) {
-        const orgs      = this._orgs;
-        const orgAmount = orgs.length;
-        const man       = this._manager;
-        let   org;
+        const man = this._manager;
 
-        for (let i = 0; i < orgAmount; i++) {
-            org = orgs[i];
+        for (let org of this._orgs) {
             if (org.alive === false)     {continue;}
             org.run();
             man.fire(Events.ORGANISM, org);
@@ -64,7 +60,6 @@ export default class Organisms {
             if (this._updateKill(org))   {continue;}
             if (this._updateClone(org))  {continue;}
             if (this._updateEnergy(org)) {continue;}
-
             this._updateMutate(org);
         }
 
