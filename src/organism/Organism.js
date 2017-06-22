@@ -32,6 +32,7 @@ export default class Organism extends Observer {
         this._code                 = [];
         this._compiled             = this._compile(this._code);
         this._gen                  = this._compiled();
+        this._events               = Events;
     }
 
     get alive()          {return this._alive;}
@@ -89,10 +90,10 @@ export default class Organism extends Observer {
      * @private
      */
     _compile() {
-        const header1 = 'this.__compiled=function* dna(){var rand=Math.random;';
+        const header1 = 'this.__compiled=function* dna(){var endEvent=this._events.CODE_END;var rand=Math.random;';
         const vars    = this._getVars();
         const header2 = ';while(true){yield;';
-        const footer  = ';this.fire(Events.CODE_END)}}';
+        const footer  = ';this.fire(endEvent)}}';
 
         eval(header1 + vars + header2 + this._code.join(';') + footer);
 

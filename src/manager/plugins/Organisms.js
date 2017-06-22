@@ -2,8 +2,8 @@
  * Plugin for Manager module, which handles organisms population
  *
  * Events:
- *   ips(ips)      Fires if IPS has changed
- *   organism(org) Fires after one organism has processed
+ *   IPS(ips)      Fires if IPS has changed
+ *   ORGANISM(org) Fires after one organism has processed
  *
  * @author DeadbraiN
  * TODO: we have to listen Events.CODE_END event to increase codeRuns and age fields of organism
@@ -22,24 +22,11 @@ export default class Organisms {
         this._killed    = null;
         this._stamp     = Date.now();
         this._codeRuns  = 0;
+        this._positions = {};
 
         this._initTasks();
 
         Helper.override(manager, 'onIteration', this._onIteration.bind(this));
-    }
-
-    _initTasks () {
-        const worldMaxOrgs = Config.worldMaxOrgs;
-
-        this._orgs   = new Array(worldMaxOrgs);
-        this._killed = new Stack(worldMaxOrgs);
-
-        for (let i = 0; i < worldMaxOrgs; i++) {
-            this._orgs[i] = new Organism(i, 0, 0, true);
-            // TODO: at the beginning all organisms should be killed
-            // TODO: i have to use createOrganisms() method for that
-            //this._killed.push(i);
-        }
     }
 
     /**
@@ -54,6 +41,7 @@ export default class Organisms {
 
         for (let org of this._orgs) {
             if (org.alive === false)     {continue;}
+
             org.run();
             man.fire(Events.ORGANISM, org);
 
@@ -81,28 +69,15 @@ export default class Organisms {
         this._stamp     = stamp;
     }
 
-    /**
-     * Returns alive organisms amount
-     * @returns {number}
-     * @private
-     */
-    _orgAmount() {
-        return this._orgs.length - this._killed.size();
-    }
-
     _updateKill(org) {
         const alivePeriod = Config.orgAlivePeriod;
         const checkAge    = alivePeriod > 0;
 
         if (org.energy < 1 || checkAge && org.age > alivePeriod && this._orgAmount() > Config.worldMinOrgs) {
-            this._kill(org.id);
+            this._kill(org);
         }
 
         return !org.alive;
-    }
-
-    _kill(index) {
-
     }
 
     _updateClone(org) {
@@ -116,18 +91,10 @@ export default class Organisms {
         return !org.alive;
     }
 
-    _clone() {
-
-    }
-
     _updateMutate(org) {
         if (Config.orgRainMutationPeriod > 0 && org.mutationPeriod > 0 && org.age % org.mutationPeriod === 0) {
             this._mutate(org, false);
         }
-    }
-
-    _mutate(org, clone = true) {
-        //const mutationPercents = org.mutationPercents;
     }
 
     _updateCreate() {
@@ -136,15 +103,64 @@ export default class Organisms {
         }
     }
 
-    _create() {
-
-    }
-
     _updateEnergy(org) {
         if (Config.orgEnergySpendPeriod && org.age % Config.orgEnergySpendPeriod === 0) {
 
         }
 
         return !org.alive;
+    }
+
+    _kill(org) {
+        if (org.alive === false) {return false;}
+
+        org.energy = 0;
+        org.color  = 0;
+        org.alive  = false;
+        org.clear();
+        this._killed.push(org.id);
+        this._move();
+        delete this._positions[this._manager.getPosId(org)];
+        this._manager.fire(Events.KILL_ORGANISM, org);
+        Console.warn(org.id, ' die');
+
+        return true;
+    }
+
+    _clone() {
+
+    }
+
+    _mutate(org, clone = true) {
+        //const mutationPercents = org.mutationPercents;
+    }
+
+    _create() {
+
+    }
+
+    _move() {}
+
+    /**
+     * Returns alive organisms amount
+     * @returns {number}
+     * @private
+     */
+    _orgAmount() {
+        return this._orgs.length - this._killed.size();
+    }
+
+    _initTasks () {
+        const worldMaxOrgs = Config.worldMaxOrgs;
+
+        this._orgs   = new Array(worldMaxOrgs);
+        this._killed = new Stack(worldMaxOrgs);
+
+        for (let i = 0; i < worldMaxOrgs; i++) {
+            this._orgs[i] = new Organism(i, 0, 0, true);
+            // TODO: at the beginning all organisms should be killed
+            // TODO: i have to use createOrganisms() method for that
+            //this._killed.push(i);
+        }
     }
 }

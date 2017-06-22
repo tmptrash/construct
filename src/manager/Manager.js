@@ -31,13 +31,14 @@ export default class Manager extends Observer {
     constructor() {
         super();
         this._world     = new World(Config.worldWidth, Config.worldHeight);
-        this._positions = {};
         this._ips       = 0;
         this._plugins   = new Array(PLUGINS.length);
 
         this._initLoop();
         this._initPlugins();
     }
+
+    get world() {return this._world;}
 
     /**
      * Runs main infinite loop of application
@@ -59,6 +60,9 @@ export default class Manager extends Observer {
         call(loop);
     }
 
+    getPosId(org) {
+        return org.y * this._world.width + this.x;
+    }
 
     /**
      * This hacky function is obtained from here: https://dbaron.org/log/20100309-faster-timeouts
