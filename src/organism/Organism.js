@@ -42,6 +42,7 @@ export default class Organism extends Observer {
     get age()            {return this._age;}
     get energy()         {return this._energy;}
     get mutationPeriod() {return this._mutationPeriod;}
+    get mutations()      {return this._mutations;}
 
     /**
      * Runs one code iteration and returns

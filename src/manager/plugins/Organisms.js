@@ -40,14 +40,14 @@ export default class Organisms {
         const man = this._manager;
 
         for (let org of this._orgs) {
-            if (org.alive === false)     {continue;}
+            if (org.alive === false)             {continue;}
 
             org.run();
             man.fire(Events.ORGANISM, org);
 
-            if (this._updateKill(org))   {continue;}
-            if (this._updateClone(org))  {continue;}
-            if (this._updateEnergy(org)) {continue;}
+            if (this._updateKill(org))           {continue;}
+            if (this._updateClone(org, counter)) {continue;}
+            if (this._updateEnergy(org))         {continue;}
             this._updateMutate(org);
         }
 
@@ -80,13 +80,26 @@ export default class Organisms {
         return !org.alive;
     }
 
-    _updateClone(org) {
+    /**
+     * Cloning parents are chosen according two tournament principle
+     * @param {Number} counter Current counter
+     * @returns {boolean}
+     * @private
+     */
+    _updateClone(org, counter) {
         const orgAmount = this._orgAmount();
-        const needClone = Config.orgClonePeriod === 0 ? false : org.age % Config.orgClonePeriod === 0;
+        const needClone = Config.orgClonePeriod === 0 ? false : counter % Config.orgClonePeriod === 0;
+        if (!needClone || orgAmount < 1 || orgAmount >= Config.worldMaxOrgs) {return !org.alive;}
 
-        if (needClone && orgAmount > 0 && orgAmount < Config.worldMaxOrgs) {
-            this._clone();
+        let org1 = this._orgs[Helper.rand(orgAmount)];
+        let org2 = this._orgs[Helper.rand(orgAmount)];
+
+        if (!org1.alive && !org2.alive) {return false;}
+        if ((org2.alive && !org1.alive) || (org2.energy * org2.mutations > org1.energy * org1.mutations)) {
+            [org1, org2] = [org2, org1];
         }
+        if (org2.alive && orgAmount >= Config.worldMaxOrgs) {this._kill(org2);}
+        this._clone();
 
         return !org.alive;
     }
@@ -119,7 +132,7 @@ export default class Organisms {
         org.alive  = false;
         org.clear();
         this._killed.push(org.id);
-        this._move();
+        this._move(org.x, org.y, org.x, org.y);
         delete this._positions[this._manager.getPosId(org)];
         this._manager.fire(Events.KILL_ORGANISM, org);
         Console.warn(org.id, ' die');
@@ -139,7 +152,9 @@ export default class Organisms {
 
     }
 
-    _move() {}
+    _move(x1, y1, x2, y2) {
+
+    }
 
     /**
      * Returns alive organisms amount
