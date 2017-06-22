@@ -40,17 +40,17 @@ export default class Organisms {
         const man = this._manager;
 
         for (let org of this._orgs) {
-            if (org.alive === false)             {continue;}
+            if (org.alive === false)     {continue;}
 
             org.run();
             man.fire(Events.ORGANISM, org);
 
-            if (this._updateKill(org))           {continue;}
-            if (this._updateClone(org, counter)) {continue;}
-            if (this._updateEnergy(org))         {continue;}
+            if (this._updateKill(org))   {continue;}
+            if (this._updateEnergy(org)) {continue;}
             this._updateMutate(org);
         }
 
+        this._updateClone(counter);
         this._updateCreate();
         this._updateIps(stamp);
     }
@@ -86,10 +86,10 @@ export default class Organisms {
      * @returns {boolean}
      * @private
      */
-    _updateClone(org, counter) {
+    _updateClone(counter) {
         const orgAmount = this._orgAmount();
         const needClone = Config.orgClonePeriod === 0 ? false : counter % Config.orgClonePeriod === 0;
-        if (!needClone || orgAmount < 1 || orgAmount >= Config.worldMaxOrgs) {return !org.alive;}
+        if (!needClone || orgAmount < 1 || orgAmount >= Config.worldMaxOrgs) {return false;}
 
         let org1 = this._orgs[Helper.rand(orgAmount)];
         let org2 = this._orgs[Helper.rand(orgAmount)];
@@ -99,9 +99,9 @@ export default class Organisms {
             [org1, org2] = [org2, org1];
         }
         if (org2.alive && orgAmount >= Config.worldMaxOrgs) {this._kill(org2);}
-        this._clone();
+        this._clone(org1);
 
-        return !org.alive;
+        return true;
     }
 
     _updateMutate(org) {
@@ -140,7 +140,7 @@ export default class Organisms {
         return true;
     }
 
-    _clone() {
+    _clone(org) {
 
     }
 
