@@ -16,6 +16,7 @@ export default class Organism extends Observer {
         this._x                    = x;
         this._y                    = y;
         this._alive                = alive;
+        this._item                 = null;
 
         this._mutationProbs        = Config.orgMutationProbs;
         this._mutationClonePercent = Config.orgCloneMutation;
@@ -43,12 +44,26 @@ export default class Organism extends Observer {
     get energy()         {return this._energy;}
     get mutationPeriod() {return this._mutationPeriod;}
     get mutations()      {return this._mutations;}
+    get posId()          {return this._y * Config.worldWidth + this._x;}
+    set item(it)         {this._item = it;}
+    get item()           {return this._item;}
 
     /**
      * Runs one code iteration and returns
      */
     run() {
         this._gen.next();
+    }
+
+    /**
+     * @override
+     */
+    destroy() {
+        this._mem      = null;
+        this._code     = null;
+        this._compiled = null;
+        this._gen      = null;
+        this.clear();
     }
 
     getEnergy() {}
@@ -94,7 +109,7 @@ export default class Organism extends Observer {
         const header1 = 'this.__compiled=function* dna(){var endEvent=this._events.CODE_END;var rand=Math.random;';
         const vars    = this._getVars();
         const header2 = ';while(true){yield;';
-        const footer  = ';this.fire(endEvent)}}';
+        const footer  = ';this._age++;this.fire(endEvent)}}';
 
         eval(header1 + vars + header2 + this._code.join(';') + footer);
 

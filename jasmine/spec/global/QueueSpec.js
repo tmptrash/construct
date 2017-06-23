@@ -81,4 +81,12 @@ describe('src/global/Queue', () => {
         expect(first === q.first.next.prev).toEqual(true);
         expect(first.next.next.next).toEqual(null);
     });
+
+    it('Checking getting item by index', () => {
+        for (let i=0; i<10; i++) {q.add(i);}
+        expect(q.get(3).val).toEqual(3);
+        expect(q.get(0).val).toEqual(0);
+        expect(q.get(9).val).toEqual(9);
+        expect(q.get(10)).toEqual(null);
+    });
 });

@@ -6,7 +6,6 @@
  *   ORGANISM(org) Fires after one organism has processed
  *
  * @author DeadbraiN
- * TODO: we have to listen Events.CODE_END event to increase codeRuns and age fields of organism
  */
 import Helper   from './../../global/Helper';
 import Config   from './../../global/Config';
@@ -22,6 +21,7 @@ export default class Organisms {
         this._stamp     = Date.now();
         this._codeRuns  = 0;
         this._positions = {};
+        this._orgId     = 0;
 
         this._createPopulation();
 
@@ -63,7 +63,6 @@ export default class Organisms {
         const ts   = stamp - this._stamp;
         let   ips;
 
-        this._codeRuns += orgs;
         if (ts < Config.worldIpsPeriodMs) {return;}
         ips = this._codeRuns / orgs / (ts / 1000);
         Console.warn('ips: ', ips);
@@ -128,19 +127,11 @@ export default class Organisms {
     }
 
     _kill(org) {
-        // TODO: Check if we have no memory leaks after killing
-        if (org.alive === false) {return false;}
-
-        org.energy = 0;
-        org.color  = 0;
-        org.alive  = false;
-        org.clear();
-        this._move(org.x, org.y, org.x, org.y);
-        delete this._positions[this._manager.getPosId(org)];
         this._manager.fire(Events.KILL_ORGANISM, org);
-        Console.warn(org.id, ' die');
-
-        return true;
+        this._orgs.del(org.item);
+        delete this._positions[org.posId];
+        org.destroy();
+        Console.info(org.id, ' die');
     }
 
     _clone(org) {
@@ -152,19 +143,37 @@ export default class Organisms {
     }
 
     _createPopulation() {
-        const orgStartAmount = Config.orgStartAmount;
-        let   orgs = this._orgs;
-
-        for (let i = 0; i < orgStartAmount; i++) {
-            orgs.add(new Organism(i, 0, 0, true));
+        for (let i = 0; i < Config.orgStartAmount; i++) {
+            this._createOrg();
         }
     }
 
-    _createOrg() {
+    _createOrg(pos = false) {
+        if (this._orgs.size >= Config.worldMaxOrgs) {return false;}
+        pos = pos === false ? this._manager.world.getFreePos() : pos;
+        if (pos === false) {return false;}
+        let org = new Organism(++this._orgId, pos.x, pos.y, true);
 
+        this._bindEvents(org);
+        this._move(pos.x, pos.y, pos.x, pos.y);
+        this._positions[org.posId] = org;
+        this._orgs.add(org);
+        org.item = this._orgs.last;
+        this._manager.fire(Events.BORN_ORGANISM, org);
+        Console.info(org.id, ' born');
+
+        return true;
     }
 
     _move(x1, y1, x2, y2) {
 
+    }
+
+    _bindEvents(org) {
+        org.on(Events.CODE_END, this._onCodeEnd.bind(this));
+    }
+
+    _onCodeEnd() {
+        this._codeRuns++;
     }
 }

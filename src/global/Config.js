@@ -132,10 +132,6 @@ const Config = {
      */
     codeLoopAmount: 8,
     /**
-     * {Number} Amount of organisms entire code runs per some period of time
-     */
-    codeRuns: 0,
-    /**
      * {Number} If organism reach this limit of amount of code lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
      * because our CPU's are slow and organisms with big codes are very slow. But

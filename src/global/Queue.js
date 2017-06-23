@@ -21,6 +21,7 @@ export default class Queue {
     }
 
     get first() {return this._first;}
+    get last()  {return this._last;}
     get size()  {return this._size;}
 
     /**
@@ -62,7 +63,7 @@ export default class Queue {
 
     get(index) {
         let item = this._first;
-        while (--index > 0) {item = item.next;}
+        while (--index > -1 && item) {item = item.next;}
         return item;
     }
 }

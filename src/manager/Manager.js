@@ -60,10 +60,6 @@ export default class Manager extends Observer {
         call(loop);
     }
 
-    getPosId(org) {
-        return org.y * this._world.width + this.x;
-    }
-
     /**
      * This hacky function is obtained from here: https://dbaron.org/log/20100309-faster-timeouts
      * It runs a setTimeout() based infinite loop, but faster, then simply using native setTimeout().

@@ -139,7 +139,7 @@ const Config = {
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 900,
+    orgStartAmount: 300,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without code) organism were created
@@ -204,10 +204,6 @@ const Config = {
      * {Number} Amount of iterations in a loop (for operator)
      */
     codeLoopAmount: 8,
-    /**
-     * {Number} Amount of organisms entire code runs per some period of time
-     */
-    codeRuns: 0,
     /**
      * {Number} If organism reach this limit of amount of code lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
@@ -720,10 +716,6 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
         call(loop);
     }
 
-    getPosId(org) {
-        return org.y * this._world.width + this.x;
-    }
-
     /**
      * This hacky function is obtained from here: https://dbaron.org/log/20100309-faster-timeouts
      * It runs a setTimeout() based infinite loop, but faster, then simply using native setTimeout().
@@ -855,6 +847,7 @@ class Queue {
     }
 
     get first() {return this._first;}
+    get last()  {return this._last;}
     get size()  {return this._size;}
 
     /**
@@ -896,7 +889,7 @@ class Queue {
 
     get(index) {
         let item = this._first;
-        while (--index > 0) {item = item.next;}
+        while (--index > -1 && item) {item = item.next;}
         return item;
     }
 }
@@ -974,7 +967,6 @@ class Stack {
  *   ORGANISM(org) Fires after one organism has processed
  *
  * @author DeadbraiN
- * TODO: we have to listen Events.CODE_END event to increase codeRuns and age fields of organism
  */
 
 
@@ -990,6 +982,7 @@ class Organisms {
         this._stamp     = Date.now();
         this._codeRuns  = 0;
         this._positions = {};
+        this._orgId     = 0;
 
         this._createPopulation();
 
@@ -1031,7 +1024,6 @@ class Organisms {
         const ts   = stamp - this._stamp;
         let   ips;
 
-        this._codeRuns += orgs;
         if (ts < __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldIpsPeriodMs) {return;}
         ips = this._codeRuns / orgs / (ts / 1000);
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('ips: ', ips);
@@ -1096,19 +1088,11 @@ class Organisms {
     }
 
     _kill(org) {
-        // TODO: Check if we have no memory leaks after killing
-        if (org.alive === false) {return false;}
-
-        org.energy = 0;
-        org.color  = 0;
-        org.alive  = false;
-        org.clear();
-        this._move(org.x, org.y, org.x, org.y);
-        delete this._positions[this._manager.getPosId(org)];
         this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].KILL_ORGANISM, org);
-        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn(org.id, ' die');
-
-        return true;
+        this._orgs.del(org.item);
+        delete this._positions[org.posId];
+        org.destroy();
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].info(org.id, ' die');
     }
 
     _clone(org) {
@@ -1120,20 +1104,38 @@ class Organisms {
     }
 
     _createPopulation() {
-        const orgStartAmount = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgStartAmount;
-        let   orgs = this._orgs;
-
-        for (let i = 0; i < orgStartAmount; i++) {
-            orgs.add(new __WEBPACK_IMPORTED_MODULE_5__organism_Organism__["a" /* default */](i, 0, 0, true));
+        for (let i = 0; i < __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgStartAmount; i++) {
+            this._createOrg();
         }
     }
 
-    _createOrg() {
+    _createOrg(pos = false) {
+        if (this._orgs.size >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {return false;}
+        pos = pos === false ? this._manager.world.getFreePos() : pos;
+        if (pos === false) {return false;}
+        let org = new __WEBPACK_IMPORTED_MODULE_5__organism_Organism__["a" /* default */](++this._orgId, pos.x, pos.y, true);
 
+        this._bindEvents(org);
+        this._move(pos.x, pos.y, pos.x, pos.y);
+        this._positions[org.posId] = org;
+        this._orgs.add(org);
+        org.item = this._orgs.last;
+        this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].BORN_ORGANISM, org);
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].info(org.id, ' born');
+
+        return true;
     }
 
     _move(x1, y1, x2, y2) {
 
+    }
+
+    _bindEvents(org) {
+        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].CODE_END, this._onCodeEnd.bind(this));
+    }
+
+    _onCodeEnd() {
+        this._codeRuns++;
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Organisms;
@@ -1166,6 +1168,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
         this._x                    = x;
         this._y                    = y;
         this._alive                = alive;
+        this._item                 = null;
 
         this._mutationProbs        = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgMutationProbs;
         this._mutationClonePercent = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgCloneMutation;
@@ -1193,12 +1196,26 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
     get energy()         {return this._energy;}
     get mutationPeriod() {return this._mutationPeriod;}
     get mutations()      {return this._mutations;}
+    get posId()          {return this._y * __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldWidth + this._x;}
+    set item(it)         {this._item = it;}
+    get item()           {return this._item;}
 
     /**
      * Runs one code iteration and returns
      */
     run() {
         this._gen.next();
+    }
+
+    /**
+     * @override
+     */
+    destroy() {
+        this._mem      = null;
+        this._code     = null;
+        this._compiled = null;
+        this._gen      = null;
+        this.clear();
     }
 
     getEnergy() {}
@@ -1244,7 +1261,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
         const header1 = 'this.__compiled=function* dna(){var endEvent=this._events.CODE_END;var rand=Math.random;';
         const vars    = this._getVars();
         const header2 = ';while(true){yield;';
-        const footer  = ';this.fire(endEvent)}}';
+        const footer  = ';this._age++;this.fire(endEvent)}}';
 
         eval(header1 + vars + header2 + this._code.join(';') + footer);
 
