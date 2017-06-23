@@ -1,5 +1,6 @@
 describe("src/visual/World", () => {
-    let World = require('../../../src/visual/World').default;
+    let World  = require('../../../src/visual/World').default;
+    let Events = require('../../../src/global/Events').default;
 
     it("Checking world creation", () => {
         let world = new World(10, 10);
@@ -176,13 +177,13 @@ describe("src/visual/World", () => {
         world.destroy();
     });
 
-    it("Checking 'dot' event with setDot() method", () => {
+    it("Checking DOT event with setDot() method", () => {
         let width  = 10;
         let height = 10;
         let world  = new World(width, height);
         let inc    = 0;
 
-        world.on('dot', (x,y,c) => {
+        world.on(Events.DOT, (x,y,c) => {
             expect(x).toEqual(3);
             expect(y).toEqual(4);
             expect(c).toEqual(2);
@@ -193,13 +194,13 @@ describe("src/visual/World", () => {
 
         world.destroy();
     });
-    it("Checking 'dot' event with grabDot() method", () => {
+    it("Checking DOT event with grabDot() method", () => {
         let width  = 10;
         let height = 10;
         let world  = new World(width, height);
         let inc    = 0;
 
-        world.on('dot', (x,y,c) => {
+        world.on(Events.DOT, (x,y,c) => {
             expect(c).toEqual(2 - inc);
             expect(x).toEqual(3);
             expect(y).toEqual(4);

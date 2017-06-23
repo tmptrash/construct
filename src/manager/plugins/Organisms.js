@@ -10,21 +10,20 @@
  */
 import Helper   from './../../global/Helper';
 import Config   from './../../global/Config';
-import Stack    from './../../global/Stack';
 import Console  from './../../global/Console';
 import Events   from './../../global/Events';
+import Queue    from './../../global/Queue';
 import Organism from './../../organism/Organism';
 
 export default class Organisms {
     constructor(manager) {
         this._manager   = manager;
-        this._orgs      = null;
-        this._killed    = null;
+        this._orgs      = new Queue();
         this._stamp     = Date.now();
         this._codeRuns  = 0;
         this._positions = {};
 
-        this._initTasks();
+        this._createPopulation();
 
         Helper.override(manager, 'onIteration', this._onIteration.bind(this));
     }
@@ -37,17 +36,21 @@ export default class Organisms {
      * @private
      */
     _onIteration(counter, stamp) {
-        const man = this._manager;
+        const man  = this._manager;
+        let   item = this._orgs.first;
+        let   org;
 
-        for (let org of this._orgs) {
-            if (org.alive === false)     {continue;}
+        while (item) {
+            if ((org = item.val).alive === false) {continue;}
 
             org.run();
             man.fire(Events.ORGANISM, org);
 
-            if (this._updateKill(org))   {continue;}
-            if (this._updateEnergy(org)) {continue;}
+            if (this._updateKill(org))            {continue;}
+            if (this._updateEnergy(org))          {continue;}
             this._updateMutate(org);
+
+            item = item.next;
         }
 
         this._updateClone(counter);
@@ -56,7 +59,7 @@ export default class Organisms {
     }
 
     _updateIps(stamp) {
-        const orgs = this._orgAmount();
+        const orgs = this._orgs.size;
         const ts   = stamp - this._stamp;
         let   ips;
 
@@ -73,7 +76,7 @@ export default class Organisms {
         const alivePeriod = Config.orgAlivePeriod;
         const checkAge    = alivePeriod > 0;
 
-        if (org.energy < 1 || checkAge && org.age > alivePeriod && this._orgAmount() > Config.worldMinOrgs) {
+        if (org.energy < 1 || checkAge && org.age > alivePeriod && this._orgs.size > Config.worldMinOrgs) {
             this._kill(org);
         }
 
@@ -87,12 +90,12 @@ export default class Organisms {
      * @private
      */
     _updateClone(counter) {
-        const orgAmount = this._orgAmount();
+        const orgAmount = this._orgs.size;
         const needClone = Config.orgClonePeriod === 0 ? false : counter % Config.orgClonePeriod === 0;
         if (!needClone || orgAmount < 1 || orgAmount >= Config.worldMaxOrgs) {return false;}
 
-        let org1 = this._orgs[Helper.rand(orgAmount)];
-        let org2 = this._orgs[Helper.rand(orgAmount)];
+        let org1 = this._orgs.get(Helper.rand(orgAmount));
+        let org2 = this._orgs.get(Helper.rand(orgAmount));
 
         if (!org1.alive && !org2.alive) {return false;}
         if ((org2.alive && !org1.alive) || (org2.energy * org2.mutations > org1.energy * org1.mutations)) {
@@ -111,8 +114,8 @@ export default class Organisms {
     }
 
     _updateCreate() {
-        if (this._orgAmount() < 1) {
-            this._create();
+        if (this._orgs.size < 1) {
+            this._createPopulation();
         }
     }
 
@@ -125,13 +128,13 @@ export default class Organisms {
     }
 
     _kill(org) {
+        // TODO: Check if we have no memory leaks after killing
         if (org.alive === false) {return false;}
 
         org.energy = 0;
         org.color  = 0;
         org.alive  = false;
         org.clear();
-        this._killed.push(org.id);
         this._move(org.x, org.y, org.x, org.y);
         delete this._positions[this._manager.getPosId(org)];
         this._manager.fire(Events.KILL_ORGANISM, org);
@@ -148,34 +151,20 @@ export default class Organisms {
         //const mutationPercents = org.mutationPercents;
     }
 
-    _create() {
+    _createPopulation() {
+        const orgStartAmount = Config.orgStartAmount;
+        let   orgs = this._orgs;
+
+        for (let i = 0; i < orgStartAmount; i++) {
+            orgs.add(new Organism(i, 0, 0, true));
+        }
+    }
+
+    _createOrg() {
 
     }
 
     _move(x1, y1, x2, y2) {
 
-    }
-
-    /**
-     * Returns alive organisms amount
-     * @returns {number}
-     * @private
-     */
-    _orgAmount() {
-        return this._orgs.length - this._killed.size();
-    }
-
-    _initTasks () {
-        const worldMaxOrgs = Config.worldMaxOrgs;
-
-        this._orgs   = new Array(worldMaxOrgs);
-        this._killed = new Stack(worldMaxOrgs);
-
-        for (let i = 0; i < worldMaxOrgs; i++) {
-            this._orgs[i] = new Organism(i, 0, 0, true);
-            // TODO: at the beginning all organisms should be killed
-            // TODO: i have to use createOrganisms() method for that
-            //this._killed.push(i);
-        }
     }
 }

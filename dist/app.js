@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 6);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -139,7 +139,7 @@ const Config = {
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 300,
+    orgStartAmount: 900,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without code) organism were created
@@ -654,62 +654,10 @@ class Helper {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/**
- * Fast stack implementation. Uses array inside, which is immutable
- * and the position pointer for stack position.
- *
- * @author DeadbraiN
- * TODO: use Uint32Array for id's. It should be faster
- */
-class Stack {
-    /**
-     * Creates Stack instance of specified size. Internal pointer
-     * will be set to the bottom of stack.
-     * @param {Number} size Stack size (amount of elements)
-     */
-    constructor(size) {
-        this._size = size;
-        this._arr  = new Array(size);
-        this._pos  = -1;
-    }
-
-    /**
-     * Adds value at the top of the stack. If stack is full,
-     * then false will be returned.
-     * @param {*} val
-     * @returns {boolean} true means, that value was added
-     */
-    push(val) {
-        if (this._pos + 1 === this._size) {return false;}
-        this._arr[++this._pos] = val;
-        return true;
-    }
-
-    /**
-     * Returns one value from the top of the stack
-     * @return {*|null} null in case of mistake
-     */
-    pop() {
-        if (this._pos < 0) {return null;}
-        return this._arr[this._pos--];
-    }
-
-    size() {
-        return this._pos + 1;
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = Stack;
-
-
-/***/ }),
-/* 5 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__visual_World__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__plugins_Organisms__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__visual_World__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__plugins_Organisms__ = __webpack_require__(9);
 /**
  * Main manager class of application. Contains all parts of jevo.js app
  * like World, Connection, Console etc... Runs infinite loop inside run()
@@ -824,12 +772,12 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
 
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_Manager__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_Manager__ = __webpack_require__(4);
 /**
  * This is an entry point of jevo.js application. Compiled version of
  * this file should be included into index.html
@@ -845,7 +793,7 @@ const manager = new __WEBPACK_IMPORTED_MODULE_0__manager_Manager__["a" /* defaul
 manager.run();
 
 /***/ }),
-/* 7 */
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -880,16 +828,144 @@ class Console {
 
 
 /***/ }),
+/* 7 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/**
+ * Implementation of two directional Queue. Queue is a list of connected
+ * items, where you may iterate back and forward using internal references
+ * (next, prev). Every item of the queue contains custom value (in
+ * 'val' field). This queue is used for speeding up organisms iteration.
+ *
+ * @author DeadbraiN
+ */
+class Queue {
+    /**
+     * At least one object should exist to exclude check
+     * of empty queue in add/del methods
+     */
+    constructor() {
+        this._last = this._first = {
+            prev: null,
+            next: null,
+            val : null
+        };
+        this._size = 0;
+    }
+
+    get first() {return this._first;}
+    get size()  {return this._size;}
+
+    /**
+     * Wraps the value into item object and adds it to the end of the queue
+     * @param {*} val Value for adding
+     */
+    add(val) {
+        if (this._size++ > 0) {
+            this._last = this._last.next = {
+                prev: this._last,
+                next: null,
+                val: val
+            };
+            return;
+        }
+
+        this._first.val = val;
+    }
+
+    /**
+     * Removes specified item from the queue. 'item' parameter is not
+     * the same as value inside this item. Remember remove position may
+     * be any in a queue.
+     * @param {Object} item Item to remove
+     */
+    del(item) {
+        if (--this._size < 1) {
+            this._first.val = null;
+            this._size = 0;
+            return;
+        }
+
+        if (item.prev !== null) {item.prev.next = item.next;}
+        else {this._first = item.next;}
+
+        if (item.next !== null) {item.next.prev = item.prev;}
+        else {this._last = item.prev;}
+    }
+
+    get(index) {
+        let item = this._first;
+        while (--index > 0) {item = item.next;}
+        return item;
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = Queue;
+
+
+/***/ }),
 /* 8 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/**
+ * Fast stack implementation. Uses array inside, which is immutable
+ * and the position pointer for stack position.
+ *
+ * @author DeadbraiN
+ * TODO: use Uint32Array for id's. It should be faster
+ */
+class Stack {
+    /**
+     * Creates Stack instance of specified size. Internal pointer
+     * will be set to the bottom of stack.
+     * @param {Number} size Stack size (amount of elements)
+     */
+    constructor(size) {
+        this._size = size;
+        this._arr  = new Array(size);
+        this._pos  = -1;
+    }
+
+    /**
+     * Adds value at the top of the stack. If stack is full,
+     * then false will be returned.
+     * @param {*} val
+     * @returns {boolean} true means, that value was added
+     */
+    push(val) {
+        if (this._pos + 1 === this._size) {return false;}
+        this._arr[++this._pos] = val;
+        return true;
+    }
+
+    /**
+     * Returns one value from the top of the stack
+     * @return {*|null} null in case of mistake
+     */
+    pop() {
+        if (this._pos < 0) {return null;}
+        return this._arr[this._pos--];
+    }
+
+    size() {
+        return this._pos + 1;
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = Stack;
+
+
+/***/ }),
+/* 9 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Stack__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Console__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Events__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_Organism__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Queue__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_Organism__ = __webpack_require__(10);
 /**
  * Plugin for Manager module, which handles organisms population
  *
@@ -910,13 +986,12 @@ class Console {
 class Organisms {
     constructor(manager) {
         this._manager   = manager;
-        this._orgs      = null;
-        this._killed    = null;
+        this._orgs      = new __WEBPACK_IMPORTED_MODULE_4__global_Queue__["a" /* default */]();
         this._stamp     = Date.now();
         this._codeRuns  = 0;
         this._positions = {};
 
-        this._initTasks();
+        this._createPopulation();
 
         __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].override(manager, 'onIteration', this._onIteration.bind(this));
     }
@@ -929,34 +1004,38 @@ class Organisms {
      * @private
      */
     _onIteration(counter, stamp) {
-        const man = this._manager;
+        const man  = this._manager;
+        let   item = this._orgs.first;
+        let   org;
 
-        for (let org of this._orgs) {
-            if (org.alive === false)     {continue;}
+        while (item) {
+            if ((org = item.val).alive === false) {continue;}
 
             org.run();
-            man.fire(__WEBPACK_IMPORTED_MODULE_4__global_Events__["a" /* default */].ORGANISM, org);
+            man.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].ORGANISM, org);
 
-            if (this._updateKill(org))   {continue;}
-            if (this._updateClone(org))  {continue;}
-            if (this._updateEnergy(org)) {continue;}
+            if (this._updateKill(org))            {continue;}
+            if (this._updateEnergy(org))          {continue;}
             this._updateMutate(org);
+
+            item = item.next;
         }
 
+        this._updateClone(counter);
         this._updateCreate();
         this._updateIps(stamp);
     }
 
     _updateIps(stamp) {
-        const orgs = this._orgAmount();
+        const orgs = this._orgs.size;
         const ts   = stamp - this._stamp;
         let   ips;
 
         this._codeRuns += orgs;
         if (ts < __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldIpsPeriodMs) {return;}
         ips = this._codeRuns / orgs / (ts / 1000);
-        __WEBPACK_IMPORTED_MODULE_3__global_Console__["a" /* default */].warn('ips: ', ips);
-        this._manager.fire(__WEBPACK_IMPORTED_MODULE_4__global_Events__["a" /* default */].IPS, ips);
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('ips: ', ips);
+        this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].IPS, ips);
         this._codeRuns  = 0;
         this._stamp     = stamp;
     }
@@ -965,22 +1044,35 @@ class Organisms {
         const alivePeriod = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgAlivePeriod;
         const checkAge    = alivePeriod > 0;
 
-        if (org.energy < 1 || checkAge && org.age > alivePeriod && this._orgAmount() > __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMinOrgs) {
+        if (org.energy < 1 || checkAge && org.age > alivePeriod && this._orgs.size > __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMinOrgs) {
             this._kill(org);
         }
 
         return !org.alive;
     }
 
-    _updateClone(org) {
-        const orgAmount = this._orgAmount();
-        const needClone = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgClonePeriod === 0 ? false : org.age % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgClonePeriod === 0;
+    /**
+     * Cloning parents are chosen according two tournament principle
+     * @param {Number} counter Current counter
+     * @returns {boolean}
+     * @private
+     */
+    _updateClone(counter) {
+        const orgAmount = this._orgs.size;
+        const needClone = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgClonePeriod === 0 ? false : counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgClonePeriod === 0;
+        if (!needClone || orgAmount < 1 || orgAmount >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {return false;}
 
-        if (needClone && orgAmount > 0 && orgAmount < __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {
-            this._clone();
+        let org1 = this._orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(orgAmount));
+        let org2 = this._orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(orgAmount));
+
+        if (!org1.alive && !org2.alive) {return false;}
+        if ((org2.alive && !org1.alive) || (org2.energy * org2.mutations > org1.energy * org1.mutations)) {
+            [org1, org2] = [org2, org1];
         }
+        if (org2.alive && orgAmount >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {this._kill(org2);}
+        this._clone(org1);
 
-        return !org.alive;
+        return true;
     }
 
     _updateMutate(org) {
@@ -990,8 +1082,8 @@ class Organisms {
     }
 
     _updateCreate() {
-        if (this._orgAmount() < 1) {
-            this._create();
+        if (this._orgs.size < 1) {
+            this._createPopulation();
         }
     }
 
@@ -1004,22 +1096,22 @@ class Organisms {
     }
 
     _kill(org) {
+        // TODO: Check if we have no memory leaks after killing
         if (org.alive === false) {return false;}
 
         org.energy = 0;
         org.color  = 0;
         org.alive  = false;
         org.clear();
-        this._killed.push(org.id);
-        this._move();
+        this._move(org.x, org.y, org.x, org.y);
         delete this._positions[this._manager.getPosId(org)];
-        this._manager.fire(__WEBPACK_IMPORTED_MODULE_4__global_Events__["a" /* default */].KILL_ORGANISM, org);
-        __WEBPACK_IMPORTED_MODULE_3__global_Console__["a" /* default */].warn(org.id, ' die');
+        this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].KILL_ORGANISM, org);
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn(org.id, ' die');
 
         return true;
     }
 
-    _clone() {
+    _clone(org) {
 
     }
 
@@ -1027,45 +1119,33 @@ class Organisms {
         //const mutationPercents = org.mutationPercents;
     }
 
-    _create() {
+    _createPopulation() {
+        const orgStartAmount = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgStartAmount;
+        let   orgs = this._orgs;
 
-    }
-
-    _move() {}
-
-    /**
-     * Returns alive organisms amount
-     * @returns {number}
-     * @private
-     */
-    _orgAmount() {
-        return this._orgs.length - this._killed.size();
-    }
-
-    _initTasks () {
-        const worldMaxOrgs = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs;
-
-        this._orgs   = new Array(worldMaxOrgs);
-        this._killed = new __WEBPACK_IMPORTED_MODULE_2__global_Stack__["a" /* default */](worldMaxOrgs);
-
-        for (let i = 0; i < worldMaxOrgs; i++) {
-            this._orgs[i] = new __WEBPACK_IMPORTED_MODULE_5__organism_Organism__["a" /* default */](i, 0, 0, true);
-            // TODO: at the beginning all organisms should be killed
-            // TODO: i have to use createOrganisms() method for that
-            //this._killed.push(i);
+        for (let i = 0; i < orgStartAmount; i++) {
+            orgs.add(new __WEBPACK_IMPORTED_MODULE_5__organism_Organism__["a" /* default */](i, 0, 0, true));
         }
+    }
+
+    _createOrg() {
+
+    }
+
+    _move(x1, y1, x2, y2) {
+
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Organisms;
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Stack__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Stack__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Observer__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
 /**
@@ -1112,6 +1192,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
     get age()            {return this._age;}
     get energy()         {return this._energy;}
     get mutationPeriod() {return this._mutationPeriod;}
+    get mutations()      {return this._mutations;}
 
     /**
      * Runs one code iteration and returns
@@ -1175,7 +1256,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
