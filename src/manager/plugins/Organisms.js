@@ -77,8 +77,8 @@ export default class Organisms {
         const needClone = Config.orgClonePeriod === 0 ? false : counter % Config.orgClonePeriod === 0;
         if (!needClone || orgAmount < 1 || orgAmount >= Config.worldMaxOrgs) {return false;}
 
-        let org1 = this._orgs.get(Helper.rand(orgAmount));
-        let org2 = this._orgs.get(Helper.rand(orgAmount));
+        let org1 = this._orgs.get(Helper.rand(orgAmount)).val;
+        let org2 = this._orgs.get(Helper.rand(orgAmount)).val;
 
         if (!org1.alive && !org2.alive) {return false;}
         if ((org2.alive && !org1.alive) || (org2.energy * org2.mutations > org1.energy * org1.mutations)) {
