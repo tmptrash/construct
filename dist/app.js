@@ -256,12 +256,6 @@ const Config = {
      */
     worldMaxOrgs: 900,
     /**
-     * {Number} Minimum amount of orgaisms in a world. If this value riached,
-     * then remove minimum energetic organisms mechanism will be disabled
-     * until total amount will be more then this value.
-     */
-    worldMinOrgs: 50,
-    /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
      */
@@ -475,7 +469,8 @@ const Events = {
     GRAB_RIGHT: 36,
     GRAB_UP: 37,
     GRAB_DOWN: 38,
-    CODE_END: 39
+    CODE_END: 39,
+    DESTROY: 40
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (Events);
@@ -1002,15 +997,10 @@ class Organisms {
         let   org;
 
         while (item) {
-            if ((org = item.val).alive === false) {continue;}
-
-            org.run();
+            org = item.val;
             man.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].ORGANISM, org);
-
-            if (this._updateKill(org))            {continue;}
-            if (this._updateEnergy(org))          {continue;}
+            if (org.run() === false) {item = item.next; continue;}
             this._updateMutate(org);
-
             item = item.next;
         }
 
@@ -1032,17 +1022,6 @@ class Organisms {
         this._stamp     = stamp;
     }
 
-    _updateKill(org) {
-        const alivePeriod = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgAlivePeriod;
-        const checkAge    = alivePeriod > 0;
-
-        if (org.energy < 1 || checkAge && org.age > alivePeriod && this._orgs.size > __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMinOrgs) {
-            this._kill(org);
-        }
-
-        return !org.alive;
-    }
-
     /**
      * Cloning parents are chosen according two tournament principle
      * @param {Number} counter Current counter
@@ -1061,7 +1040,7 @@ class Organisms {
         if ((org2.alive && !org1.alive) || (org2.energy * org2.mutations > org1.energy * org1.mutations)) {
             [org1, org2] = [org2, org1];
         }
-        if (org2.alive && orgAmount >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {this._kill(org2);}
+        if (org2.alive && orgAmount >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {org2.destroy();}
         this._clone(org1);
 
         return true;
@@ -1079,22 +1058,6 @@ class Organisms {
         }
     }
 
-    _updateEnergy(org) {
-        if (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgEnergySpendPeriod && org.age % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgEnergySpendPeriod === 0) {
-
-        }
-
-        return !org.alive;
-    }
-
-    _kill(org) {
-        this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].KILL_ORGANISM, org);
-        this._orgs.del(org.item);
-        delete this._positions[org.posId];
-        org.destroy();
-        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].info(org.id, ' die');
-    }
-
     _clone(org) {
 
     }
@@ -1104,15 +1067,15 @@ class Organisms {
     }
 
     _createPopulation() {
+        const world = this._manager.world;
+
         for (let i = 0; i < __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgStartAmount; i++) {
-            this._createOrg();
+            this._createOrg(world.getFreePos());
         }
     }
 
-    _createOrg(pos = false) {
-        if (this._orgs.size >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {return false;}
-        pos = pos === false ? this._manager.world.getFreePos() : pos;
-        if (pos === false) {return false;}
+    _createOrg(pos) {
+        if (this._orgs.size >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs || pos === false) {return false;}
         let org = new __WEBPACK_IMPORTED_MODULE_5__organism_Organism__["a" /* default */](++this._orgId, pos.x, pos.y, true);
 
         this._bindEvents(org);
@@ -1132,10 +1095,18 @@ class Organisms {
 
     _bindEvents(org) {
         org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].CODE_END, this._onCodeEnd.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].DESTROY, this._onKillOrg.bind(this));
     }
 
     _onCodeEnd() {
         this._codeRuns++;
+    }
+
+    _onKillOrg(org) {
+        this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].KILL_ORGANISM, org);
+        this._orgs.del(org.item);
+        delete this._positions[org.posId];
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].info(org.id, ' die');
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Organisms;
@@ -1202,15 +1173,15 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
 
     /**
      * Runs one code iteration and returns
+     * @return {Boolean} false means that organism was destroyed
      */
     run() {
         this._gen.next();
+        return this._updateDestroy() && this._updateEnergy();
     }
 
-    /**
-     * @override
-     */
     destroy() {
+        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].DESTROY, this);
         this._mem      = null;
         this._code     = null;
         this._compiled = null;
@@ -1232,6 +1203,52 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
     energyUp() {}
     energyDown() {}
     getId() {}
+
+    /**
+     * Checks if organism need to be killed/destroyed, because of age or zero energy
+     * @return {Boolean} false means that organism was destroyed.
+     * @private
+     */
+    _updateDestroy() {
+        const alivePeriod = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgAlivePeriod;
+
+        if (this._energy < 1 || alivePeriod > 0 && this._age > alivePeriod) {
+            this.destroy();
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * This is how our system grabs an energy from organism if it's age is
+     * divided into Config.orgEnergySpendPeriod.
+     * @return {Boolean} false means that organism was destroyed.
+     * @private
+     */
+    _updateEnergy() {
+        if (__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgEnergySpendPeriod === 0 || this._age % __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgEnergySpendPeriod !== 0) {return true;}
+        let codeSize = this._code.length;
+        let decrease = Math.round(codeSize / __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgGarbagePeriod);
+        let grabSize;
+
+        if (codeSize > __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeMaxSize) {grabSize = codeSize * __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeSizeCoef;}
+        else {grabSize = decrease;}
+        if (grabSize < 1) {grabSize = 1;}
+        grabSize = Math.min(this._energy, grabSize);
+        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].GRAB_ENERGY, grabSize);
+
+        return this._grabEnergy(grabSize);
+    }
+
+    _grabEnergy(amount) {
+        if ((this._energy -= amount) < 1) {
+            this.destroy();
+            return false;
+        }
+
+        return true;
+    }
 
     /**
      * Generates default variables code. It should be in ES5 version, because

@@ -183,12 +183,6 @@ const Config = {
      */
     worldMaxOrgs: 900,
     /**
-     * {Number} Minimum amount of orgaisms in a world. If this value riached,
-     * then remove minimum energetic organisms mechanism will be disabled
-     * until total amount will be more then this value.
-     */
-    worldMinOrgs: 50,
-    /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
      */

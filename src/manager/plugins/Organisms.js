@@ -41,15 +41,10 @@ export default class Organisms {
         let   org;
 
         while (item) {
-            if ((org = item.val).alive === false) {continue;}
-
-            org.run();
+            org = item.val;
             man.fire(Events.ORGANISM, org);
-
-            if (this._updateKill(org))            {continue;}
-            if (this._updateEnergy(org))          {continue;}
+            if (org.run() === false) {item = item.next; continue;}
             this._updateMutate(org);
-
             item = item.next;
         }
 
@@ -71,17 +66,6 @@ export default class Organisms {
         this._stamp     = stamp;
     }
 
-    _updateKill(org) {
-        const alivePeriod = Config.orgAlivePeriod;
-        const checkAge    = alivePeriod > 0;
-
-        if (org.energy < 1 || checkAge && org.age > alivePeriod && this._orgs.size > Config.worldMinOrgs) {
-            this._kill(org);
-        }
-
-        return !org.alive;
-    }
-
     /**
      * Cloning parents are chosen according two tournament principle
      * @param {Number} counter Current counter
@@ -100,7 +84,7 @@ export default class Organisms {
         if ((org2.alive && !org1.alive) || (org2.energy * org2.mutations > org1.energy * org1.mutations)) {
             [org1, org2] = [org2, org1];
         }
-        if (org2.alive && orgAmount >= Config.worldMaxOrgs) {this._kill(org2);}
+        if (org2.alive && orgAmount >= Config.worldMaxOrgs) {org2.destroy();}
         this._clone(org1);
 
         return true;
@@ -118,22 +102,6 @@ export default class Organisms {
         }
     }
 
-    _updateEnergy(org) {
-        if (Config.orgEnergySpendPeriod && org.age % Config.orgEnergySpendPeriod === 0) {
-
-        }
-
-        return !org.alive;
-    }
-
-    _kill(org) {
-        this._manager.fire(Events.KILL_ORGANISM, org);
-        this._orgs.del(org.item);
-        delete this._positions[org.posId];
-        org.destroy();
-        Console.info(org.id, ' die');
-    }
-
     _clone(org) {
 
     }
@@ -143,15 +111,15 @@ export default class Organisms {
     }
 
     _createPopulation() {
+        const world = this._manager.world;
+
         for (let i = 0; i < Config.orgStartAmount; i++) {
-            this._createOrg();
+            this._createOrg(world.getFreePos());
         }
     }
 
-    _createOrg(pos = false) {
-        if (this._orgs.size >= Config.worldMaxOrgs) {return false;}
-        pos = pos === false ? this._manager.world.getFreePos() : pos;
-        if (pos === false) {return false;}
+    _createOrg(pos) {
+        if (this._orgs.size >= Config.worldMaxOrgs || pos === false) {return false;}
         let org = new Organism(++this._orgId, pos.x, pos.y, true);
 
         this._bindEvents(org);
@@ -171,9 +139,17 @@ export default class Organisms {
 
     _bindEvents(org) {
         org.on(Events.CODE_END, this._onCodeEnd.bind(this));
+        org.on(Events.DESTROY, this._onKillOrg.bind(this));
     }
 
     _onCodeEnd() {
         this._codeRuns++;
+    }
+
+    _onKillOrg(org) {
+        this._manager.fire(Events.KILL_ORGANISM, org);
+        this._orgs.del(org.item);
+        delete this._positions[org.posId];
+        Console.info(org.id, ' die');
     }
 }

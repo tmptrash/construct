@@ -50,15 +50,15 @@ export default class Organism extends Observer {
 
     /**
      * Runs one code iteration and returns
+     * @return {Boolean} false means that organism was destroyed
      */
     run() {
         this._gen.next();
+        return this._updateDestroy() && this._updateEnergy();
     }
 
-    /**
-     * @override
-     */
     destroy() {
+        this.fire(Events.DESTROY, this);
         this._mem      = null;
         this._code     = null;
         this._compiled = null;
@@ -80,6 +80,52 @@ export default class Organism extends Observer {
     energyUp() {}
     energyDown() {}
     getId() {}
+
+    /**
+     * Checks if organism need to be killed/destroyed, because of age or zero energy
+     * @return {Boolean} false means that organism was destroyed.
+     * @private
+     */
+    _updateDestroy() {
+        const alivePeriod = Config.orgAlivePeriod;
+
+        if (this._energy < 1 || alivePeriod > 0 && this._age > alivePeriod) {
+            this.destroy();
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * This is how our system grabs an energy from organism if it's age is
+     * divided into Config.orgEnergySpendPeriod.
+     * @return {Boolean} false means that organism was destroyed.
+     * @private
+     */
+    _updateEnergy() {
+        if (Config.orgEnergySpendPeriod === 0 || this._age % Config.orgEnergySpendPeriod !== 0) {return true;}
+        let codeSize = this._code.length;
+        let decrease = Math.round(codeSize / Config.orgGarbagePeriod);
+        let grabSize;
+
+        if (codeSize > Config.codeMaxSize) {grabSize = codeSize * Config.codeSizeCoef;}
+        else {grabSize = decrease;}
+        if (grabSize < 1) {grabSize = 1;}
+        grabSize = Math.min(this._energy, grabSize);
+        this.fire(Events.GRAB_ENERGY, grabSize);
+
+        return this._grabEnergy(grabSize);
+    }
+
+    _grabEnergy(amount) {
+        if ((this._energy -= amount) < 1) {
+            this.destroy();
+            return false;
+        }
+
+        return true;
+    }
 
     /**
      * Generates default variables code. It should be in ES5 version, because
