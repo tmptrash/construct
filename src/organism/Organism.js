@@ -83,7 +83,7 @@ export default class Organism extends Observer {
         const exclude = this._EXCLUDE_ON_CLONE;
 
         for (let p in this) {
-            if (this.hasOwnProperty(p) && exclude[p] === undefined) {child[p] = this[p];}
+            if (this.hasOwnProperty(p) && typeof(exclude[p]) === 'undefined') {child[p] = this[p];}
         }
         child.mem      = this._mem.clone();
         child.code     = this._code.splice();
@@ -162,7 +162,7 @@ export default class Organism extends Observer {
     _updateEnergy() {
         if (Config.orgEnergySpendPeriod === 0 || this._age % Config.orgEnergySpendPeriod !== 0) {return true;}
         let codeSize = this._code.length;
-        let decrease = Math.round(codeSize / Config.orgGarbagePeriod);
+        let decrease = (((codeSize / Config.orgGarbagePeriod) + 0.5) << 1) >> 1;
         let grabSize;
 
         if (codeSize > Config.codeMaxSize) {grabSize = codeSize * Config.codeSizeCoef;}

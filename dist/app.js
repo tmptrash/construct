@@ -623,8 +623,9 @@ class Observer {
 
     off (event, handler) {
         let index;
+        let handlers = this._handlers[event];
 
-        if (this._handlers[event] === undefined || (index = this._handlers[event].indexOf(handler)) < 0) {return false;}
+        if (typeof(handlers) === 'undefined' || (index = this._handlers[event].indexOf(handler)) < 0) {return false;}
         this._handlers[event].splice(index, 1);
         if (this._handlers[event].length === 0) {delete this._handlers[event];}
 
@@ -632,9 +633,11 @@ class Observer {
     }
 
     fire (event, ...args) {
-        if (this._handlers[event] === undefined) {return false;}
+        let handler;
+        let handlers = this._handlers[event];
+        if (typeof(handlers) === 'undefined') {return false;}
 
-        for (let handler of this._handlers[event]) {handler(...args);}
+        for (handler of handlers) {handler(...args);}
 
         return true;
     }
@@ -1109,7 +1112,7 @@ class Organisms {
         let pos = this._manager.world.getNearFreePos(org.x, org.y);
         if (pos === false || this._createOrg(pos) === false) {return false;}
         let child  = this._orgs.last.val;
-        let energy = Math.round(org.energy * org.cloneEnergyPercent);
+        let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >> 1;
 
         org.clone(child);
         org.grabEnergy(energy);
@@ -1271,7 +1274,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
         const exclude = this._EXCLUDE_ON_CLONE;
 
         for (let p in this) {
-            if (this.hasOwnProperty(p) && exclude[p] === undefined) {child[p] = this[p];}
+            if (this.hasOwnProperty(p) && typeof(exclude[p]) === 'undefined') {child[p] = this[p];}
         }
         child.mem      = this._mem.clone();
         child.code     = this._code.splice();
@@ -1350,7 +1353,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
     _updateEnergy() {
         if (__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgEnergySpendPeriod === 0 || this._age % __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgEnergySpendPeriod !== 0) {return true;}
         let codeSize = this._code.length;
-        let decrease = Math.round(codeSize / __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgGarbagePeriod);
+        let decrease = (((codeSize / __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgGarbagePeriod) + 0.5) << 1) >> 1;
         let grabSize;
 
         if (codeSize > __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeMaxSize) {grabSize = codeSize * __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeSizeCoef;}
