@@ -162,7 +162,7 @@ export default class Organism extends Observer {
     _updateEnergy() {
         if (Config.orgEnergySpendPeriod === 0 || this._age % Config.orgEnergySpendPeriod !== 0) {return true;}
         let codeSize = this._code.length;
-        let decrease = (((codeSize / Config.orgGarbagePeriod) + 0.5) << 1) >> 1;
+        let decrease = (((codeSize / Config.orgGarbagePeriod) + 0.5) << 1) >> 1; // analog of Math.round()
         let grabSize;
 
         if (codeSize > Config.codeMaxSize) {grabSize = codeSize * Config.codeSizeCoef;}

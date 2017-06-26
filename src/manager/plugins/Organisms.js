@@ -108,7 +108,7 @@ export default class Organisms {
         let pos = this._manager.world.getNearFreePos(org.x, org.y);
         if (pos === false || this._createOrg(pos) === false) {return false;}
         let child  = this._orgs.last.val;
-        let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >> 1;
+        let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >> 1; // analog of Math.round()
 
         org.clone(child);
         org.grabEnergy(energy);
