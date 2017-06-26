@@ -95,7 +95,7 @@ export default class Organism extends Observer {
      * Does simple pre processing and final compilation of the code.
      */
     compile() {
-        const header1 = 'this.__compiled=function* dna(){if (!this) {debugger;}; var endEvent=this._events.CODE_END;var rand=Math.random;';
+        const header1 = 'this.__compiled=function* dna(){var endEvent=this._events.CODE_END;var rand=Math.random;';
         const vars    = this._getVars();
         const header2 = ';while(true){yield;';
         const footer  = ';this._age++;this.fire(endEvent)}}';
