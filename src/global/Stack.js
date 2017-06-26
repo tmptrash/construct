@@ -10,11 +10,13 @@ export default class Stack {
      * Creates Stack instance of specified size. Internal pointer
      * will be set to the bottom of stack.
      * @param {Number} size Stack size (amount of elements)
+     * @param {Array} arr Array of elements for clonning
+     * @param {Number} pos Starting position (if arr !null)
      */
-    constructor(size) {
+    constructor(size, arr = null, pos = -1) {
         this._size = size;
-        this._arr  = new Array(size);
-        this._pos  = -1;
+        this._arr  = arr === null ? new Array(size) : arr;
+        this._pos  = pos;
     }
 
     /**
@@ -40,5 +42,13 @@ export default class Stack {
 
     size() {
         return this._pos + 1;
+    }
+
+    /**
+     * Returns full clone of current stack instance
+     * TODO: add tests for this method
+     */
+    clone() {
+        return new Stack(this._size, this._arr.splice(), this._pos);
     }
 }

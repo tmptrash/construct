@@ -23,9 +23,10 @@ export default class Organisms {
         this._positions = {};
         this._orgId     = 0;
 
-        this._createPopulation();
-
         Helper.override(manager, 'onIteration', this._onIteration.bind(this));
+        Helper.override(manager, 'onAfterMove', this._onAfterMove.bind(this));
+
+        this._createPopulation();
     }
 
     /**
@@ -103,7 +104,20 @@ export default class Organisms {
     }
 
     _clone(org) {
+        if (org.energy < 1) {return false;}
+        let pos = this._manager.world.getNearFreePos(org.x, org.y);
+        if (pos === false || this._createOrg(pos) === false) {return false;}
+        let child  = this._orgs.last.val;
+        let energy = Math.round(org.energy * org.cloneEnergyPercent);
 
+        org.clone(child);
+        org.grabEnergy(energy);
+        child.grabEnergy(child.energy - energy);
+        if (energy > 0 && child.energy > 0) {this._mutate(child);}
+
+        this._manager.fire(Events.CLONE, org.id, child.id);
+
+        return true;
     }
 
     _mutate(org, clone = true) {
@@ -123,7 +137,7 @@ export default class Organisms {
         let org = new Organism(++this._orgId, pos.x, pos.y, true);
 
         this._bindEvents(org);
-        this._move(pos.x, pos.y, pos.x, pos.y);
+        this._manager.move(pos.x, pos.y, pos.x, pos.y, org);
         this._positions[org.posId] = org;
         this._orgs.add(org);
         org.item = this._orgs.last;
@@ -133,8 +147,13 @@ export default class Organisms {
         return true;
     }
 
-    _move(x1, y1, x2, y2) {
+    _onAfterMove(x1, y1, x2, y2, org) {
+        if (x1 !== x2 && y1 !== y2) {
+            delete this._positions[Helper.posId(x1, y1)];
+            this._positions[Helper.posId(x2, y2)] = org;
+        }
 
+        return true;
     }
 
     _bindEvents(org) {

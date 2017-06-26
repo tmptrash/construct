@@ -3,7 +3,12 @@
  *
  * @author DeadbraiN
  */
+import Config from './Config';
+
 export default class Helper {
+    static posId(x, y) {
+        return y * Config.worldWidth + x;
+    }
     /**
      * Overrides specified function in two ways: softly - by
      * calling new function and after that original; hardly - by

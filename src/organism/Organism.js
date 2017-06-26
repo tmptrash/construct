@@ -8,10 +8,21 @@ import Config   from './../global/Config';
 import Stack    from './../global/Stack';
 import Observer from './../global/Observer';
 import Events   from './../global/Events';
+import Helper   from './../global/Helper';
 
 export default class Organism extends Observer {
     constructor(id, x, y, alive) {
         super();
+        this._EXCLUDE_ON_CLONE     = {
+            '_id'       : true,
+            '_x'        : true,
+            '_y'        : true,
+            '_item'     : true,
+            '_mutations': true,
+            '_age'      : true,
+            '_varId'    : true,
+            '_fnId'     : true
+        };
         this._id                   = id;
         this._x                    = x;
         this._y                    = y;
@@ -31,22 +42,29 @@ export default class Organism extends Observer {
         this._varId                = 0;
         this._fnId                 = 0;
         this._code                 = [];
-        this._compiled             = this._compile(this._code);
+        this._compiled             = this.compile(this._code);
         this._gen                  = this._compiled();
         this._events               = Events;
     }
 
-    get alive()          {return this._alive;}
-    get x()              {return this._x;}
-    get y()              {return this._y;}
-    get id()             {return this._id;}
-    get age()            {return this._age;}
-    get energy()         {return this._energy;}
-    get mutationPeriod() {return this._mutationPeriod;}
-    get mutations()      {return this._mutations;}
-    get posId()          {return this._y * Config.worldWidth + this._x;}
-    set item(it)         {this._item = it;}
-    get item()           {return this._item;}
+    get alive()              {return this._alive;}
+    get x()                  {return this._x;}
+    get y()                  {return this._y;}
+    get id()                 {return this._id;}
+    get age()                {return this._age;}
+    get energy()             {return this._energy;}
+    get mutationPeriod()     {return this._mutationPeriod;}
+    get mutations()          {return this._mutations;}
+    get posId()              {return Helper.posId(this._y, this._x);}
+    get item()               {return this._item;}
+    get cloneEnergyPercent() {return this._cloneEnergyPercent;}
+    get color()              {return this._color;}
+
+    set item(it)             {this._item = it;}
+    set mem(m)               {this._mem = m;}
+    set code(c)              {this._code = c;}
+    set compiled(c)          {this._compiled = c;}
+    set gen(g)               {this._gen = g;}
 
     /**
      * Runs one code iteration and returns
@@ -57,11 +75,49 @@ export default class Organism extends Observer {
         return this._updateDestroy() && this._updateEnergy();
     }
 
+    /**
+     * Does the clone of this organism to the child
+     * @param {Organism} child Destination organism
+     */
+    clone(child) {
+        const exclude = this._EXCLUDE_ON_CLONE;
+
+        for (let p in this) {
+            if (this.hasOwnProperty(p) && exclude[p] === undefined) {child[p] = this[p];}
+        }
+        child.mem      = this._mem.clone();
+        child.code     = this._code.splice();
+        child.compiled = child.compile(this._code);
+        child.gen      = child._compiled();
+    }
+
+    /**
+     * Does simple pre processing and final compilation of the code.
+     */
+    compile() {
+        const header1 = 'this.__compiled=function* dna(){if (!this) {debugger;}; var endEvent=this._events.CODE_END;var rand=Math.random;';
+        const vars    = this._getVars();
+        const header2 = ';while(true){yield;';
+        const footer  = ';this._age++;this.fire(endEvent)}}';
+
+        eval(header1 + vars + header2 + this._code.join(';') + footer);
+
+        return this.__compiled;
+    }
+
+    grabEnergy(amount) {
+        if ((this._energy -= amount) < 1) {
+            this.destroy();
+            return false;
+        }
+
+        return true;
+    }
+
     destroy() {
         this.fire(Events.DESTROY, this);
         this._mem      = null;
         this._code     = null;
-        this._compiled = null;
         this._gen      = null;
         this.clear();
     }
@@ -115,16 +171,7 @@ export default class Organism extends Observer {
         grabSize = Math.min(this._energy, grabSize);
         this.fire(Events.GRAB_ENERGY, grabSize);
 
-        return this._grabEnergy(grabSize);
-    }
-
-    _grabEnergy(amount) {
-        if ((this._energy -= amount) < 1) {
-            this.destroy();
-            return false;
-        }
-
-        return true;
+        return this.grabEnergy(grabSize);
     }
 
     /**
@@ -145,20 +192,5 @@ export default class Organism extends Observer {
         }
 
         return code.join(';');
-    }
-
-    /**
-     * Does simple preprocessing and final compilation of the code.
-     * @private
-     */
-    _compile() {
-        const header1 = 'this.__compiled=function* dna(){var endEvent=this._events.CODE_END;var rand=Math.random;';
-        const vars    = this._getVars();
-        const header2 = ';while(true){yield;';
-        const footer  = ';this._age++;this.fire(endEvent)}}';
-
-        eval(header1 + vars + header2 + this._code.join(';') + footer);
-
-        return this.__compiled;
     }
 }

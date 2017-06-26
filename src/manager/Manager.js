@@ -12,6 +12,7 @@
  */
 import Config    from './../global/Config';
 import Observer  from './../global/Observer';
+import Helper    from './../global/Helper';
 import World     from './../visual/World';
 import Organisms from './plugins/Organisms';
 /**
@@ -27,6 +28,12 @@ export default class Manager extends Observer {
      * @abstract
      */
     onIteration() {}
+
+    /**
+     * Is called at the end on move() method
+     * @abstract
+     */
+    onAfterMove() {return true;}
 
     constructor() {
         super();
@@ -58,6 +65,23 @@ export default class Manager extends Observer {
             call(loop);
         }
         call(loop);
+    }
+
+    move(x1, y1, x2, y2, org) {
+        let world = this._world;
+
+        if (this._isFree(x2, y2) === false) {return false;}
+        if (Config.worldCyclical) {
+            if (x2 < 0)                     {x2 = world.width - 1;
+            } else if (x2 === world.width)  {x2 = 0;
+            } else if (y2 < 0)              {y2 = world.height - 1;
+            } else if (y2 === world.height) {y2 = 0;}
+        }
+
+        if (x1 !== x2 && y1 !== y2) {this._world.setDot(x1, y1, 0);}
+        this._world.setDot(x2, y2, org.color);
+
+        return this.onAfterMove(x1, y1, x2, y2, org);
     }
 
     /**
@@ -102,5 +126,9 @@ export default class Manager extends Observer {
         for (let i = 0; i < PLUGINS.length; i++) {
             this._plugins[i] = new PLUGINS[i](this);
         }
+    }
+
+    _isFree(x, y) {
+        return this._world.getDot(x, y) === 0;
     }
 }
