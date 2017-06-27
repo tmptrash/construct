@@ -3,6 +3,7 @@ describe("src/global/Stack", function() {
     let stack;
 
     beforeEach(() => stack = new Stack(3));
+    afterEach(() => stack = null);
 
     it("Checking push()/pop() methods", () => {
         expect(stack.push(1)).toEqual(true);
@@ -41,8 +42,19 @@ describe("src/global/Stack", function() {
     });
 
     it("Checking size() method", () => {
-        stack = new Stack(10);
         expect(stack.push(1)).toEqual(true);
         expect(stack.size()).toEqual(1);
     });
+
+    it("Checking clone() method", () => {
+        let clonedStack = stack.clone();
+        expect(clonedStack.size()).toEqual(stack.size());
+    });
+    it('Checking clone() method with items', () => {
+        for (let i = 0; i < stack.size(); i++) {stack.push(i);}
+        let clonedStack = stack.clone();
+        for (let i = 0; i < stack.size(); i++) {
+            expect(clonedStack.pop()).toEqual(stack.pop());
+        }
+    })
 });

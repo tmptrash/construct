@@ -46,7 +46,7 @@ export default class Stack {
 
     /**
      * Returns full clone of current stack instance
-     * TODO: add tests for this method
+     * @return {Stack} Clonned Stack instance
      */
     clone() {
         return new Stack(this._size, this._arr.splice(), this._pos);

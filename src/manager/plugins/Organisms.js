@@ -106,11 +106,10 @@ export default class Organisms {
     _clone(org) {
         if (org.energy < 1) {return false;}
         let pos = this._manager.world.getNearFreePos(org.x, org.y);
-        if (pos === false || this._createOrg(pos) === false) {return false;}
+        if (pos === false || this._createOrg(pos, org) === false) {return false;}
         let child  = this._orgs.last.val;
         let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >> 1; // analog of Math.round()
 
-        org.clone(child);
         org.grabEnergy(energy);
         child.grabEnergy(child.energy - energy);
         if (energy > 0 && child.energy > 0) {this._mutate(child);}
@@ -132,15 +131,16 @@ export default class Organisms {
         }
     }
 
-    _createOrg(pos) {
+    _createOrg(pos, parent = null) {
         if (this._orgs.size >= Config.worldMaxOrgs || pos === false) {return false;}
-        let org = new Organism(++this._orgId, pos.x, pos.y, true);
+        this._orgs.add(null);
+        let last = this._orgs.last;
+        let org  = new Organism(++this._orgId, pos.x, pos.y, true, last, parent);
 
+        last.val = org;
         this._bindEvents(org);
         this._manager.move(pos.x, pos.y, pos.x, pos.y, org);
         this._positions[org.posId] = org;
-        this._orgs.add(org);
-        org.item = this._orgs.last;
         this._manager.fire(Events.BORN_ORGANISM, org);
         Console.info(org.id, ' born');
 

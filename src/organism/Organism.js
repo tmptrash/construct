@@ -11,23 +11,15 @@ import Events   from './../global/Events';
 import Helper   from './../global/Helper';
 
 export default class Organism extends Observer {
-    constructor(id, x, y, alive) {
+    constructor(id, x, y, alive, item, parent = null) {
         super();
-        this._EXCLUDE_ON_CLONE     = {
-            '_id'       : true,
-            '_x'        : true,
-            '_y'        : true,
-            '_item'     : true,
-            '_mutations': true,
-            '_age'      : true,
-            '_varId'    : true,
-            '_fnId'     : true
-        };
+        const cloning = parent !== null;
+
         this._id                   = id;
         this._x                    = x;
         this._y                    = y;
         this._alive                = alive;
-        this._item                 = null;
+        this._item                 = item;
 
         this._mutationProbs        = Config.orgMutationProbs;
         this._mutationClonePercent = Config.orgCloneMutation;
@@ -36,12 +28,12 @@ export default class Organism extends Observer {
         this._mutations            = 1;
         this._energy               = Config.orgStartEnergy;
         this._color                = Config.orgStartColor;
-        this._mem                  = new Stack(Config.orgMemSize);
+        this._mem                  = cloning ? parent.mem.clone() : new Stack(Config.orgMemSize);
         this._age                  = 0;
         this._cloneEnergyPercent   = Config.orgCloneEnergyPercent;
-        this._varId                = 0;
         this._fnId                 = 0;
-        this._code                 = [];
+        this._byteCode             = cloning ? parent.byteCode.splice() : [];
+        this._code                 = cloning ? parent.code.splice() : [];
         this._compiled             = this.compile(this._code);
         this._gen                  = this._compiled();
         this._events               = Events;
@@ -53,18 +45,15 @@ export default class Organism extends Observer {
     get id()                 {return this._id;}
     get age()                {return this._age;}
     get energy()             {return this._energy;}
+    get mem()                {return this._mem;}
     get mutationPeriod()     {return this._mutationPeriod;}
     get mutations()          {return this._mutations;}
-    get posId()              {return Helper.posId(this._y, this._x);}
+    get posId()              {return Helper.posId(this._x, this._y);}
     get item()               {return this._item;}
     get cloneEnergyPercent() {return this._cloneEnergyPercent;}
     get color()              {return this._color;}
-
-    set item(it)             {this._item = it;}
-    set mem(m)               {this._mem = m;}
-    set code(c)              {this._code = c;}
-    set compiled(c)          {this._compiled = c;}
-    set gen(g)               {this._gen = g;}
+    get byteCode()           {return this._byteCode;}
+    get code()               {return this._code;}
 
     /**
      * Runs one code iteration and returns
@@ -73,22 +62,6 @@ export default class Organism extends Observer {
     run() {
         this._gen.next();
         return this._updateDestroy() && this._updateEnergy();
-    }
-
-    /**
-     * Does the clone of this organism to the child
-     * @param {Organism} child Destination organism
-     */
-    clone(child) {
-        const exclude = this._EXCLUDE_ON_CLONE;
-
-        for (let p in this) {
-            if (this.hasOwnProperty(p) && typeof(exclude[p]) === 'undefined') {child[p] = this[p];}
-        }
-        child.mem      = this._mem.clone();
-        child.code     = this._code.splice();
-        child.compiled = child.compile(this._code);
-        child.gen      = child._compiled();
     }
 
     /**
@@ -188,7 +161,7 @@ export default class Organism extends Observer {
         const rand  = '=rand()*' + range + '-' + half;
 
         for (let i = 0; i < vars; i++) {
-            code[i] = 'var v' + (++this._varId) + rand;
+            code[i] = 'var v' + i + rand;
         }
 
         return code.join(';');

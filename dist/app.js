@@ -982,7 +982,7 @@ class Stack {
 
     /**
      * Returns full clone of current stack instance
-     * TODO: add tests for this method
+     * @return {Stack} Clonned Stack instance
      */
     clone() {
         return new Stack(this._size, this._arr.splice(), this._pos);
@@ -1110,11 +1110,10 @@ class Organisms {
     _clone(org) {
         if (org.energy < 1) {return false;}
         let pos = this._manager.world.getNearFreePos(org.x, org.y);
-        if (pos === false || this._createOrg(pos) === false) {return false;}
+        if (pos === false || this._createOrg(pos, org) === false) {return false;}
         let child  = this._orgs.last.val;
-        let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >> 1;
+        let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >> 1; // analog of Math.round()
 
-        org.clone(child);
         org.grabEnergy(energy);
         child.grabEnergy(child.energy - energy);
         if (energy > 0 && child.energy > 0) {this._mutate(child);}
@@ -1136,15 +1135,16 @@ class Organisms {
         }
     }
 
-    _createOrg(pos) {
+    _createOrg(pos, parent = null) {
         if (this._orgs.size >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs || pos === false) {return false;}
-        let org = new __WEBPACK_IMPORTED_MODULE_5__organism_Organism__["a" /* default */](++this._orgId, pos.x, pos.y, true);
+        this._orgs.add(null);
+        let last = this._orgs.last;
+        let org  = new __WEBPACK_IMPORTED_MODULE_5__organism_Organism__["a" /* default */](++this._orgId, pos.x, pos.y, true, last, parent);
 
+        last.val = org;
         this._bindEvents(org);
         this._manager.move(pos.x, pos.y, pos.x, pos.y, org);
         this._positions[org.posId] = org;
-        this._orgs.add(org);
-        org.item = this._orgs.last;
         this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].BORN_ORGANISM, org);
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].info(org.id, ' born');
 
@@ -1202,23 +1202,15 @@ class Organisms {
 
 
 class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default */] {
-    constructor(id, x, y, alive) {
+    constructor(id, x, y, alive, item, parent = null) {
         super();
-        this._EXCLUDE_ON_CLONE     = {
-            '_id'       : true,
-            '_x'        : true,
-            '_y'        : true,
-            '_item'     : true,
-            '_mutations': true,
-            '_age'      : true,
-            '_varId'    : true,
-            '_fnId'     : true
-        };
+        const cloning = parent !== null;
+
         this._id                   = id;
         this._x                    = x;
         this._y                    = y;
         this._alive                = alive;
-        this._item                 = null;
+        this._item                 = item;
 
         this._mutationProbs        = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgMutationProbs;
         this._mutationClonePercent = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgCloneMutation;
@@ -1227,12 +1219,12 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
         this._mutations            = 1;
         this._energy               = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartEnergy;
         this._color                = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartColor;
-        this._mem                  = new __WEBPACK_IMPORTED_MODULE_1__global_Stack__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgMemSize);
+        this._mem                  = cloning ? parent.mem.clone() : new __WEBPACK_IMPORTED_MODULE_1__global_Stack__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgMemSize);
         this._age                  = 0;
         this._cloneEnergyPercent   = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgCloneEnergyPercent;
-        this._varId                = 0;
         this._fnId                 = 0;
-        this._code                 = [];
+        this._byteCode             = cloning ? parent.byteCode.splice() : [];
+        this._code                 = cloning ? parent.code.splice() : [];
         this._compiled             = this.compile(this._code);
         this._gen                  = this._compiled();
         this._events               = __WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */];
@@ -1244,18 +1236,15 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
     get id()                 {return this._id;}
     get age()                {return this._age;}
     get energy()             {return this._energy;}
+    get mem()                {return this._mem;}
     get mutationPeriod()     {return this._mutationPeriod;}
     get mutations()          {return this._mutations;}
-    get posId()              {return __WEBPACK_IMPORTED_MODULE_4__global_Helper__["a" /* default */].posId(this._y, this._x);}
+    get posId()              {return __WEBPACK_IMPORTED_MODULE_4__global_Helper__["a" /* default */].posId(this._x, this._y);}
     get item()               {return this._item;}
     get cloneEnergyPercent() {return this._cloneEnergyPercent;}
     get color()              {return this._color;}
-
-    set item(it)             {this._item = it;}
-    set mem(m)               {this._mem = m;}
-    set code(c)              {this._code = c;}
-    set compiled(c)          {this._compiled = c;}
-    set gen(g)               {this._gen = g;}
+    get byteCode()           {return this._byteCode;}
+    get code()               {return this._code;}
 
     /**
      * Runs one code iteration and returns
@@ -1267,26 +1256,10 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
     }
 
     /**
-     * Does the clone of this organism to the child
-     * @param {Organism} child Destination organism
-     */
-    clone(child) {
-        const exclude = this._EXCLUDE_ON_CLONE;
-
-        for (let p in this) {
-            if (this.hasOwnProperty(p) && typeof(exclude[p]) === 'undefined') {child[p] = this[p];}
-        }
-        child.mem      = this._mem.clone();
-        child.code     = this._code.splice();
-        child.compiled = child.compile(this._code);
-        child.gen      = child._compiled();
-    }
-
-    /**
      * Does simple pre processing and final compilation of the code.
      */
     compile() {
-        const header1 = 'this.__compiled=function* dna(){if (!this) {debugger;}; var endEvent=this._events.CODE_END;var rand=Math.random;';
+        const header1 = 'this.__compiled=function* dna(){var endEvent=this._events.CODE_END;var rand=Math.random;';
         const vars    = this._getVars();
         const header2 = ';while(true){yield;';
         const footer  = ';this._age++;this.fire(endEvent)}}';
@@ -1353,7 +1326,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
     _updateEnergy() {
         if (__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgEnergySpendPeriod === 0 || this._age % __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgEnergySpendPeriod !== 0) {return true;}
         let codeSize = this._code.length;
-        let decrease = (((codeSize / __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgGarbagePeriod) + 0.5) << 1) >> 1;
+        let decrease = (((codeSize / __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgGarbagePeriod) + 0.5) << 1) >> 1; // analog of Math.round()
         let grabSize;
 
         if (codeSize > __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeMaxSize) {grabSize = codeSize * __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeSizeCoef;}
@@ -1379,7 +1352,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
         const rand  = '=rand()*' + range + '-' + half;
 
         for (let i = 0; i < vars; i++) {
-            code[i] = 'var v' + (++this._varId) + rand;
+            code[i] = 'var v' + i + rand;
         }
 
         return code.join(';');
