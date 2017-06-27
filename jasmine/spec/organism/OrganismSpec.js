@@ -3,8 +3,35 @@ describe("src/global/Console", () => {
     let Config   = require('../../../src/global/Config').default;
 
     it("Checking organism creation", () => {
-        let org = new Organism(0, 1, 1, true, null);
+        let org = new Organism(0, 1, 2, true, null);
 
-        expect(org).toEqual(0);
+        expect(org.id).toEqual(0);
+        expect(org.x).toEqual(1);
+        expect(org.y).toEqual(2);
+        expect(org.alive).toEqual(true);
+    });
+
+    it("Checking organism destroy because of age", () => {
+        let org = new Organism(0, 1, 2, true, null);
+
+        for (let i = 0; i < Config.orgAlivePeriod; i++) {
+            org.run();
+        }
+
+        expect(org.alive).toEqual(true);
+        org.run();
+        expect(org.alive).toEqual(false);
+    });
+
+    it("Checking organism destroy because of zero energy", () => {
+        Config.orgAlivePeriod       = Config.orgStartEnergy + 1;
+        Config.orgEnergySpendPeriod = 1;
+        let org = new Organism(0, 1, 2, true, null);
+
+        for (let i = 0; i < Config.orgStartEnergy; i++) {
+            org.run();
+        }
+
+        expect(org.alive).toEqual(false);
     });
 });

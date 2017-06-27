@@ -11,6 +11,17 @@ import Events   from './../global/Events';
 import Helper   from './../global/Helper';
 
 export default class Organism extends Observer {
+    /**
+     * Creates organism instance. If parent parameter is set, then
+     * a clone of parent organism will be created.
+     * @param {String} id Unique identifier of organism
+     * @param {Number} x Unique X coordinate
+     * @param {Number} y Unique Y coordinate
+     * @param {Boolean} alive true if organism is alive
+     * @param {Object} item Reference to the Queue item, where
+     * this organism is located
+     * @param {Organism} parent Parent organism if cloning is needed
+     */
     constructor(id, x, y, alive, item, parent = null) {
         super();
         const cloning = parent !== null;
@@ -34,26 +45,27 @@ export default class Organism extends Observer {
         this._fnId                 = 0;
         this._byteCode             = cloning ? parent.byteCode.splice() : [];
         this._code                 = cloning ? parent.code.splice() : [];
-        this._compiled             = this.compile(this._code);
+        this._compiled             = this._compile(this._code);
         this._gen                  = this._compiled();
         this._events               = Events;
     }
 
-    get alive()              {return this._alive;}
+    get id()                 {return this._id;}
     get x()                  {return this._x;}
     get y()                  {return this._y;}
-    get id()                 {return this._id;}
-    get age()                {return this._age;}
-    get energy()             {return this._energy;}
-    get mem()                {return this._mem;}
+    get alive()              {return this._alive;}
+    get item()               {return this._item;}
     get mutationPeriod()     {return this._mutationPeriod;}
     get mutations()          {return this._mutations;}
-    get posId()              {return Helper.posId(this._x, this._y);}
-    get item()               {return this._item;}
-    get cloneEnergyPercent() {return this._cloneEnergyPercent;}
+    get energy()             {return this._energy;}
     get color()              {return this._color;}
+    get mem()                {return this._mem;}
+    get age()                {return this._age;}
+    get cloneEnergyPercent() {return this._cloneEnergyPercent;}
     get byteCode()           {return this._byteCode;}
     get code()               {return this._code;}
+
+    get posId()              {return Helper.posId(this._x, this._y);}
 
     /**
      * Runs one code iteration and returns
@@ -67,7 +79,7 @@ export default class Organism extends Observer {
     /**
      * Does simple pre processing and final compilation of the code.
      */
-    compile() {
+    _compile() {
         const header1 = 'this.__compiled=function* dna(){var endEvent=this._events.CODE_END;var rand=Math.random;';
         const vars    = this._getVars();
         const header2 = ';while(true){yield;';
@@ -89,6 +101,8 @@ export default class Organism extends Observer {
 
     destroy() {
         this.fire(Events.DESTROY, this);
+        this._alive    = false;
+        this._energy   = 0;
         this._mem      = null;
         this._code     = null;
         this._gen      = null;
@@ -118,7 +132,7 @@ export default class Organism extends Observer {
     _updateDestroy() {
         const alivePeriod = Config.orgAlivePeriod;
 
-        if (this._energy < 1 || alivePeriod > 0 && this._age > alivePeriod) {
+        if (this._energy < 1 || alivePeriod > 0 && this._age >= alivePeriod) {
             this.destroy();
             return false;
         }
