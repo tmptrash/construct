@@ -1202,9 +1202,22 @@ class Organisms {
 
 
 class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default */] {
+    /**
+     * Creates organism instance. If parent parameter is set, then
+     * a clone of parent organism will be created.
+     * @param {String} id Unique identifier of organism
+     * @param {Number} x Unique X coordinate
+     * @param {Number} y Unique Y coordinate
+     * @param {Boolean} alive true if organism is alive
+     * @param {Object} item Reference to the Queue item, where
+     * this organism is located
+     * @param {Organism} parent Parent organism if cloning is needed
+     */
     constructor(id, x, y, alive, item, parent = null) {
         super();
-        const cloning = parent !== null;
+
+        if (parent === null) {this._create();}
+        else {this._clone(parent);}
 
         this._id                   = id;
         this._x                    = x;
@@ -1219,32 +1232,29 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
         this._mutations            = 1;
         this._energy               = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartEnergy;
         this._color                = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartColor;
-        this._mem                  = cloning ? parent.mem.clone() : new __WEBPACK_IMPORTED_MODULE_1__global_Stack__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgMemSize);
         this._age                  = 0;
         this._cloneEnergyPercent   = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgCloneEnergyPercent;
         this._fnId                 = 0;
-        this._byteCode             = cloning ? parent.byteCode.splice() : [];
-        this._code                 = cloning ? parent.code.splice() : [];
-        this._compiled             = this.compile(this._code);
+        this._compiled             = this._compile(this._code);
         this._gen                  = this._compiled();
         this._events               = __WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */];
     }
 
-    get alive()              {return this._alive;}
+    get id()                 {return this._id;}
     get x()                  {return this._x;}
     get y()                  {return this._y;}
-    get id()                 {return this._id;}
-    get age()                {return this._age;}
-    get energy()             {return this._energy;}
-    get mem()                {return this._mem;}
+    get alive()              {return this._alive;}
+    get item()               {return this._item;}
     get mutationPeriod()     {return this._mutationPeriod;}
     get mutations()          {return this._mutations;}
-    get posId()              {return __WEBPACK_IMPORTED_MODULE_4__global_Helper__["a" /* default */].posId(this._x, this._y);}
-    get item()               {return this._item;}
-    get cloneEnergyPercent() {return this._cloneEnergyPercent;}
+    get energy()             {return this._energy;}
     get color()              {return this._color;}
+    get mem()                {return this._mem;}
+    get age()                {return this._age;}
+    get cloneEnergyPercent() {return this._cloneEnergyPercent;}
     get byteCode()           {return this._byteCode;}
     get code()               {return this._code;}
+    get posId()              {return __WEBPACK_IMPORTED_MODULE_4__global_Helper__["a" /* default */].posId(this._x, this._y);}
 
     /**
      * Runs one code iteration and returns
@@ -1258,7 +1268,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
     /**
      * Does simple pre processing and final compilation of the code.
      */
-    compile() {
+    _compile() {
         const header1 = 'this.__compiled=function* dna(){var endEvent=this._events.CODE_END;var rand=Math.random;';
         const vars    = this._getVars();
         const header2 = ';while(true){yield;';
@@ -1270,18 +1280,20 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
     }
 
     grabEnergy(amount) {
-        if ((this._energy -= amount) < 1) {
-            this.destroy();
-            return false;
-        }
-
-        return true;
+        const noEnergy = (this._energy -= amount) < 1;
+        noEnergy && this.destroy();
+        return !noEnergy;
     }
 
     destroy() {
         this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].DESTROY, this);
+        this._alive    = false;
+        this._energy   = 0;
+        this._item     = null;
         this._mem      = null;
+        this._byteCode = null;
         this._code     = null;
+        this._compiled = null;
         this._gen      = null;
         this.clear();
     }
@@ -1301,6 +1313,18 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
     energyDown() {}
     getId() {}
 
+    _create() {
+        this._mem      = new __WEBPACK_IMPORTED_MODULE_1__global_Stack__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgMemSize);
+        this._byteCode = [];
+        this._code     = [];
+    }
+
+    _clone(parent) {
+        this._mem      = parent.mem.clone();
+        this._byteCode = parent.byteCode.splice();
+        this._code     = parent.code.splice();
+    }
+
     /**
      * Checks if organism need to be killed/destroyed, because of age or zero energy
      * @return {Boolean} false means that organism was destroyed.
@@ -1308,13 +1332,11 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
      */
     _updateDestroy() {
         const alivePeriod = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgAlivePeriod;
+        const needDestroy = this._energy < 1 || alivePeriod > 0 && this._age >= alivePeriod;
 
-        if (this._energy < 1 || alivePeriod > 0 && this._age > alivePeriod) {
-            this.destroy();
-            return false;
-        }
+        needDestroy && this.destroy();
 
-        return true;
+        return !needDestroy;
     }
 
     /**
@@ -1325,12 +1347,10 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
      */
     _updateEnergy() {
         if (__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgEnergySpendPeriod === 0 || this._age % __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgEnergySpendPeriod !== 0) {return true;}
-        let codeSize = this._code.length;
-        let decrease = (((codeSize / __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgGarbagePeriod) + 0.5) << 1) >> 1; // analog of Math.round()
-        let grabSize;
+        const codeSize = this._code.length;
+        let   grabSize = (((codeSize / __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgGarbagePeriod) + 0.5) << 1) >> 1; // analog of Math.round()
 
         if (codeSize > __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeMaxSize) {grabSize = codeSize * __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeSizeCoef;}
-        else {grabSize = decrease;}
         if (grabSize < 1) {grabSize = 1;}
         grabSize = Math.min(this._energy, grabSize);
         this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].GRAB_ENERGY, grabSize);

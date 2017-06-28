@@ -1,4 +1,4 @@
-describe("src/global/Console", () => {
+describe("src/organism/Organism", () => {
     let Organism = require('../../../src/organism/Organism').default;
     let Config   = require('../../../src/global/Config').default;
 

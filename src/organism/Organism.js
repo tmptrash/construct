@@ -24,7 +24,9 @@ export default class Organism extends Observer {
      */
     constructor(id, x, y, alive, item, parent = null) {
         super();
-        const cloning = parent !== null;
+
+        if (parent === null) {this._create();}
+        else {this._clone(parent);}
 
         this._id                   = id;
         this._x                    = x;
@@ -39,12 +41,9 @@ export default class Organism extends Observer {
         this._mutations            = 1;
         this._energy               = Config.orgStartEnergy;
         this._color                = Config.orgStartColor;
-        this._mem                  = cloning ? parent.mem.clone() : new Stack(Config.orgMemSize);
         this._age                  = 0;
         this._cloneEnergyPercent   = Config.orgCloneEnergyPercent;
         this._fnId                 = 0;
-        this._byteCode             = cloning ? parent.byteCode.splice() : [];
-        this._code                 = cloning ? parent.code.splice() : [];
         this._compiled             = this._compile(this._code);
         this._gen                  = this._compiled();
         this._events               = Events;
@@ -64,7 +63,6 @@ export default class Organism extends Observer {
     get cloneEnergyPercent() {return this._cloneEnergyPercent;}
     get byteCode()           {return this._byteCode;}
     get code()               {return this._code;}
-
     get posId()              {return Helper.posId(this._x, this._y);}
 
     /**
@@ -91,20 +89,20 @@ export default class Organism extends Observer {
     }
 
     grabEnergy(amount) {
-        if ((this._energy -= amount) < 1) {
-            this.destroy();
-            return false;
-        }
-
-        return true;
+        const noEnergy = (this._energy -= amount) < 1;
+        noEnergy && this.destroy();
+        return !noEnergy;
     }
 
     destroy() {
         this.fire(Events.DESTROY, this);
         this._alive    = false;
         this._energy   = 0;
+        this._item     = null;
         this._mem      = null;
+        this._byteCode = null;
         this._code     = null;
+        this._compiled = null;
         this._gen      = null;
         this.clear();
     }
@@ -124,6 +122,18 @@ export default class Organism extends Observer {
     energyDown() {}
     getId() {}
 
+    _create() {
+        this._mem      = new Stack(Config.orgMemSize);
+        this._byteCode = [];
+        this._code     = [];
+    }
+
+    _clone(parent) {
+        this._mem      = parent.mem.clone();
+        this._byteCode = parent.byteCode.splice();
+        this._code     = parent.code.splice();
+    }
+
     /**
      * Checks if organism need to be killed/destroyed, because of age or zero energy
      * @return {Boolean} false means that organism was destroyed.
@@ -131,13 +141,11 @@ export default class Organism extends Observer {
      */
     _updateDestroy() {
         const alivePeriod = Config.orgAlivePeriod;
+        const needDestroy = this._energy < 1 || alivePeriod > 0 && this._age >= alivePeriod;
 
-        if (this._energy < 1 || alivePeriod > 0 && this._age >= alivePeriod) {
-            this.destroy();
-            return false;
-        }
+        needDestroy && this.destroy();
 
-        return true;
+        return !needDestroy;
     }
 
     /**
@@ -148,12 +156,10 @@ export default class Organism extends Observer {
      */
     _updateEnergy() {
         if (Config.orgEnergySpendPeriod === 0 || this._age % Config.orgEnergySpendPeriod !== 0) {return true;}
-        let codeSize = this._code.length;
-        let decrease = (((codeSize / Config.orgGarbagePeriod) + 0.5) << 1) >> 1; // analog of Math.round()
-        let grabSize;
+        const codeSize = this._code.length;
+        let   grabSize = (((codeSize / Config.orgGarbagePeriod) + 0.5) << 1) >> 1; // analog of Math.round()
 
         if (codeSize > Config.codeMaxSize) {grabSize = codeSize * Config.codeSizeCoef;}
-        else {grabSize = decrease;}
         if (grabSize < 1) {grabSize = 1;}
         grabSize = Math.min(this._energy, grabSize);
         this.fire(Events.GRAB_ENERGY, grabSize);
