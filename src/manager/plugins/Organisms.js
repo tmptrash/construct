@@ -1,9 +1,11 @@
 /**
  * Plugin for Manager module, which handles organisms population
  *
- * Events:
- *   IPS(ips)      Fires if IPS has changed
+ * Events od Manager:
  *   ORGANISM(org) Fires after one organism has processed
+ *
+ * Depends on:
+ *   manager/Manager
  *
  * @author DeadbraiN
  */
@@ -16,17 +18,30 @@ import Organism from './../../organism/Organism';
 
 export default class Organisms {
     constructor(manager) {
-        this._manager   = manager;
-        this._orgs      = new Queue();
-        this._stamp     = Date.now();
-        this._codeRuns  = 0;
-        this._positions = {};
-        this._orgId     = 0;
+        manager.share('codeRuns', 0);
+        manager.share('orgs', new Queue());
 
-        Helper.override(manager, 'onIteration', this._onIteration.bind(this));
-        Helper.override(manager, 'onAfterMove', this._onAfterMove.bind(this));
+        this._manager       = manager;
+        this._positions     = {};
+        this._orgId         = 0;
+        this._onIterationCb = this._onIteration.bind(this);
+        this._onAfterMoveCb = this._onAfterMove.bind(this);
+
+        Helper.override(manager, 'onIteration', this._onIterationCb);
+        Helper.override(manager, 'onAfterMove', this._onAfterMoveCb);
 
         this._createPopulation();
+    }
+
+    destroy() {
+        const man = this._manager;
+
+        Helper.unoverride(man, 'onAfterMove', this._onAfterMoveCb);
+        Helper.unoverride(man, 'onIteration', this._onIterationCb);
+        this._positions = null;
+        for (let org of man.get('orgs')) {org.destroy();}
+        this._manager.unshare('codeRuns');
+        this._manager.unshare('orgs');
     }
 
     /**
@@ -38,33 +53,18 @@ export default class Organisms {
      */
     _onIteration(counter, stamp) {
         const man  = this._manager;
-        let   item = this._orgs.first;
+        let   item = man.get('orgs').first;
         let   org;
 
         while (item) {
             org = item.val;
             man.fire(Events.ORGANISM, org);
-            if (org.run() === false) {item = item.next; continue;}
-            this._updateMutate(org);
+            org.run();
             item = item.next;
         }
 
         this._updateClone(counter);
         this._updateCreate();
-        this._updateIps(stamp);
-    }
-
-    _updateIps(stamp) {
-        const orgs = this._orgs.size;
-        const ts   = stamp - this._stamp;
-        let   ips;
-
-        if (ts < Config.worldIpsPeriodMs) {return;}
-        ips = this._codeRuns / orgs / (ts / 1000);
-        Console.warn('ips: ', ips);
-        this._manager.fire(Events.IPS, ips);
-        this._codeRuns  = 0;
-        this._stamp     = stamp;
     }
 
     /**
@@ -74,12 +74,13 @@ export default class Organisms {
      * @private
      */
     _updateClone(counter) {
-        const orgAmount = this._orgs.size;
+        const orgs      = this._manager.get('orgs');
+        const orgAmount = orgs.size;
         const needClone = Config.orgClonePeriod === 0 ? false : counter % Config.orgClonePeriod === 0;
         if (!needClone || orgAmount < 1 || orgAmount >= Config.worldMaxOrgs) {return false;}
 
-        let org1 = this._orgs.get(Helper.rand(orgAmount)).val;
-        let org2 = this._orgs.get(Helper.rand(orgAmount)).val;
+        let org1 = orgs.get(Helper.rand(orgAmount)).val;
+        let org2 = orgs.get(Helper.rand(orgAmount)).val;
 
         if (!org1.alive && !org2.alive) {return false;}
         if ((org2.alive && !org1.alive) || (org2.energy * org2.mutations > org1.energy * org1.mutations)) {
@@ -91,14 +92,8 @@ export default class Organisms {
         return true;
     }
 
-    _updateMutate(org) {
-        if (Config.orgRainMutationPeriod > 0 && org.mutationPeriod > 0 && org.age % org.mutationPeriod === 0) {
-            this._mutate(org, false);
-        }
-    }
-
     _updateCreate() {
-        if (this._orgs.size < 1) {
+        if (this._manager.get('orgs').size < 1) {
             this._createPopulation();
         }
     }
@@ -107,20 +102,14 @@ export default class Organisms {
         if (org.energy < 1) {return false;}
         let pos = this._manager.world.getNearFreePos(org.x, org.y);
         if (pos === false || this._createOrg(pos, org) === false) {return false;}
-        let child  = this._orgs.last.val;
+        let child  = this._manager.get('orgs').last.val;
         let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >> 1; // analog of Math.round()
 
         org.grabEnergy(energy);
         child.grabEnergy(child.energy - energy);
-        if (energy > 0 && child.energy > 0) {this._mutate(child);}
-
-        this._manager.fire(Events.CLONE, org.id, child.id);
+        this._manager.fire(Events.CLONE, org, child);
 
         return true;
-    }
-
-    _mutate(org, clone = true) {
-        //const mutationPercents = org.mutationPercents;
     }
 
     _createPopulation() {
@@ -132,10 +121,11 @@ export default class Organisms {
     }
 
     _createOrg(pos, parent = null) {
-        if (this._orgs.size >= Config.worldMaxOrgs || pos === false) {return false;}
-        this._orgs.add(null);
-        let last = this._orgs.last;
-        let org  = new Organism(++this._orgId, pos.x, pos.y, true, last, parent);
+        const orgs = this._manager.get('orgs');
+        if (orgs.size >= Config.worldMaxOrgs || pos === false) {return false;}
+        orgs.add(null);
+        let last   = orgs.last;
+        let org    = new Organism(++this._orgId + '', pos.x, pos.y, true, last, parent);
 
         last.val = org;
         this._bindEvents(org);
@@ -162,12 +152,13 @@ export default class Organisms {
     }
 
     _onCodeEnd() {
-        this._codeRuns++;
+        const man = this._manager;
+        man.set('codeRuns', man.get('codeRuns') + 1);
     }
 
     _onKillOrg(org) {
         this._manager.fire(Events.KILL_ORGANISM, org);
-        this._orgs.del(org.item);
+        this._manager.get('orgs').del(org.item);
         delete this._positions[org.posId];
         Console.info(org.id, ' die');
     }

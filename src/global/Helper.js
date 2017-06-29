@@ -13,7 +13,7 @@ export default class Helper {
      * Overrides specified function in two ways: softly - by
      * calling new function and after that original; hardly - by
      * erasing old function by new one. It's still possible to
-     * revert erasing by copy old function from fn.fn property.
+     * unoverride erasing by copy old function from fn.fn property.
      * @param {Object} obj Destination object, we want to override
      * @param {String} fnName Function name
      * @param {Function} fn Destination function
@@ -38,7 +38,7 @@ export default class Helper {
      * @param {String} fnName Function name
      * @param {Function} fn Destination function
      */
-    static revert(obj, fnName, fn) {
+    static unoverride(obj, fnName, fn) {
         obj[fnName] = fn.fn;
         delete fn.fn;
     }

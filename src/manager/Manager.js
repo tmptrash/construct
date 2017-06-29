@@ -9,17 +9,23 @@
  *   manager.run();
  *
  * @author DeadbraiN
+ * TODO: what about destroy of manager instance? We have to destroy plugins
+ * TODO: by calling of destroy() method for every of them
  */
 import Config    from './../global/Config';
 import Observer  from './../global/Observer';
 import Helper    from './../global/Helper';
 import World     from './../visual/World';
 import Organisms from './plugins/Organisms';
+import Mutator   from './plugins/Mutator';
+import Ips       from './plugins/Ips';
 /**
  * {Array} Plugins for Manager
  */
 const PLUGINS = [
-    Organisms
+    Organisms,
+    Mutator,
+    Ips
 ];
 
 export default class Manager extends Observer {
@@ -37,9 +43,11 @@ export default class Manager extends Observer {
 
     constructor() {
         super();
-        this._world     = new World(Config.worldWidth, Config.worldHeight);
-        this._ips       = 0;
-        this._plugins   = new Array(PLUGINS.length);
+        this._world   = new World(Config.worldWidth, Config.worldHeight);
+        this._ips     = 0;
+        this._plugins = new Array(PLUGINS.length);
+        this._stopped = false;
+        this._share   = {};
 
         this._initLoop();
         this._initPlugins();
@@ -65,6 +73,39 @@ export default class Manager extends Observer {
             call(loop);
         }
         call(loop);
+    }
+
+    stop() {
+        this._stopped = true;
+    }
+
+    destroy() {
+        this._world.destroy();
+        for (let p of this._plugins) {p.destroy();}
+        this._plugins = null;
+        this.clear();
+    }
+
+    share(id, val = null) {
+        if (typeof this._share[id] !== 'undefined') {
+            Console.error('Two or more objects try to set value into "' + id + '" key in Manager');
+            return false;
+        }
+        this._share[id] = val;
+
+        return true;
+    }
+
+    set(id, val) {
+        this._share[id] = val;
+    }
+
+    get(id) {
+        return this._share[id];
+    }
+
+    unshare(id) {
+        delete this._share[id];
     }
 
     move(x1, y1, x2, y2, org) {
@@ -105,6 +146,10 @@ export default class Manager extends Observer {
             window.addEventListener('message', (event) => {
                 if (event.data === msgName) {
                     event.stopPropagation();
+                    if (this._stopped) {
+                        Console.warn('Manager has stopped');
+                        return;
+                    }
                     callback();
                 }
             }, true);

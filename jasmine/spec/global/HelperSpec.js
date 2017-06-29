@@ -11,7 +11,7 @@ describe("src/global/Helper", () => {
         tmp.method();
         expect(inc).toEqual(2);
     });
-    it("Checking two override()/revert() method calls", () => {
+    it("Checking two override()/unoverride() method calls", () => {
         class Tmp1 {method() {inc++;}}
         function oMethod1()  {inc++;one++;}
         function oMethod2()  {inc++;two++;}
@@ -27,15 +27,15 @@ describe("src/global/Helper", () => {
         expect(one).toEqual(1);
         expect(two).toEqual(1);
         //
-        // revert
+        // unoverride
         //
-        Helper.revert(tmp, 'method', oMethod2);
+        Helper.unoverride(tmp, 'method', oMethod2);
         tmp.method();
         expect(inc).toEqual(5);
         expect(one).toEqual(2);
         expect(two).toEqual(1);
 
-        Helper.revert(tmp, 'method', oMethod1);
+        Helper.unoverride(tmp, 'method', oMethod1);
         tmp.method();
         expect(inc).toEqual(6);
         expect(one).toEqual(2);
