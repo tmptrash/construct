@@ -34,4 +34,22 @@ describe("src/organism/Organism", () => {
 
         expect(org.alive).toEqual(false);
     });
+
+    it("Checking grabbing energy", () => {
+        let energy = Config.orgStartEnergy;
+        let org    = new Organism(0, 1, 2, true, null);
+
+        org.grabEnergy(10);
+        expect(org.energy).toEqual(energy - 10);
+    });
+
+    it("Checking destroy() method", () => {
+        let org = new Organism(0, 1, 2, true, null);
+
+        expect(org.alive).toEqual(true);
+        expect(org.energy > 0).toEqual(true);
+        org.destroy();
+        expect(org.alive).toEqual(false);
+        expect(org.energy > 0).toEqual(false);
+    });
 });

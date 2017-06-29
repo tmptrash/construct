@@ -74,20 +74,6 @@ export default class Organism extends Observer {
         return this._updateDestroy() && this._updateEnergy();
     }
 
-    /**
-     * Does simple pre processing and final compilation of the code.
-     */
-    _compile() {
-        const header1 = 'this.__compiled=function* dna(){var endEvent=this._events.CODE_END;var rand=Math.random;';
-        const vars    = this._getVars();
-        const header2 = ';while(true){yield;';
-        const footer  = ';this._age++;this.fire(endEvent)}}';
-
-        eval(header1 + vars + header2 + this._code.join(';') + footer);
-
-        return this.__compiled;
-    }
-
     grabEnergy(amount) {
         const noEnergy = (this._energy -= amount) < 1;
         noEnergy && this.destroy();
@@ -121,6 +107,20 @@ export default class Organism extends Observer {
     energyUp() {}
     energyDown() {}
     getId() {}
+
+    /**
+     * Does simple pre processing and final compilation of the code.
+     */
+    _compile() {
+        const header1 = 'this.__compiled=function* dna(){var endEvent=this._events.CODE_END;var rand=Math.random;';
+        const vars    = this._getVars();
+        const header2 = ';while(true){yield;';
+        const footer  = ';this._age++;this.fire(endEvent)}}';
+
+        eval(header1 + vars + header2 + this._code.join(';') + footer);
+
+        return this.__compiled;
+    }
 
     _create() {
         this._mem      = new Stack(Config.orgMemSize);
