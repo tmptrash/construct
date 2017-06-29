@@ -19,6 +19,7 @@ export default class Ips {
     constructor(manager) {
         this._manager       = manager;
         this._stamp         = Date.now();
+        this._orgs          = manager.get('orgs');
         this._onIterationCb = this._onIteration.bind(this);
 
         Helper.override(manager, 'onIteration', this._onIterationCb);
@@ -39,7 +40,7 @@ export default class Ips {
         const ts   = stamp - this._stamp;
         if (ts < Config.worldIpsPeriodMs) {return;}
         const man  = this._manager;
-        const orgs = man.get('orgs').size;
+        const orgs = this._orgs.size;
 
         let   ips;
         ips = man.get('codeRuns') / orgs / (ts / 1000);

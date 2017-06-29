@@ -1068,6 +1068,7 @@ class Ips {
     constructor(manager) {
         this._manager       = manager;
         this._stamp         = Date.now();
+        this._orgs          = manager.get('orgs');
         this._onIterationCb = this._onIteration.bind(this);
 
         __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].override(manager, 'onIteration', this._onIterationCb);
@@ -1088,7 +1089,7 @@ class Ips {
         const ts   = stamp - this._stamp;
         if (ts < __WEBPACK_IMPORTED_MODULE_2__global_Config__["a" /* default */].worldIpsPeriodMs) {return;}
         const man  = this._manager;
-        const orgs = man.get('orgs').size;
+        const orgs = this._orgs.size;
 
         let   ips;
         ips = man.get('codeRuns') / orgs / (ts / 1000);
@@ -1180,9 +1181,12 @@ class Mutator {
 
 class Organisms {
     constructor(manager) {
-        manager.share('codeRuns', 0);
-        manager.share('orgs', new __WEBPACK_IMPORTED_MODULE_4__global_Queue__["a" /* default */]());
+        let orgs = new __WEBPACK_IMPORTED_MODULE_4__global_Queue__["a" /* default */]();
 
+        manager.share('codeRuns', 0);
+        manager.share('orgs', orgs);
+
+        this._orgs          = orgs;
         this._manager       = manager;
         this._positions     = {};
         this._orgId         = 0;
@@ -1201,7 +1205,7 @@ class Organisms {
         __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].unoverride(man, 'onAfterMove', this._onAfterMoveCb);
         __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].unoverride(man, 'onIteration', this._onIterationCb);
         this._positions = null;
-        for (let org of man.get('orgs')) {org.destroy();}
+        for (let org of this._orgs) {org.destroy();}
         this._manager.unshare('codeRuns');
         this._manager.unshare('orgs');
     }
@@ -1215,7 +1219,7 @@ class Organisms {
      */
     _onIteration(counter, stamp) {
         const man  = this._manager;
-        let   item = man.get('orgs').first;
+        let   item = this._orgs.first;
         let   org;
 
         while (item) {
@@ -1236,7 +1240,7 @@ class Organisms {
      * @private
      */
     _updateClone(counter) {
-        const orgs      = this._manager.get('orgs');
+        const orgs      = this._orgs;
         const orgAmount = orgs.size;
         const needClone = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgClonePeriod === 0 ? false : counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgClonePeriod === 0;
         if (!needClone || orgAmount < 1 || orgAmount >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {return false;}
@@ -1255,7 +1259,7 @@ class Organisms {
     }
 
     _updateCreate() {
-        if (this._manager.get('orgs').size < 1) {
+        if (this._orgs.size < 1) {
             this._createPopulation();
         }
     }
@@ -1264,7 +1268,7 @@ class Organisms {
         if (org.energy < 1) {return false;}
         let pos = this._manager.world.getNearFreePos(org.x, org.y);
         if (pos === false || this._createOrg(pos, org) === false) {return false;}
-        let child  = this._manager.get('orgs').last.val;
+        let child  = this._orgs.last.val;
         let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >> 1; // analog of Math.round()
 
         org.grabEnergy(energy);
@@ -1283,7 +1287,7 @@ class Organisms {
     }
 
     _createOrg(pos, parent = null) {
-        const orgs = this._manager.get('orgs');
+        const orgs = this._orgs;
         if (orgs.size >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs || pos === false) {return false;}
         orgs.add(null);
         let last   = orgs.last;
@@ -1320,7 +1324,7 @@ class Organisms {
 
     _onKillOrg(org) {
         this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].KILL_ORGANISM, org);
-        this._manager.get('orgs').del(org.item);
+        this._orgs.del(org.item);
         delete this._positions[org.posId];
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].info(org.id, ' die');
     }
