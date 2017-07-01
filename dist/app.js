@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 6);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -654,48 +654,12 @@ class Observer {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Config__ = __webpack_require__(0);
-/**
- * Module for working with a browser console
- *
- * Usage:
- *   import Console from '.../Console';
- *   Console.msg('msg');
- *
- * @author DeadbraiN
- */
-
-
-class Console {
-    static error(...msg) {
-        if (this._mode === __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_NO) {return;}
-        console.log(`%c${msg.join('')}`, 'background: #fff; color: #aa0000');
-    }
-    static warn (...msg) {
-        if (this._mode === __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_NO) {return;}
-        console.log(`%c${msg.join('')}`, 'background: #fff; color: #cc7a00');
-    }
-    static info (...msg) {
-        if (this._mode !== __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_ALL) {return;}
-        console.log(`%c${msg.join('')}`, 'background: #fff; color: #1a1a00');
-    }
-    static mode (mode = __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_IMPORTANT) {this._mode = mode;}
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = Console;
-
-
-/***/ }),
-/* 5 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Helper__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__visual_World__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__plugins_Organisms__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__plugins_Mutator__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__plugins_Ips__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__visual_World__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__plugins_Organisms__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__plugins_Mutator__ = __webpack_require__(9);
 /**
  * Main manager class of application. Contains all parts of jevo.js app
  * like World, Connection, Console etc... Runs infinite loop inside run()
@@ -716,14 +680,12 @@ class Console {
 
 
 
-
 /**
  * {Array} Plugins for Manager
  */
 const PLUGINS = [
     __WEBPACK_IMPORTED_MODULE_4__plugins_Organisms__["a" /* default */],
-    __WEBPACK_IMPORTED_MODULE_5__plugins_Mutator__["a" /* default */],
-    __WEBPACK_IMPORTED_MODULE_6__plugins_Ips__["a" /* default */]
+    __WEBPACK_IMPORTED_MODULE_5__plugins_Mutator__["a" /* default */]
 ];
 
 class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* default */] {
@@ -742,7 +704,6 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
     constructor() {
         super();
         this._world   = new __WEBPACK_IMPORTED_MODULE_3__visual_World__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldWidth, __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldHeight);
-        this._ips     = 0;
         this._plugins = new Array(PLUGINS.length);
         this._stopped = false;
         this._share   = {};
@@ -782,28 +743,6 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
         for (let p of this._plugins) {p.destroy();}
         this._plugins = null;
         this.clear();
-    }
-
-    share(id, val = null) {
-        if (typeof this._share[id] !== 'undefined') {
-            Console.error('Two or more objects try to set value into "' + id + '" key in Manager');
-            return false;
-        }
-        this._share[id] = val;
-
-        return true;
-    }
-
-    set(id, val) {
-        this._share[id] = val;
-    }
-
-    get(id) {
-        return this._share[id];
-    }
-
-    unshare(id) {
-        delete this._share[id];
     }
 
     move(x1, y1, x2, y2, org) {
@@ -879,12 +818,12 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
 
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_Manager__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_Manager__ = __webpack_require__(4);
 /**
  * This is an entry point of jevo.js application. Compiled version of
  * this file should be included into index.html
@@ -898,6 +837,41 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 const manager = new __WEBPACK_IMPORTED_MODULE_0__manager_Manager__["a" /* default */]();
 manager.run();
+
+/***/ }),
+/* 6 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Config__ = __webpack_require__(0);
+/**
+ * Module for working with a browser console
+ *
+ * Usage:
+ *   import Console from '.../Console';
+ *   Console.msg('msg');
+ *
+ * @author DeadbraiN
+ */
+
+
+class Console {
+    static error(...msg) {
+        if (this._mode === __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_NO) {return;}
+        console.log(`%c${msg.join('')}`, 'background: #fff; color: #aa0000');
+    }
+    static warn (...msg) {
+        if (this._mode === __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_NO) {return;}
+        console.log(`%c${msg.join('')}`, 'background: #fff; color: #cc7a00');
+    }
+    static info (...msg) {
+        if (this._mode !== __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_ALL) {return;}
+        console.log(`%c${msg.join('')}`, 'background: #fff; color: #1a1a00');
+    }
+    static mode (mode = __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_IMPORTANT) {this._mode = mode;}
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = Console;
+
 
 /***/ }),
 /* 7 */
@@ -1043,70 +1017,6 @@ class Stack {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Events__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Console__ = __webpack_require__(4);
-/**
- * Calculates IPS (Iterations Per Second) value.
- *
- * Events of Manager:
- *   IPS(ips)      Fires if IPS has changed
- *
- * Depends on:
- *   manager/Manager
- *   manager/plugins/Organisms
- *
- * @author DeadbraiN
- */
-
-
-
-
-
-class Ips {
-    constructor(manager) {
-        this._manager       = manager;
-        this._stamp         = Date.now();
-        this._orgs          = manager.get('orgs');
-        this._onIterationCb = this._onIteration.bind(this);
-
-        __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].override(manager, 'onIteration', this._onIterationCb);
-    }
-
-    destroy() {
-        __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].unoverride(this._manager, 'onIteration', this._onIterationCb);
-    }
-
-    /**
-     * Override of Manager.onIteration() method. Is called on every
-     * iteration of main loop. The counter is an analog of time.
-     * @param {Number} counter Value of main loop counter.
-     * @param {Number} stamp Time stamp of current iteration
-     * @private
-     */
-    _onIteration(counter, stamp) {
-        const ts   = stamp - this._stamp;
-        if (ts < __WEBPACK_IMPORTED_MODULE_2__global_Config__["a" /* default */].worldIpsPeriodMs) {return;}
-        const man  = this._manager;
-        const orgs = this._orgs.size;
-
-        let   ips;
-        ips = man.get('codeRuns') / orgs / (ts / 1000);
-        __WEBPACK_IMPORTED_MODULE_3__global_Console__["a" /* default */].warn('ips: ', ips);
-        man.fire(__WEBPACK_IMPORTED_MODULE_1__global_Events__["a" /* default */].IPS, ips);
-        man.set('codeRuns',  0);
-        this._stamp  = stamp;
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = Ips;
-
-
-/***/ }),
-/* 10 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
 /**
@@ -1151,16 +1061,16 @@ class Mutator {
 
 
 /***/ }),
-/* 11 */
+/* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Queue__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_Organism__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_Organism__ = __webpack_require__(11);
 /**
  * Plugin for Manager module, which handles organisms population
  *
@@ -1181,12 +1091,9 @@ class Mutator {
 
 class Organisms {
     constructor(manager) {
-        let orgs = new __WEBPACK_IMPORTED_MODULE_4__global_Queue__["a" /* default */]();
-
-        manager.share('codeRuns', 0);
-        manager.share('orgs', orgs);
-
-        this._orgs          = orgs;
+        this._orgs          = new __WEBPACK_IMPORTED_MODULE_4__global_Queue__["a" /* default */]();
+        this._codeRuns      = 0;
+        this._stamp         = Date.now();
         this._manager       = manager;
         this._positions     = {};
         this._orgId         = 0;
@@ -1206,8 +1113,6 @@ class Organisms {
         __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].unoverride(man, 'onIteration', this._onIterationCb);
         this._positions = null;
         for (let org of this._orgs) {org.destroy();}
-        this._manager.unshare('codeRuns');
-        this._manager.unshare('orgs');
     }
 
     /**
@@ -1231,6 +1136,7 @@ class Organisms {
 
         this._updateClone(counter);
         this._updateCreate();
+        this._updateIps(stamp);
     }
 
     /**
@@ -1262,6 +1168,20 @@ class Organisms {
         if (this._orgs.size < 1) {
             this._createPopulation();
         }
+    }
+
+    _updateIps(stamp) {
+        const ts   = stamp - this._stamp;
+        if (ts < __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldIpsPeriodMs) {return;}
+        const man  = this._manager;
+        const orgs = this._orgs.size;
+
+        let   ips;
+        ips = this._codeRuns / orgs / (ts / 1000);
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('ips: ', ips);
+        man.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].IPS, ips);
+        this._codeRuns = 0;
+        this._stamp  = stamp;
     }
 
     _clone(org) {
@@ -1318,8 +1238,7 @@ class Organisms {
     }
 
     _onCodeEnd() {
-        const man = this._manager;
-        man.set('codeRuns', man.get('codeRuns') + 1);
+        this._codeRuns++;
     }
 
     _onKillOrg(org) {
@@ -1333,7 +1252,7 @@ class Organisms {
 
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1536,7 +1455,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
 
 
 /***/ }),
-/* 13 */
+/* 12 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

@@ -28,42 +28,47 @@ export default class Organism extends Observer {
         if (parent === null) {this._create();}
         else {this._clone(parent);}
 
-        this._id                   = id;
-        this._x                    = x;
-        this._y                    = y;
-        this._alive                = alive;
-        this._item                 = item;
+        this._id                    = id;
+        this._x                     = x;
+        this._y                     = y;
+        this._alive                 = alive;
+        this._item                  = item;
 
-        this._mutationProbs        = Config.orgMutationProbs;
-        this._mutationClonePercent = Config.orgCloneMutation;
-        this._mutationPeriod       = Config.orgRainMutationPeriod;
-        this._mutationPercent      = Config.orgRainMutationPercent;
-        this._mutations            = 1;
-        this._energy               = Config.orgStartEnergy;
-        this._color                = Config.orgStartColor;
-        this._age                  = 0;
-        this._cloneEnergyPercent   = Config.orgCloneEnergyPercent;
-        this._fnId                 = 0;
-        this._compiled             = this._compile(this._code);
-        this._gen                  = this._compiled();
-        this._events               = Events;
+        this._mutationProbs         = Config.orgMutationProbs;
+        this._mutationClonePercent  = Config.orgCloneMutation;
+        this._mutationPeriod        = Config.orgRainMutationPeriod;
+        this._mutationPercent       = Config.orgRainMutationPercent;
+        this._mutations             = 1;
+        this._energy                = Config.orgStartEnergy;
+        this._color                 = Config.orgStartColor;
+        this._age                   = 0;
+        this._cloneEnergyPercent    = Config.orgCloneEnergyPercent;
+        this._fnId                  = 0;
+        this._events                = Events;
+        this.compile();
     }
 
-    get id()                 {return this._id;}
-    get x()                  {return this._x;}
-    get y()                  {return this._y;}
-    get alive()              {return this._alive;}
-    get item()               {return this._item;}
-    get mutationPeriod()     {return this._mutationPeriod;}
-    get mutations()          {return this._mutations;}
-    get energy()             {return this._energy;}
-    get color()              {return this._color;}
-    get mem()                {return this._mem;}
-    get age()                {return this._age;}
-    get cloneEnergyPercent() {return this._cloneEnergyPercent;}
-    get byteCode()           {return this._byteCode;}
-    get code()               {return this._code;}
-    get posId()              {return Helper.posId(this._x, this._y);}
+    get id()                    {return this._id;}
+    get x()                     {return this._x;}
+    get y()                     {return this._y;}
+    get alive()                 {return this._alive;}
+    get item()                  {return this._item;}
+    get mutationProbs()         {return this._mutationProbs;}
+    get mutationPeriod()        {return this._mutationPeriod;}
+    get mutationPercent()       {return this._mutationPercent;}
+    get mutationClonePercent()  {return this._mutationClonePercent;}
+    get mutations()             {return this._mutations;}
+    get energy()                {return this._energy;}
+    get color()                 {return this._color;}
+    get mem()                   {return this._mem;}
+    get age()                   {return this._age;}
+    get cloneEnergyPercent()    {return this._cloneEnergyPercent;}
+    get byteCode()              {return this._byteCode;}
+    get code()                  {return this._code;}
+    get posId()                 {return Helper.posId(this._x, this._y);}
+
+    set mutationClonePercent(m) {this._mutationClonePercent = m;}
+    set mutationPeriod(m)       {this._mutationPeriod = m;}
 
     /**
      * Runs one code iteration and returns
@@ -72,6 +77,11 @@ export default class Organism extends Observer {
     run() {
         this._gen.next();
         return this._updateDestroy() && this._updateEnergy();
+    }
+
+    compile() {
+        this._compiled = this._compile(this._code);
+        this._gen      = this._compiled();
     }
 
     grabEnergy(amount) {
@@ -156,7 +166,7 @@ export default class Organism extends Observer {
      */
     _updateEnergy() {
         if (Config.orgEnergySpendPeriod === 0 || this._age % Config.orgEnergySpendPeriod !== 0) {return true;}
-        const codeSize = this._code.length;
+        const codeSize = this._byteCode.length;
         let   grabSize = (((codeSize / Config.orgGarbagePeriod) + 0.5) << 1) >> 1; // analog of Math.round()
 
         if (codeSize > Config.codeMaxSize) {grabSize = codeSize * Config.codeSizeCoef;}

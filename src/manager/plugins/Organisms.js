@@ -18,12 +18,9 @@ import Organism from './../../organism/Organism';
 
 export default class Organisms {
     constructor(manager) {
-        let orgs = new Queue();
-
-        manager.share('codeRuns', 0);
-        manager.share('orgs', orgs);
-
-        this._orgs          = orgs;
+        this._orgs          = new Queue();
+        this._codeRuns      = 0;
+        this._stamp         = Date.now();
         this._manager       = manager;
         this._positions     = {};
         this._orgId         = 0;
@@ -43,8 +40,6 @@ export default class Organisms {
         Helper.unoverride(man, 'onIteration', this._onIterationCb);
         this._positions = null;
         for (let org of this._orgs) {org.destroy();}
-        this._manager.unshare('codeRuns');
-        this._manager.unshare('orgs');
     }
 
     /**
@@ -68,6 +63,7 @@ export default class Organisms {
 
         this._updateClone(counter);
         this._updateCreate();
+        this._updateIps(stamp);
     }
 
     /**
@@ -99,6 +95,20 @@ export default class Organisms {
         if (this._orgs.size < 1) {
             this._createPopulation();
         }
+    }
+
+    _updateIps(stamp) {
+        const ts   = stamp - this._stamp;
+        if (ts < Config.worldIpsPeriodMs) {return;}
+        const man  = this._manager;
+        const orgs = this._orgs.size;
+
+        let   ips;
+        ips = this._codeRuns / orgs / (ts / 1000);
+        Console.warn('ips: ', ips);
+        man.fire(Events.IPS, ips);
+        this._codeRuns = 0;
+        this._stamp  = stamp;
     }
 
     _clone(org) {
@@ -155,8 +165,7 @@ export default class Organisms {
     }
 
     _onCodeEnd() {
-        const man = this._manager;
-        man.set('codeRuns', man.get('codeRuns') + 1);
+        this._codeRuns++;
     }
 
     _onKillOrg(org) {

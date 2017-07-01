@@ -18,14 +18,12 @@ import Helper    from './../global/Helper';
 import World     from './../visual/World';
 import Organisms from './plugins/Organisms';
 import Mutator   from './plugins/Mutator';
-import Ips       from './plugins/Ips';
 /**
  * {Array} Plugins for Manager
  */
 const PLUGINS = [
     Organisms,
-    Mutator,
-    Ips
+    Mutator
 ];
 
 export default class Manager extends Observer {
@@ -44,7 +42,6 @@ export default class Manager extends Observer {
     constructor() {
         super();
         this._world   = new World(Config.worldWidth, Config.worldHeight);
-        this._ips     = 0;
         this._plugins = new Array(PLUGINS.length);
         this._stopped = false;
         this._share   = {};
@@ -84,28 +81,6 @@ export default class Manager extends Observer {
         for (let p of this._plugins) {p.destroy();}
         this._plugins = null;
         this.clear();
-    }
-
-    share(id, val = null) {
-        if (typeof this._share[id] !== 'undefined') {
-            Console.error('Two or more objects try to set value into "' + id + '" key in Manager');
-            return false;
-        }
-        this._share[id] = val;
-
-        return true;
-    }
-
-    set(id, val) {
-        this._share[id] = val;
-    }
-
-    get(id) {
-        return this._share[id];
-    }
-
-    unshare(id) {
-        delete this._share[id];
     }
 
     move(x1, y1, x2, y2, org) {

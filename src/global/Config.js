@@ -5,9 +5,10 @@
  * @author DeadbraiN
  * TODO: find and remove unused values
  */
-const QUIET_ALL       = 0;
-const QUIET_IMPORTANT = 1;
-const QUIET_NO        = 2;
+const QUIET_ALL               = 0;
+const QUIET_IMPORTANT         = 1;
+const QUIET_NO                = 2;
+const ORG_MAX_MUTATION_PERIOD = 1000;
 
 const Config = {
     /**
@@ -15,9 +16,10 @@ const Config = {
      * types of console messages. For example in QUIET_IMPORTANT
      * mode info messages will be hidden.
      */
-    QUIET_ALL      : QUIET_ALL,
-    QUIET_IMPORTANT: QUIET_IMPORTANT,
-    QUIET_NO       : QUIET_NO,
+    QUIET_ALL              : QUIET_ALL,
+    QUIET_IMPORTANT        : QUIET_IMPORTANT,
+    QUIET_NO               : QUIET_NO,
+    ORG_MAX_MUTATION_PERIOD: ORG_MAX_MUTATION_PERIOD,
     /**
      * {Array} Probabilities with which mutator decides what to do: 
      * add, change, delete character of the code; change amount of
