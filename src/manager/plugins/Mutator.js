@@ -32,7 +32,7 @@ export default class Mutator {
         ]
 
         manager.on(Events.ORGANISM, this._onOrganism.bind(this));
-        manager.on(Events.CLONE, this._onClone.bind(this));
+        manager.on(Events.CLONE, this._onCloneOrg.bind(this));
     }
 
     destroy() {
@@ -44,7 +44,7 @@ export default class Mutator {
         }
     }
 
-    _onClone(parent, child) {
+    _onCloneOrg(parent, child) {
         if (child.energy > 0) {this._mutate(child);}
     }
 
@@ -65,8 +65,14 @@ export default class Mutator {
         return mutations;
     }
 
-    _changeColor() {
+    _changeColor(org, mutAmount) {
+        const mutations = org.mutations;
+        const colPeriod = Config.orgColorPeriod;
+        const colIndex  = mutations - (mutations % colPeriod);
 
+        if (mutations > colPeriod && colIndex >= mutations - mutAmount && colIndex <= mutations) {
+            if (++org.color > Config.ORG_MAX_COLOR) {org.color = Config.ORG_FIRST_COLOR;}
+        }
     }
 
     /**
@@ -140,5 +146,17 @@ export default class Mutator {
 
     _onPeriod(org) {
         org.mutationPeriod = Helper.rand(Config.ORG_MAX_MUTATION_PERIOD);
+    }
+
+    _onAmount(org) {
+        org.mutationPercent = Math.random();
+    }
+
+    _onProbs(org) {
+        org.mutationProbs[Helper.rand(org.mutationProbs.length)] = Helper.rand(Config.orgMutationProbsMaxValue);
+    }
+
+    _onCloneEnergyPercent(org) {
+        org.cloneEnergyPercent = Math.random();
     }
 }

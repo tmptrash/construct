@@ -78,9 +78,13 @@
  * @author DeadbraiN
  * TODO: find and remove unused values
  */
-const QUIET_ALL       = 0;
-const QUIET_IMPORTANT = 1;
-const QUIET_NO        = 2;
+const QUIET_ALL               = 0;
+const QUIET_IMPORTANT         = 1;
+const QUIET_NO                = 2;
+
+const ORG_MAX_MUTATION_PERIOD = 1000;
+const ORG_FIRST_COLOR         = 1;
+const ORG_MAX_COLOR           = Number.MAX_SAFE_INTEGER;
 
 const Config = {
     /**
@@ -88,9 +92,13 @@ const Config = {
      * types of console messages. For example in QUIET_IMPORTANT
      * mode info messages will be hidden.
      */
-    QUIET_ALL      : QUIET_ALL,
-    QUIET_IMPORTANT: QUIET_IMPORTANT,
-    QUIET_NO       : QUIET_NO,
+    QUIET_ALL              : QUIET_ALL,
+    QUIET_IMPORTANT        : QUIET_IMPORTANT,
+    QUIET_NO               : QUIET_NO,
+
+    ORG_MAX_MUTATION_PERIOD: ORG_MAX_MUTATION_PERIOD,
+    ORG_FIRST_COLOR        : ORG_FIRST_COLOR,
+    ORG_MAX_COLOR          : ORG_MAX_COLOR,
     /**
      * {Array} Probabilities with which mutator decides what to do: 
      * add, change, delete character of the code; change amount of
@@ -423,63 +431,6 @@ const Config = {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/**
- * List of all available event ids. New events should be added to
- * the end of the list.
- *
- * @author DeadbraiN
- * TODO: find unused and remove. But after main code is done.
- */
-const Events = {
-    YIELD: 1,
-    ITERATION: 2,
-    IPS: 3,
-    REQUEST: 4,
-    BACKUP: 5,
-    YIELDTO: 6,
-    ORGANISM: 7,
-    GRAB_ENERGY: 8,
-    UPDATE_ENERGY: 9,
-    KILL_ORGANISM: 10,
-    MUTATIONS: 11,
-    CLONE: 12,
-    EAT_LEFT: 13,
-    EAT_RIGHT: 14,
-    EAT_UP: 15,
-    EAT_DOWN: 16,
-    STEP_LEFT: 17,
-    STEP_RIGHT: 18,
-    STEP_UP: 19,
-    STEP_DOWN: 20,
-    EAT_ORGANISM: 21,
-    EAT_ENERGY: 22,
-    BORN_ORGANISM: 23,
-    DOT_REQUEST: 24,
-    STEP_YIELD: 25,
-    BEFORE_RESPONSE: 26,
-    AFTER_REQUEST: 27,
-    GET_ENERGY: 28,
-    PROP_LEFT: 29,
-    PROP_RIGHT: 30,
-    PROP_UP: 31,
-    PROP_DOWN: 32,
-    DOT: 33,
-    MOVE: 34,
-    GRAB_LEFT: 35,
-    GRAB_RIGHT: 36,
-    GRAB_UP: 37,
-    GRAB_DOWN: 38,
-    CODE_END: 39,
-    DESTROY: 40
-};
-
-/* harmony default export */ __webpack_exports__["a"] = (Events);
-
-/***/ }),
-/* 2 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Config__ = __webpack_require__(0);
 /**
  * Global helper class
@@ -596,6 +547,63 @@ class Helper {
 
 
 /***/ }),
+/* 2 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/**
+ * List of all available event ids. New events should be added to
+ * the end of the list.
+ *
+ * @author DeadbraiN
+ * TODO: find unused and remove. But after main code is done.
+ */
+const Events = {
+    YIELD: 1,
+    ITERATION: 2,
+    IPS: 3,
+    REQUEST: 4,
+    BACKUP: 5,
+    YIELDTO: 6,
+    ORGANISM: 7,
+    GRAB_ENERGY: 8,
+    UPDATE_ENERGY: 9,
+    KILL_ORGANISM: 10,
+    MUTATIONS: 11,
+    CLONE: 12,
+    EAT_LEFT: 13,
+    EAT_RIGHT: 14,
+    EAT_UP: 15,
+    EAT_DOWN: 16,
+    STEP_LEFT: 17,
+    STEP_RIGHT: 18,
+    STEP_UP: 19,
+    STEP_DOWN: 20,
+    EAT_ORGANISM: 21,
+    EAT_ENERGY: 22,
+    BORN_ORGANISM: 23,
+    DOT_REQUEST: 24,
+    STEP_YIELD: 25,
+    BEFORE_RESPONSE: 26,
+    AFTER_REQUEST: 27,
+    GET_ENERGY: 28,
+    PROP_LEFT: 29,
+    PROP_RIGHT: 30,
+    PROP_UP: 31,
+    PROP_DOWN: 32,
+    DOT: 33,
+    MOVE: 34,
+    GRAB_LEFT: 35,
+    GRAB_RIGHT: 36,
+    GRAB_UP: 37,
+    GRAB_DOWN: 38,
+    CODE_END: 39,
+    DESTROY: 40
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (Events);
+
+/***/ }),
 /* 3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -656,8 +664,8 @@ class Observer {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Helper__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__visual_World__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__visual_World__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__plugins_Organisms__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__plugins_Mutator__ = __webpack_require__(9);
 /**
@@ -1017,8 +1025,10 @@ class Stack {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__organism_Code__ = __webpack_require__(11);
 /**
  * Plugin for Manager class, which is tracks when and how many mutations
  * should be added to special organism's code at special moment of it's
@@ -1026,18 +1036,37 @@ class Stack {
  *
  * Depends on:
  *   manager/Manager
+ *   manager/plugins/Organisms
  *
  * @author DeadbraiN
  */
 
 
 
+
+
 class Mutator {
     constructor(manager) {
         this._manager = manager;
+        this._BITS_PER_VAR = 2;
+        this._VARS = 24 / this._BITS_PER_VAR;
+        this._MUTATION_TYPES = [
+            this._onAdd.bind(this),
+            this._onChange.bind(this),
+            this._onDel.bind(this),
+            this._onSmallChange.bind(this),
+            this._onClone.bind(this),
+            this._onPeriod.bind(this),
+            this._onAmount.bind(this),
+            this._onProbs.bind(this),
+            this._onCloneEnergyPercent.bind(this)
+        ]
 
         manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["a" /* default */].ORGANISM, this._onOrganism.bind(this));
-        manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["a" /* default */].CLONE, this._onClone.bind(this));
+        manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["a" /* default */].CLONE, this._onCloneOrg.bind(this));
+    }
+
+    destroy() {
     }
 
     _onOrganism(org) {
@@ -1046,15 +1075,120 @@ class Mutator {
         }
     }
 
-    _onClone(parent, child) {
+    _onCloneOrg(parent, child) {
         if (child.energy > 0) {this._mutate(child);}
     }
 
     _mutate(org, clone = true) {
-        //const mutationPercents = org.mutationPercents;
+        const bCode     = org.byteCode;
+        let   mutations = Math.round(bCode.length * org.mutationPercent) || 1;
+        const probIndex = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].probIndex;
+        const mTypes    = this._MUTATION_TYPES;
+
+        for (let i = 0; i < mutations; i++) {
+            mTypes[bCode.length < 1 ? 0 : probIndex(org.mutationProbs)](org);
+        }
+        org.mutations += mutations;
+        this._changeColor(org, mutations);
+        org.compile();
+        this._manager.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["a" /* default */].MUTATIONS, org, mutations, clone);
+
+        return mutations;
     }
 
-    destroy() {
+    _changeColor(org, mutAmount) {
+        const mutations = org.mutations;
+        const colPeriod = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgColorPeriod;
+        const colIndex  = mutations - (mutations % colPeriod);
+
+        if (mutations > colPeriod && colIndex >= mutations - mutAmount && colIndex <= mutations) {
+            if (++org.color > __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].ORG_MAX_COLOR) {org.color = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].ORG_FIRST_COLOR;}
+        }
+    }
+
+    /**
+     * We have to use >>> 0 at the end, because << operator works
+     * with signed 32bit numbers, but not with unsigned like we need
+     * @returns {number}
+     */
+    _number() {
+        return __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(0xff) << 24 & __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(0xffffff) >>> 0;
+    }
+
+    _operator(num) {
+        return num >>> 24;
+    }
+
+    _setOperator(num, op) {
+        return (num & (op << 24 | 0x00ffffff)) >>> 0;
+    }
+
+    /**
+     * Sets variable bits into value 'val' and returns updated full number.
+     * Example: _setVar(0xaabbccdd, 2, 0x3) -> 0x
+     * @param {Number} num Original number
+     * @param {Number} index Variable index
+     * @param {Number} val New variable value
+     * @returns {Number}
+     * @private
+     */
+    _setVar(num, index, val) {
+        const BITS  = this._BITS_PER_VAR;
+        const bits  = index * BITS;
+        const lBits = 24 - bits;
+        const rBits = 8 + bits + BITS;
+
+        return (num >>> lBits << lBits | val << (lBits - BITS) | num << rBits >>> rBits) >>> 0;
+    }
+
+    _getVar(num, index) {
+        return (num << 8 >>> 8) << (8 + index * this._BITS_PER_VAR) >>> 30;
+    }
+
+    _onAdd(org) {
+        org.byteCode.splice(__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(org.byteCode.length), 0, this._number());
+    }
+
+    _onChange(org) {
+        org.byteCode[__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(org.byteCode.length)] = this._number();
+    }
+
+    _onDel(org) {
+        org.byteCode.splice(__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(org.byteCode.length), 1);
+    }
+
+    /**
+     * Operator type or one variable may mutate
+     * @param {Organism} org
+     * @private
+     */
+    _onSmallChange(org) {
+        let pos = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(org.byteCode.length);
+        if (__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(1) === 0) {
+            org.byteCode[pos] = this._setOperator(org.byteCode[pos], __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(256));
+        } else {
+            org.byteCode[pos] = this._setVar(org.byteCode[pos], __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(this._VARS), __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(1 << this._BITS_PER_VAR));
+        }
+    }
+
+    _onClone(org) {
+        org.mutationClonePercent = Math.random();
+    }
+
+    _onPeriod(org) {
+        org.mutationPeriod = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].ORG_MAX_MUTATION_PERIOD);
+    }
+
+    _onAmount(org) {
+        org.mutationPercent = Math.random();
+    }
+
+    _onProbs(org) {
+        org.mutationProbs[__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(org.mutationProbs.length)] = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgMutationProbsMaxValue);
+    }
+
+    _onCloneEnergyPercent(org) {
+        org.cloneEnergyPercent = Math.random();
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Mutator;
@@ -1065,12 +1199,12 @@ class Mutator {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Queue__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_Organism__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_Organism__ = __webpack_require__(12);
 /**
  * Plugin for Manager module, which handles organisms population
  *
@@ -1256,11 +1390,35 @@ class Organisms {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/**
+ * Implements organism's byte code logic. Byte code is a sequence of
+ * 32bit numbers. Each of them has special format:
+ *   bytes 0..7   - operation id
+ *   bytes 8..9   - var 0
+ *   ...
+ *   bytes 30..31 - var x
+ *
+ * @author DeadbraiN
+ * TODO: may be this module is redundant
+ */
+class Code {
+    constructor() {
+
+    }
+}
+/* unused harmony export default */
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Stack__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Observer__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Helper__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Helper__ = __webpack_require__(1);
 /**
  * TODO: add description:
  * TODO:   - events
@@ -1291,42 +1449,50 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
         if (parent === null) {this._create();}
         else {this._clone(parent);}
 
-        this._id                   = id;
-        this._x                    = x;
-        this._y                    = y;
-        this._alive                = alive;
-        this._item                 = item;
+        this._id                    = id;
+        this._x                     = x;
+        this._y                     = y;
+        this._alive                 = alive;
+        this._item                  = item;
 
-        this._mutationProbs        = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgMutationProbs;
-        this._mutationClonePercent = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgCloneMutation;
-        this._mutationPeriod       = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgRainMutationPeriod;
-        this._mutationPercent      = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgRainMutationPercent;
-        this._mutations            = 1;
-        this._energy               = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartEnergy;
-        this._color                = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartColor;
-        this._age                  = 0;
-        this._cloneEnergyPercent   = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgCloneEnergyPercent;
-        this._fnId                 = 0;
-        this._compiled             = this._compile(this._code);
-        this._gen                  = this._compiled();
-        this._events               = __WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */];
+        this._mutationProbs         = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgMutationProbs;
+        this._mutationClonePercent  = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgCloneMutation;
+        this._mutationPeriod        = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgRainMutationPeriod;
+        this._mutationPercent       = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgRainMutationPercent;
+        this._mutations             = 1;
+        this._energy                = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartEnergy;
+        this._color                 = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartColor;
+        this._age                   = 0;
+        this._cloneEnergyPercent    = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgCloneEnergyPercent;
+        this._fnId                  = 0;
+        this._events                = __WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */];
+        this.compile();
     }
 
-    get id()                 {return this._id;}
-    get x()                  {return this._x;}
-    get y()                  {return this._y;}
-    get alive()              {return this._alive;}
-    get item()               {return this._item;}
-    get mutationPeriod()     {return this._mutationPeriod;}
-    get mutations()          {return this._mutations;}
-    get energy()             {return this._energy;}
-    get color()              {return this._color;}
-    get mem()                {return this._mem;}
-    get age()                {return this._age;}
-    get cloneEnergyPercent() {return this._cloneEnergyPercent;}
-    get byteCode()           {return this._byteCode;}
-    get code()               {return this._code;}
-    get posId()              {return __WEBPACK_IMPORTED_MODULE_4__global_Helper__["a" /* default */].posId(this._x, this._y);}
+    get id()                    {return this._id;}
+    get x()                     {return this._x;}
+    get y()                     {return this._y;}
+    get alive()                 {return this._alive;}
+    get item()                  {return this._item;}
+    get mutationProbs()         {return this._mutationProbs;}
+    get mutationPeriod()        {return this._mutationPeriod;}
+    get mutationPercent()       {return this._mutationPercent;}
+    get mutationClonePercent()  {return this._mutationClonePercent;}
+    get mutations()             {return this._mutations;}
+    get energy()                {return this._energy;}
+    get color()                 {return this._color;}
+    get mem()                   {return this._mem;}
+    get age()                   {return this._age;}
+    get cloneEnergyPercent()    {return this._cloneEnergyPercent;}
+    get byteCode()              {return this._byteCode;}
+    get code()                  {return this._code;}
+    get posId()                 {return __WEBPACK_IMPORTED_MODULE_4__global_Helper__["a" /* default */].posId(this._x, this._y);}
+
+    set mutationClonePercent(m) {this._mutationClonePercent = m;}
+    set mutationPeriod(m)       {this._mutationPeriod = m;}
+    set mutationPercent(p)      {this._mutationPercent = p;}
+    set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p;}
+    set mutations(m)            {this._mutations = m;}
 
     /**
      * Runs one code iteration and returns
@@ -1335,6 +1501,11 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
     run() {
         this._gen.next();
         return this._updateDestroy() && this._updateEnergy();
+    }
+
+    compile() {
+        this._compiled = this._compile(this._code);
+        this._gen      = this._compiled();
     }
 
     grabEnergy(amount) {
@@ -1419,7 +1590,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
      */
     _updateEnergy() {
         if (__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgEnergySpendPeriod === 0 || this._age % __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgEnergySpendPeriod !== 0) {return true;}
-        const codeSize = this._code.length;
+        const codeSize = this._byteCode.length;
         let   grabSize = (((codeSize / __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgGarbagePeriod) + 0.5) << 1) >> 1; // analog of Math.round()
 
         if (codeSize > __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeMaxSize) {grabSize = codeSize * __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeSizeCoef;}
@@ -1455,13 +1626,13 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Observer__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(2);
 /**
  * 2D space, where all organisms are live. In reality this is
  * just a peace of memory, where all organisms are located. It

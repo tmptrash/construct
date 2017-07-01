@@ -69,6 +69,9 @@ export default class Organism extends Observer {
 
     set mutationClonePercent(m) {this._mutationClonePercent = m;}
     set mutationPeriod(m)       {this._mutationPeriod = m;}
+    set mutationPercent(p)      {this._mutationPercent = p;}
+    set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p;}
+    set mutations(m)            {this._mutations = m;}
 
     /**
      * Runs one code iteration and returns

@@ -8,7 +8,10 @@
 const QUIET_ALL               = 0;
 const QUIET_IMPORTANT         = 1;
 const QUIET_NO                = 2;
+
 const ORG_MAX_MUTATION_PERIOD = 1000;
+const ORG_FIRST_COLOR         = 1;
+const ORG_MAX_COLOR           = Number.MAX_SAFE_INTEGER;
 
 const Config = {
     /**
@@ -19,7 +22,10 @@ const Config = {
     QUIET_ALL              : QUIET_ALL,
     QUIET_IMPORTANT        : QUIET_IMPORTANT,
     QUIET_NO               : QUIET_NO,
+
     ORG_MAX_MUTATION_PERIOD: ORG_MAX_MUTATION_PERIOD,
+    ORG_FIRST_COLOR        : ORG_FIRST_COLOR,
+    ORG_MAX_COLOR          : ORG_MAX_COLOR,
     /**
      * {Array} Probabilities with which mutator decides what to do: 
      * add, change, delete character of the code; change amount of

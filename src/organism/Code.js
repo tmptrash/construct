@@ -7,6 +7,7 @@
  *   bytes 30..31 - var x
  *
  * @author DeadbraiN
+ * TODO: may be this module is redundant
  */
 export default class Code {
     constructor() {
