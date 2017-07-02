@@ -1014,7 +1014,7 @@ class Stack {
      * @return {Stack} Clonned Stack instance
      */
     clone() {
-        return new Stack(this._size, this._arr.splice(), this._pos);
+        return new Stack(this._size, this._arr.slice(), this._pos);
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Stack;
@@ -1112,7 +1112,7 @@ class Mutator {
      * @returns {number}
      */
     _number() {
-        return __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(0xff) << 24 & __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(0xffffff) >>> 0;
+        return (__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(0xff) << 24 | __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(0xffffff)) >>> 0;
     }
 
     _operator(num) {
@@ -1564,8 +1564,8 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
 
     _clone(parent) {
         this._mem      = parent.mem.clone();
-        this._byteCode = parent.byteCode.splice();
-        this._code     = parent.code.splice();
+        this._byteCode = parent.byteCode.slice();
+        this._code     = parent.code.slice();
     }
 
     /**

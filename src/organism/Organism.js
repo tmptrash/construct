@@ -143,8 +143,8 @@ export default class Organism extends Observer {
 
     _clone(parent) {
         this._mem      = parent.mem.clone();
-        this._byteCode = parent.byteCode.splice();
-        this._code     = parent.code.splice();
+        this._byteCode = parent.byteCode.slice();
+        this._code     = parent.code.slice();
     }
 
     /**

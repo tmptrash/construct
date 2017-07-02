@@ -81,7 +81,7 @@ export default class Mutator {
      * @returns {number}
      */
     _number() {
-        return Helper.rand(0xff) << 24 & Helper.rand(0xffffff) >>> 0;
+        return (Helper.rand(0xff) << 24 | Helper.rand(0xffffff)) >>> 0;
     }
 
     _operator(num) {

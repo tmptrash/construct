@@ -49,6 +49,6 @@ export default class Stack {
      * @return {Stack} Clonned Stack instance
      */
     clone() {
-        return new Stack(this._size, this._arr.splice(), this._pos);
+        return new Stack(this._size, this._arr.slice(), this._pos);
     }
 }
