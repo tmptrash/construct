@@ -9,16 +9,15 @@
  *
  * @author DeadbraiN
  */
-import Events from './../../global/Events';
-import Config from './../../global/Config';
-import Helper from './../../global/Helper';
-import Code   from './../../organism/Code';
+import Events   from './../../global/Events';
+import Config   from './../../global/Config';
+import Helper   from './../../global/Helper';
+import Organism from './../../organism/Organism';
+import Code     from './../../organism/Code';
 
 export default class Mutator {
     constructor(manager) {
         this._manager = manager;
-        this._BITS_PER_VAR = 2;
-        this._VARS = 24 / this._BITS_PER_VAR;
         this._MUTATION_TYPES = [
             this._onAdd.bind(this),
             this._onChange.bind(this),
@@ -58,68 +57,19 @@ export default class Mutator {
             mTypes[bCode.length < 1 ? 0 : probIndex(org.mutationProbs)](org);
         }
         org.mutations += mutations;
-        this._changeColor(org, mutations);
-        org.compile();
+        org.updateColor(mutations);
+        org.code.compile();
         this._manager.fire(Events.MUTATIONS, org, mutations, clone);
 
         return mutations;
     }
 
-    _changeColor(org, mutAmount) {
-        const mutations = org.mutations;
-        const colPeriod = Config.orgColorPeriod;
-        const colIndex  = mutations - (mutations % colPeriod);
-
-        if (mutations > colPeriod && colIndex >= mutations - mutAmount && colIndex <= mutations) {
-            if (++org.color > Config.ORG_MAX_COLOR) {org.color = Config.ORG_FIRST_COLOR;}
-        }
-    }
-
-    /**
-     * We have to use >>> 0 at the end, because << operator works
-     * with signed 32bit numbers, but not with unsigned like we need
-     * @returns {number}
-     */
-    _number() {
-        return (Helper.rand(0xff) << 24 | Helper.rand(0xffffff)) >>> 0;
-    }
-
-    _operator(num) {
-        return num >>> 24;
-    }
-
-    _setOperator(num, op) {
-        return (num & (op << 24 | 0x00ffffff)) >>> 0;
-    }
-
-    /**
-     * Sets variable bits into value 'val' and returns updated full number.
-     * Example: _setVar(0xaabbccdd, 2, 0x3) -> 0x
-     * @param {Number} num Original number
-     * @param {Number} index Variable index
-     * @param {Number} val New variable value
-     * @returns {Number}
-     * @private
-     */
-    _setVar(num, index, val) {
-        const BITS  = this._BITS_PER_VAR;
-        const bits  = index * BITS;
-        const lBits = 24 - bits;
-        const rBits = 8 + bits + BITS;
-
-        return (num >>> lBits << lBits | val << (lBits - BITS) | num << rBits >>> rBits) >>> 0;
-    }
-
-    _getVar(num, index) {
-        return (num << 8 >>> 8) << (8 + index * this._BITS_PER_VAR) >>> 30;
-    }
-
     _onAdd(org) {
-        org.byteCode.splice(Helper.rand(org.byteCode.length), 0, this._number());
+        org.byteCode.splice(Helper.rand(org.byteCode.length), 0, org.number());
     }
 
     _onChange(org) {
-        org.byteCode[Helper.rand(org.byteCode.length)] = this._number();
+        org.byteCode[Helper.rand(org.byteCode.length)] = org.number();
     }
 
     _onDel(org) {
@@ -134,9 +84,9 @@ export default class Mutator {
     _onSmallChange(org) {
         let pos = Helper.rand(org.byteCode.length);
         if (Helper.rand(1) === 0) {
-            org.byteCode[pos] = this._setOperator(org.byteCode[pos], Helper.rand(256));
+            org.byteCode[pos] = org.setOperator(org.byteCode[pos], Helper.rand(256));
         } else {
-            org.byteCode[pos] = this._setVar(org.byteCode[pos], Helper.rand(this._VARS), Helper.rand(1 << this._BITS_PER_VAR));
+            org.byteCode[pos] = org.setVar(org.byteCode[pos], Helper.rand(Code.VARS), Helper.rand(1 << Code.BITS_PER_VAR));
         }
     }
 

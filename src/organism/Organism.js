@@ -9,6 +9,7 @@ import Stack    from './../global/Stack';
 import Observer from './../global/Observer';
 import Events   from './../global/Events';
 import Helper   from './../global/Helper';
+import Code     from './Code';
 
 export default class Organism extends Observer {
     /**
@@ -44,8 +45,7 @@ export default class Organism extends Observer {
         this._age                   = 0;
         this._cloneEnergyPercent    = Config.orgCloneEnergyPercent;
         this._fnId                  = 0;
-        this._events                = Events;
-        this.compile();
+        this._code                  = new Code();
     }
 
     get id()                    {return this._id;}
@@ -63,7 +63,6 @@ export default class Organism extends Observer {
     get mem()                   {return this._mem;}
     get age()                   {return this._age;}
     get cloneEnergyPercent()    {return this._cloneEnergyPercent;}
-    get byteCode()              {return this._byteCode;}
     get code()                  {return this._code;}
     get posId()                 {return Helper.posId(this._x, this._y);}
 
@@ -78,13 +77,18 @@ export default class Organism extends Observer {
      * @return {Boolean} false means that organism was destroyed
      */
     run() {
-        this._gen.next();
+        this._code.run();
         return this._updateDestroy() && this._updateEnergy();
     }
 
-    compile() {
-        this._compiled = this._compile(this._code);
-        this._gen      = this._compiled();
+    updateColor(mutAmount) {
+        const mutations = this._mutations;
+        const colPeriod = Config.orgColorPeriod;
+        const colIndex  = mutations - (mutations % colPeriod);
+
+        if (mutations > colPeriod && colIndex >= mutations - mutAmount && colIndex <= mutations) {
+            if (++this._color > Config.ORG_MAX_COLOR) {this._color = Config.ORG_FIRST_COLOR;}
+        }
     }
 
     grabEnergy(amount) {
@@ -99,10 +103,7 @@ export default class Organism extends Observer {
         this._energy   = 0;
         this._item     = null;
         this._mem      = null;
-        this._byteCode = null;
         this._code     = null;
-        this._compiled = null;
-        this._gen      = null;
         this.clear();
     }
 
@@ -121,30 +122,13 @@ export default class Organism extends Observer {
     energyDown() {}
     getId() {}
 
-    /**
-     * Does simple pre processing and final compilation of the code.
-     */
-    _compile() {
-        const header1 = 'this.__compiled=function* dna(){var endEvent=this._events.CODE_END;var rand=Math.random;';
-        const vars    = this._getVars();
-        const header2 = ';while(true){yield;';
-        const footer  = ';this._age++;this.fire(endEvent)}}';
-
-        eval(header1 + vars + header2 + this._code.join(';') + footer);
-
-        return this.__compiled;
-    }
-
     _create() {
-        this._mem      = new Stack(Config.orgMemSize);
-        this._byteCode = [];
-        this._code     = [];
+        this._mem = new Stack(Config.orgMemSize);
     }
 
     _clone(parent) {
-        this._mem      = parent.mem.clone();
-        this._byteCode = parent.byteCode.slice();
-        this._code     = parent.code.slice();
+        this._mem = parent.mem.clone();
+        this._code.clone(parent.code);
     }
 
     /**
@@ -169,7 +153,7 @@ export default class Organism extends Observer {
      */
     _updateEnergy() {
         if (Config.orgEnergySpendPeriod === 0 || this._age % Config.orgEnergySpendPeriod !== 0) {return true;}
-        const codeSize = this._byteCode.length;
+        const codeSize = this._code.size;
         let   grabSize = (((codeSize / Config.orgGarbagePeriod) + 0.5) << 1) >> 1; // analog of Math.round()
 
         if (codeSize > Config.codeMaxSize) {grabSize = codeSize * Config.codeSizeCoef;}
@@ -178,25 +162,5 @@ export default class Organism extends Observer {
         this.fire(Events.GRAB_ENERGY, grabSize);
 
         return this.grabEnergy(grabSize);
-    }
-
-    /**
-     * Generates default variables code. It should be in ES5 version, because
-     * speed is important. Amount of vars depends on Config.codeVarAmount config.
-     * @returns {String} vars code
-     * @private
-     */
-    _getVars() {
-        const vars  = Config.codeVarAmount;
-        let   code  = new Array(vars);
-        const range = Config.codeVarInitRange;
-        const half  = range / 2;
-        const rand  = '=rand()*' + range + '-' + half;
-
-        for (let i = 0; i < vars; i++) {
-            code[i] = 'var v' + i + rand;
-        }
-
-        return code.join(';');
     }
 }

@@ -14,7 +14,6 @@
  */
 import Config    from './../global/Config';
 import Observer  from './../global/Observer';
-import Helper    from './../global/Helper';
 import World     from './../visual/World';
 import Organisms from './plugins/Organisms';
 import Mutator   from './plugins/Mutator';
@@ -78,7 +77,7 @@ export default class Manager extends Observer {
 
     destroy() {
         this._world.destroy();
-        for (let p of this._plugins) {p.destroy();}
+        for (let p of this._plugins) {if (p.destroy) {p.destroy();}}
         this._plugins = null;
         this.clear();
     }
