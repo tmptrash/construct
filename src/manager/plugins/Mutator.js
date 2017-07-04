@@ -57,7 +57,6 @@ export default class Mutator {
             mTypes[bCode.length < 1 ? 0 : probIndex(org.mutationProbs)](org);
         }
         org.mutations += mutations;
-        org.updateColor(mutations);
         org.code.compile();
         this._manager.fire(Events.MUTATIONS, org, mutations, clone);
 
@@ -65,15 +64,16 @@ export default class Mutator {
     }
 
     _onAdd(org) {
-        org.byteCode.splice(Helper.rand(org.byteCode.length), 0, org.number());
+        org.code.insertLine();
     }
 
     _onChange(org) {
-        org.byteCode[Helper.rand(org.byteCode.length)] = org.number();
+        const code = org.code;
+        code.updateLine(Helper.rand(code.size), code.number());
     }
 
     _onDel(org) {
-        org.byteCode.splice(Helper.rand(org.byteCode.length), 1);
+        org.code.removeLine();
     }
 
     /**
@@ -82,11 +82,13 @@ export default class Mutator {
      * @private
      */
     _onSmallChange(org) {
-        let pos = Helper.rand(org.byteCode.length);
+        const index = Helper.rand(org.code.size);
+        const code  = org.code;
+
         if (Helper.rand(1) === 0) {
-            org.byteCode[pos] = org.setOperator(org.byteCode[pos], Helper.rand(256));
+            code.updateLine(index, code.setOperator(code.getLine[index], Helper.rand(Code.MAX_OPERATOR)));
         } else {
-            org.byteCode[pos] = org.setVar(org.byteCode[pos], Helper.rand(Code.VARS), Helper.rand(1 << Code.BITS_PER_VAR));
+            code.updateLine(index, code.setVar(code.getLine(index), Helper.rand(Code.VARS), Helper.rand(Code.MAX_VAR)));
         }
     }
 

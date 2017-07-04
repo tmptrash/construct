@@ -16,6 +16,8 @@ const OPERATOR_BITS = 8;
 export default class Code extends Observer {
     static get BITS_PER_VAR()  {return BITS_PER_VAR;}
     static get VARS()          {return (32 - OPERATOR_BITS) / BITS_PER_VAR;}
+    static get MAX_VAR()       {return 1 << BITS_PER_VAR;}
+    static get MAX_OPERATOR()  {return 1 << OPERATOR_BITS;}
 
     constructor() {
         super();
@@ -46,8 +48,32 @@ export default class Code extends Observer {
     get byteCode() {return this._byteCode;}
 
     clone(code) {
-        this._code     = code.code.slice();
-        this._buteCode = code.byteCode.slice();
+        this._code     = code.cloneCode();
+        this._buteCode = code.cloneByteCode();
+    }
+
+    cloneCode() {
+        return this._code.slice();
+    }
+
+    cloneByteCode() {
+        return this._byteCode.slice();
+    }
+
+    insertLine() {
+        this._byteCode.splice(Helper.rand(this._byteCode.length), 0, this.number());
+    }
+
+    updateLine(index, number) {
+        this._byteCode[index] = number;
+    }
+
+    removeLine() {
+        this._byteCode.splice(Helper.rand(this._byteCode.length), 1);
+    }
+
+    getLine(index) {
+        return this._byteCode[index];
     }
 
     destroy() {

@@ -70,7 +70,10 @@ export default class Organism extends Observer {
     set mutationPeriod(m)       {this._mutationPeriod = m;}
     set mutationPercent(p)      {this._mutationPercent = p;}
     set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p;}
-    set mutations(m)            {this._mutations = m;}
+    set mutations(m)            {
+        this._mutations = m;
+        this._updateColor(m);
+    }
 
     /**
      * Runs one code iteration and returns
@@ -81,7 +84,7 @@ export default class Organism extends Observer {
         return this._updateDestroy() && this._updateEnergy();
     }
 
-    updateColor(mutAmount) {
+    _updateColor(mutAmount) {
         const mutations = this._mutations;
         const colPeriod = Config.orgColorPeriod;
         const colIndex  = mutations - (mutations % colPeriod);
