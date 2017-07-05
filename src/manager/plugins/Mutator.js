@@ -48,13 +48,13 @@ export default class Mutator {
     }
 
     _mutate(org, clone = true) {
-        const bCode     = org.byteCode;
-        let   mutations = Math.round(bCode.length * org.mutationPercent) || 1;
+        const code      = org.code;
+        let   mutations = Math.round(code.size * org.mutationPercent) || 1;
         const probIndex = Helper.probIndex;
         const mTypes    = this._MUTATION_TYPES;
 
         for (let i = 0; i < mutations; i++) {
-            mTypes[bCode.length < 1 ? 0 : probIndex(org.mutationProbs)](org);
+            mTypes[code.size < 1 ? 0 : probIndex(org.mutationProbs)](org);
         }
         org.mutations += mutations;
         org.code.compile();

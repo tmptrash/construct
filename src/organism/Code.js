@@ -19,8 +19,13 @@ export default class Code extends Observer {
     static get MAX_VAR()       {return 1 << BITS_PER_VAR;}
     static get MAX_OPERATOR()  {return 1 << OPERATOR_BITS;}
 
-    constructor() {
+    constructor(codeEndCb) {
         super();
+		/**
+		 * {Function} Callback, which is called on every organism 
+		 * code iteration. On it's end.
+		 */
+		this._onCodeEnd = codeEndCb;
         // TODO: think about custom operators set from outside
         /**
          * {Object} These operator handlers should return string, which
@@ -130,11 +135,7 @@ export default class Code extends Observer {
     getVar(num, index) {
         return (num << OPERATOR_BITS >>> OPERATOR_BITS) << (OPERATOR_BITS + index * BITS_PER_VAR) >>> 0;
     }
-
-    _onEnd() {
-        this.fire(Events.CODE_END);
-    }
-
+	
     /**
      * Does simple pre processing and final compilation of the code.
      */
@@ -142,7 +143,7 @@ export default class Code extends Observer {
         const header1 = 'this.__compiled=function* dna(){var rand=Math.random;';
         const vars    = this._getVars();
         const header2 = ';while(true){yield;';
-        const footer  = ';this._age++;this._onEnd()}}';
+        const footer  = ';this._onCodeEnd()}}';
 
         eval(header1 + vars + header2 + this._code.join(';') + footer);
 

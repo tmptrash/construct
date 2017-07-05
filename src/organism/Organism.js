@@ -21,12 +21,14 @@ export default class Organism extends Observer {
      * @param {Boolean} alive true if organism is alive
      * @param {Object} item Reference to the Queue item, where
      * this organism is located
+	 * @param {Function} codeEndCb Callback, which is called at the 
+     * end of every code iteration.
      * @param {Organism} parent Parent organism if cloning is needed
      */
-    constructor(id, x, y, alive, item, parent = null) {
+    constructor(id, x, y, alive, item, codeEndCb, parent = null) {
         super();
 
-        this._code                  = new Code();
+        this._code                  = new Code(this._onCodeEnd.bind(this));
 
         if (parent === null) {this._create();}
         else {this._clone(parent);}
@@ -47,6 +49,7 @@ export default class Organism extends Observer {
         this._age                   = 0;
         this._cloneEnergyPercent    = Config.orgCloneEnergyPercent;
         this._fnId                  = 0;
+        this._codeEndCb             = codeEndCb;
     }
 
     get id()                    {return this._id;}
@@ -84,6 +87,11 @@ export default class Organism extends Observer {
         this._code.run();
         return this._updateDestroy() && this._updateEnergy();
     }
+
+    _onCodeEnd() {
+		this._age++;
+		this._codeEndCb(this);
+	}
 
     _updateColor(mutAmount) {
         const mutations = this._mutations;

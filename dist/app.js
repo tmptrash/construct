@@ -477,8 +477,7 @@ const Events = {
     GRAB_RIGHT: 36,
     GRAB_UP: 37,
     GRAB_DOWN: 38,
-    CODE_END: 39,
-    DESTROY: 40
+    DESTROY: 39
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (Events);
@@ -687,8 +686,13 @@ class Code extends __WEBPACK_IMPORTED_MODULE_3__global_Observer__["a" /* default
     static get MAX_VAR()       {return 1 << BITS_PER_VAR;}
     static get MAX_OPERATOR()  {return 1 << OPERATOR_BITS;}
 
-    constructor() {
+    constructor(codeEndCb) {
         super();
+		/**
+		 * {Function} Callback, which is called on every organism 
+		 * code iteration. On it's end.
+		 */
+		this._onCodeEnd = codeEndCb;
         // TODO: think about custom operators set from outside
         /**
          * {Object} These operator handlers should return string, which
@@ -798,11 +802,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_3__global_Observer__["a" /* default
     getVar(num, index) {
         return (num << OPERATOR_BITS >>> OPERATOR_BITS) << (OPERATOR_BITS + index * BITS_PER_VAR) >>> 0;
     }
-
-    _onEnd() {
-        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].CODE_END);
-    }
-
+	
     /**
      * Does simple pre processing and final compilation of the code.
      */
@@ -810,7 +810,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_3__global_Observer__["a" /* default
         const header1 = 'this.__compiled=function* dna(){var rand=Math.random;';
         const vars    = this._getVars();
         const header2 = ';while(true){yield;';
-        const footer  = ';this._age++;this._onEnd()}}';
+        const footer  = ';this._onCodeEnd()}}';
 
         eval(header1 + vars + header2 + this._code.join(';') + footer);
 
@@ -912,12 +912,14 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
      * @param {Boolean} alive true if organism is alive
      * @param {Object} item Reference to the Queue item, where
      * this organism is located
+	 * @param {Function} codeEndCb Callback, which is called at the 
+     * end of every code iteration.
      * @param {Organism} parent Parent organism if cloning is needed
      */
-    constructor(id, x, y, alive, item, parent = null) {
+    constructor(id, x, y, alive, item, codeEndCb, parent = null) {
         super();
 
-        this._code                  = new __WEBPACK_IMPORTED_MODULE_5__Code__["a" /* default */]();
+        this._code                  = new __WEBPACK_IMPORTED_MODULE_5__Code__["a" /* default */](this._onCodeEnd.bind(this));
 
         if (parent === null) {this._create();}
         else {this._clone(parent);}
@@ -938,6 +940,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
         this._age                   = 0;
         this._cloneEnergyPercent    = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgCloneEnergyPercent;
         this._fnId                  = 0;
+        this._codeEndCb             = codeEndCb;
     }
 
     get id()                    {return this._id;}
@@ -975,6 +978,11 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
         this._code.run();
         return this._updateDestroy() && this._updateEnergy();
     }
+
+    _onCodeEnd() {
+		this._age++;
+		this._codeEndCb(this);
+	}
 
     _updateColor(mutAmount) {
         const mutations = this._mutations;
@@ -1483,13 +1491,13 @@ class Mutator {
     }
 
     _mutate(org, clone = true) {
-        const bCode     = org.byteCode;
-        let   mutations = Math.round(bCode.length * org.mutationPercent) || 1;
+        const code      = org.code;
+        let   mutations = Math.round(code.size * org.mutationPercent) || 1;
         const probIndex = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].probIndex;
         const mTypes    = this._MUTATION_TYPES;
 
         for (let i = 0; i < mutations; i++) {
-            mTypes[bCode.length < 1 ? 0 : probIndex(org.mutationProbs)](org);
+            mTypes[code.size < 1 ? 0 : probIndex(org.mutationProbs)](org);
         }
         org.mutations += mutations;
         org.code.compile();
@@ -1701,7 +1709,7 @@ class Organisms {
         if (orgs.size >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs || pos === false) {return false;}
         orgs.add(null);
         let last   = orgs.last;
-        let org    = new __WEBPACK_IMPORTED_MODULE_5__organism_Organism__["a" /* default */](++this._orgId + '', pos.x, pos.y, true, last, parent);
+        let org    = new __WEBPACK_IMPORTED_MODULE_5__organism_Organism__["a" /* default */](++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), parent);
 
         last.val = org;
         this._bindEvents(org);
@@ -1712,7 +1720,7 @@ class Organisms {
 
         return true;
     }
-
+	
     _onAfterMove(x1, y1, x2, y2, org) {
         if (x1 !== x2 && y1 !== y2) {
             delete this._positions[__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x1, y1)];
@@ -1723,7 +1731,6 @@ class Organisms {
     }
 
     _bindEvents(org) {
-        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].CODE_END, this._onCodeEnd.bind(this));
         org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].DESTROY, this._onKillOrg.bind(this));
     }
 
