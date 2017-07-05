@@ -26,6 +26,8 @@ export default class Organism extends Observer {
     constructor(id, x, y, alive, item, parent = null) {
         super();
 
+        this._code                  = new Code();
+
         if (parent === null) {this._create();}
         else {this._clone(parent);}
 
@@ -45,7 +47,6 @@ export default class Organism extends Observer {
         this._age                   = 0;
         this._cloneEnergyPercent    = Config.orgCloneEnergyPercent;
         this._fnId                  = 0;
-        this._code                  = new Code();
     }
 
     get id()                    {return this._id;}

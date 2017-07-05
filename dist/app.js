@@ -665,6 +665,7 @@ class Observer {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Observer__ = __webpack_require__(3);
 /**
  * Implements organism's code logic.
  * TODO: explain here code, byteCode, one number format,...
@@ -676,14 +677,18 @@ class Observer {
 
 
 
+
 const BITS_PER_VAR  = 2;
 const OPERATOR_BITS = 8;
 
-class Code {
+class Code extends __WEBPACK_IMPORTED_MODULE_3__global_Observer__["a" /* default */] {
     static get BITS_PER_VAR()  {return BITS_PER_VAR;}
     static get VARS()          {return (32 - OPERATOR_BITS) / BITS_PER_VAR;}
+    static get MAX_VAR()       {return 1 << BITS_PER_VAR;}
+    static get MAX_OPERATOR()  {return 1 << OPERATOR_BITS;}
 
     constructor() {
+        super();
         // TODO: think about custom operators set from outside
         /**
          * {Object} These operator handlers should return string, which
@@ -711,8 +716,32 @@ class Code {
     get byteCode() {return this._byteCode;}
 
     clone(code) {
-        this._code     = code.code.slice();
-        this._buteCode = code.byteCode.slice();
+        this._code     = code.cloneCode();
+        this._buteCode = code.cloneByteCode();
+    }
+
+    cloneCode() {
+        return this._code.slice();
+    }
+
+    cloneByteCode() {
+        return this._byteCode.slice();
+    }
+
+    insertLine() {
+        this._byteCode.splice(__WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand(this._byteCode.length), 0, this.number());
+    }
+
+    updateLine(index, number) {
+        this._byteCode[index] = number;
+    }
+
+    removeLine() {
+        this._byteCode.splice(__WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand(this._byteCode.length), 1);
+    }
+
+    getLine(index) {
+        return this._byteCode[index];
     }
 
     destroy() {
@@ -770,14 +799,18 @@ class Code {
         return (num << OPERATOR_BITS >>> OPERATOR_BITS) << (OPERATOR_BITS + index * BITS_PER_VAR) >>> 0;
     }
 
+    _onEnd() {
+        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].CODE_END);
+    }
+
     /**
      * Does simple pre processing and final compilation of the code.
      */
     _compileByteCode() {
-        const header1 = 'this.__compiled=function* dna(){var endEvent=this._events.CODE_END;var rand=Math.random;';
+        const header1 = 'this.__compiled=function* dna(){var rand=Math.random;';
         const vars    = this._getVars();
         const header2 = ';while(true){yield;';
-        const footer  = ';this._age++;this.fire(endEvent)}}';
+        const footer  = ';this._age++;this._onEnd()}}';
 
         eval(header1 + vars + header2 + this._code.join(';') + footer);
 
@@ -884,6 +917,8 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
     constructor(id, x, y, alive, item, parent = null) {
         super();
 
+        this._code                  = new __WEBPACK_IMPORTED_MODULE_5__Code__["a" /* default */]();
+
         if (parent === null) {this._create();}
         else {this._clone(parent);}
 
@@ -903,7 +938,6 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
         this._age                   = 0;
         this._cloneEnergyPercent    = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgCloneEnergyPercent;
         this._fnId                  = 0;
-        this._code                  = new __WEBPACK_IMPORTED_MODULE_5__Code__["a" /* default */]();
     }
 
     get id()                    {return this._id;}
@@ -928,7 +962,10 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
     set mutationPeriod(m)       {this._mutationPeriod = m;}
     set mutationPercent(p)      {this._mutationPercent = p;}
     set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p;}
-    set mutations(m)            {this._mutations = m;}
+    set mutations(m)            {
+        this._mutations = m;
+        this._updateColor(m);
+    }
 
     /**
      * Runs one code iteration and returns
@@ -939,7 +976,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
         return this._updateDestroy() && this._updateEnergy();
     }
 
-    updateColor(mutAmount) {
+    _updateColor(mutAmount) {
         const mutations = this._mutations;
         const colPeriod = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgColorPeriod;
         const colIndex  = mutations - (mutations % colPeriod);
@@ -1455,7 +1492,6 @@ class Mutator {
             mTypes[bCode.length < 1 ? 0 : probIndex(org.mutationProbs)](org);
         }
         org.mutations += mutations;
-        org.updateColor(mutations);
         org.code.compile();
         this._manager.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["a" /* default */].MUTATIONS, org, mutations, clone);
 
@@ -1463,15 +1499,16 @@ class Mutator {
     }
 
     _onAdd(org) {
-        org.byteCode.splice(__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(org.byteCode.length), 0, org.number());
+        org.code.insertLine();
     }
 
     _onChange(org) {
-        org.byteCode[__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(org.byteCode.length)] = org.number();
+        const code = org.code;
+        code.updateLine(__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(code.size), code.number());
     }
 
     _onDel(org) {
-        org.byteCode.splice(__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(org.byteCode.length), 1);
+        org.code.removeLine();
     }
 
     /**
@@ -1480,11 +1517,13 @@ class Mutator {
      * @private
      */
     _onSmallChange(org) {
-        let pos = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(org.byteCode.length);
+        const index = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(org.code.size);
+        const code  = org.code;
+
         if (__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(1) === 0) {
-            org.byteCode[pos] = org.setOperator(org.byteCode[pos], __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(256));
+            code.updateLine(index, code.setOperator(code.getLine[index], __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_4__organism_Code__["a" /* default */].MAX_OPERATOR)));
         } else {
-            org.byteCode[pos] = org.setVar(org.byteCode[pos], __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_4__organism_Code__["a" /* default */].VARS), __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(1 << __WEBPACK_IMPORTED_MODULE_4__organism_Code__["a" /* default */].BITS_PER_VAR));
+            code.updateLine(index, code.setVar(code.getLine(index), __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_4__organism_Code__["a" /* default */].VARS), __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_4__organism_Code__["a" /* default */].MAX_VAR)));
         }
     }
 
