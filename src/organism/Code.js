@@ -10,14 +10,19 @@ import Helper   from './../global/Helper';
 import Events   from './../global/Events';
 import Observer from './../global/Observer';
 
-const BITS_PER_VAR  = 2;
-const OPERATOR_BITS = 8;
+const BITS_PER_VAR        = 2;
+const OPERATOR_BITS       = 8;
+const MAX_VAR             = 1 << BITS_PER_VAR;
+const MAX_OPERATOR        = 1 << OPERATOR_BITS;
+const VAR_BITS_OFFS       = 32 - OPERATOR_BITS;
+const BITS_WITHOUT_2_VARS = 1 << (VAR_BITS_OFFS - BITS_PER_VAR * 2);
+const HALF_OF_VAR         = MAX_VAR / 2;
 
 export default class Code extends Observer {
     static get BITS_PER_VAR()  {return BITS_PER_VAR;}
     static get VARS()          {return (32 - OPERATOR_BITS) / BITS_PER_VAR;}
-    static get MAX_VAR()       {return 1 << BITS_PER_VAR;}
-    static get MAX_OPERATOR()  {return 1 << OPERATOR_BITS;}
+    static get MAX_VAR()       {return MAX_VAR;}
+    static get MAX_OPERATOR()  {return MAX_OPERATOR;}
 
     constructor(codeEndCb) {
         super();
@@ -39,7 +44,6 @@ export default class Code extends Observer {
             4: this._onOperator.bind(this), // + - / * or xor etc...
             5: this._onPi.bind(this)
         };
-        this._VAR_BITS  = 32 - OPERATOR_BITS;
 
         this._byteCode  = [];
         this._code      = [];
@@ -89,8 +93,14 @@ export default class Code extends Observer {
     }
 
     compile() {
-        this._compiled = this._compileByteCode();
-        this._gen      = this._compiled();
+        const header1 = 'this.__compiled=function* dna(){var rand=Math.random;';
+        const vars    = this._getVars();
+        const header2 = ';while(true){yield;';
+        const footer  = ';this._onCodeEnd()}}';
+
+        eval(header1 + vars + header2 + this._code.join(';') + footer);
+
+        this._gen = this.__compiled();
     }
 
     run() {
@@ -104,15 +114,15 @@ export default class Code extends Observer {
      */
     number() {
         const rand = Helper.rand;
-        return (rand(0xff) << (this._VAR_BITS) | rand(0xffffff)) >>> 0;
+        return (rand(0xff) << (VAR_BITS_OFFS) | rand(0xffffff)) >>> 0;
     }
 
     getOperator(num) {
-        return num >>> this._VAR_BITS;
+        return num >>> VAR_BITS_OFFS;
     }
 
     setOperator(num, op) {
-        return (num & (op << this._VAR_BITS) | 0x00ffffff) >>> 0;
+        return (num & (op << VAR_BITS_OFFS) | 0x00ffffff) >>> 0;
     }
 
     /**
@@ -126,7 +136,7 @@ export default class Code extends Observer {
      */
     setVar(num, index, val) {
         const bits  = index * BITS_PER_VAR;
-        const lBits = this._VAR_BITS - bits;
+        const lBits = VAR_BITS_OFFS - bits;
         const rBits = OPERATOR_BITS + bits + BITS_PER_VAR;
 
         return (num >>> lBits << lBits | val << (lBits - BITS) | num << rBits >>> rBits) >>> 0;
@@ -136,20 +146,6 @@ export default class Code extends Observer {
         return (num << OPERATOR_BITS >>> OPERATOR_BITS) << (OPERATOR_BITS + index * BITS_PER_VAR) >>> 0;
     }
 	
-    /**
-     * Does simple pre processing and final compilation of the code.
-     */
-    _compileByteCode() {
-        const header1 = 'this.__compiled=function* dna(){var rand=Math.random;';
-        const vars    = this._getVars();
-        const header2 = ';while(true){yield;';
-        const footer  = ';this._onCodeEnd()}}';
-
-        eval(header1 + vars + header2 + this._code.join(';') + footer);
-
-        return this.__compiled;
-    }
-
     /**
      * Generates default variables code. It should be in ES5 version, because
      * speed is important. Amount of vars depends on Config.codeVarAmount config.
@@ -181,11 +177,11 @@ export default class Code extends Observer {
      * @return {String} Parsed code line string
      */
     _onVar(num) {
-        const var0    = this._getVar(num, 0);
-        const var1    = this._getVar(num, 1);
-        const isConst = var1 > ((1 << BITS_PER_VAR) / 2);
+        const var0    = this.getVar(num, 0);
+        const var1    = this.getVar(num, 1);
+        const isConst = var1 > HALF_OF_VAR;
 
-        return 'v'+ var0 + '=' + (isConst ? Helper.rand(1 << (this._VAR_BITS - BITS_PER_VAR)) : ('v' + var1));
+        return 'v' + var0 + '=' + (isConst ? Helper.rand(BITS_WITHOUT_2_VARS) : ('v' + var1));
     }
 
     _onFunc(num) {
