@@ -703,13 +703,15 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
          */
         this._OPERATORS = {
             0: this._onVar.bind(this),
-            1: this._onFunc.bind(this),
-            2: this._onCondition.bind(this),
-            3: this._onLoop.bind(this),
-            4: this._onOperator.bind(this), // + - / * or xor etc...
-            5: this._onPi.bind(this)
+            //1: this._onFunc.bind(this),
+            1: this._onCondition.bind(this),
+            2: this._onLoop.bind(this),
+            3: this._onOperator.bind(this), // + - / * or xor etc...
+            4: this._onPi.bind(this)
         };
-        this._OPERATORS_LEN = this._OPERATORS.length;
+        this._OPERATORS_LEN = Object.keys(this._OPERATORS).length;
+        this._CONDITIONS = ['<', '>', '==', '!='];
+        this._offsets = [];
 
         this._byteCode  = [];
         this._code      = [];
@@ -755,7 +757,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     }
 
     compile() {
-        const header1 = 'this.__compiled=function* dna(){var rand=Math.random;';
+        const header1 = 'this.__compiled=function* dna(){var rand=Math.random,pi=Math.PI;';
         const vars    = this._getVars();
         const header2 = ';while(true){yield;';
         const footer  = ';this._onCodeEnd()}}';
@@ -813,9 +815,16 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
         const len       = byteCode.length;
         const operators = this._OPERATORS;
         let   code      = new Array(len);
+        let   offsets   = this._offsets;
+        let   operator;
 
         for (let i = 0; i < len; i++) {
-            code[i] = operators[this.getOperator(byteCode[i])](byteCode[i]);
+            operator = operators[this.getOperator(byteCode[i])](byteCode[i], i, len);
+            if (offsets[offsets.length - 1] === i && offsets.length > 0) {
+                operator = operator + '}';
+                offsets.pop();
+            }
+            code[i] = operator;
         }
 
         return code;
@@ -860,23 +869,30 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     }
 
     _onFunc(num) {
-
+        return '';
     }
 
-    _onCondition(num) {
+    _onCondition(num, line, lines) {
+        const var0    = this.getVar(num, 0);
+        const var1    = this.getVar(num, 1);
+        const var2    = this.getVar(num, 2);
+        const var3    = this.getVar(num, 3);
+        const index   = line + var3 < lines ? line + var3 : lines - 1;
 
+        this._offsets.push(index);
+        return 'if(v' + var0 + this._CONDITIONS[var2] + 'v' + var1 + '){';
     }
 
     _onLoop(num) {
-
+        return '';
     }
 
     _onOperator(num) {
-
+        return '';
     }
 
-    _onPi() {
-
+    _onPi(num) {
+        return 'v' + this.getVar(num, 0) + '=pi';
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Code;
