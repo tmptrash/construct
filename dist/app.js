@@ -431,62 +431,6 @@ const Config = {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/**
- * List of all available event ids. New events should be added to
- * the end of the list.
- *
- * @author DeadbraiN
- * TODO: find unused and remove. But after main code is done.
- */
-const Events = {
-    YIELD: 1,
-    ITERATION: 2,
-    IPS: 3,
-    REQUEST: 4,
-    BACKUP: 5,
-    YIELDTO: 6,
-    ORGANISM: 7,
-    GRAB_ENERGY: 8,
-    UPDATE_ENERGY: 9,
-    KILL_ORGANISM: 10,
-    MUTATIONS: 11,
-    CLONE: 12,
-    EAT_LEFT: 13,
-    EAT_RIGHT: 14,
-    EAT_UP: 15,
-    EAT_DOWN: 16,
-    STEP_LEFT: 17,
-    STEP_RIGHT: 18,
-    STEP_UP: 19,
-    STEP_DOWN: 20,
-    EAT_ORGANISM: 21,
-    EAT_ENERGY: 22,
-    BORN_ORGANISM: 23,
-    DOT_REQUEST: 24,
-    STEP_YIELD: 25,
-    BEFORE_RESPONSE: 26,
-    AFTER_REQUEST: 27,
-    GET_ENERGY: 28,
-    PROP_LEFT: 29,
-    PROP_RIGHT: 30,
-    PROP_UP: 31,
-    PROP_DOWN: 32,
-    DOT: 33,
-    MOVE: 34,
-    GRAB_LEFT: 35,
-    GRAB_RIGHT: 36,
-    GRAB_UP: 37,
-    GRAB_DOWN: 38,
-    DESTROY: 39
-};
-
-/* harmony default export */ __webpack_exports__["a"] = (Events);
-
-/***/ }),
-/* 2 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Config__ = __webpack_require__(0);
 /**
  * Global helper class
@@ -603,6 +547,62 @@ class Helper {
 
 
 /***/ }),
+/* 2 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/**
+ * List of all available event ids. New events should be added to
+ * the end of the list.
+ *
+ * @author DeadbraiN
+ * TODO: find unused and remove. But after main code is done.
+ */
+const Events = {
+    YIELD: 1,
+    ITERATION: 2,
+    IPS: 3,
+    REQUEST: 4,
+    BACKUP: 5,
+    YIELDTO: 6,
+    ORGANISM: 7,
+    GRAB_ENERGY: 8,
+    UPDATE_ENERGY: 9,
+    KILL_ORGANISM: 10,
+    MUTATIONS: 11,
+    CLONE: 12,
+    EAT_LEFT: 13,
+    EAT_RIGHT: 14,
+    EAT_UP: 15,
+    EAT_DOWN: 16,
+    STEP_LEFT: 17,
+    STEP_RIGHT: 18,
+    STEP_UP: 19,
+    STEP_DOWN: 20,
+    EAT_ORGANISM: 21,
+    EAT_ENERGY: 22,
+    BORN_ORGANISM: 23,
+    DOT_REQUEST: 24,
+    STEP_YIELD: 25,
+    BEFORE_RESPONSE: 26,
+    AFTER_REQUEST: 27,
+    GET_ENERGY: 28,
+    PROP_LEFT: 29,
+    PROP_RIGHT: 30,
+    PROP_UP: 31,
+    PROP_DOWN: 32,
+    DOT: 33,
+    MOVE: 34,
+    GRAB_LEFT: 35,
+    GRAB_RIGHT: 36,
+    GRAB_UP: 37,
+    GRAB_DOWN: 38,
+    DESTROY: 39
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (Events);
+
+/***/ }),
 /* 3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -662,9 +662,8 @@ class Observer {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Observer__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Observer__ = __webpack_require__(3);
 /**
  * Implements organism's code logic.
  * TODO: explain here code, byteCode, one number format,...
@@ -676,8 +675,8 @@ class Observer {
 
 
 
-
 const BITS_PER_VAR        = 2;
+const BITS_OF_FIRST_VAR   = 32 - BITS_PER_VAR;
 const OPERATOR_BITS       = 8;
 const MAX_VAR             = 1 << BITS_PER_VAR;
 const MAX_OPERATOR        = 1 << OPERATOR_BITS;
@@ -685,8 +684,7 @@ const VAR_BITS_OFFS       = 32 - OPERATOR_BITS;
 const BITS_WITHOUT_2_VARS = 1 << (VAR_BITS_OFFS - BITS_PER_VAR * 2);
 const HALF_OF_VAR         = MAX_VAR / 2;
 
-class Code extends __WEBPACK_IMPORTED_MODULE_3__global_Observer__["a" /* default */] {
-    static get BITS_PER_VAR()  {return BITS_PER_VAR;}
+class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default */] {
     static get VARS()          {return (32 - OPERATOR_BITS) / BITS_PER_VAR;}
     static get MAX_VAR()       {return MAX_VAR;}
     static get MAX_OPERATOR()  {return MAX_OPERATOR;}
@@ -711,21 +709,19 @@ class Code extends __WEBPACK_IMPORTED_MODULE_3__global_Observer__["a" /* default
             4: this._onOperator.bind(this), // + - / * or xor etc...
             5: this._onPi.bind(this)
         };
+        this._OPERATORS_LEN = this._OPERATORS.length;
 
         this._byteCode  = [];
         this._code      = [];
         this._gen       = null;
-        this._events    = __WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */];
         this.compile();
     }
 
-    get code() {return this._code;}
     get size() {return this._byteCode.length;}
-    get byteCode() {return this._byteCode;}
 
     clone(code) {
         this._code     = code.cloneCode();
-        this._buteCode = code.cloneByteCode();
+        this._byteCode = code.cloneByteCode();
     }
 
     cloneCode() {
@@ -755,7 +751,6 @@ class Code extends __WEBPACK_IMPORTED_MODULE_3__global_Observer__["a" /* default
     destroy() {
         this._byteCode = null;
         this._code     = null;
-        this._compiled = null;
         this._gen      = null;
     }
 
@@ -765,6 +760,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_3__global_Observer__["a" /* default
         const header2 = ';while(true){yield;';
         const footer  = ';this._onCodeEnd()}}';
 
+        this._code = this._compileByteCode(this._byteCode);
         eval(header1 + vars + header2 + this._code.join(';') + footer);
 
         this._gen = this.__compiled();
@@ -781,7 +777,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_3__global_Observer__["a" /* default
      */
     number() {
         const rand = __WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand;
-        return (rand(0xff) << (VAR_BITS_OFFS) | rand(0xffffff)) >>> 0;
+        return (rand(this._OPERATORS_LEN) << (VAR_BITS_OFFS) | rand(0xffffff)) >>> 0;
     }
 
     getOperator(num) {
@@ -810,9 +806,21 @@ class Code extends __WEBPACK_IMPORTED_MODULE_3__global_Observer__["a" /* default
     }
 
     getVar(num, index) {
-        return (num << OPERATOR_BITS >>> OPERATOR_BITS) << (OPERATOR_BITS + index * BITS_PER_VAR) >>> 0;
+        return (num << OPERATOR_BITS >>> OPERATOR_BITS) << (OPERATOR_BITS + index * BITS_PER_VAR) >>> BITS_OF_FIRST_VAR;
     }
-	
+
+    _compileByteCode(byteCode) {
+        const len       = byteCode.length;
+        const operators = this._OPERATORS;
+        let   code      = new Array(len);
+
+        for (let i = 0; i < len; i++) {
+            code[i] = operators[this.getOperator(byteCode[i])](byteCode[i]);
+        }
+
+        return code;
+    }
+
     /**
      * Generates default variables code. It should be in ES5 version, because
      * speed is important. Amount of vars depends on Config.codeVarAmount config.
@@ -882,8 +890,8 @@ class Code extends __WEBPACK_IMPORTED_MODULE_3__global_Observer__["a" /* default
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Stack__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Observer__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Helper__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Helper__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__Code__ = __webpack_require__(4);
 /**
  * TODO: add description:
@@ -1432,9 +1440,9 @@ class Stack {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Helper__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Helper__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__organism_Organism__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__organism_Code__ = __webpack_require__(4);
 /**
@@ -1559,10 +1567,10 @@ class Mutator {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Queue__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_Organism__ = __webpack_require__(5);
 /**
@@ -1750,8 +1758,8 @@ class Organisms {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Observer__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(2);
 /**
  * 2D space, where all organisms are live. In reality this is
  * just a peace of memory, where all organisms are located. It

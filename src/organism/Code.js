@@ -7,10 +7,10 @@
  */
 import Config   from './../global/Config';
 import Helper   from './../global/Helper';
-import Events   from './../global/Events';
 import Observer from './../global/Observer';
 
 const BITS_PER_VAR        = 2;
+const BITS_OF_FIRST_VAR   = 32 - BITS_PER_VAR;
 const OPERATOR_BITS       = 8;
 const MAX_VAR             = 1 << BITS_PER_VAR;
 const MAX_OPERATOR        = 1 << OPERATOR_BITS;
@@ -19,7 +19,6 @@ const BITS_WITHOUT_2_VARS = 1 << (VAR_BITS_OFFS - BITS_PER_VAR * 2);
 const HALF_OF_VAR         = MAX_VAR / 2;
 
 export default class Code extends Observer {
-    static get BITS_PER_VAR()  {return BITS_PER_VAR;}
     static get VARS()          {return (32 - OPERATOR_BITS) / BITS_PER_VAR;}
     static get MAX_VAR()       {return MAX_VAR;}
     static get MAX_OPERATOR()  {return MAX_OPERATOR;}
@@ -44,21 +43,19 @@ export default class Code extends Observer {
             4: this._onOperator.bind(this), // + - / * or xor etc...
             5: this._onPi.bind(this)
         };
+        this._OPERATORS_LEN = this._OPERATORS.length;
 
         this._byteCode  = [];
         this._code      = [];
         this._gen       = null;
-        this._events    = Events;
         this.compile();
     }
 
-    get code() {return this._code;}
     get size() {return this._byteCode.length;}
-    get byteCode() {return this._byteCode;}
 
     clone(code) {
         this._code     = code.cloneCode();
-        this._buteCode = code.cloneByteCode();
+        this._byteCode = code.cloneByteCode();
     }
 
     cloneCode() {
@@ -88,7 +85,6 @@ export default class Code extends Observer {
     destroy() {
         this._byteCode = null;
         this._code     = null;
-        this._compiled = null;
         this._gen      = null;
     }
 
@@ -98,6 +94,7 @@ export default class Code extends Observer {
         const header2 = ';while(true){yield;';
         const footer  = ';this._onCodeEnd()}}';
 
+        this._code = this._compileByteCode(this._byteCode);
         eval(header1 + vars + header2 + this._code.join(';') + footer);
 
         this._gen = this.__compiled();
@@ -114,7 +111,7 @@ export default class Code extends Observer {
      */
     number() {
         const rand = Helper.rand;
-        return (rand(0xff) << (VAR_BITS_OFFS) | rand(0xffffff)) >>> 0;
+        return (rand(this._OPERATORS_LEN) << (VAR_BITS_OFFS) | rand(0xffffff)) >>> 0;
     }
 
     getOperator(num) {
@@ -143,9 +140,21 @@ export default class Code extends Observer {
     }
 
     getVar(num, index) {
-        return (num << OPERATOR_BITS >>> OPERATOR_BITS) << (OPERATOR_BITS + index * BITS_PER_VAR) >>> 0;
+        return (num << OPERATOR_BITS >>> OPERATOR_BITS) << (OPERATOR_BITS + index * BITS_PER_VAR) >>> BITS_OF_FIRST_VAR;
     }
-	
+
+    _compileByteCode(byteCode) {
+        const len       = byteCode.length;
+        const operators = this._OPERATORS;
+        let   code      = new Array(len);
+
+        for (let i = 0; i < len; i++) {
+            code[i] = operators[this.getOperator(byteCode[i])](byteCode[i]);
+        }
+
+        return code;
+    }
+
     /**
      * Generates default variables code. It should be in ES5 version, because
      * speed is important. Amount of vars depends on Config.codeVarAmount config.
