@@ -43,7 +43,8 @@ export default class Code extends Observer {
             1: this._onCondition.bind(this),
             2: this._onLoop.bind(this),
             3: this._onOperator.bind(this), // + - / * or xor etc...
-            4: this._onPi.bind(this)
+            4: this._onPi.bind(this),
+            5: this._onLookAt.bind(this)
         };
         this._OPERATORS_LEN = Object.keys(this._OPERATOR_CB).length;
         this._CONDITIONS = ['<', '>', '==', '!='];
@@ -265,5 +266,13 @@ export default class Code extends Observer {
 
     _onPi(num) {
         return 'v' + this.getVar(num, 0) + '=pi';
+    }
+
+    _onLookAt(num) {
+        return 'v' + this.getVar(num, 0) + '=this.lookAt(' + 'v' + this.getVar(num, 1) + ',v' + this.getVar(num, 2) + ')';
+    }
+
+    _eatLeft() {
+
     }
 }
