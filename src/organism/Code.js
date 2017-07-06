@@ -260,12 +260,7 @@ export default class Code extends Observer {
     }
 
     _onOperator(num) {
-		const var0    = this.getVar(num, 0);
-        const var1    = this.getVar(num, 1);
-		const var2    = this.getVar(num, 2);
-        const var3    = this.getBits(num, BITS_OF_THREE_VARS, BITS_OF_TWO_VARS);
-		
-        return 'v' + var0 + '=v' + var1 + this._OPERATORS[var3] + 'v' + var2;
+        return 'v' + this.getVar(num, 0) + '=v' + this.getVar(num, 1) + this._OPERATORS[this.getBits(num, BITS_OF_THREE_VARS, BITS_OF_TWO_VARS)] + 'v' + this.getVar(num, 2);
     }
 
     _onPi(num) {
