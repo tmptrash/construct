@@ -820,12 +820,19 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
 
         for (let i = 0; i < len; i++) {
             operator = operators[this.getOperator(byteCode[i])](byteCode[i], i, len);
+            //
+            // This code is used for closing blocks for if, for and other
+            // blocked operators.
+            //
             if (offsets[offsets.length - 1] === i && offsets.length > 0) {
                 operator = operator + '}';
                 offsets.pop();
             }
             code[i] = operator;
         }
+        if (offsets.length > 0) {
+		    code[code.length - 1] += ('}'.repeat(offsets.length));
+		}
 
         return code;
     }
