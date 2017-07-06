@@ -119,7 +119,7 @@ export default class Organism extends Observer {
         this.clear();
     }
 
-    getEnergy() {}
+    lookAt() {}
     eatLeft() {}
     eatRight() {}
     eatUp() {}
@@ -128,11 +128,11 @@ export default class Organism extends Observer {
     stepRight() {}
     stepUp() {}
     stepDown() {}
-    energyLeft() {}
-    energyRight() {}
-    energyUp() {}
-    energyDown() {}
     getId() {}
+	fromMem() {}
+	toMem() {}
+	myX() {}
+	myY() {}
 
     _create() {
         this._mem = new Stack(Config.orgMemSize);

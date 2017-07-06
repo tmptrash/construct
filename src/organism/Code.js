@@ -54,7 +54,8 @@ export default class Code extends Observer {
 		this._OPERATORS = [
 		    '+', '-', '*', '/', '%', '&', '|', '^', '>>', '<<', '>>>', '<', '>', '==', '!=', '<=' 
 		];
-        this._offsets = [];
+		this._TRIGS     = ['sin', 'cos', 'tan', 'abs'];
+        this._offsets   = [];
 
         this._byteCode  = [];
         this._code      = [];
@@ -99,8 +100,8 @@ export default class Code extends Observer {
         this._gen      = null;
     }
 
-    compile() {
-        const header1 = 'this.__compiled=function* dna(){var rand=Math.random,pi=Math.PI;';
+    compile(org) {
+        const header1 = 'this.__compiled=function* dna(org){var rand=Math.random,pi=Math.PI;';
         const vars    = this._getVars();
         const header2 = ';while(true){yield;';
         const footer  = ';this._onCodeEnd()}}';
@@ -108,7 +109,7 @@ export default class Code extends Observer {
         this._code = this._compileByteCode(this._byteCode);
         eval(header1 + vars + header2 + this._code.join(';') + footer);
 
-        this._gen = this.__compiled();
+        this._gen = this.__compiled(org);
     }
 
     run() {
@@ -267,12 +268,64 @@ export default class Code extends Observer {
     _onPi(num) {
         return 'v' + this.getVar(num, 0) + '=pi';
     }
+	
+	_onTrig(num) {
+		return 'v' + this.getVar(num, 0) + '=Math.' + this._TRIGS[this.getVar(num, 1)] + '(v' + this.getVar(num, 2) + ')';
+	}
 
     _onLookAt(num) {
-        return 'v' + this.getVar(num, 0) + '=this.lookAt(' + 'v' + this.getVar(num, 1) + ',v' + this.getVar(num, 2) + ')';
+        return 'v' + this.getVar(num, 0) + '=org.lookAt(' + 'v' + this.getVar(num, 1) + ',v' + this.getVar(num, 2) + ')';
     }
 
-    _eatLeft() {
-
+    _eatLeft(num) {
+		return 'v' + this.getVar(num, 0) + '=org.eatLeft()';
     }
+
+	_eatRight(num) {
+		return 'v' + this.getVar(num, 0) + '=org.eatRight()';
+    }
+	
+	_eatUp(num) {
+		return 'v' + this.getVar(num, 0) + '=org.eatUp()';
+    }
+	
+	_eatDown(num) {
+		return 'v' + this.getVar(num, 0) + '=org.eatDown()';
+    }
+	
+	_stepLeft(num) {
+		return 'v' + this.getVar(num, 0) + '=org.stepLeft()';
+    }
+	
+	_stepRight(num) {
+		return 'v' + this.getVar(num, 0) + '=org.stepRight()';
+    }
+	
+	_stepUp(num) {
+		return 'v' + this.getVar(num, 0) + '=org.stepUp()';
+    }
+	
+	_stepDown(num) {
+		return 'v' + this.getVar(num, 0) + '=org.stepDown()';
+    }
+	
+	_fromMem(num) {
+		return 'v' + this.getVar(num, 0) + '=org.fromMem()';
+	}
+	
+	_toMem(num) {
+		return 'v' + this.getVar(num, 0) + '=org.toMem()';
+	}
+	
+	_not(num) {
+		return 'v' + this.getVar(num, 0) + '=!v' + this.getVar(num, 1);
+	}
+	
+	_myX(num) {
+		return 'v' + this.getVar(num, 0) + '=org.myX()';
+	}
+	
+	_myY(num) {
+		return 'v' + this.getVar(num, 0) + '=org.myY()';
+	}
 }

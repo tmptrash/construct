@@ -714,7 +714,8 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
             1: this._onCondition.bind(this),
             2: this._onLoop.bind(this),
             3: this._onOperator.bind(this), // + - / * or xor etc...
-            4: this._onPi.bind(this)
+            4: this._onPi.bind(this),
+            5: this._onLookAt.bind(this)
         };
         this._OPERATORS_LEN = Object.keys(this._OPERATOR_CB).length;
         this._CONDITIONS = ['<', '>', '==', '!='];
@@ -724,7 +725,8 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
 		this._OPERATORS = [
 		    '+', '-', '*', '/', '%', '&', '|', '^', '>>', '<<', '>>>', '<', '>', '==', '!=', '<=' 
 		];
-        this._offsets = [];
+		this._TRIGS     = ['sin', 'cos', 'tan', 'abs'];
+        this._offsets   = [];
 
         this._byteCode  = [];
         this._code      = [];
@@ -769,8 +771,8 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
         this._gen      = null;
     }
 
-    compile() {
-        const header1 = 'this.__compiled=function* dna(){var rand=Math.random,pi=Math.PI;';
+    compile(org) {
+        const header1 = 'this.__compiled=function* dna(org){var rand=Math.random,pi=Math.PI;';
         const vars    = this._getVars();
         const header2 = ';while(true){yield;';
         const footer  = ';this._onCodeEnd()}}';
@@ -778,7 +780,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
         this._code = this._compileByteCode(this._byteCode);
         eval(header1 + vars + header2 + this._code.join(';') + footer);
 
-        this._gen = this.__compiled();
+        this._gen = this.__compiled(org);
     }
 
     run() {
@@ -937,6 +939,66 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     _onPi(num) {
         return 'v' + this.getVar(num, 0) + '=pi';
     }
+	
+	_onTrig(num) {
+		return 'v' + this.getVar(num, 0) + '=Math.' + this._TRIGS[this.getVar(num, 1)] + '(v' + this.getVar(num, 2) + ')';
+	}
+
+    _onLookAt(num) {
+        return 'v' + this.getVar(num, 0) + '=org.lookAt(' + 'v' + this.getVar(num, 1) + ',v' + this.getVar(num, 2) + ')';
+    }
+
+    _eatLeft(num) {
+		return 'v' + this.getVar(num, 0) + '=org.eatLeft()';
+    }
+
+	_eatRight(num) {
+		return 'v' + this.getVar(num, 0) + '=org.eatRight()';
+    }
+	
+	_eatUp(num) {
+		return 'v' + this.getVar(num, 0) + '=org.eatUp()';
+    }
+	
+	_eatDown(num) {
+		return 'v' + this.getVar(num, 0) + '=org.eatDown()';
+    }
+	
+	_stepLeft(num) {
+		return 'v' + this.getVar(num, 0) + '=org.stepLeft()';
+    }
+	
+	_stepRight(num) {
+		return 'v' + this.getVar(num, 0) + '=org.stepRight()';
+    }
+	
+	_stepUp(num) {
+		return 'v' + this.getVar(num, 0) + '=org.stepUp()';
+    }
+	
+	_stepDown(num) {
+		return 'v' + this.getVar(num, 0) + '=org.stepDown()';
+    }
+	
+	_fromMem(num) {
+		return 'v' + this.getVar(num, 0) + '=org.fromMem()';
+	}
+	
+	_toMem(num) {
+		return 'v' + this.getVar(num, 0) + '=org.toMem()';
+	}
+	
+	_not(num) {
+		return 'v' + this.getVar(num, 0) + '=!v' + this.getVar(num, 1);
+	}
+	
+	_myX(num) {
+		return 'v' + this.getVar(num, 0) + '=org.myX()';
+	}
+	
+	_myY(num) {
+		return 'v' + this.getVar(num, 0) + '=org.myY()';
+	}
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Code;
 
@@ -1073,7 +1135,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
         this.clear();
     }
 
-    getEnergy() {}
+    lookAt() {}
     eatLeft() {}
     eatRight() {}
     eatUp() {}
@@ -1082,11 +1144,11 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
     stepRight() {}
     stepUp() {}
     stepDown() {}
-    energyLeft() {}
-    energyRight() {}
-    energyUp() {}
-    energyDown() {}
     getId() {}
+	fromMem() {}
+	toMem() {}
+	myX() {}
+	myY() {}
 
     _create() {
         this._mem = new __WEBPACK_IMPORTED_MODULE_1__global_Stack__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgMemSize);
@@ -1563,7 +1625,7 @@ class Mutator {
             mTypes[code.size < 1 ? 0 : probIndex(org.mutationProbs)](org);
         }
         org.mutations += mutations;
-        org.code.compile();
+        org.code.compile(org);
         this._manager.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["a" /* default */].MUTATIONS, org, mutations, clone);
 
         return mutations;

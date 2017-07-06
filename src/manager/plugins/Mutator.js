@@ -57,7 +57,7 @@ export default class Mutator {
             mTypes[code.size < 1 ? 0 : probIndex(org.mutationProbs)](org);
         }
         org.mutations += mutations;
-        org.code.compile();
+        org.code.compile(org);
         this._manager.fire(Events.MUTATIONS, org, mutations, clone);
 
         return mutations;
