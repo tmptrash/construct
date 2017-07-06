@@ -168,6 +168,11 @@ const Config = {
      * 1000, then ragne will be: -500..500
      */
     codeVarInitRange: 1000,
+	/**
+	 * {Number} Every code line 'yield' operator will be inserted to prevent
+	 * locking of threads.
+	 */
+	codeYieldPeriod: 10,
     /**
      * {Number} World width
      */

@@ -241,6 +241,11 @@ const Config = {
      * 1000, then ragne will be: -500..500
      */
     codeVarInitRange: 1000,
+	/**
+	 * {Number} Every code line 'yield' operator will be inserted to prevent
+	 * locking of threads.
+	 */
+	codeYieldPeriod: 10,
     /**
      * {Number} World width
      */
@@ -812,10 +817,11 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     }
 
     _compileByteCode(byteCode) {
-        const len       = byteCode.length;
-        const operators = this._OPERATORS;
-        let   code      = new Array(len);
-        let   offsets   = this._offsets;
+        const len         = byteCode.length;
+        const operators   = this._OPERATORS;
+		const yieldPeriod = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeYieldPeriod;
+        let   code        = new Array(len);
+        let   offsets     = this._offsets;
         let   operator;
 
         for (let i = 0; i < len; i++) {
@@ -828,6 +834,10 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
                 operator = operator + '}';
                 offsets.pop();
             }
+			//
+			// Every yieldPeriod 'yield' operator will be inserted into the code
+			//
+			if (i % yieldPeriod === 0) {operator = operator + ';yield';}
             code[i] = operator;
         }
         if (offsets.length > 0) {
@@ -890,8 +900,15 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
         return 'if(v' + var0 + this._CONDITIONS[var2] + 'v' + var1 + '){';
     }
 
-    _onLoop(num) {
-        return '';
+    _onLoop(num, line, lines) {
+        const var2    = this.getVar(num, 3);
+        const index   = line + var2 < lines ? line + var2 : lines - 1;
+		const var0Str = 'v' + this.getVar(num, 0);
+		const var1Str = 'v' + this.getVar(num, 1);
+		const var3Str = 'v' + var2;
+
+        this._offsets.push(index);
+        return 'for(' + var0Str + '=' + var1Str + ';' + var0Str + '<' + var3Str + ';' + var0Str + '++' + '){';
     }
 
     _onOperator(num) {
