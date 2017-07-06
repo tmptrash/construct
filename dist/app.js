@@ -681,6 +681,8 @@ class Observer {
 
 
 const BITS_PER_VAR        = 2;
+const BITS_OF_TWO_VARS    = BITS_PER_VAR * 2;
+const BITS_OF_THREE_VARS  = BITS_PER_VAR * 3;
 const BITS_OF_FIRST_VAR   = 32 - BITS_PER_VAR;
 const OPERATOR_BITS       = 8;
 const MAX_VAR             = 1 << BITS_PER_VAR;
@@ -706,7 +708,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
          * {Object} These operator handlers should return string, which
          * will be added to the final string script for evaluation.
          */
-        this._OPERATORS = {
+        this._OPERATOR_CB = {
             0: this._onVar.bind(this),
             //1: this._onFunc.bind(this),
             1: this._onCondition.bind(this),
@@ -714,8 +716,14 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
             3: this._onOperator.bind(this), // + - / * or xor etc...
             4: this._onPi.bind(this)
         };
-        this._OPERATORS_LEN = Object.keys(this._OPERATORS).length;
+        this._OPERATORS_LEN = Object.keys(this._OPERATOR_CB).length;
         this._CONDITIONS = ['<', '>', '==', '!='];
+		/**
+		 * {Array} Available operators for math calculations
+		 */
+		this._OPERATORS = [
+		    '+', '-', '*', '/', '%', '&', '|', '^', '>>', '<<', '>>>', '<', '>', '==', '!=', '<=' 
+		];
         this._offsets = [];
 
         this._byteCode  = [];
@@ -813,12 +821,23 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     }
 
     getVar(num, index) {
-        return (num << OPERATOR_BITS >>> OPERATOR_BITS) << (OPERATOR_BITS + index * BITS_PER_VAR) >>> BITS_OF_FIRST_VAR;
+        return num << (OPERATOR_BITS + index * BITS_PER_VAR) >>> BITS_OF_FIRST_VAR;
+    }
+	
+	/**
+	 * Returns specified bits from 32bit number. e.g.: getBits(0b11001100, 3, 2) -> 01
+	 * @param {Number} num
+	 * @param {Number} start first bit offset
+	 * @param {Number} len Amount of bits to get
+	 * @return {Number} Cut bits (number)
+	 */
+	getBits(num, start, len) {
+        return num << start >>> (32 - len);
     }
 
     _compileByteCode(byteCode) {
         const len         = byteCode.length;
-        const operators   = this._OPERATORS;
+        const operators   = this._OPERATOR_CB;
 		const yieldPeriod = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeYieldPeriod;
         let   code        = new Array(len);
         let   offsets     = this._offsets;
@@ -837,7 +856,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
 			//
 			// Every yieldPeriod 'yield' operator will be inserted into the code
 			//
-			if (i % yieldPeriod === 0) {operator = operator + ';yield';}
+			if (i % yieldPeriod === 0 && i > 0) {operator = operator + ';yield';}
             code[i] = operator;
         }
         if (offsets.length > 0) {
@@ -908,11 +927,16 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
 		const var3Str = 'v' + var2;
 
         this._offsets.push(index);
-        return 'for(' + var0Str + '=' + var1Str + ';' + var0Str + '<' + var3Str + ';' + var0Str + '++' + '){';
+        return 'for(' + var0Str + '=' + var1Str + ';' + var0Str + '<' + var3Str + ';' + var0Str + '++' + '){yield';
     }
 
     _onOperator(num) {
-        return '';
+		const var0    = this.getVar(num, 0);
+        const var1    = this.getVar(num, 1);
+		const var2    = this.getVar(num, 2);
+        const var3    = this.getBits(num, BITS_OF_THREE_VARS, BITS_OF_TWO_VARS);
+		
+        return 'v' + var0 + '=v' + var1 + this._OPERATORS[var3] + 'v' + var2;
     }
 
     _onPi(num) {
