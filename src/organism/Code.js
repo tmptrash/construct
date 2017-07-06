@@ -38,13 +38,27 @@ export default class Code extends Observer {
          * will be added to the final string script for evaluation.
          */
         this._OPERATOR_CB = {
-            0: this._onVar.bind(this),
+            0 : this._onVar.bind(this),
             //1: this._onFunc.bind(this),
-            1: this._onCondition.bind(this),
-            2: this._onLoop.bind(this),
-            3: this._onOperator.bind(this), // + - / * or xor etc...
-            4: this._onPi.bind(this),
-            5: this._onLookAt.bind(this)
+            1 : this._onCondition.bind(this),
+            2 : this._onLoop.bind(this),
+            3 : this._onOperator.bind(this),
+            4 : this._not.bind(this),
+            5 : this._onPi.bind(this),
+            6 : this._onTrig.bind(this),
+            7 : this._onLookAt.bind(this),
+            8 : this._eatLeft.bind(this),
+            9 : this._eatRight.bind(this),
+            10: this._eatUp.bind(this),
+            11: this._eatDown.bind(this),
+            12: this._stepLeft.bind(this),
+            13: this._stepRight.bind(this),
+            14: this._stepUp.bind(this),
+            15: this._stepDown.bind(this),
+            16: this._fromMem.bind(this),
+            17: this._toMem.bind(this),
+            18: this._myX.bind(this),
+            19: this._myY.bind(this)
         };
         this._OPERATORS_LEN = Object.keys(this._OPERATOR_CB).length;
         this._CONDITIONS = ['<', '>', '==', '!='];
@@ -265,6 +279,10 @@ export default class Code extends Observer {
         return 'v' + this.getVar(num, 0) + '=v' + this.getVar(num, 1) + this._OPERATORS[this.getBits(num, BITS_OF_THREE_VARS, BITS_OF_TWO_VARS)] + 'v' + this.getVar(num, 2);
     }
 
+    _not(num) {
+        return 'v' + this.getVar(num, 0) + '=!v' + this.getVar(num, 1);
+    }
+
     _onPi(num) {
         return 'v' + this.getVar(num, 0) + '=pi';
     }
@@ -278,19 +296,19 @@ export default class Code extends Observer {
     }
 
     _eatLeft(num) {
-		return 'v' + this.getVar(num, 0) + '=org.eatLeft()';
+		return 'v' + this.getVar(num, 0) + '=org.eatLeft(' + this.getVar(num, 1) + ')';
     }
 
 	_eatRight(num) {
-		return 'v' + this.getVar(num, 0) + '=org.eatRight()';
+		return 'v' + this.getVar(num, 0) + '=org.eatRight(' + this.getVar(num, 1) + ')';
     }
 	
 	_eatUp(num) {
-		return 'v' + this.getVar(num, 0) + '=org.eatUp()';
+		return 'v' + this.getVar(num, 0) + '=org.eatUp(' + this.getVar(num, 1) + ')';
     }
 	
 	_eatDown(num) {
-		return 'v' + this.getVar(num, 0) + '=org.eatDown()';
+		return 'v' + this.getVar(num, 0) + '=org.eatDown(' + this.getVar(num, 1) + ')';
     }
 	
 	_stepLeft(num) {
@@ -315,10 +333,6 @@ export default class Code extends Observer {
 	
 	_toMem(num) {
 		return 'v' + this.getVar(num, 0) + '=org.toMem()';
-	}
-	
-	_not(num) {
-		return 'v' + this.getVar(num, 0) + '=!v' + this.getVar(num, 1);
 	}
 	
 	_myX(num) {

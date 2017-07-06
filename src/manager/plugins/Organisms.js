@@ -161,6 +161,43 @@ export default class Organisms {
 
     _bindEvents(org) {
         org.on(Events.DESTROY, this._onKillOrg.bind(this));
+        org.on(Events.GET_ENERGY, this._onGetEnergy.bind(this));
+        org.on(Events.EAT, this._onEat.bind(this));
+        org.on(Events.STEP, this._onStep.bind(this));
+    }
+
+    _onGetEnergy(org, ret) {
+        if (typeof(this._positions[org.posId]) !== 'undefined') {
+            ret.ret = this._positions[id].energy;
+        } else {
+            ret.ret = this._manager.world.getDot(org.x, org.y)
+        }
+    }
+
+    _onEat(org, x, y, ret) {
+        const world = this._manager.world;
+
+        if (Config.worldCyclical) {
+            if (x < 0)                  {x = world.width - 1;}
+            else if (x >= world.width)  {x = 0;}
+            else if (y < 0)             {y = world.height - 1;}
+            else if (y >= world.height) {y = 0;}
+        }
+
+        const posId = Helper.posId(x, y);
+        const positions = this._positions;
+        if (typeof(positions[posId]) === 'undefined') {
+            ret.ret = world.grabDot(x, y, ret.ret);
+        } else {
+            ret.ret = ret.ret < 0 ? 0 : (ret.ret > positions[posId].energy ? positions[posId].energy : ret.ret);
+            positions[posId].energy -= ret.ret;
+        }
+    }
+
+    _onStep(org, x1, y1, x2, y2, ret) {
+        if (org.alive) {
+            ret.ret = this._manager.move(x1, y1, x2, y2, org)
+        }
     }
 
     _onCodeEnd() {
