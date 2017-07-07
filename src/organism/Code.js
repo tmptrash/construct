@@ -83,6 +83,28 @@ export default class Code extends Observer {
 
     get size() {return this._byteCode.length;}
 
+    compile(org) {
+        const header1 = 'this.__compiled=function* dna(org){var rand=Math.random,pi=Math.PI;';
+        const vars    = this._getVars();
+        const header2 = ';while(true){yield;';
+        const footer  = ';this._onCodeEnd()}}';
+
+        this._code = this._compileByteCode(this._byteCode);
+        eval(header1 + vars + header2 + this._code.join(';') + footer);
+
+        this._gen = this.__compiled(org);
+    }
+
+    run() {
+        this._gen.next();
+    }
+
+    destroy() {
+        this._byteCode = null;
+        this._code     = null;
+        this._gen      = null;
+    }
+
     clone(code) {
         this._code     = code.cloneCode();
         this._byteCode = code.cloneByteCode();
@@ -110,28 +132,6 @@ export default class Code extends Observer {
 
     getLine(index) {
         return this._byteCode[index];
-    }
-
-    destroy() {
-        this._byteCode = null;
-        this._code     = null;
-        this._gen      = null;
-    }
-
-    compile(org) {
-        const header1 = 'this.__compiled=function* dna(org){var rand=Math.random,pi=Math.PI;';
-        const vars    = this._getVars();
-        const header2 = ';while(true){yield;';
-        const footer  = ';this._onCodeEnd()}}';
-
-        this._code = this._compileByteCode(this._byteCode);
-        eval(header1 + vars + header2 + this._code.join(';') + footer);
-
-        this._gen = this.__compiled(org);
-    }
-
-    run() {
-        this._gen.next();
     }
 
     /**

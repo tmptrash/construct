@@ -151,9 +151,10 @@ export default class Organisms {
     }
 	
     _onAfterMove(x1, y1, x2, y2, org) {
-        if (x1 !== x2 && y1 !== y2) {
-            delete this._positions[Helper.posId(x1, y1)];
-            this._positions[Helper.posId(x2, y2)] = org;
+        if (x1 !== x2 || y1 !== y2) {
+            const posId = Helper.posId(x1, y1);
+            delete this._positions[posId];
+            this._positions[posId] = org;
         }
 
         return true;

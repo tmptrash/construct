@@ -12,7 +12,7 @@ describe("src/organism/Organism", () => {
     });
 
     it("Checking organism destroy because of age", () => {
-        let org = new Organism(0, 1, 2, true, null);
+        let org = new Organism(0, 1, 2, true, null, ()=>{});
 
         for (let i = 0; i < Config.orgAlivePeriod; i++) {
             org.run();
@@ -26,7 +26,7 @@ describe("src/organism/Organism", () => {
     it("Checking organism destroy because of zero energy", () => {
         Config.orgAlivePeriod       = Config.orgStartEnergy + 1;
         Config.orgEnergySpendPeriod = 1;
-        let org = new Organism(0, 1, 2, true, null);
+        let org = new Organism(0, 1, 2, true, null, ()=>{});
 
         for (let i = 0; i < Config.orgStartEnergy; i++) {
             org.run();
@@ -37,14 +37,14 @@ describe("src/organism/Organism", () => {
 
     it("Checking grabbing energy", () => {
         let energy = Config.orgStartEnergy;
-        let org    = new Organism(0, 1, 2, true, null);
+        let org    = new Organism(0, 1, 2, true, null, ()=>{});
 
         org.grabEnergy(10);
         expect(org.energy).toEqual(energy - 10);
     });
 
     it("Checking destroy() method", () => {
-        let org = new Organism(0, 1, 2, true, null);
+        let org = new Organism(0, 1, 2, true, null, ()=>{});
 
         expect(org.alive).toEqual(true);
         expect(org.energy > 0).toEqual(true);

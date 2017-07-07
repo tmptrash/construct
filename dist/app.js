@@ -1116,21 +1116,6 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
         return this._updateDestroy() && this._updateEnergy();
     }
 
-    _onCodeEnd() {
-		this._age++;
-		this._codeEndCb(this);
-	}
-
-    _updateColor(mutAmount) {
-        const mutations = this._mutations;
-        const colPeriod = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgColorPeriod;
-        const colIndex  = mutations - (mutations % colPeriod);
-
-        if (mutations > colPeriod && colIndex >= mutations - mutAmount && colIndex <= mutations) {
-            if (++this._color > __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].ORG_MAX_COLOR) {this._color = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].ORG_FIRST_COLOR;}
-        }
-    }
-
     grabEnergy(amount) {
         const noEnergy = (this._energy -= amount) < 1;
         noEnergy && this.destroy();
@@ -1215,6 +1200,21 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
 
 	myY() {
         return this._y;
+    }
+
+    _onCodeEnd() {
+        this._age++;
+        this._codeEndCb(this);
+    }
+
+    _updateColor(mutAmount) {
+        const mutations = this._mutations;
+        const colPeriod = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgColorPeriod;
+        const colIndex  = mutations - (mutations % colPeriod);
+
+        if (mutations > colPeriod && colIndex >= mutations - mutAmount && colIndex <= mutations) {
+            if (++this._color > __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].ORG_MAX_COLOR) {this._color = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].ORG_FIRST_COLOR;}
+        }
     }
 
     _create() {
@@ -1367,7 +1367,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
             } else if (y2 === world.height) {y2 = 0;}
         }
 
-        if (x1 !== x2 && y1 !== y2) {this._world.setDot(x1, y1, 0);}
+        if (x1 !== x2 || y1 !== y2) {this._world.setDot(x1, y1, 0);}
         this._world.setDot(x2, y2, org.color);
 
         return this.onAfterMove(x1, y1, x2, y2, org);
@@ -1914,9 +1914,10 @@ class Organisms {
     }
 	
     _onAfterMove(x1, y1, x2, y2, org) {
-        if (x1 !== x2 && y1 !== y2) {
-            delete this._positions[__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x1, y1)];
-            this._positions[__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x2, y2)] = org;
+        if (x1 !== x2 || y1 !== y2) {
+            const posId = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x1, y1);
+            delete this._positions[posId];
+            this._positions[posId] = org;
         }
 
         return true;

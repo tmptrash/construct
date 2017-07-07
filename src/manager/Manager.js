@@ -93,7 +93,7 @@ export default class Manager extends Observer {
             } else if (y2 === world.height) {y2 = 0;}
         }
 
-        if (x1 !== x2 && y1 !== y2) {this._world.setDot(x1, y1, 0);}
+        if (x1 !== x2 || y1 !== y2) {this._world.setDot(x1, y1, 0);}
         this._world.setDot(x2, y2, org.color);
 
         return this.onAfterMove(x1, y1, x2, y2, org);

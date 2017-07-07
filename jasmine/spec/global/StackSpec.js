@@ -1,4 +1,4 @@
-describe("src/global/Stack", function() {
+describe("src/global/Stack", () => {
 	let Stack = require('../../../src/global/Stack').default;
     let stack;
 

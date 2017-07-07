@@ -88,21 +88,6 @@ export default class Organism extends Observer {
         return this._updateDestroy() && this._updateEnergy();
     }
 
-    _onCodeEnd() {
-		this._age++;
-		this._codeEndCb(this);
-	}
-
-    _updateColor(mutAmount) {
-        const mutations = this._mutations;
-        const colPeriod = Config.orgColorPeriod;
-        const colIndex  = mutations - (mutations % colPeriod);
-
-        if (mutations > colPeriod && colIndex >= mutations - mutAmount && colIndex <= mutations) {
-            if (++this._color > Config.ORG_MAX_COLOR) {this._color = Config.ORG_FIRST_COLOR;}
-        }
-    }
-
     grabEnergy(amount) {
         const noEnergy = (this._energy -= amount) < 1;
         noEnergy && this.destroy();
@@ -187,6 +172,21 @@ export default class Organism extends Observer {
 
 	myY() {
         return this._y;
+    }
+
+    _onCodeEnd() {
+        this._age++;
+        this._codeEndCb(this);
+    }
+
+    _updateColor(mutAmount) {
+        const mutations = this._mutations;
+        const colPeriod = Config.orgColorPeriod;
+        const colIndex  = mutations - (mutations % colPeriod);
+
+        if (mutations > colPeriod && colIndex >= mutations - mutAmount && colIndex <= mutations) {
+            if (++this._color > Config.ORG_MAX_COLOR) {this._color = Config.ORG_FIRST_COLOR;}
+        }
     }
 
     _create() {
