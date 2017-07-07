@@ -965,19 +965,19 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     }
 
     _eatLeft(num) {
-		return 'v' + this.getVar(num, 0) + '=org.eatLeft(' + this.getVar(num, 1) + ')';
+		return 'v' + this.getVar(num, 0) + '=org.eatLeft(v' + this.getVar(num, 1) + ')';
     }
 
 	_eatRight(num) {
-		return 'v' + this.getVar(num, 0) + '=org.eatRight(' + this.getVar(num, 1) + ')';
+		return 'v' + this.getVar(num, 0) + '=org.eatRight(v' + this.getVar(num, 1) + ')';
     }
 	
 	_eatUp(num) {
-		return 'v' + this.getVar(num, 0) + '=org.eatUp(' + this.getVar(num, 1) + ')';
+		return 'v' + this.getVar(num, 0) + '=org.eatUp(v' + this.getVar(num, 1) + ')';
     }
 	
 	_eatDown(num) {
-		return 'v' + this.getVar(num, 0) + '=org.eatDown(' + this.getVar(num, 1) + ')';
+		return 'v' + this.getVar(num, 0) + '=org.eatDown(v' + this.getVar(num, 1) + ')';
     }
 	
 	_stepLeft(num) {
@@ -1155,49 +1155,49 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
 
     eatLeft(amount) {
         let ret = {ret: amount};
-        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].EAT, this, this._x - 1, this._y, this, ret);
+        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].EAT, this, this._x - 1, this._y, ret);
         return ret.ret;
     }
 
     eatRight(amount) {
         let ret = {ret: amount};
-        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].EAT, this, this._x + 1, this._y, this, ret);
+        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].EAT, this, this._x + 1, this._y, ret);
         return ret.ret;
     }
 
     eatUp(amount) {
         let ret = {ret: amount};
-        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].EAT, this, this._x, this._y - 1, this, ret);
+        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].EAT, this, this._x, this._y - 1, ret);
         return ret.ret;
     }
 
     eatDown(amount) {
         let ret = {ret: amount};
-        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].EAT, this, this._x, this._y + 1, this, ret);
+        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].EAT, this, this._x, this._y + 1, ret);
         return ret.ret;
     }
 
     stepLeft() {
         let ret = {ret: null};
-        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STEP, this, this._x - 1, this._y, this, ret);
+        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STEP, this, this._x, this._y, this._x - 1, this._y, ret);
         return ret.ret;
     }
 
     stepRight() {
         let ret = {ret: null};
-        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STEP, this, this._x + 1, this._y, this, ret);
+        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STEP, this, this._x, this._y, this._x + 1, this._y, ret);
         return ret.ret;
     }
 
     stepUp() {
         let ret = {ret: null};
-        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STEP, this, this._x, this._y - 1, this, ret);
+        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STEP, this, this._x, this._y, this._x, this._y - 1, ret);
         return ret.ret;
     }
 
     stepDown() {
         let ret = {ret: null};
-        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STEP, this, this._x, this._y + 1, this, ret);
+        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STEP, this, this._x, this._y,  this._x, this._y + 1, ret);
         return ret.ret;
     }
 
@@ -1953,7 +1953,7 @@ class Organisms {
             ret.ret = world.grabDot(x, y, ret.ret);
         } else {
             ret.ret = ret.ret < 0 ? 0 : (ret.ret > positions[posId].energy ? positions[posId].energy : ret.ret);
-            positions[posId].energy -= ret.ret;
+            positions[posId].grabEnergy(ret.ret);
         }
     }
 

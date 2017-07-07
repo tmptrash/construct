@@ -300,19 +300,19 @@ export default class Code extends Observer {
     }
 
     _eatLeft(num) {
-		return 'v' + this.getVar(num, 0) + '=org.eatLeft(' + this.getVar(num, 1) + ')';
+		return 'v' + this.getVar(num, 0) + '=org.eatLeft(v' + this.getVar(num, 1) + ')';
     }
 
 	_eatRight(num) {
-		return 'v' + this.getVar(num, 0) + '=org.eatRight(' + this.getVar(num, 1) + ')';
+		return 'v' + this.getVar(num, 0) + '=org.eatRight(v' + this.getVar(num, 1) + ')';
     }
 	
 	_eatUp(num) {
-		return 'v' + this.getVar(num, 0) + '=org.eatUp(' + this.getVar(num, 1) + ')';
+		return 'v' + this.getVar(num, 0) + '=org.eatUp(v' + this.getVar(num, 1) + ')';
     }
 	
 	_eatDown(num) {
-		return 'v' + this.getVar(num, 0) + '=org.eatDown(' + this.getVar(num, 1) + ')';
+		return 'v' + this.getVar(num, 0) + '=org.eatDown(v' + this.getVar(num, 1) + ')';
     }
 	
 	_stepLeft(num) {

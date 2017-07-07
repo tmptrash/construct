@@ -190,7 +190,7 @@ export default class Organisms {
             ret.ret = world.grabDot(x, y, ret.ret);
         } else {
             ret.ret = ret.ret < 0 ? 0 : (ret.ret > positions[posId].energy ? positions[posId].energy : ret.ret);
-            positions[posId].energy -= ret.ret;
+            positions[posId].grabEnergy(ret.ret);
         }
     }
 
