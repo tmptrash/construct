@@ -168,7 +168,7 @@ export default class Organisms {
 
     _onGetEnergy(org, ret) {
         if (typeof(this._positions[org.posId]) !== 'undefined') {
-            ret.ret = this._positions[id].energy;
+            ret.ret = this._positions[org.posId].energy;
         } else {
             ret.ret = this._manager.world.getDot(org.x, org.y)
         }

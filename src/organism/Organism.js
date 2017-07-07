@@ -127,49 +127,49 @@ export default class Organism extends Observer {
 
     eatLeft(amount) {
         let ret = {ret: amount};
-        this.fire(Events.EAT, this.x - 1, this.y, this, ret);
+        this.fire(Events.EAT, this, this._x - 1, this._y, this, ret);
         return ret.ret;
     }
 
     eatRight(amount) {
         let ret = {ret: amount};
-        this.fire(Events.EAT, this.x + 1, this.y, this, ret);
+        this.fire(Events.EAT, this, this._x + 1, this._y, this, ret);
         return ret.ret;
     }
 
     eatUp(amount) {
         let ret = {ret: amount};
-        this.fire(Events.EAT, this.x, this.y - 1, this, ret);
+        this.fire(Events.EAT, this, this._x, this._y - 1, this, ret);
         return ret.ret;
     }
 
     eatDown(amount) {
         let ret = {ret: amount};
-        this.fire(Events.EAT, this.x, this.y + 1, this, ret);
+        this.fire(Events.EAT, this, this._x, this._y + 1, this, ret);
         return ret.ret;
     }
 
     stepLeft() {
         let ret = {ret: null};
-        this.fire(Events.STEP, this.x - 1, this.y, this, ret);
+        this.fire(Events.STEP, this, this._x - 1, this._y, this, ret);
         return ret.ret;
     }
 
     stepRight() {
         let ret = {ret: null};
-        this.fire(Events.STEP, this.x + 1, this.y, this, ret);
+        this.fire(Events.STEP, this, this._x + 1, this._y, this, ret);
         return ret.ret;
     }
 
     stepUp() {
         let ret = {ret: null};
-        this.fire(Events.STEP, this.x, this.y - 1, this, ret);
+        this.fire(Events.STEP, this, this._x, this._y - 1, this, ret);
         return ret.ret;
     }
 
     stepDown() {
         let ret = {ret: null};
-        this.fire(Events.STEP, this.x, this.y + 1, this, ret);
+        this.fire(Events.STEP, this, this._x, this._y + 1, this, ret);
         return ret.ret;
     }
 
