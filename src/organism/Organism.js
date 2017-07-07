@@ -154,26 +154,40 @@ export default class Organism extends Observer {
         this.fire(Events.STEP, this.x - 1, this.y, this, ret);
         return ret.ret;
     }
+
     stepRight() {
         let ret = {ret: null};
         this.fire(Events.STEP, this.x + 1, this.y, this, ret);
         return ret.ret;
     }
+
     stepUp() {
         let ret = {ret: null};
         this.fire(Events.STEP, this.x, this.y - 1, this, ret);
         return ret.ret;
     }
+
     stepDown() {
         let ret = {ret: null};
         this.fire(Events.STEP, this.x, this.y + 1, this, ret);
         return ret.ret;
     }
-    getId() {}
-	fromMem() {}
-	toMem() {}
-	myX() {}
-	myY() {}
+
+	fromMem() {
+        return this._mem.pop();
+    }
+
+	toMem(val) {
+        this._mem.push(val);
+    }
+
+	myX() {
+        return this._x;
+    }
+
+	myY() {
+        return this._y;
+    }
 
     _create() {
         this._mem = new Stack(Config.orgMemSize);

@@ -61,6 +61,10 @@ export default class Code extends Observer {
             19: this._myY.bind(this)
         };
         this._OPERATORS_LEN = Object.keys(this._OPERATOR_CB).length;
+        /**
+         * {Array} Available conditions for if operator. Amount should be
+         * the same like (1 << BITS_PER_VAR)
+         */
         this._CONDITIONS = ['<', '>', '==', '!='];
 		/**
 		 * {Array} Available operators for math calculations
@@ -332,7 +336,7 @@ export default class Code extends Observer {
 	}
 	
 	_toMem(num) {
-		return 'v' + this.getVar(num, 0) + '=org.toMem()';
+		return 'org.toMem(' + this.getVar(num, 0) + ')';
 	}
 	
 	_myX(num) {
