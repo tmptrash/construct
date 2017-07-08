@@ -174,6 +174,16 @@ const Config = {
 	 */
 	codeYieldPeriod: 10,
     /**
+     * {Number} Amount of bits per one variable. It affects maximum value,
+     * which this variable may contain
+     */
+    codeBitsPerVar: 2,
+    /**
+     * {Number} Amount of bits for storing operator. This is first XX bits
+     * in a number.
+     */
+    codeBitsPerOperator: 8,
+    /**
      * {Number} World width
      */
     worldWidth: 1900,
