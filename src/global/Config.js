@@ -84,7 +84,7 @@ const Config = {
     /**
      * {Number} Begin color of "empty" organism (organism without code).
      */
-    orgStartColor: 100,
+    orgStartColor: 0xFF0000,
     /**
      * {Number} Only after this amount of mutations organism should update it's color
      */

@@ -157,7 +157,7 @@ const Config = {
     /**
      * {Number} Begin color of "empty" organism (organism without code).
      */
-    orgStartColor: 100,
+    orgStartColor: 0xFF0000,
     /**
      * {Number} Only after this amount of mutations organism should update it's color
      */
@@ -1310,9 +1310,11 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__visual_World__ = __webpack_require__(14);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__plugins_Organisms__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__plugins_Mutator__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__visual_World__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__visual_Canvas__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__plugins_Organisms__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__plugins_Mutator__ = __webpack_require__(12);
 /**
  * Main manager class of application. Contains all parts of jevo.js app
  * like World, Connection, Console etc... Runs infinite loop inside run()
@@ -1332,12 +1334,14 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
 
 
 
+
+
 /**
  * {Array} Plugins for Manager
  */
 const PLUGINS = [
-    __WEBPACK_IMPORTED_MODULE_3__plugins_Organisms__["a" /* default */],
-    __WEBPACK_IMPORTED_MODULE_4__plugins_Mutator__["a" /* default */]
+    __WEBPACK_IMPORTED_MODULE_5__plugins_Organisms__["a" /* default */],
+    __WEBPACK_IMPORTED_MODULE_6__plugins_Mutator__["a" /* default */]
 ];
 
 class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* default */] {
@@ -1355,13 +1359,15 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
 
     constructor() {
         super();
-        this._world   = new __WEBPACK_IMPORTED_MODULE_2__visual_World__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldWidth, __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldHeight);
+        this._world   = new __WEBPACK_IMPORTED_MODULE_3__visual_World__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldWidth, __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldHeight);
+        this._canvas  = new __WEBPACK_IMPORTED_MODULE_4__visual_Canvas__["a" /* default */]();
         this._plugins = new Array(PLUGINS.length);
         this._stopped = false;
         this._share   = {};
 
         this._initLoop();
         this._initPlugins();
+        this._addHandlers();
     }
 
     get world() {return this._world;}
@@ -1392,6 +1398,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
 
     destroy() {
         this._world.destroy();
+        this._canvas.destroy();
         for (let p of this._plugins) {if (p.destroy) {p.destroy();}}
         this._plugins = null;
         this.clear();
@@ -1460,6 +1467,14 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
         for (let i = 0; i < PLUGINS.length; i++) {
             this._plugins[i] = new PLUGINS[i](this);
         }
+    }
+
+    _addHandlers() {
+        this._world.on(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].DOT, this._onDot.bind(this));
+    }
+
+    _onDot(x, y, color) {
+        this._canvas.dot(x, y, color);
     }
 
     _isFree(x, y) {
@@ -1947,7 +1962,7 @@ class Organisms {
         let org    = new __WEBPACK_IMPORTED_MODULE_5__organism_Organism__["a" /* default */](++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), parent);
 
         last.val = org;
-        this._bindEvents(org);
+        this._addHandlers(org);
         this._manager.move(pos.x, pos.y, pos.x, pos.y, org);
         this._positions[org.posId] = org;
         this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].BORN_ORGANISM, org);
@@ -1966,7 +1981,7 @@ class Organisms {
         return true;
     }
 
-    _bindEvents(org) {
+    _addHandlers(org) {
         org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].DESTROY, this._onKillOrg.bind(this));
         org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].GET_ENERGY, this._onGetEnergy.bind(this));
         org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].EAT, this._onEat.bind(this));
@@ -2023,6 +2038,71 @@ class Organisms {
 
 /***/ }),
 /* 14 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/**
+ * Canvas implementation with minimum logic for drawing colored dots.
+ *
+ * @author DeadbraiN
+ */
+class Canvas {
+    constructor() {
+        const bodyEl = $('body');
+
+        this._CLEAR_COLOR = '#000000';
+
+        bodyEl.width('100%').height('100%').css('margin', 0).parent().width('100%').height('100%').css('margin', 0);
+
+        this._canvasEl = bodyEl.append('<canvas id="world" width="' + bodyEl.width() + '" height="' + bodyEl.height() + '"></canvas>').find('#world');
+        this._ctx      = this._canvasEl[0].getContext('2d');
+        this._imgData  = this._ctx.createImageData(1, 1);
+        this._data     = this._imgData.data;
+        this._data[3]  = 0xff; // Alpha channel
+
+        this.clear();
+    }
+
+    destroy() {
+        this._canvasEl.empty();
+        this._ctx     = null;
+        this._imgData = null;
+        this._data    = null;
+    }
+
+    /**
+     * Sets pixel to specified color with specified coordinates.
+     * Color should contain red, green and blue components in one
+     * decimal number. For example: 16777215 is #FFFFFF - white.
+     * In case of invalid coordinates 0 value for x, color and y will
+     * be used.
+     * @param {Number} x X coordinate
+     * @param {Number} y Y coordinate
+     * @param {Number} color Decimal color
+     */
+    dot(x, y, color) {
+        const data = this._data;
+
+        data[0] = (color >> 16) & 255;
+        data[1] = (color >> 8) & 255;
+        data[2] = color & 255;
+        this._ctx.putImageData(this._imgData, x, y);
+    }
+
+    /**
+     * Clears canvas with black color
+     */
+    clear() {
+        this._ctx.rect(0, 0, this._canvasEl.width(), this._canvasEl.height());
+        this._ctx.fillStyle = this._CLEAR_COLOR;
+        this._ctx.fill();
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = Canvas;
+
+
+/***/ }),
+/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

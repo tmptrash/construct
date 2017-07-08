@@ -7,12 +7,24 @@ export default class Canvas {
     constructor() {
         const bodyEl = $('body');
 
+        this._CLEAR_COLOR = '#000000';
+
+        bodyEl.width('100%').height('100%').css('margin', 0).parent().width('100%').height('100%').css('margin', 0);
+
         this._canvasEl = bodyEl.append('<canvas id="world" width="' + bodyEl.width() + '" height="' + bodyEl.height() + '"></canvas>').find('#world');
         this._ctx      = this._canvasEl[0].getContext('2d');
-        this._clear();
         this._imgData  = this._ctx.createImageData(1, 1);
         this._data     = this._imgData.data;
         this._data[3]  = 0xff; // Alpha channel
+
+        this.clear();
+    }
+
+    destroy() {
+        this._canvasEl.empty();
+        this._ctx     = null;
+        this._imgData = null;
+        this._data    = null;
     }
 
     /**
@@ -34,9 +46,12 @@ export default class Canvas {
         this._ctx.putImageData(this._imgData, x, y);
     }
 
-    _clear() {
+    /**
+     * Clears canvas with black color
+     */
+    clear() {
         this._ctx.rect(0, 0, this._canvasEl.width(), this._canvasEl.height());
-        this._ctx.fillStyle='#000000';
+        this._ctx.fillStyle = this._CLEAR_COLOR;
         this._ctx.fill();
     }
 }

@@ -141,7 +141,7 @@ export default class Organisms {
         let org    = new Organism(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), parent);
 
         last.val = org;
-        this._bindEvents(org);
+        this._addHandlers(org);
         this._manager.move(pos.x, pos.y, pos.x, pos.y, org);
         this._positions[org.posId] = org;
         this._manager.fire(Events.BORN_ORGANISM, org);
@@ -160,7 +160,7 @@ export default class Organisms {
         return true;
     }
 
-    _bindEvents(org) {
+    _addHandlers(org) {
         org.on(Events.DESTROY, this._onKillOrg.bind(this));
         org.on(Events.GET_ENERGY, this._onGetEnergy.bind(this));
         org.on(Events.EAT, this._onEat.bind(this));

@@ -14,7 +14,9 @@
  */
 import Config    from './../global/Config';
 import Observer  from './../global/Observer';
+import Events    from './../global/Events';
 import World     from './../visual/World';
+import Canvas    from './../visual/Canvas';
 import Organisms from './plugins/Organisms';
 import Mutator   from './plugins/Mutator';
 /**
@@ -41,12 +43,14 @@ export default class Manager extends Observer {
     constructor() {
         super();
         this._world   = new World(Config.worldWidth, Config.worldHeight);
+        this._canvas  = new Canvas();
         this._plugins = new Array(PLUGINS.length);
         this._stopped = false;
         this._share   = {};
 
         this._initLoop();
         this._initPlugins();
+        this._addHandlers();
     }
 
     get world() {return this._world;}
@@ -77,6 +81,7 @@ export default class Manager extends Observer {
 
     destroy() {
         this._world.destroy();
+        this._canvas.destroy();
         for (let p of this._plugins) {if (p.destroy) {p.destroy();}}
         this._plugins = null;
         this.clear();
@@ -145,6 +150,14 @@ export default class Manager extends Observer {
         for (let i = 0; i < PLUGINS.length; i++) {
             this._plugins[i] = new PLUGINS[i](this);
         }
+    }
+
+    _addHandlers() {
+        this._world.on(Events.DOT, this._onDot.bind(this));
+    }
+
+    _onDot(x, y, color) {
+        this._canvas.dot(x, y, color);
     }
 
     _isFree(x, y) {
