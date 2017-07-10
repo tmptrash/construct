@@ -176,6 +176,7 @@ export default class Organisms {
 
     _onEat(org, x, y, ret) {
         const world = this._manager.world;
+		const positions = this._positions;
 
         if (Config.worldCyclical) {
             if (x < 0)                  {x = world.width - 1;}
@@ -185,7 +186,6 @@ export default class Organisms {
         }
 
         const posId = Helper.posId(x, y);
-        const positions = this._positions;
         if (typeof(positions[posId]) === 'undefined') {
             ret.ret = world.grabDot(x, y, ret.ret);
         } else {
