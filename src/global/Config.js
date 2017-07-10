@@ -74,7 +74,7 @@ const Config = {
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 300,
+    orgStartAmount: 700,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without code) organism were created
@@ -84,7 +84,7 @@ const Config = {
     /**
      * {Number} Begin color of "empty" organism (organism without code).
      */
-    orgStartColor: 100,
+    orgStartColor: 0xFF0000,
     /**
      * {Number} Only after this amount of mutations organism should update it's color
      */
@@ -174,13 +174,23 @@ const Config = {
 	 */
 	codeYieldPeriod: 10,
     /**
+     * {Number} Amount of bits per one variable. It affects maximum value,
+     * which this variable may contain
+     */
+    codeBitsPerVar: 2,
+    /**
+     * {Number} Amount of bits for storing operator. This is first XX bits
+     * in a number.
+     */
+    codeBitsPerOperator: 8,
+    /**
      * {Number} World width
      */
-    worldWidth: 1900,
+    worldWidth: 1000,
     /**
      * {Number} World height
      */
-    worldHeight: 900,
+    worldHeight: 600,
     /**
      * {Number} Turns on ciclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
@@ -204,7 +214,7 @@ const Config = {
      * {Number} Amount of energy in every block. See worldStartEnergyDots
      * config for details.
      */
-    worldStartEnergyInDot: 0x0001F4,
+    worldStartEnergyInDot: 0x00FF00,
     /**
      * {Number} Minimum percent of energy in current world. Under percent i mean
      * percent from entire world area (100%). If the energy will be less
@@ -218,7 +228,7 @@ const Config = {
      * amount. Works in pair with worldEnergyCheckPercent. May be 0 if
      * you want to disable it
      */
-    worldEnergyCheckPeriod: 20000,
+    worldEnergyCheckPeriod: 1000,
     /**
      * {Number} World scaling. On todays monitors pixel are so small, so we have
      * to zoom them with a coefficient.

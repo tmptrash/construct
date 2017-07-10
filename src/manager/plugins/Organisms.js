@@ -141,7 +141,7 @@ export default class Organisms {
         let org    = new Organism(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), parent);
 
         last.val = org;
-        this._bindEvents(org);
+        this._addHandlers(org);
         this._manager.move(pos.x, pos.y, pos.x, pos.y, org);
         this._positions[org.posId] = org;
         this._manager.fire(Events.BORN_ORGANISM, org);
@@ -151,7 +151,7 @@ export default class Organisms {
     }
 	
     _onAfterMove(x1, y1, x2, y2, org) {
-        if (x1 !== x2 && y1 !== y2) {
+        if (x1 !== x2 || y1 !== y2) {
             delete this._positions[Helper.posId(x1, y1)];
             this._positions[Helper.posId(x2, y2)] = org;
         }
@@ -159,7 +159,7 @@ export default class Organisms {
         return true;
     }
 
-    _bindEvents(org) {
+    _addHandlers(org) {
         org.on(Events.DESTROY, this._onKillOrg.bind(this));
         org.on(Events.GET_ENERGY, this._onGetEnergy.bind(this));
         org.on(Events.EAT, this._onEat.bind(this));
@@ -179,10 +179,10 @@ export default class Organisms {
 		const positions = this._positions;
 
         if (Config.worldCyclical) {
-            if (x < 0)                  {x = world.width - 1;}
-            else if (x >= world.width)  {x = 0;}
-            else if (y < 0)             {y = world.height - 1;}
-            else if (y >= world.height) {y = 0;}
+            if (x < 0)                        {x = Config.worldWidth - 1;}
+            else if (x >= Config.worldWidth)  {x = 0;}
+            else if (y < 0)                   {y = Config.worldHeight - 1;}
+            else if (y >= Config.worldHeight) {y = 0;}
         }
 
         const posId = Helper.posId(x, y);
@@ -190,7 +190,7 @@ export default class Organisms {
             ret.ret = world.grabDot(x, y, ret.ret);
         } else {
             ret.ret = ret.ret < 0 ? 0 : (ret.ret > positions[posId].energy ? positions[posId].energy : ret.ret);
-            positions[posId].energy -= ret.ret;
+            positions[posId].grabEnergy(ret.ret);
         }
     }
 
@@ -207,6 +207,7 @@ export default class Organisms {
     _onKillOrg(org) {
         this._manager.fire(Events.KILL_ORGANISM, org);
         this._orgs.del(org.item);
+        this._manager.world.setDot(org.x, org.y, 0);
         delete this._positions[org.posId];
         Console.info(org.id, ' die');
     }

@@ -14,15 +14,19 @@
  */
 import Config    from './../global/Config';
 import Observer  from './../global/Observer';
+import Events    from './../global/Events';
 import World     from './../visual/World';
+import Canvas    from './../visual/Canvas';
 import Organisms from './plugins/Organisms';
 import Mutator   from './plugins/Mutator';
+import Energy    from './plugins/Energy';
 /**
  * {Array} Plugins for Manager
  */
 const PLUGINS = [
     Organisms,
-    Mutator
+    Mutator,
+    Energy
 ];
 
 export default class Manager extends Observer {
@@ -36,17 +40,19 @@ export default class Manager extends Observer {
      * Is called at the end on move() method
      * @abstract
      */
-    onAfterMove() {return true;}
+    onAfterMove() {}
 
     constructor() {
         super();
         this._world   = new World(Config.worldWidth, Config.worldHeight);
+        this._canvas  = new Canvas();
         this._plugins = new Array(PLUGINS.length);
         this._stopped = false;
         this._share   = {};
 
         this._initLoop();
         this._initPlugins();
+        this._addHandlers();
     }
 
     get world() {return this._world;}
@@ -77,6 +83,7 @@ export default class Manager extends Observer {
 
     destroy() {
         this._world.destroy();
+        this._canvas.destroy();
         for (let p of this._plugins) {if (p.destroy) {p.destroy();}}
         this._plugins = null;
         this.clear();
@@ -84,19 +91,24 @@ export default class Manager extends Observer {
 
     move(x1, y1, x2, y2, org) {
         let world = this._world;
+        let moved = false;
 
-        if (this._isFree(x2, y2) === false) {return false;}
         if (Config.worldCyclical) {
-            if (x2 < 0)                     {x2 = world.width - 1;
-            } else if (x2 === world.width)  {x2 = 0;
-            } else if (y2 < 0)              {y2 = world.height - 1;
-            } else if (y2 === world.height) {y2 = 0;}
+            if (x2 < 0)                        {x2 = Config.worldWidth - 1;}
+            else if (x2 >= Config.worldWidth)  {x2 = 0;}
+            else if (y2 < 0)                   {y2 = Config.worldHeight - 1;}
+            else if (y2 >= Config.worldHeight) {y2 = 0;}
         }
+        if (this._isFree(x2, y2) === false) {return false;}
 
-        if (x1 !== x2 && y1 !== y2) {this._world.setDot(x1, y1, 0);}
+        if (x1 !== x2 || y1 !== y2) {moved = true; this._world.setDot(x1, y1, 0);}
         this._world.setDot(x2, y2, org.color);
+        org.x = x2;
+        org.y = y2;
 
-        return this.onAfterMove(x1, y1, x2, y2, org);
+        this.onAfterMove(x1, y1, x2, y2, org);
+
+        return moved;
     }
 
     /**
@@ -145,6 +157,14 @@ export default class Manager extends Observer {
         for (let i = 0; i < PLUGINS.length; i++) {
             this._plugins[i] = new PLUGINS[i](this);
         }
+    }
+
+    _addHandlers() {
+        this._world.on(Events.DOT, this._onDot.bind(this));
+    }
+
+    _onDot(x, y, color) {
+        this._canvas.dot(x, y, color);
     }
 
     _isFree(x, y) {

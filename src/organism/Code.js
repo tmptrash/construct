@@ -4,35 +4,17 @@
  *
  * @author DeadbraiN
  * TODO: may be this module is redundant
+ * TODO: think about custom operators callbacks from outside. This is how
+ * TODO: we may solve custom tasks
  */
 import Config   from './../global/Config';
 import Helper   from './../global/Helper';
 import Observer from './../global/Observer';
-
-const BITS_PER_VAR        = 2;
-const BITS_OF_TWO_VARS    = BITS_PER_VAR * 2;
-const BITS_OF_THREE_VARS  = BITS_PER_VAR * 3;
-const BITS_OF_FIRST_VAR   = 32 - BITS_PER_VAR;
-const OPERATOR_BITS       = 8;
-const MAX_VAR             = 1 << BITS_PER_VAR;
-const MAX_OPERATOR        = 1 << OPERATOR_BITS;
-const VAR_BITS_OFFS       = 32 - OPERATOR_BITS;
-const BITS_WITHOUT_2_VARS = 1 << (VAR_BITS_OFFS - BITS_PER_VAR * 2);
-const HALF_OF_VAR         = MAX_VAR / 2;
+import Num      from './Num';
 
 export default class Code extends Observer {
-    static get VARS()          {return (32 - OPERATOR_BITS) / BITS_PER_VAR;}
-    static get MAX_VAR()       {return MAX_VAR;}
-    static get MAX_OPERATOR()  {return MAX_OPERATOR;}
-
     constructor(codeEndCb) {
         super();
-		/**
-		 * {Function} Callback, which is called on every organism 
-		 * code iteration. On it's end.
-		 */
-		this._onCodeEnd = codeEndCb;
-        // TODO: think about custom operators set from outside
         /**
          * {Object} These operator handlers should return string, which
          * will be added to the final string script for evaluation.
@@ -73,50 +55,25 @@ export default class Code extends Observer {
 		    '+', '-', '*', '/', '%', '&', '|', '^', '>>', '<<', '>>>', '<', '>', '==', '!=', '<=' 
 		];
 		this._TRIGS     = ['sin', 'cos', 'tan', 'abs'];
-        this._offsets   = [];
 
+        /**
+         * {Function} Callback, which is called on every organism
+         * code iteration. On it's end.
+         */
+        this._onCodeEnd = codeEndCb;
+        /**
+         * {Array} Array of offsets for closing braces. For 'for', 'if'
+         * and all block operators.
+         */
+        this._offsets   = [];
         this._byteCode  = [];
         this._code      = [];
         this._gen       = null;
+        Num.setOperatorBits(this._OPERATORS_LEN);
         this.compile();
     }
 
     get size() {return this._byteCode.length;}
-
-    clone(code) {
-        this._code     = code.cloneCode();
-        this._byteCode = code.cloneByteCode();
-    }
-
-    cloneCode() {
-        return this._code.slice();
-    }
-
-    cloneByteCode() {
-        return this._byteCode.slice();
-    }
-
-    insertLine() {
-        this._byteCode.splice(Helper.rand(this._byteCode.length), 0, this.number());
-    }
-
-    updateLine(index, number) {
-        this._byteCode[index] = number;
-    }
-
-    removeLine() {
-        this._byteCode.splice(Helper.rand(this._byteCode.length), 1);
-    }
-
-    getLine(index) {
-        return this._byteCode[index];
-    }
-
-    destroy() {
-        this._byteCode = null;
-        this._code     = null;
-        this._gen      = null;
-    }
 
     compile(org) {
         const header1 = 'this.__compiled=function* dna(org){var rand=Math.random,pi=Math.PI;';
@@ -134,54 +91,41 @@ export default class Code extends Observer {
         this._gen.next();
     }
 
-    /**
-     * We have to use >>> 0 at the end, because << operator works
-     * with signed 32bit numbers, but not with unsigned like we need
-     * @returns {number}
-     */
-    number() {
-        const rand = Helper.rand;
-        return (rand(this._OPERATORS_LEN) << (VAR_BITS_OFFS) | rand(0xffffff)) >>> 0;
+    destroy() {
+        this._byteCode  = [];
+        this._code      = [];
+        this._offsets   = [];
+        this._gen       = {next: () => {}};
+        this.__compiled = null;
     }
 
-    getOperator(num) {
-        return num >>> VAR_BITS_OFFS;
+    clone(code) {
+        this._code     = code.cloneCode();
+        this._byteCode = code.cloneByteCode();
     }
 
-    setOperator(num, op) {
-        return (num & (op << VAR_BITS_OFFS) | 0x00ffffff) >>> 0;
+    cloneCode() {
+        return this._code.slice();
     }
 
-    /**
-     * Sets variable bits into value 'val' and returns updated full number.
-     * Example: _setVar(0xaabbccdd, 2, 0x3) -> 0x
-     * @param {Number} num Original number
-     * @param {Number} index Variable index
-     * @param {Number} val New variable value
-     * @returns {Number}
-     * @private
-     */
-    setVar(num, index, val) {
-        const bits  = index * BITS_PER_VAR;
-        const lBits = VAR_BITS_OFFS - bits;
-        const rBits = OPERATOR_BITS + bits + BITS_PER_VAR;
-
-        return (num >>> lBits << lBits | val << (lBits - BITS) | num << rBits >>> rBits) >>> 0;
+    cloneByteCode() {
+        return this._byteCode.slice();
     }
 
-    getVar(num, index) {
-        return num << (OPERATOR_BITS + index * BITS_PER_VAR) >>> BITS_OF_FIRST_VAR;
+    insertLine() {
+        this._byteCode.splice(Helper.rand(this._byteCode.length), 0, Num.get());
     }
-	
-	/**
-	 * Returns specified bits from 32bit number. e.g.: getBits(0b11001100, 3, 2) -> 01
-	 * @param {Number} num
-	 * @param {Number} start first bit offset
-	 * @param {Number} len Amount of bits to get
-	 * @return {Number} Cut bits (number)
-	 */
-	getBits(num, start, len) {
-        return num << start >>> (32 - len);
+
+    updateLine(index, number = Num.get()) {
+        this._byteCode[index] = number;
+    }
+
+    removeLine() {
+        this._byteCode.splice(Helper.rand(this._byteCode.length), 1);
+    }
+
+    getLine(index) {
+        return this._byteCode[index];
     }
 
     _compileByteCode(byteCode) {
@@ -193,7 +137,7 @@ export default class Code extends Observer {
         let   operator;
 
         for (let i = 0; i < len; i++) {
-            operator = operators[this.getOperator(byteCode[i])](byteCode[i], i, len);
+            operator = operators[Num.getOperator(byteCode[i])](byteCode[i], i, len);
             //
             // This code is used for closing blocks for if, for and other
             // blocked operators.
@@ -236,21 +180,21 @@ export default class Code extends Observer {
     }
 
     /**
-     * Parses variable operator. Format: var = const|number. Number bits format:
-     *   OPERATOR_BITS bits - operator id
+     * Parses variable operator. Format: var = const|number. Num bits format:
+     *   BITS_PER_OPERATOR bits - operator id
      *   BITS_PER_VAR bits  - destination var index
      *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
      *   BITS_PER_VAR bits  - variable index or all bits till the end for constant
      *
-     * @param {Number} num Packed into number code line
+     * @param {Num} num Packed into number code line
      * @return {String} Parsed code line string
      */
     _onVar(num) {
-        const var0    = this.getVar(num, 0);
-        const var1    = this.getVar(num, 1);
-        const isConst = var1 > HALF_OF_VAR;
+        const var0    = Num.getVar(num, 0);
+        const var1    = Num.getVar(num, 1);
+        const isConst = var1 > Num.HALF_OF_VAR;
 
-        return 'v' + var0 + '=' + (isConst ? Helper.rand(BITS_WITHOUT_2_VARS) : ('v' + var1));
+        return 'v' + var0 + '=' + (isConst ? Helper.rand(Num.BITS_WITHOUT_2_VARS) : ('v' + var1));
     }
 
     _onFunc(num) {
@@ -258,10 +202,10 @@ export default class Code extends Observer {
     }
 
     _onCondition(num, line, lines) {
-        const var0    = this.getVar(num, 0);
-        const var1    = this.getVar(num, 1);
-        const var2    = this.getVar(num, 2);
-        const var3    = this.getVar(num, 3);
+        const var0    = Num.getVar(num, 0);
+        const var1    = Num.getVar(num, 1);
+        const var2    = Num.getVar(num, 2);
+        const var3    = Num.getVar(num, 3);
         const index   = line + var3 < lines ? line + var3 : lines - 1;
 
         this._offsets.push(index);
@@ -269,10 +213,10 @@ export default class Code extends Observer {
     }
 
     _onLoop(num, line, lines) {
-        const var2    = this.getVar(num, 3);
+        const var2    = Num.getVar(num, 3);
         const index   = line + var2 < lines ? line + var2 : lines - 1;
-		const var0Str = 'v' + this.getVar(num, 0);
-		const var1Str = 'v' + this.getVar(num, 1);
+		const var0Str = 'v' + Num.getVar(num, 0);
+		const var1Str = 'v' + Num.getVar(num, 1);
 		const var3Str = 'v' + var2;
 
         this._offsets.push(index);
@@ -280,70 +224,70 @@ export default class Code extends Observer {
     }
 
     _onOperator(num) {
-        return 'v' + this.getVar(num, 0) + '=v' + this.getVar(num, 1) + this._OPERATORS[this.getBits(num, BITS_OF_THREE_VARS, BITS_OF_TWO_VARS)] + 'v' + this.getVar(num, 2);
+        return 'v' + Num.getVar(num, 0) + '=v' + Num.getVar(num, 1) + this._OPERATORS[Num.getBits(num, Num.BITS_OF_THREE_VARS, Num.BITS_OF_TWO_VARS)] + 'v' + Num.getVar(num, 2);
     }
 
     _not(num) {
-        return 'v' + this.getVar(num, 0) + '=!v' + this.getVar(num, 1);
+        return 'v' + Num.getVar(num, 0) + '=!v' + Num.getVar(num, 1);
     }
 
     _onPi(num) {
-        return 'v' + this.getVar(num, 0) + '=pi';
+        return 'v' + Num.getVar(num, 0) + '=pi';
     }
 	
 	_onTrig(num) {
-		return 'v' + this.getVar(num, 0) + '=Math.' + this._TRIGS[this.getVar(num, 1)] + '(v' + this.getVar(num, 2) + ')';
+		return 'v' + Num.getVar(num, 0) + '=Math.' + this._TRIGS[Num.getVar(num, 1)] + '(v' + Num.getVar(num, 2) + ')';
 	}
 
     _onLookAt(num) {
-        return 'v' + this.getVar(num, 0) + '=org.lookAt(' + 'v' + this.getVar(num, 1) + ',v' + this.getVar(num, 2) + ')';
+        return 'v' + Num.getVar(num, 0) + '=org.lookAt(' + 'v' + Num.getVar(num, 1) + ',v' + Num.getVar(num, 2) + ')';
     }
 
     _eatLeft(num) {
-		return 'v' + this.getVar(num, 0) + '=org.eatLeft(' + this.getVar(num, 1) + ')';
+		return 'v' + Num.getVar(num, 0) + '=org.eatLeft(v' + Num.getVar(num, 1) + ')';
     }
 
 	_eatRight(num) {
-		return 'v' + this.getVar(num, 0) + '=org.eatRight(' + this.getVar(num, 1) + ')';
+		return 'v' + Num.getVar(num, 0) + '=org.eatRight(v' + Num.getVar(num, 1) + ')';
     }
 	
 	_eatUp(num) {
-		return 'v' + this.getVar(num, 0) + '=org.eatUp(' + this.getVar(num, 1) + ')';
+		return 'v' + Num.getVar(num, 0) + '=org.eatUp(v' + Num.getVar(num, 1) + ')';
     }
 	
 	_eatDown(num) {
-		return 'v' + this.getVar(num, 0) + '=org.eatDown(' + this.getVar(num, 1) + ')';
+		return 'v' + Num.getVar(num, 0) + '=org.eatDown(v' + Num.getVar(num, 1) + ')';
     }
 	
 	_stepLeft(num) {
-		return 'v' + this.getVar(num, 0) + '=org.stepLeft()';
+		return 'v' + Num.getVar(num, 0) + '=org.stepLeft()';
     }
 	
 	_stepRight(num) {
-		return 'v' + this.getVar(num, 0) + '=org.stepRight()';
+		return 'v' + Num.getVar(num, 0) + '=org.stepRight()';
     }
 	
 	_stepUp(num) {
-		return 'v' + this.getVar(num, 0) + '=org.stepUp()';
+		return 'v' + Num.getVar(num, 0) + '=org.stepUp()';
     }
 	
 	_stepDown(num) {
-		return 'v' + this.getVar(num, 0) + '=org.stepDown()';
+		return 'v' + Num.getVar(num, 0) + '=org.stepDown()';
     }
 	
 	_fromMem(num) {
-		return 'v' + this.getVar(num, 0) + '=org.fromMem()';
+		return 'v' + Num.getVar(num, 0) + '=org.fromMem()';
 	}
 	
 	_toMem(num) {
-		return 'org.toMem(' + this.getVar(num, 0) + ')';
+		return 'org.toMem(' + Num.getVar(num, 0) + ')';
 	}
 	
 	_myX(num) {
-		return 'v' + this.getVar(num, 0) + '=org.myX()';
+		return 'v' + Num.getVar(num, 0) + '=org.myX()';
 	}
 	
 	_myY(num) {
-		return 'v' + this.getVar(num, 0) + '=org.myY()';
+		return 'v' + Num.getVar(num, 0) + '=org.myY()';
 	}
 }

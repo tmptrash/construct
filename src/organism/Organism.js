@@ -70,6 +70,8 @@ export default class Organism extends Observer {
     get code()                  {return this._code;}
     get posId()                 {return Helper.posId(this._x, this._y);}
 
+    set x(newX)                 {this._x = newX;}
+    set y(newY)                 {this._y = newY;}
     set mutationClonePercent(m) {this._mutationClonePercent = m;}
     set mutationPeriod(m)       {this._mutationPeriod = m;}
     set mutationPercent(p)      {this._mutationPercent = p;}
@@ -86,21 +88,6 @@ export default class Organism extends Observer {
     run() {
         this._code.run();
         return this._updateDestroy() && this._updateEnergy();
-    }
-
-    _onCodeEnd() {
-		this._age++;
-		this._codeEndCb(this);
-	}
-
-    _updateColor(mutAmount) {
-        const mutations = this._mutations;
-        const colPeriod = Config.orgColorPeriod;
-        const colIndex  = mutations - (mutations % colPeriod);
-
-        if (mutations > colPeriod && colIndex >= mutations - mutAmount && colIndex <= mutations) {
-            if (++this._color > Config.ORG_MAX_COLOR) {this._color = Config.ORG_FIRST_COLOR;}
-        }
     }
 
     grabEnergy(amount) {
@@ -127,49 +114,49 @@ export default class Organism extends Observer {
 
     eatLeft(amount) {
         let ret = {ret: amount};
-        this.fire(Events.EAT, this, this._x - 1, this._y, this, ret);
+        this.fire(Events.EAT, this, this._x - 1, this._y, ret);
         return ret.ret;
     }
 
     eatRight(amount) {
         let ret = {ret: amount};
-        this.fire(Events.EAT, this, this._x + 1, this._y, this, ret);
+        this.fire(Events.EAT, this, this._x + 1, this._y, ret);
         return ret.ret;
     }
 
     eatUp(amount) {
         let ret = {ret: amount};
-        this.fire(Events.EAT, this, this._x, this._y - 1, this, ret);
+        this.fire(Events.EAT, this, this._x, this._y - 1, ret);
         return ret.ret;
     }
 
     eatDown(amount) {
         let ret = {ret: amount};
-        this.fire(Events.EAT, this, this._x, this._y + 1, this, ret);
+        this.fire(Events.EAT, this, this._x, this._y + 1, ret);
         return ret.ret;
     }
 
     stepLeft() {
-        let ret = {ret: null};
-        this.fire(Events.STEP, this, this._x - 1, this._y, this, ret);
+        let ret = {ret: false};
+        this.fire(Events.STEP, this, this._x, this._y, this._x - 1, this._y, ret);
         return ret.ret;
     }
 
     stepRight() {
-        let ret = {ret: null};
-        this.fire(Events.STEP, this, this._x + 1, this._y, this, ret);
+        let ret = {ret: false};
+        this.fire(Events.STEP, this, this._x, this._y, this._x + 1, this._y, ret);
         return ret.ret;
     }
 
     stepUp() {
-        let ret = {ret: null};
-        this.fire(Events.STEP, this, this._x, this._y - 1, this, ret);
+        let ret = {ret: false};
+        this.fire(Events.STEP, this, this._x, this._y, this._x, this._y - 1, ret);
         return ret.ret;
     }
 
     stepDown() {
-        let ret = {ret: null};
-        this.fire(Events.STEP, this, this._x, this._y + 1, this, ret);
+        let ret = {ret: false};
+        this.fire(Events.STEP, this, this._x, this._y,  this._x, this._y + 1, ret);
         return ret.ret;
     }
 
@@ -187,6 +174,21 @@ export default class Organism extends Observer {
 
 	myY() {
         return this._y;
+    }
+
+    _onCodeEnd() {
+        this._age++;
+        this._codeEndCb(this);
+    }
+
+    _updateColor(mutAmount) {
+        const mutations = this._mutations;
+        const colPeriod = Config.orgColorPeriod;
+        const colIndex  = mutations - (mutations % colPeriod);
+
+        if (mutations > colPeriod && colIndex >= mutations - mutAmount && colIndex <= mutations) {
+            if (++this._color > Config.ORG_MAX_COLOR) {this._color = Config.ORG_FIRST_COLOR;}
+        }
     }
 
     _create() {
