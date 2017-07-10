@@ -25,6 +25,15 @@ export default class Number {
     static get MAX_OPERATOR()        {return MAX_OPERATOR;}
     static get BITS_WITHOUT_2_VARS() {return BITS_WITHOUT_2_VARS;}
     static get HALF_OF_VAR()         {return HALF_OF_VAR;}
+
+    /**
+     * Sets amount of available operators for first bits
+     * @param {Number} amount
+     */
+    static setOperatorBits(amount) {
+        this._operators = amount;
+    }
+
     /**
      * We have to use >>> 0 at the end, because << operator works
      * with signed 32bit numbers, but not with unsigned like we need
@@ -32,7 +41,7 @@ export default class Number {
      */
     static get() {
         const rand = Helper.rand;
-        return (rand(MAX_VAR) << (VAR_BITS_OFFS) | rand(0xffffff)) >>> 0;
+        return (rand(this._operators) << (VAR_BITS_OFFS) | rand(0xffffff)) >>> 0;
     }
 
     static getOperator(num) {

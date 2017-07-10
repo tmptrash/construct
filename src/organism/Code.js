@@ -10,7 +10,7 @@
 import Config   from './../global/Config';
 import Helper   from './../global/Helper';
 import Observer from './../global/Observer';
-import Number   from './Number';
+import Num      from './Num';
 
 export default class Code extends Observer {
     constructor(codeEndCb) {
@@ -69,6 +69,7 @@ export default class Code extends Observer {
         this._byteCode  = [];
         this._code      = [];
         this._gen       = null;
+        Num.setOperatorBits(this._OPERATORS_LEN);
         this.compile();
     }
 
@@ -112,10 +113,10 @@ export default class Code extends Observer {
     }
 
     insertLine() {
-        this._byteCode.splice(Helper.rand(this._byteCode.length), 0, Number.get());
+        this._byteCode.splice(Helper.rand(this._byteCode.length), 0, Num.get());
     }
 
-    updateLine(index, number) {
+    updateLine(index, number = Num.get()) {
         this._byteCode[index] = number;
     }
 
@@ -136,7 +137,7 @@ export default class Code extends Observer {
         let   operator;
 
         for (let i = 0; i < len; i++) {
-            operator = operators[Number.getOperator(byteCode[i])](byteCode[i], i, len);
+            operator = operators[Num.getOperator(byteCode[i])](byteCode[i], i, len);
             //
             // This code is used for closing blocks for if, for and other
             // blocked operators.
@@ -179,21 +180,21 @@ export default class Code extends Observer {
     }
 
     /**
-     * Parses variable operator. Format: var = const|number. Number bits format:
+     * Parses variable operator. Format: var = const|number. Num bits format:
      *   BITS_PER_OPERATOR bits - operator id
      *   BITS_PER_VAR bits  - destination var index
      *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
      *   BITS_PER_VAR bits  - variable index or all bits till the end for constant
      *
-     * @param {Number} num Packed into number code line
+     * @param {Num} num Packed into number code line
      * @return {String} Parsed code line string
      */
     _onVar(num) {
-        const var0    = Number.getVar(num, 0);
-        const var1    = Number.getVar(num, 1);
-        const isConst = var1 > Number.HALF_OF_VAR;
+        const var0    = Num.getVar(num, 0);
+        const var1    = Num.getVar(num, 1);
+        const isConst = var1 > Num.HALF_OF_VAR;
 
-        return 'v' + var0 + '=' + (isConst ? Helper.rand(Number.BITS_WITHOUT_2_VARS) : ('v' + var1));
+        return 'v' + var0 + '=' + (isConst ? Helper.rand(Num.BITS_WITHOUT_2_VARS) : ('v' + var1));
     }
 
     _onFunc(num) {
@@ -201,10 +202,10 @@ export default class Code extends Observer {
     }
 
     _onCondition(num, line, lines) {
-        const var0    = Number.getVar(num, 0);
-        const var1    = Number.getVar(num, 1);
-        const var2    = Number.getVar(num, 2);
-        const var3    = Number.getVar(num, 3);
+        const var0    = Num.getVar(num, 0);
+        const var1    = Num.getVar(num, 1);
+        const var2    = Num.getVar(num, 2);
+        const var3    = Num.getVar(num, 3);
         const index   = line + var3 < lines ? line + var3 : lines - 1;
 
         this._offsets.push(index);
@@ -212,10 +213,10 @@ export default class Code extends Observer {
     }
 
     _onLoop(num, line, lines) {
-        const var2    = Number.getVar(num, 3);
+        const var2    = Num.getVar(num, 3);
         const index   = line + var2 < lines ? line + var2 : lines - 1;
-		const var0Str = 'v' + Number.getVar(num, 0);
-		const var1Str = 'v' + Number.getVar(num, 1);
+		const var0Str = 'v' + Num.getVar(num, 0);
+		const var1Str = 'v' + Num.getVar(num, 1);
 		const var3Str = 'v' + var2;
 
         this._offsets.push(index);
@@ -223,70 +224,70 @@ export default class Code extends Observer {
     }
 
     _onOperator(num) {
-        return 'v' + Number.getVar(num, 0) + '=v' + Number.getVar(num, 1) + this._OPERATORS[Number.getBits(num, Number.BITS_OF_THREE_VARS, Number.BITS_OF_TWO_VARS)] + 'v' + Number.getVar(num, 2);
+        return 'v' + Num.getVar(num, 0) + '=v' + Num.getVar(num, 1) + this._OPERATORS[Num.getBits(num, Num.BITS_OF_THREE_VARS, Num.BITS_OF_TWO_VARS)] + 'v' + Num.getVar(num, 2);
     }
 
     _not(num) {
-        return 'v' + Number.getVar(num, 0) + '=!v' + Number.getVar(num, 1);
+        return 'v' + Num.getVar(num, 0) + '=!v' + Num.getVar(num, 1);
     }
 
     _onPi(num) {
-        return 'v' + Number.getVar(num, 0) + '=pi';
+        return 'v' + Num.getVar(num, 0) + '=pi';
     }
 	
 	_onTrig(num) {
-		return 'v' + Number.getVar(num, 0) + '=Math.' + this._TRIGS[Number.getVar(num, 1)] + '(v' + Number.getVar(num, 2) + ')';
+		return 'v' + Num.getVar(num, 0) + '=Math.' + this._TRIGS[Num.getVar(num, 1)] + '(v' + Num.getVar(num, 2) + ')';
 	}
 
     _onLookAt(num) {
-        return 'v' + Number.getVar(num, 0) + '=org.lookAt(' + 'v' + Number.getVar(num, 1) + ',v' + Number.getVar(num, 2) + ')';
+        return 'v' + Num.getVar(num, 0) + '=org.lookAt(' + 'v' + Num.getVar(num, 1) + ',v' + Num.getVar(num, 2) + ')';
     }
 
     _eatLeft(num) {
-		return 'v' + Number.getVar(num, 0) + '=org.eatLeft(v' + Number.getVar(num, 1) + ')';
+		return 'v' + Num.getVar(num, 0) + '=org.eatLeft(v' + Num.getVar(num, 1) + ')';
     }
 
 	_eatRight(num) {
-		return 'v' + Number.getVar(num, 0) + '=org.eatRight(v' + Number.getVar(num, 1) + ')';
+		return 'v' + Num.getVar(num, 0) + '=org.eatRight(v' + Num.getVar(num, 1) + ')';
     }
 	
 	_eatUp(num) {
-		return 'v' + Number.getVar(num, 0) + '=org.eatUp(v' + Number.getVar(num, 1) + ')';
+		return 'v' + Num.getVar(num, 0) + '=org.eatUp(v' + Num.getVar(num, 1) + ')';
     }
 	
 	_eatDown(num) {
-		return 'v' + Number.getVar(num, 0) + '=org.eatDown(v' + Number.getVar(num, 1) + ')';
+		return 'v' + Num.getVar(num, 0) + '=org.eatDown(v' + Num.getVar(num, 1) + ')';
     }
 	
 	_stepLeft(num) {
-		return 'v' + Number.getVar(num, 0) + '=org.stepLeft()';
+		return 'v' + Num.getVar(num, 0) + '=org.stepLeft()';
     }
 	
 	_stepRight(num) {
-		return 'v' + Number.getVar(num, 0) + '=org.stepRight()';
+		return 'v' + Num.getVar(num, 0) + '=org.stepRight()';
     }
 	
 	_stepUp(num) {
-		return 'v' + Number.getVar(num, 0) + '=org.stepUp()';
+		return 'v' + Num.getVar(num, 0) + '=org.stepUp()';
     }
 	
 	_stepDown(num) {
-		return 'v' + Number.getVar(num, 0) + '=org.stepDown()';
+		return 'v' + Num.getVar(num, 0) + '=org.stepDown()';
     }
 	
 	_fromMem(num) {
-		return 'v' + Number.getVar(num, 0) + '=org.fromMem()';
+		return 'v' + Num.getVar(num, 0) + '=org.fromMem()';
 	}
 	
 	_toMem(num) {
-		return 'org.toMem(' + Number.getVar(num, 0) + ')';
+		return 'org.toMem(' + Num.getVar(num, 0) + ')';
 	}
 	
 	_myX(num) {
-		return 'v' + Number.getVar(num, 0) + '=org.myX()';
+		return 'v' + Num.getVar(num, 0) + '=org.myX()';
 	}
 	
 	_myY(num) {
-		return 'v' + Number.getVar(num, 0) + '=org.myY()';
+		return 'v' + Num.getVar(num, 0) + '=org.myY()';
 	}
 }

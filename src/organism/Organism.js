@@ -70,6 +70,8 @@ export default class Organism extends Observer {
     get code()                  {return this._code;}
     get posId()                 {return Helper.posId(this._x, this._y);}
 
+    set x(newX)                 {this._x = newX;}
+    set y(newY)                 {this._y = newY;}
     set mutationClonePercent(m) {this._mutationClonePercent = m;}
     set mutationPeriod(m)       {this._mutationPeriod = m;}
     set mutationPercent(p)      {this._mutationPercent = p;}
@@ -135,25 +137,25 @@ export default class Organism extends Observer {
     }
 
     stepLeft() {
-        let ret = {ret: null};
+        let ret = {ret: false};
         this.fire(Events.STEP, this, this._x, this._y, this._x - 1, this._y, ret);
         return ret.ret;
     }
 
     stepRight() {
-        let ret = {ret: null};
+        let ret = {ret: false};
         this.fire(Events.STEP, this, this._x, this._y, this._x + 1, this._y, ret);
         return ret.ret;
     }
 
     stepUp() {
-        let ret = {ret: null};
+        let ret = {ret: false};
         this.fire(Events.STEP, this, this._x, this._y, this._x, this._y - 1, ret);
         return ret.ret;
     }
 
     stepDown() {
-        let ret = {ret: null};
+        let ret = {ret: false};
         this.fire(Events.STEP, this, this._x, this._y,  this._x, this._y + 1, ret);
         return ret.ret;
     }

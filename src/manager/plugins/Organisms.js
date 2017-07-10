@@ -152,9 +152,8 @@ export default class Organisms {
 	
     _onAfterMove(x1, y1, x2, y2, org) {
         if (x1 !== x2 || y1 !== y2) {
-            const posId = Helper.posId(x1, y1);
-            delete this._positions[posId];
-            this._positions[posId] = org;
+            delete this._positions[Helper.posId(x1, y1)];
+            this._positions[Helper.posId(x2, y2)] = org;
         }
 
         return true;
@@ -179,10 +178,10 @@ export default class Organisms {
         const world = this._manager.world;
 
         if (Config.worldCyclical) {
-            if (x < 0)                  {x = world.width - 1;}
-            else if (x >= world.width)  {x = 0;}
-            else if (y < 0)             {y = world.height - 1;}
-            else if (y >= world.height) {y = 0;}
+            if (x < 0)                        {x = Config.worldWidth - 1;}
+            else if (x >= Config.worldWidth)  {x = 0;}
+            else if (y < 0)                   {y = Config.worldHeight - 1;}
+            else if (y >= Config.worldHeight) {y = 0;}
         }
 
         const posId = Helper.posId(x, y);
@@ -208,6 +207,7 @@ export default class Organisms {
     _onKillOrg(org) {
         this._manager.fire(Events.KILL_ORGANISM, org);
         this._orgs.del(org.item);
+        this._manager.world.setDot(org.x, org.y, 0);
         delete this._positions[org.posId];
         Console.info(org.id, ' die');
     }

@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 8);
+/******/ 	return __webpack_require__(__webpack_require__.s = 9);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -147,7 +147,7 @@ const Config = {
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 300,
+    orgStartAmount: 700,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without code) organism were created
@@ -259,11 +259,11 @@ const Config = {
     /**
      * {Number} World width
      */
-    worldWidth: 1900,
+    worldWidth: 1000,
     /**
      * {Number} World height
      */
-    worldHeight: 900,
+    worldHeight: 600,
     /**
      * {Number} Turns on ciclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
@@ -287,7 +287,7 @@ const Config = {
      * {Number} Amount of energy in every block. See worldStartEnergyDots
      * config for details.
      */
-    worldStartEnergyInDot: 0x0001F4,
+    worldStartEnergyInDot: 0x00FF00,
     /**
      * {Number} Minimum percent of energy in current world. Under percent i mean
      * percent from entire world area (100%). If the energy will be less
@@ -301,7 +301,7 @@ const Config = {
      * amount. Works in pair with worldEnergyCheckPercent. May be 0 if
      * you want to disable it
      */
-    worldEnergyCheckPeriod: 20000,
+    worldEnergyCheckPeriod: 1000,
     /**
      * {Number} World scaling. On todays monitors pixel are so small, so we have
      * to zoom them with a coefficient.
@@ -670,10 +670,45 @@ class Observer {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Config__ = __webpack_require__(0);
+/**
+ * Module for working with a browser console
+ *
+ * Usage:
+ *   import Console from '.../Console';
+ *   Console.msg('msg');
+ *
+ * @author DeadbraiN
+ */
+
+
+class Console {
+    static error(...msg) {
+        if (this._mode === __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_NO) {return;}
+        console.log(`%c${msg.join('')}`, 'background: #fff; color: #aa0000');
+    }
+    static warn (...msg) {
+        if (this._mode === __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_NO) {return;}
+        console.log(`%c${msg.join('')}`, 'background: #fff; color: #cc7a00');
+    }
+    static info (...msg) {
+        if (this._mode !== __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_ALL) {return;}
+        console.log(`%c${msg.join('')}`, 'background: #fff; color: #1a1a00');
+    }
+    static mode (mode = __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_IMPORTANT) {this._mode = mode;}
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = Console;
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Observer__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Number__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Num__ = __webpack_require__(6);
 /**
  * Implements organism's code logic.
  * TODO: explain here code, byteCode, one number format,...
@@ -745,6 +780,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
         this._byteCode  = [];
         this._code      = [];
         this._gen       = null;
+        __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].setOperatorBits(this._OPERATORS_LEN);
         this.compile();
     }
 
@@ -788,10 +824,10 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     }
 
     insertLine() {
-        this._byteCode.splice(__WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand(this._byteCode.length), 0, __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].get());
+        this._byteCode.splice(__WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand(this._byteCode.length), 0, __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].get());
     }
 
-    updateLine(index, number) {
+    updateLine(index, number = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].get()) {
         this._byteCode[index] = number;
     }
 
@@ -812,7 +848,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
         let   operator;
 
         for (let i = 0; i < len; i++) {
-            operator = operators[__WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getOperator(byteCode[i])](byteCode[i], i, len);
+            operator = operators[__WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getOperator(byteCode[i])](byteCode[i], i, len);
             //
             // This code is used for closing blocks for if, for and other
             // blocked operators.
@@ -855,21 +891,21 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     }
 
     /**
-     * Parses variable operator. Format: var = const|number. Number bits format:
+     * Parses variable operator. Format: var = const|number. Num bits format:
      *   BITS_PER_OPERATOR bits - operator id
      *   BITS_PER_VAR bits  - destination var index
      *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
      *   BITS_PER_VAR bits  - variable index or all bits till the end for constant
      *
-     * @param {Number} num Packed into number code line
+     * @param {Num} num Packed into number code line
      * @return {String} Parsed code line string
      */
     _onVar(num) {
-        const var0    = __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 0);
-        const var1    = __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 1);
-        const isConst = var1 > __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].HALF_OF_VAR;
+        const var0    = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0);
+        const var1    = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 1);
+        const isConst = var1 > __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].HALF_OF_VAR;
 
-        return 'v' + var0 + '=' + (isConst ? __WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].BITS_WITHOUT_2_VARS) : ('v' + var1));
+        return 'v' + var0 + '=' + (isConst ? __WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_WITHOUT_2_VARS) : ('v' + var1));
     }
 
     _onFunc(num) {
@@ -877,10 +913,10 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     }
 
     _onCondition(num, line, lines) {
-        const var0    = __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 0);
-        const var1    = __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 1);
-        const var2    = __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 2);
-        const var3    = __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 3);
+        const var0    = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0);
+        const var1    = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 1);
+        const var2    = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 2);
+        const var3    = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 3);
         const index   = line + var3 < lines ? line + var3 : lines - 1;
 
         this._offsets.push(index);
@@ -888,10 +924,10 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     }
 
     _onLoop(num, line, lines) {
-        const var2    = __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 3);
+        const var2    = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 3);
         const index   = line + var2 < lines ? line + var2 : lines - 1;
-		const var0Str = 'v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 0);
-		const var1Str = 'v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 1);
+		const var0Str = 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0);
+		const var1Str = 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 1);
 		const var3Str = 'v' + var2;
 
         this._offsets.push(index);
@@ -899,78 +935,78 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     }
 
     _onOperator(num) {
-        return 'v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 0) + '=v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 1) + this._OPERATORS[__WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getBits(num, __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].BITS_OF_THREE_VARS, __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].BITS_OF_TWO_VARS)] + 'v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 2);
+        return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 1) + this._OPERATORS[__WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_OF_THREE_VARS, __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_OF_TWO_VARS)] + 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 2);
     }
 
     _not(num) {
-        return 'v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 0) + '=!v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 1);
+        return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=!v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 1);
     }
 
     _onPi(num) {
-        return 'v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 0) + '=pi';
+        return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=pi';
     }
 	
 	_onTrig(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 0) + '=Math.' + this._TRIGS[__WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 1)] + '(v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 2) + ')';
+		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=Math.' + this._TRIGS[__WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 1)] + '(v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 2) + ')';
 	}
 
     _onLookAt(num) {
-        return 'v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 0) + '=org.lookAt(' + 'v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 1) + ',v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 2) + ')';
+        return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.lookAt(' + 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 1) + ',v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 2) + ')';
     }
 
     _eatLeft(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 0) + '=org.eatLeft(v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 1) + ')';
+		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.eatLeft(v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 1) + ')';
     }
 
 	_eatRight(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 0) + '=org.eatRight(v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 1) + ')';
+		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.eatRight(v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 1) + ')';
     }
 	
 	_eatUp(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 0) + '=org.eatUp(v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 1) + ')';
+		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.eatUp(v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 1) + ')';
     }
 	
 	_eatDown(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 0) + '=org.eatDown(v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 1) + ')';
+		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.eatDown(v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 1) + ')';
     }
 	
 	_stepLeft(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 0) + '=org.stepLeft()';
+		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.stepLeft()';
     }
 	
 	_stepRight(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 0) + '=org.stepRight()';
+		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.stepRight()';
     }
 	
 	_stepUp(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 0) + '=org.stepUp()';
+		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.stepUp()';
     }
 	
 	_stepDown(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 0) + '=org.stepDown()';
+		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.stepDown()';
     }
 	
 	_fromMem(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 0) + '=org.fromMem()';
+		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.fromMem()';
 	}
 	
 	_toMem(num) {
-		return 'org.toMem(' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 0) + ')';
+		return 'org.toMem(' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + ')';
 	}
 	
 	_myX(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 0) + '=org.myX()';
+		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.myX()';
 	}
 	
 	_myY(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Number__["a" /* default */].getVar(num, 0) + '=org.myY()';
+		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.myY()';
 	}
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Code;
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1003,6 +1039,15 @@ class Number {
     static get MAX_OPERATOR()        {return MAX_OPERATOR;}
     static get BITS_WITHOUT_2_VARS() {return BITS_WITHOUT_2_VARS;}
     static get HALF_OF_VAR()         {return HALF_OF_VAR;}
+
+    /**
+     * Sets amount of available operators for first bits
+     * @param {Number} amount
+     */
+    static setOperatorBits(amount) {
+        this._operators = amount;
+    }
+
     /**
      * We have to use >>> 0 at the end, because << operator works
      * with signed 32bit numbers, but not with unsigned like we need
@@ -1010,7 +1055,7 @@ class Number {
      */
     static get() {
         const rand = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand;
-        return (rand(MAX_VAR) << (VAR_BITS_OFFS) | rand(0xffffff)) >>> 0;
+        return (rand(this._operators) << (VAR_BITS_OFFS) | rand(0xffffff)) >>> 0;
     }
 
     static getOperator(num) {
@@ -1057,7 +1102,7 @@ class Number {
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1066,7 +1111,7 @@ class Number {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Observer__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Helper__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__Code__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__Code__ = __webpack_require__(5);
 /**
  * TODO: add description:
  * TODO:   - events
@@ -1139,6 +1184,8 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
     get code()                  {return this._code;}
     get posId()                 {return __WEBPACK_IMPORTED_MODULE_4__global_Helper__["a" /* default */].posId(this._x, this._y);}
 
+    set x(newX)                 {this._x = newX;}
+    set y(newY)                 {this._y = newY;}
     set mutationClonePercent(m) {this._mutationClonePercent = m;}
     set mutationPeriod(m)       {this._mutationPeriod = m;}
     set mutationPercent(p)      {this._mutationPercent = p;}
@@ -1204,25 +1251,25 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
     }
 
     stepLeft() {
-        let ret = {ret: null};
+        let ret = {ret: false};
         this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STEP, this, this._x, this._y, this._x - 1, this._y, ret);
         return ret.ret;
     }
 
     stepRight() {
-        let ret = {ret: null};
+        let ret = {ret: false};
         this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STEP, this, this._x, this._y, this._x + 1, this._y, ret);
         return ret.ret;
     }
 
     stepUp() {
-        let ret = {ret: null};
+        let ret = {ret: false};
         this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STEP, this, this._x, this._y, this._x, this._y - 1, ret);
         return ret.ret;
     }
 
     stepDown() {
-        let ret = {ret: null};
+        let ret = {ret: false};
         this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STEP, this, this._x, this._y,  this._x, this._y + 1, ret);
         return ret.ret;
     }
@@ -1304,17 +1351,18 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__visual_World__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__visual_Canvas__ = __webpack_require__(14);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__plugins_Organisms__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__plugins_Mutator__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__visual_World__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__visual_Canvas__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__plugins_Organisms__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__plugins_Mutator__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__plugins_Energy__ = __webpack_require__(12);
 /**
  * Main manager class of application. Contains all parts of jevo.js app
  * like World, Connection, Console etc... Runs infinite loop inside run()
@@ -1336,12 +1384,14 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
 
 
 
+
 /**
  * {Array} Plugins for Manager
  */
 const PLUGINS = [
     __WEBPACK_IMPORTED_MODULE_5__plugins_Organisms__["a" /* default */],
-    __WEBPACK_IMPORTED_MODULE_6__plugins_Mutator__["a" /* default */]
+    __WEBPACK_IMPORTED_MODULE_6__plugins_Mutator__["a" /* default */],
+    __WEBPACK_IMPORTED_MODULE_7__plugins_Energy__["a" /* default */]
 ];
 
 class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* default */] {
@@ -1355,7 +1405,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
      * Is called at the end on move() method
      * @abstract
      */
-    onAfterMove() {return true;}
+    onAfterMove() {}
 
     constructor() {
         super();
@@ -1406,19 +1456,24 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
 
     move(x1, y1, x2, y2, org) {
         let world = this._world;
+        let moved = false;
 
-        if (this._isFree(x2, y2) === false) {return false;}
         if (__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldCyclical) {
-            if (x2 < 0)                     {x2 = world.width - 1;
-            } else if (x2 === world.width)  {x2 = 0;
-            } else if (y2 < 0)              {y2 = world.height - 1;
-            } else if (y2 === world.height) {y2 = 0;}
+            if (x2 < 0)                        {x2 = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldWidth - 1;}
+            else if (x2 >= __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldWidth)  {x2 = 0;}
+            else if (y2 < 0)                   {y2 = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldHeight - 1;}
+            else if (y2 >= __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldHeight) {y2 = 0;}
         }
+        if (this._isFree(x2, y2) === false) {return false;}
 
-        if (x1 !== x2 || y1 !== y2) {this._world.setDot(x1, y1, 0);}
+        if (x1 !== x2 || y1 !== y2) {moved = true; this._world.setDot(x1, y1, 0);}
         this._world.setDot(x2, y2, org.color);
+        org.x = x2;
+        org.y = y2;
 
-        return this.onAfterMove(x1, y1, x2, y2, org);
+        this.onAfterMove(x1, y1, x2, y2, org);
+
+        return moved;
     }
 
     /**
@@ -1485,12 +1540,12 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_Manager__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_Manager__ = __webpack_require__(8);
 /**
  * This is an entry point of jevo.js application. Compiled version of
  * this file should be included into index.html
@@ -1504,41 +1559,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 const manager = new __WEBPACK_IMPORTED_MODULE_0__manager_Manager__["a" /* default */]();
 manager.run();
-
-/***/ }),
-/* 9 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Config__ = __webpack_require__(0);
-/**
- * Module for working with a browser console
- *
- * Usage:
- *   import Console from '.../Console';
- *   Console.msg('msg');
- *
- * @author DeadbraiN
- */
-
-
-class Console {
-    static error(...msg) {
-        if (this._mode === __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_NO) {return;}
-        console.log(`%c${msg.join('')}`, 'background: #fff; color: #aa0000');
-    }
-    static warn (...msg) {
-        if (this._mode === __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_NO) {return;}
-        console.log(`%c${msg.join('')}`, 'background: #fff; color: #cc7a00');
-    }
-    static info (...msg) {
-        if (this._mode !== __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_ALL) {return;}
-        console.log(`%c${msg.join('')}`, 'background: #fff; color: #1a1a00');
-    }
-    static mode (mode = __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_IMPORTANT) {this._mode = mode;}
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = Console;
-
 
 /***/ }),
 /* 10 */
@@ -1684,12 +1704,76 @@ class Stack {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(4);
+/**
+ * Manager's plugin, which tracks amount of energy in a world and updates it.
+ *
+ * @author DeadbraiN
+ */
+
+
+
+
+class Energy {
+    constructor(manager) {
+        this._manager       = manager;
+        this._checkPeriod   = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldEnergyCheckPeriod;
+        this._onIterationCb = this._onIteration.bind(this);
+
+        __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].override(manager, 'onIteration', this._onIterationCb);
+    }
+
+    destroy() {
+        __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].unoverride(this._manager, 'onIteration', this._onIterationCb);
+    }
+
+    _onIteration(counter) {
+        if (counter % this._checkPeriod === 0 && this._checkPeriod > 0) {
+            let   energy = 0;
+            const world  = this._manager.world;
+            const width  = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldWidth;
+            const height = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldHeight;
+
+            for (let x = 0; x < width; x++) {
+                for (let y = 0; y < height; y++) {
+                    if (world.getDot(x, y) > 0) {energy++;}
+                }
+            }
+
+            if (energy * 100 / (width * height) <= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldEnergyCheckPercent) {
+                this._updateEnergy(__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldStartEnergyDots, __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldStartEnergyInDot);
+            }
+        }
+    }
+
+    _updateEnergy(dotAmount, energyInDot) {
+        const world  = this._manager.world;
+        const width  = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldWidth;
+        const height = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldHeight;
+        const rand   = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand;
+
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].info('Creating random energy');
+        for (let dot = 0; dot < dotAmount; dot++) {
+            world.setDot(rand(width), rand(height), energyInDot);
+        }
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = Energy;
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Helper__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__organism_Organism__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__organism_Code__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_Number__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__organism_Organism__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__organism_Code__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_Num__ = __webpack_require__(6);
 /**
  * Plugin for Manager class, which is tracks when and how many mutations
  * should be added to special organism's code at special moment of it's
@@ -1762,7 +1846,7 @@ class Mutator {
 
     _onChange(org) {
         const code = org.code;
-        code.updateLine(__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(code.size), __WEBPACK_IMPORTED_MODULE_5__organism_Number__["a" /* default */].get());
+        code.updateLine(__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(code.size));
     }
 
     _onDel(org) {
@@ -1779,9 +1863,9 @@ class Mutator {
         const code  = org.code;
 
         if (__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(1) === 0) {
-            code.updateLine(index, __WEBPACK_IMPORTED_MODULE_5__organism_Number__["a" /* default */].setOperator(code.getLine[index], __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_5__organism_Number__["a" /* default */].MAX_OPERATOR)));
+            code.updateLine(index, __WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].setOperator(code.getLine[index], __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].MAX_OPERATOR)));
         } else {
-            code.updateLine(index, __WEBPACK_IMPORTED_MODULE_5__organism_Number__["a" /* default */].setVar(code.getLine(index), __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_5__organism_Number__["a" /* default */].VARS), __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_5__organism_Number__["a" /* default */].MAX_VAR)));
+            code.updateLine(index, __WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].setVar(code.getLine(index), __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].VARS), __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].MAX_VAR)));
         }
     }
 
@@ -1809,16 +1893,16 @@ class Mutator {
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Queue__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_Organism__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_Organism__ = __webpack_require__(7);
 /**
  * Plugin for Manager module, which handles organisms population
  *
@@ -1973,9 +2057,8 @@ class Organisms {
 	
     _onAfterMove(x1, y1, x2, y2, org) {
         if (x1 !== x2 || y1 !== y2) {
-            const posId = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x1, y1);
-            delete this._positions[posId];
-            this._positions[posId] = org;
+            delete this._positions[__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x1, y1)];
+            this._positions[__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x2, y2)] = org;
         }
 
         return true;
@@ -2000,10 +2083,10 @@ class Organisms {
         const world = this._manager.world;
 
         if (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldCyclical) {
-            if (x < 0)                  {x = world.width - 1;}
-            else if (x >= world.width)  {x = 0;}
-            else if (y < 0)             {y = world.height - 1;}
-            else if (y >= world.height) {y = 0;}
+            if (x < 0)                        {x = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldWidth - 1;}
+            else if (x >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldWidth)  {x = 0;}
+            else if (y < 0)                   {y = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldHeight - 1;}
+            else if (y >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldHeight) {y = 0;}
         }
 
         const posId = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x, y);
@@ -2029,6 +2112,7 @@ class Organisms {
     _onKillOrg(org) {
         this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].KILL_ORGANISM, org);
         this._orgs.del(org.item);
+        this._manager.world.setDot(org.x, org.y, 0);
         delete this._positions[org.posId];
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].info(org.id, ' die');
     }
@@ -2037,7 +2121,7 @@ class Organisms {
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2052,15 +2136,18 @@ class Canvas {
 
         this._CLEAR_COLOR = '#000000';
 
-        bodyEl.width('100%').height('100%').css('margin', 0).parent().width('100%').height('100%').css('margin', 0);
+        this._prepareDom();
 
-        this._canvasEl = bodyEl.append('<canvas id="world" width="' + bodyEl.width() + '" height="' + bodyEl.height() + '"></canvas>').find('#world');
-        this._ctx      = this._canvasEl[0].getContext('2d');
-        this._imgData  = this._ctx.createImageData(1, 1);
-        this._data     = this._imgData.data;
-        this._data[3]  = 0xff; // Alpha channel
+        this._width     = bodyEl.width();
+        this._height    = bodyEl.height();
+        this._canvasEl  = bodyEl.append('<canvas id="world" width="' + this._width + '" height="' + this._height + '"></canvas>').find('#world');
+        this._ctx       = this._canvasEl[0].getContext('2d');
+        this._imgData   = this._ctx.createImageData(this._width, this._height);
+        this._data      = this._imgData.data;
+        this._animate   = this._onAnimate.bind(this);
 
         this.clear();
+        window.requestAnimationFrame(this._animate);
     }
 
     destroy() {
@@ -2068,6 +2155,25 @@ class Canvas {
         this._ctx     = null;
         this._imgData = null;
         this._data    = null;
+    }
+
+    dot(x, y, color) {
+        this._dot(x, y, color);
+    }
+
+    /**
+     * Clears canvas with black color
+     */
+    clear() {
+        const size = this._width * this._height * 4;
+        const data = this._data;
+
+        for (let i = 0; i < size; i += 4) {
+            data[i + 3] = 0xff;
+        }
+//        this._ctx.rect(0, 0, this._width, this._height);
+//        this._ctx.fillStyle = this._CLEAR_COLOR;
+//        this._ctx.fill();
     }
 
     /**
@@ -2080,29 +2186,39 @@ class Canvas {
      * @param {Number} y Y coordinate
      * @param {Number} color Decimal color
      */
-    dot(x, y, color) {
+    _dot(x, y, color) {
         const data = this._data;
+        const offs = (y * this._width + x) * 4;
 
-        data[0] = (color >> 16) & 255;
-        data[1] = (color >> 8) & 255;
-        data[2] = color & 255;
-        this._ctx.putImageData(this._imgData, x, y);
+        data[offs    ] = (color >> 16) & 0xff;
+        data[offs + 1] = (color >> 8)  & 0xff;
+        data[offs + 2] = color & 0xff;
+         //TODO: should be optimized. 0xff should be set once at the beginning
+        data[offs + 3] = 0xff; // Alpha channel (no transparency)
+        //this._ctx.putImageData(this._imgData, 0, 0);
     }
 
-    /**
-     * Clears canvas with black color
-     */
-    clear() {
-        this._ctx.rect(0, 0, this._canvasEl.width(), this._canvasEl.height());
-        this._ctx.fillStyle = this._CLEAR_COLOR;
-        this._ctx.fill();
+    _onAnimate() {
+        this._ctx.putImageData(this._imgData, 0, 0);
+        window.requestAnimationFrame(this._animate);
+    }
+
+    _prepareDom() {
+        $('body')
+            .width('100%')
+            .height('100%')
+            .css('margin', 0)
+        .parent()
+            .width('100%')
+            .height('100%')
+            .css('margin', 0);
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Canvas;
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

@@ -14,7 +14,7 @@ import Config   from './../../global/Config';
 import Helper   from './../../global/Helper';
 import Organism from './../../organism/Organism';
 import Code     from './../../organism/Code';
-import Number   from './../../organism/Number';
+import Num      from '../../organism/Num';
 
 export default class Mutator {
     constructor(manager) {
@@ -70,7 +70,7 @@ export default class Mutator {
 
     _onChange(org) {
         const code = org.code;
-        code.updateLine(Helper.rand(code.size), Number.get());
+        code.updateLine(Helper.rand(code.size));
     }
 
     _onDel(org) {
@@ -87,9 +87,9 @@ export default class Mutator {
         const code  = org.code;
 
         if (Helper.rand(1) === 0) {
-            code.updateLine(index, Number.setOperator(code.getLine[index], Helper.rand(Number.MAX_OPERATOR)));
+            code.updateLine(index, Num.setOperator(code.getLine[index], Helper.rand(Num.MAX_OPERATOR)));
         } else {
-            code.updateLine(index, Number.setVar(code.getLine(index), Helper.rand(Number.VARS), Helper.rand(Number.MAX_VAR)));
+            code.updateLine(index, Num.setVar(code.getLine(index), Helper.rand(Num.VARS), Helper.rand(Num.MAX_VAR)));
         }
     }
 
