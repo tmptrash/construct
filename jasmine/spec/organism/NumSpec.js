@@ -52,5 +52,15 @@ describe("src/organism/Code", () => {
         n = 0xbc9fffff;
         expect(Num.getVar(n, 0)).toEqual(2);
         expect(Num.getVar(n, 1)).toEqual(1);
+
+        n = 0xbc00ffff;
+        expect(Num.getVar(n, 0)).toEqual(0);
+        expect(Num.getVar(n, 1)).toEqual(0);
+    });
+
+    it('Checking setVar() method', () => {
+        let n = 0xabffffff;
+
+        expect(Num.setVar(n, 0, 2)).toEqual(0xabbfffff);
     });
 });

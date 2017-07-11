@@ -7,8 +7,6 @@ export default class Canvas {
     constructor() {
         const bodyEl = $('body');
 
-        this._CLEAR_COLOR = '#000000';
-
         this._prepareDom();
 
         this._width     = bodyEl.width();
@@ -31,7 +29,7 @@ export default class Canvas {
     }
 
     dot(x, y, color) {
-        this._dot(x, y, color);
+        //this._dot(x, y, color);
     }
 
     /**

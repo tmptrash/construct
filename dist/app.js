@@ -1085,7 +1085,7 @@ class Number {
         const lBits = VAR_BITS_OFFS - bits;
         const rBits = BITS_PER_OPERATOR + bits + BITS_PER_VAR;
 
-        return (num >>> lBits << lBits | val << (lBits - bits) | num << rBits >>> rBits) >>> 0;
+        return (num >>> lBits << lBits | val << (lBits - bits - BITS_PER_VAR) | num << rBits >>> rBits) >>> 0;
     }
 
     /**
@@ -1413,7 +1413,6 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
         this._canvas  = new __WEBPACK_IMPORTED_MODULE_4__visual_Canvas__["a" /* default */]();
         this._plugins = new Array(PLUGINS.length);
         this._stopped = false;
-        this._share   = {};
 
         this._initLoop();
         this._initPlugins();
@@ -1800,7 +1799,7 @@ class Mutator {
         const index = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(org.code.size);
         const code  = org.code;
 
-        if (__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(1) === 0) {
+        if (__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(2) === 0) {
             code.updateLine(index, __WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].setOperator(code.getLine[index], __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].MAX_OPERATOR)));
         } else {
             code.updateLine(index, __WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].setVar(code.getLine(index), __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].VARS), __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].MAX_VAR)));
@@ -2072,8 +2071,6 @@ class Canvas {
     constructor() {
         const bodyEl = $('body');
 
-        this._CLEAR_COLOR = '#000000';
-
         this._prepareDom();
 
         this._width     = bodyEl.width();
@@ -2096,7 +2093,7 @@ class Canvas {
     }
 
     dot(x, y, color) {
-        this._dot(x, y, color);
+        //this._dot(x, y, color);
     }
 
     /**
