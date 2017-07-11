@@ -1310,7 +1310,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     }
 
     _clone(parent) {
-        this._mem = parent.mem.clone();
+        this._mem = parent.mem.slice();
         this._code.clone(parent.code);
     }
 
