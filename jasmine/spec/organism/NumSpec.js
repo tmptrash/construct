@@ -59,8 +59,9 @@ describe("src/organism/Code", () => {
     });
 
     it('Checking setVar() method', () => {
-        let n = 0xabffffff;
-
-        expect(Num.setVar(n, 0, 2)).toEqual(0xabbfffff);
+        expect(Num.setVar(0xabffffff, 0, 2)).toEqual(0xabbfffff);
+        expect(Num.setVar(0xabffffff, 0, 3)).toEqual(0xabffffff);
+        expect(Num.setVar(0xabffffff, 0, 0)).toEqual(0xab3fffff);
+        expect(Num.setVar(0xabffffff, 2, 0)).toEqual(0xabf3ffff);
     });
 });
