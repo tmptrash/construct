@@ -21,8 +21,6 @@ describe("src/organism/Code", () => {
             n = Num.get() >>> 24;
             expect(n >= 0 && n <= 2).toEqual(true);
         }
-
-        expect(n === 0 || n === 1).toEqual(true);
     });
 
     it('Checking getOperator() method', () => {
@@ -35,5 +33,24 @@ describe("src/organism/Code", () => {
         const n = 0xabffffff;
 
         expect(Num.setOperator(n, 0xbd)).toEqual(0xbdffffff);
+        expect(Num.setOperator(n, 0x00)).toEqual(0x00ffffff);
+        expect(Num.setOperator(n, 0x01)).toEqual(0x01ffffff);
+        expect(Num.setOperator(n, 0xff)).toEqual(0xffffffff);
+    });
+
+    it('Checking getVar() method', () => {
+        let n = 0xabffffff;
+
+        expect(Num.getVar(n, 0)).toEqual(3);
+        expect(Num.getVar(n, 1)).toEqual(3);
+        expect(Num.getVar(n, 3)).toEqual(3);
+
+        n = 0xbcbfffff;
+        expect(Num.getVar(n, 0)).toEqual(2);
+        expect(Num.getVar(n, 1)).toEqual(3);
+
+        n = 0xbc9fffff;
+        expect(Num.getVar(n, 0)).toEqual(2);
+        expect(Num.getVar(n, 1)).toEqual(1);
     });
 });

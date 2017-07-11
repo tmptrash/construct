@@ -1064,7 +1064,7 @@ class Number {
     }
 
     static setOperator(num, op) {
-        return (num & (op << VAR_BITS_OFFS) | NO_OPERATOR_MASK) >>> 0;
+        return (op << VAR_BITS_OFFS | (num & NO_OPERATOR_MASK)) >>> 0;
     }
 
     static getVar(num, index) {
