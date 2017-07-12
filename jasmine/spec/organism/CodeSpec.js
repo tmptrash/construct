@@ -41,13 +41,15 @@ describe("src/organism/Code", () => {
     });
 
     it("Checking clone", () => {
-//        let flag = false;
-//        let code = new Code((()=>{flag = true;}));
-//
-//        expect(flag).toEqual(false);
-//        code.run();
-//        expect(flag).toEqual(false);
-//
-//        code.destroy();
+        let code  = new Code((()=>{}));
+        let code1 = new Code(()=>{});
+
+        code.insertLine();
+        expect(code.size).toEqual(1);
+        code1.clone(code);
+        expect(code1.size).toEqual(1);
+        expect(code1._byteCode[0] === code._byteCode[0]).toEqual(true);
+
+        code.destroy();
     });
 });

@@ -19,7 +19,7 @@ export default class Code extends Observer {
          * {Object} These operator handlers should return string, which
          * will be added to the final string script for evaluation.
          */
-        this._OPERATOR_CB = {
+        this._OPERATORS_CB = {
             0 : this._onVar.bind(this),
             //1: this._onFunc.bind(this),
             1 : this._onCondition.bind(this),
@@ -42,7 +42,7 @@ export default class Code extends Observer {
             18: this._myX.bind(this),
             19: this._myY.bind(this)
         };
-        this._OPERATORS_LEN = Object.keys(this._OPERATOR_CB).length;
+        this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
         /**
          * {Array} Available conditions for if operator. Amount should be
          * the same like (1 << BITS_PER_VAR)
@@ -54,7 +54,7 @@ export default class Code extends Observer {
 		this._OPERATORS = [
 		    '+', '-', '*', '/', '%', '&', '|', '^', '>>', '<<', '>>>', '<', '>', '==', '!=', '<=' 
 		];
-		this._TRIGS     = ['sin', 'cos', 'tan', 'abs'];
+		this._TRIGS = ['sin', 'cos', 'tan', 'abs'];
 
         /**
          * {Function} Callback, which is called on every organism
@@ -69,7 +69,7 @@ export default class Code extends Observer {
         this._byteCode  = [];
         this._code      = [];
         this._gen       = null;
-        Num.setOperatorAmount(this._OPERATORS_LEN);
+        Num.setOperatorAmount(this._OPERATORS_CB_LEN);
         this.compile();
     }
 
@@ -130,7 +130,7 @@ export default class Code extends Observer {
 
     _compileByteCode(byteCode) {
         const len         = byteCode.length;
-        const operators   = this._OPERATOR_CB;
+        const operators   = this._OPERATORS_CB;
 		const yieldPeriod = Config.codeYieldPeriod;
         let   code        = new Array(len);
         let   offsets     = this._offsets;

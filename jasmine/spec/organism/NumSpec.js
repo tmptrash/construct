@@ -1,4 +1,4 @@
-describe("src/organism/Code", () => {
+describe("src/organism/Num", () => {
     let Num = require('../../../src/organism/Num').default;
 
     it("Checking getting random zero operator", () => {
