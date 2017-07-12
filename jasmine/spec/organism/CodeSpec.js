@@ -52,4 +52,15 @@ describe("src/organism/Code", () => {
 
         code.destroy();
     });
+
+    it('Checking insertLine() method', () => {
+        let code  = new Code((()=>{}));
+
+        code.insertLine();
+        expect(code.size).toEqual(1);
+        code.insertLine();
+        expect(code.size).toEqual(2);
+
+        code.destroy();
+    })
 });
