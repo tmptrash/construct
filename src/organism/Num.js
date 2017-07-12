@@ -71,7 +71,7 @@ export default class Number {
         const lBits = VAR_BITS_OFFS - bits;
         const rBits = BITS_PER_OPERATOR + bits + BITS_PER_VAR;
 
-        return (num >>> lBits << lBits | val << (lBits - bits - BITS_PER_VAR) | num << rBits >>> rBits) >>> 0;
+        return (num >>> lBits << lBits | val << (VAR_BITS_OFFS - bits - BITS_PER_VAR) | num << rBits >>> rBits) >>> 0;
     }
 
     /**

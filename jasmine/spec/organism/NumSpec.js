@@ -63,5 +63,15 @@ describe("src/organism/Code", () => {
         expect(Num.setVar(0xabffffff, 0, 3)).toEqual(0xabffffff);
         expect(Num.setVar(0xabffffff, 0, 0)).toEqual(0xab3fffff);
         expect(Num.setVar(0xabffffff, 2, 0)).toEqual(0xabf3ffff);
+        expect(Num.setVar(0xabffffff, 2, 2)).toEqual(0xabfbffff);
+    });
+
+    it('Checking getBits() method', () => {
+        expect(Num.getBits(0xabffffff, 0, 8)).toEqual(0xab);
+        expect(Num.getBits(0xabffffff, 0, 4)).toEqual(0xa);
+        expect(Num.getBits(0xabffffff, 4, 4)).toEqual(0xb);
+        expect(Num.getBits(0xabfbffff, 12, 2)).toEqual(0x2);
+        expect(Num.getBits(0xabcdffff, 8, 8)).toEqual(0xcd);
+        expect(Num.getBits(0xabcdffff, 16, 8)).toEqual(0xff);
     });
 });
