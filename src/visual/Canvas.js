@@ -7,8 +7,6 @@ export default class Canvas {
     constructor() {
         const bodyEl = $('body');
 
-        this._CLEAR_COLOR = '#000000';
-
         this._prepareDom();
 
         this._width     = bodyEl.width();
@@ -31,7 +29,7 @@ export default class Canvas {
     }
 
     dot(x, y, color) {
-        this._dot(x, y, color);
+        //this._dot(x, y, color);
     }
 
     /**
@@ -44,9 +42,6 @@ export default class Canvas {
         for (let i = 0; i < size; i += 4) {
             data[i + 3] = 0xff;
         }
-//        this._ctx.rect(0, 0, this._width, this._height);
-//        this._ctx.fillStyle = this._CLEAR_COLOR;
-//        this._ctx.fill();
     }
 
     /**
@@ -66,9 +61,6 @@ export default class Canvas {
         data[offs    ] = (color >> 16) & 0xff;
         data[offs + 1] = (color >> 8)  & 0xff;
         data[offs + 2] = color & 0xff;
-         //TODO: should be optimized. 0xff should be set once at the beginning
-        data[offs + 3] = 0xff; // Alpha channel (no transparency)
-        //this._ctx.putImageData(this._imgData, 0, 0);
     }
 
     _onAnimate() {

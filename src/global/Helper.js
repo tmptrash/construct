@@ -24,8 +24,8 @@ export default class Helper {
         fn.fn = obj[fnName];
         if (!hard) {
             obj[fnName] = (...args) => {
-                fn(...args);
                 fn.fn.apply(obj, args);
+                return fn(...args);
             };
             return;
         }

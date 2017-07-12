@@ -69,7 +69,7 @@ export default class Code extends Observer {
         this._byteCode  = [];
         this._code      = [];
         this._gen       = null;
-        Num.setOperatorBits(this._OPERATORS_LEN);
+        Num.setOperatorAmount(this._OPERATORS_LEN);
         this.compile();
     }
 

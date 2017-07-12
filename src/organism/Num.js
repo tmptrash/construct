@@ -8,6 +8,7 @@ import Config from './../global/Config';
 
 const BITS_PER_VAR        = Config.codeBitsPerVar;
 const BITS_PER_OPERATOR   = Config.codeBitsPerOperator;
+const NO_OPERATOR_MASK    = 0xffffffff >>> BITS_PER_OPERATOR;
 const BITS_OF_TWO_VARS    = BITS_PER_VAR * 2;
 const BITS_OF_THREE_VARS  = BITS_PER_VAR * 3;
 const BITS_OF_FIRST_VAR   = 32 - BITS_PER_VAR;
@@ -30,7 +31,7 @@ export default class Number {
      * Sets amount of available operators for first bits
      * @param {Number} amount
      */
-    static setOperatorBits(amount) {
+    static setOperatorAmount(amount) {
         this._operators = amount;
     }
 
@@ -41,7 +42,7 @@ export default class Number {
      */
     static get() {
         const rand = Helper.rand;
-        return (rand(this._operators) << (VAR_BITS_OFFS) | rand(0xffffff)) >>> 0;
+        return (rand(this._operators) << (VAR_BITS_OFFS) | rand(NO_OPERATOR_MASK)) >>> 0;
     }
 
     static getOperator(num) {
@@ -49,7 +50,7 @@ export default class Number {
     }
 
     static setOperator(num, op) {
-        return (num & (op << VAR_BITS_OFFS) | 0x00ffffff) >>> 0;
+        return (op << VAR_BITS_OFFS | (num & NO_OPERATOR_MASK)) >>> 0;
     }
 
     static getVar(num, index) {
@@ -70,7 +71,7 @@ export default class Number {
         const lBits = VAR_BITS_OFFS - bits;
         const rBits = BITS_PER_OPERATOR + bits + BITS_PER_VAR;
 
-        return (num >>> lBits << lBits | val << (lBits - bits) | num << rBits >>> rBits) >>> 0;
+        return (num >>> lBits << lBits | val << (VAR_BITS_OFFS - bits - BITS_PER_VAR) | num << rBits >>> rBits) >>> 0;
     }
 
     /**

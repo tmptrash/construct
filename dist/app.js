@@ -473,8 +473,8 @@ class Helper {
         fn.fn = obj[fnName];
         if (!hard) {
             obj[fnName] = (...args) => {
-                fn(...args);
                 fn.fn.apply(obj, args);
+                return fn(...args);
             };
             return;
         }
@@ -780,7 +780,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
         this._byteCode  = [];
         this._code      = [];
         this._gen       = null;
-        __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].setOperatorBits(this._OPERATORS_LEN);
+        __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].setOperatorAmount(this._OPERATORS_LEN);
         this.compile();
     }
 
@@ -1022,6 +1022,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
 
 const BITS_PER_VAR        = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeBitsPerVar;
 const BITS_PER_OPERATOR   = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeBitsPerOperator;
+const NO_OPERATOR_MASK    = 0xffffffff >>> BITS_PER_OPERATOR;
 const BITS_OF_TWO_VARS    = BITS_PER_VAR * 2;
 const BITS_OF_THREE_VARS  = BITS_PER_VAR * 3;
 const BITS_OF_FIRST_VAR   = 32 - BITS_PER_VAR;
@@ -1044,7 +1045,7 @@ class Number {
      * Sets amount of available operators for first bits
      * @param {Number} amount
      */
-    static setOperatorBits(amount) {
+    static setOperatorAmount(amount) {
         this._operators = amount;
     }
 
@@ -1055,7 +1056,7 @@ class Number {
      */
     static get() {
         const rand = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand;
-        return (rand(this._operators) << (VAR_BITS_OFFS) | rand(0xffffff)) >>> 0;
+        return (rand(this._operators) << (VAR_BITS_OFFS) | rand(NO_OPERATOR_MASK)) >>> 0;
     }
 
     static getOperator(num) {
@@ -1063,7 +1064,7 @@ class Number {
     }
 
     static setOperator(num, op) {
-        return (num & (op << VAR_BITS_OFFS) | 0x00ffffff) >>> 0;
+        return (op << VAR_BITS_OFFS | (num & NO_OPERATOR_MASK)) >>> 0;
     }
 
     static getVar(num, index) {
@@ -1084,7 +1085,7 @@ class Number {
         const lBits = VAR_BITS_OFFS - bits;
         const rBits = BITS_PER_OPERATOR + bits + BITS_PER_VAR;
 
-        return (num >>> lBits << lBits | val << (lBits - bits) | num << rBits >>> rBits) >>> 0;
+        return (num >>> lBits << lBits | val << (lBits - bits - BITS_PER_VAR) | num << rBits >>> rBits) >>> 0;
     }
 
     /**
@@ -1107,11 +1108,10 @@ class Number {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Stack__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Observer__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Helper__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__Code__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Code__ = __webpack_require__(5);
 /**
  * TODO: add description:
  * TODO:   - events
@@ -1124,8 +1124,7 @@ class Number {
 
 
 
-
-class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default */] {
+class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* default */] {
     /**
      * Creates organism instance. If parent parameter is set, then
      * a clone of parent organism will be created.
@@ -1142,7 +1141,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
     constructor(id, x, y, alive, item, codeEndCb, parent = null) {
         super();
 
-        this._code                  = new __WEBPACK_IMPORTED_MODULE_5__Code__["a" /* default */](this._onCodeEnd.bind(this));
+        this._code                  = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._onCodeEnd.bind(this));
 
         if (parent === null) {this._create();}
         else {this._clone(parent);}
@@ -1182,7 +1181,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
     get age()                   {return this._age;}
     get cloneEnergyPercent()    {return this._cloneEnergyPercent;}
     get code()                  {return this._code;}
-    get posId()                 {return __WEBPACK_IMPORTED_MODULE_4__global_Helper__["a" /* default */].posId(this._x, this._y);}
+    get posId()                 {return __WEBPACK_IMPORTED_MODULE_3__global_Helper__["a" /* default */].posId(this._x, this._y);}
 
     set x(newX)                 {this._x = newX;}
     set y(newY)                 {this._y = newY;}
@@ -1211,7 +1210,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
     }
 
     destroy() {
-        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].DESTROY, this);
+        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].DESTROY, this);
         this._alive    = false;
         this._energy   = 0;
         this._item     = null;
@@ -1222,55 +1221,55 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
 
     lookAt() {
         let ret = {ret: 0};
-        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].GET_ENERGY, this, ret);
+        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].GET_ENERGY, this, ret);
         return ret.ret;
     }
 
     eatLeft(amount) {
         let ret = {ret: amount};
-        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].EAT, this, this._x - 1, this._y, ret);
+        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].EAT, this, this._x - 1, this._y, ret);
         return ret.ret;
     }
 
     eatRight(amount) {
         let ret = {ret: amount};
-        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].EAT, this, this._x + 1, this._y, ret);
+        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].EAT, this, this._x + 1, this._y, ret);
         return ret.ret;
     }
 
     eatUp(amount) {
         let ret = {ret: amount};
-        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].EAT, this, this._x, this._y - 1, ret);
+        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].EAT, this, this._x, this._y - 1, ret);
         return ret.ret;
     }
 
     eatDown(amount) {
         let ret = {ret: amount};
-        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].EAT, this, this._x, this._y + 1, ret);
+        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].EAT, this, this._x, this._y + 1, ret);
         return ret.ret;
     }
 
     stepLeft() {
         let ret = {ret: false};
-        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STEP, this, this._x, this._y, this._x - 1, this._y, ret);
+        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].STEP, this, this._x, this._y, this._x - 1, this._y, ret);
         return ret.ret;
     }
 
     stepRight() {
         let ret = {ret: false};
-        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STEP, this, this._x, this._y, this._x + 1, this._y, ret);
+        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].STEP, this, this._x, this._y, this._x + 1, this._y, ret);
         return ret.ret;
     }
 
     stepUp() {
         let ret = {ret: false};
-        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STEP, this, this._x, this._y, this._x, this._y - 1, ret);
+        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].STEP, this, this._x, this._y, this._x, this._y - 1, ret);
         return ret.ret;
     }
 
     stepDown() {
         let ret = {ret: false};
-        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STEP, this, this._x, this._y,  this._x, this._y + 1, ret);
+        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].STEP, this, this._x, this._y,  this._x, this._y + 1, ret);
         return ret.ret;
     }
 
@@ -1279,6 +1278,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
     }
 
 	toMem(val) {
+        if (this._mem.length > __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgMemSize) {return;}
         this._mem.push(val);
     }
 
@@ -1306,11 +1306,11 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
     }
 
     _create() {
-        this._mem = new __WEBPACK_IMPORTED_MODULE_1__global_Stack__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgMemSize);
+        this._mem = [];
     }
 
     _clone(parent) {
-        this._mem = parent.mem.clone();
+        this._mem = parent.mem.slice();
         this._code.clone(parent.code);
     }
 
@@ -1342,7 +1342,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
         if (codeSize > __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeMaxSize) {grabSize = codeSize * __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeSizeCoef;}
         if (grabSize < 1) {grabSize = 1;}
         grabSize = Math.min(this._energy, grabSize);
-        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].GRAB_ENERGY, grabSize);
+        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].GRAB_ENERGY, grabSize);
 
         return this.grabEnergy(grabSize);
     }
@@ -1358,11 +1358,11 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* def
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__visual_World__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__visual_Canvas__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__plugins_Organisms__ = __webpack_require__(14);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__plugins_Mutator__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__plugins_Energy__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__visual_World__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__visual_Canvas__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__plugins_Organisms__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__plugins_Mutator__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__plugins_Energy__ = __webpack_require__(11);
 /**
  * Main manager class of application. Contains all parts of jevo.js app
  * like World, Connection, Console etc... Runs infinite loop inside run()
@@ -1413,7 +1413,6 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
         this._canvas  = new __WEBPACK_IMPORTED_MODULE_4__visual_Canvas__["a" /* default */]();
         this._plugins = new Array(PLUGINS.length);
         this._stopped = false;
-        this._share   = {};
 
         this._initLoop();
         this._initPlugins();
@@ -1642,68 +1641,6 @@ class Queue {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/**
- * Fast stack implementation. Uses array inside, which is immutable
- * and the position pointer for stack position.
- *
- * @author DeadbraiN
- * TODO: use Uint32Array for id's. It should be faster
- */
-class Stack {
-    /**
-     * Creates Stack instance of specified size. Internal pointer
-     * will be set to the bottom of stack.
-     * @param {Number} size Stack size (amount of elements)
-     * @param {Array} arr Array of elements for clonning
-     * @param {Number} pos Starting position (if arr !null)
-     */
-    constructor(size, arr = null, pos = -1) {
-        this._size = size;
-        this._arr  = arr === null ? new Array(size) : arr;
-        this._pos  = pos;
-    }
-
-    /**
-     * Adds value at the top of the stack. If stack is full,
-     * then false will be returned.
-     * @param {*} val
-     * @returns {boolean} true means, that value was added
-     */
-    push(val) {
-        if (this._pos + 1 === this._size) {return false;}
-        this._arr[++this._pos] = val;
-        return true;
-    }
-
-    /**
-     * Returns one value from the top of the stack
-     * @return {*|null} null in case of mistake
-     */
-    pop() {
-        if (this._pos < 0) {return null;}
-        return this._arr[this._pos--];
-    }
-
-    size() {
-        return this._pos + 1;
-    }
-
-    /**
-     * Returns full clone of current stack instance
-     * @return {Stack} Clonned Stack instance
-     */
-    clone() {
-        return new Stack(this._size, this._arr.slice(), this._pos);
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = Stack;
-
-
-/***/ }),
-/* 12 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(4);
@@ -1764,7 +1701,7 @@ class Energy {
 
 
 /***/ }),
-/* 13 */
+/* 12 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1862,7 +1799,7 @@ class Mutator {
         const index = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(org.code.size);
         const code  = org.code;
 
-        if (__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(1) === 0) {
+        if (__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(2) === 0) {
             code.updateLine(index, __WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].setOperator(code.getLine[index], __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].MAX_OPERATOR)));
         } else {
             code.updateLine(index, __WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].setVar(code.getLine(index), __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].VARS), __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].MAX_VAR)));
@@ -1893,7 +1830,7 @@ class Mutator {
 
 
 /***/ }),
-/* 14 */
+/* 13 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2121,7 +2058,7 @@ class Organisms {
 
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2133,8 +2070,6 @@ class Organisms {
 class Canvas {
     constructor() {
         const bodyEl = $('body');
-
-        this._CLEAR_COLOR = '#000000';
 
         this._prepareDom();
 
@@ -2158,7 +2093,7 @@ class Canvas {
     }
 
     dot(x, y, color) {
-        this._dot(x, y, color);
+        //this._dot(x, y, color);
     }
 
     /**
@@ -2171,9 +2106,6 @@ class Canvas {
         for (let i = 0; i < size; i += 4) {
             data[i + 3] = 0xff;
         }
-//        this._ctx.rect(0, 0, this._width, this._height);
-//        this._ctx.fillStyle = this._CLEAR_COLOR;
-//        this._ctx.fill();
     }
 
     /**
@@ -2193,9 +2125,6 @@ class Canvas {
         data[offs    ] = (color >> 16) & 0xff;
         data[offs + 1] = (color >> 8)  & 0xff;
         data[offs + 2] = color & 0xff;
-         //TODO: should be optimized. 0xff should be set once at the beginning
-        data[offs + 3] = 0xff; // Alpha channel (no transparency)
-        //this._ctx.putImageData(this._imgData, 0, 0);
     }
 
     _onAnimate() {
@@ -2218,7 +2147,7 @@ class Canvas {
 
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

@@ -5,7 +5,6 @@
  * @author DeadbraiN
  */
 import Config   from './../global/Config';
-import Stack    from './../global/Stack';
 import Observer from './../global/Observer';
 import Events   from './../global/Events';
 import Helper   from './../global/Helper';
@@ -165,6 +164,7 @@ export default class Organism extends Observer {
     }
 
 	toMem(val) {
+        if (this._mem.length > Config.orgMemSize) {return;}
         this._mem.push(val);
     }
 
@@ -192,11 +192,11 @@ export default class Organism extends Observer {
     }
 
     _create() {
-        this._mem = new Stack(Config.orgMemSize);
+        this._mem = [];
     }
 
     _clone(parent) {
-        this._mem = parent.mem.clone();
+        this._mem = parent.mem.slice();
         this._code.clone(parent.code);
     }
 

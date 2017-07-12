@@ -48,7 +48,6 @@ export default class Manager extends Observer {
         this._canvas  = new Canvas();
         this._plugins = new Array(PLUGINS.length);
         this._stopped = false;
-        this._share   = {};
 
         this._initLoop();
         this._initPlugins();
