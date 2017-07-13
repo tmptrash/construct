@@ -81,6 +81,7 @@ export default class Code extends Observer {
     }
 
     get size() {return this._byteCode.length;}
+	get operators() {return this._OPERATORS_CB_LEN;};
 
     compile(org) {
         const header1 = 'this.__compiled=function* dna(org){const rand=Math.random,pi=Math.PI;';

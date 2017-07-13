@@ -112,27 +112,19 @@ export default class Organism extends Observer {
     }
 
     eatLeft(amount) {
-        let ret = {ret: amount};
-        this.fire(Events.EAT, this, this._x - 1, this._y, ret);
-        return ret.ret;
+        return this._eat(amount, this._x - 1, this._y);
     }
 
     eatRight(amount) {
-        let ret = {ret: amount};
-        this.fire(Events.EAT, this, this._x + 1, this._y, ret);
-        return ret.ret;
+        return this._eat(amount, this._x + 1, this._y);
     }
 
     eatUp(amount) {
-        let ret = {ret: amount};
-        this.fire(Events.EAT, this, this._x, this._y - 1, ret);
-        return ret.ret;
+        return this._eat(amount, this._x, this._y - 1);
     }
 
     eatDown(amount) {
-        let ret = {ret: amount};
-        this.fire(Events.EAT, this, this._x, this._y + 1, ret);
-        return ret.ret;
+        return this._eat(amount, this._x, this._y + 1);
     }
 
     stepLeft() {
@@ -176,6 +168,13 @@ export default class Organism extends Observer {
         return this._y;
     }
 
+	_eat(amount, x, y) {
+        let ret = {ret: amount};
+        this.fire(Events.EAT, this, this._x, this._y + 1, ret);
+		this._energy += ret.ret;
+		return ret.ret;
+	}
+	
     _onCodeEnd() {
         this._age++;
         this._codeEndCb(this);

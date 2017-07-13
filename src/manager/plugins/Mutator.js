@@ -87,7 +87,7 @@ export default class Mutator {
         const code  = org.code;
 
         if (Helper.rand(2) === 0) {
-            code.updateLine(index, Num.setOperator(code.getLine(index), Helper.rand(Num.MAX_OPERATOR)));
+            code.updateLine(index, Num.setOperator(code.getLine(index), Helper.rand(code.operators)));
         } else {
             code.updateLine(index, Num.setVar(code.getLine(index), Helper.rand(Num.VARS), Helper.rand(Num.MAX_VAR)));
         }

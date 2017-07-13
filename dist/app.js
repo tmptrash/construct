@@ -176,7 +176,7 @@ const Config = {
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used.
      */
-    orgAlivePeriod: 5000,
+    orgAlivePeriod: 3000,
     /**
      * {Number} This value means the period between organism codeSizes, which
      * affects energy grabbing by the system. For example: we have two
@@ -792,6 +792,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     }
 
     get size() {return this._byteCode.length;}
+	get operators() {return this._OPERATORS_CB_LEN;};
 
     compile(org) {
         const header1 = 'this.__compiled=function* dna(org){const rand=Math.random,pi=Math.PI;';
@@ -1012,7 +1013,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
 	}
 	
 	_toMem(num) {
-		return `org.toMem(${VAR(num, 0)})`;
+		return `org.toMem(v${VAR(num, 0)})`;
 	}
 	
 	_myX(num) {
@@ -1246,27 +1247,19 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     }
 
     eatLeft(amount) {
-        let ret = {ret: amount};
-        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].EAT, this, this._x - 1, this._y, ret);
-        return ret.ret;
+        return this._eat(amount, this._x - 1, this._y);
     }
 
     eatRight(amount) {
-        let ret = {ret: amount};
-        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].EAT, this, this._x + 1, this._y, ret);
-        return ret.ret;
+        return this._eat(amount, this._x + 1, this._y);
     }
 
     eatUp(amount) {
-        let ret = {ret: amount};
-        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].EAT, this, this._x, this._y - 1, ret);
-        return ret.ret;
+        return this._eat(amount, this._x, this._y - 1);
     }
 
     eatDown(amount) {
-        let ret = {ret: amount};
-        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].EAT, this, this._x, this._y + 1, ret);
-        return ret.ret;
+        return this._eat(amount, this._x, this._y + 1);
     }
 
     stepLeft() {
@@ -1310,6 +1303,13 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
         return this._y;
     }
 
+	_eat(amount, x, y) {
+        let ret = {ret: amount};
+        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].EAT, this, this._x, this._y + 1, ret);
+		this._energy += ret.ret;
+		return ret.ret;
+	}
+	
     _onCodeEnd() {
         this._age++;
         this._codeEndCb(this);
@@ -1820,7 +1820,7 @@ class Mutator {
         const code  = org.code;
 
         if (__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(2) === 0) {
-            code.updateLine(index, __WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].setOperator(code.getLine(index), __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].MAX_OPERATOR)));
+            code.updateLine(index, __WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].setOperator(code.getLine(index), __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(code.operators)));
         } else {
             code.updateLine(index, __WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].setVar(code.getLine(index), __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].VARS), __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].MAX_VAR)));
         }
@@ -2113,7 +2113,7 @@ class Canvas {
     }
 
     dot(x, y, color) {
-        //this._dot(x, y, color);
+        this._dot(x, y, color);
     }
 
     /**

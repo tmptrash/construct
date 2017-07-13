@@ -29,7 +29,7 @@ export default class Canvas {
     }
 
     dot(x, y, color) {
-        //this._dot(x, y, color);
+        this._dot(x, y, color);
     }
 
     /**
