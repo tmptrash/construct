@@ -118,7 +118,7 @@ const Config = {
      *     amount       - Probability of amount of mutations per period
      * ]
      */
-    orgMutationProbs: [50,100,1,0,1,1,1,1,1],
+    orgMutationProbs: [50,100,50,0,1,1,1,1,1],
     /**
      * {Number} Max value, which we may use in orgMutationProbs array.
      */

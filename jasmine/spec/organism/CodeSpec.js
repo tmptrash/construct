@@ -196,4 +196,13 @@ describe("src/organism/Code", () => {
 		Num.get = get;
         code.destroy();
     });
+	it('Checking compile() with no byte code', () => {
+        let code = new Code((()=>{}));
+		
+		expect(code.size).toEqual(0);
+		code.compile({});
+		expect(code.cloneCode().length).toEqual(0);
+
+        code.destroy();
+    });
 });

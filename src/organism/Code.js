@@ -301,7 +301,7 @@ export default class Code extends Observer {
 	}
 	
 	_toMem(num) {
-		return `org.toMem(${VAR(num, 0)})`;
+		return `org.toMem(v${VAR(num, 0)})`;
 	}
 	
 	_myX(num) {
