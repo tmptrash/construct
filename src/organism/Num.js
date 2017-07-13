@@ -64,7 +64,6 @@ export default class Number {
      * @param {Number} index Variable index
      * @param {Number} val New variable value
      * @returns {Number}
-     * @private
      */
     static setVar(num, index, val) {
         const bits  = index * BITS_PER_VAR;
