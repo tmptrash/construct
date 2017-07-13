@@ -1,5 +1,6 @@
 describe("src/organism/Code", () => {
     let Code = require('../../../src/organism/Code').default;
+	let Num  = require('../../../src/organism/Num').default;
 
     it("Checking code creation", () => {
         let flag = false;
@@ -87,7 +88,7 @@ describe("src/organism/Code", () => {
     });
 
     it('Checking insertLine() method', () => {
-        let code  = new Code((()=>{}));
+        let code = new Code((()=>{}));
 
         code.insertLine();
         expect(code.size).toEqual(1);
@@ -95,5 +96,87 @@ describe("src/organism/Code", () => {
         expect(code.size).toEqual(2);
 
         code.destroy();
-    })
+    });
+    it('Checking insertLine() method 2', () => {
+        let code = new Code((()=>{}));
+		let get  = Num.get;
+		let bc;
+		
+		Num.get = () => 0xabcdefff;
+		expect(code.size).toEqual(0);
+        code.insertLine();
+        expect(code.size).toEqual(1);
+		
+		bc = code.cloneByteCode();
+		expect(bc[0]).toEqual(0xabcdefff);
+
+		Num.get = get;
+        code.destroy();
+    });
+	
+    it('Checking updateLine() method', () => {
+        let code = new Code((()=>{}));
+		let get  = Num.get;
+		let bc;
+		
+		Num.get = () => 0xabcdefff;
+        code.insertLine();
+		bc = code.cloneByteCode();
+		expect(bc[0]).toEqual(0xabcdefff);
+		
+		code.updateLine(0, 0xffffffff);
+		bc = code.cloneByteCode();
+		expect(bc[0]).toEqual(0xffffffff);
+
+		code.updateLine(0, 0x12345678);
+		bc = code.cloneByteCode();
+		expect(bc[0]).toEqual(0x12345678);
+
+		
+		Num.get = get;
+        code.destroy();
+    });
+	
+    it('Checking removeLine() method', () => {
+        let code = new Code((()=>{}));
+		
+        code.insertLine();
+		expect(code.size).toEqual(1);
+		code.removeLine();
+		expect(code.size).toEqual(0);
+
+        code.destroy();
+    });
+	
+    it('Checking removeLine() for empty code', () => {
+        let code = new Code((()=>{}));
+		
+		expect(code.size).toEqual(0);
+		code.removeLine();
+		expect(code.size).toEqual(0);
+
+        code.destroy();
+    });
+	
+    it('Checking getLine()', () => {
+        let code = new Code((()=>{}));
+		let get  = Num.get;
+		
+		Num.get = () => 0xabcdefff;
+		expect(code.size).toEqual(0);
+		expect(code.getLine(0)).toEqual(undefined);
+		expect(code.getLine(1)).toEqual(undefined);
+		code.insertLine();
+		expect(code.size).toEqual(1);
+		expect(code.getLine(0)).toEqual(0xabcdefff);
+		
+		code.removeLine();
+		expect(code.size).toEqual(0);
+		expect(code.getLine(0)).toEqual(undefined);
+		expect(code.getLine(1)).toEqual(undefined);
+		expect(code.getLine(9)).toEqual(undefined);
+
+		Num.get = get;
+        code.destroy();
+    });
 });

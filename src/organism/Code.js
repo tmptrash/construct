@@ -12,12 +12,19 @@ import Helper   from './../global/Helper';
 import Observer from './../global/Observer';
 import Num      from './Num';
 
+/**
+ * {Function} Just a shortcut
+ */
+const VAR = Num.getVar;
+
 export default class Code extends Observer {
     constructor(codeEndCb) {
         super();
         /**
          * {Object} These operator handlers should return string, which
          * will be added to the final string script for evaluation.
+		 * TODO: rewrite this to configuration, where callbacks and template functions will be
+		 * TODO: e.g.: _onPi: `v${VAR(num, 0)}=pi` (check speed of such strings)
          */
         this._OPERATORS_CB = {
             0 : this._onVar.bind(this),
@@ -76,7 +83,7 @@ export default class Code extends Observer {
     get size() {return this._byteCode.length;}
 
     compile(org) {
-        const header1 = 'this.__compiled=function* dna(org){var rand=Math.random,pi=Math.PI;';
+        const header1 = 'this.__compiled=function* dna(org){const rand=Math.random,pi=Math.PI;';
         const vars    = this._getVars();
         const header2 = ';while(true){yield;';
         const footer  = ';this._onCodeEnd()}}';
@@ -99,19 +106,36 @@ export default class Code extends Observer {
         this.__compiled = null;
     }
 
+	/**
+	 * Clones both byte and string code from 'code' argument
+	 * @param {Code} code Source code, from which we will copy
+	 */
     clone(code) {
         this._code     = code.cloneCode();
         this._byteCode = code.cloneByteCode();
     }
 
+	/**
+	 * Is used for clonning string code only. This is how you
+	 * can get separate copy of the code.
+	 * @return {Array} Array of strings
+	 */
     cloneCode() {
         return this._code.slice();
     }
 
+	/**
+	 * Is used for clonning byte code only. This is how you
+	 * can get separate copy of the byte code.
+	 * @return {Array} Array of 32bit numbers
+	 */
     cloneByteCode() {
         return this._byteCode.slice();
     }
 
+	/**
+	 * Inserts random generated number into the byte code at random position
+	 */
     insertLine() {
         this._byteCode.splice(Helper.rand(this._byteCode.length), 0, Num.get());
     }
@@ -120,6 +144,9 @@ export default class Code extends Observer {
         this._byteCode[index] = number;
     }
 
+	/**
+	 * Removes random generated number into byte code at random position
+	 */
     removeLine() {
         this._byteCode.splice(Helper.rand(this._byteCode.length), 1);
     }
@@ -170,17 +197,17 @@ export default class Code extends Observer {
         let   code  = new Array(vars);
         const range = Config.codeVarInitRange;
         const half  = range / 2;
-        const rand  = '=rand()*' + range + '-' + half;
+        const rand  = `=rand()*${range}-${half}`;
 
         for (let i = 0; i < vars; i++) {
-            code[i] = 'var v' + i + rand;
+            code[i] = `let v${i}${rand}`;
         }
 
         return code.join(';');
     }
 
     /**
-     * Parses variable operator. Format: var = const|number. Num bits format:
+     * Parses variable operator. Format: let = const|number. Num bits format:
      *   BITS_PER_OPERATOR bits - operator id
      *   BITS_PER_VAR bits  - destination var index
      *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
@@ -190,11 +217,10 @@ export default class Code extends Observer {
      * @return {String} Parsed code line string
      */
     _onVar(num) {
-        const var0    = Num.getVar(num, 0);
-        const var1    = Num.getVar(num, 1);
+        const var1    = VAR(num, 1);
         const isConst = var1 > Num.HALF_OF_VAR;
 
-        return 'v' + var0 + '=' + (isConst ? Helper.rand(Num.BITS_WITHOUT_2_VARS) : ('v' + var1));
+        return `v${VAR(num, 0)}=${isConst ? Helper.rand(Num.BITS_WITHOUT_2_VARS) : ('v' + var1)}`;
     }
 
     _onFunc(num) {
@@ -202,92 +228,87 @@ export default class Code extends Observer {
     }
 
     _onCondition(num, line, lines) {
-        const var0    = Num.getVar(num, 0);
-        const var1    = Num.getVar(num, 1);
-        const var2    = Num.getVar(num, 2);
-        const var3    = Num.getVar(num, 3);
-        const index   = line + var3 < lines ? line + var3 : lines - 1;
-
-        this._offsets.push(index);
-        return 'if(v' + var0 + this._CONDITIONS[var2] + 'v' + var1 + '){';
+        const var3    = VAR(num, 3);
+        this._offsets.push(line + var3 < lines ? line + var3 : lines - 1);
+        return `if(v${VAR(num, 0)}${this._CONDITIONS[VAR(num, 2)]}v${VAR(num, 1)}){`;
     }
 
     _onLoop(num, line, lines) {
-        const var2    = Num.getVar(num, 3);
+        const var2    = VAR(num, 3);
         const index   = line + var2 < lines ? line + var2 : lines - 1;
-		const var0Str = 'v' + Num.getVar(num, 0);
-		const var1Str = 'v' + Num.getVar(num, 1);
+		const var0Str = 'v' + VAR(num, 0);
+		const var1Str = 'v' + VAR(num, 1);
 		const var3Str = 'v' + var2;
 
         this._offsets.push(index);
-        return 'for(' + var0Str + '=' + var1Str + ';' + var0Str + '<' + var3Str + ';' + var0Str + '++' + '){yield';
+        return `for(${var0Str}=${var1Str};${var0Str}<${var3Str};${var0Str}++){yield`;
     }
 
     _onOperator(num) {
-        return 'v' + Num.getVar(num, 0) + '=v' + Num.getVar(num, 1) + this._OPERATORS[Num.getBits(num, Num.BITS_OF_THREE_VARS, Num.BITS_OF_TWO_VARS)] + 'v' + Num.getVar(num, 2);
+        return `v${VAR(num, 0)}=v${VAR(num, 1)}${this._OPERATORS[Num.getBits(num, Num.BITS_OF_THREE_VARS, Num.BITS_OF_TWO_VARS)]}v${VAR(num, 2)}`;
     }
 
     _not(num) {
-        return 'v' + Num.getVar(num, 0) + '=!v' + Num.getVar(num, 1);
+        return `v${VAR(num, 0)}=!v${VAR(num, 1)}`;
     }
 
     _onPi(num) {
-        return 'v' + Num.getVar(num, 0) + '=pi';
+        return `v${VAR(num, 0)}=pi`;
     }
 	
 	_onTrig(num) {
-		return 'v' + Num.getVar(num, 0) + '=Math.' + this._TRIGS[Num.getVar(num, 1)] + '(v' + Num.getVar(num, 2) + ')';
+		return `v${VAR(num, 0)}=Math.${this._TRIGS[VAR(num, 1)]}(v${VAR(num, 2)})`;
 	}
 
     _onLookAt(num) {
-        return 'v' + Num.getVar(num, 0) + '=org.lookAt(' + 'v' + Num.getVar(num, 1) + ',v' + Num.getVar(num, 2) + ')';
+        return `v${VAR(num, 0)}=org.lookAt(v${VAR(num, 1)},v${VAR(num, 2)})`;
     }
 
     _eatLeft(num) {
-		return 'v' + Num.getVar(num, 0) + '=org.eatLeft(v' + Num.getVar(num, 1) + ')';
+		return `v${VAR(num, 0)}=org.eatLeft(v${VAR(num, 1)})`;
     }
 
 	_eatRight(num) {
-		return 'v' + Num.getVar(num, 0) + '=org.eatRight(v' + Num.getVar(num, 1) + ')';
+		return `v${VAR(num, 0)}=org.eatRight(v${VAR(num, 1)})`;
     }
 	
 	_eatUp(num) {
-		return 'v' + Num.getVar(num, 0) + '=org.eatUp(v' + Num.getVar(num, 1) + ')';
+		return `v${VAR(num, 0)}=org.eatUp(v${VAR(num, 1)})`;
     }
 	
 	_eatDown(num) {
-		return 'v' + Num.getVar(num, 0) + '=org.eatDown(v' + Num.getVar(num, 1) + ')';
+		return `v${VAR(num, 0)}=org.eatDown(v${VAR(num, 1)})`;
     }
 	
 	_stepLeft(num) {
-		return 'v' + Num.getVar(num, 0) + '=org.stepLeft()';
+		return `v${VAR(num, 0)}=org.stepLeft()`;
     }
 	
 	_stepRight(num) {
-		return 'v' + Num.getVar(num, 0) + '=org.stepRight()';
+		return `v${VAR(num, 0)}=org.stepRight()`;
     }
 	
 	_stepUp(num) {
-		return 'v' + Num.getVar(num, 0) + '=org.stepUp()';
+		return `v${VAR(num, 0)}=org.stepUp()`;
     }
 	
 	_stepDown(num) {
-		return 'v' + Num.getVar(num, 0) + '=org.stepDown()';
+		return `v${VAR(num, 0)}=org.stepDown()`;
     }
 	
 	_fromMem(num) {
-		return 'v' + Num.getVar(num, 0) + '=org.fromMem()';
+		return `v${VAR(num, 0)}=org.fromMem()`;
 	}
 	
 	_toMem(num) {
-		return 'org.toMem(' + Num.getVar(num, 0) + ')';
+		return `org.toMem(${VAR(num, 0)})`;
 	}
 	
 	_myX(num) {
-		return 'v' + Num.getVar(num, 0) + '=org.myX()';
+		return `v${VAR(num, 0)}=org.myX()`;
 	}
 	
 	_myY(num) {
-		return 'v' + Num.getVar(num, 0) + '=org.myY()';
+		return `v${VAR(num, 0)}=org.myY()`;
 	}
 }
