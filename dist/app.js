@@ -730,7 +730,7 @@ const VAR               = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].
 const BITS_OF_CONDITION = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_PER_OPERATOR + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_PER_VAR * 3;
 
 class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default */] {
-    constructor(codeEndCb) {
+    constructor(codeEndCb, vars = '') {
         super();
         /**
          * {Object} These operator handlers should return string, which
@@ -785,6 +785,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
          * and all block operators.
          */
         this._offsets   = [];
+        this._vars      = vars;
         this._byteCode  = [];
         this._code      = [];
         this._gen       = null;
@@ -794,6 +795,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
 
     get size() {return this._byteCode.length;}
 	get operators() {return this._OPERATORS_CB_LEN;};
+    get vars() {return this._vars;}
 
     compile(org) {
         const header1 = 'this.__compiled=function* dna(org){const rand=Math.random,pi=Math.PI;';
@@ -812,6 +814,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     }
 
     destroy() {
+        this._vars      = '';
         this._byteCode  = [];
         this._code      = [];
         this._offsets   = [];
@@ -906,17 +909,18 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
      * @private
      */
     _getVars() {
+        if (this._vars.length) {return this._vars;}
+
         const vars  = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeVarAmount;
         let   code  = new Array(vars);
         const range = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeVarInitRange;
-        const half  = range / 2;
-        const rand  = `=rand()*${range}-${half}`;
+        const rand  = __WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand;
 
         for (let i = 0; i < vars; i++) {
-            code[i] = `let v${i}${rand}`;
+            code[i] = `let v${i}=${rand(range)-range/2}`;
         }
 
-        return code.join(';');
+        return (this._vars = code.join(';'));
     }
 
     /**
@@ -1165,8 +1169,6 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     constructor(id, x, y, alive, item, codeEndCb, parent = null) {
         super();
 
-        this._code                  = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._onCodeEnd.bind(this));
-
         if (parent === null) {this._create();}
         else {this._clone(parent);}
 
@@ -1329,11 +1331,13 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     }
 
     _create() {
-        this._mem = [];
+        this._code = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._onCodeEnd.bind(this));
+        this._mem  = [];
     }
 
     _clone(parent) {
-        this._mem = parent.mem.slice();
+        this._code = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._onCodeEnd.bind(this), parent.code.vars);
+        this._mem  = parent.mem.slice();
         this._code.clone(parent.code);
     }
 

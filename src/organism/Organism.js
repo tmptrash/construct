@@ -27,8 +27,6 @@ export default class Organism extends Observer {
     constructor(id, x, y, alive, item, codeEndCb, parent = null) {
         super();
 
-        this._code                  = new Code(this._onCodeEnd.bind(this));
-
         if (parent === null) {this._create();}
         else {this._clone(parent);}
 
@@ -191,11 +189,13 @@ export default class Organism extends Observer {
     }
 
     _create() {
-        this._mem = [];
+        this._code = new Code(this._onCodeEnd.bind(this));
+        this._mem  = [];
     }
 
     _clone(parent) {
-        this._mem = parent.mem.slice();
+        this._code = new Code(this._onCodeEnd.bind(this), parent.code.vars);
+        this._mem  = parent.mem.slice();
         this._code.clone(parent.code);
     }
 

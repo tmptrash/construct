@@ -19,7 +19,7 @@ const VAR               = Num.getVar;
 const BITS_OF_CONDITION = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
 
 export default class Code extends Observer {
-    constructor(codeEndCb) {
+    constructor(codeEndCb, vars = '') {
         super();
         /**
          * {Object} These operator handlers should return string, which
@@ -74,6 +74,7 @@ export default class Code extends Observer {
          * and all block operators.
          */
         this._offsets   = [];
+        this._vars      = vars;
         this._byteCode  = [];
         this._code      = [];
         this._gen       = null;
@@ -83,6 +84,7 @@ export default class Code extends Observer {
 
     get size() {return this._byteCode.length;}
 	get operators() {return this._OPERATORS_CB_LEN;};
+    get vars() {return this._vars;}
 
     compile(org) {
         const header1 = 'this.__compiled=function* dna(org){const rand=Math.random,pi=Math.PI;';
@@ -101,6 +103,7 @@ export default class Code extends Observer {
     }
 
     destroy() {
+        this._vars      = '';
         this._byteCode  = [];
         this._code      = [];
         this._offsets   = [];
@@ -195,17 +198,18 @@ export default class Code extends Observer {
      * @private
      */
     _getVars() {
+        if (this._vars.length) {return this._vars;}
+
         const vars  = Config.codeVarAmount;
         let   code  = new Array(vars);
         const range = Config.codeVarInitRange;
-        const half  = range / 2;
-        const rand  = `=rand()*${range}-${half}`;
+        const rand  = Helper.rand;
 
         for (let i = 0; i < vars; i++) {
-            code[i] = `let v${i}${rand}`;
+            code[i] = `let v${i}=${rand(range)-range/2}`;
         }
 
-        return code.join(';');
+        return (this._vars = code.join(';'));
     }
 
     /**
