@@ -723,12 +723,19 @@ class Console {
 
 
 
+/**
+ * {Function} Just a shortcut
+ */
+const VAR = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar;
+
 class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default */] {
     constructor(codeEndCb) {
         super();
         /**
          * {Object} These operator handlers should return string, which
          * will be added to the final string script for evaluation.
+		 * TODO: rewrite this to configuration, where callbacks and template functions will be
+		 * TODO: e.g.: _onPi: `v${VAR(num, 0)}=pi` (check speed of such strings)
          */
         this._OPERATORS_CB = {
             0 : this._onVar.bind(this),
@@ -765,7 +772,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
 		this._OPERATORS = [
 		    '+', '-', '*', '/', '%', '&', '|', '^', '>>', '<<', '>>>', '<', '>', '==', '!=', '<=' 
 		];
-		this._TRIGS     = ['sin', 'cos', 'tan', 'abs'];
+		this._TRIGS = ['sin', 'cos', 'tan', 'abs'];
 
         /**
          * {Function} Callback, which is called on every organism
@@ -787,7 +794,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     get size() {return this._byteCode.length;}
 
     compile(org) {
-        const header1 = 'this.__compiled=function* dna(org){var rand=Math.random,pi=Math.PI;';
+        const header1 = 'this.__compiled=function* dna(org){const rand=Math.random,pi=Math.PI;';
         const vars    = this._getVars();
         const header2 = ';while(true){yield;';
         const footer  = ';this._onCodeEnd()}}';
@@ -810,19 +817,36 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
         this.__compiled = null;
     }
 
+	/**
+	 * Clones both byte and string code from 'code' argument
+	 * @param {Code} code Source code, from which we will copy
+	 */
     clone(code) {
         this._code     = code.cloneCode();
         this._byteCode = code.cloneByteCode();
     }
 
+	/**
+	 * Is used for clonning string code only. This is how you
+	 * can get separate copy of the code.
+	 * @return {Array} Array of strings
+	 */
     cloneCode() {
         return this._code.slice();
     }
 
+	/**
+	 * Is used for clonning byte code only. This is how you
+	 * can get separate copy of the byte code.
+	 * @return {Array} Array of 32bit numbers
+	 */
     cloneByteCode() {
         return this._byteCode.slice();
     }
 
+	/**
+	 * Inserts random generated number into the byte code at random position
+	 */
     insertLine() {
         this._byteCode.splice(__WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand(this._byteCode.length), 0, __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].get());
     }
@@ -831,6 +855,9 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
         this._byteCode[index] = number;
     }
 
+	/**
+	 * Removes random generated number into byte code at random position
+	 */
     removeLine() {
         this._byteCode.splice(__WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand(this._byteCode.length), 1);
     }
@@ -881,17 +908,17 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
         let   code  = new Array(vars);
         const range = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeVarInitRange;
         const half  = range / 2;
-        const rand  = '=rand()*' + range + '-' + half;
+        const rand  = `=rand()*${range}-${half}`;
 
         for (let i = 0; i < vars; i++) {
-            code[i] = 'var v' + i + rand;
+            code[i] = `let v${i}${rand}`;
         }
 
         return code.join(';');
     }
 
     /**
-     * Parses variable operator. Format: var = const|number. Num bits format:
+     * Parses variable operator. Format: let = const|number. Num bits format:
      *   BITS_PER_OPERATOR bits - operator id
      *   BITS_PER_VAR bits  - destination var index
      *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
@@ -901,11 +928,10 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
      * @return {String} Parsed code line string
      */
     _onVar(num) {
-        const var0    = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0);
-        const var1    = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 1);
+        const var1    = VAR(num, 1);
         const isConst = var1 > __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].HALF_OF_VAR;
 
-        return 'v' + var0 + '=' + (isConst ? __WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_WITHOUT_2_VARS) : ('v' + var1));
+        return `v${VAR(num, 0)}=${isConst ? __WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_WITHOUT_2_VARS) : ('v' + var1)}`;
     }
 
     _onFunc(num) {
@@ -913,93 +939,88 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     }
 
     _onCondition(num, line, lines) {
-        const var0    = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0);
-        const var1    = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 1);
-        const var2    = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 2);
-        const var3    = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 3);
-        const index   = line + var3 < lines ? line + var3 : lines - 1;
-
-        this._offsets.push(index);
-        return 'if(v' + var0 + this._CONDITIONS[var2] + 'v' + var1 + '){';
+        const var3    = VAR(num, 3);
+        this._offsets.push(line + var3 < lines ? line + var3 : lines - 1);
+        return `if(v${VAR(num, 0)}${this._CONDITIONS[VAR(num, 2)]}v${VAR(num, 1)}){`;
     }
 
     _onLoop(num, line, lines) {
-        const var2    = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 3);
+        const var2    = VAR(num, 3);
         const index   = line + var2 < lines ? line + var2 : lines - 1;
-		const var0Str = 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0);
-		const var1Str = 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 1);
+		const var0Str = 'v' + VAR(num, 0);
+		const var1Str = 'v' + VAR(num, 1);
 		const var3Str = 'v' + var2;
 
         this._offsets.push(index);
-        return 'for(' + var0Str + '=' + var1Str + ';' + var0Str + '<' + var3Str + ';' + var0Str + '++' + '){yield';
+        return `for(${var0Str}=${var1Str};${var0Str}<${var3Str};${var0Str}++){yield`;
     }
 
     _onOperator(num) {
-        return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 1) + this._OPERATORS[__WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_OF_THREE_VARS, __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_OF_TWO_VARS)] + 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 2);
+        return `v${VAR(num, 0)}=v${VAR(num, 1)}${this._OPERATORS[__WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_OF_THREE_VARS, __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_OF_TWO_VARS)]}v${VAR(num, 2)}`;
     }
 
     _not(num) {
-        return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=!v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 1);
+        return `v${VAR(num, 0)}=!v${VAR(num, 1)}`;
     }
 
     _onPi(num) {
-        return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=pi';
+        return `v${VAR(num, 0)}=pi`;
     }
 	
 	_onTrig(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=Math.' + this._TRIGS[__WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 1)] + '(v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 2) + ')';
+		return `v${VAR(num, 0)}=Math.${this._TRIGS[VAR(num, 1)]}(v${VAR(num, 2)})`;
 	}
 
     _onLookAt(num) {
-        return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.lookAt(' + 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 1) + ',v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 2) + ')';
+        return `v${VAR(num, 0)}=org.lookAt(v${VAR(num, 1)},v${VAR(num, 2)})`;
     }
 
     _eatLeft(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.eatLeft(v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 1) + ')';
+		return `v${VAR(num, 0)}=org.eatLeft(v${VAR(num, 1)})`;
     }
 
 	_eatRight(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.eatRight(v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 1) + ')';
+		return `v${VAR(num, 0)}=org.eatRight(v${VAR(num, 1)})`;
     }
 	
 	_eatUp(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.eatUp(v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 1) + ')';
+		return `v${VAR(num, 0)}=org.eatUp(v${VAR(num, 1)})`;
     }
 	
 	_eatDown(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.eatDown(v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 1) + ')';
+		return `v${VAR(num, 0)}=org.eatDown(v${VAR(num, 1)})`;
     }
 	
 	_stepLeft(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.stepLeft()';
+		return `v${VAR(num, 0)}=org.stepLeft()`;
     }
 	
 	_stepRight(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.stepRight()';
+		return `v${VAR(num, 0)}=org.stepRight()`;
     }
 	
 	_stepUp(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.stepUp()';
+		return `v${VAR(num, 0)}=org.stepUp()`;
     }
 	
 	_stepDown(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.stepDown()';
+		return `v${VAR(num, 0)}=org.stepDown()`;
     }
 	
 	_fromMem(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.fromMem()';
+		return `v${VAR(num, 0)}=org.fromMem()`;
 	}
 	
 	_toMem(num) {
-		return 'org.toMem(' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + ')';
+		return `org.toMem(${VAR(num, 0)})`;
 	}
 	
 	_myX(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.myX()';
+		return `v${VAR(num, 0)}=org.myX()`;
 	}
 	
 	_myY(num) {
-		return 'v' + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(num, 0) + '=org.myY()';
+		return `v${VAR(num, 0)}=org.myY()`;
 	}
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Code;
@@ -1078,14 +1099,13 @@ class Number {
      * @param {Number} index Variable index
      * @param {Number} val New variable value
      * @returns {Number}
-     * @private
      */
     static setVar(num, index, val) {
         const bits  = index * BITS_PER_VAR;
         const lBits = VAR_BITS_OFFS - bits;
         const rBits = BITS_PER_OPERATOR + bits + BITS_PER_VAR;
 
-        return (num >>> lBits << lBits | val << (lBits - bits - BITS_PER_VAR) | num << rBits >>> rBits) >>> 0;
+        return (num >>> lBits << lBits | val << (VAR_BITS_OFFS - bits - BITS_PER_VAR) | num << rBits >>> rBits) >>> 0;
     }
 
     /**
@@ -1800,7 +1820,7 @@ class Mutator {
         const code  = org.code;
 
         if (__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(2) === 0) {
-            code.updateLine(index, __WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].setOperator(code.getLine[index], __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].MAX_OPERATOR)));
+            code.updateLine(index, __WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].setOperator(code.getLine(index), __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].MAX_OPERATOR)));
         } else {
             code.updateLine(index, __WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].setVar(code.getLine(index), __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].VARS), __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_5__organism_Num__["a" /* default */].MAX_VAR)));
         }
@@ -2018,6 +2038,7 @@ class Organisms {
 
     _onEat(org, x, y, ret) {
         const world = this._manager.world;
+		const positions = this._positions;
 
         if (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldCyclical) {
             if (x < 0)                        {x = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldWidth - 1;}
@@ -2027,7 +2048,6 @@ class Organisms {
         }
 
         const posId = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x, y);
-        const positions = this._positions;
         if (typeof(positions[posId]) === 'undefined') {
             ret.ret = world.grabDot(x, y, ret.ret);
         } else {

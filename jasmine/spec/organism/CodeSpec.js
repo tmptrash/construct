@@ -179,4 +179,21 @@ describe("src/organism/Code", () => {
 		Num.get = get;
         code.destroy();
     });
+	
+	it('Checking compile()', () => {
+        let code = new Code((()=>{}));
+		let get  = Num.get;
+		
+		Num.get = () => 0x01cdefff;
+		expect(code.size).toEqual(0);
+		code.insertLine();
+		expect(code.size).toEqual(1);
+		expect(code.cloneCode().length).toEqual(0);
+		
+		code.compile({});
+		expect(code.cloneCode().length).toEqual(1);
+
+		Num.get = get;
+        code.destroy();
+    });
 });
