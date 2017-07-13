@@ -726,7 +726,8 @@ class Console {
 /**
  * {Function} Just a shortcut
  */
-const VAR = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar;
+const VAR               = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar;
+const BITS_OF_CONDITION = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_PER_OPERATOR + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_PER_VAR * 3;
 
 class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default */] {
     constructor(codeEndCb) {
@@ -940,20 +941,20 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     }
 
     _onCondition(num, line, lines) {
-        const var3    = VAR(num, 3);
+        const var3    = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, BITS_OF_CONDITION, __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_OF_TWO_VARS);
         this._offsets.push(line + var3 < lines ? line + var3 : lines - 1);
         return `if(v${VAR(num, 0)}${this._CONDITIONS[VAR(num, 2)]}v${VAR(num, 1)}){`;
     }
 
     _onLoop(num, line, lines) {
-        const var2    = VAR(num, 3);
-        const index   = line + var2 < lines ? line + var2 : lines - 1;
+        const var3    = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, BITS_OF_CONDITION, __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_OF_TWO_VARS);
+        const index   = line + var3 < lines ? line + var3 : lines - 1;
 		const var0Str = 'v' + VAR(num, 0);
 		const var1Str = 'v' + VAR(num, 1);
-		const var3Str = 'v' + var2;
+		const var2Str = 'v' + VAR(num, 2);
 
         this._offsets.push(index);
-        return `for(${var0Str}=${var1Str};${var0Str}<${var3Str};${var0Str}++){yield`;
+        return `for(${var0Str}=${var1Str};${var0Str}<${var2Str};${var0Str}++){yield`;
     }
 
     _onOperator(num) {
@@ -1055,6 +1056,8 @@ const BITS_WITHOUT_2_VARS = 1 << (VAR_BITS_OFFS - BITS_PER_VAR * 2);
 const HALF_OF_VAR         = MAX_VAR / 2;
 
 class Number {
+	static get BITS_PER_VAR()        {return BITS_PER_VAR;}
+	static get BITS_PER_OPERATOR()   {return BITS_PER_OPERATOR;}
     static get VARS()                {return (32 - BITS_PER_OPERATOR) / BITS_PER_VAR;}
     static get MAX_VAR()             {return MAX_VAR;}
     static get BITS_OF_TWO_VARS()    {return BITS_OF_TWO_VARS;}

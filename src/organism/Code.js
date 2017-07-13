@@ -15,7 +15,8 @@ import Num      from './Num';
 /**
  * {Function} Just a shortcut
  */
-const VAR = Num.getVar;
+const VAR               = Num.getVar;
+const BITS_OF_CONDITION = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
 
 export default class Code extends Observer {
     constructor(codeEndCb) {
@@ -229,20 +230,20 @@ export default class Code extends Observer {
     }
 
     _onCondition(num, line, lines) {
-        const var3    = VAR(num, 3);
+        const var3    = Num.getBits(num, BITS_OF_CONDITION, Num.BITS_OF_TWO_VARS);
         this._offsets.push(line + var3 < lines ? line + var3 : lines - 1);
         return `if(v${VAR(num, 0)}${this._CONDITIONS[VAR(num, 2)]}v${VAR(num, 1)}){`;
     }
 
     _onLoop(num, line, lines) {
-        const var2    = VAR(num, 3);
-        const index   = line + var2 < lines ? line + var2 : lines - 1;
+        const var3    = Num.getBits(num, BITS_OF_CONDITION, Num.BITS_OF_TWO_VARS);
+        const index   = line + var3 < lines ? line + var3 : lines - 1;
 		const var0Str = 'v' + VAR(num, 0);
 		const var1Str = 'v' + VAR(num, 1);
-		const var3Str = 'v' + var2;
+		const var2Str = 'v' + VAR(num, 2);
 
         this._offsets.push(index);
-        return `for(${var0Str}=${var1Str};${var0Str}<${var3Str};${var0Str}++){yield`;
+        return `for(${var0Str}=${var1Str};${var0Str}<${var2Str};${var0Str}++){yield`;
     }
 
     _onOperator(num) {
