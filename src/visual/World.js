@@ -33,6 +33,8 @@ export default class World extends Observer {
         }
     }
 
+    get data() {return this._data;}
+
     destroy() {
         this.clear();
         this._data   = null;

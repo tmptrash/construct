@@ -33,6 +33,8 @@ export default class Organisms {
         this._createPopulation();
     }
 
+    get orgs() {return this._orgs;}
+
     destroy() {
         const man = this._manager;
 
@@ -149,7 +151,7 @@ export default class Organisms {
 
         return true;
     }
-	
+
     _onAfterMove(x1, y1, x2, y2, org) {
         if (x1 !== x2 || y1 !== y2) {
             delete this._positions[Helper.posId(x1, y1)];
@@ -176,7 +178,7 @@ export default class Organisms {
 
     _onEat(org, x, y, ret) {
         const world = this._manager.world;
-		const positions = this._positions;
+        const positions = this._positions;
 
         if (Config.worldCyclical) {
             if (x < 0)                        {x = Config.worldWidth - 1;}

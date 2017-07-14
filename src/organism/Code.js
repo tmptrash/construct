@@ -24,8 +24,8 @@ export default class Code extends Observer {
         /**
          * {Object} These operator handlers should return string, which
          * will be added to the final string script for evaluation.
-		 * TODO: rewrite this to configuration, where callbacks and template functions will be
-		 * TODO: e.g.: _onPi: `v${VAR(num, 0)}=pi` (check speed of such strings)
+         * TODO: rewrite this to configuration, where callbacks and template functions will be
+         * TODO: e.g.: _onPi: `v${VAR(num, 0)}=pi` (check speed of such strings)
          */
         this._OPERATORS_CB = {
             0 : this._onVar.bind(this),
@@ -56,13 +56,13 @@ export default class Code extends Observer {
          * the same like (1 << BITS_PER_VAR)
          */
         this._CONDITIONS = ['<', '>', '==', '!='];
-		/**
-		 * {Array} Available operators for math calculations
-		 */
-		this._OPERATORS = [
-		    '+', '-', '*', '/', '%', '&', '|', '^', '>>', '<<', '>>>', '<', '>', '==', '!=', '<=' 
-		];
-		this._TRIGS = ['sin', 'cos', 'tan', 'abs'];
+        /**
+         * {Array} Available operators for math calculations
+         */
+        this._OPERATORS = [
+            '+', '-', '*', '/', '%', '&', '|', '^', '>>', '<<', '>>>', '<', '>', '==', '!=', '<='
+        ];
+        this._TRIGS = ['sin', 'cos', 'tan', 'abs'];
 
         /**
          * {Function} Callback, which is called on every organism
@@ -83,7 +83,7 @@ export default class Code extends Observer {
     }
 
     get size() {return this._byteCode.length;}
-	get operators() {return this._OPERATORS_CB_LEN;};
+    get operators() {return this._OPERATORS_CB_LEN;};
     get vars() {return this._vars;}
 
     compile(org) {
@@ -111,36 +111,36 @@ export default class Code extends Observer {
         this.__compiled = null;
     }
 
-	/**
-	 * Clones both byte and string code from 'code' argument
-	 * @param {Code} code Source code, from which we will copy
-	 */
+    /**
+     * Clones both byte and string code from 'code' argument
+     * @param {Code} code Source code, from which we will copy
+     */
     clone(code) {
         this._code     = code.cloneCode();
         this._byteCode = code.cloneByteCode();
     }
 
-	/**
-	 * Is used for clonning string code only. This is how you
-	 * can get separate copy of the code.
-	 * @return {Array} Array of strings
-	 */
+    /**
+     * Is used for clonning string code only. This is how you
+     * can get separate copy of the code.
+     * @return {Array} Array of strings
+     */
     cloneCode() {
         return this._code.slice();
     }
 
-	/**
-	 * Is used for clonning byte code only. This is how you
-	 * can get separate copy of the byte code.
-	 * @return {Array} Array of 32bit numbers
-	 */
+    /**
+     * Is used for clonning byte code only. This is how you
+     * can get separate copy of the byte code.
+     * @return {Array} Array of 32bit numbers
+     */
     cloneByteCode() {
         return this._byteCode.slice();
     }
 
-	/**
-	 * Inserts random generated number into the byte code at random position
-	 */
+    /**
+     * Inserts random generated number into the byte code at random position
+     */
     insertLine() {
         this._byteCode.splice(Helper.rand(this._byteCode.length), 0, Num.get());
     }
@@ -149,9 +149,9 @@ export default class Code extends Observer {
         this._byteCode[index] = number;
     }
 
-	/**
-	 * Removes random generated number into byte code at random position
-	 */
+    /**
+     * Removes random generated number into byte code at random position
+     */
     removeLine() {
         this._byteCode.splice(Helper.rand(this._byteCode.length), 1);
     }
@@ -163,7 +163,7 @@ export default class Code extends Observer {
     _compileByteCode(byteCode) {
         const len         = byteCode.length;
         const operators   = this._OPERATORS_CB;
-		const yieldPeriod = Config.codeYieldPeriod;
+        const yieldPeriod = Config.codeYieldPeriod;
         let   code        = new Array(len);
         let   offsets     = this._offsets;
         let   operator;
@@ -178,15 +178,15 @@ export default class Code extends Observer {
                 operator = operator + '}';
                 offsets.pop();
             }
-			//
-			// Every yieldPeriod 'yield' operator will be inserted into the code
-			//
-			if (i % yieldPeriod === 0 && i > 0) {operator = operator + ';yield';}
+            //
+            // Every yieldPeriod 'yield' operator will be inserted into the code
+            //
+            if (i % yieldPeriod === 0 && i > 0) {operator = operator + ';yield';}
             code[i] = operator;
         }
         if (offsets.length > 0) {
-		    code[code.length - 1] += ('}'.repeat(offsets.length));
-		}
+            code[code.length - 1] += ('}'.repeat(offsets.length));
+        }
 
         return code;
     }
@@ -242,9 +242,9 @@ export default class Code extends Observer {
     _onLoop(num, line, lines) {
         const var3    = Num.getBits(num, BITS_OF_CONDITION, Num.BITS_OF_TWO_VARS);
         const index   = line + var3 < lines ? line + var3 : lines - 1;
-		const var0Str = 'v' + VAR(num, 0);
-		const var1Str = 'v' + VAR(num, 1);
-		const var2Str = 'v' + VAR(num, 2);
+        const var0Str = 'v' + VAR(num, 0);
+        const var1Str = 'v' + VAR(num, 1);
+        const var2Str = 'v' + VAR(num, 2);
 
         this._offsets.push(index);
         return `for(${var0Str}=${var1Str};${var0Str}<${var2Str};${var0Str}++){yield`;
@@ -261,60 +261,60 @@ export default class Code extends Observer {
     _onPi(num) {
         return `v${VAR(num, 0)}=pi`;
     }
-	
-	_onTrig(num) {
-		return `v${VAR(num, 0)}=Math.${this._TRIGS[VAR(num, 1)]}(v${VAR(num, 2)})`;
-	}
+
+    _onTrig(num) {
+        return `v${VAR(num, 0)}=Math.${this._TRIGS[VAR(num, 1)]}(v${VAR(num, 2)})`;
+    }
 
     _onLookAt(num) {
         return `v${VAR(num, 0)}=org.lookAt(v${VAR(num, 1)},v${VAR(num, 2)})`;
     }
 
     _eatLeft(num) {
-		return `v${VAR(num, 0)}=org.eatLeft(v${VAR(num, 1)})`;
+        return `v${VAR(num, 0)}=org.eatLeft(v${VAR(num, 1)})`;
     }
 
-	_eatRight(num) {
-		return `v${VAR(num, 0)}=org.eatRight(v${VAR(num, 1)})`;
+    _eatRight(num) {
+        return `v${VAR(num, 0)}=org.eatRight(v${VAR(num, 1)})`;
     }
-	
-	_eatUp(num) {
-		return `v${VAR(num, 0)}=org.eatUp(v${VAR(num, 1)})`;
+
+    _eatUp(num) {
+        return `v${VAR(num, 0)}=org.eatUp(v${VAR(num, 1)})`;
     }
-	
-	_eatDown(num) {
-		return `v${VAR(num, 0)}=org.eatDown(v${VAR(num, 1)})`;
+
+    _eatDown(num) {
+        return `v${VAR(num, 0)}=org.eatDown(v${VAR(num, 1)})`;
     }
-	
-	_stepLeft(num) {
-		return `v${VAR(num, 0)}=org.stepLeft()`;
+
+    _stepLeft(num) {
+        return `v${VAR(num, 0)}=org.stepLeft()`;
     }
-	
-	_stepRight(num) {
-		return `v${VAR(num, 0)}=org.stepRight()`;
+
+    _stepRight(num) {
+        return `v${VAR(num, 0)}=org.stepRight()`;
     }
-	
-	_stepUp(num) {
-		return `v${VAR(num, 0)}=org.stepUp()`;
+
+    _stepUp(num) {
+        return `v${VAR(num, 0)}=org.stepUp()`;
     }
-	
-	_stepDown(num) {
-		return `v${VAR(num, 0)}=org.stepDown()`;
+
+    _stepDown(num) {
+        return `v${VAR(num, 0)}=org.stepDown()`;
     }
-	
-	_fromMem(num) {
-		return `v${VAR(num, 0)}=org.fromMem()`;
-	}
-	
-	_toMem(num) {
-		return `org.toMem(v${VAR(num, 0)})`;
-	}
-	
-	_myX(num) {
-		return `v${VAR(num, 0)}=org.myX()`;
-	}
-	
-	_myY(num) {
-		return `v${VAR(num, 0)}=org.myY()`;
-	}
+
+    _fromMem(num) {
+        return `v${VAR(num, 0)}=org.fromMem()`;
+    }
+
+    _toMem(num) {
+        return `org.toMem(v${VAR(num, 0)})`;
+    }
+
+    _myX(num) {
+        return `v${VAR(num, 0)}=org.myX()`;
+    }
+
+    _myY(num) {
+        return `v${VAR(num, 0)}=org.myY()`;
+    }
 }

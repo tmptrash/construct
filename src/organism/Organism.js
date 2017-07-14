@@ -20,7 +20,7 @@ export default class Organism extends Observer {
      * @param {Boolean} alive true if organism is alive
      * @param {Object} item Reference to the Queue item, where
      * this organism is located
-	 * @param {Function} codeEndCb Callback, which is called at the 
+     * @param {Function} codeEndCb Callback, which is called at the
      * end of every code iteration.
      * @param {Organism} parent Parent organism if cloning is needed
      */
@@ -149,30 +149,30 @@ export default class Organism extends Observer {
         return ret.ret;
     }
 
-	fromMem() {
+    fromMem() {
         return this._mem.pop();
     }
 
-	toMem(val) {
+    toMem(val) {
         if (this._mem.length > Config.orgMemSize) {return;}
         this._mem.push(val);
     }
 
-	myX() {
+    myX() {
         return this._x;
     }
 
-	myY() {
+    myY() {
         return this._y;
     }
 
-	_eat(amount, x, y) {
+    _eat(amount, x, y) {
         let ret = {ret: amount};
         this.fire(Events.EAT, this, this._x, this._y + 1, ret);
-		this._energy += ret.ret;
-		return ret.ret;
-	}
-	
+        this._energy += ret.ret;
+        return ret.ret;
+    }
+
     _onCodeEnd() {
         this._age++;
         this._codeEndCb(this);

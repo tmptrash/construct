@@ -168,11 +168,11 @@ const Config = {
      * 1000, then ragne will be: -500..500
      */
     codeVarInitRange: 1000,
-	/**
-	 * {Number} Every code line 'yield' operator will be inserted to prevent
-	 * locking of threads.
-	 */
-	codeYieldPeriod: 10,
+    /**
+     * {Number} Every code line 'yield' operator will be inserted to prevent
+     * locking of threads.
+     */
+    codeYieldPeriod: 10,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain
@@ -247,9 +247,9 @@ const Config = {
      */
     worldIpsPeriodMs: 1000,
     /**
-     * {Number} Period of making automatic backup of application. In seconds
+     * {Number} Period of making automatic backup of application. In iterations
      */
-    backupPeriod: 300,
+    backupPeriod: 100,
     /**
      * {Number} Amount of backup files stored on HDD. Old files will be removed
      */

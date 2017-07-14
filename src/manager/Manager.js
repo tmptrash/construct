@@ -20,14 +20,16 @@ import Canvas    from './../visual/Canvas';
 import Organisms from './plugins/Organisms';
 import Mutator   from './plugins/Mutator';
 import Energy    from './plugins/Energy';
+import Backup    from './plugins/Backup';
 /**
  * {Array} Plugins for Manager
  */
-const PLUGINS = [
-    Organisms,
-    Mutator,
-    Energy
-];
+const PLUGINS = {
+    Organisms: Organisms,
+    Mutator  : Mutator,
+    Energy   : Energy,
+    Backup   : Backup
+};
 
 export default class Manager extends Observer {
     /**
@@ -46,7 +48,7 @@ export default class Manager extends Observer {
         super();
         this._world   = new World(Config.worldWidth, Config.worldHeight);
         this._canvas  = new Canvas();
-        this._plugins = new Array(PLUGINS.length);
+        this._plugins = PLUGINS;
         this._stopped = false;
 
         this._initLoop();
@@ -55,6 +57,7 @@ export default class Manager extends Observer {
     }
 
     get world() {return this._world;}
+    get plugins() {return this._plugins;}
 
     /**
      * Runs main infinite loop of application
@@ -81,9 +84,10 @@ export default class Manager extends Observer {
     }
 
     destroy() {
+        const plugins = this._plugins;
         this._world.destroy();
         this._canvas.destroy();
-        for (let p of this._plugins) {if (p.destroy) {p.destroy();}}
+        for (let p in plugins) {if (plugins.hasOwnProperty(p) && plugins[p].destroy) {plugins[p].destroy();}}
         this._plugins = null;
         this.clear();
     }
@@ -153,8 +157,9 @@ export default class Manager extends Observer {
     }
 
     _initPlugins() {
-        for (let i = 0; i < PLUGINS.length; i++) {
-            this._plugins[i] = new PLUGINS[i](this);
+        let plugins = this._plugins;
+        for (let p in plugins) {
+            plugins[p] = new plugins[p](this);
         }
     }
 
