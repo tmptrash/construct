@@ -271,7 +271,7 @@ const Config = {
      * this organism at the position 1x5. The same scenario regarding Y
      * coordinate (height).
      */
-    worldCyclical: true,
+    worldCyclical: false,
     /**
      * {Number} Maximum amount of organisms in a world. If some organisms will
      * try to clone itself, when entire amount of organisms are equal
@@ -1310,7 +1310,6 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
     }
 
     move(x1, y1, x2, y2, org) {
-        let world = this._world;
         let moved = false;
 
         if (__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldCyclical) {
@@ -1961,7 +1960,7 @@ class Organisms {
 
     _onStep(org, x1, y1, x2, y2, ret) {
         if (org.alive) {
-            ret.ret = this._manager.move(x1, y1, x2, y2, org)
+            ret.ret = +this._manager.move(x1, y1, x2, y2, org)
         }
     }
 
@@ -2091,14 +2090,12 @@ class Operators {
     }
 
     onLoop(num, line, lines) {
+        const var0    = VAR0(num);
         const var3    = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getBits(num, BITS_OF_CONDITION, __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_OF_TWO_VARS);
         const index   = line + var3 < lines ? line + var3 : lines - 1;
-        const var0Str = 'v' + VAR0(num);
-        const var1Str = 'v' + VAR1(num);
-        const var2Str = 'v' + VAR2(num);
 
         this._offsets.push(index);
-        return `for(${var0Str}=${var1Str};${var0Str}<${var2Str};${var0Str}++){yield`;
+        return `for(v${var0}=v${VAR1(num)};v${var0}<v${VAR2(num)};v${var0}++){yield`;
     }
 
     onOperator(num) {

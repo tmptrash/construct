@@ -102,14 +102,12 @@ export default class Operators {
     }
 
     onLoop(num, line, lines) {
+        const var0    = VAR0(num);
         const var3    = Num.getBits(num, BITS_OF_CONDITION, Num.BITS_OF_TWO_VARS);
         const index   = line + var3 < lines ? line + var3 : lines - 1;
-        const var0Str = 'v' + VAR0(num);
-        const var1Str = 'v' + VAR1(num);
-        const var2Str = 'v' + VAR2(num);
 
         this._offsets.push(index);
-        return `for(${var0Str}=${var1Str};${var0Str}<${var2Str};${var0Str}++){yield`;
+        return `for(v${var0}=v${VAR1(num)};v${var0}<v${VAR2(num)};v${var0}++){yield`;
     }
 
     onOperator(num) {
