@@ -93,7 +93,6 @@ export default class Manager extends Observer {
     }
 
     move(x1, y1, x2, y2, org) {
-        let world = this._world;
         let moved = false;
 
         if (Config.worldCyclical) {

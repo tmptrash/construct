@@ -18,6 +18,30 @@ describe("src/organism/Code", () => {
         code.destroy();
     });
 
+    it("Checking not empty vars argument", () => {
+        const vars = 'let v0=0;let v1=0;let v2=0;let v3=0;let v4=0';
+        let code = new Code(()=>{}, vars);
+
+        expect(code.vars).toEqual(vars);
+
+        code.destroy();
+    });
+    it("Checking empty vars argument", () => {
+        let code = new Code(()=>{}, '');
+
+        expect(code.vars.length > 0).toEqual(true);
+
+        code.destroy();
+    });
+    it("Checking passing vars to child code", () => {
+        const vars = 'let v0=0;let v1=0;let v2=0;let v3=0;let v4=0';
+        let   code = new Code(()=>{}, vars);
+
+        expect(code.vars.length > 0).toEqual(true);
+
+        code.destroy();
+    });
+
     it("Checking no code size", () => {
         let code = new Code((()=>{}));
 

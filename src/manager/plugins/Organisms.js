@@ -198,7 +198,7 @@ export default class Organisms {
 
     _onStep(org, x1, y1, x2, y2, ret) {
         if (org.alive) {
-            ret.ret = this._manager.move(x1, y1, x2, y2, org)
+            ret.ret = +this._manager.move(x1, y1, x2, y2, org)
         }
     }
 

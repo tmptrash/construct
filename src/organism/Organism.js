@@ -109,48 +109,18 @@ export default class Organism extends Observer {
         return ret.ret;
     }
 
-    eatLeft(amount) {
-        return this._eat(amount, this._x - 1, this._y);
-    }
+    eatLeft(amount)  {return this._eat(amount, this._x - 1, this._y)}
+    eatRight(amount) {return this._eat(amount, this._x + 1, this._y)}
+    eatUp(amount)    {return this._eat(amount, this._x, this._y - 1)}
+    eatDown(amount)  {return this._eat(amount, this._x, this._y + 1)}
 
-    eatRight(amount) {
-        return this._eat(amount, this._x + 1, this._y);
-    }
-
-    eatUp(amount) {
-        return this._eat(amount, this._x, this._y - 1);
-    }
-
-    eatDown(amount) {
-        return this._eat(amount, this._x, this._y + 1);
-    }
-
-    stepLeft() {
-        let ret = {ret: false};
-        this.fire(Events.STEP, this, this._x, this._y, this._x - 1, this._y, ret);
-        return ret.ret;
-    }
-
-    stepRight() {
-        let ret = {ret: false};
-        this.fire(Events.STEP, this, this._x, this._y, this._x + 1, this._y, ret);
-        return ret.ret;
-    }
-
-    stepUp() {
-        let ret = {ret: false};
-        this.fire(Events.STEP, this, this._x, this._y, this._x, this._y - 1, ret);
-        return ret.ret;
-    }
-
-    stepDown() {
-        let ret = {ret: false};
-        this.fire(Events.STEP, this, this._x, this._y,  this._x, this._y + 1, ret);
-        return ret.ret;
-    }
+    stepLeft()  {return this._step(this._x, this._y, this._x - 1, this._y)}
+    stepRight() {return this._step(this._x, this._y, this._x + 1, this._y)}
+    stepUp()    {return this._step(this._x, this._y, this._x, this._y - 1)}
+    stepDown()  {return this._step(this._x, this._y, this._x, this._y + 1)}
 
     fromMem() {
-        return this._mem.pop();
+        return this._mem.pop() || 0;
     }
 
     toMem(val) {
@@ -168,8 +138,14 @@ export default class Organism extends Observer {
 
     _eat(amount, x, y) {
         let ret = {ret: amount};
-        this.fire(Events.EAT, this, this._x, this._y + 1, ret);
+        this.fire(Events.EAT, this, x, y, ret);
         this._energy += ret.ret;
+        return ret.ret;
+    }
+
+    _step(x1, y1, x2, y2) {
+        let ret = {ret: false};
+        this.fire(Events.STEP, this, x1, y1,  x2, y2, ret);
         return ret.ret;
     }
 

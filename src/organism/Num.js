@@ -55,7 +55,7 @@ export default class Number {
         return (op << VAR_BITS_OFFS | (num & NO_OPERATOR_MASK)) >>> 0;
     }
 
-    static getVar(num, index) {
+    static getVar(num, index = 0) {
         return num << (BITS_PER_OPERATOR + index * BITS_PER_VAR) >>> BITS_OF_FIRST_VAR;
     }
 
