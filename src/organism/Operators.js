@@ -14,8 +14,6 @@ import Num    from './Num';
 const VAR0 = Num.getVar;
 const VAR1 = (n) => Num.getVar(n, 1);
 const VAR2 = (n) => Num.getVar(n, 2);
-const VAR3 = (n) => Num.getVar(n, 3);
-const VAR4 = (n) => Num.getVar(n, 4);
 const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
 
 export default class Operators {
@@ -41,18 +39,18 @@ export default class Operators {
             5 : this.onPi.bind(this),
             6 : this.onTrig.bind(this),
             7 : this.onLookAt.bind(this),
-            8 : this.eatLeft.bind(this),
-            9 : this.eatRight.bind(this),
-            10: this.eatUp.bind(this),
-            11: this.eatDown.bind(this),
-            12: this.stepLeft.bind(this),
-            13: this.stepRight.bind(this),
-            14: this.stepUp.bind(this),
-            15: this.stepDown.bind(this),
-            16: this.fromMem.bind(this),
-            17: this.toMem.bind(this),
-            18: this.myX.bind(this),
-            19: this.myY.bind(this)
+            8 : this.onEatLeft.bind(this),
+            9 : this.onEatRight.bind(this),
+            10: this.onEatUp.bind(this),
+            11: this.onEatDown.bind(this),
+            12: this.onStepLeft.bind(this),
+            13: this.onStepRight.bind(this),
+            14: this.onStepUp.bind(this),
+            15: this.onStepDown.bind(this),
+            16: this.onFromMem.bind(this),
+            17: this.onToMem.bind(this),
+            18: this.onMyX.bind(this),
+            19: this.onMyY.bind(this)
         };
         this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
         /**
@@ -98,7 +96,7 @@ export default class Operators {
     onCondition(num, line, lines) {
         const var3    = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
         this._offsets.push(line + var3 < lines ? line + var3 : lines - 1);
-        return `if(v${VAR0(num)}${this._CONDITIONS[VAR2(num)]}v${VAR1(num)}){`;
+        return `yield;if(v${VAR0(num)}${this._CONDITIONS[VAR2(num)]}v${VAR1(num)}){`;
     }
 
     onLoop(num, line, lines) {
@@ -130,51 +128,51 @@ export default class Operators {
         return `v${VAR0(num)}=org.lookAt(v${VAR1(num)},v${VAR2(num)})`;
     }
 
-    eatLeft(num) {
+    onEatLeft(num) {
         return `v${VAR0(num)}=org.eatLeft(v${VAR1(num)})`;
     }
 
-    eatRight(num) {
+    onEatRight(num) {
         return `v${VAR0(num)}=org.eatRight(v${VAR1(num)})`;
     }
 
-    eatUp(num) {
+    onEatUp(num) {
         return `v${VAR0(num)}=org.eatUp(v${VAR1(num)})`;
     }
 
-    eatDown(num) {
+    onEatDown(num) {
         return `v${VAR0(num)}=org.eatDown(v${VAR1(num)})`;
     }
 
-    stepLeft(num) {
+    onStepLeft(num) {
         return `v${VAR0(num)}=org.stepLeft()`;
     }
 
-    stepRight(num) {
+    onStepRight(num) {
         return `v${VAR0(num)}=org.stepRight()`;
     }
 
-    stepUp(num) {
+    onStepUp(num) {
         return `v${VAR0(num)}=org.stepUp()`;
     }
 
-    stepDown(num) {
+    onStepDown(num) {
         return `v${VAR0(num)}=org.stepDown()`;
     }
 
-    fromMem(num) {
+    onFromMem(num) {
         return `v${VAR0(num)}=org.fromMem()`;
     }
 
-    toMem(num) {
+    onToMem(num) {
         return `org.toMem(v${VAR0(num)})`;
     }
 
-    myX(num) {
+    onMyX(num) {
         return `v${VAR0(num)}=org.myX()`;
     }
 
-    myY(num) {
+    onMyY(num) {
         return `v${VAR0(num)}=org.myY()`;
     }
 }
