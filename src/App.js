@@ -10,4 +10,5 @@
 import Manager from './manager/Manager';
 
 const manager = new Manager();
+window.man = manager;
 manager.run();

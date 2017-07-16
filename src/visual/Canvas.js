@@ -16,6 +16,7 @@ export default class Canvas {
         this._imgData   = this._ctx.createImageData(this._width, this._height);
         this._data      = this._imgData.data;
         this._animate   = this._onAnimate.bind(this);
+        this._visualize = true;
 
         this.clear();
         window.requestAnimationFrame(this._animate);
@@ -26,6 +27,11 @@ export default class Canvas {
         this._ctx     = null;
         this._imgData = null;
         this._data    = null;
+    }
+
+    visualize(visualize) {
+        this._visualize = visualize;
+        this._onAnimate();
     }
 
     dot(x, y, color) {
@@ -65,7 +71,9 @@ export default class Canvas {
 
     _onAnimate() {
         this._ctx.putImageData(this._imgData, 0, 0);
-        window.requestAnimationFrame(this._animate);
+        if (this._visualize === true) {
+            window.requestAnimationFrame(this._animate);
+        }
     }
 
     _prepareDom() {

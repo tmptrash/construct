@@ -22,8 +22,9 @@ export default class Organisms {
         this._codeRuns      = 0;
         this._stamp         = Date.now();
         this._manager       = manager;
-        this._positions     = {};
+        this._positions     = new Array(Config.worldWidth * Config.worldHeight);
         this._orgId         = 0;
+        this._statEl        = $('body').append('<div id="stat" style="background-color:#000;position:absolute;opacity:0.3;color:#fff;font-family:monospace;font-size:13px;top:5px;left:5px;"></div>').find('#stat');
         this._onIterationCb = this._onIteration.bind(this);
         this._onAfterMoveCb = this._onAfterMove.bind(this);
 
@@ -107,6 +108,7 @@ export default class Organisms {
 
         let   ips;
         ips = this._codeRuns / orgs / (ts / 1000);
+        this._statEl.text('ips: ' + ips.toFixed(2));
         Console.warn('ips: ', ips);
         man.fire(Events.IPS, ips);
         this._codeRuns = 0;
@@ -154,7 +156,7 @@ export default class Organisms {
 
     _onAfterMove(x1, y1, x2, y2, org) {
         if (x1 !== x2 || y1 !== y2) {
-            delete this._positions[Helper.posId(x1, y1)];
+            this._positions[Helper.posId(x1, y1)] = undefined;
             this._positions[Helper.posId(x2, y2)] = org;
         }
 
@@ -169,7 +171,7 @@ export default class Organisms {
     }
 
     _onGetEnergy(org, ret) {
-        if (typeof(this._positions[org.posId]) !== 'undefined') {
+        if (this._positions[org.posId] === undefined) {
             ret.ret = this._positions[org.posId].energy;
         } else {
             ret.ret = this._manager.world.getDot(org.x, org.y)
@@ -188,7 +190,7 @@ export default class Organisms {
         }
 
         const posId = Helper.posId(x, y);
-        if (typeof(positions[posId]) === 'undefined') {
+        if (positions[posId] === undefined) {
             ret.ret = world.grabDot(x, y, ret.ret);
         } else {
             ret.ret = ret.ret < 0 ? 0 : (ret.ret > positions[posId].energy ? positions[posId].energy : ret.ret);
@@ -210,7 +212,7 @@ export default class Organisms {
         this._manager.fire(Events.KILL_ORGANISM, org);
         this._orgs.del(org.item);
         this._manager.world.setDot(org.x, org.y, 0);
-        delete this._positions[org.posId];
+        this._positions[org.posId] = undefined;
         Console.info(org.id, ' die');
     }
 }

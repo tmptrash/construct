@@ -46,10 +46,10 @@ export default class Manager extends Observer {
 
     constructor() {
         super();
-        this._world   = new World(Config.worldWidth, Config.worldHeight);
-        this._canvas  = new Canvas();
-        this._plugins = PLUGINS;
-        this._stopped = false;
+        this._world     = new World(Config.worldWidth, Config.worldHeight);
+        this._canvas    = new Canvas();
+        this._plugins   = PLUGINS;
+        this._stopped   = false;
 
         this._initLoop();
         this._initPlugins();
@@ -81,6 +81,10 @@ export default class Manager extends Observer {
 
     stop() {
         this._stopped = true;
+    }
+
+    visualize(visualize) {
+        this._canvas.visualize(visualize);
     }
 
     destroy() {

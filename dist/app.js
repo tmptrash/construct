@@ -1263,10 +1263,10 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
 
     constructor() {
         super();
-        this._world   = new __WEBPACK_IMPORTED_MODULE_3__visual_World__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldWidth, __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldHeight);
-        this._canvas  = new __WEBPACK_IMPORTED_MODULE_4__visual_Canvas__["a" /* default */]();
-        this._plugins = PLUGINS;
-        this._stopped = false;
+        this._world     = new __WEBPACK_IMPORTED_MODULE_3__visual_World__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldWidth, __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldHeight);
+        this._canvas    = new __WEBPACK_IMPORTED_MODULE_4__visual_Canvas__["a" /* default */]();
+        this._plugins   = PLUGINS;
+        this._stopped   = false;
 
         this._initLoop();
         this._initPlugins();
@@ -1298,6 +1298,10 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
 
     stop() {
         this._stopped = true;
+    }
+
+    visualize(visualize) {
+        this._canvas.visualize(visualize);
     }
 
     destroy() {
@@ -1413,6 +1417,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 const manager = new __WEBPACK_IMPORTED_MODULE_0__manager_Manager__["a" /* default */]();
+window.man = manager;
 manager.run();
 
 /***/ }),
@@ -1784,8 +1789,9 @@ class Organisms {
         this._codeRuns      = 0;
         this._stamp         = Date.now();
         this._manager       = manager;
-        this._positions     = {};
+        this._positions     = new Array(__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldWidth * __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldHeight);
         this._orgId         = 0;
+        this._statEl        = $('body').append('<div id="stat" style="background-color:#000;position:absolute;opacity:0.3;color:#fff;font-family:monospace;font-size:13px;top:5px;left:5px;"></div>').find('#stat');
         this._onIterationCb = this._onIteration.bind(this);
         this._onAfterMoveCb = this._onAfterMove.bind(this);
 
@@ -1869,6 +1875,7 @@ class Organisms {
 
         let   ips;
         ips = this._codeRuns / orgs / (ts / 1000);
+        this._statEl.text('ips: ' + ips.toFixed(2));
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('ips: ', ips);
         man.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].IPS, ips);
         this._codeRuns = 0;
@@ -1916,7 +1923,7 @@ class Organisms {
 
     _onAfterMove(x1, y1, x2, y2, org) {
         if (x1 !== x2 || y1 !== y2) {
-            delete this._positions[__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x1, y1)];
+            this._positions[__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x1, y1)] = undefined;
             this._positions[__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x2, y2)] = org;
         }
 
@@ -1931,7 +1938,7 @@ class Organisms {
     }
 
     _onGetEnergy(org, ret) {
-        if (typeof(this._positions[org.posId]) !== 'undefined') {
+        if (this._positions[org.posId] === undefined) {
             ret.ret = this._positions[org.posId].energy;
         } else {
             ret.ret = this._manager.world.getDot(org.x, org.y)
@@ -1950,7 +1957,7 @@ class Organisms {
         }
 
         const posId = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x, y);
-        if (typeof(positions[posId]) === 'undefined') {
+        if (positions[posId] === undefined) {
             ret.ret = world.grabDot(x, y, ret.ret);
         } else {
             ret.ret = ret.ret < 0 ? 0 : (ret.ret > positions[posId].energy ? positions[posId].energy : ret.ret);
@@ -1972,7 +1979,7 @@ class Organisms {
         this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].KILL_ORGANISM, org);
         this._orgs.del(org.item);
         this._manager.world.setDot(org.x, org.y, 0);
-        delete this._positions[org.posId];
+        this._positions[org.posId] = undefined;
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].info(org.id, ' die');
     }
 }
@@ -2002,8 +2009,6 @@ class Organisms {
 const VAR0 = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getVar;
 const VAR1 = (n) => __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getVar(n, 1);
 const VAR2 = (n) => __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getVar(n, 2);
-const VAR3 = (n) => __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getVar(n, 3);
-const VAR4 = (n) => __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getVar(n, 4);
 const BITS_AFTER_THREE_VARS = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_PER_OPERATOR + __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_PER_VAR * 3;
 
 class Operators {
@@ -2029,18 +2034,18 @@ class Operators {
             5 : this.onPi.bind(this),
             6 : this.onTrig.bind(this),
             7 : this.onLookAt.bind(this),
-            8 : this.eatLeft.bind(this),
-            9 : this.eatRight.bind(this),
-            10: this.eatUp.bind(this),
-            11: this.eatDown.bind(this),
-            12: this.stepLeft.bind(this),
-            13: this.stepRight.bind(this),
-            14: this.stepUp.bind(this),
-            15: this.stepDown.bind(this),
-            16: this.fromMem.bind(this),
-            17: this.toMem.bind(this),
-            18: this.myX.bind(this),
-            19: this.myY.bind(this)
+            8 : this.onEatLeft.bind(this),
+            9 : this.onEatRight.bind(this),
+            10: this.onEatUp.bind(this),
+            11: this.onEatDown.bind(this),
+            12: this.onStepLeft.bind(this),
+            13: this.onStepRight.bind(this),
+            14: this.onStepUp.bind(this),
+            15: this.onStepDown.bind(this),
+            16: this.onFromMem.bind(this),
+            17: this.onToMem.bind(this),
+            18: this.onMyX.bind(this),
+            19: this.onMyY.bind(this)
         };
         this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
         /**
@@ -2086,7 +2091,7 @@ class Operators {
     onCondition(num, line, lines) {
         const var3    = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_OF_TWO_VARS);
         this._offsets.push(line + var3 < lines ? line + var3 : lines - 1);
-        return `if(v${VAR0(num)}${this._CONDITIONS[VAR2(num)]}v${VAR1(num)}){`;
+        return `yield;if(v${VAR0(num)}${this._CONDITIONS[VAR2(num)]}v${VAR1(num)}){`;
     }
 
     onLoop(num, line, lines) {
@@ -2118,51 +2123,51 @@ class Operators {
         return `v${VAR0(num)}=org.lookAt(v${VAR1(num)},v${VAR2(num)})`;
     }
 
-    eatLeft(num) {
+    onEatLeft(num) {
         return `v${VAR0(num)}=org.eatLeft(v${VAR1(num)})`;
     }
 
-    eatRight(num) {
+    onEatRight(num) {
         return `v${VAR0(num)}=org.eatRight(v${VAR1(num)})`;
     }
 
-    eatUp(num) {
+    onEatUp(num) {
         return `v${VAR0(num)}=org.eatUp(v${VAR1(num)})`;
     }
 
-    eatDown(num) {
+    onEatDown(num) {
         return `v${VAR0(num)}=org.eatDown(v${VAR1(num)})`;
     }
 
-    stepLeft(num) {
+    onStepLeft(num) {
         return `v${VAR0(num)}=org.stepLeft()`;
     }
 
-    stepRight(num) {
+    onStepRight(num) {
         return `v${VAR0(num)}=org.stepRight()`;
     }
 
-    stepUp(num) {
+    onStepUp(num) {
         return `v${VAR0(num)}=org.stepUp()`;
     }
 
-    stepDown(num) {
+    onStepDown(num) {
         return `v${VAR0(num)}=org.stepDown()`;
     }
 
-    fromMem(num) {
+    onFromMem(num) {
         return `v${VAR0(num)}=org.fromMem()`;
     }
 
-    toMem(num) {
+    onToMem(num) {
         return `org.toMem(v${VAR0(num)})`;
     }
 
-    myX(num) {
+    onMyX(num) {
         return `v${VAR0(num)}=org.myX()`;
     }
 
-    myY(num) {
+    onMyY(num) {
         return `v${VAR0(num)}=org.myY()`;
     }
 }
@@ -2192,6 +2197,7 @@ class Canvas {
         this._imgData   = this._ctx.createImageData(this._width, this._height);
         this._data      = this._imgData.data;
         this._animate   = this._onAnimate.bind(this);
+        this._visualize = true;
 
         this.clear();
         window.requestAnimationFrame(this._animate);
@@ -2202,6 +2208,11 @@ class Canvas {
         this._ctx     = null;
         this._imgData = null;
         this._data    = null;
+    }
+
+    visualize(visualize) {
+        this._visualize = visualize;
+        this._onAnimate();
     }
 
     dot(x, y, color) {
@@ -2241,7 +2252,9 @@ class Canvas {
 
     _onAnimate() {
         this._ctx.putImageData(this._imgData, 0, 0);
-        window.requestAnimationFrame(this._animate);
+        if (this._visualize === true) {
+            window.requestAnimationFrame(this._animate);
+        }
     }
 
     _prepareDom() {
