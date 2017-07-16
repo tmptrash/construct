@@ -271,7 +271,7 @@ const Config = {
      * this organism at the position 1x5. The same scenario regarding Y
      * coordinate (height).
      */
-    worldCyclical: false,
+    worldCyclical: true,
     /**
      * {Number} Maximum amount of organisms in a world. If some organisms will
      * try to clone itself, when entire amount of organisms are equal
@@ -719,7 +719,6 @@ const BITS_PER_VAR        = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* 
 const BITS_PER_OPERATOR   = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeBitsPerOperator;
 const NO_OPERATOR_MASK    = 0xffffffff >>> BITS_PER_OPERATOR;
 const BITS_OF_TWO_VARS    = BITS_PER_VAR * 2;
-const BITS_OF_THREE_VARS  = BITS_PER_VAR * 3;
 const BITS_OF_FIRST_VAR   = 32 - BITS_PER_VAR;
 const MAX_VAR             = 1 << BITS_PER_VAR;
 const MAX_OPERATOR        = 1 << BITS_PER_OPERATOR;
@@ -733,7 +732,6 @@ class Number {
     static get VARS()                {return (32 - BITS_PER_OPERATOR) / BITS_PER_VAR;}
     static get MAX_VAR()             {return MAX_VAR;}
     static get BITS_OF_TWO_VARS()    {return BITS_OF_TWO_VARS;}
-    static get BITS_OF_THREE_VARS()  {return BITS_OF_THREE_VARS;}
     static get MAX_OPERATOR()        {return MAX_OPERATOR;}
     static get BITS_WITHOUT_2_VARS() {return BITS_WITHOUT_2_VARS;}
     static get HALF_OF_VAR()         {return HALF_OF_VAR;}
@@ -1034,6 +1032,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
         this._energy                = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartEnergy;
         this._color                 = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartColor;
         this._age                   = 0;
+        this._iterations            = 0;
         this._cloneEnergyPercent    = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgCloneEnergyPercent;
         this._fnId                  = 0;
         this._codeEndCb             = codeEndCb;
@@ -1073,6 +1072,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
      * @return {Boolean} false means that organism was destroyed
      */
     run() {
+        this._iterations++;
         this._code.run();
         return this._updateDestroy() && this._updateEnergy();
     }
@@ -1172,7 +1172,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
      */
     _updateDestroy() {
         const alivePeriod = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgAlivePeriod;
-        const needDestroy = this._energy < 1 || alivePeriod > 0 && this._age >= alivePeriod;
+        const needDestroy = this._energy < 1 || alivePeriod > 0 && this._iterations > alivePeriod;
 
         needDestroy && this.destroy();
 
@@ -1999,12 +1999,12 @@ class Organisms {
 /**
  * {Function} Just a shortcuts
  */
-const VAR0              = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getVar;
-const VAR1              = (n) => __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getVar(n, 1);
-const VAR2              = (n) => __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getVar(n, 2);
-const VAR3              = (n) => __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getVar(n, 3);
-const VAR4              = (n) => __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getVar(n, 4);
-const BITS_OF_CONDITION = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_PER_OPERATOR + __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_PER_VAR * 3;
+const VAR0 = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getVar;
+const VAR1 = (n) => __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getVar(n, 1);
+const VAR2 = (n) => __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getVar(n, 2);
+const VAR3 = (n) => __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getVar(n, 3);
+const VAR4 = (n) => __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getVar(n, 4);
+const BITS_AFTER_THREE_VARS = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_PER_OPERATOR + __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_PER_VAR * 3;
 
 class Operators {
     constructor(offsets) {
@@ -2084,14 +2084,14 @@ class Operators {
     }
 
     onCondition(num, line, lines) {
-        const var3    = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getBits(num, BITS_OF_CONDITION, __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_OF_TWO_VARS);
+        const var3    = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_OF_TWO_VARS);
         this._offsets.push(line + var3 < lines ? line + var3 : lines - 1);
         return `if(v${VAR0(num)}${this._CONDITIONS[VAR2(num)]}v${VAR1(num)}){`;
     }
 
     onLoop(num, line, lines) {
         const var0    = VAR0(num);
-        const var3    = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getBits(num, BITS_OF_CONDITION, __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_OF_TWO_VARS);
+        const var3    = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_OF_TWO_VARS);
         const index   = line + var3 < lines ? line + var3 : lines - 1;
 
         this._offsets.push(index);
@@ -2099,7 +2099,7 @@ class Operators {
     }
 
     onOperator(num) {
-        return `v${VAR0(num)}=v${VAR1(num)}${this._OPERATORS[__WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getBits(num, __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_OF_THREE_VARS, __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_OF_TWO_VARS)]}v${VAR2(num)}`;
+        return `v${VAR0(num)}=v${VAR1(num)}${this._OPERATORS[__WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_OF_TWO_VARS)]}v${VAR2(num)}`;
     }
 
     not(num) {

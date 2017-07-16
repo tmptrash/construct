@@ -44,6 +44,7 @@ export default class Organism extends Observer {
         this._energy                = Config.orgStartEnergy;
         this._color                 = Config.orgStartColor;
         this._age                   = 0;
+        this._iterations            = 0;
         this._cloneEnergyPercent    = Config.orgCloneEnergyPercent;
         this._fnId                  = 0;
         this._codeEndCb             = codeEndCb;
@@ -83,6 +84,7 @@ export default class Organism extends Observer {
      * @return {Boolean} false means that organism was destroyed
      */
     run() {
+        this._iterations++;
         this._code.run();
         return this._updateDestroy() && this._updateEnergy();
     }
@@ -182,7 +184,7 @@ export default class Organism extends Observer {
      */
     _updateDestroy() {
         const alivePeriod = Config.orgAlivePeriod;
-        const needDestroy = this._energy < 1 || alivePeriod > 0 && this._age >= alivePeriod;
+        const needDestroy = this._energy < 1 || alivePeriod > 0 && this._iterations > alivePeriod;
 
         needDestroy && this.destroy();
 

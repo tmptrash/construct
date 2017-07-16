@@ -15,11 +15,12 @@ describe("src/organism/Organism", () => {
         let org = new Organism(0, 1, 2, true, null, ()=>{});
 
         for (let i = 0; i < Config.orgAlivePeriod; i++) {
-            org.run();
+            expect(org.alive).toEqual(true);
+            org.run(i);
         }
 
         expect(org.alive).toEqual(true);
-        org.run();
+        org.run(Config.orgAlivePeriod);
         expect(org.alive).toEqual(false);
     });
 

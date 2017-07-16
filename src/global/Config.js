@@ -198,7 +198,7 @@ const Config = {
      * this organism at the position 1x5. The same scenario regarding Y
      * coordinate (height).
      */
-    worldCyclical: false,
+    worldCyclical: true,
     /**
      * {Number} Maximum amount of organisms in a world. If some organisms will
      * try to clone itself, when entire amount of organisms are equal

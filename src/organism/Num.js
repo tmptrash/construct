@@ -10,7 +10,6 @@ const BITS_PER_VAR        = Config.codeBitsPerVar;
 const BITS_PER_OPERATOR   = Config.codeBitsPerOperator;
 const NO_OPERATOR_MASK    = 0xffffffff >>> BITS_PER_OPERATOR;
 const BITS_OF_TWO_VARS    = BITS_PER_VAR * 2;
-const BITS_OF_THREE_VARS  = BITS_PER_VAR * 3;
 const BITS_OF_FIRST_VAR   = 32 - BITS_PER_VAR;
 const MAX_VAR             = 1 << BITS_PER_VAR;
 const MAX_OPERATOR        = 1 << BITS_PER_OPERATOR;
@@ -24,7 +23,6 @@ export default class Number {
     static get VARS()                {return (32 - BITS_PER_OPERATOR) / BITS_PER_VAR;}
     static get MAX_VAR()             {return MAX_VAR;}
     static get BITS_OF_TWO_VARS()    {return BITS_OF_TWO_VARS;}
-    static get BITS_OF_THREE_VARS()  {return BITS_OF_THREE_VARS;}
     static get MAX_OPERATOR()        {return MAX_OPERATOR;}
     static get BITS_WITHOUT_2_VARS() {return BITS_WITHOUT_2_VARS;}
     static get HALF_OF_VAR()         {return HALF_OF_VAR;}

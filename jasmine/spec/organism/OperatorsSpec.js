@@ -1,7 +1,6 @@
 describe("src/organism/Operators", () => {
     let Operators = require('../../../src/organism/Operators').default;
     let Helper    = require('../../../src/global/Helper').default;
-    let Num       = require('../../../src/organism/Num').default;
     let rand;
 
     beforeEach(() => rand = Helper.rand);
@@ -27,9 +26,17 @@ describe("src/organism/Operators", () => {
     it("Checking onLoop() method", () => {
         let ops = new Operators([]);
 
-        console.log(ops.onLoop(0x02ffffff, 0, 1));
         expect(ops.onLoop(0x02ffffff), 0, 1).toEqual('for(v3=v3;v3<v3;v3++){yield');
         expect(ops.onLoop(0x028fffff), 0, 1).toEqual('for(v2=v0;v2<v3;v2++){yield');
         expect(ops.onLoop(0x0287ffff), 0, 1).toEqual('for(v2=v0;v2<v1;v2++){yield');
+    });
+
+    it("Checking onOperator() method", () => {
+        let ops = new Operators([]);
+
+        //console.log(ops.onOperator(0xff1a3fff, 0, 1));
+        expect(ops.onOperator(0x031a3fff), 0, 1).toEqual('v0=v1>>v2');
+        expect(ops.onOperator(0x031a3fff), 0, 1).toEqual('for(v2=v0;v2<v3;v2++){yield');
+        //expect(ops.onOperator(0x0287ffff), 0, 1).toEqual('for(v2=v0;v2<v1;v2++){yield');
     });
 });

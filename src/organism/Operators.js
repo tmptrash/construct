@@ -11,12 +11,12 @@ import Num    from './Num';
 /**
  * {Function} Just a shortcuts
  */
-const VAR0              = Num.getVar;
-const VAR1              = (n) => Num.getVar(n, 1);
-const VAR2              = (n) => Num.getVar(n, 2);
-const VAR3              = (n) => Num.getVar(n, 3);
-const VAR4              = (n) => Num.getVar(n, 4);
-const BITS_OF_CONDITION = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
+const VAR0 = Num.getVar;
+const VAR1 = (n) => Num.getVar(n, 1);
+const VAR2 = (n) => Num.getVar(n, 2);
+const VAR3 = (n) => Num.getVar(n, 3);
+const VAR4 = (n) => Num.getVar(n, 4);
+const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
 
 export default class Operators {
     constructor(offsets) {
@@ -96,14 +96,14 @@ export default class Operators {
     }
 
     onCondition(num, line, lines) {
-        const var3    = Num.getBits(num, BITS_OF_CONDITION, Num.BITS_OF_TWO_VARS);
+        const var3    = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
         this._offsets.push(line + var3 < lines ? line + var3 : lines - 1);
         return `if(v${VAR0(num)}${this._CONDITIONS[VAR2(num)]}v${VAR1(num)}){`;
     }
 
     onLoop(num, line, lines) {
         const var0    = VAR0(num);
-        const var3    = Num.getBits(num, BITS_OF_CONDITION, Num.BITS_OF_TWO_VARS);
+        const var3    = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
         const index   = line + var3 < lines ? line + var3 : lines - 1;
 
         this._offsets.push(index);
@@ -111,7 +111,7 @@ export default class Operators {
     }
 
     onOperator(num) {
-        return `v${VAR0(num)}=v${VAR1(num)}${this._OPERATORS[Num.getBits(num, Num.BITS_OF_THREE_VARS, Num.BITS_OF_TWO_VARS)]}v${VAR2(num)}`;
+        return `v${VAR0(num)}=v${VAR1(num)}${this._OPERATORS[Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS)]}v${VAR2(num)}`;
     }
 
     not(num) {
