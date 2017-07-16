@@ -1172,7 +1172,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
      */
     _updateDestroy() {
         const alivePeriod = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgAlivePeriod;
-        const needDestroy = this._energy < 1 || alivePeriod > 0 && this._iterations > alivePeriod;
+        const needDestroy = this._energy < 1 || alivePeriod > 0 && this._age >= alivePeriod;
 
         needDestroy && this.destroy();
 
@@ -1186,9 +1186,9 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
      * @private
      */
     _updateEnergy() {
-        if (__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgEnergySpendPeriod === 0 || this._age % __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgEnergySpendPeriod !== 0) {return true;}
+        if (__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgEnergySpendPeriod === 0 || this._iterations % __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgEnergySpendPeriod !== 0) {return true;}
         const codeSize = this._code.size;
-        let   grabSize = (((codeSize / __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgGarbagePeriod) + 0.5) << 1) >> 1; // analog of Math.round()
+        let   grabSize = (((codeSize / __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgGarbagePeriod) + 0.5) << 1) >> 1; // analog of Math.round(), but faster
 
         if (codeSize > __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeMaxSize) {grabSize = codeSize * __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeSizeCoef;}
         if (grabSize < 1) {grabSize = 1;}
@@ -2025,7 +2025,7 @@ class Operators {
             1 : this.onCondition.bind(this),
             2 : this.onLoop.bind(this),
             3 : this.onOperator.bind(this),
-            4 : this.not.bind(this),
+            4 : this.onNot.bind(this),
             5 : this.onPi.bind(this),
             6 : this.onTrig.bind(this),
             7 : this.onLookAt.bind(this),
@@ -2102,7 +2102,7 @@ class Operators {
         return `v${VAR0(num)}=v${VAR1(num)}${this._OPERATORS[__WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_OF_TWO_VARS)]}v${VAR2(num)}`;
     }
 
-    not(num) {
+    onNot(num) {
         return `v${VAR0(num)}=!v${VAR1(num)}`;
     }
 
@@ -2111,7 +2111,7 @@ class Operators {
     }
 
     onTrig(num) {
-        return `v${VAR0(num)}=Math.${this._TRIGS[VAR1(num)]}(v${VAR2(num)})`;
+        return `v${VAR0(num)}=Math.${this._TRIGS[VAR2(num)]}(v${VAR1(num)})`;
     }
 
     onLookAt(num) {

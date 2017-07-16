@@ -184,7 +184,7 @@ export default class Organism extends Observer {
      */
     _updateDestroy() {
         const alivePeriod = Config.orgAlivePeriod;
-        const needDestroy = this._energy < 1 || alivePeriod > 0 && this._iterations > alivePeriod;
+        const needDestroy = this._energy < 1 || alivePeriod > 0 && this._age >= alivePeriod;
 
         needDestroy && this.destroy();
 
@@ -198,9 +198,9 @@ export default class Organism extends Observer {
      * @private
      */
     _updateEnergy() {
-        if (Config.orgEnergySpendPeriod === 0 || this._age % Config.orgEnergySpendPeriod !== 0) {return true;}
+        if (Config.orgEnergySpendPeriod === 0 || this._iterations % Config.orgEnergySpendPeriod !== 0) {return true;}
         const codeSize = this._code.size;
-        let   grabSize = (((codeSize / Config.orgGarbagePeriod) + 0.5) << 1) >> 1; // analog of Math.round()
+        let   grabSize = (((codeSize / Config.orgGarbagePeriod) + 0.5) << 1) >> 1; // analog of Math.round(), but faster
 
         if (codeSize > Config.codeMaxSize) {grabSize = codeSize * Config.codeSizeCoef;}
         if (grabSize < 1) {grabSize = 1;}

@@ -37,7 +37,7 @@ export default class Operators {
             1 : this.onCondition.bind(this),
             2 : this.onLoop.bind(this),
             3 : this.onOperator.bind(this),
-            4 : this.not.bind(this),
+            4 : this.onNot.bind(this),
             5 : this.onPi.bind(this),
             6 : this.onTrig.bind(this),
             7 : this.onLookAt.bind(this),
@@ -114,7 +114,7 @@ export default class Operators {
         return `v${VAR0(num)}=v${VAR1(num)}${this._OPERATORS[Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS)]}v${VAR2(num)}`;
     }
 
-    not(num) {
+    onNot(num) {
         return `v${VAR0(num)}=!v${VAR1(num)}`;
     }
 
@@ -123,7 +123,7 @@ export default class Operators {
     }
 
     onTrig(num) {
-        return `v${VAR0(num)}=Math.${this._TRIGS[VAR1(num)]}(v${VAR2(num)})`;
+        return `v${VAR0(num)}=Math.${this._TRIGS[VAR2(num)]}(v${VAR1(num)})`;
     }
 
     onLookAt(num) {
