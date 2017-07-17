@@ -50,14 +50,19 @@ export default class Mutator {
 
     _mutate(org, clone = true) {
         const code      = org.code;
-        let   mutations = Math.round(code.size * org.mutationPercent) || 1;
         const probIndex = Helper.probIndex;
         const mTypes    = this._MUTATION_TYPES;
+        let   mutations = Math.round(code.size * org.mutationPercent) || 1;
+        let   type;
 
         for (let i = 0; i < mutations; i++) {
-            mTypes[code.size < 1 ? 0 : probIndex(org.mutationProbs)](org);
+            type = code.size < 1 ? 0 : probIndex(org.mutationProbs);
+            if (type === 0)      {org.adds++;}
+            else if (type === 1) {org.changes++;}
+            else if (type === 2) {org.changes += 0.5;}
+            else if (type === 3) {org.adds--;}
+            mTypes[type](org);
         }
-        org.mutations += mutations;
         org.code.compile(org);
         this._manager.fire(Events.MUTATIONS, org, mutations, clone);
 

@@ -40,7 +40,6 @@ export default class Organism extends Observer {
         this._mutationClonePercent  = Config.orgCloneMutation;
         this._mutationPeriod        = Config.orgRainMutationPeriod;
         this._mutationPercent       = Config.orgRainMutationPercent;
-        this._mutations             = 1;
         this._energy                = Config.orgStartEnergy;
         this._color                 = Config.orgStartColor;
         this._age                   = 0;
@@ -59,7 +58,8 @@ export default class Organism extends Observer {
     get mutationPeriod()        {return this._mutationPeriod;}
     get mutationPercent()       {return this._mutationPercent;}
     get mutationClonePercent()  {return this._mutationClonePercent;}
-    get mutations()             {return this._mutations;}
+    get adds()                  {return this._adds;}
+    get changes()               {return this._changes;}
     get energy()                {return this._energy;}
     get color()                 {return this._color;}
     get mem()                   {return this._mem;}
@@ -74,9 +74,13 @@ export default class Organism extends Observer {
     set mutationPeriod(m)       {this._mutationPeriod = m;}
     set mutationPercent(p)      {this._mutationPercent = p;}
     set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p;}
-    set mutations(m)            {
-        this._mutations = m;
-        this._updateColor(m);
+    set adds(a) {
+        this._adds = a;
+        this._updateColor();
+    }
+    set changes(c) {
+        this._changes = c;
+        this._updateColor();
     }
 
     /**
@@ -156,24 +160,24 @@ export default class Organism extends Observer {
         this._codeEndCb(this);
     }
 
-    _updateColor(mutAmount) {
-        const mutations = this._mutations;
-        const colPeriod = Config.orgColorPeriod;
-        const colIndex  = mutations - (mutations % colPeriod);
-
-        if (mutations > colPeriod && colIndex >= mutations - mutAmount && colIndex <= mutations) {
-            if (++this._color > Config.ORG_MAX_COLOR) {this._color = Config.ORG_FIRST_COLOR;}
+    _updateColor() {
+        if ((this._color += this._adds * this._changes) > Config.ORG_MAX_COLOR) {
+            this._color = Config.ORG_FIRST_COLOR;
         }
     }
 
     _create() {
-        this._code = new Code(this._onCodeEnd.bind(this));
-        this._mem  = [];
+        this._code    = new Code(this._onCodeEnd.bind(this));
+        this._mem     = [];
+        this._adds    = 1;
+        this._changes = 1;
     }
 
     _clone(parent) {
-        this._code = new Code(this._onCodeEnd.bind(this), parent.code.vars);
-        this._mem  = parent.mem.slice();
+        this._code    = new Code(this._onCodeEnd.bind(this), parent.code.vars);
+        this._mem     = parent.mem.slice();
+        this._adds    = parent.adds;
+        this._changes = parent.changes;
         this._code.clone(parent.code);
     }
 

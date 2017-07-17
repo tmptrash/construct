@@ -24,7 +24,6 @@ export default class Organisms {
         this._manager       = manager;
         this._positions     = new Array(Config.worldWidth * Config.worldHeight);
         this._orgId         = 0;
-        this._statEl        = $('body').append('<div id="stat" style="background-color:#000;position:absolute;opacity:0.3;color:#fff;font-family:monospace;font-size:13px;top:5px;left:5px;"></div>').find('#stat');
         this._onIterationCb = this._onIteration.bind(this);
         this._onAfterMoveCb = this._onAfterMove.bind(this);
 
@@ -70,7 +69,7 @@ export default class Organisms {
     }
 
     /**
-     * Cloning parents are chosen according two tournament principle
+     * Cloning parents are chosen according to tournament principle
      * @param {Number} counter Current counter
      * @returns {boolean}
      * @private
@@ -85,7 +84,7 @@ export default class Organisms {
         let org2 = orgs.get(Helper.rand(orgAmount)).val;
 
         if (!org1.alive && !org2.alive) {return false;}
-        if ((org2.alive && !org1.alive) || (org2.energy * org2.mutations > org1.energy * org1.mutations)) {
+        if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes > org1.energy * org1.adds * org1.changes)) {
             [org1, org2] = [org2, org1];
         }
         if (org2.alive && orgAmount >= Config.worldMaxOrgs) {org2.destroy();}
@@ -105,14 +104,15 @@ export default class Organisms {
         if (ts < Config.worldIpsPeriodMs) {return;}
         const man  = this._manager;
         const orgs = this._orgs.size;
+        let   ips  = this._codeRuns / orgs / (ts / 1000);
+        const text = 'ips: ' + ips.toFixed(4);
 
-        let   ips;
-        ips = this._codeRuns / orgs / (ts / 1000);
-        this._statEl.text('ips: ' + ips.toFixed(2));
-        Console.warn('ips: ', ips);
+        // TODO: these outputs should be moved to separate plugin
+        man.canvas.text(5, 15, text);
+        Console.warn(text);
         man.fire(Events.IPS, ips);
         this._codeRuns = 0;
-        this._stamp  = stamp;
+        this._stamp = stamp;
     }
 
     _clone(org) {

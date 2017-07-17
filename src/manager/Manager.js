@@ -56,7 +56,8 @@ export default class Manager extends Observer {
         this._addHandlers();
     }
 
-    get world() {return this._world;}
+    get world()   {return this._world;}
+    get canvas()  {return this._canvas;}
     get plugins() {return this._plugins;}
 
     /**

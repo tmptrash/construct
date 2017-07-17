@@ -13,11 +13,14 @@ export default class Canvas {
         this._height    = bodyEl.height();
         this._canvasEl  = bodyEl.append('<canvas id="world" width="' + this._width + '" height="' + this._height + '"></canvas>').find('#world');
         this._ctx       = this._canvasEl[0].getContext('2d');
+        this._text      = {x: 0, y: 0, t: ''};
         this._imgData   = this._ctx.createImageData(this._width, this._height);
         this._data      = this._imgData.data;
         this._animate   = this._onAnimate.bind(this);
         this._visualize = true;
 
+        this._ctx.font = "13px Consolas";
+        this._ctx.fillStyle = "white";
         this.clear();
         window.requestAnimationFrame(this._animate);
     }
@@ -29,9 +32,17 @@ export default class Canvas {
         this._data    = null;
     }
 
-    visualize(visualize) {
+    visualize(visualize = true) {
         this._visualize = visualize;
         this._onAnimate();
+    }
+
+    text(x, y, text) {
+        const t = this._text;
+
+        t.t = text;
+        t.x = x;
+        t.y = y;
     }
 
     dot(x, y, color) {
@@ -70,7 +81,11 @@ export default class Canvas {
     }
 
     _onAnimate() {
+        const text = this._text;
+
         this._ctx.putImageData(this._imgData, 0, 0);
+        this._ctx.fillText(text.t, text.x, text.y);
+
         if (this._visualize === true) {
             window.requestAnimationFrame(this._animate);
         }

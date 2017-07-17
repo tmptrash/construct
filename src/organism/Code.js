@@ -139,6 +139,7 @@ export default class Code extends Observer {
         }
         if (offsets.length > 0) {
             code[code.length - 1] += ('}'.repeat(offsets.length));
+            offsets.length = 0;
         }
 
         return code;

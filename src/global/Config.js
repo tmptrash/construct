@@ -86,10 +86,6 @@ const Config = {
      */
     orgStartColor: 0xFF0000,
     /**
-     * {Number} Only after this amount of mutations organism should update it's color
-     */
-    orgColorPeriod: 50,
-    /**
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
      */

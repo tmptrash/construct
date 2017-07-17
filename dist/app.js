@@ -159,10 +159,6 @@ const Config = {
      */
     orgStartColor: 0xFF0000,
     /**
-     * {Number} Only after this amount of mutations organism should update it's color
-     */
-    orgColorPeriod: 50,
-    /**
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
      */
@@ -947,6 +943,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
         }
         if (offsets.length > 0) {
             code[code.length - 1] += ('}'.repeat(offsets.length));
+            offsets.length = 0;
         }
 
         return code;
@@ -1028,7 +1025,6 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
         this._mutationClonePercent  = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgCloneMutation;
         this._mutationPeriod        = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgRainMutationPeriod;
         this._mutationPercent       = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgRainMutationPercent;
-        this._mutations             = 1;
         this._energy                = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartEnergy;
         this._color                 = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartColor;
         this._age                   = 0;
@@ -1047,7 +1043,8 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     get mutationPeriod()        {return this._mutationPeriod;}
     get mutationPercent()       {return this._mutationPercent;}
     get mutationClonePercent()  {return this._mutationClonePercent;}
-    get mutations()             {return this._mutations;}
+    get adds()                  {return this._adds;}
+    get changes()               {return this._changes;}
     get energy()                {return this._energy;}
     get color()                 {return this._color;}
     get mem()                   {return this._mem;}
@@ -1062,9 +1059,13 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     set mutationPeriod(m)       {this._mutationPeriod = m;}
     set mutationPercent(p)      {this._mutationPercent = p;}
     set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p;}
-    set mutations(m)            {
-        this._mutations = m;
-        this._updateColor(m);
+    set adds(a) {
+        this._adds = a;
+        this._updateColor();
+    }
+    set changes(c) {
+        this._changes = c;
+        this._updateColor();
     }
 
     /**
@@ -1144,24 +1145,24 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
         this._codeEndCb(this);
     }
 
-    _updateColor(mutAmount) {
-        const mutations = this._mutations;
-        const colPeriod = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgColorPeriod;
-        const colIndex  = mutations - (mutations % colPeriod);
-
-        if (mutations > colPeriod && colIndex >= mutations - mutAmount && colIndex <= mutations) {
-            if (++this._color > __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].ORG_MAX_COLOR) {this._color = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].ORG_FIRST_COLOR;}
+    _updateColor() {
+        if ((this._color += this._adds * this._changes) > __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].ORG_MAX_COLOR) {
+            this._color = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].ORG_FIRST_COLOR;
         }
     }
 
     _create() {
-        this._code = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._onCodeEnd.bind(this));
-        this._mem  = [];
+        this._code    = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._onCodeEnd.bind(this));
+        this._mem     = [];
+        this._adds    = 1;
+        this._changes = 1;
     }
 
     _clone(parent) {
-        this._code = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._onCodeEnd.bind(this), parent.code.vars);
-        this._mem  = parent.mem.slice();
+        this._code    = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._onCodeEnd.bind(this), parent.code.vars);
+        this._mem     = parent.mem.slice();
+        this._adds    = parent.adds;
+        this._changes = parent.changes;
         this._code.clone(parent.code);
     }
 
@@ -1273,7 +1274,8 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
         this._addHandlers();
     }
 
-    get world() {return this._world;}
+    get world()   {return this._world;}
+    get canvas()  {return this._canvas;}
     get plugins() {return this._plugins;}
 
     /**
@@ -1688,14 +1690,19 @@ class Mutator {
 
     _mutate(org, clone = true) {
         const code      = org.code;
-        let   mutations = Math.round(code.size * org.mutationPercent) || 1;
         const probIndex = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].probIndex;
         const mTypes    = this._MUTATION_TYPES;
+        let   mutations = Math.round(code.size * org.mutationPercent) || 1;
+        let   type;
 
         for (let i = 0; i < mutations; i++) {
-            mTypes[code.size < 1 ? 0 : probIndex(org.mutationProbs)](org);
+            type = code.size < 1 ? 0 : probIndex(org.mutationProbs);
+            if (type === 0)      {org.adds++;}
+            else if (type === 1) {org.changes++;}
+            else if (type === 2) {org.changes += 0.5;}
+            else if (type === 3) {org.adds--;}
+            mTypes[type](org);
         }
-        org.mutations += mutations;
         org.code.compile(org);
         this._manager.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["a" /* default */].MUTATIONS, org, mutations, clone);
 
@@ -1791,7 +1798,6 @@ class Organisms {
         this._manager       = manager;
         this._positions     = new Array(__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldWidth * __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldHeight);
         this._orgId         = 0;
-        this._statEl        = $('body').append('<div id="stat" style="background-color:#000;position:absolute;opacity:0.3;color:#fff;font-family:monospace;font-size:13px;top:5px;left:5px;"></div>').find('#stat');
         this._onIterationCb = this._onIteration.bind(this);
         this._onAfterMoveCb = this._onAfterMove.bind(this);
 
@@ -1837,7 +1843,7 @@ class Organisms {
     }
 
     /**
-     * Cloning parents are chosen according two tournament principle
+     * Cloning parents are chosen according to tournament principle
      * @param {Number} counter Current counter
      * @returns {boolean}
      * @private
@@ -1852,7 +1858,7 @@ class Organisms {
         let org2 = orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(orgAmount)).val;
 
         if (!org1.alive && !org2.alive) {return false;}
-        if ((org2.alive && !org1.alive) || (org2.energy * org2.mutations > org1.energy * org1.mutations)) {
+        if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes > org1.energy * org1.adds * org1.changes)) {
             [org1, org2] = [org2, org1];
         }
         if (org2.alive && orgAmount >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {org2.destroy();}
@@ -1872,14 +1878,15 @@ class Organisms {
         if (ts < __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldIpsPeriodMs) {return;}
         const man  = this._manager;
         const orgs = this._orgs.size;
+        let   ips  = this._codeRuns / orgs / (ts / 1000);
+        const text = 'ips: ' + ips.toFixed(4);
 
-        let   ips;
-        ips = this._codeRuns / orgs / (ts / 1000);
-        this._statEl.text('ips: ' + ips.toFixed(2));
-        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('ips: ', ips);
+        // TODO: these outputs should be moved to separate plugin
+        man.canvas.text(5, 15, text);
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn(text);
         man.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].IPS, ips);
         this._codeRuns = 0;
-        this._stamp  = stamp;
+        this._stamp = stamp;
     }
 
     _clone(org) {
@@ -2194,11 +2201,14 @@ class Canvas {
         this._height    = bodyEl.height();
         this._canvasEl  = bodyEl.append('<canvas id="world" width="' + this._width + '" height="' + this._height + '"></canvas>').find('#world');
         this._ctx       = this._canvasEl[0].getContext('2d');
+        this._text      = {x: 0, y: 0, t: ''};
         this._imgData   = this._ctx.createImageData(this._width, this._height);
         this._data      = this._imgData.data;
         this._animate   = this._onAnimate.bind(this);
         this._visualize = true;
 
+        this._ctx.font = "13px Consolas";
+        this._ctx.fillStyle = "white";
         this.clear();
         window.requestAnimationFrame(this._animate);
     }
@@ -2210,9 +2220,17 @@ class Canvas {
         this._data    = null;
     }
 
-    visualize(visualize) {
+    visualize(visualize = true) {
         this._visualize = visualize;
         this._onAnimate();
+    }
+
+    text(x, y, text) {
+        const t = this._text;
+
+        t.t = text;
+        t.x = x;
+        t.y = y;
     }
 
     dot(x, y, color) {
@@ -2251,7 +2269,11 @@ class Canvas {
     }
 
     _onAnimate() {
+        const text = this._text;
+
         this._ctx.putImageData(this._imgData, 0, 0);
+        this._ctx.fillText(text.t, text.x, text.y);
+
         if (this._visualize === true) {
             window.requestAnimationFrame(this._animate);
         }
