@@ -99,7 +99,7 @@ const Config = {
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used.
      */
-    orgAlivePeriod: 3000,
+    orgAlivePeriod: 500,
     /**
      * {Number} This value means the period between organism codeSizes, which
      * affects energy grabbing by the system. For example: we have two

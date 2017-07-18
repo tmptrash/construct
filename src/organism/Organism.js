@@ -110,9 +110,10 @@ export default class Organism extends Observer {
         this.clear();
     }
 
-    lookAt() {
+    lookAt(x, y) {
+        if (!$.isNumeric(x) || !$.isNumeric(y)) {return 0;}
         let ret = {ret: 0};
-        this.fire(Events.GET_ENERGY, this, ret);
+        this.fire(Events.GET_ENERGY, this, x, y, ret);
         return ret.ret;
     }
 
@@ -131,7 +132,7 @@ export default class Organism extends Observer {
     }
 
     toMem(val) {
-        if (this._mem.length > Config.orgMemSize) {return;}
+        if (!$.isNumeric(val) || this._mem.length > Config.orgMemSize) {return;}
         this._mem.push(val);
     }
 
@@ -144,6 +145,7 @@ export default class Organism extends Observer {
     }
 
     _eat(amount, x, y) {
+        if (!$.isNumeric(amount)) {return 0;}
         let ret = {ret: amount};
         this.fire(Events.EAT, this, x, y, ret);
 		if (!$.isNumeric(ret.ret)) {return 0;}

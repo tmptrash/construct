@@ -170,11 +170,14 @@ export default class Organisms {
         org.on(Events.STEP, this._onStep.bind(this));
     }
 
-    _onGetEnergy(org, ret) {
-        if (this._positions[org.posId] === undefined) {
-            ret.ret = this._positions[org.posId].energy;
+    _onGetEnergy(org, x, y, ret) {
+        if (x < 0 || y < 0 || !Number.isInteger(x) || !Number.isInteger(y)) {return;}
+        const posId = Helper.posId(x, y);
+
+        if (typeof(this._positions[posId]) === 'undefined') {
+            ret.ret = this._manager.world.getDot(x, y)
         } else {
-            ret.ret = this._manager.world.getDot(org.x, org.y)
+            ret.ret = this._positions[posId].energy;
         }
     }
 
@@ -190,7 +193,7 @@ export default class Organisms {
         }
 
         const posId = Helper.posId(x, y);
-        if (positions[posId] === undefined) {
+        if (typeof(positions[posId]) === 'undefined') {
             ret.ret = world.grabDot(x, y, ret.ret);
         } else {
             ret.ret = ret.ret < 0 ? 0 : (ret.ret > positions[posId].energy ? positions[posId].energy : ret.ret);

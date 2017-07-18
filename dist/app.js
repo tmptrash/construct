@@ -172,7 +172,7 @@ const Config = {
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used.
      */
-    orgAlivePeriod: 3000,
+    orgAlivePeriod: 500,
     /**
      * {Number} This value means the period between organism codeSizes, which
      * affects energy grabbing by the system. For example: we have two
@@ -1095,9 +1095,10 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
         this.clear();
     }
 
-    lookAt() {
+    lookAt(x, y) {
+        if (!$.isNumeric(x) || !$.isNumeric(y)) {return 0;}
         let ret = {ret: 0};
-        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].GET_ENERGY, this, ret);
+        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].GET_ENERGY, this, x, y, ret);
         return ret.ret;
     }
 
@@ -1116,7 +1117,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     }
 
     toMem(val) {
-        if (this._mem.length > __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgMemSize) {return;}
+        if (!$.isNumeric(val) || this._mem.length > __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgMemSize) {return;}
         this._mem.push(val);
     }
 
@@ -1129,6 +1130,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     }
 
     _eat(amount, x, y) {
+        if (!$.isNumeric(amount)) {return 0;}
         let ret = {ret: amount};
         this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].EAT, this, x, y, ret);
 		if (!$.isNumeric(ret.ret)) {return 0;}
@@ -1946,11 +1948,14 @@ class Organisms {
         org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STEP, this._onStep.bind(this));
     }
 
-    _onGetEnergy(org, ret) {
-        if (this._positions[org.posId] === undefined) {
-            ret.ret = this._positions[org.posId].energy;
+    _onGetEnergy(org, x, y, ret) {
+        if (x < 0 || y < 0 || !Number.isInteger(x) || !Number.isInteger(y)) {return;}
+        const posId = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x, y);
+
+        if (typeof(this._positions[posId]) === 'undefined') {
+            ret.ret = this._manager.world.getDot(x, y)
         } else {
-            ret.ret = this._manager.world.getDot(org.x, org.y)
+            ret.ret = this._positions[posId].energy;
         }
     }
 
@@ -1966,7 +1971,7 @@ class Organisms {
         }
 
         const posId = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x, y);
-        if (positions[posId] === undefined) {
+        if (typeof(positions[posId]) === 'undefined') {
             ret.ret = world.grabDot(x, y, ret.ret);
         } else {
             ret.ret = ret.ret < 0 ? 0 : (ret.ret > positions[posId].energy ? positions[posId].energy : ret.ret);
