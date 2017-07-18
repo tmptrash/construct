@@ -64,6 +64,7 @@ export default class Organisms {
         }
 
         this._updateClone(counter);
+        this._updateCrossover(counter);
         this._updateCreate();
         this._updateIps(stamp);
     }
@@ -93,6 +94,24 @@ export default class Organisms {
         return true;
     }
 
+    _updateCrossover(counter) {
+        const orgs      = this._orgs;
+        const orgAmount = orgs.size;
+        const needCrossover = Config.orgCrossoverPeriod === 0 ? false : counter % Config.orgCrossoverPeriod === 0;
+        if (!needCrossover || orgAmount < 1 || orgAmount >= Config.worldMaxOrgs) {return false;}
+
+        let org1   = this._tournament();
+        let org2   = this._tournament();
+        let winner = this._tournament(org1, org2);
+        let looser = winner.id === org1.id ? org2 : org1;
+
+        if (looser.alive && orgAmount < Config.worldMaxOrgs) {
+            this._crossover(org1, org2);
+        }
+
+        return true;
+    }
+
     _updateCreate() {
         if (this._orgs.size < 1) {
             this._createPopulation();
@@ -115,12 +134,33 @@ export default class Organisms {
         this._stamp = stamp;
     }
 
+    _tournament(org1 = null, org2 = null) {
+        const orgs      = this._orgs;
+        const orgAmount = orgs.size;
+        org1            = org1 || orgs.get(Helper.rand(orgAmount)).val;
+        org2            = org2 || orgs.get(Helper.rand(orgAmount)).val;
+
+        if (!org1.alive && !org2.alive) {return false;}
+        if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes > org1.energy * org1.adds * org1.changes)) {
+            return org2;
+        }
+
+        return org1;
+    }
+
+    _crossover(org1, org2) {
+        this._clone(org1);
+        let child = this._orgs.last.val;
+        child.code.crossover(org2.code);
+        child.code.compile(child);
+    }
+
     _clone(org) {
         if (org.energy < 1) {return false;}
         let pos = this._manager.world.getNearFreePos(org.x, org.y);
         if (pos === false || this._createOrg(pos, org) === false) {return false;}
         let child  = this._orgs.last.val;
-        let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >> 1; // analog of Math.round()
+        let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >>> 1; // analog of Math.round()
 
         org.grabEnergy(energy);
         child.grabEnergy(child.energy - energy);

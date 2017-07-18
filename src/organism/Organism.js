@@ -40,7 +40,6 @@ export default class Organism extends Observer {
         this._mutationClonePercent  = Config.orgCloneMutation;
         this._mutationPeriod        = Config.orgRainMutationPeriod;
         this._mutationPercent       = Config.orgRainMutationPercent;
-        this._energy                = Config.orgStartEnergy;
         this._color                 = Config.orgStartColor;
         this._age                   = 0;
         this._iterations            = 0;
@@ -172,6 +171,7 @@ export default class Organism extends Observer {
 
     _create() {
         this._code    = new Code(this._onCodeEnd.bind(this));
+        this._energy  = Config.orgStartEnergy;
         this._mem     = [];
         this._adds    = 1;
         this._changes = 1;
@@ -179,6 +179,7 @@ export default class Organism extends Observer {
 
     _clone(parent) {
         this._code    = new Code(this._onCodeEnd.bind(this), parent.code.vars);
+        this._energy  = parent.energy;
         this._mem     = parent.mem.slice();
         this._adds    = parent.adds;
         this._changes = parent.changes;
@@ -208,7 +209,7 @@ export default class Organism extends Observer {
     _updateEnergy() {
         if (Config.orgEnergySpendPeriod === 0 || this._iterations % Config.orgEnergySpendPeriod !== 0) {return true;}
         const codeSize = this._code.size;
-        let   grabSize = (((codeSize / Config.orgGarbagePeriod) + 0.5) << 1) >> 1; // analog of Math.round(), but faster
+        let   grabSize = (((codeSize / Config.orgGarbagePeriod) + 0.5) << 1) >>> 1; // analog of Math.round(), but faster
 
         if (codeSize > Config.codeMaxSize) {grabSize = codeSize * Config.codeSizeCoef;}
         if (grabSize < 1) {grabSize = 1;}

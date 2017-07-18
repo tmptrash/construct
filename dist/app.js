@@ -133,6 +133,11 @@ const Config = {
      */
     orgClonePeriod: 20,
     /**
+     * {Number} Amount of iterations, after which crossover will be applied
+     * to random organisms.
+     */
+    orgCrossoverPeriod: 1000,
+    /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
@@ -841,6 +846,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
 
     get size() {return this._byteCode.length;}
     get operators() {return this._operators.size;};
+    get byteCode() {return this._byteCode;}
     get vars() {return this._vars;}
 
     /**
@@ -875,6 +881,21 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     clone(code) {
         this._code     = code.cloneCode();
         this._byteCode = code.cloneByteCode();
+    }
+
+    crossover(code) {
+        const rand   = __WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand;
+        const len    = this._byteCode.length;
+        const len1   = code.byteCode.length;
+        let   start  = rand(len);
+        let   end    = rand(len);
+        let   start1 = rand(len1);
+        let   end1   = rand(len1);
+
+        if (start > end) {[start, end] = [end, start];}
+        if (start1 > end1) {[start1, end1] = [end1, start1];}
+
+        this._byteCode.splice.apply(this._byteCode, [start, end - start].concat(code.byteCode.slice(start1, end1)));
     }
 
     /**
@@ -1025,7 +1046,6 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
         this._mutationClonePercent  = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgCloneMutation;
         this._mutationPeriod        = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgRainMutationPeriod;
         this._mutationPercent       = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgRainMutationPercent;
-        this._energy                = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartEnergy;
         this._color                 = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartColor;
         this._age                   = 0;
         this._iterations            = 0;
@@ -1157,6 +1177,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 
     _create() {
         this._code    = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._onCodeEnd.bind(this));
+        this._energy  = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartEnergy;
         this._mem     = [];
         this._adds    = 1;
         this._changes = 1;
@@ -1164,6 +1185,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 
     _clone(parent) {
         this._code    = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._onCodeEnd.bind(this), parent.code.vars);
+        this._energy  = parent.energy;
         this._mem     = parent.mem.slice();
         this._adds    = parent.adds;
         this._changes = parent.changes;
@@ -1193,7 +1215,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     _updateEnergy() {
         if (__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgEnergySpendPeriod === 0 || this._iterations % __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgEnergySpendPeriod !== 0) {return true;}
         const codeSize = this._code.size;
-        let   grabSize = (((codeSize / __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgGarbagePeriod) + 0.5) << 1) >> 1; // analog of Math.round(), but faster
+        let   grabSize = (((codeSize / __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgGarbagePeriod) + 0.5) << 1) >>> 1; // analog of Math.round(), but faster
 
         if (codeSize > __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeMaxSize) {grabSize = codeSize * __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeSizeCoef;}
         if (grabSize < 1) {grabSize = 1;}
@@ -1842,6 +1864,7 @@ class Organisms {
         }
 
         this._updateClone(counter);
+        this._updateCrossover(counter);
         this._updateCreate();
         this._updateIps(stamp);
     }
@@ -1871,6 +1894,24 @@ class Organisms {
         return true;
     }
 
+    _updateCrossover(counter) {
+        const orgs      = this._orgs;
+        const orgAmount = orgs.size;
+        const needCrossover = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgCrossoverPeriod === 0 ? false : counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgCrossoverPeriod === 0;
+        if (!needCrossover || orgAmount < 1 || orgAmount >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {return false;}
+
+        let org1   = this._tournament();
+        let org2   = this._tournament();
+        let winner = this._tournament(org1, org2);
+        let looser = winner.id === org1.id ? org2 : org1;
+
+        if (looser.alive && orgAmount < __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {
+            this._crossover(org1, org2);
+        }
+
+        return true;
+    }
+
     _updateCreate() {
         if (this._orgs.size < 1) {
             this._createPopulation();
@@ -1893,12 +1934,33 @@ class Organisms {
         this._stamp = stamp;
     }
 
+    _tournament(org1 = null, org2 = null) {
+        const orgs      = this._orgs;
+        const orgAmount = orgs.size;
+        org1            = org1 || orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(orgAmount)).val;
+        org2            = org2 || orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(orgAmount)).val;
+
+        if (!org1.alive && !org2.alive) {return false;}
+        if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes > org1.energy * org1.adds * org1.changes)) {
+            return org2;
+        }
+
+        return org1;
+    }
+
+    _crossover(org1, org2) {
+        this._clone(org1);
+        let child = this._orgs.last.val;
+        child.code.crossover(org2.code);
+        child.code.compile(child);
+    }
+
     _clone(org) {
         if (org.energy < 1) {return false;}
         let pos = this._manager.world.getNearFreePos(org.x, org.y);
         if (pos === false || this._createOrg(pos, org) === false) {return false;}
         let child  = this._orgs.last.val;
-        let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >> 1; // analog of Math.round()
+        let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >>> 1; // analog of Math.round()
 
         org.grabEnergy(energy);
         child.grabEnergy(child.energy - energy);

@@ -60,6 +60,11 @@ const Config = {
      */
     orgClonePeriod: 20,
     /**
+     * {Number} Amount of iterations, after which crossover will be applied
+     * to random organisms.
+     */
+    orgCrossoverPeriod: 1000,
+    /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD

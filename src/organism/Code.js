@@ -37,6 +37,7 @@ export default class Code extends Observer {
 
     get size() {return this._byteCode.length;}
     get operators() {return this._operators.size;};
+    get byteCode() {return this._byteCode;}
     get vars() {return this._vars;}
 
     /**
@@ -71,6 +72,21 @@ export default class Code extends Observer {
     clone(code) {
         this._code     = code.cloneCode();
         this._byteCode = code.cloneByteCode();
+    }
+
+    crossover(code) {
+        const rand   = Helper.rand;
+        const len    = this._byteCode.length;
+        const len1   = code.byteCode.length;
+        let   start  = rand(len);
+        let   end    = rand(len);
+        let   start1 = rand(len1);
+        let   end1   = rand(len1);
+
+        if (start > end) {[start, end] = [end, start];}
+        if (start1 > end1) {[start1, end1] = [end1, start1];}
+
+        this._byteCode.splice.apply(this._byteCode, [start, end - start].concat(code.byteCode.slice(start1, end1)));
     }
 
     /**
