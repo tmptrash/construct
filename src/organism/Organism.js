@@ -94,6 +94,7 @@ export default class Organism extends Observer {
     }
 
     grabEnergy(amount) {
+		if (!$.isNumeric(amount)) {return true;}
         const noEnergy = (this._energy -= amount) < 1;
         noEnergy && this.destroy();
         return !noEnergy;
@@ -145,6 +146,7 @@ export default class Organism extends Observer {
     _eat(amount, x, y) {
         let ret = {ret: amount};
         this.fire(Events.EAT, this, x, y, ret);
+		if (!$.isNumeric(ret.ret)) {return 0;}
         this._energy += ret.ret;
         return ret.ret;
     }
