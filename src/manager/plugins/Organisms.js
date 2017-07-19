@@ -151,8 +151,11 @@ export default class Organisms {
     _crossover(org1, org2) {
         this._clone(org1);
         let child = this._orgs.last.val;
-        child.code.crossover(org2.code);
-        child.code.compile(child);
+
+        if (child.alive && org2.alive) {
+            child.adds += child.code.crossover(org2.code);
+            child.code.compile(child);
+        }
     }
 
     _clone(org) {

@@ -136,7 +136,7 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
      */
-    orgCrossoverPeriod: 1000,
+    orgCrossoverPeriod: 200,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
@@ -177,7 +177,7 @@ const Config = {
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used.
      */
-    orgAlivePeriod: 500,
+    orgAlivePeriod: 2500,
     /**
      * {Number} This value means the period between organism codeSizes, which
      * affects energy grabbing by the system. For example: we have two
@@ -191,7 +191,7 @@ const Config = {
     /**
      * {Number} Size of organism stack (internal memory)
      */
-    orgMemSize: 64,
+    orgMemSize: 1024,
     /**
      * {Number} Percent of energy, which will be given to the child
      */
@@ -212,7 +212,7 @@ const Config = {
     /**
      * {Number} Amount of iterations in a loop (for operator)
      */
-    codeLoopAmount: 8,
+    codeLoopAmount: 128,
     /**
      * {Number} If organism reach this limit of amount of code lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
@@ -220,7 +220,7 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 60,
+    codeMaxSize: 100,
     /**
      * {Number} This coefficiend is used for calculating of amount of energy,
      * which grabbed from each organism depending on his codeSize.
@@ -231,7 +231,7 @@ const Config = {
      * See Config.codeMaxSize for details. This config will be turn on only if
      * organism reaches code size limit Config.codeMaxSize
      */
-    codeSizeCoef: 10,
+    codeSizeCoef: 100,
     /**
      * {Number} Amount of local variables of organism's script
      */
@@ -896,6 +896,8 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
         if (start1 > end1) {[start1, end1] = [end1, start1];}
 
         this._byteCode.splice.apply(this._byteCode, [start, end - start].concat(code.byteCode.slice(start1, end1)));
+
+        return end1 - start1 - end + start;
     }
 
     /**
@@ -1072,6 +1074,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     get cloneEnergyPercent()    {return this._cloneEnergyPercent;}
     get code()                  {return this._code;}
     get posId()                 {return __WEBPACK_IMPORTED_MODULE_3__global_Helper__["a" /* default */].posId(this._x, this._y);}
+    get iterations()            {return this._iterations;}
 
     set x(newX)                 {this._x = newX;}
     set y(newY)                 {this._y = newY;}
@@ -1159,7 +1162,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     }
 
     _step(x1, y1, x2, y2) {
-        let ret = {ret: false};
+        let ret = {ret: 0};
         this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].STEP, this, x1, y1,  x2, y2, ret);
         return ret.ret;
     }
@@ -1199,7 +1202,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
      */
     _updateDestroy() {
         const alivePeriod = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgAlivePeriod;
-        const needDestroy = this._energy < 1 || alivePeriod > 0 && this._age >= alivePeriod;
+        const needDestroy = this._energy < 1 || alivePeriod > 0 && this._iterations >= alivePeriod;
 
         needDestroy && this.destroy();
 
@@ -1705,7 +1708,7 @@ class Mutator {
     }
 
     _onOrganism(org) {
-        if (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgRainMutationPeriod > 0 && org.mutationPeriod > 0 && org.age % org.mutationPeriod === 0) {
+        if (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgRainMutationPeriod > 0 && org.mutationPeriod > 0 && org.iterations % org.mutationPeriod === 0) {
             this._mutate(org, false);
         }
     }
@@ -1951,8 +1954,11 @@ class Organisms {
     _crossover(org1, org2) {
         this._clone(org1);
         let child = this._orgs.last.val;
-        child.code.crossover(org2.code);
-        child.code.compile(child);
+
+        if (child.alive && org2.alive) {
+            child.adds += child.code.crossover(org2.code);
+            child.code.compile(child);
+        }
     }
 
     _clone(org) {

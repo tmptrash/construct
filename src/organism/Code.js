@@ -87,6 +87,8 @@ export default class Code extends Observer {
         if (start1 > end1) {[start1, end1] = [end1, start1];}
 
         this._byteCode.splice.apply(this._byteCode, [start, end - start].concat(code.byteCode.slice(start1, end1)));
+
+        return end1 - start1 - end + start;
     }
 
     /**

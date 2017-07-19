@@ -63,7 +63,7 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
      */
-    orgCrossoverPeriod: 1000,
+    orgCrossoverPeriod: 200,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
@@ -104,7 +104,7 @@ const Config = {
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used.
      */
-    orgAlivePeriod: 500,
+    orgAlivePeriod: 2500,
     /**
      * {Number} This value means the period between organism codeSizes, which
      * affects energy grabbing by the system. For example: we have two
@@ -118,7 +118,7 @@ const Config = {
     /**
      * {Number} Size of organism stack (internal memory)
      */
-    orgMemSize: 64,
+    orgMemSize: 1024,
     /**
      * {Number} Percent of energy, which will be given to the child
      */
@@ -139,7 +139,7 @@ const Config = {
     /**
      * {Number} Amount of iterations in a loop (for operator)
      */
-    codeLoopAmount: 8,
+    codeLoopAmount: 128,
     /**
      * {Number} If organism reach this limit of amount of code lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
@@ -147,7 +147,7 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 60,
+    codeMaxSize: 100,
     /**
      * {Number} This coefficiend is used for calculating of amount of energy,
      * which grabbed from each organism depending on his codeSize.
@@ -158,7 +158,7 @@ const Config = {
      * See Config.codeMaxSize for details. This config will be turn on only if
      * organism reaches code size limit Config.codeMaxSize
      */
-    codeSizeCoef: 10,
+    codeSizeCoef: 100,
     /**
      * {Number} Amount of local variables of organism's script
      */

@@ -66,6 +66,7 @@ export default class Organism extends Observer {
     get cloneEnergyPercent()    {return this._cloneEnergyPercent;}
     get code()                  {return this._code;}
     get posId()                 {return Helper.posId(this._x, this._y);}
+    get iterations()            {return this._iterations;}
 
     set x(newX)                 {this._x = newX;}
     set y(newY)                 {this._y = newY;}
@@ -153,7 +154,7 @@ export default class Organism extends Observer {
     }
 
     _step(x1, y1, x2, y2) {
-        let ret = {ret: false};
+        let ret = {ret: 0};
         this.fire(Events.STEP, this, x1, y1,  x2, y2, ret);
         return ret.ret;
     }
@@ -193,7 +194,7 @@ export default class Organism extends Observer {
      */
     _updateDestroy() {
         const alivePeriod = Config.orgAlivePeriod;
-        const needDestroy = this._energy < 1 || alivePeriod > 0 && this._age >= alivePeriod;
+        const needDestroy = this._energy < 1 || alivePeriod > 0 && this._iterations >= alivePeriod;
 
         needDestroy && this.destroy();
 
