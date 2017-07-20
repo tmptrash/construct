@@ -231,7 +231,7 @@ const Config = {
      * See Config.codeMaxSize for details. This config will be turn on only if
      * organism reaches code size limit Config.codeMaxSize
      */
-    codeSizeCoef: 100,
+    codeSizeCoef: 10000,
     /**
      * {Number} Amount of local variables of organism's script
      */
