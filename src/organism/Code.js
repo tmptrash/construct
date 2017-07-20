@@ -57,11 +57,14 @@ export default class Code extends Observer {
     }
 
     destroy() {
-        this._vars      = '';
-        this._byteCode  = [];
-        this._code      = [];
-        this._offsets   = [];
-        this._gen       = {next: () => {}};
+		this._operators.destroy();
+        this._operators = null;
+        this._vars      = null;
+        this._byteCode  = null;
+        this._code      = null;
+        this._offsets   = null;
+		this._onCodeEnd = null;
+        this._gen       = null;
         this.__compiled = null;
     }
 
