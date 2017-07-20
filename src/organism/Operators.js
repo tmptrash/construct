@@ -69,6 +69,11 @@ export default class Operators {
         Num.setOperatorAmount(this._OPERATORS_CB_LEN);
     }
 
+	destroy() {
+		this._offsets      = null;
+		this._OPERATORS_CB = null;
+	}
+	
     get operators() {return this._OPERATORS_CB;}
     get size()      {return this._OPERATORS_CB_LEN;}
 

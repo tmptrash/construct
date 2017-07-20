@@ -660,7 +660,7 @@ class Observer {
     }
 
     clear () {
-        this._handlers = {};
+        this._handlers = null;
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Observer;
@@ -866,11 +866,14 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     }
 
     destroy() {
-        this._vars      = '';
-        this._byteCode  = [];
-        this._code      = [];
-        this._offsets   = [];
-        this._gen       = {next: () => {}};
+		this._operators.destroy();
+        this._operators = null;
+        this._vars      = null;
+        this._byteCode  = null;
+        this._code      = null;
+        this._offsets   = null;
+		this._onCodeEnd = null;
+        this._gen       = null;
         this.__compiled = null;
     }
 
@@ -1110,11 +1113,13 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 
     destroy() {
         this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].DESTROY, this);
-        this._alive    = false;
-        this._energy   = 0;
-        this._item     = null;
-        this._mem      = null;
-        this._code     = null;
+        this._alive     = false;
+        this._energy    = 0;
+        this._item      = null;
+        this._mem       = null;
+		this._code.destroy();
+        this._code      = null;
+		this._codeEndCb = null;
         this.clear();
     }
 
@@ -2146,6 +2151,11 @@ class Operators {
         __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].setOperatorAmount(this._OPERATORS_CB_LEN);
     }
 
+	destroy() {
+		this._offsets      = null;
+		this._OPERATORS_CB = null;
+	}
+	
     get operators() {return this._OPERATORS_CB;}
     get size()      {return this._OPERATORS_CB_LEN;}
 

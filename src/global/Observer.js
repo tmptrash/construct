@@ -41,6 +41,6 @@ export default class Observer {
     }
 
     clear () {
-        this._handlers = {};
+        this._handlers = null;
     }
 }
