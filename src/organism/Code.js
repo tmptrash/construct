@@ -63,6 +63,7 @@ export default class Code extends Observer {
             }
             if (line >= lines) {
                 line = 0;
+                this._offsets.length = 0;
                 this._onCodeEnd();
             }
         }
@@ -146,7 +147,7 @@ export default class Code extends Observer {
 
     _reset() {
         this._line    = 0;
-        this._offsets = [];
+        this._offsets.length = 0;
     }
 
     /**

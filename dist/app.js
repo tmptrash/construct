@@ -875,6 +875,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
             }
             if (line >= lines) {
                 line = 0;
+                this._offsets.length = 0;
                 this._onCodeEnd();
             }
         }
@@ -958,7 +959,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
 
     _reset() {
         this._line    = 0;
-        this._offsets = [];
+        this._offsets.length = 0;
     }
 
     /**
