@@ -917,7 +917,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
         if (start1 > end1) {[start1, end1] = [end1, start1];}
 
         this._code.splice.apply(this._code, [start, end - start].concat(code.code.slice(start1, end1)));
-        this._line = 0;
+        this._reset();
 
         return end1 - start1 - end + start;
     }
@@ -936,12 +936,12 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
      */
     insertLine() {
         this._code.splice(__WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand(this._code.length), 0, __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].get());
-        this._line = 0;
+        this._reset();
     }
 
     updateLine(index, number = __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].get()) {
         this._code[index] = number;
-        this._line = 0;
+        this._reset();
     }
 
     /**
@@ -949,11 +949,16 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
      */
     removeLine() {
         this._code.splice(__WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand(this._code.length), 1);
-        this._line = 0;
+        this._reset();
     }
 
     getLine(index) {
         return this._code[index];
+    }
+
+    _reset() {
+        this._line    = 0;
+        this._offsets = [];
     }
 
     /**
@@ -2461,7 +2466,7 @@ class Operators {
     onStepUp(num, line, org)    {this._vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y - 1); return line + 1}
     onStepDown(num, line, org)  {this._vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y + 1); return line + 1}
 
-    onFromMem(num, line, org) {return this._vars[VAR0(num)] = org.mem.pop() || 0}
+    onFromMem(num, line, org) {this._vars[VAR0(num)] = org.mem.pop() || 0; return line + 1}
     onToMem(num, line, org) {
         const val = this._vars[VAR1(num)];
 

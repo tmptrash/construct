@@ -105,7 +105,7 @@ export default class Code extends Observer {
         if (start1 > end1) {[start1, end1] = [end1, start1];}
 
         this._code.splice.apply(this._code, [start, end - start].concat(code.code.slice(start1, end1)));
-        this._line = 0;
+        this._reset();
 
         return end1 - start1 - end + start;
     }
@@ -124,12 +124,12 @@ export default class Code extends Observer {
      */
     insertLine() {
         this._code.splice(Helper.rand(this._code.length), 0, Num.get());
-        this._line = 0;
+        this._reset();
     }
 
     updateLine(index, number = Num.get()) {
         this._code[index] = number;
-        this._line = 0;
+        this._reset();
     }
 
     /**
@@ -137,11 +137,16 @@ export default class Code extends Observer {
      */
     removeLine() {
         this._code.splice(Helper.rand(this._code.length), 1);
-        this._line = 0;
+        this._reset();
     }
 
     getLine(index) {
         return this._code[index];
+    }
+
+    _reset() {
+        this._line    = 0;
+        this._offsets = [];
     }
 
     /**

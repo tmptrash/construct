@@ -187,7 +187,7 @@ export default class Operators {
     onStepUp(num, line, org)    {this._vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y - 1); return line + 1}
     onStepDown(num, line, org)  {this._vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y + 1); return line + 1}
 
-    onFromMem(num, line, org) {return this._vars[VAR0(num)] = org.mem.pop() || 0}
+    onFromMem(num, line, org) {this._vars[VAR0(num)] = org.mem.pop() || 0; return line + 1}
     onToMem(num, line, org) {
         const val = this._vars[VAR1(num)];
 
