@@ -6,28 +6,40 @@
  * @author DeadbraiN
  */
 import Helper from './../global/Helper';
+import Events from './../global/Events';
+import Config from './../global/Config';
 import Num    from './Num';
 
 /**
  * {Function} Just a shortcuts
  */
-const VAR0 = Num.getVar;
-const VAR1 = (n) => Num.getVar(n, 1);
-const VAR2 = (n) => Num.getVar(n, 2);
+const VAR0                  = Num.getVar;
+const VAR1                  = (n) => Num.getVar(n, 1);
+const VAR2                  = (n) => Num.getVar(n, 2);
 const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
+const BITS_WITHOUT_2_VARS   = Num.BITS_WITHOUT_2_VARS;
+const BITS_OF_TWO_VARS      = Num.BITS_OF_TWO_VARS;
+const IS_NUM                = $.isNumeric;
+const HALF_OF_VAR           = Num.MAX_VAR / 2;
 
 export default class Operators {
-    constructor(offsets) {
+    constructor(offsets, vars, obs) {
         /**
          * {Array} Array of offsets for closing braces. For 'for', 'if'
          * and all block operators.
          */
         this._offsets = offsets;
         /**
+         * {Array} Available variables
+         */
+        this._vars = vars;
+        /**
+         * {Observer} Observer for sending events outside of the code
+         */
+        this._obs = obs;
+        /**
          * {Object} These operator handlers should return string, which
          * will be added to the final string script for evaluation.
-         * TODO: rewrite this to configuration, where callbacks and template functions will be
-         * TODO: e.g.: _onPi: `v${VAR0(num)}=pi` (check speed of such strings)
          */
         this._OPERATORS_CB = {
             0 : this.onVar.bind(this),
@@ -57,23 +69,23 @@ export default class Operators {
          * {Array} Available conditions for if operator. Amount should be
          * the same like (1 << BITS_PER_VAR)
          */
-        this._CONDITIONS = ['<', '>', '==', '!='];
+        this._CONDITIONS = [(a,b)=>a<b, (a,b)=>a>b, (a,b)=>a==b, (a,b)=>a!=b];
         /**
          * {Array} Available operators for math calculations
          */
         this._OPERATORS = [
-            '+', '-', '*', '/', '%', '&', '|', '^', '>>', '<<', '>>>', '<', '>', '==', '!=', '<='
+            (a,b)=>a+b, (a,b)=>a-b, (a,b)=>a*b, (a,b)=>a/b, (a,b)=>a%b, (a,b)=>a&b, (a,b)=>a|b, (a,b)=>a^b, (a,b)=>a>>b, (a,b)=>a<<b, (a,b)=>a>>>b, (a,b)=>+(a<b), (a,b)=>+(a>b), (a,b)=>+(a==b), (a,b)=>+(a!=b), (a,b)=>+(a<=b)
         ];
-        this._TRIGS = ['sin', 'cos', 'tan', 'abs'];
+        this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
 
         Num.setOperatorAmount(this._OPERATORS_CB_LEN);
     }
 
-	destroy() {
-		this._offsets      = null;
-		this._OPERATORS_CB = null;
-	}
-	
+    destroy() {
+        this._offsets      = null;
+        this._OPERATORS_CB = null;
+    }
+
     get operators() {return this._OPERATORS_CB;}
     get size()      {return this._OPERATORS_CB_LEN;}
 
@@ -85,99 +97,128 @@ export default class Operators {
      *   BITS_PER_VAR bits  - variable index or all bits till the end for constant
      *
      * @param {Num} num Packed into number code line
-     * @return {String} Parsed code line string
+     * @param {Number} line Current line in code
+     * @return {Number} Parsed code line string
      */
-    onVar(num) {
-        const var1    = VAR1(num);
-        const isConst = var1 >= Num.HALF_OF_VAR;
+    onVar(num, line) {
+        const vars = this._vars;
+        const var1 = VAR1(num);
+        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? Helper.rand(BITS_WITHOUT_2_VARS) : vars[var1];
 
-        return `v${VAR0(num)}=${isConst ? Helper.rand(Num.BITS_WITHOUT_2_VARS) : ('v' + var1)}`;
+        return line + 1;
     }
 
-    onFunc(num) {
-        return '';
+    onFunc(num, line) {
+        return line + 1;
     }
 
-    onCondition(num, line, lines) {
-        const var3    = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
-        this._offsets.push(line + var3 < lines ? line + var3 : lines - 1);
-        return `yield;if(v${VAR0(num)}${this._CONDITIONS[VAR2(num)]}v${VAR1(num)}){`;
+    onCondition(num, line, org, lines) {
+        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
+        const offs = line + val3 < lines ? line + val3 : lines - 1;
+
+        if(this._CONDITIONS[VAR2(num)](this._vars[VAR0(num)], this._vars[VAR1(num)])) {
+            return line + 1;
+        }
+
+        return offs > 0 ? offs - 1 : 0;
     }
 
-    onLoop(num, line, lines) {
-        const var0    = VAR0(num);
-        const var3    = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
-        const index   = line + var3 < lines ? line + var3 : lines - 1;
+    onLoop(num, line, org, lines, ret) {
+        const vars = this._vars;
+        const var0 = VAR0(num);
+        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
+        const offs = line + val3 < lines ? line + val3 : lines - 1;
 
-        this._offsets.push(index);
-        return `for(v${var0}=v${VAR1(num)};v${var0}<v${VAR2(num)};v${var0}++){yield`;
+        if (ret && ++vars[var0] < vars[VAR2(num)]) {
+            this._offsets.push(line, offs);
+            return line + 1;
+        }
+
+        vars[var0] = vars[VAR1(num)];
+        if (vars[var0] < vars[VAR2(num)]) {
+            this._offsets.push(line, offs);
+            return line + 1;
+        }
+
+        return offs > 0 ? offs - 1 : 0;
     }
 
-    onOperator(num) {
-        return `v${VAR0(num)}=v${VAR1(num)}${this._OPERATORS[Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS)]}v${VAR2(num)}`;
+    onOperator(num, line) {
+        const vars = this._vars;
+        vars[VAR0(num)] = this._OPERATORS[Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS)](vars[VAR1(num)], vars[VAR2(num)]);
+        return line + 1;
     }
 
-    onNot(num) {
-        return `v${VAR0(num)}=!v${VAR1(num)}`;
+    onNot(num, line) {
+        this._vars[VAR0(num)] = +!this._vars[VAR1(num)];
+        return line + 1;
     }
 
-    onPi(num) {
-        return `v${VAR0(num)}=pi`;
+    onPi(num, line) {
+        this._vars[VAR0(num)] = Math.PI;
+        return line + 1;
     }
 
-    onTrig(num) {
-        return `v${VAR0(num)}=Math.${this._TRIGS[VAR2(num)]}(v${VAR1(num)})`;
+    onTrig(num, line) {
+        this._vars[VAR0(num)] = this._TRIGS[VAR2(num)](this._vars[VAR1(num)]);
+        return line + 1;
     }
 
-    onLookAt(num) {
-        return `v${VAR0(num)}=org.lookAt(v${VAR1(num)},v${VAR2(num)})`;
+    onLookAt(num, line, org) {
+        const vars = this._vars;
+        let   x    = vars[VAR1(num)];
+        let   y    = vars[VAR2(num)];
+        if (!IS_NUM(x) || !IS_NUM(y) || x < 0 || y < 0 || x >= Config.worldWidth || y >= Config.worldHeight) {return line + 1;}
+
+        let ret = {ret: 0};
+        this._obs.fire(Events.GET_ENERGY, org, x, y, ret);
+        vars[VAR0(num)] = ret.ret;
+
+        return line + 1;
     }
 
-    onEatLeft(num) {
-        return `v${VAR0(num)}=org.eatLeft(v${VAR1(num)})`;
+    onEatLeft(num, line, org)   {this._vars[VAR0(num)] = this._eat(org, num, org.x - 1, org.y); return line + 1}
+    onEatRight(num, line, org)  {this._vars[VAR0(num)] = this._eat(org, num, org.x + 1, org.y); return line + 1}
+    onEatUp(num, line, org)     {this._vars[VAR0(num)] = this._eat(org, num, org.x, org.y - 1); return line + 1}
+    onEatDown(num, line, org)   {this._vars[VAR0(num)] = this._eat(org, num, org.x, org.y + 1); return line + 1}
+
+    onStepLeft(num, line, org)  {this._vars[VAR0(num)] = this._step(org, org.x, org.y, org.x - 1, org.y); return line + 1}
+    onStepRight(num, line, org) {this._vars[VAR0(num)] = this._step(org, org.x, org.y, org.x + 1, org.y); return line + 1}
+    onStepUp(num, line, org)    {this._vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y - 1); return line + 1}
+    onStepDown(num, line, org)  {this._vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y + 1); return line + 1}
+
+    onFromMem(num, line, org) {return this._vars[VAR0(num)] = org.mem.pop() || 0}
+    onToMem(num, line, org) {
+        const val = this._vars[VAR1(num)];
+
+        if (IS_NUM(val) && org.mem.length < Config.orgMemSize) {
+            org.mem.push(val);
+            this._vars[VAR0(num)] = val;
+        } else {
+            this._vars[VAR0(num)] = 0;
+        }
+
+        return line + 1;
     }
 
-    onEatRight(num) {
-        return `v${VAR0(num)}=org.eatRight(v${VAR1(num)})`;
+    onMyX(num, line, org) {this._vars[VAR0(num)] = org.x; return line + 1}
+    onMyY(num, line, org) {this._vars[VAR0(num)] = org.y; return line + 1;}
+
+    _eat(org, num, x, y) {
+        const vars   = this._vars;
+        const amount = vars[VAR1(num)];
+        if (!IS_NUM(amount)) {return 0}
+
+        let ret = {ret: amount};
+        this._obs.fire(Events.EAT, org, x, y, ret);
+        if (!IS_NUM(ret.ret)) {return 0}
+        org.energy += ret.ret;
+        return ret.ret;
     }
 
-    onEatUp(num) {
-        return `v${VAR0(num)}=org.eatUp(v${VAR1(num)})`;
-    }
-
-    onEatDown(num) {
-        return `v${VAR0(num)}=org.eatDown(v${VAR1(num)})`;
-    }
-
-    onStepLeft(num) {
-        return `v${VAR0(num)}=org.stepLeft()`;
-    }
-
-    onStepRight(num) {
-        return `v${VAR0(num)}=org.stepRight()`;
-    }
-
-    onStepUp(num) {
-        return `v${VAR0(num)}=org.stepUp()`;
-    }
-
-    onStepDown(num) {
-        return `v${VAR0(num)}=org.stepDown()`;
-    }
-
-    onFromMem(num) {
-        return `v${VAR0(num)}=org.fromMem()`;
-    }
-
-    onToMem(num) {
-        return `org.toMem(v${VAR0(num)})`;
-    }
-
-    onMyX(num) {
-        return `v${VAR0(num)}=org.myX()`;
-    }
-
-    onMyY(num) {
-        return `v${VAR0(num)}=org.myY()`;
+    _step(org, x1, y1, x2, y2) {
+        let ret = {ret: 0};
+        this._obs.fire(Events.STEP, org, x1, y1,  x2, y2, ret);
+        return ret.ret;
     }
 }

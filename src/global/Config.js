@@ -58,12 +58,12 @@ const Config = {
     /**
      * {Number} Amount of iterations before clonning process
      */
-    orgClonePeriod: 20,
+    orgClonePeriod: 10,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
      */
-    orgCrossoverPeriod: 200,
+    orgCrossoverPeriod: 100,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
@@ -162,7 +162,7 @@ const Config = {
     /**
      * {Number} Amount of local variables of organism's script
      */
-    codeVarAmount: 5,
+    codeVarAmount: 4,
     /**
      * {Number} The value from -X/2 to X/2, which is used for setting
      * default value, while organism is delivering. So, if the value is
@@ -184,6 +184,11 @@ const Config = {
      * in a number.
      */
     codeBitsPerOperator: 8,
+    /**
+     * {Number} Amount of iterations between calls to V8 event loop. See
+     * Manager._initLoop(), Manager.run() methods for details.
+     */
+    codeIterationsPerOnce: 5,
     /**
      * {Number} World width
      */

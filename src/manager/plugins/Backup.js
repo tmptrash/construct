@@ -11,43 +11,72 @@ import Config  from './../../global/Config';
 import Console from './../../global/Console';
 
 export default class Backup {
-    constructor(manager) {
-        this._manager = manager;
-        this._backupPeriod = Config.backupPeriod;
-        this._onIterationCb = this._onIteration.bind(this);
-
-        Helper.override(manager, 'onIteration', this._onIterationCb);
+    constructor(orgs, world, positions) {
+        this._orgs      = orgs;
+        this._world     = world;
+        this._positions = positions;
     }
 
-    destroy() {
-        Helper.unoverride(this._manager, 'onIteration', this._onIterationCb);
+    backup() {
+        this._toLocalStorage(this._toJson(this._orgs, this._world));
+        Console.info('Backup has created');
     }
 
-    _onIteration(counter) {
-        if (counter % this._backupPeriod !== 0 || this._backupPeriod === 0) {return;}
+    _toJson(orgs, world) {
+        return {
+            orgs  : this._getOrgs(orgs),
+            energy: this._getEnergy(world)
+        };
+    }
 
-        const orgs  = this._manager.plugins.Organisms.orgs;
+    _getOrgs(orgs) {
+        let cur  = orgs.first;
+        let json = [];
+
+        while (cur) {
+            let org = cur.val;
+            json.push({
+                id                  : org.id,
+                x                   : org.x,
+                y                   : org.y,
+                mutationProbs       : org.mutationProbs,
+                mutationClonePercent: org.mutationClonePercent,
+                mutationPeriod      : org.mutationPeriod,
+                mutationPercent     : org.mutationPercent,
+                color               : org.color,
+                vars                : org.code.vars,
+                code                : org.code.cloneByteCode()
+            });
+            cur = cur.next;
+        }
+
+        return json;
+    }
+
+    _getEnergy(world) {
+        let dot;
+        let positions = this._positions;
+        let posId     = Helper.posId;
+        let energy    = [];
+
+        for (let x = 0; x < Config.worldWidth; x++) {
+            for (let y = 0; y < Config.worldHeight; y++) {
+                dot = world.getDot(x, y);
+                if (dot > 0 && positions[posId(x, y)] !== null) {
+                    energy.push(x, y);
+                }
+            }
+        }
+
+        return energy;
+    }
+
+    _toLocalStorage(json) {
         // TODO: add other organism related properties saving
         // TODO: add removing of old backups
 //        localStorage[`jjs-${Date.now()}`] = JSON.stringify({
 //            world: this._manager.world.data,
 //            orgs : this._getOrgsByteCode(orgs)
 //        });
-//        Console.info('Backup has created');
-    }
-
-    _getOrgsByteCode(orgs) {
-        let cur = orgs.first;
-        let codes = [];
-
-        while (cur) {
-            codes.push({
-                vars: cur.val.code.vars,
-                code: cur.val.code.cloneByteCode()
-            });
-            cur = cur.next;
-        }
-
-        return codes;
     }
 }

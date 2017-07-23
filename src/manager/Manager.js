@@ -20,15 +20,13 @@ import Canvas    from './../visual/Canvas';
 import Organisms from './plugins/Organisms';
 import Mutator   from './plugins/Mutator';
 import Energy    from './plugins/Energy';
-import Backup    from './plugins/Backup';
 /**
  * {Array} Plugins for Manager
  */
 const PLUGINS = {
     Organisms: Organisms,
     Mutator  : Mutator,
-    Energy   : Energy,
-    Backup   : Backup
+    Energy   : Energy
 };
 
 export default class Manager extends Observer {
@@ -71,10 +69,12 @@ export default class Manager extends Observer {
         let me      = this;
 
         function loop () {
-            me.onIteration(counter, stamp);
+            for (let i = 0; i < Config.codeIterationsPerOnce; i++) {
+                me.onIteration(counter, stamp);
 
-            counter++;
-            stamp = timer();
+                counter++;
+                stamp = timer();
+            }
             call(loop);
         }
         call(loop);

@@ -63,7 +63,6 @@ export default class Mutator {
             else if (type === 3) {org.adds--;}
             mTypes[type](org);
         }
-        org.code.compile(org);
         this._manager.fire(Events.MUTATIONS, org, mutations, clone);
 
         return mutations;

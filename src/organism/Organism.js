@@ -22,10 +22,14 @@ export default class Organism extends Observer {
      * this organism is located
      * @param {Function} codeEndCb Callback, which is called at the
      * end of every code iteration.
+     * @param {Function} operatorsCls Organism's available operators class
      * @param {Organism} parent Parent organism if cloning is needed
      */
-    constructor(id, x, y, alive, item, codeEndCb, parent = null) {
+    constructor(id, x, y, alive, item, codeEndCb, operatorsCls, parent = null) {
         super();
+
+        this._codeEndCb             = codeEndCb;
+        this._operatorsCls          = operatorsCls;
 
         if (parent === null) {this._create();}
         else {this._clone(parent);}
@@ -33,19 +37,17 @@ export default class Organism extends Observer {
         this._id                    = id;
         this._x                     = x;
         this._y                     = y;
+
         this._alive                 = alive;
         this._item                  = item;
-
         this._mutationProbs         = Config.orgMutationProbs;
         this._mutationClonePercent  = Config.orgCloneMutation;
         this._mutationPeriod        = Config.orgRainMutationPeriod;
         this._mutationPercent       = Config.orgRainMutationPercent;
         this._color                 = Config.orgStartColor;
-        this._age                   = 0;
         this._iterations            = 0;
         this._cloneEnergyPercent    = Config.orgCloneEnergyPercent;
         this._fnId                  = 0;
-        this._codeEndCb             = codeEndCb;
     }
 
     get id()                    {return this._id;}
@@ -62,7 +64,6 @@ export default class Organism extends Observer {
     get energy()                {return this._energy;}
     get color()                 {return this._color;}
     get mem()                   {return this._mem;}
-    get age()                   {return this._age;}
     get cloneEnergyPercent()    {return this._cloneEnergyPercent;}
     get code()                  {return this._code;}
     get posId()                 {return Helper.posId(this._x, this._y);}
@@ -74,6 +75,7 @@ export default class Organism extends Observer {
     set mutationPeriod(m)       {this._mutationPeriod = m;}
     set mutationPercent(p)      {this._mutationPercent = p;}
     set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p;}
+    set energy(e)               {this._energy = e;}
     set adds(a) {
         this._adds = a;
         this._updateColor();
@@ -89,12 +91,12 @@ export default class Organism extends Observer {
      */
     run() {
         this._iterations++;
-        this._code.run();
+        this._code.run(this);
         return this._updateDestroy() && this._updateEnergy();
     }
 
     grabEnergy(amount) {
-		if (!$.isNumeric(amount)) {return true;}
+        if (!$.isNumeric(amount)) {return true;}
         const noEnergy = (this._energy -= amount) < 1;
         noEnergy && this.destroy();
         return !noEnergy;
@@ -106,64 +108,10 @@ export default class Organism extends Observer {
         this._energy    = 0;
         this._item      = null;
         this._mem       = null;
-		this._code.destroy();
+        this._code.destroy();
         this._code      = null;
-		this._codeEndCb = null;
+        this._codeEndCb = null;
         this.clear();
-    }
-
-    lookAt(x, y) {
-        if (!$.isNumeric(x) || !$.isNumeric(y)) {return 0;}
-        let ret = {ret: 0};
-        this.fire(Events.GET_ENERGY, this, x, y, ret);
-        return ret.ret;
-    }
-
-    eatLeft(amount)  {return this._eat(amount, this._x - 1, this._y)}
-    eatRight(amount) {return this._eat(amount, this._x + 1, this._y)}
-    eatUp(amount)    {return this._eat(amount, this._x, this._y - 1)}
-    eatDown(amount)  {return this._eat(amount, this._x, this._y + 1)}
-
-    stepLeft()  {return this._step(this._x, this._y, this._x - 1, this._y)}
-    stepRight() {return this._step(this._x, this._y, this._x + 1, this._y)}
-    stepUp()    {return this._step(this._x, this._y, this._x, this._y - 1)}
-    stepDown()  {return this._step(this._x, this._y, this._x, this._y + 1)}
-
-    fromMem() {
-        return this._mem.pop() || 0;
-    }
-
-    toMem(val) {
-        if (!$.isNumeric(val) || this._mem.length > Config.orgMemSize) {return;}
-        this._mem.push(val);
-    }
-
-    myX() {
-        return this._x;
-    }
-
-    myY() {
-        return this._y;
-    }
-
-    _eat(amount, x, y) {
-        if (!$.isNumeric(amount)) {return 0;}
-        let ret = {ret: amount};
-        this.fire(Events.EAT, this, x, y, ret);
-		if (!$.isNumeric(ret.ret)) {return 0;}
-        this._energy += ret.ret;
-        return ret.ret;
-    }
-
-    _step(x1, y1, x2, y2) {
-        let ret = {ret: 0};
-        this.fire(Events.STEP, this, x1, y1,  x2, y2, ret);
-        return ret.ret;
-    }
-
-    _onCodeEnd() {
-        this._age++;
-        this._codeEndCb(this);
     }
 
     _updateColor() {
@@ -173,7 +121,7 @@ export default class Organism extends Observer {
     }
 
     _create() {
-        this._code    = new Code(this._onCodeEnd.bind(this));
+        this._code    = new Code(this._codeEndCb.bind(this, this), this._operatorsCls, this);
         this._energy  = Config.orgStartEnergy;
         this._mem     = [];
         this._adds    = 1;
@@ -181,7 +129,7 @@ export default class Organism extends Observer {
     }
 
     _clone(parent) {
-        this._code    = new Code(this._onCodeEnd.bind(this), parent.code.vars);
+        this._code    = new Code(this._codeEndCb.bind(this, this), this._operatorsCls, this, parent.code.vars);
         this._energy  = parent.energy;
         this._mem     = parent.mem.slice();
         this._adds    = parent.adds;

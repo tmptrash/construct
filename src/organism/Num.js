@@ -15,7 +15,6 @@ const MAX_VAR             = 1 << BITS_PER_VAR;
 const MAX_OPERATOR        = 1 << BITS_PER_OPERATOR;
 const VAR_BITS_OFFS       = 32 - BITS_PER_OPERATOR;
 const BITS_WITHOUT_2_VARS = 1 << (VAR_BITS_OFFS - BITS_PER_VAR * 2);
-const HALF_OF_VAR         = MAX_VAR / 2;
 
 export default class Number {
     static get BITS_PER_VAR()        {return BITS_PER_VAR;}
@@ -25,14 +24,13 @@ export default class Number {
     static get BITS_OF_TWO_VARS()    {return BITS_OF_TWO_VARS;}
     static get MAX_OPERATOR()        {return MAX_OPERATOR;}
     static get BITS_WITHOUT_2_VARS() {return BITS_WITHOUT_2_VARS;}
-    static get HALF_OF_VAR()         {return HALF_OF_VAR;}
 
     /**
      * Sets amount of available operators for first bits
      * @param {Number} amount
      */
     static setOperatorAmount(amount) {
-        this._operators = amount;
+        this._operatorsCls = amount;
     }
 
     /**
@@ -42,7 +40,7 @@ export default class Number {
      */
     static get() {
         const rand = Helper.rand;
-        return (rand(this._operators) << (VAR_BITS_OFFS) | rand(NO_OPERATOR_MASK)) >>> 0;
+        return (rand(this._operatorsCls) << (VAR_BITS_OFFS) | rand(NO_OPERATOR_MASK)) >>> 0;
     }
 
     static getOperator(num) {

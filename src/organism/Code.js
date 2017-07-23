@@ -1,20 +1,20 @@
 /**
  * Implements organism's code logic.
- * TODO: explain here code, byteCode, one number format,...
+ * TODO: explain here code one number format,...
  *
  * @author DeadbraiN
  * TODO: may be this module is redundant
  * TODO: think about custom operators callbacks from outside. This is how
  * TODO: we may solve custom tasks
  */
-import Config    from './../global/Config';
-import Helper    from './../global/Helper';
-import Observer  from './../global/Observer'
-import Operators from './Operators';
-import Num       from './Num';
+import Config      from './../global/Config';
+import Helper      from './../global/Helper';
+import Observer    from './../global/Observer'
+import Code2String from './Code2String';
+import Num         from './Num';
 
 export default class Code extends Observer {
-    constructor(codeEndCb, vars = '') {
+    constructor(codeEndCb, operatorsCls, org, vars = null) {
         super();
 
         /**
@@ -23,64 +23,79 @@ export default class Code extends Observer {
          */
         this._onCodeEnd = codeEndCb;
         /**
+         * {Array} Array of two numbers. first - line number where we have
+         * to return if first line appears. second - line number, where ends
+         * closing block '}' of for or if operator.
+         */
+        this._offsets   = [];
+        this._vars      = vars || this._getVars();
+        /**
          * {Array} Array of offsets for closing braces. For 'for', 'if'
          * and all block operators.
          */
-        this._offsets   = [];
-        this._operators = new Operators(this._offsets);
-        this._vars      = vars;
-        this._byteCode  = [];
+        this._operators = new operatorsCls(this._offsets, this._vars, org);
         this._code      = [];
-        this._gen       = null;
-        this.compile();
+        this._line      = 0;
+        this._code2Str  = new Code2String();
     }
 
-    get size() {return this._byteCode.length;}
+    get code() {return this._code;}
+    get size() {return this._code.length;}
     get operators() {return this._operators.size;};
-    get byteCode() {return this._byteCode;}
     get vars() {return this._vars;}
 
-    /**
-     * Assembles all code parts together: header + byteCode + footer. Creates generator
-     * function and stores it in this.__compiled field. It also prepossesses byte code:
-     * inserts yield operator closes braces for 'if' and 'for' operators.
-     * @param {Organism} org Parent organism of current code
-     */
-    compile(org) {
-        this._code = this._compileByteCode(this._byteCode);
-        eval(`this.__compiled=function* dna(org){const rand=Math.random,pi=Math.PI;${this._getVars()};while(true){yield;${this._code.join(';')};this._onCodeEnd()}}`);
-        this._gen = this.__compiled(org);
+    run(param) {
+        let line   = this._line;
+        let len    = Config.codeYieldPeriod;
+        let ops    = this._operators.operators;
+        let code   = this._code;
+        let lines  = code.length;
+        let getOp  = Num.getOperator;
+        let ret    = false;
+        const offs = this._offsets;
+
+        while (lines > 0 && len-- > 0) {
+            line = ops[getOp(code[line])](code[line], line, param, lines, ret);
+
+            if (ret = (offs.length > 0 && line === offs[offs.length])) {
+                offs.pop();
+                line = offs.pop();
+            }
+            if (line >= lines) {
+                line = 0;
+                this._onCodeEnd();
+            }
+        }
+
+        this._line = line;
     }
 
-    run() {
-        this._gen.next();
+    format() {
+        return this._code2Str.format(this._code);
     }
 
     destroy() {
-		this._operators.destroy();
+        this._operators.destroy();
         this._operators = null;
         this._vars      = null;
-        this._byteCode  = null;
         this._code      = null;
-        this._offsets   = null;
-		this._onCodeEnd = null;
-        this._gen       = null;
-        this.__compiled = null;
+        this._onCodeEnd = null;
+        this.clear();
     }
 
     /**
      * Clones both byte and string code from 'code' argument
      * @param {Code} code Source code, from which we will copy
      */
+    // TODO: do we need this?
     clone(code) {
-        this._code     = code.cloneCode();
-        this._byteCode = code.cloneByteCode();
+        this._code = code.cloneCode();
     }
 
     crossover(code) {
         const rand   = Helper.rand;
-        const len    = this._byteCode.length;
-        const len1   = code.byteCode.length;
+        const len    = this._code.length;
+        const len1   = code.code.length;
         let   start  = rand(len);
         let   end    = rand(len);
         let   start1 = rand(len1);
@@ -89,101 +104,65 @@ export default class Code extends Observer {
         if (start > end) {[start, end] = [end, start];}
         if (start1 > end1) {[start1, end1] = [end1, start1];}
 
-        this._byteCode.splice.apply(this._byteCode, [start, end - start].concat(code.byteCode.slice(start1, end1)));
+        this._code.splice.apply(this._code, [start, end - start].concat(code.code.slice(start1, end1)));
+        this._line = 0;
 
         return end1 - start1 - end + start;
     }
 
     /**
-     * Is used for clonning string code only. This is how you
-     * can get separate copy of the code.
-     * @return {Array} Array of strings
+     * Is used for cloning byte code only. This is how you
+     * can get separate copy of the byte code.
+     * @return {Array} Array of 32bit numbers
      */
     cloneCode() {
         return this._code.slice();
     }
 
     /**
-     * Is used for clonning byte code only. This is how you
-     * can get separate copy of the byte code.
-     * @return {Array} Array of 32bit numbers
-     */
-    cloneByteCode() {
-        return this._byteCode.slice();
-    }
-
-    /**
      * Inserts random generated number into the byte code at random position
      */
     insertLine() {
-        this._byteCode.splice(Helper.rand(this._byteCode.length), 0, Num.get());
+        this._code.splice(Helper.rand(this._code.length), 0, Num.get());
+        this._line = 0;
     }
 
     updateLine(index, number = Num.get()) {
-        this._byteCode[index] = number;
+        this._code[index] = number;
+        this._line = 0;
     }
 
     /**
      * Removes random generated number into byte code at random position
      */
     removeLine() {
-        this._byteCode.splice(Helper.rand(this._byteCode.length), 1);
+        this._code.splice(Helper.rand(this._code.length), 1);
+        this._line = 0;
     }
 
     getLine(index) {
-        return this._byteCode[index];
-    }
-
-    _compileByteCode(byteCode) {
-        const len         = byteCode.length;
-        const yieldPeriod = Config.codeYieldPeriod;
-        const operators   = this._operators.operators;
-        let   code        = new Array(len);
-        let   offsets     = this._offsets;
-        let   operator;
-
-        for (let i = 0; i < len; i++) {
-            operator = operators[Num.getOperator(byteCode[i])](byteCode[i], i, len);
-            //
-            // This code is used for closing blocks for if, for and other
-            // blocked operators.
-            //
-            if (offsets[offsets.length - 1] === i && offsets.length > 0) {
-                operator = operator + '}';
-                offsets.pop();
-            }
-            //
-            // Every yieldPeriod 'yield' operator will be inserted into the code
-            //
-            if (i % yieldPeriod === 0 && i > 0) {operator = operator + ';yield';}
-            code[i] = operator;
-        }
-        if (offsets.length > 0) {
-            code[code.length - 1] += ('}'.repeat(offsets.length));
-            offsets.length = 0;
-        }
-
-        return code;
+        return this._code[index];
     }
 
     /**
      * Generates default variables code. It should be in ES5 version, because
      * speed is important. Amount of vars depends on Config.codeVarAmount config.
-     * @returns {String} vars code
+     * @returns {Array} vars code
      * @private
      */
     _getVars() {
-        if (this._vars.length > 0) {return this._vars;}
+        if (this._vars && this._vars.length > 0) {return this._vars;}
 
-        const vars  = Config.codeVarAmount;
-        let   code  = new Array(vars);
-        const range = Config.codeVarInitRange;
-        const rand  = Helper.rand;
+        const len    = Config.codeVarAmount;
+        let   vars   = new Array(len);
+        const range  = Config.codeVarInitRange;
+        const range2 = range / 2;
+        const rand   = Helper.rand;
 
-        for (let i = 0; i < vars; i++) {
-            code[i] = `let v${i}=${rand(range)-range/2}`;
+        for (let i = 0; i < len; i++) {
+            vars[i] = rand(range) - range2;
         }
 
-        return (this._vars = code.join(';'));
+        return (this._vars = vars);
     }
 }

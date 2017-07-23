@@ -20,6 +20,12 @@ export default class Queue {
         this._size = 0;
     }
 
+    destroy() {
+        this._first = null;
+        this._last  = null;
+        this._size  = 0;
+    }
+
     get first() {return this._first;}
     get last()  {return this._last;}
     get size()  {return this._size;}
@@ -33,7 +39,7 @@ export default class Queue {
             this._last = this._last.next = {
                 prev: this._last,
                 next: null,
-                val: val
+                val : val
             };
             return;
         }
