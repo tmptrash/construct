@@ -84,6 +84,9 @@ export default class Operators {
     destroy() {
         this._offsets      = null;
         this._OPERATORS_CB = null;
+        this._CONDITIONS   = null;
+        this._OPERATORS    = null;
+        this._TRIGS        = null;
     }
 
     get operators() {return this._OPERATORS_CB;}
@@ -114,24 +117,27 @@ export default class Operators {
 
     onCondition(num, line, org, lines) {
         const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
-        const offs = line + val3 < lines ? line + val3 : lines - 1;
+        const offs = line + val3 < lines ? line + val3 + 1 : lines;
 
-        if(this._CONDITIONS[VAR2(num)](this._vars[VAR0(num)], this._vars[VAR1(num)])) {
+        if (this._CONDITIONS[VAR2(num)](this._vars[VAR0(num)], this._vars[VAR1(num)])) {
             return line + 1;
         }
 
-        return offs > 0 ? offs - 1 : 0;
+        return offs;
     }
 
     onLoop(num, line, org, lines, ret) {
         const vars = this._vars;
         const var0 = VAR0(num);
         const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
-        const offs = line + val3 < lines ? line + val3 : lines - 1;
+        const offs = line + val3 < lines ? line + val3 + 1 : lines;
 
-        if (ret && ++vars[var0] < vars[VAR2(num)]) {
-            this._offsets.push(line, offs);
-            return line + 1;
+        if (ret) {
+            if (++vars[var0] < vars[VAR2(num)]) {
+                this._offsets.push(line, offs);
+                return line + 1;
+            }
+            return offs;
         }
 
         vars[var0] = vars[VAR1(num)];
@@ -140,7 +146,7 @@ export default class Operators {
             return line + 1;
         }
 
-        return offs > 0 ? offs - 1 : 0;
+        return offs;
     }
 
     onOperator(num, line) {
@@ -210,6 +216,7 @@ export default class Operators {
         if (!IS_NUM(amount)) {return 0}
 
         let ret = {ret: amount};
+        // TODO: revert this
         this._obs.fire(Events.EAT, org, x, y, ret);
         if (!IS_NUM(ret.ret)) {return 0}
         org.energy += ret.ret;
@@ -218,7 +225,8 @@ export default class Operators {
 
     _step(org, x1, y1, x2, y2) {
         let ret = {ret: 0};
-        this._obs.fire(Events.STEP, org, x1, y1,  x2, y2, ret);
+        // TODO: revert this
+        this._obs.fire(Events.STEP, org, x1, y1, x2, y2, ret);
         return ret.ret;
     }
 }

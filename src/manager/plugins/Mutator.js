@@ -13,22 +13,21 @@ import Events   from './../../global/Events';
 import Config   from './../../global/Config';
 import Helper   from './../../global/Helper';
 import Organism from './../../organism/Organism';
-import Code     from './../../organism/Code';
 import Num      from '../../organism/Num';
 
 export default class Mutator {
     constructor(manager) {
         this._manager = manager;
         this._MUTATION_TYPES = [
-            this._onAdd.bind(this),
-            this._onChange.bind(this),
-            this._onDel.bind(this),
-            this._onSmallChange.bind(this),
-            this._onClone.bind(this),
-            this._onPeriod.bind(this),
-            this._onAmount.bind(this),
-            this._onProbs.bind(this),
-            this._onCloneEnergyPercent.bind(this)
+            this._onAdd,
+            this._onChange,
+            this._onDel,
+            this._onSmallChange,
+            this._onClone,
+            this._onPeriod,
+            this._onAmount,
+            this._onProbs,
+            this._onCloneEnergyPercent
         ]
 
         manager.on(Events.ORGANISM, this._onOrganism.bind(this));
@@ -56,7 +55,9 @@ export default class Mutator {
         let   type;
 
         for (let i = 0; i < mutations; i++) {
-            type = code.size < 1 ? 0 : probIndex(org.mutationProbs);
+            // TODO: revert this
+            //type = code.size < 1 ? 0 : probIndex(org.mutationProbs);
+            type = 1;
             if (type === 0)      {org.adds++;}
             else if (type === 1) {org.changes++;}
             else if (type === 2) {org.changes += 0.5;}
@@ -74,7 +75,7 @@ export default class Mutator {
 
     _onChange(org) {
         const code = org.code;
-        code.updateLine(Helper.rand(code.size));
+        code.updateLine(Helper.rand(code.size), Num.get());
     }
 
     _onDel(org) {

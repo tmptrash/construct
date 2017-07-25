@@ -10,6 +10,8 @@ import Events   from './../global/Events';
 import Helper   from './../global/Helper';
 import Code     from './Code';
 
+const IS_NUM = $.isNumeric;
+
 export default class Organism extends Observer {
     /**
      * Creates organism instance. If parent parameter is set, then
@@ -96,7 +98,7 @@ export default class Organism extends Observer {
     }
 
     grabEnergy(amount) {
-        if (!$.isNumeric(amount)) {return true;}
+        if (!IS_NUM(amount)) {return true;}
         const noEnergy = (this._energy -= amount) < 1;
         noEnergy && this.destroy();
         return !noEnergy;
@@ -121,7 +123,7 @@ export default class Organism extends Observer {
     }
 
     _create() {
-        this._code    = new Code(this._codeEndCb.bind(this, this), this._operatorsCls, this);
+        this._code    = new Code(this._codeEndCb, this._operatorsCls, this);
         this._energy  = Config.orgStartEnergy;
         this._mem     = [];
         this._adds    = 1;
@@ -129,7 +131,7 @@ export default class Organism extends Observer {
     }
 
     _clone(parent) {
-        this._code    = new Code(this._codeEndCb.bind(this, this), this._operatorsCls, this, parent.code.vars);
+        this._code    = new Code(this._codeEndCb, this._operatorsCls, this, parent.code.vars);
         this._energy  = parent.energy;
         this._mem     = parent.mem.slice();
         this._adds    = parent.adds;

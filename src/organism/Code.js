@@ -10,7 +10,6 @@
 import Config      from './../global/Config';
 import Helper      from './../global/Helper';
 import Observer    from './../global/Observer'
-import Code2String from './Code2String';
 import Num         from './Num';
 
 export default class Code extends Observer {
@@ -36,7 +35,6 @@ export default class Code extends Observer {
         this._operators = new operatorsCls(this._offsets, this._vars, org);
         this._code      = [];
         this._line      = 0;
-        this._code2Str  = new Code2String();
     }
 
     get code() {return this._code;}
@@ -45,21 +43,22 @@ export default class Code extends Observer {
     get vars() {return this._vars;}
 
     run(param) {
-        let line   = this._line;
-        let len    = Config.codeYieldPeriod;
-        let ops    = this._operators.operators;
-        let code   = this._code;
-        let lines  = code.length;
-        let getOp  = Num.getOperator;
-        let ret    = false;
-        const offs = this._offsets;
+        let line  = this._line;
+        let len   = Config.codeYieldPeriod;
+        let ops   = this._operators.operators;
+        let code  = this._code;
+        let lines = code.length;
+        let getOp = Num.getOperator;
+        let ret   = false;
+        let offs  = this._offsets;
 
         while (lines > 0 && len-- > 0) {
             line = ops[getOp(code[line])](code[line], line, param, lines, ret);
 
-            if (ret = (offs.length > 0 && line === offs[offs.length])) {
+            if (ret = (offs.length > 0 && line === offs[offs.length - 1])) {
                 offs.pop();
                 line = offs.pop();
+                continue;
             }
             if (line >= lines) {
                 line = 0;
@@ -69,10 +68,6 @@ export default class Code extends Observer {
         }
 
         this._line = line;
-    }
-
-    format() {
-        return this._code2Str.format(this._code);
     }
 
     destroy() {
@@ -128,7 +123,7 @@ export default class Code extends Observer {
         this._reset();
     }
 
-    updateLine(index, number = Num.get()) {
+    updateLine(index, number) {
         this._code[index] = number;
         this._reset();
     }
@@ -146,7 +141,7 @@ export default class Code extends Observer {
     }
 
     _reset() {
-        this._line    = 0;
+        this._line           = 0;
         this._offsets.length = 0;
     }
 
