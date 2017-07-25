@@ -55,9 +55,7 @@ export default class Mutator {
         let   type;
 
         for (let i = 0; i < mutations; i++) {
-            // TODO: revert this
-            //type = code.size < 1 ? 0 : probIndex(org.mutationProbs);
-            type = 1;
+            type = code.size < 1 ? 0 : probIndex(org.mutationProbs);
             if (type === 0)      {org.adds++;}
             else if (type === 1) {org.changes++;}
             else if (type === 2) {org.changes += 0.5;}

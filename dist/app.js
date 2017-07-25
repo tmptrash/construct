@@ -131,18 +131,18 @@ const Config = {
     /**
      * {Number} Amount of iterations before clonning process
      */
-    orgClonePeriod: 0,
+    orgClonePeriod: 10,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
      */
-    orgCrossoverPeriod: 0,
+    orgCrossoverPeriod: 200,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 1,
+    orgRainMutationPeriod: 1000,
     /**
      * {Number} Value, which will be used like amount of mutations per
      * orgRainMutationPeriod iterations. 0 is a possible value if
@@ -152,7 +152,7 @@ const Config = {
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 10,
+    orgStartAmount: 300,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without code) organism were created
@@ -191,19 +191,11 @@ const Config = {
     /**
      * {Number} Size of organism stack (internal memory)
      */
-    orgMemSize: 1,
+    orgMemSize: 256,
     /**
      * {Number} Percent of energy, which will be given to the child
      */
     orgCloneEnergyPercent: 0.5,
-    /**
-     * {Number} Amount of errors in organisms codes in current population
-     */
-    orgErrors: 0,
-    /**
-     * {Number} Amount of eval calls for generatin organisms code
-     */
-    orgEvals: 0,
     /**
      * {Number} Maximum amount of arguments in custom functions. Minimum 1. Maximum
      * <= amount of default variables.
@@ -261,7 +253,7 @@ const Config = {
      * {Number} Amount of iterations between calls to V8 event loop. See
      * Manager._initLoop(), Manager.run() methods for details.
      */
-    codeIterationsPerOnce: 5,
+    codeIterationsPerOnce: 10,
     /**
      * {Number} World width
      */
@@ -1514,9 +1506,7 @@ class Mutator {
         let   type;
 
         for (let i = 0; i < mutations; i++) {
-            // TODO: revert this
-            //type = code.size < 1 ? 0 : probIndex(org.mutationProbs);
-            type = 1;
+            type = code.size < 1 ? 0 : probIndex(org.mutationProbs);
             if (type === 0)      {org.adds++;}
             else if (type === 1) {org.changes++;}
             else if (type === 2) {org.changes += 0.5;}
@@ -1622,7 +1612,7 @@ class Organisms {
         this._codeRuns      = 0;
         this._stamp         = Date.now();
         this._manager       = manager;
-        this._positions     = new Array(__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldWidth * __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldHeight);
+        this._positions     = {};
         this._orgId         = 0;
         this._code2Str      = new __WEBPACK_IMPORTED_MODULE_7__organism_Code2String__["a" /* default */]();
         this._onIterationCb = this._onIteration.bind(this);
@@ -1796,7 +1786,7 @@ class Organisms {
 
     _onAfterMove(x1, y1, x2, y2, org) {
         if (x1 !== x2 || y1 !== y2) {
-            this._positions[__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x1, y1)] = undefined;
+            delete this._positions[__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x1, y1)];
             this._positions[__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x2, y2)] = org;
         }
 
@@ -1858,8 +1848,6 @@ class Organisms {
         let last   = orgs.last;
         let org    = new __WEBPACK_IMPORTED_MODULE_5__organism_Organism__["a" /* default */](++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), __WEBPACK_IMPORTED_MODULE_6__organism_Operators__["a" /* default */], parent);
 
-        org.code.code.push(0x01ffffff);
-
         last.val = org;
         this._addHandlers(org);
         this._manager.move(pos.x, pos.y, pos.x, pos.y, org);
@@ -1873,7 +1861,7 @@ class Organisms {
     _onKillOrg(org) {
         this._orgs.del(org.item);
         this._manager.world.setDot(org.x, org.y, 0);
-        this._positions[org.posId] = undefined;
+        delete this._positions[org.posId];
         this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].KILL_ORGANISM, org);
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].info(org.id, ' die');
     }
@@ -2512,8 +2500,7 @@ class Operators {
 
     _step(org, x1, y1, x2, y2) {
         let ret = {ret: 0};
-        // TODO: revert this
-        //this._obs.fire(Events.STEP, org, x1, y1, x2, y2, ret);
+        this._obs.fire(__WEBPACK_IMPORTED_MODULE_1__global_Events__["a" /* default */].STEP, org, x1, y1, x2, y2, ret);
         return ret.ret;
     }
 }

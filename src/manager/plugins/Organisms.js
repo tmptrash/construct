@@ -26,7 +26,7 @@ export default class Organisms {
         this._codeRuns      = 0;
         this._stamp         = Date.now();
         this._manager       = manager;
-        this._positions     = new Array(Config.worldWidth * Config.worldHeight);
+        this._positions     = {};
         this._orgId         = 0;
         this._code2Str      = new Code2String();
         this._onIterationCb = this._onIteration.bind(this);
@@ -200,7 +200,7 @@ export default class Organisms {
 
     _onAfterMove(x1, y1, x2, y2, org) {
         if (x1 !== x2 || y1 !== y2) {
-            this._positions[Helper.posId(x1, y1)] = undefined;
+            delete this._positions[Helper.posId(x1, y1)];
             this._positions[Helper.posId(x2, y2)] = org;
         }
 
@@ -262,8 +262,6 @@ export default class Organisms {
         let last   = orgs.last;
         let org    = new Organism(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), Operators, parent);
 
-        org.code.code.push(0x01ffffff);
-
         last.val = org;
         this._addHandlers(org);
         this._manager.move(pos.x, pos.y, pos.x, pos.y, org);
@@ -277,7 +275,7 @@ export default class Organisms {
     _onKillOrg(org) {
         this._orgs.del(org.item);
         this._manager.world.setDot(org.x, org.y, 0);
-        this._positions[org.posId] = undefined;
+        delete this._positions[org.posId];
         this._manager.fire(Events.KILL_ORGANISM, org);
         Console.info(org.id, ' die');
     }
