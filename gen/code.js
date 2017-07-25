@@ -426,3 +426,111 @@ for (v2 = v1; v2 < v0; v2++) {
         }
     }
 }
+
+
+
+
+v1 = org.stepRight()
+for (v0 = v1; v0 < v2; v0++) {
+    v0 = org.stepLeft()
+    v0 = org.stepLeft()
+    v0 = 461972
+    v3 = org.eatLeft(v0)
+    v3 = org.stepUp()
+    v2 = 1044377
+    v1 = org.eatRight(v2)
+    v3 = v3 % v0
+    v0 = org.stepLeft()
+}
+v0 = v1 | v1
+v2 = v0 * v1
+v0 = org.fromMem()
+v2 = org.myX()
+v0 = org.myX()
+v3 = org.fromMem()
+v2 = org.eatLeft(v1)
+v2 = v0 <= v1
+v1 = org.eatUp(v3)
+v2 = org.stepDown()
+v2 = org.eatRight(v3)
+v1 = org.stepDown()
+v2 = Math.tan(v1)
+for (v0 = v1; v0 < v3; v0++) {
+    v1 = org.stepLeft()
+    v3 = org.stepRight()
+    if (v1 == v1) {
+        v0 = org.myY()
+        v3 = org.stepLeft()
+        v3 = org.myX()
+        v0 = +!v2
+        v1 = org.toMem(v1)
+        v2 = org.fromMem()
+        v2 = org.eatDown(v2)
+        v1 = org.eatDown(v2)
+        v0 = org.myX()
+        v1 = org.stepLeft()
+        v2 = org.fromMem()
+        v1 = org.myY()
+        v0 = org.eatLeft(v0)
+    }
+    v2 = v1 < v1
+    v3 = org.stepRight()
+    v2 = org.eatUp(v2)
+    v0 = v2 <= v0
+    v0 = Math.PI
+    v3 = org.eatLeft(v3)
+    v1 = org.eatRight(v2)
+    v0 = v0 == v1
+    v0 = org.stepUp()
+    v2 = 853113
+    v3 = org.stepDown()
+    v1 = org.toMem(v3)
+    v2 = org.myX()
+    v3 = org.stepUp()
+    v3 = org.lookAt(v3, v3)
+    v3 = org.stepDown()
+    v3 = Math.PI
+    v2 = org.eatUp(v1)
+    v3 = org.fromMem()
+    v0 = Math.cos(v0)
+    v3 = org.toMem(v2)
+    v2 = org.stepDown()
+    v0 = org.toMem(v0)
+    if (v1 > v3) {
+        v1 = org.toMem(v1)
+        v0 = v1
+        v3 = org.fromMem()
+        v1 = v0
+    }
+    v1 = v0 / v0
+    v3 = org.stepRight()
+    v1 = org.toMem(v1)
+    if (v0 != v0) {
+        v2 = org.stepLeft()
+        v0 = org.lookAt(v0, v3)
+        v1 = org.eatLeft(v1)
+        v1 = 746577
+        v0 = org.eatDown(v2)
+        v2 = 1036453
+        v2 = org.stepUp()
+        v3 = +!v3
+    }
+    v1 = org.myX()
+    v1 = v1
+    v2 = org.stepDown()
+    v2 = org.fromMem()
+    v1 = org.stepUp()
+    v3 = org.myX()
+    v0 = Math.PI
+    v2 = Math.tan(v1)
+    v0 = org.eatLeft(v3)
+    v2 = Math.PI
+    v0 = org.stepRight()
+    v2 = +!v0
+    v0 = org.eatRight(v2)
+    v1 = Math.PI
+    v2 = org.lookAt(v1, v0)
+    v0 = Math.cos(v2)
+    v1 = Math.abs(v3)
+    v2 = org.myX()
+}
