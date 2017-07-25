@@ -1788,6 +1788,7 @@ class Organisms {
     _createPopulation() {
         const world = this._manager.world;
 
+        this._orgId = 0;
         for (let i = 0; i < __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgStartAmount; i++) {
             this._createOrg(world.getFreePos());
         }
@@ -2503,7 +2504,6 @@ class Operators {
         if (!IS_NUM(amount)) {return 0}
 
         let ret = {ret: amount};
-        // TODO: revert this
         this._obs.fire(__WEBPACK_IMPORTED_MODULE_1__global_Events__["a" /* default */].EAT, org, x, y, ret);
         if (!IS_NUM(ret.ret)) {return 0}
         org.energy += ret.ret;
@@ -2513,7 +2513,7 @@ class Operators {
     _step(org, x1, y1, x2, y2) {
         let ret = {ret: 0};
         // TODO: revert this
-        this._obs.fire(__WEBPACK_IMPORTED_MODULE_1__global_Events__["a" /* default */].STEP, org, x1, y1, x2, y2, ret);
+        //this._obs.fire(Events.STEP, org, x1, y1, x2, y2, ret);
         return ret.ret;
     }
 }

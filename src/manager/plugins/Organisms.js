@@ -192,6 +192,7 @@ export default class Organisms {
     _createPopulation() {
         const world = this._manager.world;
 
+        this._orgId = 0;
         for (let i = 0; i < Config.orgStartAmount; i++) {
             this._createOrg(world.getFreePos());
         }

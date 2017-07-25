@@ -216,7 +216,6 @@ export default class Operators {
         if (!IS_NUM(amount)) {return 0}
 
         let ret = {ret: amount};
-        // TODO: revert this
         this._obs.fire(Events.EAT, org, x, y, ret);
         if (!IS_NUM(ret.ret)) {return 0}
         org.energy += ret.ret;
@@ -226,7 +225,7 @@ export default class Operators {
     _step(org, x1, y1, x2, y2) {
         let ret = {ret: 0};
         // TODO: revert this
-        this._obs.fire(Events.STEP, org, x1, y1, x2, y2, ret);
+        //this._obs.fire(Events.STEP, org, x1, y1, x2, y2, ret);
         return ret.ret;
     }
 }
