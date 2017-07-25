@@ -534,3 +534,127 @@ for (v0 = v1; v0 < v3; v0++) {
     v1 = Math.abs(v3)
     v2 = org.myX()
 }
+
+
+
+
+if (v2 < v3) {
+    v0 = org.eatDown(v0)
+    for (v3 = v2; v3 < v3; v3++) {
+        v2 = org.stepRight()
+        if (v2 < v3) {
+            v2 = org.toMem(v1)
+            v0 = org.eatLeft(v0)
+            v0 = org.eatUp(v3)
+            v2 = Math.sin(v3)
+            v2 = org.stepDown()
+            v3 = org.stepRight()
+            v3 = Math.sin(v3)
+            v3 = org.fromMem()
+            for (v0 = v0; v0 < v3; v0++) {}
+            v1 = org.myY()
+            for (v2 = v0; v2 < v1; v2++) {
+                v2 = v2 % v1
+                for (v0 = v0; v0 < v0; v0++) {
+                    if (v3 > v0) {
+                        v3 = v0
+                        v3 = org.eatDown(v0)
+                        v3 = v3 % v0
+                        v1 = +!v2
+                        v1 = org.stepUp()
+                        v1 = Math.abs(v0)
+                        v0 = org.eatRight(v3)
+                        v0 = org.myX()
+                    }
+                    v0 = org.eatLeft(v1)
+                    v0 = org.stepDown()
+                    v0 = +!v3
+                    v0 = Math.PI
+                    v3 = org.eatDown(v1)
+                    v1 = org.stepUp()
+                    v0 = v0 << v0
+                    v0 = org.myX()
+                    v2 = Math.PI
+                    v2 = org.myX()
+                    v0 = org.stepLeft()
+                    for (v0 = v1; v0 < v2; v0++) {
+                        v0 = org.stepLeft()
+                        v2 = org.stepLeft()
+                        v0 = org.toMem(v0)
+                        v2 = org.stepLeft()
+                        v2 = Math.PI
+                        v0 = 296799
+                        v3 = v0 >>> v1
+                        v0 = org.stepUp()
+                        v0 = org.stepLeft()
+                    }
+                    v2 = 590155
+                    v3 = org.stepLeft()
+                    for (v3 = v3; v3 < v0; v3++) {
+                        v0 = v3 + v3
+                        v0 = Math.cos(v2)
+                    }
+                    v0 = Math.cos(v2)
+                    v3 = org.eatLeft(v2)
+                    v3 = org.stepDown()
+                    v1 = v3 >> v0
+                    v0 = v0 & v1
+                    v3 = org.fromMem()
+                    v0 = org.toMem(v1)
+                    v2 = Math.PI
+                    v1 = org.stepUp()
+                    v1 = org.stepUp()
+                    v3 = 973462
+                    for (v0 = v0; v0 < v3; v0++) {
+                        for (v0 = v2; v0 < v1; v0++) {
+                            v3 = 377894
+                            v1 = org.stepLeft()
+                            v2 = v1
+                            v0 = org.stepRight()
+                            if (v1 != v2) {
+                                v3 = org.eatUp(v0)
+                                v0 = org.stepRight()
+                                v0 = Math.abs(v0)
+                                v2 = org.fromMem()
+                                v0 = org.stepRight()
+                                v1 = org.stepDown()
+                                v0 = org.eatDown(v2)
+                                v0 = org.stepLeft()
+                                v2 = Math.sin(v0)
+                                v0 = org.myY()
+                                v0 = org.eatUp(v3)
+                            }
+                            v0 = org.myX()
+                            v2 = org.myX()
+                            v0 = org.eatUp(v3)
+                            v1 = org.myX()
+                            v2 = org.stepDown()
+                            v1 = Math.PI
+                            v1 = org.stepUp()
+                            v2 = org.fromMem()
+                            v3 = org.eatDown(v0)
+                            v0 = 966395
+                            v0 = org.myY()
+                            v3 = Math.PI
+                            v0 = org.eatLeft(v3)
+                            v2 = org.eatUp(v2)
+                            v0 = org.myY()
+                            v0 = org.stepRight()
+                            v2 = org.fromMem()
+                            v0 = org.myY()
+                            if (v0 != v3) {
+                                if (v3 != v1) {
+                                    for (v2 = v2; v2 < v2; v2++) {
+                                        v0 = +!v3
+                                        v1 = org.stepRight()
+                                        v2 = org.stepUp()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
