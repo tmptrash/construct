@@ -69,7 +69,7 @@ const Config = {
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 1000,
+    orgRainMutationPeriod: 8000,
     /**
      * {Number} Value, which will be used like amount of mutations per
      * orgRainMutationPeriod iterations. 0 is a possible value if
@@ -94,17 +94,12 @@ const Config = {
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
      */
-    orgEnergySpendPeriod: 500,
-    /**
-     * {Number} Amount of energy, which will be decreased in case of organism's
-     * code error or exception
-     */
-    orgEnergySpendOnError: 1000,
+    orgEnergySpendPeriod: 100,
     /**
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used.
      */
-    orgAlivePeriod: 2500,
+    orgAlivePeriod: 10000,
     /**
      * {Number} This value means the period between organism codeSizes, which
      * affects energy grabbing by the system. For example: we have two
@@ -114,7 +109,7 @@ const Config = {
      * same amount of energy - 1 unit. This is because the period goes
      * from 1..5, 6..10,... and both organisms are in the same period.
      */
-    orgGarbagePeriod: 20,
+    orgGarbagePeriod: 10,
     /**
      * {Number} Size of organism stack (internal memory)
      */
@@ -128,10 +123,6 @@ const Config = {
      * <= amount of default variables.
      */
     codeFuncParamAmount: 2,
-    /**
-     * {Number} Amount of iterations in a loop (for operator)
-     */
-    codeLoopAmount: 128,
     /**
      * {Number} If organism reach this limit of amount of code lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
@@ -180,7 +171,7 @@ const Config = {
      * {Number} Amount of iterations between calls to V8 event loop. See
      * Manager._initLoop(), Manager.run() methods for details.
      */
-    codeIterationsPerOnce: 10,
+    codeIterationsPerOnce: 20,
     /**
      * {Number} World width
      */
