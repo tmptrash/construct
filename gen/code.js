@@ -658,3 +658,96 @@ if (v2 < v3) {
         }
     }
 }
+
+
+
+
+// energy: 20222641.08857142
+v2 = org.stepUp()
+v1 = org.eatUp(v0)
+v0 = v2 >>> v3
+v1 = v1
+v2 = org.eatUp(v0)
+v3 = 1044160
+for (v2 = v0; v2 < v3; v2++) {
+    v2 = org.eatLeft(v3)
+    v1 = org.eatLeft(v3)
+    v0 = org.eatUp(v0)
+    v2 = +!v3
+    v1 = org.stepLeft()
+    v3 = 574870
+    v0 = org.stepLeft()
+    v0 = org.stepLeft()
+    v0 = org.stepLeft()
+}
+v3 = org.stepRight()
+v1 = 270778
+v0 = v1
+v0 = v1 < v0
+v3 = org.fromMem()
+v3 = org.fromMem()
+for (v2 = v3; v2 < v3; v2++) {
+    if (v0 == v2) {
+        v3 = org.stepUp()
+        v1 = Math.cos(v0)
+        if (v1 == v0) {
+            v0 = org.stepRight()
+        }
+        v1 = org.myY()
+        v2 = org.stepUp()
+        v3 = org.myY()
+        v1 = v3 / v0
+        v3 = org.fromMem()
+        v1 = org.eatLeft(v0)
+        v0 = org.stepUp()
+        v2 = org.myY()
+        v3 = org.eatDown(v3)
+        v2 = org.eatLeft(v1)
+        v0 = org.eatDown(v2)
+        v0 = org.stepLeft()
+        v1 = Math.cos(v1)
+        v3 = 312508
+        v1 = org.stepLeft()
+        v2 = org.eatRight(v3)
+        v1 = org.eatLeft(v1)
+        v1 = org.stepDown()
+        v2 = v0 >> v1
+        v2 = Math.tan(v1)
+        v1 = org.eatUp(v1)
+        v2 = org.eatUp(v2)
+        v0 = org.stepRight()
+        v2 = org.toMem(v1)
+        v1 = org.stepDown()
+        v2 = org.lookAt(v0, v2)
+        v0 = org.toMem(v0)
+        v3 = org.myY()
+        v2 = org.myY()
+        v0 = org.eatUp(v3)
+        v2 = org.lookAt(v0, v3)
+        v0 = org.fromMem()
+        v1 = org.stepLeft()
+        v1 = Math.tan(v2)
+        v1 = v0
+        v0 = org.myY()
+        v1 = org.lookAt(v2, v1)
+        v1 = org.eatUp(v0)
+        v3 = org.toMem(v3)
+        v3 = org.eatRight(v2)
+        v1 = Math.abs(v0)
+        v0 = Math.cos(v3)
+        v3 = org.toMem(v3)
+        v2 = org.eatUp(v0)
+        v0 = org.stepRight()
+        v3 = Math.tan(v3)
+        v1 = +!v3
+        v0 = org.stepRight()
+        v3 = org.eatRight(v1)
+        v0 = org.eatUp(v3)
+        if (v0 < v3) {
+            v3 = org.stepRight()
+            v2 = org.lookAt(v0, v1)
+            v3 = v2 == v2
+            v0 = org.myX()
+        }
+    }
+}
