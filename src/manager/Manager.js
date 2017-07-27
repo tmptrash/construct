@@ -48,6 +48,7 @@ export default class Manager extends Observer {
         this._canvas    = new Canvas();
         this._plugins   = PLUGINS;
         this._stopped   = false;
+        this._visualize = true;
         this.api        = {};
 
         this._initLoop();
@@ -70,7 +71,9 @@ export default class Manager extends Observer {
         let me      = this;
 
         function loop () {
-            for (let i = 0; i < Config.codeIterationsPerOnce; i++) {
+            const amount = me._visualize ? 1 : Config.codeIterationsPerOnce;
+
+            for (let i = 0; i < amount; i++) {
                 me.onIteration(counter, stamp);
 
                 counter++;
@@ -85,7 +88,9 @@ export default class Manager extends Observer {
         this._stopped = true;
     }
 
-    visualize(visualize) {
+    // TODO: this method should be in api property and should be stored in plugin
+    visualize(visualize = true) {
+        this._visualize = visualize;
         this._canvas.visualize(visualize);
     }
 
