@@ -258,6 +258,10 @@ const Config = {
      */
     codeOperatorsCls: 'OperatorsGarmin',
     /**
+     * {String} Name of the class for string representation of byte code
+     */
+    code2StringCls: 'Code2StringGarmin',
+    /**
      * {Number} World width
      */
     worldWidth: 1020,
@@ -1005,7 +1009,8 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__plugins_Energy__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__organism_Operators__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__organism_OperatorsGarmin__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__organism_Fitness__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__organism_Code2StringGarmin__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__organism_Fitness__ = __webpack_require__(16);
 /**
  * Main manager class of application. Contains all parts of jevo.js app
  * like World, Connection, Console etc... Runs infinite loop inside run()
@@ -1031,13 +1036,15 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 
 
 
+
 /**
  * {Object} Mapping of class names and their functions
  */
 const CLASS_MAP = {
-    Operators      : __WEBPACK_IMPORTED_MODULE_8__organism_Operators__["a" /* default */],
-    OperatorsGarmin: __WEBPACK_IMPORTED_MODULE_9__organism_OperatorsGarmin__["a" /* default */],
-    Fitness        : __WEBPACK_IMPORTED_MODULE_10__organism_Fitness__["a" /* default */]
+    Operators        : __WEBPACK_IMPORTED_MODULE_8__organism_Operators__["a" /* default */],
+    OperatorsGarmin  : __WEBPACK_IMPORTED_MODULE_9__organism_OperatorsGarmin__["a" /* default */],
+    Code2StringGarmin: __WEBPACK_IMPORTED_MODULE_10__organism_Code2StringGarmin__["a" /* default */],
+    Fitness          : __WEBPACK_IMPORTED_MODULE_11__organism_Fitness__["a" /* default */]
 };
 /**
  * {Array} Plugins for Manager
@@ -1613,8 +1620,7 @@ class Mutator {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Queue__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_Organism__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__organism_Code2String__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__Backup__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Backup__ = __webpack_require__(10);
 /**
  * Plugin for Manager module, which handles organisms population
  *
@@ -1634,17 +1640,16 @@ class Mutator {
 
 
 
-
 class Organisms {
     constructor(manager) {
         this._orgs          = new __WEBPACK_IMPORTED_MODULE_4__global_Queue__["a" /* default */]();
-        this._backup        = new __WEBPACK_IMPORTED_MODULE_7__Backup__["a" /* default */]();
+        this._backup        = new __WEBPACK_IMPORTED_MODULE_6__Backup__["a" /* default */]();
         this._codeRuns      = 0;
         this._stamp         = Date.now();
         this._manager       = manager;
         this._positions     = {};
         this._orgId         = 0;
-        this._code2Str      = new __WEBPACK_IMPORTED_MODULE_6__organism_Code2String__["a" /* default */]();
+        this._code2Str      = new manager.CLASS_MAP[__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].code2StringCls];
         this._onIterationCb = this._onIteration.bind(this);
         this._onAfterMoveCb = this._onAfterMove.bind(this);
 
@@ -2109,7 +2114,7 @@ const VAR2                  = (n) => __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* d
 const BITS_AFTER_THREE_VARS = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_PER_OPERATOR + __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_PER_VAR * 3;
 const HALF_OF_VAR           = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].MAX_VAR / 2;
 
-class Code2String {
+class Code2StringGarmin {
     constructor() {
         /**
          * {Array} Array of offsets for closing braces. For 'for', 'if'
@@ -2122,26 +2127,14 @@ class Code2String {
          */
         this._OPERATORS_CB = {
             0 : this._onVar.bind(this),
-            //1: this._onFunc.bind(this),
             1 : this._onCondition.bind(this),
             2 : this._onLoop.bind(this),
             3 : this._onOperator.bind(this),
             4 : this._onNot.bind(this),
             5 : this._onPi.bind(this),
             6 : this._onTrig.bind(this),
-            7 : this._onLookAt.bind(this),
-            8 : this._onEatLeft.bind(this),
-            9 : this._onEatRight.bind(this),
-            10: this._onEatUp.bind(this),
-            11: this._onEatDown.bind(this),
-            12: this._onStepLeft.bind(this),
-            13: this._onStepRight.bind(this),
-            14: this._onStepUp.bind(this),
-            15: this._onStepDown.bind(this),
-            16: this._onFromMem.bind(this),
-            17: this._onToMem.bind(this),
-            18: this._onMyX.bind(this),
-            19: this._onMyY.bind(this)
+            7 : this._onFromMem.bind(this),
+            8 : this._onToMem.bind(this)
         };
         this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
         /**
@@ -2208,10 +2201,6 @@ class Code2String {
         return `v${VAR0(num)}=${isConst ? __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_WITHOUT_2_VARS) : ('v' + var1)}`;
     }
 
-    _onFunc(num) {
-        return '';
-    }
-
     _onCondition(num, line, lines) {
         const var3    = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_OF_TWO_VARS);
         this._offsets.push(line + var3 < lines ? line + var3 : lines - 1);
@@ -2243,42 +2232,6 @@ class Code2String {
         return `v${VAR0(num)}=Math.${this._TRIGS[VAR2(num)]}(v${VAR1(num)})`;
     }
 
-    _onLookAt(num) {
-        return `v${VAR0(num)}=org.lookAt(v${VAR1(num)},v${VAR2(num)})`;
-    }
-
-    _onEatLeft(num) {
-        return `v${VAR0(num)}=org.eatLeft(v${VAR1(num)})`;
-    }
-
-    _onEatRight(num) {
-        return `v${VAR0(num)}=org.eatRight(v${VAR1(num)})`;
-    }
-
-    _onEatUp(num) {
-        return `v${VAR0(num)}=org.eatUp(v${VAR1(num)})`;
-    }
-
-    _onEatDown(num) {
-        return `v${VAR0(num)}=org.eatDown(v${VAR1(num)})`;
-    }
-
-    _onStepLeft(num) {
-        return `v${VAR0(num)}=org.stepLeft()`;
-    }
-
-    _onStepRight(num) {
-        return `v${VAR0(num)}=org.stepRight()`;
-    }
-
-    _onStepUp(num) {
-        return `v${VAR0(num)}=org.stepUp()`;
-    }
-
-    _onStepDown(num) {
-        return `v${VAR0(num)}=org.stepDown()`;
-    }
-
     _onFromMem(num) {
         return `v${VAR0(num)}=org.fromMem()`;
     }
@@ -2286,16 +2239,8 @@ class Code2String {
     _onToMem(num) {
         return `v${VAR0(num)}=org.toMem(v${VAR1(num)})`;
     }
-
-    _onMyX(num) {
-        return `v${VAR0(num)}=org.myX()`;
-    }
-
-    _onMyY(num) {
-        return `v${VAR0(num)}=org.myY()`;
-    }
 }
-/* harmony export (immutable) */ __webpack_exports__["a"] = Code2String;
+/* harmony export (immutable) */ __webpack_exports__["a"] = Code2StringGarmin;
 
 
 /***/ }),
@@ -4088,6 +4033,10 @@ class Fitness {
             this._setVars(DATA[i], vars);
             code.run(org);
             org.energy += +(vars[0] === 1);
+        }
+
+        if (org.energy > len / 2) {
+            console.log(org.code.code);
         }
     }
 

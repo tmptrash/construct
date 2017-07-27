@@ -15,7 +15,6 @@ import Console     from './../../global/Console';
 import Events      from './../../global/Events';
 import Queue       from './../../global/Queue';
 import Organism    from './../../organism/Organism';
-import Code2String from './../../organism/Code2String';
 import Backup      from './Backup';
 
 export default class Organisms {
@@ -27,7 +26,7 @@ export default class Organisms {
         this._manager       = manager;
         this._positions     = {};
         this._orgId         = 0;
-        this._code2Str      = new Code2String();
+        this._code2Str      = new manager.CLASS_MAP[Config.code2StringCls];
         this._onIterationCb = this._onIteration.bind(this);
         this._onAfterMoveCb = this._onAfterMove.bind(this);
 

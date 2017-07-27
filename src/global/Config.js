@@ -185,6 +185,10 @@ const Config = {
      */
     codeOperatorsCls: 'OperatorsGarmin',
     /**
+     * {String} Name of the class for string representation of byte code
+     */
+    code2StringCls: 'Code2StringGarmin',
+    /**
      * {Number} World width
      */
     worldWidth: 1020,

@@ -12,24 +12,26 @@
  * TODO: what about destroy of manager instance? We have to destroy plugins
  * TODO: by calling of destroy() method for every of them
  */
-import Config          from './../global/Config';
-import Observer        from './../global/Observer';
-import Events          from './../global/Events';
-import World           from './../visual/World';
-import Canvas          from './../visual/Canvas';
-import Organisms       from './plugins/Organisms';
-import Mutator         from './plugins/Mutator';
-import Energy          from './plugins/Energy';
-import Operators       from './../organism/Operators';
-import OperatorsGarmin from './../organism/OperatorsGarmin';
-import Fitness         from './../organism/Fitness';
+import Config            from './../global/Config';
+import Observer          from './../global/Observer';
+import Events            from './../global/Events';
+import World             from './../visual/World';
+import Canvas            from './../visual/Canvas';
+import Organisms         from './plugins/Organisms';
+import Mutator           from './plugins/Mutator';
+import Energy            from './plugins/Energy';
+import Operators         from './../organism/Operators';
+import OperatorsGarmin   from './../organism/OperatorsGarmin';
+import Code2StringGarmin from './../organism/Code2StringGarmin';
+import Fitness           from './../organism/Fitness';
 /**
  * {Object} Mapping of class names and their functions
  */
 const CLASS_MAP = {
-    Operators      : Operators,
-    OperatorsGarmin: OperatorsGarmin,
-    Fitness        : Fitness
+    Operators        : Operators,
+    OperatorsGarmin  : OperatorsGarmin,
+    Code2StringGarmin: Code2StringGarmin,
+    Fitness          : Fitness
 };
 /**
  * {Array} Plugins for Manager

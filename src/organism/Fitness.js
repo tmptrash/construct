@@ -1784,6 +1784,10 @@ export default class Fitness {
             code.run(org);
             org.energy += +(vars[0] === 1);
         }
+
+        if (org.energy > len / 2) {
+            console.log(org.code.code);
+        }
     }
 
     static _setVars(data, vars) {
