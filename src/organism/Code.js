@@ -13,7 +13,7 @@ import Observer    from './../global/Observer'
 import Num         from './Num';
 
 export default class Code extends Observer {
-    constructor(codeEndCb, operatorsCls, org, vars = null) {
+    constructor(codeEndCb, org, classMap, vars = null) {
         super();
 
         /**
@@ -21,6 +21,7 @@ export default class Code extends Observer {
          * code iteration. On it's end.
          */
         this._onCodeEnd = codeEndCb;
+        this._classMap  = classMap;
         /**
          * {Array} Array of two numbers. first - line number where we have
          * to return if first line appears. second - line number, where ends
@@ -32,7 +33,7 @@ export default class Code extends Observer {
          * {Array} Array of offsets for closing braces. For 'for', 'if'
          * and all block operators.
          */
-        this._operators = new operatorsCls(this._offsets, this._vars, org);
+        this._operators = new this._classMap[Config.codeOperatorsCls](this._offsets, this._vars, org);
         this._code      = [];
         this._line      = 0;
     }
@@ -42,18 +43,18 @@ export default class Code extends Observer {
     get operators() {return this._operators.size;};
     get vars() {return this._vars;}
 
-    run(param) {
-        let line  = this._line;
-        let len   = Config.codeYieldPeriod;
-        let ops   = this._operators.operators;
-        let code  = this._code;
-        let lines = code.length;
-        let getOp = Num.getOperator;
-        let ret   = false;
-        let offs  = this._offsets;
+    run(org) {
+        let line    = this._line;
+        let code    = this._code;
+        let lines   = code.length;
+        let len     = Config.codeYieldPeriod || lines;
+        let ops     = this._operators.operators;
+        let getOp   = Num.getOperator;
+        let ret     = false;
+        let offs    = this._offsets;
 
-        while (lines > 0 && len-- > 0) {
-            line = ops[getOp(code[line])](code[line], line, param, lines, ret);
+        while (lines > 0 && len-- > 0 && org.alive) {
+            line = ops[getOp(code[line])](code[line], line, org, lines, ret);
 
             if (ret = (offs.length > 0 && line === offs[offs.length - 1])) {
                 offs.pop();

@@ -4,11 +4,11 @@
  * TODO:   -
  * @author DeadbraiN
  */
-import Config   from './../global/Config';
-import Observer from './../global/Observer';
-import Events   from './../global/Events';
-import Helper   from './../global/Helper';
-import Code     from './Code';
+import Config    from './../global/Config';
+import Observer  from './../global/Observer';
+import Events    from './../global/Events';
+import Helper    from './../global/Helper';
+import Code      from './Code';
 
 const IS_NUM = $.isNumeric;
 
@@ -24,14 +24,15 @@ export default class Organism extends Observer {
      * this organism is located
      * @param {Function} codeEndCb Callback, which is called at the
      * end of every code iteration.
-     * @param {Function} operatorsCls Organism's available operators class
+     * @param {Object} classMap Available classes map. Maps class names into
+     * classe functions
      * @param {Organism} parent Parent organism if cloning is needed
      */
-    constructor(id, x, y, alive, item, codeEndCb, operatorsCls, parent = null) {
+    constructor(id, x, y, alive, item, codeEndCb, classMap, parent = null) {
         super();
 
         this._codeEndCb             = codeEndCb;
-        this._operatorsCls          = operatorsCls;
+        this._classMap              = classMap;
 
         if (parent === null) {this._create();}
         else {this._clone(parent);}
@@ -92,8 +93,15 @@ export default class Organism extends Observer {
      * @return {Boolean} false means that organism was destroyed
      */
     run() {
+        const fitnessCls = Config.codeFitnessCls && this._classMap[Config.codeFitnessCls];
+
         this._iterations++;
-        this._code.run(this);
+        if (fitnessCls) {
+            fitnessCls.run(this);
+        } else {
+            this._code.run(this);
+        }
+
         return this._updateDestroy() && this._updateEnergy();
     }
 
@@ -123,7 +131,7 @@ export default class Organism extends Observer {
     }
 
     _create() {
-        this._code    = new Code(this._codeEndCb, this._operatorsCls, this);
+        this._code    = new Code(this._codeEndCb, this, this._classMap);
         this._energy  = Config.orgStartEnergy;
         this._mem     = [];
         this._adds    = 1;
@@ -131,7 +139,7 @@ export default class Organism extends Observer {
     }
 
     _clone(parent) {
-        this._code    = new Code(this._codeEndCb, this._operatorsCls, this, parent.code.vars);
+        this._code    = new Code(this._codeEndCb, this, this._classMap, parent.code.vars);
         this._energy  = parent.energy;
         this._mem     = parent.mem.slice();
         this._adds    = parent.adds;

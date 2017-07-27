@@ -15,7 +15,6 @@ import Console     from './../../global/Console';
 import Events      from './../../global/Events';
 import Queue       from './../../global/Queue';
 import Organism    from './../../organism/Organism';
-import Operators   from './../../organism/Operators';
 import Code2String from './../../organism/Code2String';
 import Backup      from './Backup';
 
@@ -110,14 +109,15 @@ export default class Organisms {
         const orgs      = this._orgs;
         const orgAmount = orgs.size;
         const needCrossover = Config.orgCrossoverPeriod === 0 ? false : counter % Config.orgCrossoverPeriod === 0;
-        if (!needCrossover || orgAmount < 1 || orgAmount >= Config.worldMaxOrgs) {return false;}
+        if (!needCrossover || orgAmount < 1) {return false;}
+        if (orgAmount >= Config.worldMaxOrgs) {orgs.get(Helper.rand(Config.worldMaxOrgs)).val.destroy();}
 
         let org1   = this._tournament();
         let org2   = this._tournament();
         let winner = this._tournament(org1, org2);
         let looser = winner.id === org1.id ? org2 : org1;
 
-        if (looser.alive && orgAmount < Config.worldMaxOrgs) {
+        if (looser.alive) {
             this._crossover(org1, org2);
         }
 
@@ -251,7 +251,8 @@ export default class Organisms {
         }
     }
 
-    _onCodeEnd() {
+    _onCodeEnd(org) {
+        this._manager.fire();
         this._codeRuns++;
     }
 
@@ -260,7 +261,7 @@ export default class Organisms {
         if (orgs.size >= Config.worldMaxOrgs || pos === false) {return false;}
         orgs.add(null);
         let last   = orgs.last;
-        let org    = new Organism(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), Operators, parent);
+        let org    = new Organism(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), this._manager.CLASS_MAP, parent);
 
         last.val = org;
         this._addHandlers(org);
