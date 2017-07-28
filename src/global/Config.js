@@ -209,7 +209,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 500,
+    worldMaxOrgs: 900,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...

@@ -97,7 +97,7 @@ export default class Organism extends Observer {
 
         this._iterations++;
         if (fitnessCls) {
-            fitnessCls.run(this);
+            if (fitnessCls.run(this)) {this.fire(Events.STOP, this)}
         } else {
             this._code.run(this);
         }

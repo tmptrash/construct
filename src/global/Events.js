@@ -38,7 +38,8 @@ const Events = {
     GRAB_RIGHT: 36,
     GRAB_UP: 37,
     GRAB_DOWN: 38,
-    DESTROY: 39
+    DESTROY: 39,
+    STOP: 40
 };
 
 export default Events;

@@ -282,7 +282,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 500,
+    worldMaxOrgs: 900,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
@@ -611,7 +611,8 @@ const Events = {
     GRAB_RIGHT: 36,
     GRAB_UP: 37,
     GRAB_DOWN: 38,
-    DESTROY: 39
+    DESTROY: 39,
+    STOP: 40
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (Events);
@@ -715,6 +716,41 @@ class Number {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Config__ = __webpack_require__(0);
+/**
+ * Module for working with a browser console
+ *
+ * Usage:
+ *   import Console from '.../Console';
+ *   Console.msg('msg');
+ *
+ * @author DeadbraiN
+ */
+
+
+class Console {
+    static error(...msg) {
+        if (this._mode === __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_NO) {return;}
+        console.log(`%c${msg.join('')}`, 'background: #fff; color: #aa0000');
+    }
+    static warn (...msg) {
+        if (this._mode === __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_NO) {return;}
+        console.log(`%c${msg.join('')}`, 'background: #fff; color: #cc7a00');
+    }
+    static info (...msg) {
+        if (this._mode !== __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_ALL) {return;}
+        console.log(`%c${msg.join('')}`, 'background: #fff; color: #1a1a00');
+    }
+    static mode (mode = __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_IMPORTANT) {this._mode = mode;}
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = Console;
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /**
  * Observer implementation. May fire, listen(on()) and clear all the event
  * handlers
@@ -765,47 +801,12 @@ class Observer {
 
 
 /***/ }),
-/* 5 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Config__ = __webpack_require__(0);
-/**
- * Module for working with a browser console
- *
- * Usage:
- *   import Console from '.../Console';
- *   Console.msg('msg');
- *
- * @author DeadbraiN
- */
-
-
-class Console {
-    static error(...msg) {
-        if (this._mode === __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_NO) {return;}
-        console.log(`%c${msg.join('')}`, 'background: #fff; color: #aa0000');
-    }
-    static warn (...msg) {
-        if (this._mode === __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_NO) {return;}
-        console.log(`%c${msg.join('')}`, 'background: #fff; color: #cc7a00');
-    }
-    static info (...msg) {
-        if (this._mode !== __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_ALL) {return;}
-        console.log(`%c${msg.join('')}`, 'background: #fff; color: #1a1a00');
-    }
-    static mode (mode = __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* default */].QUIET_IMPORTANT) {this._mode = mode;}
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = Console;
-
-
-/***/ }),
 /* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Helper__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Code__ = __webpack_require__(14);
@@ -908,7 +909,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 
         this._iterations++;
         if (fitnessCls) {
-            fitnessCls.run(this);
+            if (fitnessCls.run(this)) {this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].STOP, this)}
         } else {
             this._code.run(this);
         }
@@ -1000,17 +1001,18 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__visual_World__ = __webpack_require__(20);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__visual_Canvas__ = __webpack_require__(19);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__plugins_Organisms__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__plugins_Mutator__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__plugins_Energy__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__organism_Operators__ = __webpack_require__(17);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__organism_OperatorsGarmin__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__organism_Code2StringGarmin__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__organism_Fitness__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Console__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__visual_World__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__visual_Canvas__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__plugins_Organisms__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__plugins_Mutator__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__plugins_Energy__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__organism_Operators__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__organism_OperatorsGarmin__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__organism_Code2StringGarmin__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__organism_Fitness__ = __webpack_require__(16);
 /**
  * Main manager class of application. Contains all parts of jevo.js app
  * like World, Connection, Console etc... Runs infinite loop inside run()
@@ -1037,22 +1039,23 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 
 
 
+
 /**
  * {Object} Mapping of class names and their functions
  */
 const CLASS_MAP = {
-    Operators        : __WEBPACK_IMPORTED_MODULE_8__organism_Operators__["a" /* default */],
-    OperatorsGarmin  : __WEBPACK_IMPORTED_MODULE_9__organism_OperatorsGarmin__["a" /* default */],
-    Code2StringGarmin: __WEBPACK_IMPORTED_MODULE_10__organism_Code2StringGarmin__["a" /* default */],
-    Fitness          : __WEBPACK_IMPORTED_MODULE_11__organism_Fitness__["a" /* default */]
+    Operators        : __WEBPACK_IMPORTED_MODULE_9__organism_Operators__["a" /* default */],
+    OperatorsGarmin  : __WEBPACK_IMPORTED_MODULE_10__organism_OperatorsGarmin__["a" /* default */],
+    Code2StringGarmin: __WEBPACK_IMPORTED_MODULE_11__organism_Code2StringGarmin__["a" /* default */],
+    Fitness          : __WEBPACK_IMPORTED_MODULE_12__organism_Fitness__["a" /* default */]
 };
 /**
  * {Array} Plugins for Manager
  */
 const PLUGINS = {
-    Organisms: __WEBPACK_IMPORTED_MODULE_5__plugins_Organisms__["a" /* default */],
-    Mutator  : __WEBPACK_IMPORTED_MODULE_6__plugins_Mutator__["a" /* default */],
-    Energy   : __WEBPACK_IMPORTED_MODULE_7__plugins_Energy__["a" /* default */]
+    Organisms: __WEBPACK_IMPORTED_MODULE_6__plugins_Organisms__["a" /* default */],
+    Mutator  : __WEBPACK_IMPORTED_MODULE_7__plugins_Mutator__["a" /* default */],
+    Energy   : __WEBPACK_IMPORTED_MODULE_8__plugins_Energy__["a" /* default */]
 };
 
 class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* default */] {
@@ -1070,8 +1073,8 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
 
     constructor() {
         super();
-        this._world      = new __WEBPACK_IMPORTED_MODULE_3__visual_World__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldWidth, __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldHeight);
-        this._canvas     = new __WEBPACK_IMPORTED_MODULE_4__visual_Canvas__["a" /* default */]();
+        this._world      = new __WEBPACK_IMPORTED_MODULE_4__visual_World__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldWidth, __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldHeight);
+        this._canvas     = new __WEBPACK_IMPORTED_MODULE_5__visual_Canvas__["a" /* default */]();
         this._plugins    = PLUGINS;
         this._stopped    = false;
         this._visualized = true;
@@ -1169,7 +1172,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
                 if (event.data === msgName) {
                     event.stopPropagation();
                     if (this._stopped) {
-                        Console.warn('Manager has stopped');
+                        __WEBPACK_IMPORTED_MODULE_3__global_Console__["a" /* default */].warn('Manager has stopped');
                         return;
                     }
                     callback();
@@ -1328,7 +1331,7 @@ class Queue {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(4);
 /**
  * Manager's plugin, which creates backups according to population age.
  *
@@ -1421,7 +1424,7 @@ class Backup {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(4);
 /**
  * Manager's plugin, which tracks amount of energy in a world and updates it.
  *
@@ -1616,7 +1619,7 @@ class Mutator {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Queue__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_Organism__ = __webpack_require__(6);
@@ -1834,6 +1837,7 @@ class Organisms {
         org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].GET_ENERGY, this._onGetEnergy.bind(this));
         org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].EAT, this._onEat.bind(this));
         org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STEP, this._onStep.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STOP, this._onStop.bind(this));
     }
 
     _onGetEnergy(org, x, y, ret) {
@@ -1871,6 +1875,13 @@ class Organisms {
         if (org.alive) {
             ret.ret = +this._manager.move(x1, y1, x2, y2, org)
         }
+    }
+
+    _onStop(org) {
+        this._manager.stop();
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('org id: ', org.id, 'energy: ', org.energy);
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn(org.code.code);
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn(this._manager.api.formatCode(org.code.code));
     }
 
     _onCodeEnd(org) {
@@ -1913,7 +1924,7 @@ class Organisms {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Observer__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Observer__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Num__ = __webpack_require__(3);
 /**
  * Implements organism's code logic.
@@ -2248,19 +2259,22 @@ class Code2StringGarmin {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
 /**
  * You may override this class to set your own fitness calculation.
  * TODO: describe interface
  *
  * @author DeadbraiN
  */
-const FIELDS = [
+
+
+const FIELDS      = [
     'Date',
     'Calories',
     'Time',
     'Avg HR'
 ];
-const DATA   = [
+const TENNIS      = [
     {
         "Activity Type": "indoor_cardio",
         "Date": "2017-07-26 09:26:26",
@@ -2678,7 +2692,7 @@ const DATA   = [
         "Avg Stroke Rate": "--"
     },
     {
-        "Activity Type": "strength_training",
+        "Activity Type": "indoor_cardio",
         "Date": "2017-07-04 09:03:02",
         "Favorite": "false",
         "Title": "Tennis",
@@ -2900,305 +2914,19 @@ const DATA   = [
         "Total Strokes": "--",
         "Avg. Swolf": "--",
         "Avg Stroke Rate": "--"
-    },
+    }
+];
+const HOKKEY      = [
     {
         "Activity Type": "indoor_cardio",
-        "Date": "2017-06-07 20:00:14",
+        "Date": "2017-07-27 20:10:37",
         "Favorite": "false",
-        "Title": "Tennis",
+        "Title": "Hokkey",
         "Distance": 0,
-        "Calories": 128,
-        "Time": "47:30",
-        "Avg HR": 83,
-        "Max HR": 119,
-        "Aerobic TE": 0,
-        "Avg Cadence": "--",
-        "Max Cadence": "--",
-        "Avg Speed": "--",
-        "Max Speed": "--",
-        "Elev Gain": "--",
-        "Elev Loss": "--",
-        "Avg Stride Length": 0,
-        "Avg Vertical Ratio": 0,
-        "Avg Vertical Oscillation": 0,
-        "Avg Ground Contact Time": "--",
-        "Avg GCT Balance": "--",
-        "Normalized Power® (NP®)": "--",
-        "L/R Balance": "--",
-        "Training Stress Score®": 0,
-        "Max Avg Power (20 min)": "--",
-        "Power": "--",
-        "Max Power": "--",
-        "Total Strokes": "--",
-        "Avg. Swolf": "--",
-        "Avg Stroke Rate": "--"
-    },
-    {
-        "Activity Type": "indoor_cardio",
-        "Date": "2017-06-04 17:16:09",
-        "Favorite": "false",
-        "Title": "Tennis",
-        "Distance": 0,
-        "Calories": 430,
-        "Time": "1:21:47",
-        "Avg HR": 111,
-        "Max HR": 160,
-        "Aerobic TE": 0,
-        "Avg Cadence": "--",
-        "Max Cadence": "--",
-        "Avg Speed": "--",
-        "Max Speed": "--",
-        "Elev Gain": "--",
-        "Elev Loss": "--",
-        "Avg Stride Length": 0,
-        "Avg Vertical Ratio": 0,
-        "Avg Vertical Oscillation": 0,
-        "Avg Ground Contact Time": "--",
-        "Avg GCT Balance": "--",
-        "Normalized Power® (NP®)": "--",
-        "L/R Balance": "--",
-        "Training Stress Score®": 0,
-        "Max Avg Power (20 min)": "--",
-        "Power": "--",
-        "Max Power": "--",
-        "Total Strokes": "--",
-        "Avg. Swolf": "--",
-        "Avg Stroke Rate": "--"
-    },
-    {
-        "Activity Type": "indoor_cardio",
-        "Date": "2017-06-03 12:46:02",
-        "Favorite": "false",
-        "Title": "Tennis",
-        "Distance": 0,
-        "Calories": 295,
-        "Time": "1:01:14",
-        "Avg HR": 106,
-        "Max HR": 144,
-        "Aerobic TE": 0,
-        "Avg Cadence": "--",
-        "Max Cadence": "--",
-        "Avg Speed": "--",
-        "Max Speed": "--",
-        "Elev Gain": "--",
-        "Elev Loss": "--",
-        "Avg Stride Length": 0,
-        "Avg Vertical Ratio": 0,
-        "Avg Vertical Oscillation": 0,
-        "Avg Ground Contact Time": "--",
-        "Avg GCT Balance": "--",
-        "Normalized Power® (NP®)": "--",
-        "L/R Balance": "--",
-        "Training Stress Score®": 0,
-        "Max Avg Power (20 min)": "--",
-        "Power": "--",
-        "Max Power": "--",
-        "Total Strokes": "--",
-        "Avg. Swolf": "--",
-        "Avg Stroke Rate": "--"
-    },
-    {
-        "Activity Type": "indoor_cardio",
-        "Date": "2017-06-03 11:00:15",
-        "Favorite": "false",
-        "Title": "Tennis",
-        "Distance": 0,
-        "Calories": 337,
-        "Time": "1:03:28",
-        "Avg HR": 112,
-        "Max HR": 145,
-        "Aerobic TE": 0,
-        "Avg Cadence": "--",
-        "Max Cadence": "--",
-        "Avg Speed": "--",
-        "Max Speed": "--",
-        "Elev Gain": "--",
-        "Elev Loss": "--",
-        "Avg Stride Length": 0,
-        "Avg Vertical Ratio": 0,
-        "Avg Vertical Oscillation": 0,
-        "Avg Ground Contact Time": "--",
-        "Avg GCT Balance": "--",
-        "Normalized Power® (NP®)": "--",
-        "L/R Balance": "--",
-        "Training Stress Score®": 0,
-        "Max Avg Power (20 min)": "--",
-        "Power": "--",
-        "Max Power": "--",
-        "Total Strokes": "--",
-        "Avg. Swolf": "--",
-        "Avg Stroke Rate": "--"
-    },
-    {
-        "Activity Type": "indoor_cardio",
-        "Date": "2017-05-31 19:12:25",
-        "Favorite": "false",
-        "Title": "Tennis",
-        "Distance": 0,
-        "Calories": 431,
-        "Time": "1:34:10",
-        "Avg HR": 109,
-        "Max HR": 155,
-        "Aerobic TE": 0,
-        "Avg Cadence": "--",
-        "Max Cadence": "--",
-        "Avg Speed": "--",
-        "Max Speed": "--",
-        "Elev Gain": "--",
-        "Elev Loss": "--",
-        "Avg Stride Length": 0,
-        "Avg Vertical Ratio": 0,
-        "Avg Vertical Oscillation": 0,
-        "Avg Ground Contact Time": "--",
-        "Avg GCT Balance": "--",
-        "Normalized Power® (NP®)": "--",
-        "L/R Balance": "--",
-        "Training Stress Score®": 0,
-        "Max Avg Power (20 min)": "--",
-        "Power": "--",
-        "Max Power": "--",
-        "Total Strokes": "--",
-        "Avg. Swolf": "--",
-        "Avg Stroke Rate": "--"
-    },
-    {
-        "Activity Type": "indoor_cardio",
-        "Date": "2017-05-28 12:54:06",
-        "Favorite": "false",
-        "Title": "Tennis",
-        "Distance": 0,
-        "Calories": 298,
-        "Time": "1:26:38",
-        "Avg HR": 92,
-        "Max HR": 136,
-        "Aerobic TE": 0,
-        "Avg Cadence": "--",
-        "Max Cadence": "--",
-        "Avg Speed": "--",
-        "Max Speed": "--",
-        "Elev Gain": "--",
-        "Elev Loss": "--",
-        "Avg Stride Length": 0,
-        "Avg Vertical Ratio": 0,
-        "Avg Vertical Oscillation": 0,
-        "Avg Ground Contact Time": "--",
-        "Avg GCT Balance": "--",
-        "Normalized Power® (NP®)": "--",
-        "L/R Balance": "--",
-        "Training Stress Score®": 0,
-        "Max Avg Power (20 min)": "--",
-        "Power": "--",
-        "Max Power": "--",
-        "Total Strokes": "--",
-        "Avg. Swolf": "--",
-        "Avg Stroke Rate": "--"
-    },
-    {
-        "Activity Type": "indoor_cardio",
-        "Date": "2017-05-27 13:21:51",
-        "Favorite": "false",
-        "Title": "Tennis",
-        "Distance": 0,
-        "Calories": 417,
-        "Time": "2:01:10",
-        "Avg HR": 95,
-        "Max HR": 130,
-        "Aerobic TE": 0,
-        "Avg Cadence": "--",
-        "Max Cadence": "--",
-        "Avg Speed": "--",
-        "Max Speed": "--",
-        "Elev Gain": "--",
-        "Elev Loss": "--",
-        "Avg Stride Length": 0,
-        "Avg Vertical Ratio": 0,
-        "Avg Vertical Oscillation": 0,
-        "Avg Ground Contact Time": "--",
-        "Avg GCT Balance": "--",
-        "Normalized Power® (NP®)": "--",
-        "L/R Balance": "--",
-        "Training Stress Score®": 0,
-        "Max Avg Power (20 min)": "--",
-        "Power": "--",
-        "Max Power": "--",
-        "Total Strokes": "--",
-        "Avg. Swolf": "--",
-        "Avg Stroke Rate": "--"
-    },
-    {
-        "Activity Type": "indoor_cardio",
-        "Date": "2017-05-21 12:55:17",
-        "Favorite": "false",
-        "Title": "Tennis",
-        "Distance": 0,
-        "Calories": 197,
-        "Time": "42:37",
-        "Avg HR": 105,
-        "Max HR": 139,
-        "Aerobic TE": 0,
-        "Avg Cadence": "--",
-        "Max Cadence": "--",
-        "Avg Speed": "--",
-        "Max Speed": "--",
-        "Elev Gain": "--",
-        "Elev Loss": "--",
-        "Avg Stride Length": 0,
-        "Avg Vertical Ratio": 0,
-        "Avg Vertical Oscillation": 0,
-        "Avg Ground Contact Time": "--",
-        "Avg GCT Balance": "--",
-        "Normalized Power® (NP®)": "--",
-        "L/R Balance": "--",
-        "Training Stress Score®": 0,
-        "Max Avg Power (20 min)": "--",
-        "Power": "--",
-        "Max Power": "--",
-        "Total Strokes": "--",
-        "Avg. Swolf": "--",
-        "Avg Stroke Rate": "--"
-    },
-    {
-        "Activity Type": "indoor_cardio",
-        "Date": "2017-05-21 10:01:41",
-        "Favorite": "false",
-        "Title": "Tennis",
-        "Distance": 0,
-        "Calories": 760,
-        "Time": "2:31:17",
-        "Avg HR": 118,
-        "Max HR": 171,
-        "Aerobic TE": 0,
-        "Avg Cadence": "--",
-        "Max Cadence": "--",
-        "Avg Speed": "--",
-        "Max Speed": "--",
-        "Elev Gain": "--",
-        "Elev Loss": "--",
-        "Avg Stride Length": 0,
-        "Avg Vertical Ratio": 0,
-        "Avg Vertical Oscillation": 0,
-        "Avg Ground Contact Time": "--",
-        "Avg GCT Balance": "--",
-        "Normalized Power® (NP®)": "--",
-        "L/R Balance": "--",
-        "Training Stress Score®": 0,
-        "Max Avg Power (20 min)": "--",
-        "Power": "--",
-        "Max Power": "--",
-        "Total Strokes": "--",
-        "Avg. Swolf": "--",
-        "Avg Stroke Rate": "--"
-    },
-    {
-        "Activity Type": "indoor_cardio",
-        "Date": "2017-05-20 12:24:48",
-        "Favorite": "false",
-        "Title": "Tennis",
-        "Distance": 0,
-        "Calories": 233,
-        "Time": "1:11:39",
+        "Calories": 373,
+        "Time": "1:50:47",
         "Avg HR": 91,
-        "Max HR": 124,
+        "Max HR": 138,
         "Aerobic TE": 0,
         "Avg Cadence": "--",
         "Max Cadence": "--",
@@ -3223,14 +2951,14 @@ const DATA   = [
     },
     {
         "Activity Type": "indoor_cardio",
-        "Date": "2017-05-16 19:03:55",
+        "Date": "2017-07-13 20:35:33",
         "Favorite": "false",
-        "Title": "Tennis",
+        "Title": "Hokkey",
         "Distance": 0,
-        "Calories": 435,
-        "Time": "1:02:13",
-        "Avg HR": 129,
-        "Max HR": 167,
+        "Calories": 308,
+        "Time": "1:24:29",
+        "Avg HR": 92,
+        "Max HR": 148,
         "Aerobic TE": 0,
         "Avg Cadence": "--",
         "Max Cadence": "--",
@@ -3255,14 +2983,14 @@ const DATA   = [
     },
     {
         "Activity Type": "indoor_cardio",
-        "Date": "2017-04-08 11:14:51",
+        "Date": "2017-07-06 21:11:37",
         "Favorite": "false",
-        "Title": "Tennis",
+        "Title": "Hokkey",
         "Distance": 0,
-        "Calories": 106,
-        "Time": "56:17",
-        "Avg HR": 72,
-        "Max HR": 113,
+        "Calories": 267,
+        "Time": "1:06:04",
+        "Avg HR": 97,
+        "Max HR": 129,
         "Aerobic TE": 0,
         "Avg Cadence": "--",
         "Max Cadence": "--",
@@ -3287,13 +3015,45 @@ const DATA   = [
     },
     {
         "Activity Type": "indoor_cardio",
-        "Date": "2017-03-01 10:14:13",
+        "Date": "2017-06-15 20:16:14",
         "Favorite": "false",
-        "Title": "Tennis",
+        "Title": "Hokkey",
         "Distance": 0,
-        "Calories": 217,
-        "Time": "47:59",
-        "Avg HR": 99,
+        "Calories": 353,
+        "Time": "1:44:38",
+        "Avg HR": 92,
+        "Max HR": 151,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-06-08 20:53:58",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 266,
+        "Time": "1:17:18",
+        "Avg HR": 92,
         "Max HR": 137,
         "Aerobic TE": 0,
         "Avg Cadence": "--",
@@ -3319,14 +3079,14 @@ const DATA   = [
     },
     {
         "Activity Type": "indoor_cardio",
-        "Date": "2017-02-28 22:59:00",
+        "Date": "2017-05-11 19:29:12",
         "Favorite": "false",
-        "Title": "Tennis",
+        "Title": "Hokkey",
         "Distance": 0,
-        "Calories": 303,
-        "Time": "1:03:02",
-        "Avg HR": 104,
-        "Max HR": 147,
+        "Calories": 546,
+        "Time": "1:33:38",
+        "Avg HR": 124,
+        "Max HR": 171,
         "Aerobic TE": 0,
         "Avg Cadence": "--",
         "Max Cadence": "--",
@@ -3351,78 +3111,14 @@ const DATA   = [
     },
     {
         "Activity Type": "indoor_cardio",
-        "Date": "2017-02-15 10:18:41",
+        "Date": "2017-02-09 21:57:27",
         "Favorite": "false",
-        "Title": "Tennis",
-        "Distance": 0,
-        "Calories": 219,
-        "Time": "45:20",
-        "Avg HR": 99,
-        "Max HR": 136,
-        "Aerobic TE": 0,
-        "Avg Cadence": "--",
-        "Max Cadence": "--",
-        "Avg Speed": "--",
-        "Max Speed": "--",
-        "Elev Gain": "--",
-        "Elev Loss": "--",
-        "Avg Stride Length": 0,
-        "Avg Vertical Ratio": 0,
-        "Avg Vertical Oscillation": 0,
-        "Avg Ground Contact Time": "--",
-        "Avg GCT Balance": "--",
-        "Normalized Power® (NP®)": "--",
-        "L/R Balance": "--",
-        "Training Stress Score®": 0,
-        "Max Avg Power (20 min)": "--",
-        "Power": "--",
-        "Max Power": "--",
-        "Total Strokes": "--",
-        "Avg. Swolf": "--",
-        "Avg Stroke Rate": "--"
-    },
-    {
-        "Activity Type": "indoor_cardio",
-        "Date": "2017-02-12 19:00:26",
-        "Favorite": "false",
-        "Title": "Tennis",
-        "Distance": 0,
-        "Calories": 387,
-        "Time": "54:27",
-        "Avg HR": 121,
-        "Max HR": 161,
-        "Aerobic TE": 0,
-        "Avg Cadence": "--",
-        "Max Cadence": "--",
-        "Avg Speed": "--",
-        "Max Speed": "--",
-        "Elev Gain": "--",
-        "Elev Loss": "--",
-        "Avg Stride Length": 0,
-        "Avg Vertical Ratio": 0,
-        "Avg Vertical Oscillation": 0,
-        "Avg Ground Contact Time": "--",
-        "Avg GCT Balance": "--",
-        "Normalized Power® (NP®)": "--",
-        "L/R Balance": "--",
-        "Training Stress Score®": 0,
-        "Max Avg Power (20 min)": "--",
-        "Power": "--",
-        "Max Power": "--",
-        "Total Strokes": "--",
-        "Avg. Swolf": "--",
-        "Avg Stroke Rate": "--"
-    },
-    {
-        "Activity Type": "indoor_cardio",
-        "Date": "2017-02-07 23:24:23",
-        "Favorite": "false",
-        "Title": "Tennis",
+        "Title": "Hokkey",
         "Distance": 0,
         "Calories": 129,
-        "Time": "35:57",
-        "Avg HR": 90,
-        "Max HR": 136,
+        "Time": "1:00:41",
+        "Avg HR": 74,
+        "Max HR": 117,
         "Aerobic TE": 0,
         "Avg Cadence": "--",
         "Max Cadence": "--",
@@ -3447,237 +3143,13 @@ const DATA   = [
     },
     {
         "Activity Type": "indoor_cardio",
-        "Date": "2017-02-01 11:10:24",
+        "Date": "2017-02-06 22:32:12",
         "Favorite": "false",
-        "Title": "Tennis",
+        "Title": "Hokkey",
         "Distance": 0,
-        "Calories": 317,
-        "Time": "1:19:32",
-        "Avg HR": 93,
-        "Max HR": 142,
-        "Aerobic TE": 0,
-        "Avg Cadence": "--",
-        "Max Cadence": "--",
-        "Avg Speed": "--",
-        "Max Speed": "--",
-        "Elev Gain": "--",
-        "Elev Loss": "--",
-        "Avg Stride Length": 0,
-        "Avg Vertical Ratio": 0,
-        "Avg Vertical Oscillation": 0,
-        "Avg Ground Contact Time": "--",
-        "Avg GCT Balance": "--",
-        "Normalized Power® (NP®)": "--",
-        "L/R Balance": "--",
-        "Training Stress Score®": 0,
-        "Max Avg Power (20 min)": "--",
-        "Power": "--",
-        "Max Power": "--",
-        "Total Strokes": "--",
-        "Avg. Swolf": "--",
-        "Avg Stroke Rate": "--"
-    },
-    {
-        "Activity Type": "indoor_cardio",
-        "Date": "2017-01-31 23:32:27",
-        "Favorite": "false",
-        "Title": "Tennis",
-        "Distance": 0,
-        "Calories": 319,
-        "Time": "1:04:30",
-        "Avg HR": 104,
-        "Max HR": 141,
-        "Aerobic TE": 0,
-        "Avg Cadence": "--",
-        "Max Cadence": "--",
-        "Avg Speed": "--",
-        "Max Speed": "--",
-        "Elev Gain": "--",
-        "Elev Loss": "--",
-        "Avg Stride Length": 0,
-        "Avg Vertical Ratio": 0,
-        "Avg Vertical Oscillation": 0,
-        "Avg Ground Contact Time": "--",
-        "Avg GCT Balance": "--",
-        "Normalized Power® (NP®)": "--",
-        "L/R Balance": "--",
-        "Training Stress Score®": 0,
-        "Max Avg Power (20 min)": "--",
-        "Power": "--",
-        "Max Power": "--",
-        "Total Strokes": "--",
-        "Avg. Swolf": "--",
-        "Avg Stroke Rate": "--"
-    },
-    {
-        "Activity Type": "indoor_cardio",
-        "Date": "2017-01-24 20:51:31",
-        "Favorite": "false",
-        "Title": "Tennis",
-        "Distance": 0,
-        "Calories": 381,
-        "Time": "1:10:16",
-        "Avg HR": 109,
-        "Max HR": 147,
-        "Aerobic TE": 0,
-        "Avg Cadence": "--",
-        "Max Cadence": "--",
-        "Avg Speed": "--",
-        "Max Speed": "--",
-        "Elev Gain": "--",
-        "Elev Loss": "--",
-        "Avg Stride Length": 0,
-        "Avg Vertical Ratio": 0,
-        "Avg Vertical Oscillation": 0,
-        "Avg Ground Contact Time": "--",
-        "Avg GCT Balance": "--",
-        "Normalized Power® (NP®)": "--",
-        "L/R Balance": "--",
-        "Training Stress Score®": 0,
-        "Max Avg Power (20 min)": "--",
-        "Power": "--",
-        "Max Power": "--",
-        "Total Strokes": "--",
-        "Avg. Swolf": "--",
-        "Avg Stroke Rate": "--"
-    },
-    {
-        "Activity Type": "indoor_cardio",
-        "Date": "2017-01-18 09:05:40",
-        "Favorite": "false",
-        "Title": "Tennis",
-        "Distance": 0,
-        "Calories": 302,
-        "Time": "57:24",
-        "Avg HR": 106,
-        "Max HR": 144,
-        "Aerobic TE": 0,
-        "Avg Cadence": "--",
-        "Max Cadence": "--",
-        "Avg Speed": "--",
-        "Max Speed": "--",
-        "Elev Gain": "--",
-        "Elev Loss": "--",
-        "Avg Stride Length": 0,
-        "Avg Vertical Ratio": 0,
-        "Avg Vertical Oscillation": 0,
-        "Avg Ground Contact Time": "--",
-        "Avg GCT Balance": "--",
-        "Normalized Power® (NP®)": "--",
-        "L/R Balance": "--",
-        "Training Stress Score®": 0,
-        "Max Avg Power (20 min)": "--",
-        "Power": "--",
-        "Max Power": "--",
-        "Total Strokes": "--",
-        "Avg. Swolf": "--",
-        "Avg Stroke Rate": "--"
-    },
-    {
-        "Activity Type": "indoor_cardio",
-        "Date": "2017-01-17 21:05:13",
-        "Favorite": "false",
-        "Title": "Tennis",
-        "Distance": 0,
-        "Calories": 331,
-        "Time": "1:23:03",
-        "Avg HR": 93,
-        "Max HR": 136,
-        "Aerobic TE": 0,
-        "Avg Cadence": "--",
-        "Max Cadence": "--",
-        "Avg Speed": "--",
-        "Max Speed": "--",
-        "Elev Gain": "--",
-        "Elev Loss": "--",
-        "Avg Stride Length": 0,
-        "Avg Vertical Ratio": 0,
-        "Avg Vertical Oscillation": 0,
-        "Avg Ground Contact Time": "--",
-        "Avg GCT Balance": "--",
-        "Normalized Power® (NP®)": "--",
-        "L/R Balance": "--",
-        "Training Stress Score®": 0,
-        "Max Avg Power (20 min)": "--",
-        "Power": "--",
-        "Max Power": "--",
-        "Total Strokes": "--",
-        "Avg. Swolf": "--",
-        "Avg Stroke Rate": "--"
-    },
-    {
-        "Activity Type": "indoor_cardio",
-        "Date": "2017-01-04 09:31:19",
-        "Favorite": "false",
-        "Title": "Tennis",
-        "Distance": 0,
-        "Calories": 126,
-        "Time": "31:08",
-        "Avg HR": 92,
-        "Max HR": 138,
-        "Aerobic TE": 0,
-        "Avg Cadence": "--",
-        "Max Cadence": "--",
-        "Avg Speed": "--",
-        "Max Speed": "--",
-        "Elev Gain": "--",
-        "Elev Loss": "--",
-        "Avg Stride Length": 0,
-        "Avg Vertical Ratio": 0,
-        "Avg Vertical Oscillation": 0,
-        "Avg Ground Contact Time": "--",
-        "Avg GCT Balance": "--",
-        "Normalized Power® (NP®)": "--",
-        "L/R Balance": "--",
-        "Training Stress Score®": 0,
-        "Max Avg Power (20 min)": "--",
-        "Power": "--",
-        "Max Power": "--",
-        "Total Strokes": "--",
-        "Avg. Swolf": "--",
-        "Avg Stroke Rate": "--"
-    },
-    {
-        "Activity Type": "indoor_cardio",
-        "Date": "2017-01-03 20:59:12",
-        "Favorite": "false",
-        "Title": "Tennis",
-        "Distance": 0,
-        "Calories": 232,
-        "Time": "46:14",
-        "Avg HR": 103,
-        "Max HR": 138,
-        "Aerobic TE": 0,
-        "Avg Cadence": "--",
-        "Max Cadence": "--",
-        "Avg Speed": "--",
-        "Max Speed": "--",
-        "Elev Gain": "--",
-        "Elev Loss": "--",
-        "Avg Stride Length": 0,
-        "Avg Vertical Ratio": 0,
-        "Avg Vertical Oscillation": 0,
-        "Avg Ground Contact Time": "--",
-        "Avg GCT Balance": "--",
-        "Normalized Power® (NP®)": "--",
-        "L/R Balance": "--",
-        "Training Stress Score®": 0,
-        "Max Avg Power (20 min)": "--",
-        "Power": "--",
-        "Max Power": "--",
-        "Total Strokes": "--",
-        "Avg. Swolf": "--",
-        "Avg Stroke Rate": "--"
-    },
-    {
-        "Activity Type": "indoor_cardio",
-        "Date": "2016-12-14 09:33:46",
-        "Favorite": "false",
-        "Title": "Tennis",
-        "Distance": 0,
-        "Calories": 97,
-        "Time": "28:15",
-        "Avg HR": 88,
+        "Calories": 242,
+        "Time": "1:30:35",
+        "Avg HR": 80,
         "Max HR": 119,
         "Aerobic TE": 0,
         "Avg Cadence": "--",
@@ -3703,14 +3175,14 @@ const DATA   = [
     },
     {
         "Activity Type": "indoor_cardio",
-        "Date": "2016-12-13 21:03:55",
+        "Date": "2017-02-02 22:41:22",
         "Favorite": "false",
-        "Title": "Tennis",
+        "Title": "Hokkey",
         "Distance": 0,
-        "Calories": 280,
-        "Time": "50:51",
-        "Avg HR": 113,
-        "Max HR": 144,
+        "Calories": 292,
+        "Time": "1:21:07",
+        "Avg HR": 89,
+        "Max HR": 133,
         "Aerobic TE": 0,
         "Avg Cadence": "--",
         "Max Cadence": "--",
@@ -3735,14 +3207,14 @@ const DATA   = [
     },
     {
         "Activity Type": "indoor_cardio",
-        "Date": "2016-11-09 09:13:01",
+        "Date": "2017-01-26 21:29:13",
         "Favorite": "false",
-        "Title": "Tennis",
+        "Title": "Hokkey",
         "Distance": 0,
-        "Calories": 145,
-        "Time": "47:22",
-        "Avg HR": 83,
-        "Max HR": 107,
+        "Calories": 277,
+        "Time": "51:53",
+        "Avg HR": 106,
+        "Max HR": 139,
         "Aerobic TE": 0,
         "Avg Cadence": "--",
         "Max Cadence": "--",
@@ -3767,14 +3239,14 @@ const DATA   = [
     },
     {
         "Activity Type": "indoor_cardio",
-        "Date": "2016-11-08 21:00:03",
+        "Date": "2017-01-23 20:42:55",
         "Favorite": "false",
-        "Title": "Tennis",
+        "Title": "Hokkey",
         "Distance": 0,
-        "Calories": 293,
-        "Time": "1:01:50",
-        "Avg HR": 101,
-        "Max HR": 154,
+        "Calories": 276,
+        "Time": "1:06:15",
+        "Avg HR": 96,
+        "Max HR": 124,
         "Aerobic TE": 0,
         "Avg Cadence": "--",
         "Max Cadence": "--",
@@ -3799,14 +3271,142 @@ const DATA   = [
     },
     {
         "Activity Type": "indoor_cardio",
-        "Date": "2016-11-01 21:06:25",
+        "Date": "2017-01-19 20:24:38",
         "Favorite": "false",
-        "Title": "Tennis",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 357,
+        "Time": "2:02:41",
+        "Avg HR": 81,
+        "Max HR": 137,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-01-16 20:26:29",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 569,
+        "Time": "1:29:14",
+        "Avg HR": 120,
+        "Max HR": 166,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-01-05 19:58:30",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 428,
+        "Time": "2:00:16",
+        "Avg HR": 89,
+        "Max HR": 138,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2016-12-29 20:33:01",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 440,
+        "Time": "1:24:54",
+        "Avg HR": 110,
+        "Max HR": 161,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2016-12-15 20:36:37",
+        "Favorite": "false",
+        "Title": "Hokkey",
         "Distance": 0,
         "Calories": 398,
-        "Time": "1:36:25",
-        "Avg HR": 95,
-        "Max HR": 143,
+        "Time": "1:24:44",
+        "Avg HR": 106,
+        "Max HR": 147,
         "Aerobic TE": 0,
         "Avg Cadence": "--",
         "Max Cadence": "--",
@@ -3831,14 +3431,14 @@ const DATA   = [
     },
     {
         "Activity Type": "indoor_cardio",
-        "Date": "2016-10-26 08:12:18",
+        "Date": "2016-12-08 20:16:02",
         "Favorite": "false",
-        "Title": "Tennis",
+        "Title": "Hokkey",
         "Distance": 0,
-        "Calories": 250,
-        "Time": "1:34:27",
-        "Avg HR": 79,
-        "Max HR": 121,
+        "Calories": 266,
+        "Time": "1:40:29",
+        "Avg HR": 82,
+        "Max HR": 133,
         "Aerobic TE": 0,
         "Avg Cadence": "--",
         "Max Cadence": "--",
@@ -3863,14 +3463,14 @@ const DATA   = [
     },
     {
         "Activity Type": "indoor_cardio",
-        "Date": "2016-10-25 22:02:41",
+        "Date": "2016-11-10 21:52:24",
         "Favorite": "false",
-        "Title": "Tennis",
+        "Title": "Hokkey",
         "Distance": 0,
-        "Calories": 241,
-        "Time": "54:48",
-        "Avg HR": 95,
-        "Max HR": 134,
+        "Calories": 55,
+        "Time": "10:52",
+        "Avg HR": 99,
+        "Max HR": 120,
         "Aerobic TE": 0,
         "Avg Cadence": "--",
         "Max Cadence": "--",
@@ -3895,14 +3495,14 @@ const DATA   = [
     },
     {
         "Activity Type": "indoor_cardio",
-        "Date": "2016-10-19 09:07:26",
+        "Date": "2016-11-10 20:25:27",
         "Favorite": "false",
-        "Title": "Tennis",
+        "Title": "Hokkey",
         "Distance": 0,
-        "Calories": 288,
-        "Time": "52:28",
-        "Avg HR": 107,
-        "Max HR": 150,
+        "Calories": 316,
+        "Time": "1:20:29",
+        "Avg HR": 93,
+        "Max HR": 128,
         "Aerobic TE": 0,
         "Avg Cadence": "--",
         "Max Cadence": "--",
@@ -3927,78 +3527,14 @@ const DATA   = [
     },
     {
         "Activity Type": "indoor_cardio",
-        "Date": "2016-10-18 21:02:41",
+        "Date": "2016-11-03 20:40:32",
         "Favorite": "false",
-        "Title": "Tennis",
+        "Title": "Hokkey",
         "Distance": 0,
-        "Calories": 520,
-        "Time": "1:53:41",
-        "Avg HR": 102,
-        "Max HR": 168,
-        "Aerobic TE": 0,
-        "Avg Cadence": "--",
-        "Max Cadence": "--",
-        "Avg Speed": "--",
-        "Max Speed": "--",
-        "Elev Gain": "--",
-        "Elev Loss": "--",
-        "Avg Stride Length": 0,
-        "Avg Vertical Ratio": 0,
-        "Avg Vertical Oscillation": 0,
-        "Avg Ground Contact Time": "--",
-        "Avg GCT Balance": "--",
-        "Normalized Power® (NP®)": "--",
-        "L/R Balance": "--",
-        "Training Stress Score®": 0,
-        "Max Avg Power (20 min)": "--",
-        "Power": "--",
-        "Max Power": "--",
-        "Total Strokes": "--",
-        "Avg. Swolf": "--",
-        "Avg Stroke Rate": "--"
-    },
-    {
-        "Activity Type": "indoor_cardio",
-        "Date": "2016-10-09 12:02:13",
-        "Favorite": "false",
-        "Title": "tennis",
-        "Distance": 0,
-        "Calories": 365,
-        "Time": "1:03:54",
-        "Avg HR": 109,
-        "Max HR": 160,
-        "Aerobic TE": 0,
-        "Avg Cadence": "--",
-        "Max Cadence": "--",
-        "Avg Speed": "--",
-        "Max Speed": "--",
-        "Elev Gain": "--",
-        "Elev Loss": "--",
-        "Avg Stride Length": 0,
-        "Avg Vertical Ratio": 0,
-        "Avg Vertical Oscillation": 0,
-        "Avg Ground Contact Time": "--",
-        "Avg GCT Balance": "--",
-        "Normalized Power® (NP®)": "--",
-        "L/R Balance": "--",
-        "Training Stress Score®": 0,
-        "Max Avg Power (20 min)": "--",
-        "Power": "--",
-        "Max Power": "--",
-        "Total Strokes": "--",
-        "Avg. Swolf": "--",
-        "Avg Stroke Rate": "--"
-    },
-    {
-        "Activity Type": "indoor_cardio",
-        "Date": "2016-10-05 09:17:45",
-        "Favorite": "false",
-        "Title": "tennis",
-        "Distance": 0,
-        "Calories": 252,
-        "Time": "1:22:11",
-        "Avg HR": 85,
-        "Max HR": 129,
+        "Calories": 339,
+        "Time": "1:26:42",
+        "Avg HR": 92,
+        "Max HR": 141,
         "Aerobic TE": 0,
         "Avg Cadence": "--",
         "Max Cadence": "--",
@@ -4022,21 +3558,34 @@ const DATA   = [
         "Avg Stroke Rate": "--"
     }
 ];
+const ACTIVITIES  = [TENNIS, HOKKEY];
+const ERR_PERCENT = 0.02;
 
 class Fitness {
     static run(org) {
-        const len  = DATA.length;
+        const len = ACTIVITIES.length;
+        let total = 0;
+
+        org.energy = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartEnergy;
+        for (let i = 0; i < len; i++) {
+            this._run(org, ACTIVITIES[i], i);
+            total += ACTIVITIES[i].length;
+        }
+        //
+        // true means that result is found
+        //
+        return org.energy > (total - total * ERR_PERCENT);
+    }
+
+    static _run(org, data, index) {
+        const len  = data.length;
         const code = org.code;
         const vars = code.vars;
 
         for (let i = 0; i < len; i++) {
-            this._setVars(DATA[i], vars);
+            this._setVars(data[i], vars);
             code.run(org);
-            org.energy += +(vars[0] === 1);
-        }
-
-        if (org.energy > len / 2) {
-            console.log(org.code.code);
+            org.energy += +(vars[0] === index);
         }
     }
 
@@ -4603,7 +4152,7 @@ class Canvas {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Observer__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Observer__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(2);
 /**

@@ -15,6 +15,7 @@
 import Config            from './../global/Config';
 import Observer          from './../global/Observer';
 import Events            from './../global/Events';
+import Console           from './../global/Console';
 import World             from './../visual/World';
 import Canvas            from './../visual/Canvas';
 import Organisms         from './plugins/Organisms';

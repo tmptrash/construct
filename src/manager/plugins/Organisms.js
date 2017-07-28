@@ -211,6 +211,7 @@ export default class Organisms {
         org.on(Events.GET_ENERGY, this._onGetEnergy.bind(this));
         org.on(Events.EAT, this._onEat.bind(this));
         org.on(Events.STEP, this._onStep.bind(this));
+        org.on(Events.STOP, this._onStop.bind(this));
     }
 
     _onGetEnergy(org, x, y, ret) {
@@ -248,6 +249,13 @@ export default class Organisms {
         if (org.alive) {
             ret.ret = +this._manager.move(x1, y1, x2, y2, org)
         }
+    }
+
+    _onStop(org) {
+        this._manager.stop();
+        Console.warn('org id: ', org.id, 'energy: ', org.energy);
+        Console.warn(org.code.code);
+        Console.warn(this._manager.api.formatCode(org.code.code));
     }
 
     _onCodeEnd(org) {
