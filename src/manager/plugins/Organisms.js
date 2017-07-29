@@ -182,11 +182,11 @@ export default class Organisms {
         let pos = this._manager.world.getNearFreePos(org.x, org.y);
         if (pos === false || this._createOrg(pos, org) === false) {return false;}
         let child  = this._orgs.last.val;
-        let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >>> 1; // analog of Math.round()
         //
         // Energy should be grabbed only in native simulation mode
         //
         if (Config.codeFitnessCls === null) {
+            let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >>> 1; // analog of Math.round()
             org.grabEnergy(energy);
             child.grabEnergy(child.energy - energy);
         }

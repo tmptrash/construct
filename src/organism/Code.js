@@ -92,21 +92,24 @@ export default class Code extends Observer {
     }
 
     crossover(code) {
-        const rand   = Helper.rand;
-        const len    = this._code.length;
-        const len1   = code.code.length;
-        let   start  = rand(len);
-        let   end    = rand(len);
-        let   start1 = rand(len1);
-        let   end1   = rand(len1);
+        const rand    = Helper.rand;
+        const len     = this._code.length;
+        const len1    = code.code.length;
+        let   start   = rand(len);
+        let   end     = rand(len);
+        let   start1  = rand(len1);
+        let   end1    = rand(len1);
+        let   adds;
 
         if (start > end) {[start, end] = [end, start];}
         if (start1 > end1) {[start1, end1] = [end1, start1];}
 
+        adds = end1 - start1 - end + start;
+        if (Config.codeFitnessCls !== null && this._code.length + adds >= Config.codeMaxSize) {return 0}
         this._code.splice.apply(this._code, [start, end - start].concat(code.code.slice(start1, end1)));
         this._reset();
 
-        return end1 - start1 - end + start;
+        return adds;
     }
 
     /**
