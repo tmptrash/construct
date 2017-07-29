@@ -12,7 +12,10 @@ export default class Energy {
         this._manager       = manager;
         this._checkPeriod   = Config.worldEnergyCheckPeriod;
         this._onIterationCb = this._onIteration.bind(this);
-
+        //
+        // We have to update energy only in nature simulation mode
+        //
+        if (Config.codeFitnessCls !== null) {return}
         Helper.override(manager, 'onIteration', this._onIterationCb);
     }
 
