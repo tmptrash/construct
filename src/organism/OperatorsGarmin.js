@@ -44,13 +44,13 @@ export default class OperatorsGarmin {
         this._OPERATORS_CB = {
             0 : this.onVar.bind(this),
             1 : this.onCondition.bind(this),
-            2 : this.onLoop.bind(this),
-            3 : this.onOperator.bind(this),
-            4 : this.onNot.bind(this),
-            5 : this.onPi.bind(this),
-            6 : this.onTrig.bind(this),
-            7 : this.onFromMem.bind(this),
-            8 : this.onToMem.bind(this)
+            //2 : this.onLoop.bind(this),
+            2 : this.onOperator.bind(this),
+            3 : this.onNot.bind(this),
+            4 : this.onPi.bind(this),
+            5 : this.onTrig.bind(this),
+            6 : this.onFromMem.bind(this),
+            7 : this.onToMem.bind(this)
         };
         this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
         /**
@@ -110,28 +110,28 @@ export default class OperatorsGarmin {
         return offs;
     }
 
-    onLoop(num, line, org, lines, ret) {
-        const vars = this._vars;
-        const var0 = VAR0(num);
-        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
-        const offs = line + val3 < lines ? line + val3 + 1 : lines;
-
-        if (ret) {
-            if (++vars[var0] < vars[VAR2(num)]) {
-                this._offsets.push(line, offs);
-                return line + 1;
-            }
-            return offs;
-        }
-
-        vars[var0] = vars[VAR1(num)];
-        if (vars[var0] < vars[VAR2(num)]) {
-            this._offsets.push(line, offs);
-            return line + 1;
-        }
-
-        return offs;
-    }
+//    onLoop(num, line, org, lines, ret) {
+//        const vars = this._vars;
+//        const var0 = VAR0(num);
+//        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
+//        const offs = line + val3 < lines ? line + val3 + 1 : lines;
+//
+//        if (ret) {
+//            if (++vars[var0] < vars[VAR2(num)]) {
+//                this._offsets.push(line, offs);
+//                return line + 1;
+//            }
+//            return offs;
+//        }
+//
+//        vars[var0] = vars[VAR1(num)];
+//        if (vars[var0] < vars[VAR2(num)]) {
+//            this._offsets.push(line, offs);
+//            return line + 1;
+//        }
+//
+//        return offs;
+//    }
 
     onOperator(num, line) {
         const vars = this._vars;

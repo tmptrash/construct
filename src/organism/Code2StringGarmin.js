@@ -31,13 +31,13 @@ export default class Code2StringGarmin {
         this._OPERATORS_CB = {
             0 : this._onVar.bind(this),
             1 : this._onCondition.bind(this),
-            2 : this._onLoop.bind(this),
-            3 : this._onOperator.bind(this),
-            4 : this._onNot.bind(this),
-            5 : this._onPi.bind(this),
-            6 : this._onTrig.bind(this),
-            7 : this._onFromMem.bind(this),
-            8 : this._onToMem.bind(this)
+            //2 : this._onLoop.bind(this),
+            2 : this._onOperator.bind(this),
+            3 : this._onNot.bind(this),
+            4 : this._onPi.bind(this),
+            5 : this._onTrig.bind(this),
+            6 : this._onFromMem.bind(this),
+            7 : this._onToMem.bind(this)
         };
         this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
         /**
@@ -110,14 +110,14 @@ export default class Code2StringGarmin {
         return `if(v${VAR0(num)}${this._CONDITIONS[VAR2(num)]}v${VAR1(num)}){`;
     }
 
-    _onLoop(num, line, lines) {
-        const var0    = VAR0(num);
-        const var3    = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
-        const index   = line + var3 < lines ? line + var3 : lines - 1;
-
-        this._offsets.push(index);
-        return `for(v${var0}=v${VAR1(num)};v${var0}<v${VAR2(num)};v${var0}++){`;
-    }
+//    _onLoop(num, line, lines) {
+//        const var0    = VAR0(num);
+//        const var3    = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
+//        const index   = line + var3 < lines ? line + var3 : lines - 1;
+//
+//        this._offsets.push(index);
+//        return `for(v${var0}=v${VAR1(num)};v${var0}<v${VAR2(num)};v${var0}++){`;
+//    }
 
     _onOperator(num) {
         return `v${VAR0(num)}=v${VAR1(num)}${this._OPERATORS[Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS)]}v${VAR2(num)}`;

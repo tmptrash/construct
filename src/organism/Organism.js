@@ -131,7 +131,7 @@ export default class Organism extends Observer {
     }
 
     _create() {
-        this._code    = new Code(this._codeEndCb, this, this._classMap);
+        this._code    = new Code(this._codeEndCb.bind(this, this), this, this._classMap);
         this._energy  = Config.orgStartEnergy;
         this._mem     = [];
         this._adds    = 1;
@@ -139,7 +139,7 @@ export default class Organism extends Observer {
     }
 
     _clone(parent) {
-        this._code    = new Code(this._codeEndCb, this, this._classMap, parent.code.vars);
+        this._code    = new Code(this._codeEndCb.bind(this, this), this, this._classMap, parent.code.vars);
         this._energy  = parent.energy;
         this._mem     = parent.mem.slice();
         this._adds    = parent.adds;

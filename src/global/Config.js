@@ -113,7 +113,7 @@ const Config = {
     /**
      * {Number} Size of organism stack (internal memory)
      */
-    orgMemSize: 256,
+    orgMemSize: 64,
     /**
      * {Number} Percent of energy, which will be given to the child
      */
@@ -130,7 +130,7 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 100,
+    codeMaxSize: 50,
     /**
      * {Number} This coefficiend is used for calculating of amount of energy,
      * which grabbed from each organism depending on his codeSize.
@@ -157,7 +157,7 @@ const Config = {
      * {Number} Every code line 'yield' operator will be inserted to prevent
      * locking of threads.
      */
-    codeYieldPeriod: 500,
+    codeYieldPeriod: 1000,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain
@@ -191,11 +191,11 @@ const Config = {
     /**
      * {Number} World width
      */
-    worldWidth: 1020,
+    worldWidth: 800,
     /**
      * {Number} World height
      */
-    worldHeight: 600,
+    worldHeight: 450,
     /**
      * {Number} Turns on ciclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10

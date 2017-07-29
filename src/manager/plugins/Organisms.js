@@ -26,6 +26,7 @@ export default class Organisms {
         this._manager       = manager;
         this._positions     = {};
         this._orgId         = 0;
+        this._maxEnergy     = 0;
         this._code2Str      = new manager.CLASS_MAP[Config.code2StringCls];
         this._onIterationCb = this._onIteration.bind(this);
         this._onAfterMoveCb = this._onAfterMove.bind(this);
@@ -218,7 +219,9 @@ export default class Organisms {
         org.on(Events.GET_ENERGY, this._onGetEnergy.bind(this));
         org.on(Events.EAT, this._onEat.bind(this));
         org.on(Events.STEP, this._onStep.bind(this));
-        org.on(Events.STOP, this._onStop.bind(this));
+        if (Config.codeFitnessCls !== null) {
+            org.on(Events.STOP, this._onStop.bind(this));
+        }
     }
 
     _onGetEnergy(org, x, y, ret) {
@@ -260,13 +263,20 @@ export default class Organisms {
 
     _onStop(org) {
         this._manager.stop();
-        console.log('-------------------------')
+        console.log('--------------------------------------------------')
         Console.warn('org id: ', org.id, ', energy: ', org.energy);
-        Console.warn(org.code.code);
+        Console.warn('[' + org.code.code + ']');
         Console.warn(this._manager.api.formatCode(org.code.code));
     }
 
     _onCodeEnd(org) {
+        if (Config.codeFitnessCls !== null && org.energy > this._maxEnergy) {
+            this._maxEnergy = org.energy;
+            console.log('--------------------------------------------------')
+            Console.warn('Max energy: ', org.energy);
+            Console.warn('[' + org.code.code + ']');
+            Console.warn(this._manager.api.formatCode(org.code.code));
+        }
         this._codeRuns++;
     }
 

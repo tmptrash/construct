@@ -186,7 +186,7 @@ const Config = {
     /**
      * {Number} Size of organism stack (internal memory)
      */
-    orgMemSize: 256,
+    orgMemSize: 64,
     /**
      * {Number} Percent of energy, which will be given to the child
      */
@@ -203,7 +203,7 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 100,
+    codeMaxSize: 50,
     /**
      * {Number} This coefficiend is used for calculating of amount of energy,
      * which grabbed from each organism depending on his codeSize.
@@ -230,7 +230,7 @@ const Config = {
      * {Number} Every code line 'yield' operator will be inserted to prevent
      * locking of threads.
      */
-    codeYieldPeriod: 500,
+    codeYieldPeriod: 1000,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain
@@ -264,11 +264,11 @@ const Config = {
     /**
      * {Number} World width
      */
-    worldWidth: 1020,
+    worldWidth: 800,
     /**
      * {Number} World height
      */
-    worldHeight: 600,
+    worldHeight: 450,
     /**
      * {Number} Turns on ciclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
@@ -943,7 +943,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     }
 
     _create() {
-        this._code    = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._codeEndCb, this, this._classMap);
+        this._code    = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._codeEndCb.bind(this, this), this, this._classMap);
         this._energy  = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartEnergy;
         this._mem     = [];
         this._adds    = 1;
@@ -951,7 +951,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     }
 
     _clone(parent) {
-        this._code    = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._codeEndCb, this, this._classMap, parent.code.vars);
+        this._code    = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._codeEndCb.bind(this, this), this, this._classMap, parent.code.vars);
         this._energy  = parent.energy;
         this._mem     = parent.mem.slice();
         this._adds    = parent.adds;
@@ -1656,6 +1656,7 @@ class Organisms {
         this._manager       = manager;
         this._positions     = {};
         this._orgId         = 0;
+        this._maxEnergy     = 0;
         this._code2Str      = new manager.CLASS_MAP[__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].code2StringCls];
         this._onIterationCb = this._onIteration.bind(this);
         this._onAfterMoveCb = this._onAfterMove.bind(this);
@@ -1848,7 +1849,9 @@ class Organisms {
         org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].GET_ENERGY, this._onGetEnergy.bind(this));
         org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].EAT, this._onEat.bind(this));
         org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STEP, this._onStep.bind(this));
-        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STOP, this._onStop.bind(this));
+        if (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeFitnessCls !== null) {
+            org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STOP, this._onStop.bind(this));
+        }
     }
 
     _onGetEnergy(org, x, y, ret) {
@@ -1890,13 +1893,20 @@ class Organisms {
 
     _onStop(org) {
         this._manager.stop();
-        console.log('-------------------------')
+        console.log('--------------------------------------------------')
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('org id: ', org.id, ', energy: ', org.energy);
-        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn(org.code.code);
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('[' + org.code.code + ']');
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn(this._manager.api.formatCode(org.code.code));
     }
 
     _onCodeEnd(org) {
+        if (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeFitnessCls !== null && org.energy > this._maxEnergy) {
+            this._maxEnergy = org.energy;
+            console.log('--------------------------------------------------')
+            __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('Max energy: ', org.energy);
+            __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('[' + org.code.code + ']');
+            __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn(this._manager.api.formatCode(org.code.code));
+        }
         this._codeRuns++;
     }
 
@@ -2155,13 +2165,13 @@ class Code2StringGarmin {
         this._OPERATORS_CB = {
             0 : this._onVar.bind(this),
             1 : this._onCondition.bind(this),
-            2 : this._onLoop.bind(this),
-            3 : this._onOperator.bind(this),
-            4 : this._onNot.bind(this),
-            5 : this._onPi.bind(this),
-            6 : this._onTrig.bind(this),
-            7 : this._onFromMem.bind(this),
-            8 : this._onToMem.bind(this)
+            //2 : this._onLoop.bind(this),
+            2 : this._onOperator.bind(this),
+            3 : this._onNot.bind(this),
+            4 : this._onPi.bind(this),
+            5 : this._onTrig.bind(this),
+            6 : this._onFromMem.bind(this),
+            7 : this._onToMem.bind(this)
         };
         this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
         /**
@@ -2234,14 +2244,14 @@ class Code2StringGarmin {
         return `if(v${VAR0(num)}${this._CONDITIONS[VAR2(num)]}v${VAR1(num)}){`;
     }
 
-    _onLoop(num, line, lines) {
-        const var0    = VAR0(num);
-        const var3    = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_OF_TWO_VARS);
-        const index   = line + var3 < lines ? line + var3 : lines - 1;
-
-        this._offsets.push(index);
-        return `for(v${var0}=v${VAR1(num)};v${var0}<v${VAR2(num)};v${var0}++){`;
-    }
+//    _onLoop(num, line, lines) {
+//        const var0    = VAR0(num);
+//        const var3    = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
+//        const index   = line + var3 < lines ? line + var3 : lines - 1;
+//
+//        this._offsets.push(index);
+//        return `for(v${var0}=v${VAR1(num)};v${var0}<v${VAR2(num)};v${var0}++){`;
+//    }
 
     _onOperator(num) {
         return `v${VAR0(num)}=v${VAR1(num)}${this._OPERATORS[__WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_OF_TWO_VARS)]}v${VAR2(num)}`;
@@ -4566,13 +4576,13 @@ class OperatorsGarmin {
         this._OPERATORS_CB = {
             0 : this.onVar.bind(this),
             1 : this.onCondition.bind(this),
-            2 : this.onLoop.bind(this),
-            3 : this.onOperator.bind(this),
-            4 : this.onNot.bind(this),
-            5 : this.onPi.bind(this),
-            6 : this.onTrig.bind(this),
-            7 : this.onFromMem.bind(this),
-            8 : this.onToMem.bind(this)
+            //2 : this.onLoop.bind(this),
+            2 : this.onOperator.bind(this),
+            3 : this.onNot.bind(this),
+            4 : this.onPi.bind(this),
+            5 : this.onTrig.bind(this),
+            6 : this.onFromMem.bind(this),
+            7 : this.onToMem.bind(this)
         };
         this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
         /**
@@ -4632,28 +4642,28 @@ class OperatorsGarmin {
         return offs;
     }
 
-    onLoop(num, line, org, lines, ret) {
-        const vars = this._vars;
-        const var0 = VAR0(num);
-        const val3 = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
-        const offs = line + val3 < lines ? line + val3 + 1 : lines;
-
-        if (ret) {
-            if (++vars[var0] < vars[VAR2(num)]) {
-                this._offsets.push(line, offs);
-                return line + 1;
-            }
-            return offs;
-        }
-
-        vars[var0] = vars[VAR1(num)];
-        if (vars[var0] < vars[VAR2(num)]) {
-            this._offsets.push(line, offs);
-            return line + 1;
-        }
-
-        return offs;
-    }
+//    onLoop(num, line, org, lines, ret) {
+//        const vars = this._vars;
+//        const var0 = VAR0(num);
+//        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
+//        const offs = line + val3 < lines ? line + val3 + 1 : lines;
+//
+//        if (ret) {
+//            if (++vars[var0] < vars[VAR2(num)]) {
+//                this._offsets.push(line, offs);
+//                return line + 1;
+//            }
+//            return offs;
+//        }
+//
+//        vars[var0] = vars[VAR1(num)];
+//        if (vars[var0] < vars[VAR2(num)]) {
+//            this._offsets.push(line, offs);
+//            return line + 1;
+//        }
+//
+//        return offs;
+//    }
 
     onOperator(num, line) {
         const vars = this._vars;
