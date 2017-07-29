@@ -15,8 +15,6 @@ import Console     from './../../global/Console';
 import Events      from './../../global/Events';
 import Queue       from './../../global/Queue';
 import Organism    from './../../organism/Organism';
-import Operators   from './../../organism/Operators';
-import Code2String from './../../organism/Code2String';
 import Backup      from './Backup';
 
 export default class Organisms {
@@ -28,7 +26,8 @@ export default class Organisms {
         this._manager       = manager;
         this._positions     = {};
         this._orgId         = 0;
-        this._code2Str      = new Code2String();
+        this._maxEnergy     = 0;
+        this._code2Str      = new manager.CLASS_MAP[Config.code2StringCls];
         this._onIterationCb = this._onIteration.bind(this);
         this._onAfterMoveCb = this._onAfterMove.bind(this);
 
@@ -89,9 +88,13 @@ export default class Organisms {
      */
     _updateClone(counter) {
         const orgs      = this._orgs;
-        const orgAmount = orgs.size;
+        let   orgAmount = orgs.size;
         const needClone = Config.orgClonePeriod === 0 ? false : counter % Config.orgClonePeriod === 0;
-        if (!needClone || orgAmount < 1 || orgAmount >= Config.worldMaxOrgs) {return false;}
+        if (!needClone || orgAmount < 1) {return false;}
+        if (orgAmount >= Config.worldMaxOrgs) {
+            orgs.get(Helper.rand(orgAmount)).val.destroy();
+            orgAmount--;
+        }
 
         let org1 = orgs.get(Helper.rand(orgAmount)).val;
         let org2 = orgs.get(Helper.rand(orgAmount)).val;
@@ -100,7 +103,6 @@ export default class Organisms {
         if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes > org1.energy * org1.adds * org1.changes)) {
             [org1, org2] = [org2, org1];
         }
-        if (org2.alive && orgAmount >= Config.worldMaxOrgs) {org2.destroy();}
         this._clone(org1);
 
         return true;
@@ -110,14 +112,15 @@ export default class Organisms {
         const orgs      = this._orgs;
         const orgAmount = orgs.size;
         const needCrossover = Config.orgCrossoverPeriod === 0 ? false : counter % Config.orgCrossoverPeriod === 0;
-        if (!needCrossover || orgAmount < 1 || orgAmount >= Config.worldMaxOrgs) {return false;}
+        if (!needCrossover || orgAmount < 1) {return false;}
+        if (orgAmount >= Config.worldMaxOrgs) {orgs.get(Helper.rand(Config.worldMaxOrgs)).val.destroy();}
 
         let org1   = this._tournament();
         let org2   = this._tournament();
         let winner = this._tournament(org1, org2);
         let looser = winner.id === org1.id ? org2 : org1;
 
-        if (looser.alive && orgAmount < Config.worldMaxOrgs) {
+        if (looser.alive) {
             this._crossover(org1, org2);
         }
 
@@ -180,10 +183,14 @@ export default class Organisms {
         let pos = this._manager.world.getNearFreePos(org.x, org.y);
         if (pos === false || this._createOrg(pos, org) === false) {return false;}
         let child  = this._orgs.last.val;
-        let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >>> 1; // analog of Math.round()
-
-        org.grabEnergy(energy);
-        child.grabEnergy(child.energy - energy);
+        //
+        // Energy should be grabbed only in native simulation mode
+        //
+        if (Config.codeFitnessCls === null) {
+            let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >>> 1; // analog of Math.round()
+            org.grabEnergy(energy);
+            child.grabEnergy(child.energy - energy);
+        }
         this._manager.fire(Events.CLONE, org, child);
 
         return true;
@@ -212,6 +219,9 @@ export default class Organisms {
         org.on(Events.GET_ENERGY, this._onGetEnergy.bind(this));
         org.on(Events.EAT, this._onEat.bind(this));
         org.on(Events.STEP, this._onStep.bind(this));
+        if (Config.codeFitnessCls !== null) {
+            org.on(Events.STOP, this._onStop.bind(this));
+        }
     }
 
     _onGetEnergy(org, x, y, ret) {
@@ -251,7 +261,22 @@ export default class Organisms {
         }
     }
 
-    _onCodeEnd() {
+    _onStop(org) {
+        this._manager.stop();
+        console.log('--------------------------------------------------')
+        Console.warn('org id: ', org.id, ', energy: ', org.energy);
+        Console.warn('[' + org.code.code + ']');
+        Console.warn(this._manager.api.formatCode(org.code.code));
+    }
+
+    _onCodeEnd(org) {
+        if (Config.codeFitnessCls !== null && org.energy > this._maxEnergy) {
+            this._maxEnergy = org.energy;
+            console.log('--------------------------------------------------')
+            Console.warn('Max energy: ', org.energy);
+            Console.warn('[' + org.code.code + ']');
+            Console.warn(this._manager.api.formatCode(org.code.code));
+        }
         this._codeRuns++;
     }
 
@@ -260,7 +285,7 @@ export default class Organisms {
         if (orgs.size >= Config.worldMaxOrgs || pos === false) {return false;}
         orgs.add(null);
         let last   = orgs.last;
-        let org    = new Organism(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), Operators, parent);
+        let org    = new Organism(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), this._manager.CLASS_MAP, parent);
 
         last.val = org;
         this._addHandlers(org);

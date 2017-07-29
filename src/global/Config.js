@@ -27,7 +27,7 @@ const Config = {
     ORG_FIRST_COLOR        : ORG_FIRST_COLOR,
     ORG_MAX_COLOR          : ORG_MAX_COLOR,
     /**
-     * {Array} Probabilities with which mutator decides what to do: 
+     * {Array} Probabilities with which mutator decides what to do:
      * add, change, delete character of the code; change amount of
      * mutations or change mutations period... Depending on these
      * values, organism may have different strategies of living.
@@ -58,18 +58,18 @@ const Config = {
     /**
      * {Number} Amount of iterations before clonning process
      */
-    orgClonePeriod: 10,
+    orgClonePeriod: 1,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
      */
-    orgCrossoverPeriod: 200,
+    orgCrossoverPeriod: 2,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 8000,
+    orgRainMutationPeriod: 10,
     /**
      * {Number} Value, which will be used like amount of mutations per
      * orgRainMutationPeriod iterations. 0 is a possible value if
@@ -79,13 +79,13 @@ const Config = {
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 300,
+    orgStartAmount: 500,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without code) organism were created
      * by operator and not by evolution.
      */
-    orgStartEnergy: 100000,
+    orgStartEnergy: 1,
     /**
      * {Number} Begin color of "empty" organism (organism without code).
      */
@@ -94,12 +94,12 @@ const Config = {
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
      */
-    orgEnergySpendPeriod: 100,
+    orgEnergySpendPeriod: 0,
     /**
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used.
      */
-    orgAlivePeriod: 10000,
+    orgAlivePeriod: 0,
     /**
      * {Number} This value means the period between organism codeSizes, which
      * affects energy grabbing by the system. For example: we have two
@@ -113,7 +113,7 @@ const Config = {
     /**
      * {Number} Size of organism stack (internal memory)
      */
-    orgMemSize: 256,
+    orgMemSize: 64,
     /**
      * {Number} Percent of energy, which will be given to the child
      */
@@ -130,7 +130,7 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 100,
+    codeMaxSize: 50,
     /**
      * {Number} This coefficiend is used for calculating of amount of energy,
      * which grabbed from each organism depending on his codeSize.
@@ -144,6 +144,7 @@ const Config = {
     codeSizeCoef: 10000,
     /**
      * {Number} Amount of local variables of organism's script
+     * TODO: this amount should be calculated from codeBitsPerVar
      */
     codeVarAmount: 4,
     /**
@@ -156,7 +157,7 @@ const Config = {
      * {Number} Every code line 'yield' operator will be inserted to prevent
      * locking of threads.
      */
-    codeYieldPeriod: 10,
+    codeYieldPeriod: 1000,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain
@@ -173,13 +174,28 @@ const Config = {
      */
     codeIterationsPerOnce: 20,
     /**
+     * {String|null} Fitness class or null if default behavior is used. Default
+     * behavior is a nature organisms simulator. See Manager.CLASS_MAP for additional
+     * details.
+     */
+    codeFitnessCls: 'Fitness',
+    /**
+     * {Function} Class with available operators. See default Operators
+     * class for details. See Manager.CLASS_MAP for additional details.
+     */
+    codeOperatorsCls: 'OperatorsGarmin',
+    /**
+     * {String} Name of the class for string representation of byte code
+     */
+    code2StringCls: 'Code2StringGarmin',
+    /**
      * {Number} World width
      */
-    worldWidth: 1000,
+    worldWidth: 800,
     /**
      * {Number} World height
      */
-    worldHeight: 600,
+    worldHeight: 450,
     /**
      * {Number} Turns on ciclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
@@ -191,7 +207,7 @@ const Config = {
     /**
      * {Number} Maximum amount of organisms in a world. If some organisms will
      * try to clone itself, when entire amount of organisms are equal
-     * this value, then it(clonning) will not happen.
+     * this value, then it(cloning) will not happen.
      */
     worldMaxOrgs: 500,
     /**
@@ -219,7 +235,7 @@ const Config = {
      */
     worldEnergyCheckPeriod: 1000,
     /**
-     * {Number} World scaling. On todays monitors pixel are so small, so we have
+     * {Number} World scaling. Today monitors pixel are so small, so we have
      * to zoom them with a coefficient.
      */
     worldZoom: 1,
@@ -234,7 +250,7 @@ const Config = {
      * possible to increase it to reduce amount of requests and additional
      * code in main loop
      */
-    worldIpsPeriodMs: 1000,
+    worldIpsPeriodMs: 10000,
     /**
      * {Number} Period of making automatic backup of application. In iterations
      */

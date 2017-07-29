@@ -68,6 +68,7 @@ export default class Mutator {
     }
 
     _onAdd(org) {
+        if (Config.codeFitnessCls !== null && org.code.size >= Config.codeMaxSize) {return}
         org.code.insertLine();
     }
 

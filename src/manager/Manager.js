@@ -12,14 +12,28 @@
  * TODO: what about destroy of manager instance? We have to destroy plugins
  * TODO: by calling of destroy() method for every of them
  */
-import Config    from './../global/Config';
-import Observer  from './../global/Observer';
-import Events    from './../global/Events';
-import World     from './../visual/World';
-import Canvas    from './../visual/Canvas';
-import Organisms from './plugins/Organisms';
-import Mutator   from './plugins/Mutator';
-import Energy    from './plugins/Energy';
+import Config            from './../global/Config';
+import Observer          from './../global/Observer';
+import Events            from './../global/Events';
+import Console           from './../global/Console';
+import World             from './../visual/World';
+import Canvas            from './../visual/Canvas';
+import Organisms         from './plugins/Organisms';
+import Mutator           from './plugins/Mutator';
+import Energy            from './plugins/Energy';
+import Operators         from './../organism/Operators';
+import OperatorsGarmin   from './../organism/OperatorsGarmin';
+import Code2StringGarmin from './../organism/Code2StringGarmin';
+import Fitness           from './../organism/Fitness';
+/**
+ * {Object} Mapping of class names and their functions
+ */
+const CLASS_MAP = {
+    Operators        : Operators,
+    OperatorsGarmin  : OperatorsGarmin,
+    Code2StringGarmin: Code2StringGarmin,
+    Fitness          : Fitness
+};
 /**
  * {Array} Plugins for Manager
  */
@@ -44,21 +58,24 @@ export default class Manager extends Observer {
 
     constructor() {
         super();
-        this._world     = new World(Config.worldWidth, Config.worldHeight);
-        this._canvas    = new Canvas();
-        this._plugins   = PLUGINS;
-        this._stopped   = false;
-        this._visualize = true;
-        this.api        = {};
+        this._world      = new World(Config.worldWidth, Config.worldHeight);
+        this._canvas     = new Canvas();
+        this._plugins    = PLUGINS;
+        this._stopped    = false;
+        this._visualized = true;
+        this.api         = {
+            visualize: this._visualize.bind(this)
+        };
 
         this._initLoop();
         this._initPlugins();
         this._addHandlers();
     }
 
-    get world()   {return this._world;}
-    get canvas()  {return this._canvas;}
-    get plugins() {return this._plugins;}
+    get world()     {return this._world;}
+    get canvas()    {return this._canvas;}
+    get plugins()   {return this._plugins;}
+    get CLASS_MAP() {return CLASS_MAP;}
 
     /**
      * Runs main infinite loop of application
@@ -71,7 +88,7 @@ export default class Manager extends Observer {
         let me      = this;
 
         function loop () {
-            const amount = me._visualize ? 1 : Config.codeIterationsPerOnce;
+            const amount = me._visualized ? 1 : Config.codeIterationsPerOnce;
 
             for (let i = 0; i < amount; i++) {
                 me.onIteration(counter, stamp);
@@ -86,12 +103,6 @@ export default class Manager extends Observer {
 
     stop() {
         this._stopped = true;
-    }
-
-    // TODO: this method should be in api property and should be stored in plugin
-    visualize(visualize = true) {
-        this._visualize = visualize;
-        this._canvas.visualize(visualize);
     }
 
     destroy() {
@@ -175,6 +186,11 @@ export default class Manager extends Observer {
 
     _addHandlers() {
         this._world.on(Events.DOT, this._onDot.bind(this));
+    }
+
+    _visualize(visualized = true) {
+        this._visualized = visualized;
+        this._canvas.visualize(visualized);
     }
 
     _onDot(x, y, color) {

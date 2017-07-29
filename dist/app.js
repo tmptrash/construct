@@ -100,7 +100,7 @@ const Config = {
     ORG_FIRST_COLOR        : ORG_FIRST_COLOR,
     ORG_MAX_COLOR          : ORG_MAX_COLOR,
     /**
-     * {Array} Probabilities with which mutator decides what to do: 
+     * {Array} Probabilities with which mutator decides what to do:
      * add, change, delete character of the code; change amount of
      * mutations or change mutations period... Depending on these
      * values, organism may have different strategies of living.
@@ -131,18 +131,18 @@ const Config = {
     /**
      * {Number} Amount of iterations before clonning process
      */
-    orgClonePeriod: 10,
+    orgClonePeriod: 1,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
      */
-    orgCrossoverPeriod: 200,
+    orgCrossoverPeriod: 2,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 8000,
+    orgRainMutationPeriod: 10,
     /**
      * {Number} Value, which will be used like amount of mutations per
      * orgRainMutationPeriod iterations. 0 is a possible value if
@@ -152,13 +152,13 @@ const Config = {
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 300,
+    orgStartAmount: 500,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without code) organism were created
      * by operator and not by evolution.
      */
-    orgStartEnergy: 100000,
+    orgStartEnergy: 1,
     /**
      * {Number} Begin color of "empty" organism (organism without code).
      */
@@ -167,12 +167,12 @@ const Config = {
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
      */
-    orgEnergySpendPeriod: 100,
+    orgEnergySpendPeriod: 0,
     /**
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used.
      */
-    orgAlivePeriod: 10000,
+    orgAlivePeriod: 0,
     /**
      * {Number} This value means the period between organism codeSizes, which
      * affects energy grabbing by the system. For example: we have two
@@ -186,7 +186,7 @@ const Config = {
     /**
      * {Number} Size of organism stack (internal memory)
      */
-    orgMemSize: 256,
+    orgMemSize: 64,
     /**
      * {Number} Percent of energy, which will be given to the child
      */
@@ -203,7 +203,7 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 100,
+    codeMaxSize: 50,
     /**
      * {Number} This coefficiend is used for calculating of amount of energy,
      * which grabbed from each organism depending on his codeSize.
@@ -217,6 +217,7 @@ const Config = {
     codeSizeCoef: 10000,
     /**
      * {Number} Amount of local variables of organism's script
+     * TODO: this amount should be calculated from codeBitsPerVar
      */
     codeVarAmount: 4,
     /**
@@ -229,7 +230,7 @@ const Config = {
      * {Number} Every code line 'yield' operator will be inserted to prevent
      * locking of threads.
      */
-    codeYieldPeriod: 10,
+    codeYieldPeriod: 1000,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain
@@ -246,13 +247,28 @@ const Config = {
      */
     codeIterationsPerOnce: 20,
     /**
+     * {String|null} Fitness class or null if default behavior is used. Default
+     * behavior is a nature organisms simulator. See Manager.CLASS_MAP for additional
+     * details.
+     */
+    codeFitnessCls: 'Fitness',
+    /**
+     * {Function} Class with available operators. See default Operators
+     * class for details. See Manager.CLASS_MAP for additional details.
+     */
+    codeOperatorsCls: 'OperatorsGarmin',
+    /**
+     * {String} Name of the class for string representation of byte code
+     */
+    code2StringCls: 'Code2StringGarmin',
+    /**
      * {Number} World width
      */
-    worldWidth: 1000,
+    worldWidth: 800,
     /**
      * {Number} World height
      */
-    worldHeight: 600,
+    worldHeight: 450,
     /**
      * {Number} Turns on ciclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
@@ -264,7 +280,7 @@ const Config = {
     /**
      * {Number} Maximum amount of organisms in a world. If some organisms will
      * try to clone itself, when entire amount of organisms are equal
-     * this value, then it(clonning) will not happen.
+     * this value, then it(cloning) will not happen.
      */
     worldMaxOrgs: 500,
     /**
@@ -292,7 +308,7 @@ const Config = {
      */
     worldEnergyCheckPeriod: 1000,
     /**
-     * {Number} World scaling. On todays monitors pixel are so small, so we have
+     * {Number} World scaling. Today monitors pixel are so small, so we have
      * to zoom them with a coefficient.
      */
     worldZoom: 1,
@@ -307,7 +323,7 @@ const Config = {
      * possible to increase it to reduce amount of requests and additional
      * code in main loop
      */
-    worldIpsPeriodMs: 1000,
+    worldIpsPeriodMs: 10000,
     /**
      * {Number} Period of making automatic backup of application. In iterations
      */
@@ -595,67 +611,14 @@ const Events = {
     GRAB_RIGHT: 36,
     GRAB_UP: 37,
     GRAB_DOWN: 38,
-    DESTROY: 39
+    DESTROY: 39,
+    STOP: 40
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (Events);
 
 /***/ }),
 /* 3 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/**
- * Observer implementation. May fire, listen(on()) and clear all the event
- * handlers
- *
- * Usage:
- *   import Events from '.../Events.js'
- *   let bus = new Observer();
- *   bus.on(Events.EVENT, () => console.log(arguments));
- *   bus.fire(Events.EVENT, 1, 2, 3);
- *
- * @author DeadbraiN
- */
-class Observer {
-    constructor() {
-        this._handlers = {};
-    }
-
-    on (event, handler) {
-        (this._handlers[event] || (this._handlers[event] = [])).push(handler);
-    }
-
-    off (event, handler) {
-        let index;
-        let handlers = this._handlers[event];
-
-        if (typeof(handlers) === 'undefined' || (index = this._handlers[event].indexOf(handler)) < 0) {return false;}
-        this._handlers[event].splice(index, 1);
-        if (this._handlers[event].length === 0) {delete this._handlers[event];}
-
-        return true;
-    }
-
-    fire (event, ...args) {
-        let handler;
-        let handlers = this._handlers[event];
-        if (typeof(handlers) === 'undefined') {return false;}
-
-        for (handler of handlers) {handler(...args);}
-
-        return true;
-    }
-
-    clear () {
-        this._handlers = null;
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = Observer;
-
-
-/***/ }),
-/* 4 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -749,7 +712,7 @@ class Number {
 
 
 /***/ }),
-/* 5 */
+/* 4 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -784,12 +747,66 @@ class Console {
 
 
 /***/ }),
+/* 5 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/**
+ * Observer implementation. May fire, listen(on()) and clear all the event
+ * handlers
+ *
+ * Usage:
+ *   import Events from '.../Events.js'
+ *   let bus = new Observer();
+ *   bus.on(Events.EVENT, () => console.log(arguments));
+ *   bus.fire(Events.EVENT, 1, 2, 3);
+ *
+ * @author DeadbraiN
+ */
+class Observer {
+    constructor() {
+        this._handlers = {};
+    }
+
+    on (event, handler) {
+        (this._handlers[event] || (this._handlers[event] = [])).push(handler);
+    }
+
+    off (event, handler) {
+        let index;
+        let handlers = this._handlers[event];
+
+        if (typeof(handlers) === 'undefined' || (index = this._handlers[event].indexOf(handler)) < 0) {return false;}
+        this._handlers[event].splice(index, 1);
+        if (this._handlers[event].length === 0) {delete this._handlers[event];}
+
+        return true;
+    }
+
+    fire (event, ...args) {
+        let handler;
+        let handlers = this._handlers[event];
+        if (typeof(handlers) === 'undefined') {return false;}
+
+        for (handler of handlers) {handler(...args);}
+
+        return true;
+    }
+
+    clear () {
+        this._handlers = null;
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = Observer;
+
+
+/***/ }),
 /* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Helper__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Code__ = __webpack_require__(14);
@@ -819,14 +836,15 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
      * this organism is located
      * @param {Function} codeEndCb Callback, which is called at the
      * end of every code iteration.
-     * @param {Function} operatorsCls Organism's available operators class
+     * @param {Object} classMap Available classes map. Maps class names into
+     * classe functions
      * @param {Organism} parent Parent organism if cloning is needed
      */
-    constructor(id, x, y, alive, item, codeEndCb, operatorsCls, parent = null) {
+    constructor(id, x, y, alive, item, codeEndCb, classMap, parent = null) {
         super();
 
         this._codeEndCb             = codeEndCb;
-        this._operatorsCls          = operatorsCls;
+        this._classMap              = classMap;
 
         if (parent === null) {this._create();}
         else {this._clone(parent);}
@@ -887,8 +905,15 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
      * @return {Boolean} false means that organism was destroyed
      */
     run() {
+        const fitnessCls = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeFitnessCls && this._classMap[__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeFitnessCls];
+
         this._iterations++;
-        this._code.run(this);
+        if (fitnessCls) {
+            if (fitnessCls.run(this)) {this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].STOP, this)}
+        } else {
+            this._code.run(this);
+        }
+
         return this._updateDestroy() && this._updateEnergy();
     }
 
@@ -918,7 +943,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     }
 
     _create() {
-        this._code    = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._codeEndCb, this._operatorsCls, this);
+        this._code    = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._codeEndCb.bind(this, this), this, this._classMap);
         this._energy  = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartEnergy;
         this._mem     = [];
         this._adds    = 1;
@@ -926,7 +951,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     }
 
     _clone(parent) {
-        this._code    = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._codeEndCb, this._operatorsCls, this, parent.code.vars);
+        this._code    = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._codeEndCb.bind(this, this), this, this._classMap, parent.code.vars);
         this._energy  = parent.energy;
         this._mem     = parent.mem.slice();
         this._adds    = parent.adds;
@@ -976,13 +1001,18 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__visual_World__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__visual_Canvas__ = __webpack_require__(17);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__plugins_Organisms__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__plugins_Mutator__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__plugins_Energy__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Console__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__visual_World__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__visual_Canvas__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__plugins_Organisms__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__plugins_Mutator__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__plugins_Energy__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__organism_Operators__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__organism_OperatorsGarmin__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__organism_Code2StringGarmin__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__organism_Fitness__ = __webpack_require__(16);
 /**
  * Main manager class of application. Contains all parts of jevo.js app
  * like World, Connection, Console etc... Runs infinite loop inside run()
@@ -1005,13 +1035,27 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 
 
 
+
+
+
+
+
+/**
+ * {Object} Mapping of class names and their functions
+ */
+const CLASS_MAP = {
+    Operators        : __WEBPACK_IMPORTED_MODULE_9__organism_Operators__["a" /* default */],
+    OperatorsGarmin  : __WEBPACK_IMPORTED_MODULE_10__organism_OperatorsGarmin__["a" /* default */],
+    Code2StringGarmin: __WEBPACK_IMPORTED_MODULE_11__organism_Code2StringGarmin__["a" /* default */],
+    Fitness          : __WEBPACK_IMPORTED_MODULE_12__organism_Fitness__["a" /* default */]
+};
 /**
  * {Array} Plugins for Manager
  */
 const PLUGINS = {
-    Organisms: __WEBPACK_IMPORTED_MODULE_5__plugins_Organisms__["a" /* default */],
-    Mutator  : __WEBPACK_IMPORTED_MODULE_6__plugins_Mutator__["a" /* default */],
-    Energy   : __WEBPACK_IMPORTED_MODULE_7__plugins_Energy__["a" /* default */]
+    Organisms: __WEBPACK_IMPORTED_MODULE_6__plugins_Organisms__["a" /* default */],
+    Mutator  : __WEBPACK_IMPORTED_MODULE_7__plugins_Mutator__["a" /* default */],
+    Energy   : __WEBPACK_IMPORTED_MODULE_8__plugins_Energy__["a" /* default */]
 };
 
 class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* default */] {
@@ -1029,21 +1073,24 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
 
     constructor() {
         super();
-        this._world     = new __WEBPACK_IMPORTED_MODULE_3__visual_World__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldWidth, __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldHeight);
-        this._canvas    = new __WEBPACK_IMPORTED_MODULE_4__visual_Canvas__["a" /* default */]();
-        this._plugins   = PLUGINS;
-        this._stopped   = false;
-        this._visualize = true;
-        this.api        = {};
+        this._world      = new __WEBPACK_IMPORTED_MODULE_4__visual_World__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldWidth, __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldHeight);
+        this._canvas     = new __WEBPACK_IMPORTED_MODULE_5__visual_Canvas__["a" /* default */]();
+        this._plugins    = PLUGINS;
+        this._stopped    = false;
+        this._visualized = true;
+        this.api         = {
+            visualize: this._visualize.bind(this)
+        };
 
         this._initLoop();
         this._initPlugins();
         this._addHandlers();
     }
 
-    get world()   {return this._world;}
-    get canvas()  {return this._canvas;}
-    get plugins() {return this._plugins;}
+    get world()     {return this._world;}
+    get canvas()    {return this._canvas;}
+    get plugins()   {return this._plugins;}
+    get CLASS_MAP() {return CLASS_MAP;}
 
     /**
      * Runs main infinite loop of application
@@ -1056,7 +1103,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
         let me      = this;
 
         function loop () {
-            const amount = me._visualize ? 1 : __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeIterationsPerOnce;
+            const amount = me._visualized ? 1 : __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeIterationsPerOnce;
 
             for (let i = 0; i < amount; i++) {
                 me.onIteration(counter, stamp);
@@ -1071,12 +1118,6 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
 
     stop() {
         this._stopped = true;
-    }
-
-    // TODO: this method should be in api property and should be stored in plugin
-    visualize(visualize = true) {
-        this._visualize = visualize;
-        this._canvas.visualize(visualize);
     }
 
     destroy() {
@@ -1131,7 +1172,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
                 if (event.data === msgName) {
                     event.stopPropagation();
                     if (this._stopped) {
-                        Console.warn('Manager has stopped');
+                        __WEBPACK_IMPORTED_MODULE_3__global_Console__["a" /* default */].warn('Manager has stopped');
                         return;
                     }
                     callback();
@@ -1160,6 +1201,11 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
 
     _addHandlers() {
         this._world.on(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].DOT, this._onDot.bind(this));
+    }
+
+    _visualize(visualized = true) {
+        this._visualized = visualized;
+        this._canvas.visualize(visualized);
     }
 
     _onDot(x, y, color) {
@@ -1285,7 +1331,7 @@ class Queue {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(4);
 /**
  * Manager's plugin, which creates backups according to population age.
  *
@@ -1378,7 +1424,7 @@ class Backup {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(4);
 /**
  * Manager's plugin, which tracks amount of energy in a world and updates it.
  *
@@ -1393,7 +1439,10 @@ class Energy {
         this._manager       = manager;
         this._checkPeriod   = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldEnergyCheckPeriod;
         this._onIterationCb = this._onIteration.bind(this);
-
+        //
+        // We have to update energy only in nature simulation mode
+        //
+        if (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeFitnessCls !== null) {return}
         __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].override(manager, 'onIteration', this._onIterationCb);
     }
 
@@ -1444,7 +1493,7 @@ class Energy {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Helper__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__organism_Organism__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__organism_Num__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__organism_Num__ = __webpack_require__(3);
 /**
  * Plugin for Manager class, which is tracks when and how many mutations
  * should be added to special organism's code at special moment of it's
@@ -1515,6 +1564,7 @@ class Mutator {
     }
 
     _onAdd(org) {
+        if (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeFitnessCls !== null && org.code.size >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeMaxSize) {return}
         org.code.insertLine();
     }
 
@@ -1573,13 +1623,11 @@ class Mutator {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Queue__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_Organism__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__organism_Operators__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__organism_Code2String__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__Backup__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Backup__ = __webpack_require__(10);
 /**
  * Plugin for Manager module, which handles organisms population
  *
@@ -1599,18 +1647,17 @@ class Mutator {
 
 
 
-
-
 class Organisms {
     constructor(manager) {
         this._orgs          = new __WEBPACK_IMPORTED_MODULE_4__global_Queue__["a" /* default */]();
-        this._backup        = new __WEBPACK_IMPORTED_MODULE_8__Backup__["a" /* default */]();
+        this._backup        = new __WEBPACK_IMPORTED_MODULE_6__Backup__["a" /* default */]();
         this._codeRuns      = 0;
         this._stamp         = Date.now();
         this._manager       = manager;
         this._positions     = {};
         this._orgId         = 0;
-        this._code2Str      = new __WEBPACK_IMPORTED_MODULE_7__organism_Code2String__["a" /* default */]();
+        this._maxEnergy     = 0;
+        this._code2Str      = new manager.CLASS_MAP[__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].code2StringCls];
         this._onIterationCb = this._onIteration.bind(this);
         this._onAfterMoveCb = this._onAfterMove.bind(this);
 
@@ -1671,9 +1718,13 @@ class Organisms {
      */
     _updateClone(counter) {
         const orgs      = this._orgs;
-        const orgAmount = orgs.size;
+        let   orgAmount = orgs.size;
         const needClone = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgClonePeriod === 0 ? false : counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgClonePeriod === 0;
-        if (!needClone || orgAmount < 1 || orgAmount >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {return false;}
+        if (!needClone || orgAmount < 1) {return false;}
+        if (orgAmount >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {
+            orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(orgAmount)).val.destroy();
+            orgAmount--;
+        }
 
         let org1 = orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(orgAmount)).val;
         let org2 = orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(orgAmount)).val;
@@ -1682,7 +1733,6 @@ class Organisms {
         if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes > org1.energy * org1.adds * org1.changes)) {
             [org1, org2] = [org2, org1];
         }
-        if (org2.alive && orgAmount >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {org2.destroy();}
         this._clone(org1);
 
         return true;
@@ -1692,14 +1742,15 @@ class Organisms {
         const orgs      = this._orgs;
         const orgAmount = orgs.size;
         const needCrossover = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgCrossoverPeriod === 0 ? false : counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgCrossoverPeriod === 0;
-        if (!needCrossover || orgAmount < 1 || orgAmount >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {return false;}
+        if (!needCrossover || orgAmount < 1) {return false;}
+        if (orgAmount >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs)).val.destroy();}
 
         let org1   = this._tournament();
         let org2   = this._tournament();
         let winner = this._tournament(org1, org2);
         let looser = winner.id === org1.id ? org2 : org1;
 
-        if (looser.alive && orgAmount < __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {
+        if (looser.alive) {
             this._crossover(org1, org2);
         }
 
@@ -1762,10 +1813,14 @@ class Organisms {
         let pos = this._manager.world.getNearFreePos(org.x, org.y);
         if (pos === false || this._createOrg(pos, org) === false) {return false;}
         let child  = this._orgs.last.val;
-        let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >>> 1; // analog of Math.round()
-
-        org.grabEnergy(energy);
-        child.grabEnergy(child.energy - energy);
+        //
+        // Energy should be grabbed only in native simulation mode
+        //
+        if (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeFitnessCls === null) {
+            let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >>> 1; // analog of Math.round()
+            org.grabEnergy(energy);
+            child.grabEnergy(child.energy - energy);
+        }
         this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].CLONE, org, child);
 
         return true;
@@ -1794,6 +1849,9 @@ class Organisms {
         org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].GET_ENERGY, this._onGetEnergy.bind(this));
         org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].EAT, this._onEat.bind(this));
         org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STEP, this._onStep.bind(this));
+        if (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeFitnessCls !== null) {
+            org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STOP, this._onStop.bind(this));
+        }
     }
 
     _onGetEnergy(org, x, y, ret) {
@@ -1833,7 +1891,22 @@ class Organisms {
         }
     }
 
-    _onCodeEnd() {
+    _onStop(org) {
+        this._manager.stop();
+        console.log('--------------------------------------------------')
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('org id: ', org.id, ', energy: ', org.energy);
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('[' + org.code.code + ']');
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn(this._manager.api.formatCode(org.code.code));
+    }
+
+    _onCodeEnd(org) {
+        if (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeFitnessCls !== null && org.energy > this._maxEnergy) {
+            this._maxEnergy = org.energy;
+            console.log('--------------------------------------------------')
+            __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('Max energy: ', org.energy);
+            __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('[' + org.code.code + ']');
+            __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn(this._manager.api.formatCode(org.code.code));
+        }
         this._codeRuns++;
     }
 
@@ -1842,7 +1915,7 @@ class Organisms {
         if (orgs.size >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs || pos === false) {return false;}
         orgs.add(null);
         let last   = orgs.last;
-        let org    = new __WEBPACK_IMPORTED_MODULE_5__organism_Organism__["a" /* default */](++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), __WEBPACK_IMPORTED_MODULE_6__organism_Operators__["a" /* default */], parent);
+        let org    = new __WEBPACK_IMPORTED_MODULE_5__organism_Organism__["a" /* default */](++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), this._manager.CLASS_MAP, parent);
 
         last.val = org;
         this._addHandlers(org);
@@ -1872,8 +1945,8 @@ class Organisms {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Observer__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Num__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Observer__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Num__ = __webpack_require__(3);
 /**
  * Implements organism's code logic.
  * TODO: explain here code one number format,...
@@ -1889,7 +1962,7 @@ class Organisms {
 
 
 class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default */] {
-    constructor(codeEndCb, operatorsCls, org, vars = null) {
+    constructor(codeEndCb, org, classMap, vars = null) {
         super();
 
         /**
@@ -1897,6 +1970,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
          * code iteration. On it's end.
          */
         this._onCodeEnd = codeEndCb;
+        this._classMap  = classMap;
         /**
          * {Array} Array of two numbers. first - line number where we have
          * to return if first line appears. second - line number, where ends
@@ -1908,7 +1982,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
          * {Array} Array of offsets for closing braces. For 'for', 'if'
          * and all block operators.
          */
-        this._operators = new operatorsCls(this._offsets, this._vars, org);
+        this._operators = new this._classMap[__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeOperatorsCls](this._offsets, this._vars, org);
         this._code      = [];
         this._line      = 0;
     }
@@ -1918,18 +1992,19 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     get operators() {return this._operators.size;};
     get vars() {return this._vars;}
 
-    run(param) {
-        let line  = this._line;
-        let len   = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeYieldPeriod;
-        let ops   = this._operators.operators;
-        let code  = this._code;
-        let lines = code.length;
-        let getOp = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getOperator;
-        let ret   = false;
-        let offs  = this._offsets;
+    run(org) {
+        let line    = this._line;
+        let code    = this._code;
+        let lines   = code.length;
+        let len     = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeYieldPeriod || lines;
+        let fitMode = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeFitnessCls !== null;
+        let ops     = this._operators.operators;
+        let getOp   = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getOperator;
+        let ret     = false;
+        let offs    = this._offsets;
 
-        while (lines > 0 && len-- > 0) {
-            line = ops[getOp(code[line])](code[line], line, param, lines, ret);
+        while (lines > 0 && len-- > 0 && org.alive) {
+            line = ops[getOp(code[line])](code[line], line, org, lines, ret);
 
             if (ret = (offs.length > 0 && line === offs[offs.length - 1])) {
                 offs.pop();
@@ -1940,6 +2015,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
                 line = 0;
                 this._offsets.length = 0;
                 this._onCodeEnd();
+                if (fitMode) {break}
             }
         }
 
@@ -1965,21 +2041,24 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     }
 
     crossover(code) {
-        const rand   = __WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand;
-        const len    = this._code.length;
-        const len1   = code.code.length;
-        let   start  = rand(len);
-        let   end    = rand(len);
-        let   start1 = rand(len1);
-        let   end1   = rand(len1);
+        const rand    = __WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand;
+        const len     = this._code.length;
+        const len1    = code.code.length;
+        let   start   = rand(len);
+        let   end     = rand(len);
+        let   start1  = rand(len1);
+        let   end1    = rand(len1);
+        let   adds;
 
         if (start > end) {[start, end] = [end, start];}
         if (start1 > end1) {[start1, end1] = [end1, start1];}
 
+        adds = end1 - start1 - end + start;
+        if (__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeFitnessCls !== null && this._code.length + adds >= __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeMaxSize) {return 0}
         this._code.splice.apply(this._code, [start, end - start].concat(code.code.slice(start1, end1)));
         this._reset();
 
-        return end1 - start1 - end + start;
+        return adds;
     }
 
     /**
@@ -2052,7 +2131,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Num__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Num__ = __webpack_require__(3);
 /**
  * This class is used only for code visualization in readable human like form.
  * It converts numeric based byte code into JS string. This class must be
@@ -2072,7 +2151,7 @@ const VAR2                  = (n) => __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* d
 const BITS_AFTER_THREE_VARS = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_PER_OPERATOR + __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_PER_VAR * 3;
 const HALF_OF_VAR           = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].MAX_VAR / 2;
 
-class Code2String {
+class Code2StringGarmin {
     constructor() {
         /**
          * {Array} Array of offsets for closing braces. For 'for', 'if'
@@ -2085,26 +2164,14 @@ class Code2String {
          */
         this._OPERATORS_CB = {
             0 : this._onVar.bind(this),
-            //1: this._onFunc.bind(this),
             1 : this._onCondition.bind(this),
-            2 : this._onLoop.bind(this),
-            3 : this._onOperator.bind(this),
-            4 : this._onNot.bind(this),
-            5 : this._onPi.bind(this),
-            6 : this._onTrig.bind(this),
-            7 : this._onLookAt.bind(this),
-            8 : this._onEatLeft.bind(this),
-            9 : this._onEatRight.bind(this),
-            10: this._onEatUp.bind(this),
-            11: this._onEatDown.bind(this),
-            12: this._onStepLeft.bind(this),
-            13: this._onStepRight.bind(this),
-            14: this._onStepUp.bind(this),
-            15: this._onStepDown.bind(this),
-            16: this._onFromMem.bind(this),
-            17: this._onToMem.bind(this),
-            18: this._onMyX.bind(this),
-            19: this._onMyY.bind(this)
+            //2 : this._onLoop.bind(this),
+            2 : this._onOperator.bind(this),
+            3 : this._onNot.bind(this),
+            4 : this._onPi.bind(this),
+            5 : this._onTrig.bind(this),
+            6 : this._onFromMem.bind(this),
+            7 : this._onToMem.bind(this)
         };
         this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
         /**
@@ -2171,24 +2238,20 @@ class Code2String {
         return `v${VAR0(num)}=${isConst ? __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_WITHOUT_2_VARS) : ('v' + var1)}`;
     }
 
-    _onFunc(num) {
-        return '';
-    }
-
     _onCondition(num, line, lines) {
         const var3    = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_OF_TWO_VARS);
         this._offsets.push(line + var3 < lines ? line + var3 : lines - 1);
         return `if(v${VAR0(num)}${this._CONDITIONS[VAR2(num)]}v${VAR1(num)}){`;
     }
 
-    _onLoop(num, line, lines) {
-        const var0    = VAR0(num);
-        const var3    = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_OF_TWO_VARS);
-        const index   = line + var3 < lines ? line + var3 : lines - 1;
-
-        this._offsets.push(index);
-        return `for(v${var0}=v${VAR1(num)};v${var0}<v${VAR2(num)};v${var0}++){`;
-    }
+//    _onLoop(num, line, lines) {
+//        const var0    = VAR0(num);
+//        const var3    = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
+//        const index   = line + var3 < lines ? line + var3 : lines - 1;
+//
+//        this._offsets.push(index);
+//        return `for(v${var0}=v${VAR1(num)};v${var0}<v${VAR2(num)};v${var0}++){`;
+//    }
 
     _onOperator(num) {
         return `v${VAR0(num)}=v${VAR1(num)}${this._OPERATORS[__WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_OF_TWO_VARS)]}v${VAR2(num)}`;
@@ -2206,42 +2269,6 @@ class Code2String {
         return `v${VAR0(num)}=Math.${this._TRIGS[VAR2(num)]}(v${VAR1(num)})`;
     }
 
-    _onLookAt(num) {
-        return `v${VAR0(num)}=org.lookAt(v${VAR1(num)},v${VAR2(num)})`;
-    }
-
-    _onEatLeft(num) {
-        return `v${VAR0(num)}=org.eatLeft(v${VAR1(num)})`;
-    }
-
-    _onEatRight(num) {
-        return `v${VAR0(num)}=org.eatRight(v${VAR1(num)})`;
-    }
-
-    _onEatUp(num) {
-        return `v${VAR0(num)}=org.eatUp(v${VAR1(num)})`;
-    }
-
-    _onEatDown(num) {
-        return `v${VAR0(num)}=org.eatDown(v${VAR1(num)})`;
-    }
-
-    _onStepLeft(num) {
-        return `v${VAR0(num)}=org.stepLeft()`;
-    }
-
-    _onStepRight(num) {
-        return `v${VAR0(num)}=org.stepRight()`;
-    }
-
-    _onStepUp(num) {
-        return `v${VAR0(num)}=org.stepUp()`;
-    }
-
-    _onStepDown(num) {
-        return `v${VAR0(num)}=org.stepDown()`;
-    }
-
     _onFromMem(num) {
         return `v${VAR0(num)}=org.fromMem()`;
     }
@@ -2249,16 +2276,8 @@ class Code2String {
     _onToMem(num) {
         return `v${VAR0(num)}=org.toMem(v${VAR1(num)})`;
     }
-
-    _onMyX(num) {
-        return `v${VAR0(num)}=org.myX()`;
-    }
-
-    _onMyY(num) {
-        return `v${VAR0(num)}=org.myY()`;
-    }
 }
-/* harmony export (immutable) */ __webpack_exports__["a"] = Code2String;
+/* harmony export (immutable) */ __webpack_exports__["a"] = Code2StringGarmin;
 
 
 /***/ }),
@@ -2266,10 +2285,2010 @@ class Code2String {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
+/**
+ * You may override this class to set your own fitness calculation.
+ * TODO: describe interface
+ *
+ * @author DeadbraiN
+ */
+
+
+const FIELDS      = [
+    'Date',
+    'Calories',
+    'Time',
+    'Avg HR'
+];
+const TENNIS      = [
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-07-26 09:26:26",
+        "Favorite": "false",
+        "Title": "Tennis",
+        "Distance": 0,
+        "Calories": 224,
+        "Time": "48:39",
+        "Avg HR": 102,
+        "Max HR": 142,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-07-25 09:52:07",
+        "Favorite": "false",
+        "Title": "Tennis",
+        "Distance": 0,
+        "Calories": 94,
+        "Time": "22:20",
+        "Avg HR": 95,
+        "Max HR": 130,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-07-22 11:59:39",
+        "Favorite": "false",
+        "Title": "Tennis",
+        "Distance": 0,
+        "Calories": 648,
+        "Time": "2:26:17",
+        "Avg HR": 108,
+        "Max HR": 169,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-07-22 09:59:11",
+        "Favorite": "false",
+        "Title": "Tennis",
+        "Distance": 0,
+        "Calories": 726,
+        "Time": "1:58:40",
+        "Avg HR": 127,
+        "Max HR": 182,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-07-22 09:07:44",
+        "Favorite": "false",
+        "Title": "Tennis",
+        "Distance": 0,
+        "Calories": 77,
+        "Time": "12:30",
+        "Avg HR": 113,
+        "Max HR": 135,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-07-18 19:08:07",
+        "Favorite": "false",
+        "Title": "Tennis",
+        "Distance": 0,
+        "Calories": 491,
+        "Time": "1:34:08",
+        "Avg HR": 112,
+        "Max HR": 151,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-07-18 09:11:38",
+        "Favorite": "false",
+        "Title": "Tennis",
+        "Distance": 0,
+        "Calories": 240,
+        "Time": "58:20",
+        "Avg HR": 97,
+        "Max HR": 134,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-07-14 19:28:05",
+        "Favorite": "false",
+        "Title": "Tennis",
+        "Distance": 0,
+        "Calories": 80,
+        "Time": "14:41",
+        "Avg HR": 105,
+        "Max HR": 135,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-07-14 17:24:01",
+        "Favorite": "false",
+        "Title": "Tennis",
+        "Distance": 0,
+        "Calories": 513,
+        "Time": "1:19:30",
+        "Avg HR": 123,
+        "Max HR": 159,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-07-14 15:42:09",
+        "Favorite": "false",
+        "Title": "Tennis",
+        "Distance": 0,
+        "Calories": 264,
+        "Time": "53:34",
+        "Avg HR": 105,
+        "Max HR": 158,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-07-14 14:29:46",
+        "Favorite": "false",
+        "Title": "Tennis",
+        "Distance": 0,
+        "Calories": 163,
+        "Time": "36:17",
+        "Avg HR": 99,
+        "Max HR": 144,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-07-12 09:04:04",
+        "Favorite": "false",
+        "Title": "Tennis",
+        "Distance": 0,
+        "Calories": 363,
+        "Time": "1:10:27",
+        "Avg HR": 108,
+        "Max HR": 152,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-07-09 17:02:03",
+        "Favorite": "false",
+        "Title": "Tennis",
+        "Distance": 0,
+        "Calories": 328,
+        "Time": "1:13:30",
+        "Avg HR": 99,
+        "Max HR": 152,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-07-04 09:03:02",
+        "Favorite": "false",
+        "Title": "Tennis",
+        "Distance": 0,
+        "Calories": 266,
+        "Time": "1:03:38",
+        "Avg HR": 98,
+        "Max HR": 138,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-06-21 08:51:41",
+        "Favorite": "false",
+        "Title": "Tennis",
+        "Distance": 0,
+        "Calories": 272,
+        "Time": "1:24:06",
+        "Avg HR": 90,
+        "Max HR": 132,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-06-18 13:43:05",
+        "Favorite": "false",
+        "Title": "Tennis",
+        "Distance": 0,
+        "Calories": 110,
+        "Time": "1:07:49",
+        "Avg HR": 68,
+        "Max HR": 106,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-06-14 09:00:42",
+        "Favorite": "false",
+        "Title": "Tennis",
+        "Distance": 0,
+        "Calories": 176,
+        "Time": "1:11:32",
+        "Avg HR": 80,
+        "Max HR": 123,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-06-12 18:44:59",
+        "Favorite": "false",
+        "Title": "Tennis",
+        "Distance": 0,
+        "Calories": 249,
+        "Time": "1:14:26",
+        "Avg HR": 91,
+        "Max HR": 126,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-06-10 19:19:43",
+        "Favorite": "false",
+        "Title": "Tennis",
+        "Distance": 0,
+        "Calories": 205,
+        "Time": "49:34",
+        "Avg HR": 99,
+        "Max HR": 137,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-06-09 09:00:03",
+        "Favorite": "false",
+        "Title": "Tennis",
+        "Distance": 0,
+        "Calories": 281,
+        "Time": "1:04:21",
+        "Avg HR": 104,
+        "Max HR": 146,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    }
+];
+const HOKKEY      = [
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-07-27 20:10:37",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 373,
+        "Time": "1:50:47",
+        "Avg HR": 91,
+        "Max HR": 138,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-07-13 20:35:33",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 308,
+        "Time": "1:24:29",
+        "Avg HR": 92,
+        "Max HR": 148,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-07-06 21:11:37",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 267,
+        "Time": "1:06:04",
+        "Avg HR": 97,
+        "Max HR": 129,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-06-15 20:16:14",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 353,
+        "Time": "1:44:38",
+        "Avg HR": 92,
+        "Max HR": 151,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-06-08 20:53:58",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 266,
+        "Time": "1:17:18",
+        "Avg HR": 92,
+        "Max HR": 137,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-05-11 19:29:12",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 546,
+        "Time": "1:33:38",
+        "Avg HR": 124,
+        "Max HR": 171,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-02-09 21:57:27",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 129,
+        "Time": "1:00:41",
+        "Avg HR": 74,
+        "Max HR": 117,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-02-06 22:32:12",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 242,
+        "Time": "1:30:35",
+        "Avg HR": 80,
+        "Max HR": 119,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-02-02 22:41:22",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 292,
+        "Time": "1:21:07",
+        "Avg HR": 89,
+        "Max HR": 133,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-01-26 21:29:13",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 277,
+        "Time": "51:53",
+        "Avg HR": 106,
+        "Max HR": 139,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-01-23 20:42:55",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 276,
+        "Time": "1:06:15",
+        "Avg HR": 96,
+        "Max HR": 124,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-01-19 20:24:38",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 357,
+        "Time": "2:02:41",
+        "Avg HR": 81,
+        "Max HR": 137,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-01-16 20:26:29",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 569,
+        "Time": "1:29:14",
+        "Avg HR": 120,
+        "Max HR": 166,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2017-01-05 19:58:30",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 428,
+        "Time": "2:00:16",
+        "Avg HR": 89,
+        "Max HR": 138,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2016-12-29 20:33:01",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 440,
+        "Time": "1:24:54",
+        "Avg HR": 110,
+        "Max HR": 161,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2016-12-15 20:36:37",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 398,
+        "Time": "1:24:44",
+        "Avg HR": 106,
+        "Max HR": 147,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2016-12-08 20:16:02",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 266,
+        "Time": "1:40:29",
+        "Avg HR": 82,
+        "Max HR": 133,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2016-11-10 21:52:24",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 55,
+        "Time": "10:52",
+        "Avg HR": 99,
+        "Max HR": 120,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2016-11-10 20:25:27",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 316,
+        "Time": "1:20:29",
+        "Avg HR": 93,
+        "Max HR": 128,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "indoor_cardio",
+        "Date": "2016-11-03 20:40:32",
+        "Favorite": "false",
+        "Title": "Hokkey",
+        "Distance": 0,
+        "Calories": 339,
+        "Time": "1:26:42",
+        "Avg HR": 92,
+        "Max HR": 141,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Speed": "--",
+        "Max Speed": "--",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    }
+];
+const RUNNING     = [
+    {
+        "Activity Type": "running",
+        "Date": "2017-07-19 20:24:03",
+        "Favorite": "false",
+        "Title": "Untitled",
+        "Distance": 7.02,
+        "Calories": 551,
+        "Time": "44:36",
+        "Avg HR": 163,
+        "Max HR": 173,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Pace": "6:22",
+        "Best Pace": "4:53",
+        "Elev Gain": 20,
+        "Elev Loss": 32,
+        "Avg Stride Length": 0.92,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "running",
+        "Date": "2017-06-29 19:39:57",
+        "Favorite": "false",
+        "Title": "Untitled",
+        "Distance": 4.35,
+        "Calories": 236,
+        "Time": "25:06",
+        "Avg HR": 136,
+        "Max HR": 180,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Pace": "5:46",
+        "Best Pace": "3:26",
+        "Elev Gain": 9,
+        "Elev Loss": 6,
+        "Avg Stride Length": 1.17,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "running",
+        "Date": "2017-06-26 19:56:59",
+        "Favorite": "false",
+        "Title": "Untitled",
+        "Distance": 4.04,
+        "Calories": 219,
+        "Time": "31:09",
+        "Avg HR": 116,
+        "Max HR": 149,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Pace": "7:43",
+        "Best Pace": "5:32",
+        "Elev Gain": 6,
+        "Elev Loss": 2,
+        "Avg Stride Length": 1.01,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "running",
+        "Date": "2017-06-24 19:30:47",
+        "Favorite": "false",
+        "Title": "Untitled",
+        "Distance": 2.96,
+        "Calories": 150,
+        "Time": "19:45",
+        "Avg HR": 121,
+        "Max HR": 136,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Pace": "6:40",
+        "Best Pace": "5:40",
+        "Elev Gain": 4,
+        "Elev Loss": 2,
+        "Avg Stride Length": 1.01,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "running",
+        "Date": "2017-06-21 19:24:00",
+        "Favorite": "false",
+        "Title": "Untitled",
+        "Distance": 4.33,
+        "Calories": 246,
+        "Time": "23:18",
+        "Avg HR": 148,
+        "Max HR": 161,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Pace": "5:23",
+        "Best Pace": "4:47",
+        "Elev Gain": 24,
+        "Elev Loss": 24,
+        "Avg Stride Length": 1.21,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "running",
+        "Date": "2017-06-20 19:55:30",
+        "Favorite": "false",
+        "Title": "Untitled",
+        "Distance": 2.01,
+        "Calories": 120,
+        "Time": "13:04",
+        "Avg HR": 135,
+        "Max HR": 154,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Pace": "6:31",
+        "Best Pace": "5:42",
+        "Elev Gain": 15,
+        "Elev Loss": 17,
+        "Avg Stride Length": 1.02,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "running",
+        "Date": "2017-06-05 21:10:12",
+        "Favorite": "false",
+        "Title": "Ira",
+        "Distance": 4.42,
+        "Calories": 342,
+        "Time": "30:01",
+        "Avg HR": 159,
+        "Max HR": 173,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Pace": "6:47",
+        "Best Pace": "5:14",
+        "Elev Gain": 12,
+        "Elev Loss": 11,
+        "Avg Stride Length": 0.87,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "running",
+        "Date": "2017-06-05 21:09:40",
+        "Favorite": "false",
+        "Title": "Untitled",
+        "Distance": 0.02,
+        "Calories": 1,
+        "Time": "0:18.0",
+        "Avg HR": 90,
+        "Max HR": 108,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Pace": "12:43",
+        "Best Pace": "5:30",
+        "Elev Gain": "--",
+        "Elev Loss": 10,
+        "Avg Stride Length": 0.86,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "running",
+        "Date": "2017-06-01 20:43:18",
+        "Favorite": "false",
+        "Title": "Untitled",
+        "Distance": 6.32,
+        "Calories": 404,
+        "Time": "35:02",
+        "Avg HR": 158,
+        "Max HR": 175,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Pace": "5:33",
+        "Best Pace": "4:52",
+        "Elev Gain": 19,
+        "Elev Loss": 26,
+        "Avg Stride Length": 1.19,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "running",
+        "Date": "2017-05-28 21:14:31",
+        "Favorite": "false",
+        "Title": "Ira",
+        "Distance": 4.02,
+        "Calories": 300,
+        "Time": "26:10",
+        "Avg HR": 156,
+        "Max HR": 176,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Pace": "6:30",
+        "Best Pace": "5:17",
+        "Elev Gain": 10,
+        "Elev Loss": 26,
+        "Avg Stride Length": 0.91,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "running",
+        "Date": "2017-05-28 20:26:49",
+        "Favorite": "false",
+        "Title": "Untitled",
+        "Distance": 3.41,
+        "Calories": 172,
+        "Time": "18:20",
+        "Avg HR": 138,
+        "Max HR": 166,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Pace": "5:22",
+        "Best Pace": "4:44",
+        "Elev Gain": 8,
+        "Elev Loss": 9,
+        "Avg Stride Length": 1.22,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "running",
+        "Date": "2017-05-26 10:04:36",
+        "Favorite": "false",
+        "Title": "Untitled",
+        "Distance": 3.15,
+        "Calories": 108,
+        "Time": "16:15",
+        "Avg HR": 116,
+        "Max HR": 151,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Pace": "5:10",
+        "Best Pace": "2:06",
+        "Elev Gain": 12,
+        "Elev Loss": 27,
+        "Avg Stride Length": 4.95,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "running",
+        "Date": "2017-05-26 09:58:57",
+        "Favorite": "false",
+        "Title": "Untitled",
+        "Distance": 0.51,
+        "Calories": 13,
+        "Time": "2:15.3",
+        "Avg HR": 106,
+        "Max HR": 111,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Pace": "4:27",
+        "Best Pace": "2:32",
+        "Elev Gain": "--",
+        "Elev Loss": 2,
+        "Avg Stride Length": 3.97,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "running",
+        "Date": "2017-05-21 12:33:51",
+        "Favorite": "false",
+        "Title": "Maria run",
+        "Distance": 3.02,
+        "Calories": 197,
+        "Time": "17:45",
+        "Avg HR": 163,
+        "Max HR": 184,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Pace": "5:52",
+        "Best Pace": "2:37",
+        "Elev Gain": 24,
+        "Elev Loss": 24,
+        "Avg Stride Length": 1.08,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "running",
+        "Date": "2017-05-15 11:06:37",
+        "Favorite": "false",
+        "Title": "Untitled",
+        "Distance": 1.68,
+        "Calories": 121,
+        "Time": "11:30",
+        "Avg HR": 151,
+        "Max HR": 165,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Pace": "6:51",
+        "Best Pace": "5:24",
+        "Elev Gain": 5,
+        "Elev Loss": 21,
+        "Avg Stride Length": 0,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "running",
+        "Date": "2017-04-09 20:00:20",
+        "Favorite": "false",
+        "Title": "Untitled",
+        "Distance": 5.88,
+        "Calories": 431,
+        "Time": "40:05",
+        "Avg HR": 153,
+        "Max HR": 168,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Pace": "6:49",
+        "Best Pace": "5:16",
+        "Elev Gain": 16,
+        "Elev Loss": 39,
+        "Avg Stride Length": 0.86,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "running",
+        "Date": "2017-04-09 19:30:27",
+        "Favorite": "false",
+        "Title": "Untitled",
+        "Distance": 3.31,
+        "Calories": 195,
+        "Time": "20:45",
+        "Avg HR": 141,
+        "Max HR": 184,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Pace": "6:16",
+        "Best Pace": "4:44",
+        "Elev Gain": 9,
+        "Elev Loss": 12,
+        "Avg Stride Length": 1.14,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "running",
+        "Date": "2017-04-05 20:27:07",
+        "Favorite": "false",
+        "Title": "Untitled",
+        "Distance": 4.2,
+        "Calories": 323,
+        "Time": "27:23",
+        "Avg HR": 161,
+        "Max HR": 178,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Pace": "6:31",
+        "Best Pace": "3:45",
+        "Elev Gain": 15,
+        "Elev Loss": 14,
+        "Avg Stride Length": 0.89,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "running",
+        "Date": "2017-03-29 20:47:38",
+        "Favorite": "false",
+        "Title": "Untitled",
+        "Distance": 2.64,
+        "Calories": 208,
+        "Time": "16:46",
+        "Avg HR": 164,
+        "Max HR": 177,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Pace": "6:22",
+        "Best Pace": "4:00",
+        "Elev Gain": 8,
+        "Elev Loss": 10,
+        "Avg Stride Length": 0.93,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    },
+    {
+        "Activity Type": "treadmill_running",
+        "Date": "2017-02-17 20:06:50",
+        "Favorite": "false",
+        "Title": "Untitled",
+        "Distance": 0.51,
+        "Calories": 47,
+        "Time": "3:56.7",
+        "Avg HR": 153,
+        "Max HR": 178,
+        "Aerobic TE": 0,
+        "Avg Cadence": "--",
+        "Max Cadence": "--",
+        "Avg Pace": "7:41",
+        "Best Pace": "4:30",
+        "Elev Gain": "--",
+        "Elev Loss": "--",
+        "Avg Stride Length": 1.17,
+        "Avg Vertical Ratio": 0,
+        "Avg Vertical Oscillation": 0,
+        "Avg Ground Contact Time": "--",
+        "Avg GCT Balance": "--",
+        "Normalized Power® (NP®)": "--",
+        "L/R Balance": "--",
+        "Training Stress Score®": 0,
+        "Max Avg Power (20 min)": "--",
+        "Power": "--",
+        "Max Power": "--",
+        "Total Strokes": "--",
+        "Avg. Swolf": "--",
+        "Avg Stroke Rate": "--"
+    }
+];
+const ACTIVITIES  = [TENNIS, HOKKEY, RUNNING];
+const ERR_PERCENT = 0.1;
+
+class Fitness {
+    static run(org) {
+        const len = ACTIVITIES.length;
+        let total = 0;
+
+        org.energy = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartEnergy;
+        org.mem.length = 0;
+        for (let i = 0; i < len; i++) {
+            this._run(org, ACTIVITIES[i], i);
+            total += ACTIVITIES[i].length;
+        }
+        //
+        // true means that result is found
+        //
+        return org.energy > (total - total * ERR_PERCENT);
+    }
+
+    static _run(org, data, index) {
+        const len  = data.length;
+        const code = org.code;
+        const vars = code.vars;
+
+        for (let i = 0; i < len; i++) {
+            this._setVars(data[i], vars);
+            code.run(org);
+            org.energy += +(vars[0] === index);
+        }
+    }
+
+    static _setVars(data, vars) {
+        for (let v = 0, len = vars.length; v < len; v++) {
+            vars[v] = this._prepareData(FIELDS[v], data[FIELDS[v]]);
+        }
+    }
+
+    static _prepareData(key, val) {
+        if (key === 'Date') {
+            let time = val.split(' ')[1].split(':');
+            return +time[0] * 3600 + +time[1] * 60 + +time[2];
+        }
+        if (key === 'Time') {
+            let time = val.split(':');
+            return +time[0] * 60 + +time[1];
+        }
+
+        return val;
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = Fitness;
+
+
+/***/ }),
+/* 17 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Events__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Num__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Num__ = __webpack_require__(3);
 /**
  * This file contains all available operators implementation. For example:
  * for, if, variable declaration, steps, eating etc... User may override
@@ -2504,7 +4523,189 @@ class Operators {
 
 
 /***/ }),
-/* 17 */
+/* 18 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Num__ = __webpack_require__(3);
+/**
+ * This file contains all available operators implementation. For example:
+ * for, if, variable declaration, steps, eating etc... User may override
+ * this class for own needs and change operator list to custom. These
+ * operators are used to obtain type of training saved by Garmin watches.
+ *
+ * @author DeadbraiN
+ */
+
+
+
+
+/**
+ * {Function} Just a shortcuts
+ */
+const VAR0                  = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getVar;
+const VAR1                  = (n) => __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getVar(n, 1);
+const VAR2                  = (n) => __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getVar(n, 2);
+const BITS_AFTER_THREE_VARS = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].BITS_PER_OPERATOR + __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].BITS_PER_VAR * 3;
+const BITS_WITHOUT_2_VARS   = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].BITS_WITHOUT_2_VARS;
+const BITS_OF_TWO_VARS      = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].BITS_OF_TWO_VARS;
+const IS_NUM                = $.isNumeric;
+const HALF_OF_VAR           = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].MAX_VAR / 2;
+
+class OperatorsGarmin {
+    constructor(offsets, vars, obs) {
+        /**
+         * {Array} Array of offsets for closing braces. For 'for', 'if'
+         * and all block operators.
+         */
+        this._offsets = offsets;
+        /**
+         * {Array} Available variables
+         */
+        this._vars = vars;
+        /**
+         * {Observer} Observer for sending events outside of the code
+         */
+        this._obs = obs;
+        /**
+         * {Object} These operator handlers should return string, which
+         * will be added to the final string script for evaluation.
+         */
+        this._OPERATORS_CB = {
+            0 : this.onVar.bind(this),
+            1 : this.onCondition.bind(this),
+            //2 : this.onLoop.bind(this),
+            2 : this.onOperator.bind(this),
+            3 : this.onNot.bind(this),
+            4 : this.onPi.bind(this),
+            5 : this.onTrig.bind(this),
+            6 : this.onFromMem.bind(this),
+            7 : this.onToMem.bind(this)
+        };
+        this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
+        /**
+         * {Array} Available conditions for if operator. Amount should be
+         * the same like (1 << BITS_PER_VAR)
+         */
+        this._CONDITIONS = [(a,b)=>a<b, (a,b)=>a>b, (a,b)=>a==b, (a,b)=>a!=b];
+        /**
+         * {Array} Available operators for math calculations
+         */
+        this._OPERATORS = [
+            (a,b)=>a+b, (a,b)=>a-b, (a,b)=>a*b, (a,b)=>a/b, (a,b)=>a%b, (a,b)=>a&b, (a,b)=>a|b, (a,b)=>a^b, (a,b)=>a>>b, (a,b)=>a<<b, (a,b)=>a>>>b, (a,b)=>+(a<b), (a,b)=>+(a>b), (a,b)=>+(a==b), (a,b)=>+(a!=b), (a,b)=>+(a<=b)
+        ];
+        this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
+
+        __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].setOperatorAmount(this._OPERATORS_CB_LEN);
+    }
+
+    destroy() {
+        this._offsets      = null;
+        this._OPERATORS_CB = null;
+        this._CONDITIONS   = null;
+        this._OPERATORS    = null;
+        this._TRIGS        = null;
+    }
+
+    get operators() {return this._OPERATORS_CB;}
+    get size()      {return this._OPERATORS_CB_LEN;}
+
+    /**
+     * Parses variable operator. Format: let = const|number. Num bits format:
+     *   BITS_PER_OPERATOR bits - operator id
+     *   BITS_PER_VAR bits  - destination var index
+     *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
+     *   BITS_PER_VAR bits  - variable index or all bits till the end for constant
+     *
+     * @param {Num} num Packed into number code line
+     * @param {Number} line Current line in code
+     * @return {Number} Parsed code line string
+     */
+    onVar(num, line) {
+        const vars = this._vars;
+        const var1 = VAR1(num);
+        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(BITS_WITHOUT_2_VARS) : vars[var1];
+
+        return line + 1;
+    }
+
+    onCondition(num, line, org, lines) {
+        const val3 = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
+        const offs = line + val3 < lines ? line + val3 + 1 : lines;
+
+        if (this._CONDITIONS[VAR2(num)](this._vars[VAR0(num)], this._vars[VAR1(num)])) {
+            return line + 1;
+        }
+
+        return offs;
+    }
+
+//    onLoop(num, line, org, lines, ret) {
+//        const vars = this._vars;
+//        const var0 = VAR0(num);
+//        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
+//        const offs = line + val3 < lines ? line + val3 + 1 : lines;
+//
+//        if (ret) {
+//            if (++vars[var0] < vars[VAR2(num)]) {
+//                this._offsets.push(line, offs);
+//                return line + 1;
+//            }
+//            return offs;
+//        }
+//
+//        vars[var0] = vars[VAR1(num)];
+//        if (vars[var0] < vars[VAR2(num)]) {
+//            this._offsets.push(line, offs);
+//            return line + 1;
+//        }
+//
+//        return offs;
+//    }
+
+    onOperator(num, line) {
+        const vars = this._vars;
+        vars[VAR0(num)] = this._OPERATORS[__WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS)](vars[VAR1(num)], vars[VAR2(num)]);
+        return line + 1;
+    }
+
+    onNot(num, line) {
+        this._vars[VAR0(num)] = +!this._vars[VAR1(num)];
+        return line + 1;
+    }
+
+    onPi(num, line) {
+        this._vars[VAR0(num)] = Math.PI;
+        return line + 1;
+    }
+
+    onTrig(num, line) {
+        this._vars[VAR0(num)] = this._TRIGS[VAR2(num)](this._vars[VAR1(num)]);
+        return line + 1;
+    }
+
+    onFromMem(num, line, org) {this._vars[VAR0(num)] = org.mem.pop() || 0; return line + 1}
+
+    onToMem(num, line, org) {
+        const val = this._vars[VAR1(num)];
+
+        if (IS_NUM(val) && org.mem.length < __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgMemSize) {
+            org.mem.push(val);
+            this._vars[VAR0(num)] = val;
+        } else {
+            this._vars[VAR0(num)] = org.mem[org.mem.length - 1];
+        }
+
+        return line + 1;
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = OperatorsGarmin;
+
+
+/***/ }),
+/* 19 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2616,11 +4817,11 @@ class Canvas {
 
 
 /***/ }),
-/* 18 */
+/* 20 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Observer__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Observer__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(2);
 /**

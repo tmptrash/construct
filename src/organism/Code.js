@@ -13,7 +13,7 @@ import Observer    from './../global/Observer'
 import Num         from './Num';
 
 export default class Code extends Observer {
-    constructor(codeEndCb, operatorsCls, org, vars = null) {
+    constructor(codeEndCb, org, classMap, vars = null) {
         super();
 
         /**
@@ -21,6 +21,7 @@ export default class Code extends Observer {
          * code iteration. On it's end.
          */
         this._onCodeEnd = codeEndCb;
+        this._classMap  = classMap;
         /**
          * {Array} Array of two numbers. first - line number where we have
          * to return if first line appears. second - line number, where ends
@@ -32,7 +33,7 @@ export default class Code extends Observer {
          * {Array} Array of offsets for closing braces. For 'for', 'if'
          * and all block operators.
          */
-        this._operators = new operatorsCls(this._offsets, this._vars, org);
+        this._operators = new this._classMap[Config.codeOperatorsCls](this._offsets, this._vars, org);
         this._code      = [];
         this._line      = 0;
     }
@@ -42,18 +43,19 @@ export default class Code extends Observer {
     get operators() {return this._operators.size;};
     get vars() {return this._vars;}
 
-    run(param) {
-        let line  = this._line;
-        let len   = Config.codeYieldPeriod;
-        let ops   = this._operators.operators;
-        let code  = this._code;
-        let lines = code.length;
-        let getOp = Num.getOperator;
-        let ret   = false;
-        let offs  = this._offsets;
+    run(org) {
+        let line    = this._line;
+        let code    = this._code;
+        let lines   = code.length;
+        let len     = Config.codeYieldPeriod || lines;
+        let fitMode = Config.codeFitnessCls !== null;
+        let ops     = this._operators.operators;
+        let getOp   = Num.getOperator;
+        let ret     = false;
+        let offs    = this._offsets;
 
-        while (lines > 0 && len-- > 0) {
-            line = ops[getOp(code[line])](code[line], line, param, lines, ret);
+        while (lines > 0 && len-- > 0 && org.alive) {
+            line = ops[getOp(code[line])](code[line], line, org, lines, ret);
 
             if (ret = (offs.length > 0 && line === offs[offs.length - 1])) {
                 offs.pop();
@@ -64,6 +66,7 @@ export default class Code extends Observer {
                 line = 0;
                 this._offsets.length = 0;
                 this._onCodeEnd();
+                if (fitMode) {break}
             }
         }
 
@@ -89,21 +92,24 @@ export default class Code extends Observer {
     }
 
     crossover(code) {
-        const rand   = Helper.rand;
-        const len    = this._code.length;
-        const len1   = code.code.length;
-        let   start  = rand(len);
-        let   end    = rand(len);
-        let   start1 = rand(len1);
-        let   end1   = rand(len1);
+        const rand    = Helper.rand;
+        const len     = this._code.length;
+        const len1    = code.code.length;
+        let   start   = rand(len);
+        let   end     = rand(len);
+        let   start1  = rand(len1);
+        let   end1    = rand(len1);
+        let   adds;
 
         if (start > end) {[start, end] = [end, start];}
         if (start1 > end1) {[start1, end1] = [end1, start1];}
 
+        adds = end1 - start1 - end + start;
+        if (Config.codeFitnessCls !== null && this._code.length + adds >= Config.codeMaxSize) {return 0}
         this._code.splice.apply(this._code, [start, end - start].concat(code.code.slice(start1, end1)));
         this._reset();
 
-        return end1 - start1 - end + start;
+        return adds;
     }
 
     /**
