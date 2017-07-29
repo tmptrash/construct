@@ -87,9 +87,13 @@ export default class Organisms {
      */
     _updateClone(counter) {
         const orgs      = this._orgs;
-        const orgAmount = orgs.size;
+        let   orgAmount = orgs.size;
         const needClone = Config.orgClonePeriod === 0 ? false : counter % Config.orgClonePeriod === 0;
-        if (!needClone || orgAmount < 1 || orgAmount >= Config.worldMaxOrgs) {return false;}
+        if (!needClone || orgAmount < 1) {return false;}
+        if (orgAmount >= Config.worldMaxOrgs) {
+            orgs.get(Helper.rand(orgAmount)).val.destroy();
+            orgAmount--;
+        }
 
         let org1 = orgs.get(Helper.rand(orgAmount)).val;
         let org2 = orgs.get(Helper.rand(orgAmount)).val;
@@ -98,7 +102,6 @@ export default class Organisms {
         if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes > org1.energy * org1.adds * org1.changes)) {
             [org1, org2] = [org2, org1];
         }
-        if (org2.alive && orgAmount >= Config.worldMaxOrgs) {org2.destroy();}
         this._clone(org1);
 
         return true;
@@ -180,9 +183,13 @@ export default class Organisms {
         if (pos === false || this._createOrg(pos, org) === false) {return false;}
         let child  = this._orgs.last.val;
         let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >>> 1; // analog of Math.round()
-
-        org.grabEnergy(energy);
-        child.grabEnergy(child.energy - energy);
+        //
+        // Energy should be grabbed only in native simulation mode
+        //
+        if (Config.codeFitnessCls === null) {
+            org.grabEnergy(energy);
+            child.grabEnergy(child.energy - energy);
+        }
         this._manager.fire(Events.CLONE, org, child);
 
         return true;
@@ -253,13 +260,13 @@ export default class Organisms {
 
     _onStop(org) {
         this._manager.stop();
-        Console.warn('org id: ', org.id, 'energy: ', org.energy);
+        console.log('-------------------------')
+        Console.warn('org id: ', org.id, ', energy: ', org.energy);
         Console.warn(org.code.code);
         Console.warn(this._manager.api.formatCode(org.code.code));
     }
 
     _onCodeEnd(org) {
-        this._manager.fire();
         this._codeRuns++;
     }
 

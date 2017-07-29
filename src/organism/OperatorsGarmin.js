@@ -48,9 +48,9 @@ export default class OperatorsGarmin {
             3 : this.onOperator.bind(this),
             4 : this.onNot.bind(this),
             5 : this.onPi.bind(this),
-            6 : this.onTrig.bind(this),
-            7 : this.onFromMem.bind(this),
-            8 : this.onToMem.bind(this)
+            6 : this.onTrig.bind(this)
+            //7 : this.onFromMem.bind(this),
+            //8 : this.onToMem.bind(this)
         };
         this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
         /**
@@ -154,18 +154,18 @@ export default class OperatorsGarmin {
         return line + 1;
     }
 
-    onFromMem(num, line, org) {this._vars[VAR0(num)] = org.mem.pop() || 0; return line + 1}
-
-    onToMem(num, line, org) {
-        const val = this._vars[VAR1(num)];
-
-        if (IS_NUM(val) && org.mem.length < Config.orgMemSize) {
-            org.mem.push(val);
-            this._vars[VAR0(num)] = val;
-        } else {
-            this._vars[VAR0(num)] = 0;
-        }
-
-        return line + 1;
-    }
+//    onFromMem(num, line, org) {this._vars[VAR0(num)] = org.mem.pop() || 0; return line + 1}
+//
+//    onToMem(num, line, org) {
+//        const val = this._vars[VAR1(num)];
+//
+//        if (IS_NUM(val) && org.mem.length < Config.orgMemSize) {
+//            org.mem.push(val);
+//            this._vars[VAR0(num)] = val;
+//        } else {
+//            this._vars[VAR0(num)] = org.mem[org.mem.length - 1];
+//        }
+//
+//        return line + 1;
+//    }
 }

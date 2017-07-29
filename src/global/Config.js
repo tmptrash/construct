@@ -113,7 +113,7 @@ const Config = {
     /**
      * {Number} Size of organism stack (internal memory)
      */
-    orgMemSize: 256,
+    orgMemSize: 16,
     /**
      * {Number} Percent of energy, which will be given to the child
      */
@@ -157,7 +157,7 @@ const Config = {
      * {Number} Every code line 'yield' operator will be inserted to prevent
      * locking of threads.
      */
-    codeYieldPeriod: 0,
+    codeYieldPeriod: 500,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain
@@ -250,7 +250,7 @@ const Config = {
      * possible to increase it to reduce amount of requests and additional
      * code in main loop
      */
-    worldIpsPeriodMs: 1000,
+    worldIpsPeriodMs: 10000,
     /**
      * {Number} Period of making automatic backup of application. In iterations
      */

@@ -186,7 +186,7 @@ const Config = {
     /**
      * {Number} Size of organism stack (internal memory)
      */
-    orgMemSize: 256,
+    orgMemSize: 16,
     /**
      * {Number} Percent of energy, which will be given to the child
      */
@@ -230,7 +230,7 @@ const Config = {
      * {Number} Every code line 'yield' operator will be inserted to prevent
      * locking of threads.
      */
-    codeYieldPeriod: 0,
+    codeYieldPeriod: 500,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain
@@ -323,7 +323,7 @@ const Config = {
      * possible to increase it to reduce amount of requests and additional
      * code in main loop
      */
-    worldIpsPeriodMs: 1000,
+    worldIpsPeriodMs: 10000,
     /**
      * {Number} Period of making automatic backup of application. In iterations
      */
@@ -1713,9 +1713,13 @@ class Organisms {
      */
     _updateClone(counter) {
         const orgs      = this._orgs;
-        const orgAmount = orgs.size;
+        let   orgAmount = orgs.size;
         const needClone = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgClonePeriod === 0 ? false : counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgClonePeriod === 0;
-        if (!needClone || orgAmount < 1 || orgAmount >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {return false;}
+        if (!needClone || orgAmount < 1) {return false;}
+        if (orgAmount >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {
+            orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(orgAmount)).val.destroy();
+            orgAmount--;
+        }
 
         let org1 = orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(orgAmount)).val;
         let org2 = orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(orgAmount)).val;
@@ -1724,7 +1728,6 @@ class Organisms {
         if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes > org1.energy * org1.adds * org1.changes)) {
             [org1, org2] = [org2, org1];
         }
-        if (org2.alive && orgAmount >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {org2.destroy();}
         this._clone(org1);
 
         return true;
@@ -1806,9 +1809,13 @@ class Organisms {
         if (pos === false || this._createOrg(pos, org) === false) {return false;}
         let child  = this._orgs.last.val;
         let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >>> 1; // analog of Math.round()
-
-        org.grabEnergy(energy);
-        child.grabEnergy(child.energy - energy);
+        //
+        // Energy should be grabbed only in native simulation mode
+        //
+        if (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeFitnessCls === null) {
+            org.grabEnergy(energy);
+            child.grabEnergy(child.energy - energy);
+        }
         this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].CLONE, org, child);
 
         return true;
@@ -1879,13 +1886,13 @@ class Organisms {
 
     _onStop(org) {
         this._manager.stop();
-        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('org id: ', org.id, 'energy: ', org.energy);
+        console.log('-------------------------')
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('org id: ', org.id, ', energy: ', org.energy);
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn(org.code.code);
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn(this._manager.api.formatCode(org.code.code));
     }
 
     _onCodeEnd(org) {
-        this._manager.fire();
         this._codeRuns++;
     }
 
@@ -1976,6 +1983,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
         let code    = this._code;
         let lines   = code.length;
         let len     = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeYieldPeriod || lines;
+        let fitMode = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeFitnessCls !== null;
         let ops     = this._operators.operators;
         let getOp   = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getOperator;
         let ret     = false;
@@ -1993,6 +2001,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
                 line = 0;
                 this._offsets.length = 0;
                 this._onCodeEnd();
+                if (fitMode) {break}
             }
         }
 
@@ -3559,7 +3568,7 @@ const HOKKEY      = [
     }
 ];
 const ACTIVITIES  = [TENNIS, HOKKEY];
-const ERR_PERCENT = 0.02;
+const ERR_PERCENT = 0.1;
 
 class Fitness {
     static run(org) {
@@ -3911,9 +3920,9 @@ class OperatorsGarmin {
             3 : this.onOperator.bind(this),
             4 : this.onNot.bind(this),
             5 : this.onPi.bind(this),
-            6 : this.onTrig.bind(this),
-            7 : this.onFromMem.bind(this),
-            8 : this.onToMem.bind(this)
+            6 : this.onTrig.bind(this)
+            //7 : this.onFromMem.bind(this),
+            //8 : this.onToMem.bind(this)
         };
         this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
         /**
@@ -4017,20 +4026,20 @@ class OperatorsGarmin {
         return line + 1;
     }
 
-    onFromMem(num, line, org) {this._vars[VAR0(num)] = org.mem.pop() || 0; return line + 1}
-
-    onToMem(num, line, org) {
-        const val = this._vars[VAR1(num)];
-
-        if (IS_NUM(val) && org.mem.length < __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgMemSize) {
-            org.mem.push(val);
-            this._vars[VAR0(num)] = val;
-        } else {
-            this._vars[VAR0(num)] = 0;
-        }
-
-        return line + 1;
-    }
+//    onFromMem(num, line, org) {this._vars[VAR0(num)] = org.mem.pop() || 0; return line + 1}
+//
+//    onToMem(num, line, org) {
+//        const val = this._vars[VAR1(num)];
+//
+//        if (IS_NUM(val) && org.mem.length < Config.orgMemSize) {
+//            org.mem.push(val);
+//            this._vars[VAR0(num)] = val;
+//        } else {
+//            this._vars[VAR0(num)] = org.mem[org.mem.length - 1];
+//        }
+//
+//        return line + 1;
+//    }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = OperatorsGarmin;
 

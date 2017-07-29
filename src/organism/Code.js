@@ -48,6 +48,7 @@ export default class Code extends Observer {
         let code    = this._code;
         let lines   = code.length;
         let len     = Config.codeYieldPeriod || lines;
+        let fitMode = Config.codeFitnessCls !== null;
         let ops     = this._operators.operators;
         let getOp   = Num.getOperator;
         let ret     = false;
@@ -65,6 +66,7 @@ export default class Code extends Observer {
                 line = 0;
                 this._offsets.length = 0;
                 this._onCodeEnd();
+                if (fitMode) {break}
             }
         }
 

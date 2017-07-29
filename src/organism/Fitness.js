@@ -1297,7 +1297,7 @@ const HOKKEY      = [
     }
 ];
 const ACTIVITIES  = [TENNIS, HOKKEY];
-const ERR_PERCENT = 0.02;
+const ERR_PERCENT = 0.1;
 
 export default class Fitness {
     static run(org) {
