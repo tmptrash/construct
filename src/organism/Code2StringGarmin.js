@@ -34,10 +34,10 @@ export default class Code2StringGarmin {
             //2 : this._onLoop.bind(this),
             2 : this._onOperator.bind(this),
             3 : this._onNot.bind(this),
-            4 : this._onPi.bind(this),
-            5 : this._onTrig.bind(this),
-            6 : this._onFromMem.bind(this),
-            7 : this._onToMem.bind(this)
+            //4 : this._onPi.bind(this),
+            //5 : this._onTrig.bind(this),
+            4 : this._onFromMem.bind(this),
+            5 : this._onToMem.bind(this)
         };
         this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
         /**
@@ -127,13 +127,13 @@ export default class Code2StringGarmin {
         return `v${VAR0(num)}=+!v${VAR1(num)}`;
     }
 
-    _onPi(num) {
-        return `v${VAR0(num)}=Math.PI`;
-    }
-
-    _onTrig(num) {
-        return `v${VAR0(num)}=Math.${this._TRIGS[VAR2(num)]}(v${VAR1(num)})`;
-    }
+//    _onPi(num) {
+//        return `v${VAR0(num)}=Math.PI`;
+//    }
+//
+//    _onTrig(num) {
+//        return `v${VAR0(num)}=Math.${this._TRIGS[VAR2(num)]}(v${VAR1(num)})`;
+//    }
 
     _onFromMem(num) {
         return `v${VAR0(num)}=org.fromMem()`;
