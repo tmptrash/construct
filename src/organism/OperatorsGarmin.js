@@ -47,10 +47,10 @@ export default class OperatorsGarmin {
             //2 : this.onLoop.bind(this),
             2 : this.onOperator.bind(this),
             3 : this.onNot.bind(this),
-            4 : this.onPi.bind(this),
-            5 : this.onTrig.bind(this),
-            6 : this.onFromMem.bind(this),
-            7 : this.onToMem.bind(this)
+            //4 : this.onPi.bind(this),
+            //5 : this.onTrig.bind(this),
+            4 : this.onFromMem.bind(this),
+            5 : this.onToMem.bind(this)
         };
         this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
         /**
@@ -144,15 +144,15 @@ export default class OperatorsGarmin {
         return line + 1;
     }
 
-    onPi(num, line) {
-        this._vars[VAR0(num)] = Math.PI;
-        return line + 1;
-    }
-
-    onTrig(num, line) {
-        this._vars[VAR0(num)] = this._TRIGS[VAR2(num)](this._vars[VAR1(num)]);
-        return line + 1;
-    }
+//    onPi(num, line) {
+//        this._vars[VAR0(num)] = Math.PI;
+//        return line + 1;
+//    }
+//
+//    onTrig(num, line) {
+//        this._vars[VAR0(num)] = this._TRIGS[VAR2(num)](this._vars[VAR1(num)]);
+//        return line + 1;
+//    }
 
     onFromMem(num, line, org) {this._vars[VAR0(num)] = org.mem.pop() || 0; return line + 1}
 

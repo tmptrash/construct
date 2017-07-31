@@ -2168,10 +2168,10 @@ class Code2StringGarmin {
             //2 : this._onLoop.bind(this),
             2 : this._onOperator.bind(this),
             3 : this._onNot.bind(this),
-            4 : this._onPi.bind(this),
-            5 : this._onTrig.bind(this),
-            6 : this._onFromMem.bind(this),
-            7 : this._onToMem.bind(this)
+            //4 : this._onPi.bind(this),
+            //5 : this._onTrig.bind(this),
+            4 : this._onFromMem.bind(this),
+            5 : this._onToMem.bind(this)
         };
         this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
         /**
@@ -2261,13 +2261,13 @@ class Code2StringGarmin {
         return `v${VAR0(num)}=+!v${VAR1(num)}`;
     }
 
-    _onPi(num) {
-        return `v${VAR0(num)}=Math.PI`;
-    }
-
-    _onTrig(num) {
-        return `v${VAR0(num)}=Math.${this._TRIGS[VAR2(num)]}(v${VAR1(num)})`;
-    }
+//    _onPi(num) {
+//        return `v${VAR0(num)}=Math.PI`;
+//    }
+//
+//    _onTrig(num) {
+//        return `v${VAR0(num)}=Math.${this._TRIGS[VAR2(num)]}(v${VAR1(num)})`;
+//    }
 
     _onFromMem(num) {
         return `v${VAR0(num)}=org.fromMem()`;
@@ -4579,10 +4579,10 @@ class OperatorsGarmin {
             //2 : this.onLoop.bind(this),
             2 : this.onOperator.bind(this),
             3 : this.onNot.bind(this),
-            4 : this.onPi.bind(this),
-            5 : this.onTrig.bind(this),
-            6 : this.onFromMem.bind(this),
-            7 : this.onToMem.bind(this)
+            //4 : this.onPi.bind(this),
+            //5 : this.onTrig.bind(this),
+            4 : this.onFromMem.bind(this),
+            5 : this.onToMem.bind(this)
         };
         this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
         /**
@@ -4676,15 +4676,15 @@ class OperatorsGarmin {
         return line + 1;
     }
 
-    onPi(num, line) {
-        this._vars[VAR0(num)] = Math.PI;
-        return line + 1;
-    }
-
-    onTrig(num, line) {
-        this._vars[VAR0(num)] = this._TRIGS[VAR2(num)](this._vars[VAR1(num)]);
-        return line + 1;
-    }
+//    onPi(num, line) {
+//        this._vars[VAR0(num)] = Math.PI;
+//        return line + 1;
+//    }
+//
+//    onTrig(num, line) {
+//        this._vars[VAR0(num)] = this._TRIGS[VAR2(num)](this._vars[VAR1(num)]);
+//        return line + 1;
+//    }
 
     onFromMem(num, line, org) {this._vars[VAR0(num)] = org.mem.pop() || 0; return line + 1}
 
