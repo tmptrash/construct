@@ -65,7 +65,9 @@ export default class Code extends Observer {
             if (line >= lines) {
                 line = 0;
                 this._offsets.length = 0;
-                this._onCodeEnd();
+				if (this._codeEndCb) {
+                    this._onCodeEnd();
+				}
                 if (fitMode) {break}
             }
         }
