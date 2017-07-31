@@ -973,3 +973,114 @@ for (v2 = v3; v2 < v3; v2++) {
             v0 = org.myX()
         }
     }
+	
+
+	
+// energy: 45847998.18586665
+v1 = org.lookAt(v0, v1)
+v1 = 307263
+v0 = org.eatRight(v0)
+v0 = org.stepDown()
+v1 = org.stepRight()
+v3 = org.eatUp(v0)
+v2 = org.myY()
+v2 = Math.tan(v0)
+v0 = org.stepRight()
+for (v0 = v2; v0 < v2; v0++) {
+    v1 = org.eatUp(v1)
+    v2 = org.stepRight()
+}
+v0 = org.stepRight()
+v3 = org.eatDown(v2)
+v3 = org.stepLeft()
+v1 = org.eatDown(v3)
+for (v2 = v2; v2 < v2; v2++) {
+    v0 = 195263
+    if (v2 < v0) {
+        v1 = v0 | v3
+        v3 = org.stepUp()
+        v2 = Math.PI
+        v3 = org.eatDown(v2)
+        v1 = org.stepLeft()
+        for (v3 = v0; v3 < v2; v3++) {
+            v1 = org.stepLeft()
+            v2 = +!v3
+            v1 = org.toMem(v3)
+            v1 = org.eatLeft(v0)
+            v3 = org.lookAt(v3, v3)
+            v0 = org.eatRight(v3)
+            v0 = v0
+        }
+        v3 = org.eatDown(v0)
+        v3 = org.myY()
+        for (v1 = v1; v1 < v3; v1++) {
+            v2 = org.stepDown()
+            v3 = 696989
+            v1 = org.stepLeft()
+            v2 = org.stepLeft()
+            v0 = v3 * v3
+            v2 = org.stepLeft()
+            v2 = org.stepLeft()
+            v2 = org.eatLeft(v0)
+            v2 = org.stepDown()
+        }
+        v2 = org.stepLeft()
+        v2 = org.stepLeft()
+        v1 = org.myX()
+        if (v2 != v0) {
+            v2 = org.eatDown(v0)
+            v0 = org.eatLeft(v0)
+            v1 = org.eatRight(v1)
+            v3 = org.lookAt(v3, v3)
+            v2 = org.eatRight(v1)
+            v3 = org.stepRight()
+            v3 = Math.cos(v3)
+            v1 = Math.PI
+            for (v0 = v0; v0 < v2; v0++) {
+                for (v0 = v0; v0 < v1; v0++) {
+                    v3 = org.stepRight()
+                    for (v1 = v2; v1 < v3; v1++) {
+                        v2 = org.eatRight(v3)
+                        v1 = org.eatRight(v3)
+                        v3 = org.myY()
+                        v1 = org.eatDown(v0)
+                    }
+                    if (v1 != v1) {
+                        v1 = Math.abs(v1)
+                        v2 = org.myX()
+                        v2 = org.eatRight(v3)
+                        v1 = Math.tan(v0)
+                        v0 = org.myX()
+                        v2 = org.eatLeft(v0)
+                        v3 = +!v0
+                    }
+                    v0 = Math.PI
+                    v1 = org.eatDown(v1)
+                    if (v2 > v2) {
+                        v3 = org.fromMem()
+                        v3 = org.stepRight()
+                        v1 = org.stepLeft()
+                        v1 = org.toMem(v2)
+                        v1 = org.lookAt(v1, v0)
+                        v0 = org.stepUp()
+                        v2 = +!v1
+                        for (v1 = v2; v1 < v1; v1++) {
+                            v2 = org.lookAt(v0, v1)
+                            v1 = org.eatUp(v0)
+                            v1 = org.eatDown(v2)
+                        }
+                        for (v3 = v0; v3 < v0; v3++) {
+                            v1 = org.toMem(v2)
+                            v0 = org.toMem(v0)
+                            v1 = 281063
+                            v1 = org.stepUp()
+                            v3 = org.lookAt(v1, v1)
+                            v1 = v0
+                            v2 = org.myY()
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

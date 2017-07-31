@@ -23,6 +23,7 @@ import Mutator           from './plugins/Mutator';
 import Energy            from './plugins/Energy';
 import Operators         from './../organism/Operators';
 import OperatorsGarmin   from './../organism/OperatorsGarmin';
+import Code2String       from './../organism/Code2String';
 import Code2StringGarmin from './../organism/Code2StringGarmin';
 import Fitness           from './../organism/Fitness';
 /**
@@ -30,8 +31,9 @@ import Fitness           from './../organism/Fitness';
  */
 const CLASS_MAP = {
     Operators        : Operators,
-    OperatorsGarmin  : OperatorsGarmin,
-    Code2StringGarmin: Code2StringGarmin,
+	OperatorsGarmin  : OperatorsGarmin,
+    Code2String      : Code2String,
+	Code2StringGarmin: Code2StringGarmin,
     Fitness          : Fitness
 };
 /**
