@@ -106,7 +106,7 @@ export default class Operators {
     onVar(num, line) {
         const vars = this._vars;
         const var1 = VAR1(num);
-        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? Helper.rand(BITS_WITHOUT_2_VARS) : vars[var1];
+        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS) : vars[var1];
 
         return line + 1;
     }

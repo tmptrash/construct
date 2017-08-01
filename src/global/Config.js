@@ -58,12 +58,12 @@ const Config = {
     /**
      * {Number} Amount of iterations before clonning process
      */
-    orgClonePeriod: 1,
+    orgClonePeriod: 0,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
      */
-    orgCrossoverPeriod: 2,
+    orgCrossoverPeriod: 1,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
@@ -79,7 +79,7 @@ const Config = {
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 75,
+    orgStartAmount: 100,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without code) organism were created
@@ -191,11 +191,11 @@ const Config = {
     /**
      * {Number} World width
      */
-    worldWidth: 800,
+    worldWidth: 30,
     /**
      * {Number} World height
      */
-    worldHeight: 450,
+    worldHeight: 30,
     /**
      * {Number} Turns on ciclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
@@ -209,7 +209,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 75,
+    worldMaxOrgs: 100,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...

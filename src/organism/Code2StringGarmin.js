@@ -101,7 +101,7 @@ export default class Code2StringGarmin {
         const var1    = VAR1(num);
         const isConst = var1 >= HALF_OF_VAR;
 
-        return `v${VAR0(num)}=${isConst ? Helper.rand(Num.BITS_WITHOUT_2_VARS) : ('v' + var1)}`;
+        return `v${VAR0(num)}=${isConst ? Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS) : ('v' + var1)}`;
     }
 
     _onCondition(num, line, lines) {

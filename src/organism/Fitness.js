@@ -7,7 +7,7 @@
 import Config from './../global/Config';
 
 const FIELDS      = [
-    'Date',
+    //'Date',
     'Calories',
     'Time',
     'Avg HR'
@@ -1971,19 +1971,24 @@ export default class Fitness {
     }
 
     static _setVars(data, vars) {
+        const fLen = FIELDS.length;
         for (let v = 0, len = vars.length; v < len; v++) {
-            vars[v] = this._prepareData(FIELDS[v], data[FIELDS[v]]);
+            if (v >= fLen) {
+                vars[v] = 0;
+            } else {
+                vars[v] = this._prepareData(FIELDS[v], data[FIELDS[v]]);
+            }
         }
     }
 
     static _prepareData(key, val) {
-        if (key === 'Date') {
-            let time = val.split(' ')[1].split(':');
-            return +time[0] * 3600 + +time[1] * 60 + +time[2];
-        }
+//        if (key === 'Date') {
+//            let time = val.split(' ')[1].split(':');
+//            return +time[0] * 3600 + +time[1] * 60 + +time[2];
+//        }
         if (key === 'Time') {
             let time = val.split(':');
-            return +time[0] * 60 + +time[1];
+            return time.length > 2 ? time[0] * 3600 + +time[1] * 60 + +time[2] : +time[0] * 60 + +time[1];
         }
 
         return val;

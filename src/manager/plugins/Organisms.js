@@ -167,7 +167,7 @@ export default class Organisms {
                 return org2;
             }
         } else {
-            if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes / org2.code.size > org1.energy * org1.adds * org1.changes / org1.code.size)) {
+            if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes * (Config.codeMaxSize / org2.code.size) > org1.energy * org1.adds * org1.changes * (Config.codeMaxSize / org1.code.size))) {
                 return org2;
             }
         }

@@ -131,12 +131,12 @@ const Config = {
     /**
      * {Number} Amount of iterations before clonning process
      */
-    orgClonePeriod: 1,
+    orgClonePeriod: 0,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
      */
-    orgCrossoverPeriod: 2,
+    orgCrossoverPeriod: 1,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
@@ -152,7 +152,7 @@ const Config = {
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 75,
+    orgStartAmount: 100,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without code) organism were created
@@ -264,11 +264,11 @@ const Config = {
     /**
      * {Number} World width
      */
-    worldWidth: 800,
+    worldWidth: 30,
     /**
      * {Number} World height
      */
-    worldHeight: 450,
+    worldHeight: 30,
     /**
      * {Number} Turns on ciclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
@@ -282,7 +282,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 75,
+    worldMaxOrgs: 100,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
@@ -1800,7 +1800,7 @@ class Organisms {
                 return org2;
             }
         } else {
-            if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes / org2.code.size > org1.energy * org1.adds * org1.changes / org1.code.size)) {
+            if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes * (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeMaxSize / org2.code.size) > org1.energy * org1.adds * org1.changes * (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeMaxSize / org1.code.size))) {
                 return org2;
             }
         }
@@ -2259,7 +2259,7 @@ class Code2String {
         const var1    = VAR1(num);
         const isConst = var1 >= HALF_OF_VAR;
 
-        return `v${VAR0(num)}=${isConst ? __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_WITHOUT_2_VARS) : ('v' + var1)}`;
+        return `v${VAR0(num)}=${isConst ? __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_OF_TWO_VARS) : ('v' + var1)}`;
     }
 
     _onFunc(num) {
@@ -2462,7 +2462,7 @@ class Code2StringGarmin {
         const var1    = VAR1(num);
         const isConst = var1 >= HALF_OF_VAR;
 
-        return `v${VAR0(num)}=${isConst ? __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_WITHOUT_2_VARS) : ('v' + var1)}`;
+        return `v${VAR0(num)}=${isConst ? __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_OF_TWO_VARS) : ('v' + var1)}`;
     }
 
     _onCondition(num, line, lines) {
@@ -2522,7 +2522,7 @@ class Code2StringGarmin {
 
 
 const FIELDS      = [
-    'Date',
+    //'Date',
     'Calories',
     'Time',
     'Avg HR'
@@ -4486,19 +4486,24 @@ class Fitness {
     }
 
     static _setVars(data, vars) {
+        const fLen = FIELDS.length;
         for (let v = 0, len = vars.length; v < len; v++) {
-            vars[v] = this._prepareData(FIELDS[v], data[FIELDS[v]]);
+            if (v >= fLen) {
+                vars[v] = 0;
+            } else {
+                vars[v] = this._prepareData(FIELDS[v], data[FIELDS[v]]);
+            }
         }
     }
 
     static _prepareData(key, val) {
-        if (key === 'Date') {
-            let time = val.split(' ')[1].split(':');
-            return +time[0] * 3600 + +time[1] * 60 + +time[2];
-        }
+//        if (key === 'Date') {
+//            let time = val.split(' ')[1].split(':');
+//            return +time[0] * 3600 + +time[1] * 60 + +time[2];
+//        }
         if (key === 'Time') {
             let time = val.split(':');
-            return +time[0] * 60 + +time[1];
+            return time.length > 2 ? time[0] * 3600 + +time[1] * 60 + +time[2] : +time[0] * 60 + +time[1];
         }
 
         return val;
@@ -4624,7 +4629,7 @@ class Operators {
     onVar(num, line) {
         const vars = this._vars;
         const var1 = VAR1(num);
-        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(BITS_WITHOUT_2_VARS) : vars[var1];
+        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS) : vars[var1];
 
         return line + 1;
     }
@@ -4853,7 +4858,7 @@ class OperatorsGarmin {
     onVar(num, line) {
         const vars = this._vars;
         const var1 = VAR1(num);
-        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(BITS_WITHOUT_2_VARS) : vars[var1];
+        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS) : vars[var1];
 
         return line + 1;
     }
