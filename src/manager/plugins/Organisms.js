@@ -273,7 +273,7 @@ export default class Organisms {
         if (Config.codeFitnessCls !== null && org.energy > this._maxEnergy) {
             this._maxEnergy = org.energy;
             console.log('--------------------------------------------------')
-            Console.warn('Max energy: ', org.energy);
+            Console.warn('Max energy: ', org.energy, ', org Id: ', org.id);
             Console.warn('[' + org.code.code + ']');
             Console.warn(this._manager.api.formatCode(org.code.code));
         }
