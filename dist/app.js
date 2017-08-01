@@ -142,7 +142,7 @@ const Config = {
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 10,
+    orgRainMutationPeriod: 40,
     /**
      * {Number} Value, which will be used like amount of mutations per
      * orgRainMutationPeriod iterations. 0 is a possible value if
@@ -152,7 +152,7 @@ const Config = {
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 500,
+    orgStartAmount: 75,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without code) organism were created
@@ -282,7 +282,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 500,
+    worldMaxOrgs: 75,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
@@ -1795,9 +1795,16 @@ class Organisms {
         org2            = org2 || orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(orgAmount)).val;
 
         if (!org1.alive && !org2.alive) {return false;}
-        if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes > org1.energy * org1.adds * org1.changes)) {
-            return org2;
+        if (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeFitnessCls === null) {
+            if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes > org1.energy * org1.adds * org1.changes)) {
+                return org2;
+            }
+        } else {
+            if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes / org2.code.size > org1.energy * org1.adds * org1.changes / org1.code.size)) {
+                return org2;
+            }
         }
+
 
         return org1;
     }
@@ -4455,7 +4462,6 @@ class Fitness {
         let total = 0;
 
         org.energy = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartEnergy;
-        org.mem.length = 0;
         for (let i = 0; i < len; i++) {
             this._run(org, ACTIVITIES[i], i);
             total += ACTIVITIES[i].length;
@@ -4463,7 +4469,7 @@ class Fitness {
         //
         // true means that result is found
         //
-        return org.energy > (total - total * ERR_PERCENT);
+        return org.energy >= (total - total * ERR_PERCENT);
     }
 
     static _run(org, data, index) {
@@ -4472,6 +4478,7 @@ class Fitness {
         const vars = code.vars;
 
         for (let i = 0; i < len; i++) {
+            org.mem.length = 0;
             this._setVars(data[i], vars);
             code.run(org);
             org.energy += +(vars[0] === index);
