@@ -1947,7 +1947,6 @@ export default class Fitness {
         let total = 0;
 
         org.energy = Config.orgStartEnergy;
-        org.mem.length = 0;
         for (let i = 0; i < len; i++) {
             this._run(org, ACTIVITIES[i], i);
             total += ACTIVITIES[i].length;
@@ -1955,7 +1954,7 @@ export default class Fitness {
         //
         // true means that result is found
         //
-        return org.energy > (total - total * ERR_PERCENT);
+        return org.energy >= (total - total * ERR_PERCENT);
     }
 
     static _run(org, data, index) {
@@ -1964,6 +1963,7 @@ export default class Fitness {
         const vars = code.vars;
 
         for (let i = 0; i < len; i++) {
+            org.mem.length = 0;
             this._setVars(data[i], vars);
             code.run(org);
             org.energy += +(vars[0] === index);
