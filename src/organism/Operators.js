@@ -48,21 +48,21 @@ export default class Operators {
             2 : this.onLoop.bind(this),
             3 : this.onOperator.bind(this),
             4 : this.onNot.bind(this),
-            5 : this.onPi.bind(this),
-            6 : this.onTrig.bind(this),
-            7 : this.onLookAt.bind(this),
-            8 : this.onEatLeft.bind(this),
-            9 : this.onEatRight.bind(this),
-            10: this.onEatUp.bind(this),
-            11: this.onEatDown.bind(this),
-            12: this.onStepLeft.bind(this),
-            13: this.onStepRight.bind(this),
-            14: this.onStepUp.bind(this),
-            15: this.onStepDown.bind(this),
-            16: this.onFromMem.bind(this),
-            17: this.onToMem.bind(this),
-            18: this.onMyX.bind(this),
-            19: this.onMyY.bind(this)
+            //5 : this.onPi.bind(this),
+            //6 : this.onTrig.bind(this),
+            5 : this.onLookAt.bind(this),
+            6 : this.onEatLeft.bind(this),
+            7 : this.onEatRight.bind(this),
+            8 : this.onEatUp.bind(this),
+            9 : this.onEatDown.bind(this),
+            10: this.onStepLeft.bind(this),
+            11: this.onStepRight.bind(this),
+            12: this.onStepUp.bind(this),
+            13: this.onStepDown.bind(this),
+            14: this.onFromMem.bind(this),
+            15: this.onToMem.bind(this),
+            16: this.onMyX.bind(this),
+            17: this.onMyY.bind(this)
         };
         this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
         /**
@@ -76,7 +76,7 @@ export default class Operators {
         this._OPERATORS = [
             (a,b)=>a+b, (a,b)=>a-b, (a,b)=>a*b, (a,b)=>a/b, (a,b)=>a%b, (a,b)=>a&b, (a,b)=>a|b, (a,b)=>a^b, (a,b)=>a>>b, (a,b)=>a<<b, (a,b)=>a>>>b, (a,b)=>+(a<b), (a,b)=>+(a>b), (a,b)=>+(a==b), (a,b)=>+(a!=b), (a,b)=>+(a<=b)
         ];
-        this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
+        //this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
 
         Num.setOperatorAmount(this._OPERATORS_CB_LEN);
     }
@@ -86,7 +86,7 @@ export default class Operators {
         this._OPERATORS_CB = null;
         this._CONDITIONS   = null;
         this._OPERATORS    = null;
-        this._TRIGS        = null;
+        //this._TRIGS        = null;
     }
 
     get operators() {return this._OPERATORS_CB;}
@@ -111,9 +111,9 @@ export default class Operators {
         return line + 1;
     }
 
-    onFunc(num, line) {
-        return line + 1;
-    }
+    //onFunc(num, line) {
+    //    return line + 1;
+    //}
 
     onCondition(num, line, org, lines) {
         const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
@@ -160,15 +160,15 @@ export default class Operators {
         return line + 1;
     }
 
-    onPi(num, line) {
-        this._vars[VAR0(num)] = Math.PI;
-        return line + 1;
-    }
+    //onPi(num, line) {
+    //    this._vars[VAR0(num)] = Math.PI;
+    //    return line + 1;
+    //}
 
-    onTrig(num, line) {
-        this._vars[VAR0(num)] = this._TRIGS[VAR2(num)](this._vars[VAR1(num)]);
-        return line + 1;
-    }
+    //onTrig(num, line) {
+    //    this._vars[VAR0(num)] = this._TRIGS[VAR2(num)](this._vars[VAR1(num)]);
+    //    return line + 1;
+    //}
 
     onLookAt(num, line, org) {
         const vars = this._vars;
