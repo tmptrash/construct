@@ -1982,10 +1982,10 @@ export default class Fitness {
     }
 
     static _prepareData(key, val) {
-//        if (key === 'Date') {
-//            let time = val.split(' ')[1].split(':');
-//            return +time[0] * 3600 + +time[1] * 60 + +time[2];
-//        }
+        if (key === 'Date') {
+            let time = val.split(' ')[1].split(':');
+            return +time[0] * 3600 + +time[1] * 60 + +time[2];
+        }
         if (key === 'Time') {
             let time = val.split(':');
             return time.length > 2 ? time[0] * 3600 + +time[1] * 60 + +time[2] : +time[0] * 60 + +time[1];

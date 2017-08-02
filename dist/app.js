@@ -131,12 +131,12 @@ const Config = {
     /**
      * {Number} Amount of iterations before clonning process
      */
-    orgClonePeriod: 0,
+    orgClonePeriod: 1,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
      */
-    orgCrossoverPeriod: 1,
+    orgCrossoverPeriod: 10,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
@@ -203,7 +203,7 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 50,
+    codeMaxSize: 10,
     /**
      * {Number} This coefficiend is used for calculating of amount of energy,
      * which grabbed from each organism depending on his codeSize.
@@ -282,7 +282,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 100,
+    worldMaxOrgs: 250,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
@@ -4491,10 +4491,10 @@ class Fitness {
     }
 
     static _prepareData(key, val) {
-//        if (key === 'Date') {
-//            let time = val.split(' ')[1].split(':');
-//            return +time[0] * 3600 + +time[1] * 60 + +time[2];
-//        }
+        if (key === 'Date') {
+            let time = val.split(' ')[1].split(':');
+            return +time[0] * 3600 + +time[1] * 60 + +time[2];
+        }
         if (key === 'Time') {
             let time = val.split(':');
             return time.length > 2 ? time[0] * 3600 + +time[1] * 60 + +time[2] : +time[0] * 60 + +time[1];
