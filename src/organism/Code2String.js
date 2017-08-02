@@ -35,21 +35,21 @@ export default class Code2String {
             2 : this._onLoop.bind(this),
             3 : this._onOperator.bind(this),
             4 : this._onNot.bind(this),
-            5 : this._onPi.bind(this),
-            6 : this._onTrig.bind(this),
-            7 : this._onLookAt.bind(this),
-            8 : this._onEatLeft.bind(this),
-            9 : this._onEatRight.bind(this),
-            10: this._onEatUp.bind(this),
-            11: this._onEatDown.bind(this),
-            12: this._onStepLeft.bind(this),
-            13: this._onStepRight.bind(this),
-            14: this._onStepUp.bind(this),
-            15: this._onStepDown.bind(this),
-            16: this._onFromMem.bind(this),
-            17: this._onToMem.bind(this),
-            18: this._onMyX.bind(this),
-            19: this._onMyY.bind(this)
+            //5 : this._onPi.bind(this),
+            //6 : this._onTrig.bind(this),
+            5 : this._onLookAt.bind(this),
+            6 : this._onEatLeft.bind(this),
+            7 : this._onEatRight.bind(this),
+            8 : this._onEatUp.bind(this),
+            9 : this._onEatDown.bind(this),
+            10: this._onStepLeft.bind(this),
+            11: this._onStepRight.bind(this),
+            12: this._onStepUp.bind(this),
+            13: this._onStepDown.bind(this),
+            14: this._onFromMem.bind(this),
+            15: this._onToMem.bind(this),
+            16: this._onMyX.bind(this),
+            17: this._onMyY.bind(this)
         };
         this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
         /**
@@ -63,7 +63,7 @@ export default class Code2String {
         this._OPERATORS = [
             '+', '-', '*', '/', '%', '&', '|', '^', '>>', '<<', '>>>', '<', '>', '==', '!=', '<='
         ];
-        this._TRIGS = ['sin', 'cos', 'tan', 'abs'];
+        //this._TRIGS = ['sin', 'cos', 'tan', 'abs'];
 
         Num.setOperatorAmount(this._OPERATORS_CB_LEN);
     }
@@ -143,13 +143,13 @@ export default class Code2String {
         return `v${VAR0(num)}=+!v${VAR1(num)}`;
     }
 
-    _onPi(num) {
-        return `v${VAR0(num)}=Math.PI`;
-    }
+    //_onPi(num) {
+    //    return `v${VAR0(num)}=Math.PI`;
+    //}
 
-    _onTrig(num) {
-        return `v${VAR0(num)}=Math.${this._TRIGS[VAR2(num)]}(v${VAR1(num)})`;
-    }
+    //_onTrig(num) {
+    //    return `v${VAR0(num)}=Math.${this._TRIGS[VAR2(num)]}(v${VAR1(num)})`;
+    //}
 
     _onLookAt(num) {
         return `v${VAR0(num)}=org.lookAt(v${VAR1(num)},v${VAR2(num)})`;
