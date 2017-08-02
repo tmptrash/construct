@@ -7,7 +7,7 @@
 import Config from './../global/Config';
 
 const FIELDS      = [
-    //'Date',
+    'Date',
     'Calories',
     'Time',
     'Avg HR'

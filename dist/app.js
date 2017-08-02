@@ -1795,14 +1795,8 @@ class Organisms {
         org2            = org2 || orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(orgAmount)).val;
 
         if (!org1.alive && !org2.alive) {return false;}
-        if (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeFitnessCls === null) {
-            if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes > org1.energy * org1.adds * org1.changes)) {
-                return org2;
-            }
-        } else {
-            if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes * (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeMaxSize / org2.code.size) > org1.energy * org1.adds * org1.changes * (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeMaxSize / org1.code.size))) {
-                return org2;
-            }
+        if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes > org1.energy * org1.adds * org1.changes)) {
+            return org2;
         }
 
 
@@ -2522,7 +2516,7 @@ class Code2StringGarmin {
 
 
 const FIELDS      = [
-    //'Date',
+    'Date',
     'Calories',
     'Time',
     'Avg HR'
