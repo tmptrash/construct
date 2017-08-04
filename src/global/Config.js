@@ -54,22 +54,22 @@ const Config = {
      * {Number} Percent of mutations from code size, which will be applied to
      * organism after clonning. Should be <= 1.0
      */
-    orgCloneMutation: 0.1,
+    orgCloneMutation: 0.01,
     /**
      * {Number} Amount of iterations before clonning process
      */
-    orgClonePeriod: 0,
+    orgClonePeriod: 1,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
      */
-    orgCrossoverPeriod: 1,
+    orgCrossoverPeriod: 3,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 40,
+    orgRainMutationPeriod: 30,
     /**
      * {Number} Value, which will be used like amount of mutations per
      * orgRainMutationPeriod iterations. 0 is a possible value if
@@ -130,7 +130,7 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 50,
+    codeMaxSize: 10,
     /**
      * {Number} This coefficiend is used for calculating of amount of energy,
      * which grabbed from each organism depending on his codeSize.
@@ -209,7 +209,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 100,
+    worldMaxOrgs: 250,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...

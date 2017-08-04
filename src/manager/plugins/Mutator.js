@@ -15,6 +15,10 @@ import Helper   from './../../global/Helper';
 import Organism from './../../organism/Organism';
 import Num      from '../../organism/Num';
 
+const VAR_BITS_OFFS = Num.VAR_BITS_OFFS - 1;
+const VARS          = Num.VARS;
+const MAX_VAR       = Num.MAX_VAR;
+
 export default class Mutator {
     constructor(manager) {
         this._manager = manager;
@@ -87,13 +91,18 @@ export default class Mutator {
      * @private
      */
     _onSmallChange(org) {
-        const index = Helper.rand(org.code.size);
+        const rand  = Helper.rand;
+        const index = rand(org.code.size);
         const code  = org.code;
+        const rnd   = rand(3);
 
-        if (Helper.rand(2) === 0) {
-            code.updateLine(index, Num.setOperator(code.getLine(index), Helper.rand(code.operators)));
+        if (rnd === 0) {
+            code.updateLine(index, Num.setOperator(code.getLine(index), rand(code.operators)));
+        } else if (rnd === 1) {
+            code.updateLine(index, Num.setVar(code.getLine(index), rand(VARS), rand(MAX_VAR)));
         } else {
-            code.updateLine(index, Num.setVar(code.getLine(index), Helper.rand(Num.VARS), Helper.rand(Num.MAX_VAR)));
+            // toggle specified bit
+            code.updateLine(index, code.getLine(index) ^ (1 << rand(VAR_BITS_OFFS)));
         }
     }
 

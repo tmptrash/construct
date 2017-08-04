@@ -10,6 +10,7 @@
 import Config      from './../global/Config';
 import Helper      from './../global/Helper';
 import Observer    from './../global/Observer'
+import Events      from './../global/Events';
 import Num         from './Num';
 
 export default class Code extends Observer {
@@ -149,6 +150,7 @@ export default class Code extends Observer {
     }
 
     _reset() {
+        this.fire(Events.RESET_CODE);
         this._line           = 0;
         this._offsets.length = 0;
     }

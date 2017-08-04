@@ -51,34 +51,40 @@ export default class Organism extends Observer {
         this._iterations            = 0;
         this._cloneEnergyPercent    = Config.orgCloneEnergyPercent;
         this._fnId                  = 0;
+        if (Config.codeFitnessCls !== null) {
+            this._needRun           = true;
+        }
+
+        this._code.on(Events.RESET_CODE, this._onResetCode.bind(this));
     }
 
-    get id()                    {return this._id;}
-    get x()                     {return this._x;}
-    get y()                     {return this._y;}
-    get alive()                 {return this._alive;}
-    get item()                  {return this._item;}
-    get mutationProbs()         {return this._mutationProbs;}
-    get mutationPeriod()        {return this._mutationPeriod;}
-    get mutationPercent()       {return this._mutationPercent;}
-    get mutationClonePercent()  {return this._mutationClonePercent;}
-    get adds()                  {return this._adds;}
-    get changes()               {return this._changes;}
-    get energy()                {return this._energy;}
-    get color()                 {return this._color;}
-    get mem()                   {return this._mem;}
-    get cloneEnergyPercent()    {return this._cloneEnergyPercent;}
-    get code()                  {return this._code;}
-    get posId()                 {return Helper.posId(this._x, this._y);}
-    get iterations()            {return this._iterations;}
+    get id()                    {return this._id}
+    get x()                     {return this._x}
+    get y()                     {return this._y}
+    get alive()                 {return this._alive}
+    get item()                  {return this._item}
+    get mutationProbs()         {return this._mutationProbs}
+    get mutationPeriod()        {return this._mutationPeriod}
+    get mutationPercent()       {return this._mutationPercent}
+    get mutationClonePercent()  {return this._mutationClonePercent}
+    get adds()                  {return this._adds}
+    get changes()               {return this._changes}
+    get energy()                {return this._energy}
+    get color()                 {return this._color}
+    get mem()                   {return this._mem}
+    get cloneEnergyPercent()    {return this._cloneEnergyPercent}
+    get code()                  {return this._code}
+    get posId()                 {return Helper.posId(this._x, this._y)}
+    get iterations()            {return this._iterations}
+    get needRun()               {return this._needRun}
 
-    set x(newX)                 {this._x = newX;}
-    set y(newY)                 {this._y = newY;}
-    set mutationClonePercent(m) {this._mutationClonePercent = m;}
-    set mutationPeriod(m)       {this._mutationPeriod = m;}
-    set mutationPercent(p)      {this._mutationPercent = p;}
-    set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p;}
-    set energy(e)               {this._energy = e;}
+    set x(newX)                 {this._x = newX}
+    set y(newY)                 {this._y = newY}
+    set mutationClonePercent(m) {this._mutationClonePercent = m}
+    set mutationPeriod(m)       {this._mutationPeriod = m}
+    set mutationPercent(p)      {this._mutationPercent = p}
+    set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p}
+    set energy(e)               {this._energy = e}
     set adds(a) {
         this._adds = a;
         this._updateColor();
@@ -87,6 +93,7 @@ export default class Organism extends Observer {
         this._changes = c;
         this._updateColor();
     }
+    set needRun(nr)             {this._needRun = nr}
 
     /**
      * Runs one code iteration and returns
@@ -98,6 +105,7 @@ export default class Organism extends Observer {
         this._iterations++;
         if (fitnessCls) {
             if (fitnessCls.run(this)) {this.fire(Events.STOP, this)}
+            this._needRun = false;
         } else {
             this._code.run(this);
         }
@@ -159,6 +167,15 @@ export default class Organism extends Observer {
         needDestroy && this.destroy();
 
         return !needDestroy;
+    }
+
+    /**
+     * Is called when some modifications in code appeared and we have
+     * to re-execute it again
+     * @private
+     */
+    _onResetCode() {
+        this._needRun = true;
     }
 
     /**

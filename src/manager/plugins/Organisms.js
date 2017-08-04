@@ -17,6 +17,7 @@ import Queue       from './../../global/Queue';
 import Organism    from './../../organism/Organism';
 import Backup      from './Backup';
 
+
 export default class Organisms {
     constructor(manager) {
         this._orgs          = new Queue();
@@ -27,9 +28,12 @@ export default class Organisms {
         this._positions     = {};
         this._orgId         = 0;
         this._maxEnergy     = 0;
+        this._maxChanges    = 0;
         this._code2Str      = new manager.CLASS_MAP[Config.code2StringCls];
         this._onIterationCb = this._onIteration.bind(this);
         this._onAfterMoveCb = this._onAfterMove.bind(this);
+
+        this._FITNESS_CLS   = manager.CLASS_MAP[Config.codeFitnessCls];
 
         Helper.override(manager, 'onIteration', this._onIterationCb);
         Helper.override(manager, 'onAfterMove', this._onAfterMoveCb);
@@ -68,8 +72,12 @@ export default class Organisms {
         let   org;
 
         while (item && (org = item.val)) {
+            // TODO: these two ifs should be in separate class for fitness logic
+            if (org.adds + org.changes > this._maxChanges) {this._maxChanges = org.adds + org.changes}
             man.fire(Events.ORGANISM, org);
-            org.run();
+            if (org.needRun) {
+                org.run();
+            }
             item = item.next;
         }
 
@@ -100,8 +108,16 @@ export default class Organisms {
         let org2 = orgs.get(Helper.rand(orgAmount)).val;
 
         if (!org1.alive && !org2.alive) {return false;}
-        if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes > org1.energy * org1.adds * org1.changes)) {
-            [org1, org2] = [org2, org1];
+
+        const codeFitnessCls = Config.codeFitnessCls;
+        if (codeFitnessCls === null) {
+            if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes > org1.energy * org1.adds * org1.changes)) {
+                [org1, org2] = [org2, org1];
+            }
+        } else {
+            if ((org2.alive && !org1.alive) || this._FITNESS_CLS.compare(org2, org1, this._maxChanges)) {
+                [org1, org2] = [org2, org1];
+            }
         }
         this._clone(org1);
 
@@ -162,16 +178,17 @@ export default class Organisms {
         org2            = org2 || orgs.get(Helper.rand(orgAmount)).val;
 
         if (!org1.alive && !org2.alive) {return false;}
-        if (Config.codeFitnessCls === null) {
+
+        const codeFitnessCls = Config.codeFitnessCls;
+        if (codeFitnessCls === null) {
             if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes > org1.energy * org1.adds * org1.changes)) {
                 return org2;
             }
         } else {
-            if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes * (Config.codeMaxSize / org2.code.size) > org1.energy * org1.adds * org1.changes * (Config.codeMaxSize / org1.code.size))) {
+            if ((org2.alive && !org1.alive) || this._FITNESS_CLS.compare(org2, org1, this._maxChanges)) {
                 return org2;
             }
         }
-
 
         return org1;
     }
