@@ -1760,10 +1760,6 @@ class Organisms {
         let   orgAmount = orgs.size;
         const needClone = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgClonePeriod === 0 ? false : counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgClonePeriod === 0;
         if (!needClone || orgAmount < 1) {return false;}
-        if (orgAmount >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {
-            orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(orgAmount)).val.destroy();
-            orgAmount--;
-        }
 
         let org1 = orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(orgAmount)).val;
         let org2 = orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(orgAmount)).val;
@@ -1780,6 +1776,7 @@ class Organisms {
                 [org1, org2] = [org2, org1];
             }
         }
+        if (orgAmount >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {this._onKillOrg(org2)}
         this._clone(org1);
 
         return true;
@@ -1790,7 +1787,6 @@ class Organisms {
         const orgAmount = orgs.size;
         const needCrossover = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgCrossoverPeriod === 0 ? false : counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgCrossoverPeriod === 0;
         if (!needCrossover || orgAmount < 1) {return false;}
-        if (orgAmount >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs)).val.destroy();}
 
         let org1   = this._tournament();
         let org2   = this._tournament();
@@ -1798,7 +1794,7 @@ class Organisms {
         let looser = winner.id === org1.id ? org2 : org1;
 
         if (looser.alive) {
-            this._crossover(org1, org2);
+            this._crossover(winner, looser);
         }
 
         return true;
@@ -1854,12 +1850,14 @@ class Organisms {
         return org1;
     }
 
-    _crossover(org1, org2) {
-        this._clone(org1);
-        let child = this._orgs.last.val;
+    _crossover(winner, looser) {
+        this._clone(winner);
+        const orgs = this._orgs;
+        let child  = orgs.last.val;
 
-        if (child.alive && org2.alive) {
-            child.adds += child.code.crossover(org2.code);
+        if (child.alive && looser.alive) {
+            child.adds += child.code.crossover(looser.code);
+            if (orgs.size >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {this._onKillOrg(looser)}
         }
     }
 
@@ -3099,13 +3097,8 @@ class Fitness {
     }
 
     static _setVars(data, vars) {
-        const fLen = FIELDS.length;
         for (let v = 0, len = vars.length; v < len; v++) {
-            if (v >= fLen) {
-                vars[v] = 0;
-            } else {
-                vars[v] = this._prepareData(FIELDS[v], data[FIELDS[v]]);
-            }
+            vars[v] = this._prepareData(FIELDS[v], data[FIELDS[v]]);
         }
     }
 

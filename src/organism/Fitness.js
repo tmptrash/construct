@@ -536,13 +536,8 @@ export default class Fitness {
     }
 
     static _setVars(data, vars) {
-        const fLen = FIELDS.length;
         for (let v = 0, len = vars.length; v < len; v++) {
-            if (v >= fLen) {
-                vars[v] = 0;
-            } else {
-                vars[v] = this._prepareData(FIELDS[v], data[FIELDS[v]]);
-            }
+            vars[v] = this._prepareData(FIELDS[v], data[FIELDS[v]]);
         }
     }
 
