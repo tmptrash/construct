@@ -39,7 +39,8 @@ const Events = {
     GRAB_UP: 37,
     GRAB_DOWN: 38,
     DESTROY: 39,
-    STOP: 40
+    STOP: 40,
+    RESET_CODE: 41
 };
 
 export default Events;

@@ -54,7 +54,7 @@ const Config = {
      * {Number} Percent of mutations from code size, which will be applied to
      * organism after clonning. Should be <= 1.0
      */
-    orgCloneMutation: 0.1,
+    orgCloneMutation: 0.01,
     /**
      * {Number} Amount of iterations before clonning process
      */
@@ -63,13 +63,13 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
      */
-    orgCrossoverPeriod: 10,
+    orgCrossoverPeriod: 3,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 40,
+    orgRainMutationPeriod: 30,
     /**
      * {Number} Value, which will be used like amount of mutations per
      * orgRainMutationPeriod iterations. 0 is a possible value if

@@ -17,6 +17,7 @@ const VAR_BITS_OFFS       = 32 - BITS_PER_OPERATOR;
 const BITS_WITHOUT_2_VARS = 1 << (VAR_BITS_OFFS - BITS_PER_VAR * 2);
 
 export default class Number {
+    static get VAR_BITS_OFFS()       {return VAR_BITS_OFFS;}
     static get BITS_PER_VAR()        {return BITS_PER_VAR;}
     static get BITS_PER_OPERATOR()   {return BITS_PER_OPERATOR;}
     static get VARS()                {return (32 - BITS_PER_OPERATOR) / BITS_PER_VAR;}
