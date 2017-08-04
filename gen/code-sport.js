@@ -537,3 +537,36 @@ if (v3 > v3) {
         v3 = org.toMem(v1)
     }
 }
+
+
+
+
+// energy 13 from 15
+v1 = v1 & v0
+v0 = 4
+v0 = org.toMem(v0)
+v0 = v3 < v1
+v1 = org.fromMem()
+v1 = v3 >>> v3
+if (v1 < v0) {
+    v2 = 6
+}
+v3 = org.toMem(v3)
+v0 = v3 >> v2
+
+
+
+
+
+// energy 14 from 15
+v1 = v1 & v0
+v0 = +!v2
+v1 = v1 | v3
+v0 = v1 > v3
+v1 = v3 >> v1
+if (v1 < v0) {
+    v2 = 6
+}
+v0 = 4
+v1 = 2
+v0 = v3 >> v2
