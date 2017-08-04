@@ -99,10 +99,6 @@ export default class Organisms {
         let   orgAmount = orgs.size;
         const needClone = Config.orgClonePeriod === 0 ? false : counter % Config.orgClonePeriod === 0;
         if (!needClone || orgAmount < 1) {return false;}
-        if (orgAmount >= Config.worldMaxOrgs) {
-            orgs.get(Helper.rand(orgAmount)).val.destroy();
-            orgAmount--;
-        }
 
         let org1 = orgs.get(Helper.rand(orgAmount)).val;
         let org2 = orgs.get(Helper.rand(orgAmount)).val;
@@ -119,6 +115,7 @@ export default class Organisms {
                 [org1, org2] = [org2, org1];
             }
         }
+        if (orgAmount >= Config.worldMaxOrgs) {this._onKillOrg(org2)}
         this._clone(org1);
 
         return true;
@@ -129,7 +126,6 @@ export default class Organisms {
         const orgAmount = orgs.size;
         const needCrossover = Config.orgCrossoverPeriod === 0 ? false : counter % Config.orgCrossoverPeriod === 0;
         if (!needCrossover || orgAmount < 1) {return false;}
-        if (orgAmount >= Config.worldMaxOrgs) {orgs.get(Helper.rand(Config.worldMaxOrgs)).val.destroy();}
 
         let org1   = this._tournament();
         let org2   = this._tournament();
@@ -137,7 +133,7 @@ export default class Organisms {
         let looser = winner.id === org1.id ? org2 : org1;
 
         if (looser.alive) {
-            this._crossover(org1, org2);
+            this._crossover(winner, looser);
         }
 
         return true;
@@ -193,12 +189,14 @@ export default class Organisms {
         return org1;
     }
 
-    _crossover(org1, org2) {
-        this._clone(org1);
-        let child = this._orgs.last.val;
+    _crossover(winner, looser) {
+        this._clone(winner);
+        const orgs = this._orgs;
+        let child  = orgs.last.val;
 
-        if (child.alive && org2.alive) {
-            child.adds += child.code.crossover(org2.code);
+        if (child.alive && looser.alive) {
+            child.adds += child.code.crossover(looser.code);
+            if (orgs.size >= Config.worldMaxOrgs) {this._onKillOrg(looser)}
         }
     }
 
