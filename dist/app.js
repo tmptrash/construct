@@ -1776,7 +1776,7 @@ class Organisms {
                 [org1, org2] = [org2, org1];
             }
         }
-        if (orgAmount >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {this._onKillOrg(org2)}
+        if (orgAmount >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {org2.destroy();}
         this._clone(org1);
 
         return true;
@@ -1857,7 +1857,7 @@ class Organisms {
 
         if (child.alive && looser.alive) {
             child.adds += child.code.crossover(looser.code);
-            if (orgs.size >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {this._onKillOrg(looser)}
+            if (orgs.size >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {looser.destroy()}
         }
     }
 
