@@ -115,7 +115,7 @@ export default class Organisms {
                 [org1, org2] = [org2, org1];
             }
         }
-        if (orgAmount >= Config.worldMaxOrgs) {this._onKillOrg(org2)}
+        if (orgAmount >= Config.worldMaxOrgs) {org2.destroy();}
         this._clone(org1);
 
         return true;
@@ -196,7 +196,7 @@ export default class Organisms {
 
         if (child.alive && looser.alive) {
             child.adds += child.code.crossover(looser.code);
-            if (orgs.size >= Config.worldMaxOrgs) {this._onKillOrg(looser)}
+            if (orgs.size >= Config.worldMaxOrgs) {looser.destroy()}
         }
     }
 
