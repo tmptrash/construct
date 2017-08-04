@@ -1084,3 +1084,33 @@ for (v2 = v2; v2 < v2; v2++) {
         }
     }
 }
+
+
+
+
+// energy: 6290000
+v2 = org.eatDown(v0)
+v2 = +!v0
+v0 = org.stepDown()
+v1 = org.stepDown()
+v0 = org.stepDown()
+v0 = org.stepDown()
+v1 = org.stepDown()
+v2 = org.myY()
+v0 = org.stepDown()
+v0 = org.myX()
+v0 = org.lookAt(v0, v2)
+if (v1 > v2) {
+    v0 = org.stepLeft()
+    if (v2 > v2) {
+        v3 = org.lookAt(v2, v1)
+        v3 = org.eatRight(v2)
+        for (v3 = v1; v3 < v3; v3++) {
+            v0 = org.stepRight()
+            v0 = v3 / v3
+            if (v1 == v3) {
+                v1 = +!v3
+            }
+        }
+    }
+}
