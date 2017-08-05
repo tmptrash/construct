@@ -1114,3 +1114,51 @@ if (v1 > v2) {
         }
     }
 }
+
+
+
+// energy 400000 in cycling: false mode
+v1 = 4
+v3 = v1
+v2 = org.eatRight(v2)
+v3 = v1
+v2 = org.stepRight()
+v2 = org.lookAt(v0, v1)
+v3 = org.eatDown(v1)
+for (v2 = v1; v2 < v3; v2++) {
+    v2 = org.myX()
+    v2 = org.myX()
+    v0 = org.eatRight(v1)
+    v3 = org.myY()
+    v3 = org.stepDown()
+    v0 = +!v0
+    v1 = org.eatDown(v2)
+    v0 = org.eatRight(v1)
+    v0 = org.stepUp()
+    v0 = org.stepUp()
+    v2 = org.toMem(v1)
+    v2 = org.stepUp()
+    v2 = org.stepUp()
+    v2 = org.stepRight()
+}
+v1 = org.eatUp(v0)
+v3 = org.fromMem()
+v0 = org.myX()
+v0 = org.stepRight()
+v1 = org.lookAt(v3, v3)
+v2 = org.eatRight(v1)
+v3 = org.lookAt(v0, v3)
+v3 = org.eatLeft(v2)
+v1 = org.stepLeft()
+v1 = org.stepRight()
+v0 = org.myX()
+v3 = org.eatLeft(v3)
+v2 = v2 | v1
+v1 = org.stepLeft()
+v3 = org.myY()
+for (v1 = v1; v1 < v0; v1++) {
+    v3 = org.stepRight()
+    v3 = +!v1
+    v3 = org.eatRight(v0)
+    v3 = org.stepDown()
+}
