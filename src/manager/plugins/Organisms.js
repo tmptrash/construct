@@ -33,6 +33,7 @@ export default class Organisms {
         this._onIterationCb = this._onIteration.bind(this);
         this._onAfterMoveCb = this._onAfterMove.bind(this);
 
+        this._fitnessMode   = Config.codeFitnessCls !== null;
         this._FITNESS_CLS   = manager.CLASS_MAP[Config.codeFitnessCls];
 
         Helper.override(manager, 'onIteration', this._onIterationCb);
@@ -74,10 +75,9 @@ export default class Organisms {
         while (item && (org = item.val)) {
             // TODO: these two ifs should be in separate class for fitness logic
             if (org.adds + org.changes > this._maxChanges) {this._maxChanges = org.adds + org.changes}
+            org.run();
+            this._onOrganism(org);
             man.fire(Events.ORGANISM, org);
-            if (org.needRun) {
-                org.run();
-            }
             item = item.next;
         }
 
@@ -86,6 +86,24 @@ export default class Organisms {
         this._updateCreate();
         this._updateIps(stamp);
         this._updateBackup(counter);
+    }
+
+    _onOrganism(org) {
+        if (this._fitnessMode && org.energy > this._maxEnergy) {
+            this._maxEnergy = org.energy;
+            console.log('--------------------------------------------------')
+            Console.warn('Max energy: ', org.energy, ', org Id: ', org.id);
+            Console.warn('[' + org.code.code + ']');
+            Console.warn(this._manager.api.formatCode(org.code.code));
+        }
+    }
+
+    _onStop(org) {
+        this._manager.stop();
+        console.log('--------------------------------------------------')
+        Console.warn('org id: ', org.id, ', energy: ', org.energy);
+        Console.warn('[' + org.code.code + ']');
+        Console.warn(this._manager.api.formatCode(org.code.code));
     }
 
     /**
@@ -105,18 +123,17 @@ export default class Organisms {
 
         if (!org1.alive && !org2.alive) {return false;}
 
-        const codeFitnessCls = Config.codeFitnessCls;
-        if (codeFitnessCls === null) {
-            if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes > org1.energy * org1.adds * org1.changes)) {
+        if (this._fitnessMode) {
+            if ((org2.alive && !org1.alive) || this._FITNESS_CLS.compare(org2, org1, this._maxChanges)) {
                 [org1, org2] = [org2, org1];
             }
         } else {
-            if ((org2.alive && !org1.alive) || this._FITNESS_CLS.compare(org2, org1, this._maxChanges)) {
+            if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes > org1.energy * org1.adds * org1.changes)) {
                 [org1, org2] = [org2, org1];
             }
         }
         if (orgAmount >= Config.worldMaxOrgs) {org2.destroy();}
-        this._clone(org1);
+        if (org1.alive) {this._clone(org1)}
 
         return true;
     }
@@ -175,13 +192,12 @@ export default class Organisms {
 
         if (!org1.alive && !org2.alive) {return false;}
 
-        const codeFitnessCls = Config.codeFitnessCls;
-        if (codeFitnessCls === null) {
-            if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes > org1.energy * org1.adds * org1.changes)) {
+        if (this._fitnessMode) {
+            if ((org2.alive && !org1.alive) || this._FITNESS_CLS.compare(org2, org1, this._maxChanges)) {
                 return org2;
             }
         } else {
-            if ((org2.alive && !org1.alive) || this._FITNESS_CLS.compare(org2, org1, this._maxChanges)) {
+            if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes > org1.energy * org1.adds * org1.changes)) {
                 return org2;
             }
         }
@@ -201,14 +217,14 @@ export default class Organisms {
     }
 
     _clone(org) {
-        if (org.energy < 1) {return false;}
+        if (this._fitnessMode === false && org.energy < 1) {return false;}
         let pos = this._manager.world.getNearFreePos(org.x, org.y);
         if (pos === false || this._createOrg(pos, org) === false) {return false;}
         let child  = this._orgs.last.val;
         //
         // Energy should be grabbed only in native simulation mode
         //
-        if (Config.codeFitnessCls === null) {
+        if (this._fitnessMode === false) {
             let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >>> 1; // analog of Math.round()
             org.grabEnergy(energy);
             child.grabEnergy(child.energy - energy);
@@ -241,7 +257,7 @@ export default class Organisms {
         org.on(Events.GET_ENERGY, this._onGetEnergy.bind(this));
         org.on(Events.EAT, this._onEat.bind(this));
         org.on(Events.STEP, this._onStep.bind(this));
-        if (Config.codeFitnessCls !== null) {
+        if (this._fitnessMode) {
             org.on(Events.STOP, this._onStop.bind(this));
         }
     }
@@ -283,22 +299,7 @@ export default class Organisms {
         }
     }
 
-    _onStop(org) {
-        this._manager.stop();
-        console.log('--------------------------------------------------')
-        Console.warn('org id: ', org.id, ', energy: ', org.energy);
-        Console.warn('[' + org.code.code + ']');
-        Console.warn(this._manager.api.formatCode(org.code.code));
-    }
-
     _onCodeEnd(org) {
-        if (Config.codeFitnessCls !== null && org.energy > this._maxEnergy) {
-            this._maxEnergy = org.energy;
-            console.log('--------------------------------------------------')
-            Console.warn('Max energy: ', org.energy, ', org Id: ', org.id);
-            Console.warn('[' + org.code.code + ']');
-            Console.warn(this._manager.api.formatCode(org.code.code));
-        }
         this._codeRuns++;
     }
 
