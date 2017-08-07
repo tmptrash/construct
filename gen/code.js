@@ -1162,3 +1162,60 @@ for (v1 = v1; v1 < v0; v1++) {
     v3 = org.eatRight(v0)
     v3 = org.stepDown()
 }
+
+
+
+
+
+// energy 1033815 in cyclical mode
+v2 = org.stepDown()
+for (v0 = v3; v0 < v2; v0++) {
+    v1 = org.stepLeft()
+    v1 = org.lookAt(v0, v3)
+    v0 = org.fromMem()
+    for (v0 = v1; v0 < v3; v0++) {
+        v3 = org.stepLeft()
+        v0 = org.myX()
+        v2 = org.stepLeft()
+        v2 = v2 << v2
+        v0 = org.stepDown()
+        v1 = org.eatDown(v3)
+        v3 = org.stepRight()
+        v0 = v3 / v0
+        v3 = org.toMem(v1)
+        v0 = org.myX()
+        v2 = +!v3
+        v1 = org.eatRight(v1)
+        if (v0 == v1) {
+            v0 = org.eatDown(v2)
+            v2 = org.myY()
+            v1 = org.myY()
+            v3 = org.fromMem()
+            v3 = v2 ^ v3
+            v2 = org.eatLeft(v1)
+            v0 = org.stepDown()
+            v2 = 13
+            v1 = 3
+            v2 = org.toMem(v0)
+            v0 = org.lookAt(v0, v0)
+            v1 = org.stepLeft()
+        }
+        v2 = org.eatRight(v0)
+        v3 = org.fromMem()
+        v0 = org.eatDown(v0)
+        v3 = +!v0
+        v2 = org.eatUp(v0)
+        v3 = org.stepDown()
+        v2 = org.stepDown()
+        v1 = org.eatDown(v0)
+        for (v1 = v0; v1 < v2; v1++) {
+            v1 = org.fromMem()
+            for (v0 = v1; v0 < v3; v0++) {
+                v3 = org.stepLeft()
+                v3 = org.myX()
+                v0 = org.stepLeft()
+                v1 = org.eatLeft(v3)
+            }
+        }
+    }
+}
