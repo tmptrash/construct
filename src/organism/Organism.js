@@ -76,7 +76,6 @@ export default class Organism extends Observer {
     get code()                  {return this._code}
     get posId()                 {return Helper.posId(this._x, this._y)}
     get iterations()            {return this._iterations}
-    get needRun()               {return this._needRun}
 
     set x(newX)                 {this._x = newX}
     set y(newY)                 {this._y = newY}
@@ -93,16 +92,16 @@ export default class Organism extends Observer {
         this._changes = c;
         this._updateColor();
     }
-    set needRun(nr)             {this._needRun = nr}
 
     /**
      * Runs one code iteration and returns
      * @return {Boolean} false means that organism was destroyed
      */
     run() {
-        const fitnessCls = Config.codeFitnessCls && this._classMap[Config.codeFitnessCls];
-
         this._iterations++;
+        if (this._needRun === false) {return true}
+
+        const fitnessCls = Config.codeFitnessCls && this._classMap[Config.codeFitnessCls];
         if (fitnessCls) {
             if (fitnessCls.run(this)) {this.fire(Events.STOP, this)}
             this._needRun = false;
@@ -162,7 +161,7 @@ export default class Organism extends Observer {
      */
     _updateDestroy() {
         const alivePeriod = Config.orgAlivePeriod;
-        const needDestroy = this._energy < 1 || alivePeriod > 0 && this._iterations >= alivePeriod;
+        const needDestroy = alivePeriod > 0 && (this._energy < 1 || this._iterations >= alivePeriod);
 
         needDestroy && this.destroy();
 

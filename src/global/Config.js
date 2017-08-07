@@ -79,13 +79,13 @@ const Config = {
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 100,
+    orgStartAmount: 5000,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without code) organism were created
      * by operator and not by evolution.
      */
-    orgStartEnergy: 1,
+    orgStartEnergy: 0,
     /**
      * {Number} Begin color of "empty" organism (organism without code).
      */
@@ -130,9 +130,9 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 10,
+    codeMaxSize: 15,
     /**
-     * {Number} This coefficiend is used for calculating of amount of energy,
+     * {Number} This coefficient is used for calculating of amount of energy,
      * which grabbed from each organism depending on his codeSize.
      * This coefficient affects entire code size of population and
      * entire system speed. It depends on CPU speed also. So, for
@@ -178,7 +178,7 @@ const Config = {
      * behavior is a nature organisms simulator. See Manager.CLASS_MAP for additional
      * details.
      */
-    codeFitnessCls: 'Fitness',
+    codeFitnessCls: 'FitnessGarmin',
     /**
      * {Function} Class with available operators. See default Operators
      * class for details. See Manager.CLASS_MAP for additional details.
@@ -191,11 +191,11 @@ const Config = {
     /**
      * {Number} World width
      */
-    worldWidth: 30,
+    worldWidth: 100,
     /**
      * {Number} World height
      */
-    worldHeight: 30,
+    worldHeight: 100,
     /**
      * {Number} Turns on ciclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
@@ -209,7 +209,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 250,
+    worldMaxOrgs: 5000,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
