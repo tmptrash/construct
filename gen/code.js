@@ -1084,3 +1084,62 @@ for (v2 = v2; v2 < v2; v2++) {
         }
     }
 }
+
+
+
+
+// energy 1.2 mln
+v2 = org.stepLeft()
+v0 = org.eatDown(v0)
+v2 = org.eatDown(v3)
+v3 = 6
+v0 = org.fromMem()
+v1 = org.lookAt(v0, v0)
+for (v2 = v2; v2 < v0; v2++) {
+    v2 = org.lookAt(v2, v0)
+    v2 = org.stepRight()
+    v0 = org.stepDown()
+    v1 = org.eatDown(v0)
+    for (v2 = v3; v2 < v1; v2++) {
+        v3 = org.eatRight(v2)
+        v0 = org.stepUp()
+        v1 = org.myY()
+        v3 = org.stepUp()
+        v1 = org.fromMem()
+    }
+    v1 = org.stepDown()
+    v3 = org.eatRight(v0)
+    v2 = org.stepRight()
+}
+v2 = org.stepDown()
+if (v0 == v3) {
+    v2 = org.stepUp()
+    v3 = v3 / v1
+    v2 = org.stepUp()
+    v1 = org.stepRight()
+}
+v3 = org.eatLeft(v0)
+v0 = org.stepUp()
+v1 = 7
+v3 = v3 ^ v2
+v0 = org.stepLeft()
+v1 = org.stepRight()
+v2 = org.stepDown()
+for (v2 = v2; v2 < v1; v2++) {
+    v3 = org.fromMem()
+    v2 = org.stepRight()
+    v3 = org.stepLeft()
+}
+v1 = org.stepLeft()
+v2 = org.eatDown(v3)
+for (v1 = v2; v1 < v3; v1++) {
+    v0 = org.stepDown()
+    v3 = org.stepLeft()
+    v1 = org.stepLeft()
+    v0 = org.stepLeft()
+    v2 = org.stepLeft()
+    v2 = org.myY()
+    v0 = org.myX()
+    v3 = org.lookAt(v0, v2)
+    v1 = org.eatLeft(v3)
+}
