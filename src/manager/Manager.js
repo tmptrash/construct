@@ -25,16 +25,17 @@ import Operators         from './../organism/Operators';
 import OperatorsGarmin   from './../organism/OperatorsGarmin';
 import Code2String       from './../organism/Code2String';
 import Code2StringGarmin from './../organism/Code2StringGarmin';
-import Fitness           from './../organism/Fitness';
+import FitnessGarmin     from '../organism/FitnessGarmin';
 /**
- * {Object} Mapping of class names and their functions
+ * {Object} Mapping of class names and their functions. We use this map
+ * for switching between fitness and natural modes
  */
 const CLASS_MAP = {
     Operators        : Operators,
 	OperatorsGarmin  : OperatorsGarmin,
     Code2String      : Code2String,
 	Code2StringGarmin: Code2StringGarmin,
-    Fitness          : Fitness
+    FitnessGarmin    : FitnessGarmin
 };
 /**
  * {Array} Plugins for Manager

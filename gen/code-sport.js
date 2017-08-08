@@ -570,3 +570,83 @@ if (v1 < v0) {
 v0 = 4
 v1 = 2
 v0 = v3 >> v2
+
+
+
+
+
+// energy 14 from 15
+if (v1 > v3) {
+    v0 = org.toMem(v1)
+    v3 = v3 << v2
+}
+v2 = v0 << v1
+v1 = org.toMem(v0)
+v0 = v0 < v2
+if (v2 > v3) {
+    if (v0 < v3) {
+        v2 = 3
+        v0 = v2 & v1
+    }
+}
+
+
+
+
+// energy 14 from 15
+v3 = v3 + v3
+v1 = v0 & v1
+v1 = v1 - v3
+v1 = v1 >> v0
+v2 = v1 >>> v3
+v3 = 8
+v0 = 3
+v2 = v0 + v2
+v1 = +!v0
+v0 = v3 >> v2
+
+
+
+
+// energy 52 from 60
+v3 = v3 + v3
+if (v3 > v1) {
+    v0 = 5
+    v2 = v1 >>> v0
+    v0 = 2
+    v3 = 2
+    if (v0 != v2) {
+        v3 = v0 << v1
+        if (v2 == v3) {
+            v3 = 9
+            v3 = v3 << v3
+            v0 = v0 - v3
+            v3 = 15
+            v2 = v0 << v3
+            v0 = v0 > v2
+        }
+    }
+}
+
+
+
+
+// energy 53 from 60
+v3 = v3 + v3
+if (v3 > v1) {
+    v0 = 5
+    v3 = v0 & v3
+    v2 = v1 >>> v0
+    v0 = 2
+    if (v2 != v0) {
+        if (v2 == v3) {
+            v1 = +!v0
+            v3 = 9
+            v3 = v3 << v3
+            v0 = v0 - v3
+            v3 = 15
+            v2 = v0 << v3
+            v0 = v2 < v1
+        }
+    }
+}
