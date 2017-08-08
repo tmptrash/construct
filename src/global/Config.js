@@ -45,7 +45,7 @@ const Config = {
      *     amount       - Probability of amount of mutations per period
      * ]
      */
-    orgMutationProbs: [50,100,50,0,1,1,1,1,1],
+    orgMutationProbs: [30,50,10,100,1,1,1,1,1],
     /**
      * {Number} Max value, which we may use in orgMutationProbs array.
      */
@@ -56,20 +56,20 @@ const Config = {
      */
     orgCloneMutation: 0.01,
     /**
-     * {Number} Amount of iterations before clonning process
+     * {Number} Amount of iterations before cloning process
      */
-    orgClonePeriod: 1,
+    orgClonePeriod: 100,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
      */
-    orgCrossoverPeriod: 3,
+    orgCrossoverPeriod: 2000,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 30,
+    orgRainMutationPeriod: 100,
     /**
      * {Number} Value, which will be used like amount of mutations per
      * orgRainMutationPeriod iterations. 0 is a possible value if
@@ -79,13 +79,13 @@ const Config = {
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 5000,
+    orgStartAmount: 10000,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without code) organism were created
      * by operator and not by evolution.
      */
-    orgStartEnergy: 0,
+    orgStartEnergy: 10000,
     /**
      * {Number} Begin color of "empty" organism (organism without code).
      */
@@ -94,12 +94,12 @@ const Config = {
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
      */
-    orgEnergySpendPeriod: 0,
+    orgEnergySpendPeriod: 100,
     /**
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used.
      */
-    orgAlivePeriod: 0,
+    orgAlivePeriod: 300000,
     /**
      * {Number} This value means the period between organism codeSizes, which
      * affects energy grabbing by the system. For example: we have two
@@ -113,7 +113,7 @@ const Config = {
     /**
      * {Number} Size of organism stack (internal memory)
      */
-    orgMemSize: 64,
+    orgMemSize: 256,
     /**
      * {Number} Percent of energy, which will be given to the child
      */
@@ -130,9 +130,9 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 15,
+    codeMaxSize: 51,
     /**
-     * {Number} This coefficient is used for calculating of amount of energy,
+     * {Number} This coefficiend is used for calculating of amount of energy,
      * which grabbed from each organism depending on his codeSize.
      * This coefficient affects entire code size of population and
      * entire system speed. It depends on CPU speed also. So, for
@@ -141,7 +141,7 @@ const Config = {
      * See Config.codeMaxSize for details. This config will be turn on only if
      * organism reaches code size limit Config.codeMaxSize
      */
-    codeSizeCoef: 10000,
+    codeSizeCoef: 1000,
     /**
      * {Number} Amount of local variables of organism's script
      * TODO: this amount should be calculated from codeBitsPerVar
@@ -157,7 +157,7 @@ const Config = {
      * {Number} Every code line 'yield' operator will be inserted to prevent
      * locking of threads.
      */
-    codeYieldPeriod: 1000,
+    codeYieldPeriod: 1,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain
@@ -172,32 +172,32 @@ const Config = {
      * {Number} Amount of iterations between calls to V8 event loop. See
      * Manager._initLoop(), Manager.run() methods for details.
      */
-    codeIterationsPerOnce: 20,
+    codeIterationsPerOnce: 30,
     /**
      * {String|null} Fitness class or null if default behavior is used. Default
      * behavior is a nature organisms simulator. See Manager.CLASS_MAP for additional
      * details.
      */
-    codeFitnessCls: 'FitnessGarmin',
+    codeFitnessCls: null, //'Fitness',
     /**
      * {Function} Class with available operators. See default Operators
      * class for details. See Manager.CLASS_MAP for additional details.
      */
-    codeOperatorsCls: 'OperatorsGarmin',
+    codeOperatorsCls: 'Operators', //'OperatorsGarmin',
     /**
      * {String} Name of the class for string representation of byte code
      */
-    code2StringCls: 'Code2StringGarmin',
+    code2StringCls: 'Code2String', //'Code2StringGarmin',
     /**
      * {Number} World width
      */
-    worldWidth: 100,
+    worldWidth: 1000,
     /**
      * {Number} World height
      */
-    worldHeight: 100,
+    worldHeight: 588,
     /**
-     * {Number} Turns on ciclic world mode. It means that organisms may go outside
+     * {Number} Turns on cyclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
      * size and the organism has 10x5 position in it, one step right will move
      * this organism at the position 1x5. The same scenario regarding Y
@@ -209,12 +209,12 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 5000,
+    worldMaxOrgs: 50000,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
      */
-    worldStartEnergyDots: 1000,
+    worldStartEnergyDots: 5000,
     /**
      * {Number} Amount of energy in every block. See worldStartEnergyDots
      * config for details.
@@ -227,7 +227,7 @@ const Config = {
      * Should be less then 100.0 and more and equal to 0.0. 0.17 is a
      * normal percent for this system.
      */
-    worldEnergyCheckPercent: 0.3,
+    worldEnergyCheckPercent: 0.1,
     /**
      * {Number} An amount of iteration, after which we have to check world energy
      * amount. Works in pair with worldEnergyCheckPercent. May be 0 if

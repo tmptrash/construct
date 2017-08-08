@@ -47,7 +47,6 @@ export default class Organism extends Observer {
         this._mutationClonePercent  = Config.orgCloneMutation;
         this._mutationPeriod        = Config.orgRainMutationPeriod;
         this._mutationPercent       = Config.orgRainMutationPercent;
-        this._color                 = Config.orgStartColor;
         this._iterations            = 0;
         this._cloneEnergyPercent    = Config.orgCloneEnergyPercent;
         this._fnId                  = 0;
@@ -86,11 +85,11 @@ export default class Organism extends Observer {
     set energy(e)               {this._energy = e}
     set adds(a) {
         this._adds = a;
-        this._updateColor();
+        this._updateColor(a);
     }
     set changes(c) {
         this._changes = c;
-        this._updateColor();
+        this._updateColor(c);
     }
 
     /**
@@ -119,6 +118,10 @@ export default class Organism extends Observer {
         return !noEnergy;
     }
 
+    fitness() {
+        return this._energy + Math.abs(this._adds) + this._changes;
+    }
+
     destroy() {
         this.fire(Events.DESTROY, this);
         this._alive     = false;
@@ -131,8 +134,8 @@ export default class Organism extends Observer {
         this.clear();
     }
 
-    _updateColor() {
-        if ((this._color += this._adds * this._changes) > Config.ORG_MAX_COLOR) {
+    _updateColor(adds) {
+        if ((this._color += adds) > Config.ORG_MAX_COLOR) {
             this._color = Config.ORG_FIRST_COLOR;
         }
     }
@@ -140,6 +143,7 @@ export default class Organism extends Observer {
     _create() {
         this._code    = new Code(this._codeEndCb.bind(this, this), this, this._classMap);
         this._energy  = Config.orgStartEnergy;
+        this._color   = Config.orgStartColor;
         this._mem     = [];
         this._adds    = 1;
         this._changes = 1;
@@ -148,6 +152,7 @@ export default class Organism extends Observer {
     _clone(parent) {
         this._code    = new Code(this._codeEndCb.bind(this, this), this, this._classMap, parent.code.vars);
         this._energy  = parent.energy;
+        this._color   = parent.color;
         this._mem     = parent.mem.slice();
         this._adds    = parent.adds;
         this._changes = parent.changes;
@@ -186,7 +191,7 @@ export default class Organism extends Observer {
     _updateEnergy() {
         if (Config.orgEnergySpendPeriod === 0 || this._iterations % Config.orgEnergySpendPeriod !== 0) {return true;}
         const codeSize = this._code.size;
-        let   grabSize = (((codeSize / Config.orgGarbagePeriod) + 0.5) << 1) >>> 1; // analog of Math.round(), but faster
+        let   grabSize = Math.floor(codeSize / Config.orgGarbagePeriod);
 
         if (codeSize > Config.codeMaxSize) {grabSize = codeSize * Config.codeSizeCoef;}
         if (grabSize < 1) {grabSize = 1;}
