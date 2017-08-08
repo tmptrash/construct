@@ -130,7 +130,7 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 51,
+    codeMaxSize: 81,
     /**
      * {Number} This coefficiend is used for calculating of amount of energy,
      * which grabbed from each organism depending on his codeSize.
@@ -141,7 +141,7 @@ const Config = {
      * See Config.codeMaxSize for details. This config will be turn on only if
      * organism reaches code size limit Config.codeMaxSize
      */
-    codeSizeCoef: 1000,
+    codeSizeCoef: 10000,
     /**
      * {Number} Amount of local variables of organism's script
      * TODO: this amount should be calculated from codeBitsPerVar

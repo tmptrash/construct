@@ -218,11 +218,8 @@ export default class Operators {
         let ret = {ret: amount};
         this._obs.fire(Events.EAT, org, x, y, ret);
         if (!IS_NUM(ret.ret)) {return 0}
-        if (ret.ret > 0) {
-            org.energy += ret.ret;
-        } else {
-            org.grabEnergy(ret.ret);
-        }
+        org.energy += ret.ret;
+
         return ret.ret;
     }
 

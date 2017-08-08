@@ -203,7 +203,7 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 51,
+    codeMaxSize: 81,
     /**
      * {Number} This coefficiend is used for calculating of amount of energy,
      * which grabbed from each organism depending on his codeSize.
@@ -214,7 +214,7 @@ const Config = {
      * See Config.codeMaxSize for details. This config will be turn on only if
      * organism reaches code size limit Config.codeMaxSize
      */
-    codeSizeCoef: 1000,
+    codeSizeCoef: 10000,
     /**
      * {Number} Amount of local variables of organism's script
      * TODO: this amount should be calculated from codeBitsPerVar
@@ -4798,11 +4798,8 @@ class Operators {
         let ret = {ret: amount};
         this._obs.fire(__WEBPACK_IMPORTED_MODULE_1__global_Events__["a" /* default */].EAT, org, x, y, ret);
         if (!IS_NUM(ret.ret)) {return 0}
-        if (ret.ret > 0) {
-            org.energy += ret.ret;
-        } else {
-            org.grabEnergy(ret.ret);
-        }
+        org.energy += ret.ret;
+
         return ret.ret;
     }
 
