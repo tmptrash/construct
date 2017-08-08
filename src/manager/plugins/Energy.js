@@ -25,6 +25,10 @@ export default class Energy {
 
     _onIteration(counter) {
         if (counter % this._checkPeriod === 0 && this._checkPeriod > 0) {
+            if (counter === 0) {
+                this._updateEnergy(Config.worldStartEnergyDots, Config.worldStartEnergyInDot);
+                return;
+            }
             let   energy = 0;
             const world  = this._manager.world;
             const width  = Config.worldWidth;
