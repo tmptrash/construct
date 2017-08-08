@@ -84,7 +84,7 @@ export default class Manager extends Observer {
      * Runs main infinite loop of application
      */
     run () {
-        let counter = 1;
+        let counter = 0;
         let timer   = Date.now;
         let stamp   = timer();
         let call    = this.zeroTimeout;

@@ -91,7 +91,7 @@ export default class Organisms {
     _onOrganism(org) {
         if (this._fitnessMode && org.energy > this._maxEnergy) {
             this._maxEnergy = org.energy;
-            console.log('--------------------------------------------------')
+            Console.warn('--------------------------------------------------')
             Console.warn('Max energy: ', org.energy, ', org Id: ', org.id);
             Console.warn('[' + org.code.code + ']');
             Console.warn(this._manager.api.formatCode(org.code.code));
@@ -100,7 +100,7 @@ export default class Organisms {
 
     _onStop(org) {
         this._manager.stop();
-        console.log('--------------------------------------------------')
+        Console.warn('--------------------------------------------------')
         Console.warn('org id: ', org.id, ', energy: ', org.energy);
         Console.warn('[' + org.code.code + ']');
         Console.warn(this._manager.api.formatCode(org.code.code));
@@ -128,7 +128,7 @@ export default class Organisms {
                 [org1, org2] = [org2, org1];
             }
         } else {
-            if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes > org1.energy * org1.adds * org1.changes)) {
+            if ((org2.alive && !org1.alive) || (org2.fitness() > org1.fitness())) {
                 [org1, org2] = [org2, org1];
             }
         }
@@ -197,7 +197,7 @@ export default class Organisms {
                 return org2;
             }
         } else {
-            if ((org2.alive && !org1.alive) || (org2.energy * org2.adds * org2.changes > org1.energy * org1.adds * org1.changes)) {
+            if ((org2.alive && !org1.alive) || (org2.fitness() > org1.fitness())) {
                 return org2;
             }
         }
@@ -241,6 +241,7 @@ export default class Organisms {
         for (let i = 0; i < Config.orgStartAmount; i++) {
             this._createOrg(world.getFreePos());
         }
+        Console.warn('Population has created');
     }
 
     _onAfterMove(x1, y1, x2, y2, org) {
