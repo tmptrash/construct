@@ -29,15 +29,16 @@ export default class {
         const amount    = this._ipsAmount || 1;
         const orgAmount = (this._orgs / amount) || 1;
         const sips      = ('ips:' + (this._ips      / amount).toFixed(this._ips  / amount < 10 ? 2 : 0)).padEnd(9);
+        const slps      = ('lps:' + (this._runLines / amount).toFixed()).padEnd(12);
         const sorgs     = ('org:' + (orgAmount).toFixed()).padEnd(9);
-        const senergy   = ('nrg:' + (((this._energy   / amount) / orgAmount) / this._runLines).toFixed(3)).padEnd(11);
+        const senergy   = ('nrg:' + ((this._energy   / amount) / orgAmount).toFixed()).padEnd(11);
         const scode     = ('cod:' + ((this._codeSize / amount) / orgAmount).toFixed(1)).padEnd(12);
         const stamp     = Date.now();
 
         this._onBeforeIps(ips, orgs);
         if (stamp - this._stamp < PERIOD) {return;}
 
-        console.log(`%c${sips}${sorgs}%c${senergy}${scode}`, GREEN, RED);
+        console.log(`%c${sips}${slps}${sorgs}%c${senergy}${scode}`, GREEN, RED);
         this._manager.canvas.text(5, 15, sips)
         this._onAfterIps(stamp);
     }
