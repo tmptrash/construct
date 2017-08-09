@@ -323,7 +323,7 @@ const Config = {
      * possible to increase it to reduce amount of requests and additional
      * code in main loop
      */
-    worldIpsPeriodMs: 10000,
+    worldIpsPeriodMs: 1000,
     /**
      * {Number} Period of making automatic backup of application. In iterations
      */
@@ -811,7 +811,7 @@ class Observer {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Helper__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Code__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Code__ = __webpack_require__(15);
 /**
  * TODO: add description:
  * TODO:   - events
@@ -1027,16 +1027,17 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Console__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__visual_World__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__visual_Canvas__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__visual_World__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__visual_Canvas__ = __webpack_require__(21);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__plugins_Organisms__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__plugins_Mutator__ = __webpack_require__(12);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__plugins_Energy__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__organism_Operators__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__organism_OperatorsGarmin__ = __webpack_require__(19);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__organism_Code2String__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__organism_Code2StringGarmin__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__organism_FitnessGarmin__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__plugins_Status__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__organism_Operators__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__organism_OperatorsGarmin__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__organism_Code2String__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__organism_Code2StringGarmin__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__organism_FitnessGarmin__ = __webpack_require__(18);
 /**
  * Main manager class of application. Contains all parts of jevo.js app
  * like World, Connection, Console etc... Runs infinite loop inside run()
@@ -1065,16 +1066,19 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 
 
 
+
+
+
 /**
  * {Object} Mapping of class names and their functions. We use this map
  * for switching between fitness and natural modes
  */
 const CLASS_MAP = {
-    Operators        : __WEBPACK_IMPORTED_MODULE_9__organism_Operators__["a" /* default */],
-	OperatorsGarmin  : __WEBPACK_IMPORTED_MODULE_10__organism_OperatorsGarmin__["a" /* default */],
-    Code2String      : __WEBPACK_IMPORTED_MODULE_11__organism_Code2String__["a" /* default */],
-	Code2StringGarmin: __WEBPACK_IMPORTED_MODULE_12__organism_Code2StringGarmin__["a" /* default */],
-    FitnessGarmin    : __WEBPACK_IMPORTED_MODULE_13__organism_FitnessGarmin__["a" /* default */]
+    Operators        : __WEBPACK_IMPORTED_MODULE_10__organism_Operators__["a" /* default */],
+	OperatorsGarmin  : __WEBPACK_IMPORTED_MODULE_11__organism_OperatorsGarmin__["a" /* default */],
+    Code2String      : __WEBPACK_IMPORTED_MODULE_12__organism_Code2String__["a" /* default */],
+	Code2StringGarmin: __WEBPACK_IMPORTED_MODULE_13__organism_Code2StringGarmin__["a" /* default */],
+    FitnessGarmin    : __WEBPACK_IMPORTED_MODULE_14__organism_FitnessGarmin__["a" /* default */]
 };
 /**
  * {Array} Plugins for Manager
@@ -1082,7 +1086,8 @@ const CLASS_MAP = {
 const PLUGINS = {
     Organisms: __WEBPACK_IMPORTED_MODULE_6__plugins_Organisms__["a" /* default */],
     Mutator  : __WEBPACK_IMPORTED_MODULE_7__plugins_Mutator__["a" /* default */],
-    Energy   : __WEBPACK_IMPORTED_MODULE_8__plugins_Energy__["a" /* default */]
+    Energy   : __WEBPACK_IMPORTED_MODULE_8__plugins_Energy__["a" /* default */],
+    Status   : __WEBPACK_IMPORTED_MODULE_9__plugins_Status__["a" /* default */]
 };
 
 class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* default */] {
@@ -1838,12 +1843,8 @@ class Organisms {
         const man  = this._manager;
         const orgs = this._orgs.size;
         let   ips  = this._codeRuns / orgs / (ts / 1000);
-        const text = 'ips: ' + ips.toFixed(4);
 
-        // TODO: these outputs should be moved to separate plugin
-        man.canvas.text(5, 15, text);
-        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn(text);
-        man.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].IPS, ips);
+        man.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].IPS, ips, this._orgs);
         this._codeRuns = 0;
         this._stamp = stamp;
     }
@@ -2004,6 +2005,95 @@ class Organisms {
 
 /***/ }),
 /* 14 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
+/**
+ * Shows console status of application
+ *
+ * @author DeadbraiN
+ */
+
+
+
+const GREEN  = 'color: #00aa00';
+const RED    = 'color: #aa0000';
+const PERIOD = 10000;
+
+/* harmony default export */ __webpack_exports__["a"] = (class {
+    constructor(manager) {
+        this._manager = manager;
+        this._stamp     = 0;
+        this._ips       = 0;
+        this._ipsAmount = 0;
+        this._orgs      = 0;
+        this._energy    = 0;
+        this._codeSize  = 0;
+        this._runLines  = 0;
+
+        manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["a" /* default */].IPS, this._onIps.bind(this));
+        manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["a" /* default */].ORGANISM, this._onOrganism.bind(this));
+    }
+
+    _onIps(ips, orgs) {
+        const amount    = this._ipsAmount || 1;
+        const orgAmount = (this._orgs / amount) || 1;
+        const sips      = ('ips:' + (this._ips      / amount).toFixed(this._ips  / amount < 10 ? 2 : 0)).padEnd(9);
+        const sorgs     = ('org:' + (orgAmount).toFixed()).padEnd(9);
+        const senergy   = ('nrg:' + (((this._energy   / amount) / orgAmount) / this._runLines).toFixed(3)).padEnd(11);
+        const scode     = ('cod:' + ((this._codeSize / amount) / orgAmount).toFixed(1)).padEnd(12);
+        const stamp     = Date.now();
+
+        this._onBeforeIps(ips, orgs);
+        if (stamp - this._stamp < PERIOD) {return;}
+
+        console.log(`%c${sips}${sorgs}%c${senergy}${scode}`, GREEN, RED);
+        this._manager.canvas.text(5, 15, sips)
+        this._onAfterIps(stamp);
+    }
+
+    _onOrganism(org) {
+        this._runLines += __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeYieldPeriod;
+    }
+
+    _onBeforeIps(ips, orgs) {
+        this._ips  += ips;
+        this._orgs += orgs.size;
+
+        this._ipsAmount++;
+        this._iterateOrganisms(orgs);
+    }
+
+    _onAfterIps(stamp) {
+        this._ips       = 0;
+        this._ipsAmount = 0;
+        this._orgs      = 0;
+        this._energy    = 0;
+        this._codeSize  = 0;
+        this._stamp     = stamp;
+        this._runLines  = 0;
+    }
+
+    _iterateOrganisms(orgs) {
+        let item     = orgs.first;
+        let energy   = 0;
+        let codeSize = 0;
+
+        while(item) {
+            energy   += item.val.energy;
+            codeSize += item.val.code.size;
+            item = item.next;
+        }
+
+        this._energy   += energy;
+        this._codeSize += codeSize;
+    }
+});
+
+/***/ }),
+/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2195,7 +2285,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2410,7 +2500,7 @@ class Code2String {
 
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2565,7 +2655,7 @@ class Code2StringGarmin {
 
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4570,7 +4660,7 @@ class FitnessGarmin {
 
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4813,7 +4903,7 @@ class Operators {
 
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4995,7 +5085,7 @@ class OperatorsGarmin {
 
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5107,7 +5197,7 @@ class Canvas {
 
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

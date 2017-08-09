@@ -250,7 +250,7 @@ const Config = {
      * possible to increase it to reduce amount of requests and additional
      * code in main loop
      */
-    worldIpsPeriodMs: 10000,
+    worldIpsPeriodMs: 1000,
     /**
      * {Number} Period of making automatic backup of application. In iterations
      */

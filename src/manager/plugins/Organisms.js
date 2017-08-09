@@ -168,12 +168,8 @@ export default class Organisms {
         const man  = this._manager;
         const orgs = this._orgs.size;
         let   ips  = this._codeRuns / orgs / (ts / 1000);
-        const text = 'ips: ' + ips.toFixed(4);
 
-        // TODO: these outputs should be moved to separate plugin
-        man.canvas.text(5, 15, text);
-        Console.warn(text);
-        man.fire(Events.IPS, ips);
+        man.fire(Events.IPS, ips, this._orgs);
         this._codeRuns = 0;
         this._stamp = stamp;
     }
