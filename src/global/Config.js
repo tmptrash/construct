@@ -58,12 +58,12 @@ const Config = {
     /**
      * {Number} Amount of iterations before cloning process
      */
-    orgClonePeriod: 100,
+    orgClonePeriod: 20,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
      */
-    orgCrossoverPeriod: 2000,
+    orgCrossoverPeriod: 200,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
@@ -79,7 +79,7 @@ const Config = {
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 1000,
+    orgStartAmount: 4000,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without code) organism were created

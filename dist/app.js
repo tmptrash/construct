@@ -131,12 +131,12 @@ const Config = {
     /**
      * {Number} Amount of iterations before cloning process
      */
-    orgClonePeriod: 100,
+    orgClonePeriod: 20,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
      */
-    orgCrossoverPeriod: 2000,
+    orgCrossoverPeriod: 200,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
@@ -152,7 +152,7 @@ const Config = {
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 1000,
+    orgStartAmount: 4000,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without code) organism were created
@@ -1589,7 +1589,7 @@ class Mutator {
             type = code.size < 1 ? 0 : probIndex(org.mutationProbs);
             if (type === 0)      {org.adds++;}
             else if (type === 1) {org.changes++;}
-            else if (type === 2) {org.changes += 0.5;}
+            else if (type === 2) {org.changes++;}
             else if (type === 3) {org.adds--;}
             mTypes[type](org);
         }
@@ -1646,7 +1646,7 @@ class Mutator {
     }
 
     _onProbs(org) {
-        org.mutationProbs[__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(org.mutationProbs.length)] = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgMutationProbsMaxValue);
+        org.mutationProbs[__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(org.mutationProbs.length)] = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgMutationProbsMaxValue) || 1;
     }
 
     _onCloneEnergyPercent(org) {

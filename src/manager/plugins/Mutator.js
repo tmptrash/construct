@@ -62,7 +62,7 @@ export default class Mutator {
             type = code.size < 1 ? 0 : probIndex(org.mutationProbs);
             if (type === 0)      {org.adds++;}
             else if (type === 1) {org.changes++;}
-            else if (type === 2) {org.changes += 0.5;}
+            else if (type === 2) {org.changes++;}
             else if (type === 3) {org.adds--;}
             mTypes[type](org);
         }
@@ -119,7 +119,7 @@ export default class Mutator {
     }
 
     _onProbs(org) {
-        org.mutationProbs[Helper.rand(org.mutationProbs.length)] = Helper.rand(Config.orgMutationProbsMaxValue);
+        org.mutationProbs[Helper.rand(org.mutationProbs.length)] = Helper.rand(Config.orgMutationProbsMaxValue) || 1;
     }
 
     _onCloneEnergyPercent(org) {
