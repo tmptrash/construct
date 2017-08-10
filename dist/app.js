@@ -182,7 +182,7 @@ const Config = {
      * same amount of energy - 1 unit. This is because the period goes
      * from 1..5, 6..10,... and both organisms are in the same period.
      */
-    orgGarbagePeriod: 10,
+    orgGarbagePeriod: 10000,
     /**
      * {Number} Size of organism stack (internal memory)
      */
@@ -191,6 +191,12 @@ const Config = {
      * {Number} Percent of energy, which will be given to the child
      */
     orgCloneEnergyPercent: 0.5,
+    /**
+     * {Number} This value will be used for multiplying it on organism energy
+     * in case if it (energy) was increased from the moment of last tournament.
+     * This is how we support mutations, which increase organism's energy
+     */
+    orgIncreaseCoef: 2,
     /**
      * {Number} Maximum amount of arguments in custom functions. Minimum 1. Maximum
      * <= amount of default variables.
@@ -891,6 +897,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     get code()                  {return this._code}
     get posId()                 {return __WEBPACK_IMPORTED_MODULE_3__global_Helper__["a" /* default */].posId(this._x, this._y)}
     get iterations()            {return this._iterations}
+    get lastEnergy()            {return this._lastEnergy}
 
     set x(newX)                 {this._x = newX}
     set y(newY)                 {this._y = newY}
@@ -899,6 +906,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     set mutationPercent(p)      {this._mutationPercent = p}
     set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p}
     set energy(e)               {this._energy = e}
+    set lastEnergy(e)           {this._lastEnergy = e}
     set adds(a) {
         this._adds = a;
         this._updateColor(a);
@@ -935,18 +943,19 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     }
 
     fitness() {
-        return this._energy + Math.abs(this._adds) + this._changes;
+        return this._energy * Math.abs(this._adds) * this._changes;
     }
 
     destroy() {
         this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].DESTROY, this);
-        this._alive     = false;
-        this._energy    = 0;
-        this._item      = null;
-        this._mem       = null;
+        this._alive      = false;
+        this._energy     = 0;
+        this._lastEnergy = 0;
+        this._item       = null;
+        this._mem        = null;
         this._code.destroy();
-        this._code      = null;
-        this._codeEndCb = null;
+        this._code       = null;
+        this._codeEndCb  = null;
         this.clear();
     }
 
@@ -957,17 +966,19 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     }
 
     _create() {
-        this._code    = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._codeEndCb.bind(this, this), this, this._classMap);
-        this._energy  = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartEnergy;
-        this._color   = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartColor;
-        this._mem     = [];
+        this._code       = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._codeEndCb.bind(this, this), this, this._classMap);
+        this._energy     = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartEnergy;
+        this._lastEnergy = this._energy;
+        this._color      = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartColor;
+        this._mem        = [];
     }
 
     _clone(parent) {
-        this._code    = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._codeEndCb.bind(this, this), this, this._classMap, parent.code.vars);
-        this._energy  = parent.energy;
-        this._color   = parent.color;
-        this._mem     = parent.mem.slice();
+        this._code       = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._codeEndCb.bind(this, this), this, this._classMap, parent.code.vars);
+        this._energy     = parent.energy;
+        this._lastEnergy = this._energy;
+        this._color      = parent.color;
+        this._mem        = parent.mem.slice();
         this._code.clone(parent.code);
     }
 
@@ -1793,18 +1804,13 @@ class Organisms {
 
         let org1 = orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(orgAmount)).val;
         let org2 = orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(orgAmount)).val;
+        let tmpOrg;
 
         if (!org1.alive && !org2.alive) {return false;}
 
-        if (this._fitnessMode) {
-            if ((org2.alive && !org1.alive) || this._FITNESS_CLS.compare(org2, org1, this._maxChanges)) {
-                [org1, org2] = [org2, org1];
-            }
-        } else {
-            if ((org2.alive && !org1.alive) || (org2.fitness() > org1.fitness())) {
-                [org1, org2] = [org2, org1];
-            }
-        }
+        tmpOrg = this._tournament(org1, org2);
+        if (tmpOrg === org2) {[org1, org2] = [org2, org1]}
+
         if (orgAmount >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldMaxOrgs) {org2.destroy();}
         if (org1.alive) {this._clone(org1)}
 
@@ -1866,12 +1872,25 @@ class Organisms {
                 return org2;
             }
         } else {
-            if ((org2.alive && !org1.alive) || (org2.fitness() > org1.fitness())) {
+            if ((org2.alive && !org1.alive) || (this._fitness(org2) > this._fitness(org1))) {
                 return org2;
             }
         }
 
         return org1;
+    }
+
+    _fitness(org) {
+        let fit;
+
+        if (org.lastEnergy < org.energy) {
+            fit = org.fitness() * __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgIncreaseCoef;
+        } else {
+            fit = org.fitness();
+        }
+        org.lastEnergy = org.energy;
+
+        return fit;
     }
 
     _crossover(winner, looser) {
@@ -2038,6 +2057,11 @@ const PERIOD = 10000;
     }
 
     _onIps(ips, orgs) {
+        const stamp     = Date.now();
+
+        this._onBeforeIps(ips, orgs);
+        if (stamp - this._stamp < PERIOD) {return;}
+
         const amount    = this._ipsAmount || 1;
         const orgAmount = (this._orgs / amount) || 1;
         const sips      = ('ips:' + (this._ips      / amount).toFixed(this._ips  / amount < 10 ? 2 : 0)).padEnd(9);
@@ -2045,12 +2069,8 @@ const PERIOD = 10000;
         const sorgs     = ('org:' + (orgAmount).toFixed()).padEnd(9);
         const senergy   = ('nrg:' + ((this._energy   / amount) / orgAmount).toFixed()).padEnd(11);
         const schanges  = ('che:' + ((((this._changes  / amount) / orgAmount) / this._runLines) * 1000).toFixed(3)).padEnd(10);
-        const sfit      = ('fit:' + ((((this._fitness  / amount) / orgAmount) / this._runLines) * 100).toFixed(3)).padEnd(10);
+        const sfit      = ('fit:' + ((((this._fitness  / amount) / orgAmount) / this._runLines) * 10000).toFixed(3)).padEnd(10);
         const scode     = ('cod:' + ((this._codeSize / amount) / orgAmount).toFixed(1)).padEnd(12);
-        const stamp     = Date.now();
-
-        this._onBeforeIps(ips, orgs);
-        if (stamp - this._stamp < PERIOD) {return;}
 
         console.log(`%c${sips}${slps}${sorgs}%c${senergy}${schanges}${sfit}${scode}`, GREEN, RED);
         this._manager.canvas.text(5, 15, sips)
@@ -2087,16 +2107,14 @@ const PERIOD = 10000;
         let codeSize = 0;
         let changes  = 0;
         let fitness  = 0;
-        let ch;
         let org;
 
         while(item) {
             org = item.val;
-            ch  = Math.abs(org.adds) + org.changes;
             energy   += org.energy;
             codeSize += org.code.size;
-            changes  += ch;
-            fitness  += org.energy + ch;
+            changes  += Math.abs(org.adds) + org.changes;
+            fitness  += org.fitness();
             item = item.next;
         }
 

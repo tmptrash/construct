@@ -109,7 +109,7 @@ const Config = {
      * same amount of energy - 1 unit. This is because the period goes
      * from 1..5, 6..10,... and both organisms are in the same period.
      */
-    orgGarbagePeriod: 10,
+    orgGarbagePeriod: 10000,
     /**
      * {Number} Size of organism stack (internal memory)
      */
@@ -118,6 +118,12 @@ const Config = {
      * {Number} Percent of energy, which will be given to the child
      */
     orgCloneEnergyPercent: 0.5,
+    /**
+     * {Number} This value will be used for multiplying it on organism energy
+     * in case if it (energy) was increased from the moment of last tournament.
+     * This is how we support mutations, which increase organism's energy
+     */
+    orgIncreaseCoef: 2,
     /**
      * {Number} Maximum amount of arguments in custom functions. Minimum 1. Maximum
      * <= amount of default variables.
