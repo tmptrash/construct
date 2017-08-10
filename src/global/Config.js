@@ -58,12 +58,12 @@ const Config = {
     /**
      * {Number} Amount of iterations before cloning process
      */
-    orgClonePeriod: 100,
+    orgClonePeriod: 20,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
      */
-    orgCrossoverPeriod: 2000,
+    orgCrossoverPeriod: 200,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
@@ -79,7 +79,7 @@ const Config = {
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 1000,
+    orgStartAmount: 4000,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without code) organism were created
@@ -99,7 +99,7 @@ const Config = {
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used.
      */
-    orgAlivePeriod: 300000,
+    orgAlivePeriod: 100000,
     /**
      * {Number} This value means the period between organism codeSizes, which
      * affects energy grabbing by the system. For example: we have two
@@ -214,7 +214,7 @@ const Config = {
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
      */
-    worldStartEnergyDots: 5000,
+    worldStartEnergyDots: 50000,
     /**
      * {Number} Amount of energy in every block. See worldStartEnergyDots
      * config for details.
@@ -233,7 +233,7 @@ const Config = {
      * amount. Works in pair with worldEnergyCheckPercent. May be 0 if
      * you want to disable it
      */
-    worldEnergyCheckPeriod: 1000,
+    worldEnergyCheckPeriod: 400,
     /**
      * {Number} World scaling. Today monitors pixel are so small, so we have
      * to zoom them with a coefficient.
@@ -250,7 +250,7 @@ const Config = {
      * possible to increase it to reduce amount of requests and additional
      * code in main loop
      */
-    worldIpsPeriodMs: 10000,
+    worldIpsPeriodMs: 1000,
     /**
      * {Number} Period of making automatic backup of application. In iterations
      */

@@ -18,14 +18,17 @@ import Events            from './../global/Events';
 import Console           from './../global/Console';
 import World             from './../visual/World';
 import Canvas            from './../visual/Canvas';
+
 import Organisms         from './plugins/Organisms';
 import Mutator           from './plugins/Mutator';
 import Energy            from './plugins/Energy';
+import Status            from './plugins/Status';
+
 import Operators         from './../organism/Operators';
 import OperatorsGarmin   from './../organism/OperatorsGarmin';
 import Code2String       from './../organism/Code2String';
 import Code2StringGarmin from './../organism/Code2StringGarmin';
-import FitnessGarmin     from '../organism/FitnessGarmin';
+import FitnessGarmin     from './../organism/FitnessGarmin';
 /**
  * {Object} Mapping of class names and their functions. We use this map
  * for switching between fitness and natural modes
@@ -43,7 +46,8 @@ const CLASS_MAP = {
 const PLUGINS = {
     Organisms: Organisms,
     Mutator  : Mutator,
-    Energy   : Energy
+    Energy   : Energy,
+    Status   : Status
 };
 
 export default class Manager extends Observer {
