@@ -41,6 +41,8 @@ export default class Organism extends Observer {
         this._x                     = x;
         this._y                     = y;
 
+        this._adds                  = 1;
+        this._changes               = 1;
         this._alive                 = alive;
         this._item                  = item;
         this._mutationProbs         = Config.orgMutationProbs;
@@ -145,8 +147,6 @@ export default class Organism extends Observer {
         this._energy  = Config.orgStartEnergy;
         this._color   = Config.orgStartColor;
         this._mem     = [];
-        this._adds    = 1;
-        this._changes = 1;
     }
 
     _clone(parent) {
@@ -154,8 +154,6 @@ export default class Organism extends Observer {
         this._energy  = parent.energy;
         this._color   = parent.color;
         this._mem     = parent.mem.slice();
-        this._adds    = parent.adds;
-        this._changes = parent.changes;
         this._code.clone(parent.code);
     }
 

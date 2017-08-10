@@ -34,8 +34,8 @@ export default class {
         const slps      = ('lps:' + (this._runLines / amount).toFixed()).padEnd(12);
         const sorgs     = ('org:' + (orgAmount).toFixed()).padEnd(9);
         const senergy   = ('nrg:' + ((this._energy   / amount) / orgAmount).toFixed()).padEnd(11);
-        const schanges  = ('che:' + (((this._changes  / amount) / orgAmount) / this._runLines).toFixed(3)).padEnd(10);
-        const sfit      = ('fit:' + (((this._fitness  / amount) / orgAmount) / this._runLines).toFixed(3)).padEnd(10);
+        const schanges  = ('che:' + ((((this._changes  / amount) / orgAmount) / this._runLines) * 1000).toFixed(3)).padEnd(10);
+        const sfit      = ('fit:' + ((((this._fitness  / amount) / orgAmount) / this._runLines) * 100).toFixed(3)).padEnd(10);
         const scode     = ('cod:' + ((this._codeSize / amount) / orgAmount).toFixed(1)).padEnd(12);
         const stamp     = Date.now();
 

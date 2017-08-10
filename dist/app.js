@@ -172,7 +172,7 @@ const Config = {
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used.
      */
-    orgAlivePeriod: 300000,
+    orgAlivePeriod: 100000,
     /**
      * {Number} This value means the period between organism codeSizes, which
      * affects energy grabbing by the system. For example: we have two
@@ -855,6 +855,8 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
         this._x                     = x;
         this._y                     = y;
 
+        this._adds                  = 1;
+        this._changes               = 1;
         this._alive                 = alive;
         this._item                  = item;
         this._mutationProbs         = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgMutationProbs;
@@ -959,8 +961,6 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
         this._energy  = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartEnergy;
         this._color   = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartColor;
         this._mem     = [];
-        this._adds    = 1;
-        this._changes = 1;
     }
 
     _clone(parent) {
@@ -968,8 +968,6 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
         this._energy  = parent.energy;
         this._color   = parent.color;
         this._mem     = parent.mem.slice();
-        this._adds    = parent.adds;
-        this._changes = parent.changes;
         this._code.clone(parent.code);
     }
 
@@ -2046,8 +2044,8 @@ const PERIOD = 10000;
         const slps      = ('lps:' + (this._runLines / amount).toFixed()).padEnd(12);
         const sorgs     = ('org:' + (orgAmount).toFixed()).padEnd(9);
         const senergy   = ('nrg:' + ((this._energy   / amount) / orgAmount).toFixed()).padEnd(11);
-        const schanges  = ('che:' + (((this._changes  / amount) / orgAmount) / this._runLines).toFixed(3)).padEnd(10);
-        const sfit      = ('fit:' + (((this._fitness  / amount) / orgAmount) / this._runLines).toFixed(3)).padEnd(10);
+        const schanges  = ('che:' + ((((this._changes  / amount) / orgAmount) / this._runLines) * 1000).toFixed(3)).padEnd(10);
+        const sfit      = ('fit:' + ((((this._fitness  / amount) / orgAmount) / this._runLines) * 100).toFixed(3)).padEnd(10);
         const scode     = ('cod:' + ((this._codeSize / amount) / orgAmount).toFixed(1)).padEnd(12);
         const stamp     = Date.now();
 
