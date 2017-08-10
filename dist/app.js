@@ -287,7 +287,7 @@ const Config = {
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
      */
-    worldStartEnergyDots: 5000,
+    worldStartEnergyDots: 50000,
     /**
      * {Number} Amount of energy in every block. See worldStartEnergyDots
      * config for details.
@@ -306,7 +306,7 @@ const Config = {
      * amount. Works in pair with worldEnergyCheckPercent. May be 0 if
      * you want to disable it
      */
-    worldEnergyCheckPeriod: 1000,
+    worldEnergyCheckPeriod: 400,
     /**
      * {Number} World scaling. Today monitors pixel are so small, so we have
      * to zoom them with a coefficient.
@@ -2032,6 +2032,8 @@ const PERIOD = 10000;
         this._energy    = 0;
         this._codeSize  = 0;
         this._runLines  = 0;
+        this._changes   = 0;
+        this._fitness   = 0;
 
         manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["a" /* default */].IPS, this._onIps.bind(this));
         manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["a" /* default */].ORGANISM, this._onOrganism.bind(this));
@@ -2044,13 +2046,15 @@ const PERIOD = 10000;
         const slps      = ('lps:' + (this._runLines / amount).toFixed()).padEnd(12);
         const sorgs     = ('org:' + (orgAmount).toFixed()).padEnd(9);
         const senergy   = ('nrg:' + ((this._energy   / amount) / orgAmount).toFixed()).padEnd(11);
+        const schanges  = ('che:' + (((this._changes  / amount) / orgAmount) / this._runLines).toFixed(3)).padEnd(10);
+        const sfit      = ('fit:' + (((this._fitness  / amount) / orgAmount) / this._runLines).toFixed(3)).padEnd(10);
         const scode     = ('cod:' + ((this._codeSize / amount) / orgAmount).toFixed(1)).padEnd(12);
         const stamp     = Date.now();
 
         this._onBeforeIps(ips, orgs);
         if (stamp - this._stamp < PERIOD) {return;}
 
-        console.log(`%c${sips}${slps}${sorgs}%c${senergy}${scode}`, GREEN, RED);
+        console.log(`%c${sips}${slps}${sorgs}%c${senergy}${schanges}${sfit}${scode}`, GREEN, RED);
         this._manager.canvas.text(5, 15, sips)
         this._onAfterIps(stamp);
     }
@@ -2075,21 +2079,33 @@ const PERIOD = 10000;
         this._codeSize  = 0;
         this._stamp     = stamp;
         this._runLines  = 0;
+        this._changes   = 0;
+        this._fitness   = 0;
     }
 
     _iterateOrganisms(orgs) {
         let item     = orgs.first;
         let energy   = 0;
         let codeSize = 0;
+        let changes  = 0;
+        let fitness  = 0;
+        let ch;
+        let org;
 
         while(item) {
-            energy   += item.val.energy;
-            codeSize += item.val.code.size;
+            org = item.val;
+            ch  = Math.abs(org.adds) + org.changes;
+            energy   += org.energy;
+            codeSize += org.code.size;
+            changes  += ch;
+            fitness  += org.energy + ch;
             item = item.next;
         }
 
         this._energy   += energy;
         this._codeSize += codeSize;
+        this._changes  += changes;
+        this._fitness  += fitness;
     }
 });
 

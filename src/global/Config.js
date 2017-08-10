@@ -214,7 +214,7 @@ const Config = {
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
      */
-    worldStartEnergyDots: 5000,
+    worldStartEnergyDots: 50000,
     /**
      * {Number} Amount of energy in every block. See worldStartEnergyDots
      * config for details.
@@ -233,7 +233,7 @@ const Config = {
      * amount. Works in pair with worldEnergyCheckPercent. May be 0 if
      * you want to disable it
      */
-    worldEnergyCheckPeriod: 1000,
+    worldEnergyCheckPeriod: 400,
     /**
      * {Number} World scaling. Today monitors pixel are so small, so we have
      * to zoom them with a coefficient.
