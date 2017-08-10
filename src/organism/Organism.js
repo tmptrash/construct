@@ -77,6 +77,7 @@ export default class Organism extends Observer {
     get code()                  {return this._code}
     get posId()                 {return Helper.posId(this._x, this._y)}
     get iterations()            {return this._iterations}
+    get lastEnergy()            {return this._lastEnergy}
 
     set x(newX)                 {this._x = newX}
     set y(newY)                 {this._y = newY}
@@ -85,6 +86,7 @@ export default class Organism extends Observer {
     set mutationPercent(p)      {this._mutationPercent = p}
     set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p}
     set energy(e)               {this._energy = e}
+    set lastEnergy(e)           {this._lastEnergy = e}
     set adds(a) {
         this._adds = a;
         this._updateColor(a);
@@ -121,18 +123,19 @@ export default class Organism extends Observer {
     }
 
     fitness() {
-        return this._energy + Math.abs(this._adds) + this._changes;
+        return this._energy * Math.abs(this._adds) * this._changes;
     }
 
     destroy() {
         this.fire(Events.DESTROY, this);
-        this._alive     = false;
-        this._energy    = 0;
-        this._item      = null;
-        this._mem       = null;
+        this._alive      = false;
+        this._energy     = 0;
+        this._lastEnergy = 0;
+        this._item       = null;
+        this._mem        = null;
         this._code.destroy();
-        this._code      = null;
-        this._codeEndCb = null;
+        this._code       = null;
+        this._codeEndCb  = null;
         this.clear();
     }
 
@@ -143,17 +146,19 @@ export default class Organism extends Observer {
     }
 
     _create() {
-        this._code    = new Code(this._codeEndCb.bind(this, this), this, this._classMap);
-        this._energy  = Config.orgStartEnergy;
-        this._color   = Config.orgStartColor;
-        this._mem     = [];
+        this._code       = new Code(this._codeEndCb.bind(this, this), this, this._classMap);
+        this._energy     = Config.orgStartEnergy;
+        this._lastEnergy = this._energy;
+        this._color      = Config.orgStartColor;
+        this._mem        = [];
     }
 
     _clone(parent) {
-        this._code    = new Code(this._codeEndCb.bind(this, this), this, this._classMap, parent.code.vars);
-        this._energy  = parent.energy;
-        this._color   = parent.color;
-        this._mem     = parent.mem.slice();
+        this._code       = new Code(this._codeEndCb.bind(this, this), this, this._classMap, parent.code.vars);
+        this._energy     = parent.energy;
+        this._lastEnergy = this._energy;
+        this._color      = parent.color;
+        this._mem        = parent.mem.slice();
         this._code.clone(parent.code);
     }
 

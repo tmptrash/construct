@@ -120,18 +120,13 @@ export default class Organisms {
 
         let org1 = orgs.get(Helper.rand(orgAmount)).val;
         let org2 = orgs.get(Helper.rand(orgAmount)).val;
+        let tmpOrg;
 
         if (!org1.alive && !org2.alive) {return false;}
 
-        if (this._fitnessMode) {
-            if ((org2.alive && !org1.alive) || this._FITNESS_CLS.compare(org2, org1, this._maxChanges)) {
-                [org1, org2] = [org2, org1];
-            }
-        } else {
-            if ((org2.alive && !org1.alive) || (org2.fitness() > org1.fitness())) {
-                [org1, org2] = [org2, org1];
-            }
-        }
+        tmpOrg = this._tournament(org1, org2);
+        if (tmpOrg === org2) {[org1, org2] = [org2, org1]}
+
         if (orgAmount >= Config.worldMaxOrgs) {org2.destroy();}
         if (org1.alive) {this._clone(org1)}
 
@@ -193,12 +188,25 @@ export default class Organisms {
                 return org2;
             }
         } else {
-            if ((org2.alive && !org1.alive) || (org2.fitness() > org1.fitness())) {
+            if ((org2.alive && !org1.alive) || (this._fitness(org2) > this._fitness(org1))) {
                 return org2;
             }
         }
 
         return org1;
+    }
+
+    _fitness(org) {
+        let fit;
+
+        if (org.lastEnergy < org.energy) {
+            fit = org.fitness() * Config.orgIncreaseCoef;
+        } else {
+            fit = org.fitness();
+        }
+        org.lastEnergy = org.energy;
+
+        return fit;
     }
 
     _crossover(winner, looser) {
