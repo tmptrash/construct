@@ -125,24 +125,24 @@ const Config = {
     orgMutationProbsMaxValue: 100,
     /**
      * {Number} Percent of mutations from code size, which will be applied to
-     * organism after clonning. Should be <= 1.0
+     * organism after cloning. Should be <= 1.0
      */
-    orgCloneMutation: 0.01,
+    orgCloneMutation: 0.02,
     /**
      * {Number} Amount of iterations before cloning process
      */
-    orgClonePeriod: 20,
+    orgClonePeriod: 3,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
      */
-    orgCrossoverPeriod: 200,
+    orgCrossoverPeriod: 50,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 100,
+    orgRainMutationPeriod: 0,
     /**
      * {Number} Value, which will be used like amount of mutations per
      * orgRainMutationPeriod iterations. 0 is a possible value if
@@ -167,7 +167,7 @@ const Config = {
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
      */
-    orgEnergySpendPeriod: 50,
+    orgEnergySpendPeriod: 30,
     /**
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used.
@@ -180,7 +180,8 @@ const Config = {
      * org2.codeSize = 9, Config.orgGarbagePeriod = 5. It means that
      * during energy grabbing by the system org1 and org2 will spend the
      * same amount of energy - 1 unit. This is because the period goes
-     * from 1..5, 6..10,... and both organisms are in the same period.
+     * from 1..5, 6..10,... and both organisms are in the same period. If
+     * this value is really big, like 100000, then energy grab value will be 1.
      */
     orgGarbagePeriod: 10000,
     /**
@@ -209,7 +210,7 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 81,
+    codeMaxSize: 50,
     /**
      * {Number} This coefficiend is used for calculating of amount of energy,
      * which grabbed from each organism depending on his codeSize.
@@ -288,7 +289,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 50000,
+    worldMaxOrgs: 10000,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
@@ -943,7 +944,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     }
 
     fitness() {
-        return this._energy * Math.abs(this._adds) * this._changes;
+        return this._energy * (Math.abs(this._adds) || 1) * this._changes;
     }
 
     destroy() {
@@ -2069,7 +2070,7 @@ const PERIOD = 10000;
         const sorgs     = ('org:' + (orgAmount).toFixed()).padEnd(9);
         const senergy   = ('nrg:' + ((this._energy   / amount) / orgAmount).toFixed()).padEnd(11);
         const schanges  = ('che:' + ((((this._changes  / amount) / orgAmount) / this._runLines) * 1000).toFixed(3)).padEnd(10);
-        const sfit      = ('fit:' + ((((this._fitness  / amount) / orgAmount) / this._runLines) * 100).toFixed(3)).padEnd(12);
+        const sfit      = ('fit:' + ((((this._fitness  / amount) / orgAmount) / this._runLines) * 10).toFixed(3)).padEnd(12);
         const scode     = ('cod:' + ((this._codeSize / amount) / orgAmount).toFixed(1)).padEnd(12);
 
         console.log(`%c${sips}${slps}${sorgs}%c${senergy}${schanges}${sfit}${scode}`, GREEN, RED);

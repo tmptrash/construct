@@ -123,7 +123,7 @@ export default class Organism extends Observer {
     }
 
     fitness() {
-        return this._energy * Math.abs(this._adds) * this._changes;
+        return this._energy * (Math.abs(this._adds) || 1) * this._changes;
     }
 
     destroy() {
