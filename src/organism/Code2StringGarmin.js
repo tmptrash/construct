@@ -106,8 +106,8 @@ export default class Code2StringGarmin {
 
     _onCondition(num, line, lines) {
         const var3    = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
-        this._offsets.push(line + var3 < lines ? line + var3 : lines - 1);
-        return `if(v${VAR0(num)}${this._CONDITIONS[VAR2(num)]}v${VAR1(num)}){`;
+        let   offs    = line + var3 < lines ? line + var3 + 1: lines;
+        return `if(v${VAR0(num)}${this._CONDITIONS[VAR2(num)]}v${VAR1(num)}) goto(${offs})`;
     }
 
 //    _onLoop(num, line, lines) {
