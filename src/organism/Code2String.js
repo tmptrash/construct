@@ -20,11 +20,6 @@ const HALF_OF_VAR           = Num.MAX_VAR / 2;
 export default class Code2String {
     constructor() {
         /**
-         * {Array} Array of offsets for closing braces. For 'for', 'if'
-         * and all block operators.
-         */
-        this._offsets = [];
-        /**
          * {Object} These operator handlers should return string representation
          * of numeric based byte code.
          */
@@ -69,31 +64,15 @@ export default class Code2String {
     }
 
 	destroy() {
-        this._offsets = null;
 	}
 
     format(code, separator = '\n') {
         const len       = code.length;
         const operators = this._OPERATORS_CB;
         let   codeArr   = new Array(len);
-        let   offsets   = this._offsets;
-        let   operator;
 
         for (let i = 0; i < len; i++) {
-            operator = operators[Num.getOperator(code[i])](code[i], i, len);
-            //
-            // This code is used for closing blocks for if, for and other
-            // blocked operators.
-            //
-            if (offsets[offsets.length - 1] === i && offsets.length > 0) {
-                operator = operator + '}';
-                offsets.pop();
-            }
-            codeArr[i] = operator;
-        }
-        if (offsets.length > 0) {
-            codeArr[codeArr.length - 1] += ('}'.repeat(offsets.length));
-            offsets.length = 0;
+            codeArr[i] = operators[Num.getOperator(code[i])](code[i], i, len);
         }
 
         return js_beautify(codeArr.join(separator), {indent_size: 4});
@@ -122,17 +101,17 @@ export default class Code2String {
 
     _onCondition(num, line, lines) {
         const var3    = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
-        this._offsets.push(line + var3 < lines ? line + var3 : lines - 1);
-        return `if(v${VAR0(num)}${this._CONDITIONS[VAR2(num)]}v${VAR1(num)}){`;
+        let   offs    = line + var3 < lines ? line + var3 + 1: lines;
+
+        return `if(v${VAR0(num)}${this._CONDITIONS[VAR2(num)]}v${VAR1(num)}) goto(${offs})`;
     }
 
     _onLoop(num, line, lines) {
         const var0    = VAR0(num);
         const var3    = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
-        const index   = line + var3 < lines ? line + var3 : lines - 1;
+        const offs    = line + var3 < lines ? line + var3 : lines - 1;
 
-        this._offsets.push(index);
-        return `for(v${var0}=v${VAR1(num)};v${var0}<v${VAR2(num)};v${var0}++){`;
+        return `for(v${var0}=v${VAR1(num)};v${var0}<v${VAR2(num)};v${var0}++) until(${offs})`;
     }
 
     _onOperator(num) {
