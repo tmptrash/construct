@@ -73,8 +73,6 @@ export default class Organisms {
         let   org;
 
         while (item && (org = item.val)) {
-            // TODO: these two ifs should be in separate class for fitness logic
-            if (org.adds + org.changes > this._maxChanges) {this._maxChanges = org.adds + org.changes}
             org.run();
             this._onOrganism(org);
             man.fire(Events.ORGANISM, org);
@@ -89,12 +87,17 @@ export default class Organisms {
     }
 
     _onOrganism(org) {
-        if (this._fitnessMode && org.energy > this._maxEnergy) {
-            this._maxEnergy = org.energy;
-            Console.warn('--------------------------------------------------')
-            Console.warn('Max energy: ', org.energy, ', org Id: ', org.id);
-            Console.warn('[' + org.code.code + ']');
-            Console.warn(this._manager.api.formatCode(org.code.code));
+        if (this._fitnessMode) {
+            if (org.energy > this._maxEnergy) {
+                this._maxEnergy = org.energy;
+                Console.warn('--------------------------------------------------')
+                Console.warn('Max energy: ', org.energy, ', org Id: ', org.id);
+                Console.warn('[' + org.code.code + ']');
+                Console.warn(this._manager.api.formatCode(org.code.code));
+            }
+
+            const changes = Math.abs(org.adds) + org.changes;
+            if (changes > this._maxChanges) {this._maxChanges = changes}
         }
     }
 

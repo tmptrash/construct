@@ -13,15 +13,16 @@ const PERIOD = 10000;
 export default class {
     constructor(manager) {
         this._manager = manager;
-        this._stamp     = 0;
-        this._ips       = 0;
-        this._ipsAmount = 0;
-        this._orgs      = 0;
-        this._energy    = 0;
-        this._codeSize  = 0;
-        this._runLines  = 0;
-        this._changes   = 0;
-        this._fitness   = 0;
+        this._stamp       = 0;
+        this._ips         = 0;
+        this._ipsAmount   = 0;
+        this._orgs        = 0;
+        this._energy      = 0;
+        this._codeSize    = 0;
+        this._runLines    = 0;
+        this._changes     = 0;
+        this._fitness     = 0;
+        this._fitnessMode = Config.codeFitnessCls !== null;
 
         manager.on(Events.IPS, this._onIps.bind(this));
         manager.on(Events.ORGANISM, this._onOrganism.bind(this));
@@ -49,7 +50,7 @@ export default class {
     }
 
     _onOrganism(org) {
-        this._runLines += Config.codeYieldPeriod;
+        this._runLines += (this._fitnessMode ? org.code.size : Config.codeYieldPeriod);
     }
 
     _onBeforeIps(ips, orgs) {

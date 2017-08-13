@@ -577,6 +577,12 @@ const Config = {
      */
     orgCloneEnergyPercent: 0.5,
     /**
+     * {Number} This value will be used for multiplying it on organism energy
+     * in case if it (energy) was increased from the moment of last tournament.
+     * This is how we support mutations, which increase organism's energy
+     */
+    orgIncreaseCoef: 2,
+    /**
      * {Number} Maximum amount of arguments in custom functions. Minimum 1. Maximum
      * <= amount of default variables.
      */
@@ -1289,7 +1295,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     set lastEnergy(e)           {this._lastEnergy = e}
     set adds(a) {
         this._adds = a;
-        this._updateColor(a);
+        this._updateColor(Math.abs(a));
     }
     set changes(c) {
         this._changes = c;
@@ -1587,7 +1593,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
         //
         (() => {
             let   callback;
-            const msgName   = 'zm';
+            const msgName = 'zm';
 
             window.addEventListener('message', (event) => {
                 if (event.data === msgName) {
@@ -2137,8 +2143,6 @@ class Organisms {
         let   org;
 
         while (item && (org = item.val)) {
-            // TODO: these two ifs should be in separate class for fitness logic
-            if (org.adds + org.changes > this._maxChanges) {this._maxChanges = org.adds + org.changes}
             org.run();
             this._onOrganism(org);
             man.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].ORGANISM, org);
@@ -2153,12 +2157,17 @@ class Organisms {
     }
 
     _onOrganism(org) {
-        if (this._fitnessMode && org.energy > this._maxEnergy) {
-            this._maxEnergy = org.energy;
-            __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('--------------------------------------------------')
-            __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('Max energy: ', org.energy, ', org Id: ', org.id);
-            __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('[' + org.code.code + ']');
-            __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn(this._manager.api.formatCode(org.code.code));
+        if (this._fitnessMode) {
+            if (org.energy > this._maxEnergy) {
+                this._maxEnergy = org.energy;
+                __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('--------------------------------------------------')
+                __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('Max energy: ', org.energy, ', org Id: ', org.id);
+                __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('[' + org.code.code + ']');
+                __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn(this._manager.api.formatCode(org.code.code));
+            }
+
+            const changes = Math.abs(org.adds) + org.changes;
+            if (changes > this._maxChanges) {this._maxChanges = changes}
         }
     }
 
@@ -2422,15 +2431,16 @@ const PERIOD = 10000;
 /* harmony default export */ __webpack_exports__["a"] = (class {
     constructor(manager) {
         this._manager = manager;
-        this._stamp     = 0;
-        this._ips       = 0;
-        this._ipsAmount = 0;
-        this._orgs      = 0;
-        this._energy    = 0;
-        this._codeSize  = 0;
-        this._runLines  = 0;
-        this._changes   = 0;
-        this._fitness   = 0;
+        this._stamp       = 0;
+        this._ips         = 0;
+        this._ipsAmount   = 0;
+        this._orgs        = 0;
+        this._energy      = 0;
+        this._codeSize    = 0;
+        this._runLines    = 0;
+        this._changes     = 0;
+        this._fitness     = 0;
+        this._fitnessMode = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeFitnessCls !== null;
 
         manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["a" /* default */].IPS, this._onIps.bind(this));
         manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["a" /* default */].ORGANISM, this._onOrganism.bind(this));
@@ -2458,7 +2468,7 @@ const PERIOD = 10000;
     }
 
     _onOrganism(org) {
-        this._runLines += __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeYieldPeriod;
+        this._runLines += (this._fitnessMode ? org.code.size : __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeYieldPeriod);
     }
 
     _onBeforeIps(ips, orgs) {
@@ -5034,7 +5044,7 @@ class FitnessGarmin {
 
     static compare(org1, org2, maxChanges) {
         const diff = maxChanges / TOTAL;
-        return org1.energy * diff * (org1.adds + org1.changes) > org2.energy * diff * (org2.adds + org2.changes);
+        return org1.energy * diff * (Math.abs(org1.adds) + org1.changes) > org2.energy * diff * (Math.abs(org2.adds) + org2.changes);
     }
 
     static _run(org, data, index) {

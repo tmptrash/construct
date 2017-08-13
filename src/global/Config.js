@@ -504,6 +504,12 @@ const Config = {
      */
     orgCloneEnergyPercent: 0.5,
     /**
+     * {Number} This value will be used for multiplying it on organism energy
+     * in case if it (energy) was increased from the moment of last tournament.
+     * This is how we support mutations, which increase organism's energy
+     */
+    orgIncreaseCoef: 2,
+    /**
      * {Number} Maximum amount of arguments in custom functions. Minimum 1. Maximum
      * <= amount of default variables.
      */

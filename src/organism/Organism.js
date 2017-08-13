@@ -89,7 +89,7 @@ export default class Organism extends Observer {
     set lastEnergy(e)           {this._lastEnergy = e}
     set adds(a) {
         this._adds = a;
-        this._updateColor(a);
+        this._updateColor(Math.abs(a));
     }
     set changes(c) {
         this._changes = c;

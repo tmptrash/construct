@@ -158,7 +158,7 @@ export default class Manager extends Observer {
         //
         (() => {
             let   callback;
-            const msgName   = 'zm';
+            const msgName = 'zm';
 
             window.addEventListener('message', (event) => {
                 if (event.data === msgName) {
