@@ -96,8 +96,7 @@ export default class Organisms {
                 Console.warn(this._manager.api.formatCode(org.code.code));
             }
 
-            const changes = Math.abs(org.adds) + org.changes;
-            if (changes > this._maxChanges) {this._maxChanges = changes}
+            if (org.changes > this._maxChanges) {this._maxChanges = org.changes}
         }
     }
 
@@ -218,7 +217,7 @@ export default class Organisms {
         let child  = orgs.last.val;
 
         if (child.alive && looser.alive) {
-            child.adds += child.code.crossover(looser.code);
+            child.changes += child.code.crossover(looser.code);
             if (orgs.size >= Config.worldMaxOrgs) {looser.destroy()}
         }
     }

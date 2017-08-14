@@ -37,7 +37,7 @@ export default class {
         const amount    = this._ipsAmount || 1;
         const orgAmount = (this._orgs / amount) || 1;
         const sips      = ('ips:' + (this._ips      / amount).toFixed(this._ips  / amount < 10 ? 2 : 0)).padEnd(9);
-        const slps      = ('lps:' + (this._runLines / amount).toFixed()).padEnd(12);
+        const slps      = ('lps:' + (this._runLines / amount).toFixed()).padEnd(14);
         const sorgs     = ('org:' + (orgAmount).toFixed()).padEnd(10);
         const senergy   = ('nrg:' + ((this._energy   / amount) / orgAmount).toFixed()).padEnd(11);
         const schanges  = ('che:' + ((((this._changes  / amount) / orgAmount) / this._runLines) * 1000).toFixed(3)).padEnd(10);
@@ -85,7 +85,7 @@ export default class {
             org = item.val;
             energy   += org.energy;
             codeSize += org.code.size;
-            changes  += Math.abs(org.adds) + org.changes;
+            changes  += org.changes;
             fitness  += org.fitness();
             item = item.next;
         }

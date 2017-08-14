@@ -60,10 +60,7 @@ export default class Mutator {
 
         for (let i = 0; i < mutations; i++) {
             type = code.size < 1 ? 0 : probIndex(org.mutationProbs);
-            if (type === 0)      {org.adds++;}
-            else if (type === 1) {org.changes++;}
-            else if (type === 2) {org.changes++;}
-            else if (type === 3) {org.adds--;}
+            org.changes++;
             mTypes[type](org);
         }
         this._manager.fire(Events.MUTATIONS, org, mutations, clone);

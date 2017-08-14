@@ -41,7 +41,6 @@ export default class Organism extends Observer {
         this._x                     = x;
         this._y                     = y;
 
-        this._adds                  = 1;
         this._changes               = 1;
         this._alive                 = alive;
         this._item                  = item;
@@ -68,7 +67,6 @@ export default class Organism extends Observer {
     get mutationPeriod()        {return this._mutationPeriod}
     get mutationPercent()       {return this._mutationPercent}
     get mutationClonePercent()  {return this._mutationClonePercent}
-    get adds()                  {return this._adds}
     get changes()               {return this._changes}
     get energy()                {return this._energy}
     get color()                 {return this._color}
@@ -87,10 +85,6 @@ export default class Organism extends Observer {
     set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p}
     set energy(e)               {this._energy = e}
     set lastEnergy(e)           {this._lastEnergy = e}
-    set adds(a) {
-        this._adds = a;
-        this._updateColor(Math.abs(a));
-    }
     set changes(c) {
         this._changes = c;
         this._updateColor(c);
@@ -123,7 +117,7 @@ export default class Organism extends Observer {
     }
 
     fitness() {
-        return this._energy * (Math.abs(this._adds) || 1) * this._changes;
+        return this._energy * this._changes;
     }
 
     destroy() {

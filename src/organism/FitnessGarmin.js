@@ -1959,7 +1959,7 @@ export default class FitnessGarmin {
 
     static compare(org1, org2, maxChanges) {
         const diff = maxChanges / TOTAL;
-        return org1.energy * diff * (Math.abs(org1.adds) + org1.changes) > org2.energy * diff * (Math.abs(org2.adds) + org2.changes);
+        return org1.energy * diff * org1.changes > org2.energy * diff * org2.changes;
     }
 
     static _run(org, data, index) {

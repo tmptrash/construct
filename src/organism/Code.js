@@ -107,7 +107,7 @@ export default class Code extends Observer {
         if (start > end) {[start, end] = [end, start];}
         if (start1 > end1) {[start1, end1] = [end1, start1];}
 
-        adds = end1 - start1 - end + start;
+        adds = Math.abs(end1 - start1 - end + start);
         if (Config.codeFitnessCls !== null && this._code.length + adds >= Config.codeMaxSize) {return 0}
         this._code.splice.apply(this._code, [start, end - start].concat(code.code.slice(start1, end1)));
         this._reset();
