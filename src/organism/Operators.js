@@ -198,8 +198,7 @@ export default class Operators {
         const val = this._vars[VAR1(num)];
 
         if (IS_NUM(val) && org.mem.length < Config.orgMemSize) {
-            org.mem.push(val);
-            this._vars[VAR0(num)] = val;
+            this._vars[VAR0(num)] = org.mem.push(val);
         } else {
             this._vars[VAR0(num)] = 0;
         }
