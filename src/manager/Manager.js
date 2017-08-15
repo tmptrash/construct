@@ -20,6 +20,7 @@ import World             from './../visual/World';
 import Canvas            from './../visual/Canvas';
 
 import Organisms         from './plugins/Organisms';
+import ConfigPlugin      from './plugins/Config';
 import Mutator           from './plugins/Mutator';
 import Energy            from './plugins/Energy';
 import Status            from './plugins/Status';
@@ -45,6 +46,7 @@ const CLASS_MAP = {
  */
 const PLUGINS = {
     Organisms: Organisms,
+    Config   : ConfigPlugin,
     Mutator  : Mutator,
     Energy   : Energy,
     Status   : Status
