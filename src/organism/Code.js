@@ -29,7 +29,7 @@ export default class Code extends Observer {
          * closing block '}' of for or if operator.
          */
         this._offsets   = [];
-        this._vars      = vars || this._getVars();
+        this._vars      = vars && vars.slice() || this._getVars();
         /**
          * {Array} Array of offsets for closing braces. For 'for', 'if'
          * and all block operators.

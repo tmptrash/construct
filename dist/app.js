@@ -131,36 +131,36 @@ const Config = {
      */
     orgCloneMutation: 0.01,
     /**
-     * {Number} Amount of iterations before clonning process
+     * {Number} Amount of iterations before cloning process
      */
     orgClonePeriod: 1,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
      */
-    orgCrossoverPeriod: 10,
+    orgCrossoverPeriod: 400,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 500,
+    orgRainMutationPeriod: 600,
     /**
      * {Number} Value, which will be used like amount of mutations per
      * orgRainMutationPeriod iterations. 0 is a possible value if
      * we want to disable mutations. Should be less then 100
      */
-    orgRainMutationPercent: 0.01,
+    orgRainMutationPercent: 0.02,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 250,
+    orgStartAmount: 500,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without code) organism were created
      * by operator and not by evolution.
      */
-    orgStartEnergy: 1,
+    orgStartEnergy: 10000,
     /**
      * {Number} Begin color of "empty" organism (organism without code).
      */
@@ -169,12 +169,12 @@ const Config = {
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
      */
-    orgEnergySpendPeriod: 0,
+    orgEnergySpendPeriod: 20,
     /**
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used.
      */
-    orgAlivePeriod: 0,
+    orgAlivePeriod: 50000,
     /**
      * {Number} This value means the period between organism codeSizes, which
      * affects energy grabbing by the system. For example: we have two
@@ -211,7 +211,7 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 20,
+    codeMaxSize: 40,
     /**
      * {Number} This coefficiend is used for calculating of amount of energy,
      * which grabbed from each organism depending on his codeSize.
@@ -239,7 +239,7 @@ const Config = {
      * locking of threads. Set this value to value bigger then code size, then
      * entire code of organism will be run
      */
-    codeYieldPeriod: 1000,
+    codeYieldPeriod: 1,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain
@@ -254,30 +254,30 @@ const Config = {
      * {Number} Amount of iterations between calls to V8 event loop. See
      * Manager._initLoop(), Manager.run() methods for details.
      */
-    codeIterationsPerOnce: 20,
+    codeIterationsPerOnce: 50,
     /**
      * {String|null} Fitness class or null if default behavior is used. Default
      * behavior is a nature organisms simulator. See Manager.CLASS_MAP for additional
      * details.
      */
-    codeFitnessCls: 'FitnessGarmin',
+    codeFitnessCls: null,//'FitnessGarmin',
     /**
      * {Function} Class with available operators. See default Operators
      * class for details. See Manager.CLASS_MAP for additional details.
      */
-    codeOperatorsCls: 'OperatorsGarmin',
+    codeOperatorsCls: 'Operators',//'OperatorsGarmin',
     /**
      * {String} Name of the class for string representation of byte code
      */
-    code2StringCls: 'Code2StringGarmin',
+    code2StringCls: 'Code2String',//'Code2StringGarmin',
     /**
      * {Number} World width
      */
-    worldWidth: 30,
+    worldWidth: 1920,
     /**
      * {Number} World height
      */
-    worldHeight: 30,
+    worldHeight: 1080,
     /**
      * {Number} Turns on ciclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
@@ -285,13 +285,13 @@ const Config = {
      * this organism at the position 1x5. The same scenario regarding Y
      * coordinate (height).
      */
-    worldCyclical: true,
+    worldCyclical: false,
     /**
      * {Number} Maximum amount of organisms in a world. If some organisms will
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 250,
+    worldMaxOrgs: 500,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
@@ -315,7 +315,7 @@ const Config = {
      * amount. Works in pair with worldEnergyCheckPercent. May be 0 if
      * you want to disable it
      */
-    worldEnergyCheckPeriod: 0,
+    worldEnergyCheckPeriod: 500,
     /**
      * {Number} World scaling. Today monitors pixel are so small, so we have
      * to zoom them with a coefficient.
@@ -336,7 +336,7 @@ const Config = {
     /**
      * {Number} Period of making automatic backup of application. In iterations
      */
-    backupPeriod: 100,
+    backupPeriod: 1000,
     /**
      * {Number} Amount of backup files stored on HDD. Old files will be removed
      */
@@ -2542,7 +2542,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
          * closing block '}' of for or if operator.
          */
         this._offsets   = [];
-        this._vars      = vars || this._getVars();
+        this._vars      = vars && vars.slice() || this._getVars();
         /**
          * {Array} Array of offsets for closing braces. For 'for', 'if'
          * and all block operators.
@@ -5256,8 +5256,7 @@ class Operators {
         const val = this._vars[VAR1(num)];
 
         if (IS_NUM(val) && org.mem.length < __WEBPACK_IMPORTED_MODULE_2__global_Config__["a" /* default */].orgMemSize) {
-            org.mem.push(val);
-            this._vars[VAR0(num)] = val;
+            this._vars[VAR0(num)] = org.mem.push(val);
         } else {
             this._vars[VAR0(num)] = 0;
         }
