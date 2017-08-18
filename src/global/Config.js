@@ -96,12 +96,12 @@ const Config = {
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
      */
-    orgEnergySpendPeriod: 20,
+    orgEnergySpendPeriod: 200,
     /**
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used.
      */
-    orgAlivePeriod: 50000,
+    orgAlivePeriod: 500000,
     /**
      * {Number} This value means the period between organism codeSizes, which
      * affects energy grabbing by the system. For example: we have two
@@ -111,7 +111,7 @@ const Config = {
      * same amount of energy - 1 unit. This is because the period goes
      * from 1..5, 6..10,... and both organisms are in the same period.
      */
-    orgGarbagePeriod: 10,
+    orgGarbagePeriod: 1000,
     /**
      * {Number} Size of organism stack (internal memory)
      */
@@ -212,7 +212,7 @@ const Config = {
      * this organism at the position 1x5. The same scenario regarding Y
      * coordinate (height).
      */
-    worldCyclical: false,
+    worldCyclical: true,
     /**
      * {Number} Maximum amount of organisms in a world. If some organisms will
      * try to clone itself, when entire amount of organisms are equal
