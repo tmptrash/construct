@@ -71,7 +71,7 @@ const Config = {
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 600,
+    orgRainMutationPeriod: 60,
     /**
      * {Number} Value, which will be used like amount of mutations per
      * orgRainMutationPeriod iterations. 0 is a possible value if
@@ -96,7 +96,7 @@ const Config = {
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
      */
-    orgEnergySpendPeriod: 200,
+    orgEnergySpendPeriod: 40,
     /**
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used.
@@ -218,12 +218,12 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 500,
+    worldMaxOrgs: 50000,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
      */
-    worldStartEnergyDots: 1000,
+    worldStartEnergyDots: 500,
     /**
      * {Number} Amount of energy in every block. See worldStartEnergyDots
      * config for details.
