@@ -51,10 +51,16 @@ export default class Energy {
         const width  = Config.worldWidth;
         const height = Config.worldHeight;
         const rand   = Helper.rand;
+        let   x;
+        let   y;
 
         Console.info('Creating random energy');
         for (let dot = 0; dot < dotAmount; dot++) {
-            world.setDot(rand(width), rand(height), energyInDot);
+            x = rand(width);
+            y = rand(height);
+            if (world.getDot(x, y) < 1) {
+                world.setDot(x, y, energyInDot);
+            }
         }
     }
 }

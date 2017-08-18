@@ -4,14 +4,14 @@
  * @author DeadbraiN
  */
 export default class Canvas {
-    constructor() {
+    constructor(width, height) {
         const bodyEl = $('body');
 
         this._prepareDom();
 
-        this._width     = bodyEl.width();
-        this._height    = bodyEl.height();
-        this._canvasEl  = bodyEl.append('<canvas id="world" width="' + this._width + '" height="' + this._height + '"></canvas>').find('#world');
+        this._width     = width;
+        this._height    = height;
+        this._canvasEl  = bodyEl.append('<canvas id="world" width="' + this._width + '" height="' + this._height + '" style="margin-top:10px;"></canvas>').find('#world');
         this._ctx       = this._canvasEl[0].getContext('2d');
         this._text      = {x: 0, y: 0, t: ''};
         this._imgData   = this._ctx.createImageData(this._width, this._height);
