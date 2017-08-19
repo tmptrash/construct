@@ -1579,7 +1579,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* defa
     move(x1, y1, x2, y2, org) {
         let moved = false;
 
-        [x2, y2] = __WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].normalize(x, y);
+        [x2, y2] = __WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].normalize(x2, y2);
         if (this._isFree(x2, y2) === false) {return false;}
 
         if (x1 !== x2 || y1 !== y2) {moved = true; this._world.setDot(x1, y1, 0);}
