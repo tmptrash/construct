@@ -108,4 +108,23 @@ export default class Helper {
     static load(file = "backup.data") {
         return JSON.parse(localStorage[file]);
     }
+
+    /**
+     * Does normalization of X and Y coordinates. It's used
+     * in cyclical mode for checking if we out of bound (world).
+     * Usage: [x, y] = Helper.normalize(10, -1); // 10, 100 (height - 1)
+     * @param {Number} x
+     * @param {Number} y
+     * @returns {[x,y]}
+     */
+    static normalize(x, y) {
+        if (Config.worldCyclical) {
+            if (x < 0)                        {x = Config.worldWidth - 1;}
+            else if (x >= Config.worldWidth)  {x = 0;}
+            else if (y < 0)                   {y = Config.worldHeight - 1;}
+            else if (y >= Config.worldHeight) {y = 0;}
+        }
+
+        return [x, y];
+    }
 }

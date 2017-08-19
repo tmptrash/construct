@@ -13,6 +13,7 @@
  * TODO: by calling of destroy() method for every of them
  */
 import Config            from './../global/Config';
+import Helper            from './../global/Helper';
 import Observer          from './../global/Observer';
 import Events            from './../global/Events';
 import Console           from './../global/Console';
@@ -126,12 +127,7 @@ export default class Manager extends Observer {
     move(x1, y1, x2, y2, org) {
         let moved = false;
 
-        if (Config.worldCyclical) {
-            if (x2 < 0)                        {x2 = Config.worldWidth - 1;}
-            else if (x2 >= Config.worldWidth)  {x2 = 0;}
-            else if (y2 < 0)                   {y2 = Config.worldHeight - 1;}
-            else if (y2 >= Config.worldHeight) {y2 = 0;}
-        }
+        [x2, y2] = Helper.normalize(x, y);
         if (this._isFree(x2, y2) === false) {return false;}
 
         if (x1 !== x2 || y1 !== y2) {moved = true; this._world.setDot(x1, y1, 0);}

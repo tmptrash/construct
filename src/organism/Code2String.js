@@ -44,7 +44,11 @@ export default class Code2String {
             14: this._onFromMem.bind(this),
             15: this._onToMem.bind(this),
             16: this._onMyX.bind(this),
-            17: this._onMyY.bind(this)
+            17: this._onMyY.bind(this),
+            18: this._onCheckLeft.bind(this),
+            19: this._onCheckRight.bind(this),
+            20: this._onCheckUp.bind(this),
+            21: this._onCheckDown.bind(this)
         };
         this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
         /**
@@ -131,54 +135,70 @@ export default class Code2String {
     //}
 
     _onLookAt(num) {
-        return `v${VAR0(num)}=org.lookAt(v${VAR1(num)},v${VAR2(num)})`;
+        return `v${VAR0(num)}=lookAt(v${VAR1(num)},v${VAR2(num)})`;
     }
 
     _onEatLeft(num) {
-        return `v${VAR0(num)}=org.eatLeft(v${VAR1(num)})`;
+        return `v${VAR0(num)}=eatLeft(v${VAR1(num)})`;
     }
 
     _onEatRight(num) {
-        return `v${VAR0(num)}=org.eatRight(v${VAR1(num)})`;
+        return `v${VAR0(num)}=eatRight(v${VAR1(num)})`;
     }
 
     _onEatUp(num) {
-        return `v${VAR0(num)}=org.eatUp(v${VAR1(num)})`;
+        return `v${VAR0(num)}=eatUp(v${VAR1(num)})`;
     }
 
     _onEatDown(num) {
-        return `v${VAR0(num)}=org.eatDown(v${VAR1(num)})`;
+        return `v${VAR0(num)}=eatDown(v${VAR1(num)})`;
     }
 
     _onStepLeft(num) {
-        return `v${VAR0(num)}=org.stepLeft()`;
+        return `v${VAR0(num)}=stepLeft()`;
     }
 
     _onStepRight(num) {
-        return `v${VAR0(num)}=org.stepRight()`;
+        return `v${VAR0(num)}=stepRight()`;
     }
 
     _onStepUp(num) {
-        return `v${VAR0(num)}=org.stepUp()`;
+        return `v${VAR0(num)}=stepUp()`;
     }
 
     _onStepDown(num) {
-        return `v${VAR0(num)}=org.stepDown()`;
+        return `v${VAR0(num)}=stepDown()`;
     }
 
     _onFromMem(num) {
-        return `v${VAR0(num)}=org.fromMem()`;
+        return `v${VAR0(num)}=fromMem()`;
     }
 
     _onToMem(num) {
-        return `v${VAR0(num)}=org.toMem(v${VAR1(num)})`;
+        return `v${VAR0(num)}=toMem(v${VAR1(num)})`;
     }
 
     _onMyX(num) {
-        return `v${VAR0(num)}=org.myX()`;
+        return `v${VAR0(num)}=myX()`;
     }
 
     _onMyY(num) {
-        return `v${VAR0(num)}=org.myY()`;
+        return `v${VAR0(num)}=myY()`;
+    }
+
+    _onCheckLeft(num) {
+        return `v${VAR0(num)}=checkLeft()`;
+    }
+
+    _onCheckRight(num) {
+        return `v${VAR0(num)}=checkRight()`;
+    }
+
+    _onCheckUp(num) {
+        return `v${VAR0(num)}=checkUp()`;
+    }
+
+    _onCheckDown(num) {
+        return `v${VAR0(num)}=checkDown()`;
     }
 }

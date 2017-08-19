@@ -17,6 +17,9 @@ import Queue       from './../../global/Queue';
 import Organism    from './../../organism/Organism';
 import Backup      from './Backup';
 
+const EMPTY    = 0;
+const ENERGY   = 1;
+const ORGANISM = 2;
 
 export default class Organisms {
     constructor(manager) {
@@ -144,7 +147,7 @@ export default class Organisms {
         let org1   = this._tournament();
         let org2   = this._tournament();
         let winner = this._tournament(org1, org2);
-        let looser = winner.id === org1.id ? org2 : org1;
+        let looser = winner === org1 ? org2 : org1;
 
         if (looser.alive) {
             this._crossover(winner, looser);
@@ -264,6 +267,7 @@ export default class Organisms {
         org.on(Events.GET_ENERGY, this._onGetEnergy.bind(this));
         org.on(Events.EAT, this._onEat.bind(this));
         org.on(Events.STEP, this._onStep.bind(this));
+        org.on(Events.CHECK_AT, this._onCheckAt.bind(this));
         if (this._fitnessMode) {
             org.on(Events.STOP, this._onStop.bind(this));
         }
@@ -284,12 +288,7 @@ export default class Organisms {
         const world = this._manager.world;
         const positions = this._positions;
 
-        if (Config.worldCyclical) {
-            if (x < 0)                        {x = Config.worldWidth - 1;}
-            else if (x >= Config.worldWidth)  {x = 0;}
-            else if (y < 0)                   {y = Config.worldHeight - 1;}
-            else if (y >= Config.worldHeight) {y = 0;}
-        }
+        [x, y] = Helper.normalize(x, y);
 
         const posId = Helper.posId(x, y);
         if (typeof(positions[posId]) === 'undefined') {
@@ -303,6 +302,15 @@ export default class Organisms {
     _onStep(org, x1, y1, x2, y2, ret) {
         if (org.alive) {
             ret.ret = +this._manager.move(x1, y1, x2, y2, org)
+        }
+    }
+
+    _onCheckAt(x, y, ret) {
+        [x, y] = Helper.normalize(x, y);
+        if (typeof(this._positions[Helper.posId(x, y)]) === 'undefined') {
+            ret.ret = this._manager.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
+        } else {
+            ret.ret = ORGANISM;
         }
     }
 

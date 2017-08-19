@@ -62,7 +62,11 @@ export default class Operators {
             14: this.onFromMem.bind(this),
             15: this.onToMem.bind(this),
             16: this.onMyX.bind(this),
-            17: this.onMyY.bind(this)
+            17: this.onMyY.bind(this),
+            18: this.onCheckLeft.bind(this),
+            19: this.onCheckRight.bind(this),
+            20: this.onCheckUp.bind(this),
+            21: this.onCheckDown.bind(this)
         };
         this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
         /**
@@ -208,6 +212,19 @@ export default class Operators {
 
     onMyX(num, line, org) {this._vars[VAR0(num)] = org.x; return line + 1}
     onMyY(num, line, org) {this._vars[VAR0(num)] = org.y; return line + 1;}
+
+    onCheckLeft(num, line, org)  {return this._checkAt(num, line, org, org.x - 1, org.y)}
+    onCheckRight(num, line, org) {return this._checkAt(num, line, org, org.x + 1, org.y)}
+    onCheckUp(num, line, org)    {return this._checkAt(num, line, org, org.x, org.y - 1)}
+    onCheckDown(num, line, org)  {return this._checkAt(num, line, org, org.x, org.y + 1)}
+
+    _checkAt(num, line, org, x, y) {
+        const ret = {ret: 0};
+        org.fire(Events.CHECK_AT, x, y, ret);
+        this._vars[VAR0(num)] = ret.ret;
+        return line + 1;
+    }
+
 
     _eat(org, num, x, y) {
         const vars   = this._vars;
