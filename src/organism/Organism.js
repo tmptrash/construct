@@ -40,7 +40,6 @@ export default class Organism extends Observer {
         this._id          = id;
         this._x           = x;
         this._y           = y;
-        this._lastEnergy  = this._energy;
         this._changes     = 1;
         this._alive       = alive;
         this._item        = item;
@@ -71,7 +70,6 @@ export default class Organism extends Observer {
     get code()                  {return this._code}
     get posId()                 {return Helper.posId(this._x, this._y)}
     get iterations()            {return this._iterations}
-    get lastEnergy()            {return this._lastEnergy}
 
     set x(newX)                 {this._x = newX}
     set y(newY)                 {this._y = newY}
@@ -119,7 +117,6 @@ export default class Organism extends Observer {
         this.fire(Events.DESTROY, this);
         this._alive      = false;
         this._energy     = 0;
-        this._lastEnergy = 0;
         this._item       = null;
         this._mem        = null;
         this._code.destroy();
@@ -180,7 +177,6 @@ export default class Organism extends Observer {
      */
     _onResetCode() {
         this._needRun    = true;
-        this._lastEnergy = this._energy;
     }
 
     /**

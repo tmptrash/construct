@@ -191,24 +191,12 @@ export default class Organisms {
                 return org2;
             }
         } else {
-            if ((org2.alive && !org1.alive) || (this._fitness(org2) > this._fitness(org1))) {
+            if ((org2.alive && !org1.alive) || org2.fitness() > org1.fitness()) {
                 return org2;
             }
         }
 
         return org1;
-    }
-
-    _fitness(org) {
-        let fit;
-
-        if (org.lastEnergy < org.energy) {
-            fit = org.fitness() * Config.orgEnergyIncreaseCoef;
-        } else {
-            fit = org.fitness();
-        }
-
-        return fit;
     }
 
     _crossover(winner, looser) {

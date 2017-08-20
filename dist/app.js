@@ -1646,7 +1646,6 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
         this._id          = id;
         this._x           = x;
         this._y           = y;
-        this._lastEnergy  = this._energy;
         this._changes     = 1;
         this._alive       = alive;
         this._item        = item;
@@ -1677,7 +1676,6 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     get code()                  {return this._code}
     get posId()                 {return __WEBPACK_IMPORTED_MODULE_3__global_Helper__["a" /* default */].posId(this._x, this._y)}
     get iterations()            {return this._iterations}
-    get lastEnergy()            {return this._lastEnergy}
 
     set x(newX)                 {this._x = newX}
     set y(newY)                 {this._y = newY}
@@ -1725,7 +1723,6 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
         this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].DESTROY, this);
         this._alive      = false;
         this._energy     = 0;
-        this._lastEnergy = 0;
         this._item       = null;
         this._mem        = null;
         this._code.destroy();
@@ -1786,7 +1783,6 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
      */
     _onResetCode() {
         this._needRun    = true;
-        this._lastEnergy = this._energy;
     }
 
     /**
@@ -2684,24 +2680,12 @@ class Organisms {
                 return org2;
             }
         } else {
-            if ((org2.alive && !org1.alive) || (this._fitness(org2) > this._fitness(org1))) {
+            if ((org2.alive && !org1.alive) || org2.fitness() > org1.fitness()) {
                 return org2;
             }
         }
 
         return org1;
-    }
-
-    _fitness(org) {
-        let fit;
-
-        if (org.lastEnergy < org.energy) {
-            fit = org.fitness() * __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgEnergyIncreaseCoef;
-        } else {
-            fit = org.fitness();
-        }
-
-        return fit;
     }
 
     _crossover(winner, looser) {
