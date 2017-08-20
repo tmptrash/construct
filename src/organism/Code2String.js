@@ -67,8 +67,8 @@ export default class Code2String {
         Num.setOperatorAmount(this._OPERATORS_CB_LEN);
     }
 
-	destroy() {
-	}
+    destroy() {
+    }
 
     format(code, separator = '\n') {
         const len       = code.length;

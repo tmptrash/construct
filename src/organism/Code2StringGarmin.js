@@ -56,9 +56,9 @@ export default class Code2StringGarmin {
         Num.setOperatorAmount(this._OPERATORS_CB_LEN);
     }
 
-	destroy() {
+    destroy() {
         this._offsets = null;
-	}
+    }
 
     format(code, separator = '\n') {
         const len       = code.length;

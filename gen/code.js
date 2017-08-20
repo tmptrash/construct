@@ -973,9 +973,9 @@ for (v2 = v3; v2 < v3; v2++) {
             v0 = org.myX()
         }
     }
-	
 
-	
+
+
 // energy: 45847998.18586665
 v1 = org.lookAt(v0, v1)
 v1 = 307263

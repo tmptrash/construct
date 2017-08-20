@@ -40,12 +40,14 @@ export default class Organism extends Observer {
         this._id          = id;
         this._x           = x;
         this._y           = y;
+        this._lastEnergy  = this._energy;
         this._changes     = 1;
         this._alive       = alive;
         this._item        = item;
         this._iterations  = 0;
         this._fnId        = 0;
-        if (Config.codeFitnessCls !== null) {
+        this._fitnessMode = Config.codeFitnessCls !== null;
+        if (this._fitnessMode) {
             this._needRun = true;
         }
 
@@ -78,7 +80,6 @@ export default class Organism extends Observer {
     set mutationPercent(p)      {this._mutationPercent = p}
     set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p}
     set energy(e)               {this._energy = e}
-    set lastEnergy(e)           {this._lastEnergy = e}
     set changes(c) {
         this._changes = c;
         this._updateColor(c);
@@ -92,8 +93,8 @@ export default class Organism extends Observer {
         this._iterations++;
         if (this._needRun === false) {return true}
 
-        const fitnessCls = Config.codeFitnessCls && this._classMap[Config.codeFitnessCls];
-        if (fitnessCls) {
+        let fitnessCls;
+        if (this._fitnessMode && (fitnessCls = Config.codeFitnessCls && this._classMap[Config.codeFitnessCls])) {
             if (fitnessCls.run(this)) {this.fire(Events.STOP, this)}
             this._needRun = false;
         } else {
@@ -136,7 +137,6 @@ export default class Organism extends Observer {
     _create() {
         this._code                  = new Code(this._codeEndCb.bind(this, this), this, this._classMap);
         this._energy                = Config.orgStartEnergy;
-        this._lastEnergy            = this._energy;
         this._color                 = Config.orgStartColor;
         this._mutationProbs         = Config.orgMutationProbs;
         this._mutationClonePercent  = Config.orgCloneMutation;
@@ -148,16 +148,15 @@ export default class Organism extends Observer {
 
     _clone(parent) {
         this._code                  = new Code(this._codeEndCb.bind(this, this), this, this._classMap, parent.code.vars);
+        this._code.clone(parent.code);
         this._energy                = parent.energy;
-        this._lastEnergy            = this._energy;
         this._color                 = parent.color;
-        this._mem                   = parent.mem.slice();
         this._mutationProbs         = parent.mutationProbs.slice();
         this._mutationClonePercent  = parent.mutationClonePercent;
         this._mutationPeriod        = parent.mutationPeriod;
         this._mutationPercent       = parent.mutationPercent;
         this._cloneEnergyPercent    = parent.cloneEnergyPercent;
-        this._code.clone(parent.code);
+        this._mem                   = parent.mem.slice();
     }
 
     /**
@@ -180,7 +179,8 @@ export default class Organism extends Observer {
      * @private
      */
     _onResetCode() {
-        this._needRun = true;
+        this._needRun    = true;
+        this._lastEnergy = this._energy;
     }
 
     /**

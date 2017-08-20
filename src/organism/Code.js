@@ -21,22 +21,23 @@ export default class Code extends Observer {
          * {Function} Callback, which is called on every organism
          * code iteration. On it's end.
          */
-        this._onCodeEnd = codeEndCb;
-        this._classMap  = classMap;
+        this._onCodeEnd   = codeEndCb;
+        this._classMap    = classMap;
         /**
          * {Array} Array of two numbers. first - line number where we have
          * to return if first line appears. second - line number, where ends
          * closing block '}' of for or if operator.
          */
-        this._offsets   = [];
-        this._vars      = vars && vars.slice() || this._getVars();
+        this._offsets     = [];
+        this._vars        = vars && vars.slice() || this._getVars();
         /**
          * {Array} Array of offsets for closing braces. For 'for', 'if'
          * and all block operators.
          */
-        this._operators = new this._classMap[Config.codeOperatorsCls](this._offsets, this._vars, org);
-        this._code      = [];
-        this._line      = 0;
+        this._operators   = new this._classMap[Config.codeOperatorsCls](this._offsets, this._vars, org);
+        this._code        = [];
+        this._line        = 0;
+        this._fitnessMode = Config.codeFitnessCls !== null;
     }
 
     get code() {return this._code;}
@@ -49,7 +50,7 @@ export default class Code extends Observer {
         let code    = this._code;
         let lines   = code.length;
         let len     = Config.codeYieldPeriod || lines;
-        let fitMode = Config.codeFitnessCls !== null;
+        let fitMode = this._fitnessMode;
         let ops     = this._operators.operators;
         let getOp   = Num.getOperator;
         let ret     = false;
@@ -65,10 +66,10 @@ export default class Code extends Observer {
             }
             if (line >= lines) {
                 line = 0;
-                this._offsets.length = 0;
-				if (this._onCodeEnd) {
+                offs.length = 0;
+                if (this._onCodeEnd) {
                     this._onCodeEnd();
-				}
+                }
                 if (fitMode) {break}
             }
         }
@@ -108,7 +109,7 @@ export default class Code extends Observer {
         if (start1 > end1) {[start1, end1] = [end1, start1];}
 
         adds = Math.abs(end1 - start1 - end + start);
-        if (Config.codeFitnessCls !== null && this._code.length + adds >= Config.codeMaxSize) {return 0}
+        if (this._fitnessMode && this._code.length + adds >= Config.codeMaxSize) {return 0}
         this._code.splice.apply(this._code, [start, end - start].concat(code.code.slice(start1, end1)));
         this._reset();
 

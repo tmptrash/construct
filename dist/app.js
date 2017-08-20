@@ -72,12 +72,12 @@
 
 "use strict";
 /**
-* Global jevo.js configuration file. Affects only current jevo
-* instance. Other instances may have different configuration values
-*
-* @author DeadbraiN
-* TODO: find and remove unused values
-*/
+ * Global jevo.js configuration file. Affects only current jevo
+ * instance. Other instances may have different configuration values
+ *
+ * @author DeadbraiN
+ * TODO: find and remove unused values
+ */
 const QUIET_ALL               = 0;
 const QUIET_IMPORTANT         = 1;
 const QUIET_NO                = 2;
@@ -169,7 +169,7 @@ const Config = {
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
      */
-    orgEnergySpendPeriod: 40,
+    orgEnergySpendPeriod: 10,
     /**
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used.
@@ -198,7 +198,7 @@ const Config = {
      * in case if it (energy) was increased from the moment of last tournament.
      * This is how we support mutations, which increase organism's energy
      */
-    orgIncreaseCoef: 2,
+    orgEnergyIncreaseCoef: 3,
     /**
      * {Number} Maximum amount of arguments in custom functions. Minimum 1. Maximum
      * <= amount of default variables.
@@ -291,17 +291,17 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 5000,
+    worldMaxOrgs: 10000,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
      */
-    worldStartEnergyDots: 100000,
+    worldEnergyDots: 10000,
     /**
-     * {Number} Amount of energy in every block. See worldStartEnergyDots
+     * {Number} Amount of energy in every block. See worldEnergyDots
      * config for details.
      */
-    worldStartEnergyInDot: 0x00FF00,
+    worldEnergyInDot: 0x00FF00,
     /**
      * {Number} Minimum percent of energy in current world. Under percent i mean
      * percent from entire world area (100%). If the energy will be less
@@ -455,6 +455,389 @@ const Config = {
 
 /* harmony default export */ __webpack_exports__["a"] = (Config);
 
+// /**
+//  * Global jevo.js configuration file. Affects only current jevo
+//  * instance. Other instances may have different configuration values
+//  *
+//  * @author DeadbraiN
+//  * TODO: find and remove unused values
+//  */
+// const QUIET_ALL               = 0;
+// const QUIET_IMPORTANT         = 1;
+// const QUIET_NO                = 2;
+//
+// const ORG_MAX_MUTATION_PERIOD = 1000;
+// const ORG_FIRST_COLOR         = 1;
+// const ORG_MAX_COLOR           = Number.MAX_SAFE_INTEGER;
+//
+// const Config = {
+//     /**
+//      * Constants of quite mode. This mode affects on amount and
+//      * types of console messages. For example in QUIET_IMPORTANT
+//      * mode info messages will be hidden.
+//      */
+//     QUIET_ALL              : QUIET_ALL,
+//     QUIET_IMPORTANT        : QUIET_IMPORTANT,
+//     QUIET_NO               : QUIET_NO,
+//
+//     ORG_MAX_MUTATION_PERIOD: ORG_MAX_MUTATION_PERIOD,
+//     ORG_FIRST_COLOR        : ORG_FIRST_COLOR,
+//     ORG_MAX_COLOR          : ORG_MAX_COLOR,
+//     /**
+//      * {Array} Probabilities with which mutator decides what to do:
+//      * add, change, delete character of the code; change amount of
+//      * mutations or change mutations period... Depending on these
+//      * values, organism may have different strategies of living.
+//      * For example: if add value is bigger then del and change,
+//      * then code size will be grow up all the time. If del value is
+//      * bigger then other, then it will be decreased to zero lines
+//      * of code and will die.
+//      * Format: [
+//      *     add          - Probability of adding of new character to the code
+//      *     change       - Probability of changing existing character in a code
+//      *     delete       - Probability of deleting of a character in a code
+//      *     small-change - Probability of "small change" - change of expression part
+//      *     clone        - Probability for amount of mutations on clone
+//      *     period       - Probability of period of organism mutations
+//      *     amount       - Probability of amount of mutations per period
+//      *     probs        - Probability of change one of probability coefficient
+//      *     clonePeriod  - Probability of change clone energy percent value
+//      * ]
+//      */
+//     orgMutationProbs: [50,80,20,100,1,1,1,1,1],
+//     /**
+//      * {Number} Max value, which we may use in orgMutationProbs array.
+//      */
+//     orgMutationProbsMaxValue: 100,
+//     /**
+//      * {Number} Percent of mutations from code size, which will be applied to
+//      * organism after cloning. Should be <= 1.0
+//      */
+//     orgCloneMutation: 0.01,
+//     /**
+//      * {Number} Amount of iterations before cloning process
+//      */
+//     orgClonePeriod: 1,
+//     /**
+//      * {Number} Amount of iterations, after which crossover will be applied
+//      * to random organisms.
+//      */
+//     orgCrossoverPeriod: 20,
+//     /**
+//      * {Number} Amount of iterations within organism's life loop, after that we
+//      * do mutations according to orgRainMutationPercent config. If 0, then
+//      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
+//      */
+//     orgRainMutationPeriod: 30,
+//     /**
+//      * {Number} Value, which will be used like amount of mutations per
+//      * orgRainMutationPeriod iterations. 0 is a possible value if
+//      * we want to disable mutations. Should be less then 100
+//      */
+//     orgRainMutationPercent: 0.02,
+//     /**
+//      * {Number} Amount of organisms we have to create on program start
+//      */
+//     orgStartAmount: 3,
+//     /**
+//      * {Number} Amount of energy for first organisms. They are like Adam and
+//      * Eve. It means that these empty (without code) organism were created
+//      * by operator and not by evolution.
+//      */
+//     orgStartEnergy: 100,
+//     /**
+//      * {Number} Begin color of "empty" organism (organism without code).
+//      */
+//     orgStartColor: 0xFF0000,
+//     /**
+//      * {Number} Amount of iterations within organism's life loop, after that we decrease
+//      * some amount of energy. If 0, then energy decreasing will be disabled.
+//      */
+//     orgEnergySpendPeriod: 10,
+//     /**
+//      * {Number} Amount of iterations when organism is alive. It will die after
+//      * this period. If 0, then will not be used.
+//      */
+//     orgAlivePeriod: 100,
+//     /**
+//      * {Number} This value means the period between organism codeSizes, which
+//      * affects energy grabbing by the system. For example: we have two
+//      * organisms: org1.energy = 10, org2.energy = 10, org1.codeSize = 6,
+//      * org2.codeSize = 9, Config.orgGarbagePeriod = 5. It means that
+//      * during energy grabbing by the system org1 and org2 will spend the
+//      * same amount of energy - 1 unit. This is because the period goes
+//      * from 1..5, 6..10,... and both organisms are in the same period.
+//      */
+//     orgGarbagePeriod: 10,
+//     /**
+//      * {Number} Size of organism stack (internal memory)
+//      */
+//     orgMemSize: 64,
+//     /**
+//      * {Number} Percent of energy, which will be given to the child
+//      */
+//     orgCloneEnergyPercent: 0.5,
+//     /**
+//      * {Number} This value will be used for multiplying it on organism energy
+//      * in case if it (energy) was increased from the moment of last tournament.
+//      * This is how we support mutations, which increase organism's energy
+//      */
+//     orgEnergyIncreaseCoef: 3,
+//     /**
+//      * {Number} Maximum amount of arguments in custom functions. Minimum 1. Maximum
+//      * <= amount of default variables.
+//      */
+//     codeFuncParamAmount: 2,
+//     /**
+//      * {Number} If organism reach this limit of amount of code lines, then codeSizeCoef
+//      * will be used during it's energy grabbing by system. We use this approach,
+//      * because our CPU's are slow and organisms with big codes are very slow. But
+//      * it's possible for organisms to go outside the limit by inventing new
+//      * effective mechanisms of energy obtaining.
+//      */
+//     codeMaxSize: 10,
+//     /**
+//      * {Number} This coefficiend is used for calculating of amount of energy,
+//      * which grabbed from each organism depending on his codeSize.
+//      * This coefficient affects entire code size of population and
+//      * entire system speed. It depends on CPU speed also. So, for
+//      * different PC's it may be different.
+//      * Formula is the following: grabEnergy = cfg.codeSizeCoef * org.codeSize
+//      * See Config.codeMaxSize for details. This config will be turn on only if
+//      * organism reaches code size limit Config.codeMaxSize
+//      */
+//     codeSizeCoef: 10000,
+//     /**
+//      * {Number} Amount of local variables of organism's script
+//      * TODO: this amount should be calculated from codeBitsPerVar
+//      */
+//     codeVarAmount: 4,
+//     /**
+//      * {Number} The value from -X/2 to X/2, which is used for setting
+//      * default value, while organism is delivering. So, if the value is
+//      * 1000, then ragne will be: -500..500
+//      */
+//     codeVarInitRange: 1000,
+//     /**
+//      * {Number} Every code line 'yield' operator will be inserted to prevent
+//      * locking of threads. Set this value to value bigger then code size, then
+//      * entire code of organism will be run
+//      */
+//     codeYieldPeriod: 1,
+//     /**
+//      * {Number} Amount of bits per one variable. It affects maximum value,
+//      * which this variable may contain
+//      */
+//     codeBitsPerVar: 2,
+//     /**
+//      * {Number} Amount of bits for storing operator. This is first XX bits
+//      * in a number.
+//      */
+//     codeBitsPerOperator: 8,
+//     /**
+//      * {Number} Amount of iterations between calls to V8 event loop. See
+//      * Manager._initLoop(), Manager.run() methods for details.
+//      */
+//     codeIterationsPerOnce: 50,
+//     /**
+//      * {String|null} Fitness class or null if default behavior is used. Default
+//      * behavior is a nature organisms simulator. See Manager.CLASS_MAP for additional
+//      * details.
+//      */
+//     codeFitnessCls: null,//'FitnessGarmin',
+//     /**
+//      * {Function} Class with available operators. See default Operators
+//      * class for details. See Manager.CLASS_MAP for additional details.
+//      */
+//     codeOperatorsCls: 'Operators',//'OperatorsGarmin',
+//     /**
+//      * {String} Name of the class for string representation of byte code
+//      */
+//     code2StringCls: 'Code2String',//'Code2StringGarmin',
+//     /**
+//      * {Number} World width
+//      */
+//     worldWidth: 5,
+//     /**
+//      * {Number} World height
+//      */
+//     worldHeight: 5,
+//     /**
+//      * {Number} Turns on ciclic world mode. It means that organisms may go outside
+//      * it's border, but still be inside. For example, if the world has 10x10
+//      * size and the organism has 10x5 position in it, one step right will move
+//      * this organism at the position 1x5. The same scenario regarding Y
+//      * coordinate (height).
+//      */
+//     worldCyclical: true,
+//     /**
+//      * {Number} Maximum amount of organisms in a world. If some organisms will
+//      * try to clone itself, when entire amount of organisms are equal
+//      * this value, then it(cloning) will not happen.
+//      */
+//     worldMaxOrgs: 4,
+//     /**
+//      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
+//      * random way...
+//      */
+//     worldEnergyDots: 10,
+//     /**
+//      * {Number} Amount of energy in every block. See worldEnergyDots
+//      * config for details.
+//      */
+//     worldEnergyInDot: 0x00FF00,
+//     /**
+//      * {Number} Minimum percent of energy in current world. Under percent i mean
+//      * percent from entire world area (100%). If the energy will be less
+//      * or equal then this percent, then new random energy should be added.
+//      * Should be less then 100.0 and more and equal to 0.0. 0.17 is a
+//      * normal percent for this system.
+//      */
+//     worldEnergyCheckPercent: 0.3,
+//     /**
+//      * {Number} An amount of iteration, after which we have to check world energy
+//      * amount. Works in pair with worldEnergyCheckPercent. May be 0 if
+//      * you want to disable it
+//      */
+//     worldEnergyCheckPeriod: 500,
+//     /**
+//      * {Number} World scaling. Today monitors pixel are so small, so we have
+//      * to zoom them with a coefficient.
+//      */
+//     worldZoom: 1,
+//     /**
+//      * {Number} Quite mode. This mode affects on amount and
+//      * types of console messages. For example in QUIET_IMPORTANT
+//      * mode info messages will be hidden.
+//      */
+//     worldQuiteMode: QUIET_IMPORTANT,
+//     /**
+//      * {Number} Period of milliseconds, which is user for checking IPS value. It's
+//      * possible to increase it to reduce amount of requests and additional
+//      * code in main loop
+//      */
+//     worldIpsPeriodMs: 10000,
+//     /**
+//      * {Number} Period of making automatic backup of application. In iterations
+//      */
+//     backupPeriod: 1000,
+//     /**
+//      * {Number} Amount of backup files stored on HDD. Old files will be removed
+//      */
+//     backupAmount: 10,
+//     /**
+//      * {Number} The period of time between yield() calls in "stand by" mode.
+//      * In this mode manager waits for data in sockets and new connections.
+//      * In this mode yield() is called only once in a period, because
+//      * it eats CPU cicles. In case of data in sockets or new connections
+//      * yield() will be called more often.
+//      */
+//     conYieldPeriod: 0.01,
+//     /**
+//      * {Number} Percent of energy, which will be minused from organism after
+//      * stepping from one instance to another.
+//      */
+//     conStepEnergySpendPercent: 20,
+//     /**
+//      * {Number} Starting number for TCP/IP listening
+//      */
+//     conServerPort: 2010,
+//     /**
+//      * {String} Works in pair with conServerPort. An IP of current
+//      * server/instance.
+//      * TODO: IPv6?
+//      */
+//     conServerIp: '127.0.0.1',
+//     /**
+//      * {Number} Port number for "fast" mode. It uses, for example, for pooling
+//      */
+//     conFastServerPort: 2011,
+//     /**
+//      * {Number} Left side server's (instance) port we want connect to. May be
+//      * zero (0) if no left side server available.
+//      */
+//     conLeftServerPort: 0,
+//     /**
+//      * {String} Left server(instance) IP address. Works in pair with
+//      * conLeftServerPort
+//      */
+//     conLeftServerIp: '127.0.0.1',
+//     /**
+//      * {Number} Right side server's (instance) port we want connect to. May be
+//      * zero (0) if no right side server available.
+//      */
+//     conRightServerPort: 0,
+//     /**
+//      * {String} Right server(instance) IP address. Works in pair with
+//      * conRightServerPort
+//      */
+//     conRightServerIp: '127.0.0.1',
+//     /**
+//      * {Number} Left up server's (instance) port we want connect to. May be
+//      * zero (0) if no up side server available.
+//      */
+//     conUpServerPort: 0,
+//     /**
+//      * {String} Up server(instance) IP address. Works in pair with
+//      * conUpServerPort
+//      */
+//     conUpServerIp: '127.0.0.1',
+//     /**
+//      * {Number} Left down server's (instance) port we want connect to. May be
+//      * zero (0) if no down side server available.
+//      */
+//     conDownServerPort: 0,
+//     /**
+//      * {String} Down server(instance) IP address. Works in pair with
+//      * conDownServerPort
+//      */
+//     conDownServerIp: '127.0.0.1',
+//     /**
+//      * {Array} Array of included plugins
+//      */
+//     plugIncluded: [],
+//     /**
+//      * {Array} Array of excluded plugins. Affects plugIncluded list
+//      */
+//     plugExcluded: [],
+//     /**
+//      * {Boolean} Debug mode. This mode means, that all debug messages
+//      * will be posted to the terminal
+//      */
+//     modeDebug: false,
+//     /**
+//      * {Boolean} Testing mode. In this mode user may run jevo step by step
+//      * and test it'sinternal parts. For example, during unit tests
+//      */
+//     modeTest: false,
+//     /**
+//      * {Boolean} Is used for profiling the application with ProfileView
+//      * package. See run-profiling.sh for details
+//      */
+//     modeProfile: false,
+//     /**
+//      * {Number} Amount of iterations in profile mode after which ProfileView
+//      * package will draw performance flame chart
+//      */
+//     modeProfilePeriod: 2000,
+//     /**
+//      * {Number} Amount of seconds for status showing in terminal
+//      */
+//     modeStatusPeriod: 10.0,
+//     /**
+//      * {Boolean} In this mode status report will be short or full
+//      */
+//     modeStatusFull: false,
+//     /**
+//      * {Number} Mode for showing/supressing of messages. Possible values:
+//      *   0 - all messages
+//      *   1 - only important messages
+//      *   2 - no messages
+//      */
+//     modeQuiet: 1
+// };
+//
+// export default Config;
 
 // /**
 //  * Global jevo.js configuration file. Affects only current jevo
@@ -675,12 +1058,12 @@ const Config = {
 //      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
 //      * random way...
 //      */
-//     worldStartEnergyDots: 1000,
+//     worldEnergyDots: 1000,
 //     /**
-//      * {Number} Amount of energy in every block. See worldStartEnergyDots
+//      * {Number} Amount of energy in every block. See worldEnergyDots
 //      * config for details.
 //      */
-//     worldStartEnergyInDot: 0x00FF00,
+//     worldEnergyInDot: 0x00FF00,
 //     /**
 //      * {Number} Minimum percent of energy in current world. Under percent i mean
 //      * percent from entire world area (100%). If the energy will be less
@@ -1263,12 +1646,14 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
         this._id          = id;
         this._x           = x;
         this._y           = y;
+        this._lastEnergy  = this._energy;
         this._changes     = 1;
         this._alive       = alive;
         this._item        = item;
         this._iterations  = 0;
         this._fnId        = 0;
-        if (__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeFitnessCls !== null) {
+        this._fitnessMode = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeFitnessCls !== null;
+        if (this._fitnessMode) {
             this._needRun = true;
         }
 
@@ -1301,7 +1686,6 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     set mutationPercent(p)      {this._mutationPercent = p}
     set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p}
     set energy(e)               {this._energy = e}
-    set lastEnergy(e)           {this._lastEnergy = e}
     set changes(c) {
         this._changes = c;
         this._updateColor(c);
@@ -1315,8 +1699,8 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
         this._iterations++;
         if (this._needRun === false) {return true}
 
-        const fitnessCls = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeFitnessCls && this._classMap[__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeFitnessCls];
-        if (fitnessCls) {
+        let fitnessCls;
+        if (this._fitnessMode && (fitnessCls = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeFitnessCls && this._classMap[__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeFitnessCls])) {
             if (fitnessCls.run(this)) {this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].STOP, this)}
             this._needRun = false;
         } else {
@@ -1359,7 +1743,6 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     _create() {
         this._code                  = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._codeEndCb.bind(this, this), this, this._classMap);
         this._energy                = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartEnergy;
-        this._lastEnergy            = this._energy;
         this._color                 = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartColor;
         this._mutationProbs         = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgMutationProbs;
         this._mutationClonePercent  = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgCloneMutation;
@@ -1371,16 +1754,15 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 
     _clone(parent) {
         this._code                  = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._codeEndCb.bind(this, this), this, this._classMap, parent.code.vars);
+        this._code.clone(parent.code);
         this._energy                = parent.energy;
-        this._lastEnergy            = this._energy;
         this._color                 = parent.color;
-        this._mem                   = parent.mem.slice();
         this._mutationProbs         = parent.mutationProbs.slice();
         this._mutationClonePercent  = parent.mutationClonePercent;
         this._mutationPeriod        = parent.mutationPeriod;
         this._mutationPercent       = parent.mutationPercent;
         this._cloneEnergyPercent    = parent.cloneEnergyPercent;
-        this._code.clone(parent.code);
+        this._mem                   = parent.mem.slice();
     }
 
     /**
@@ -1403,7 +1785,8 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
      * @private
      */
     _onResetCode() {
-        this._needRun = true;
+        this._needRun    = true;
+        this._lastEnergy = this._energy;
     }
 
     /**
@@ -1489,9 +1872,9 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
  */
 const CLASS_MAP = {
     Operators        : __WEBPACK_IMPORTED_MODULE_12__organism_Operators__["a" /* default */],
-	OperatorsGarmin  : __WEBPACK_IMPORTED_MODULE_13__organism_OperatorsGarmin__["a" /* default */],
+    OperatorsGarmin  : __WEBPACK_IMPORTED_MODULE_13__organism_OperatorsGarmin__["a" /* default */],
     Code2String      : __WEBPACK_IMPORTED_MODULE_14__organism_Code2String__["a" /* default */],
-	Code2StringGarmin: __WEBPACK_IMPORTED_MODULE_15__organism_Code2StringGarmin__["a" /* default */],
+    Code2StringGarmin: __WEBPACK_IMPORTED_MODULE_15__organism_Code2StringGarmin__["a" /* default */],
     FitnessGarmin    : __WEBPACK_IMPORTED_MODULE_16__organism_FitnessGarmin__["a" /* default */]
 };
 /**
@@ -1917,7 +2300,7 @@ class Energy {
     _onIteration(counter) {
         if (counter % this._checkPeriod === 0 && this._checkPeriod > 0) {
             if (counter === 0) {
-                this._updateEnergy(__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldStartEnergyDots, __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldStartEnergyInDot);
+                this._updateEnergy(__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldEnergyDots, __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldEnergyInDot);
                 return;
             }
             let   energy = 0;
@@ -1932,7 +2315,7 @@ class Energy {
             }
 
             if (energy * 100 / (width * height) <= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldEnergyCheckPercent) {
-                this._updateEnergy(__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldStartEnergyDots, __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldStartEnergyInDot);
+                this._updateEnergy(__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldEnergyDots, __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldEnergyInDot);
             }
         }
     }
@@ -2002,7 +2385,7 @@ class Mutator {
             this._onAmount,
             this._onProbs,
             this._onCloneEnergyPercent
-        ]
+        ];
 
         manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["a" /* default */].ORGANISM, this._onOrganism.bind(this));
         manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["a" /* default */].CLONE, this._onCloneOrg.bind(this));
@@ -2139,9 +2522,6 @@ class Organisms {
         this._stamp         = Date.now();
         this._manager       = manager;
         this._positions     = {};
-        this._orgId         = 0;
-        this._maxEnergy     = 0;
-        this._maxChanges    = 0;
         this._code2Str      = new manager.CLASS_MAP[__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].code2StringCls];
         this._onIterationCb = this._onIteration.bind(this);
         this._onAfterMoveCb = this._onAfterMove.bind(this);
@@ -2149,6 +2529,7 @@ class Organisms {
         this._fitnessMode   = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeFitnessCls !== null;
         this._FITNESS_CLS   = manager.CLASS_MAP[__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeFitnessCls];
 
+        this._reset();
         __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].override(manager, 'onIteration', this._onIterationCb);
         __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].override(manager, 'onAfterMove', this._onAfterMoveCb);
         //
@@ -2315,11 +2696,10 @@ class Organisms {
         let fit;
 
         if (org.lastEnergy < org.energy) {
-            fit = org.fitness() * __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgIncreaseCoef;
+            fit = org.fitness() * __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgEnergyIncreaseCoef;
         } else {
             fit = org.fitness();
         }
-        org.lastEnergy = org.energy;
 
         return fit;
     }
@@ -2356,11 +2736,17 @@ class Organisms {
     _createPopulation() {
         const world = this._manager.world;
 
-        this._orgId = 0;
+        this._reset();
         for (let i = 0; i < __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgStartAmount; i++) {
             this._createOrg(world.getFreePos());
         }
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('Population has created');
+    }
+
+    _reset() {
+        this._orgId      = 0;
+        this._maxEnergy  = 0;
+        this._maxChanges = 0;
     }
 
     _onAfterMove(x1, y1, x2, y2, org) {
@@ -2595,22 +2981,23 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
          * {Function} Callback, which is called on every organism
          * code iteration. On it's end.
          */
-        this._onCodeEnd = codeEndCb;
-        this._classMap  = classMap;
+        this._onCodeEnd   = codeEndCb;
+        this._classMap    = classMap;
         /**
          * {Array} Array of two numbers. first - line number where we have
          * to return if first line appears. second - line number, where ends
          * closing block '}' of for or if operator.
          */
-        this._offsets   = [];
-        this._vars      = vars && vars.slice() || this._getVars();
+        this._offsets     = [];
+        this._vars        = vars && vars.slice() || this._getVars();
         /**
          * {Array} Array of offsets for closing braces. For 'for', 'if'
          * and all block operators.
          */
-        this._operators = new this._classMap[__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeOperatorsCls](this._offsets, this._vars, org);
-        this._code      = [];
-        this._line      = 0;
+        this._operators   = new this._classMap[__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeOperatorsCls](this._offsets, this._vars, org);
+        this._code        = [];
+        this._line        = 0;
+        this._fitnessMode = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeFitnessCls !== null;
     }
 
     get code() {return this._code;}
@@ -2623,7 +3010,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
         let code    = this._code;
         let lines   = code.length;
         let len     = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeYieldPeriod || lines;
-        let fitMode = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeFitnessCls !== null;
+        let fitMode = this._fitnessMode;
         let ops     = this._operators.operators;
         let getOp   = __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].getOperator;
         let ret     = false;
@@ -2639,10 +3026,10 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
             }
             if (line >= lines) {
                 line = 0;
-                this._offsets.length = 0;
-				if (this._onCodeEnd) {
+                offs.length = 0;
+                if (this._onCodeEnd) {
                     this._onCodeEnd();
-				}
+                }
                 if (fitMode) {break}
             }
         }
@@ -2682,7 +3069,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
         if (start1 > end1) {[start1, end1] = [end1, start1];}
 
         adds = Math.abs(end1 - start1 - end + start);
-        if (__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeFitnessCls !== null && this._code.length + adds >= __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeMaxSize) {return 0}
+        if (this._fitnessMode && this._code.length + adds >= __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeMaxSize) {return 0}
         this._code.splice.apply(this._code, [start, end - start].concat(code.code.slice(start1, end1)));
         this._reset();
 
@@ -2830,8 +3217,8 @@ class Code2String {
         __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].setOperatorAmount(this._OPERATORS_CB_LEN);
     }
 
-	destroy() {
-	}
+    destroy() {
+    }
 
     format(code, separator = '\n') {
         const len       = code.length;
@@ -3033,9 +3420,9 @@ class Code2StringGarmin {
         __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].setOperatorAmount(this._OPERATORS_CB_LEN);
     }
 
-	destroy() {
+    destroy() {
         this._offsets = null;
-	}
+    }
 
     format(code, separator = '\n') {
         const len       = code.length;
@@ -5364,7 +5751,6 @@ class Operators {
         return line + 1;
     }
 
-
     _eat(org, num, x, y) {
         const vars   = this._vars;
         const amount = vars[VAR1(num)];
@@ -5712,6 +6098,12 @@ class Canvas {
 
 
 
+/**
+ * {Number} Amount of attempts for finding free place in a world.
+ * The same like this.getDot(x, y) === 0
+ */
+const FREE_DOT_ATTEMPTS = 300;
+
 class World extends __WEBPACK_IMPORTED_MODULE_0__global_Observer__["a" /* default */] {
     constructor (width, height) {
         super();
@@ -5760,15 +6152,11 @@ class World extends __WEBPACK_IMPORTED_MODULE_0__global_Observer__["a" /* defaul
         const rand   = __WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand;
         const width  = this._width;
         const height = this._height;
-        let   x      = Math.ceil(width / 2);
-        let   y      = Math.ceil(height / 2);
-        let   i      = width * height < 1000 ? 100 : width * height / 10;
+        let   i      = FREE_DOT_ATTEMPTS;
+        let   x;
+        let   y;
 
-        while (this.getDot(x, y) > 0 && i > 0) {
-            x = rand(width);
-            y = rand(height);
-            i -= 1;
-        }
+        while (this.getDot(x = rand(width), y = rand(height)) > 0 && i-- > 0) {}
 
         return i > 0 ? {x: x, y: y} : false
     }
@@ -5786,9 +6174,9 @@ class World extends __WEBPACK_IMPORTED_MODULE_0__global_Observer__["a" /* defaul
         ];
 
         for (let i = 0, j = 0; i < 8; i++) {
-            x = positions[j];
-            y = positions[j + 1];
-            if (this.getDot(x, y) === 0) {return {x: x, y: y};}
+            if (this.getDot(positions[j], positions[j + 1]) === 0) {
+                return {x: positions[j], y: positions[j + 1]};
+            }
             j += 2;
         }
 

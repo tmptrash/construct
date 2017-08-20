@@ -21,6 +21,12 @@ import Observer from './../global/Observer';
 import Helper   from './../global/Helper';
 import Events   from './../global/Events';
 
+/**
+ * {Number} Amount of attempts for finding free place in a world.
+ * The same like this.getDot(x, y) === 0
+ */
+const FREE_DOT_ATTEMPTS = 300;
+
 export default class World extends Observer {
     constructor (width, height) {
         super();
@@ -69,15 +75,11 @@ export default class World extends Observer {
         const rand   = Helper.rand;
         const width  = this._width;
         const height = this._height;
-        let   x      = Math.ceil(width / 2);
-        let   y      = Math.ceil(height / 2);
-        let   i      = width * height < 1000 ? 100 : width * height / 10;
+        let   i      = FREE_DOT_ATTEMPTS;
+        let   x;
+        let   y;
 
-        while (this.getDot(x, y) > 0 && i > 0) {
-            x = rand(width);
-            y = rand(height);
-            i -= 1;
-        }
+        while (this.getDot(x = rand(width), y = rand(height)) > 0 && i-- > 0) {}
 
         return i > 0 ? {x: x, y: y} : false
     }
@@ -95,9 +97,9 @@ export default class World extends Observer {
         ];
 
         for (let i = 0, j = 0; i < 8; i++) {
-            x = positions[j];
-            y = positions[j + 1];
-            if (this.getDot(x, y) === 0) {return {x: x, y: y};}
+            if (this.getDot(positions[j], positions[j + 1]) === 0) {
+                return {x: positions[j], y: positions[j + 1]};
+            }
             j += 2;
         }
 

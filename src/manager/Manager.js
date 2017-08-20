@@ -37,9 +37,9 @@ import FitnessGarmin     from './../organism/FitnessGarmin';
  */
 const CLASS_MAP = {
     Operators        : Operators,
-	OperatorsGarmin  : OperatorsGarmin,
+    OperatorsGarmin  : OperatorsGarmin,
     Code2String      : Code2String,
-	Code2StringGarmin: Code2StringGarmin,
+    Code2StringGarmin: Code2StringGarmin,
     FitnessGarmin    : FitnessGarmin
 };
 /**

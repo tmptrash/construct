@@ -29,9 +29,6 @@ export default class Organisms {
         this._stamp         = Date.now();
         this._manager       = manager;
         this._positions     = {};
-        this._orgId         = 0;
-        this._maxEnergy     = 0;
-        this._maxChanges    = 0;
         this._code2Str      = new manager.CLASS_MAP[Config.code2StringCls];
         this._onIterationCb = this._onIteration.bind(this);
         this._onAfterMoveCb = this._onAfterMove.bind(this);
@@ -39,6 +36,7 @@ export default class Organisms {
         this._fitnessMode   = Config.codeFitnessCls !== null;
         this._FITNESS_CLS   = manager.CLASS_MAP[Config.codeFitnessCls];
 
+        this._reset();
         Helper.override(manager, 'onIteration', this._onIterationCb);
         Helper.override(manager, 'onAfterMove', this._onAfterMoveCb);
         //
@@ -205,11 +203,10 @@ export default class Organisms {
         let fit;
 
         if (org.lastEnergy < org.energy) {
-            fit = org.fitness() * Config.orgIncreaseCoef;
+            fit = org.fitness() * Config.orgEnergyIncreaseCoef;
         } else {
             fit = org.fitness();
         }
-        org.lastEnergy = org.energy;
 
         return fit;
     }
@@ -246,11 +243,17 @@ export default class Organisms {
     _createPopulation() {
         const world = this._manager.world;
 
-        this._orgId = 0;
+        this._reset();
         for (let i = 0; i < Config.orgStartAmount; i++) {
             this._createOrg(world.getFreePos());
         }
         Console.warn('Population has created');
+    }
+
+    _reset() {
+        this._orgId      = 0;
+        this._maxEnergy  = 0;
+        this._maxChanges = 0;
     }
 
     _onAfterMove(x1, y1, x2, y2, org) {

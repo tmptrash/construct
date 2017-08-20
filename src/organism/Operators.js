@@ -225,7 +225,6 @@ export default class Operators {
         return line + 1;
     }
 
-
     _eat(org, num, x, y) {
         const vars   = this._vars;
         const amount = vars[VAR1(num)];

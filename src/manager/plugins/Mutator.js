@@ -32,7 +32,7 @@ export default class Mutator {
             this._onAmount,
             this._onProbs,
             this._onCloneEnergyPercent
-        ]
+        ];
 
         manager.on(Events.ORGANISM, this._onOrganism.bind(this));
         manager.on(Events.CLONE, this._onCloneOrg.bind(this));

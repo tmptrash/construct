@@ -26,7 +26,7 @@ export default class Energy {
     _onIteration(counter) {
         if (counter % this._checkPeriod === 0 && this._checkPeriod > 0) {
             if (counter === 0) {
-                this._updateEnergy(Config.worldStartEnergyDots, Config.worldStartEnergyInDot);
+                this._updateEnergy(Config.worldEnergyDots, Config.worldEnergyInDot);
                 return;
             }
             let   energy = 0;
@@ -41,7 +41,7 @@ export default class Energy {
             }
 
             if (energy * 100 / (width * height) <= Config.worldEnergyCheckPercent) {
-                this._updateEnergy(Config.worldStartEnergyDots, Config.worldStartEnergyInDot);
+                this._updateEnergy(Config.worldEnergyDots, Config.worldEnergyInDot);
             }
         }
     }
