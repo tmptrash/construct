@@ -5738,7 +5738,7 @@ class Operators {
     _eat(org, num, x, y) {
         const vars   = this._vars;
         const amount = vars[VAR1(num)];
-        if (!IS_NUM(amount)) {return 0}
+        if (!IS_NUM(amount) || amount === 0) {return 0}
 
         let ret = {ret: amount};
         this._obs.fire(__WEBPACK_IMPORTED_MODULE_1__global_Events__["a" /* default */].EAT, org, x, y, ret);

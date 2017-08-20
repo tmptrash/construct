@@ -228,7 +228,7 @@ export default class Operators {
     _eat(org, num, x, y) {
         const vars   = this._vars;
         const amount = vars[VAR1(num)];
-        if (!IS_NUM(amount)) {return 0}
+        if (!IS_NUM(amount) || amount === 0) {return 0}
 
         let ret = {ret: amount};
         this._obs.fire(Events.EAT, org, x, y, ret);
