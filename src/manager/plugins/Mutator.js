@@ -55,7 +55,7 @@ export default class Mutator {
         const code      = org.code;
         const probIndex = Helper.probIndex;
         const mTypes    = this._MUTATION_TYPES;
-        let   mutations = Math.round(code.size * org.mutationPercent) || 1;
+        let   mutations = Math.round(code.size * (clone ? org.mutationClonePercent : org.mutationPercent)) || 1;
         let   type;
 
         for (let i = 0; i < mutations; i++) {
