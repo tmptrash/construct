@@ -47,7 +47,7 @@ const Config = {
      *     clonePeriod  - Probability of change clone energy percent value
      * ]
      */
-    orgMutationProbs: [50,80,20,100,1,1,1,1,1],
+    orgMutationProbs: [50,80,10,100,10,10,10,10,10],
     /**
      * {Number} Max value, which we may use in orgMutationProbs array.
      */
@@ -65,13 +65,13 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
      */
-    orgCrossoverPeriod: 200,
+    orgCrossoverPeriod: 10,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 300,
+    orgRainMutationPeriod: 100,
     /**
      * {Number} Value, which will be used like amount of mutations per
      * orgRainMutationPeriod iterations. 0 is a possible value if
@@ -121,12 +121,6 @@ const Config = {
      */
     orgCloneEnergyPercent: 0.5,
     /**
-     * {Number} This value will be used for multiplying it on organism energy
-     * in case if it (energy) was increased from the moment of last tournament.
-     * This is how we support mutations, which increase organism's energy
-     */
-    orgEnergyIncreaseCoef: 3,
-    /**
      * {Number} Maximum amount of arguments in custom functions. Minimum 1. Maximum
      * <= amount of default variables.
      */
@@ -166,7 +160,7 @@ const Config = {
      * locking of threads. Set this value to value bigger then code size, then
      * entire code of organism will be run
      */
-    codeYieldPeriod: 1,
+    codeYieldPeriod: 3,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain
@@ -218,12 +212,12 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 10000,
+    worldMaxOrgs: 5000,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
      */
-    worldEnergyDots: 10000,
+    worldEnergyDots: 1000,
     /**
      * {Number} Amount of energy in every block. See worldEnergyDots
      * config for details.
@@ -242,7 +236,7 @@ const Config = {
      * amount. Works in pair with worldEnergyCheckPercent. May be 0 if
      * you want to disable it
      */
-    worldEnergyCheckPeriod: 500,
+    worldEnergyCheckPeriod: 200,
     /**
      * {Number} World scaling. Today monitors pixel are so small, so we have
      * to zoom them with a coefficient.
