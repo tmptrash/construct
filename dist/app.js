@@ -1450,7 +1450,7 @@ class Number {
      * @param {Number} amount
      */
     static setOperatorAmount(amount) {
-        this._operatorsCls = amount;
+        this._operatorsAmount = amount;
     }
 
     /**
@@ -1460,7 +1460,7 @@ class Number {
      */
     static get() {
         const rand = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand;
-        return (rand(this._operatorsCls) << (VAR_BITS_OFFS) | rand(NO_OPERATOR_MASK)) >>> 0;
+        return (rand(this._operatorsAmount) << (VAR_BITS_OFFS) | rand(NO_OPERATOR_MASK)) >>> 0;
     }
 
     static getOperator(num) {
@@ -2874,13 +2874,13 @@ const PERIOD = 10000;
         const sips      = ('ips:' + (this._ips      / amount).toFixed(this._ips  / amount < 10 ? 2 : 0)).padEnd(9);
         const slps      = ('lps:' + (this._runLines / amount).toFixed()).padEnd(14);
         const sorgs     = ('org:' + (orgAmount).toFixed()).padEnd(10);
-        const senergy   = ('nrg:' + ((this._energy   / amount) / orgAmount).toFixed()).padEnd(11);
-        const schanges  = ('che:' + ((((this._changes  / amount) / orgAmount) / this._runLines) * 1000).toFixed(3)).padEnd(10);
+        const senergy   = ('nrg:' + ((this._energy   / amount) / orgAmount).toFixed()).padEnd(12);
+        const schanges  = ('che:' + ((((this._changes  / amount) / orgAmount) / this._runLines) * 1000000).toFixed(3)).padEnd(12);
         const sfit      = ('fit:' + ((((this._fitness  / amount) / orgAmount) / this._runLines) * 10).toFixed(3)).padEnd(12);
         const scode     = ('cod:' + ((this._codeSize / amount) / orgAmount).toFixed(1)).padEnd(12);
 
         console.log(`%c${sips}${slps}${sorgs}%c${senergy}${schanges}${sfit}${scode}`, GREEN, RED);
-        this._manager.canvas.text(5, 15, sips)
+        this._manager.canvas.text(5, 15, sips);
         this._onAfterIps(stamp);
     }
 

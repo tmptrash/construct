@@ -31,7 +31,7 @@ export default class Number {
      * @param {Number} amount
      */
     static setOperatorAmount(amount) {
-        this._operatorsCls = amount;
+        this._operatorsAmount = amount;
     }
 
     /**
@@ -41,7 +41,7 @@ export default class Number {
      */
     static get() {
         const rand = Helper.rand;
-        return (rand(this._operatorsCls) << (VAR_BITS_OFFS) | rand(NO_OPERATOR_MASK)) >>> 0;
+        return (rand(this._operatorsAmount) << (VAR_BITS_OFFS) | rand(NO_OPERATOR_MASK)) >>> 0;
     }
 
     static getOperator(num) {
