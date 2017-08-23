@@ -9,7 +9,7 @@ const QUIET_ALL               = 0;
 const QUIET_IMPORTANT         = 1;
 const QUIET_NO                = 2;
 
-const ORG_MAX_MUTATION_PERIOD = 1000;
+const ORG_MAX_MUTATION_PERIOD = 10000;
 const ORG_FIRST_COLOR         = 1;
 const ORG_MAX_COLOR           = Number.MAX_SAFE_INTEGER;
 
@@ -56,7 +56,7 @@ const Config = {
      * {Number} Percent of mutations from code size, which will be applied to
      * organism after cloning. Should be <= 1.0
      */
-    orgCloneMutation: 0.01,
+    orgCloneMutationPercent: 0.01,
     /**
      * {Number} Amount of iterations before cloning process
      */
@@ -65,13 +65,13 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
      */
-    orgCrossoverPeriod: 200,
+    orgCrossoverPeriod: 500,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 300,
+    orgRainMutationPeriod: 0,
     /**
      * {Number} Value, which will be used like amount of mutations per
      * orgRainMutationPeriod iterations. 0 is a possible value if
@@ -160,7 +160,7 @@ const Config = {
      * locking of threads. Set this value to value bigger then code size, then
      * entire code of organism will be run
      */
-    codeYieldPeriod: 3,
+    codeYieldPeriod: 5,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain
@@ -212,7 +212,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 5000,
+    worldMaxOrgs: 2000,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
@@ -434,7 +434,7 @@ export default Config;
 //      * {Number} Percent of mutations from code size, which will be applied to
 //      * organism after cloning. Should be <= 1.0
 //      */
-//     orgCloneMutation: 0.01,
+//     orgCloneMutationPercent: 0.01,
 //     /**
 //      * {Number} Amount of iterations before cloning process
 //      */
@@ -818,7 +818,7 @@ export default Config;
 //      * {Number} Percent of mutations from code size, which will be applied to
 //      * organism after cloning. Should be <= 1.0
 //      */
-//     orgCloneMutation: 0.01,
+//     orgCloneMutationPercent: 0.01,
 //     /**
 //      * {Number} Amount of iterations before clonning process
 //      */

@@ -82,7 +82,7 @@ const QUIET_ALL               = 0;
 const QUIET_IMPORTANT         = 1;
 const QUIET_NO                = 2;
 
-const ORG_MAX_MUTATION_PERIOD = 1000;
+const ORG_MAX_MUTATION_PERIOD = 10000;
 const ORG_FIRST_COLOR         = 1;
 const ORG_MAX_COLOR           = Number.MAX_SAFE_INTEGER;
 
@@ -129,7 +129,7 @@ const Config = {
      * {Number} Percent of mutations from code size, which will be applied to
      * organism after cloning. Should be <= 1.0
      */
-    orgCloneMutation: 0.01,
+    orgCloneMutationPercent: 0.01,
     /**
      * {Number} Amount of iterations before cloning process
      */
@@ -138,13 +138,13 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
      */
-    orgCrossoverPeriod: 200,
+    orgCrossoverPeriod: 500,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 300,
+    orgRainMutationPeriod: 0,
     /**
      * {Number} Value, which will be used like amount of mutations per
      * orgRainMutationPeriod iterations. 0 is a possible value if
@@ -233,7 +233,7 @@ const Config = {
      * locking of threads. Set this value to value bigger then code size, then
      * entire code of organism will be run
      */
-    codeYieldPeriod: 3,
+    codeYieldPeriod: 5,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain
@@ -285,7 +285,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 5000,
+    worldMaxOrgs: 2000,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
@@ -507,7 +507,7 @@ const Config = {
 //      * {Number} Percent of mutations from code size, which will be applied to
 //      * organism after cloning. Should be <= 1.0
 //      */
-//     orgCloneMutation: 0.01,
+//     orgCloneMutationPercent: 0.01,
 //     /**
 //      * {Number} Amount of iterations before cloning process
 //      */
@@ -891,7 +891,7 @@ const Config = {
 //      * {Number} Percent of mutations from code size, which will be applied to
 //      * organism after cloning. Should be <= 1.0
 //      */
-//     orgCloneMutation: 0.01,
+//     orgCloneMutationPercent: 0.01,
 //     /**
 //      * {Number} Amount of iterations before clonning process
 //      */
@@ -1661,7 +1661,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     get mutationProbs()         {return this._mutationProbs}
     get mutationPeriod()        {return this._mutationPeriod}
     get mutationPercent()       {return this._mutationPercent}
-    get mutationClonePercent()  {return this._mutationClonePercent}
+    get cloneMutationPercent()  {return this._cloneMutationPercent}
     get changes()               {return this._changes}
     get energy()                {return this._energy}
     get color()                 {return this._color}
@@ -1673,7 +1673,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 
     set x(newX)                 {this._x = newX}
     set y(newY)                 {this._y = newY}
-    set mutationClonePercent(m) {this._mutationClonePercent = m}
+    set cloneMutationPercent(m) {this._cloneMutationPercent = m}
     set mutationPeriod(m)       {this._mutationPeriod = m}
     set mutationPercent(p)      {this._mutationPercent = p}
     set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p}
@@ -1736,7 +1736,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
         this._energy                = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartEnergy;
         this._color                 = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgStartColor;
         this._mutationProbs         = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgMutationProbs;
-        this._mutationClonePercent  = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgCloneMutation;
+        this._cloneMutationPercent  = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgCloneMutationPercent;
         this._mutationPeriod        = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgRainMutationPeriod;
         this._mutationPercent       = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgRainMutationPercent;
         this._cloneEnergyPercent    = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].orgCloneEnergyPercent;
@@ -1749,7 +1749,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
         this._energy                = parent.energy;
         this._color                 = parent.color;
         this._mutationProbs         = parent.mutationProbs.slice();
-        this._mutationClonePercent  = parent.mutationClonePercent;
+        this._cloneMutationPercent  = parent.cloneMutationPercent;
         this._mutationPeriod        = parent.mutationPeriod;
         this._mutationPercent       = parent.mutationPercent;
         this._cloneEnergyPercent    = parent.cloneEnergyPercent;
@@ -2189,7 +2189,7 @@ class Backup {
                 x                   : org.x,
                 y                   : org.y,
                 mutationProbs       : org.mutationProbs,
-                mutationClonePercent: org.mutationClonePercent,
+                cloneMutationPercent: org.cloneMutationPercent,
                 mutationPeriod      : org.mutationPeriod,
                 mutationPercent     : org.mutationPercent,
                 color               : org.color,
@@ -2391,21 +2391,21 @@ class Mutator {
     }
 
     _onCloneOrg(parent, child) {
-        if (child.energy > 0) {this._mutate(child);}
+        if (child.energy > 0 && __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgCloneMutationPercent > 0) {this._mutate(child);}
     }
 
     _mutate(org, clone = true) {
         const code      = org.code;
         const probIndex = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].probIndex;
         const mTypes    = this._MUTATION_TYPES;
-        let   mutations = Math.round(code.size * (clone ? org.mutationClonePercent : org.mutationPercent)) || 1;
+        let   mutations = Math.round(code.size * (clone ? org.cloneMutationPercent : org.mutationPercent)) || 1;
         let   type;
 
         for (let i = 0; i < mutations; i++) {
             type = code.size < 1 ? 0 : probIndex(org.mutationProbs);
-            org.changes++;
             mTypes[type](org);
         }
+        org.changes += mutations;
         this._manager.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["a" /* default */].MUTATIONS, org, mutations, clone);
 
         return mutations;
@@ -2447,7 +2447,7 @@ class Mutator {
     }
 
     _onClone(org) {
-        org.mutationClonePercent = Math.random();
+        org.cloneMutationPercent = Math.random();
     }
 
     _onPeriod(org) {
@@ -2574,7 +2574,7 @@ class Organisms {
         if (this._fitnessMode) {
             if (org.energy > this._maxEnergy) {
                 this._maxEnergy = org.energy;
-                __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('--------------------------------------------------')
+                __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('--------------------------------------------------');
                 __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('Max energy: ', org.energy, ', org Id: ', org.id);
                 __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('[' + org.code.code + ']');
                 __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn(this._manager.api.formatCode(org.code.code));
@@ -2586,7 +2586,7 @@ class Organisms {
 
     _onStop(org) {
         this._manager.stop();
-        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('--------------------------------------------------')
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('--------------------------------------------------');
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('org id: ', org.id, ', energy: ', org.energy);
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('[' + org.code.code + ']');
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn(this._manager.api.formatCode(org.code.code));
@@ -2869,7 +2869,7 @@ const PERIOD = 10000;
         const slps      = ('lps:' + (this._runLines / amount).toFixed()).padEnd(14);
         const sorgs     = ('org:' + (orgAmount).toFixed()).padEnd(10);
         const senergy   = ('nrg:' + ((((this._energy   / amount) / orgAmount) / this._runLines) * 1000).toFixed(3)).padEnd(14);
-        const schanges  = ('che:' + ((((this._changes  / amount) / orgAmount) / this._runLines) * 1000).toFixed(3)).padEnd(12);
+        const schanges  = ('che:' + ((((this._changes  / amount) / orgAmount) / this._runLines) * 100000).toFixed(3)).padEnd(12);
         const sfit      = ('fit:' + ((((this._fitness  / amount) / orgAmount) / this._runLines) * 1000).toFixed(3)).padEnd(12);
         const scode     = ('cod:' + ((this._codeSize / amount) / orgAmount).toFixed(1)).padEnd(12);
 

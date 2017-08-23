@@ -48,21 +48,21 @@ export default class Mutator {
     }
 
     _onCloneOrg(parent, child) {
-        if (child.energy > 0) {this._mutate(child);}
+        if (child.energy > 0 && Config.orgCloneMutationPercent > 0) {this._mutate(child);}
     }
 
     _mutate(org, clone = true) {
         const code      = org.code;
         const probIndex = Helper.probIndex;
         const mTypes    = this._MUTATION_TYPES;
-        let   mutations = Math.round(code.size * (clone ? org.mutationClonePercent : org.mutationPercent)) || 1;
+        let   mutations = Math.round(code.size * (clone ? org.cloneMutationPercent : org.mutationPercent)) || 1;
         let   type;
 
         for (let i = 0; i < mutations; i++) {
             type = code.size < 1 ? 0 : probIndex(org.mutationProbs);
-            org.changes++;
             mTypes[type](org);
         }
+        org.changes += mutations;
         this._manager.fire(Events.MUTATIONS, org, mutations, clone);
 
         return mutations;
@@ -104,7 +104,7 @@ export default class Mutator {
     }
 
     _onClone(org) {
-        org.mutationClonePercent = Math.random();
+        org.cloneMutationPercent = Math.random();
     }
 
     _onPeriod(org) {

@@ -40,7 +40,7 @@ export default class Backup {
                 x                   : org.x,
                 y                   : org.y,
                 mutationProbs       : org.mutationProbs,
-                mutationClonePercent: org.mutationClonePercent,
+                cloneMutationPercent: org.cloneMutationPercent,
                 mutationPeriod      : org.mutationPeriod,
                 mutationPercent     : org.mutationPercent,
                 color               : org.color,

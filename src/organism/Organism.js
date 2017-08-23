@@ -61,7 +61,7 @@ export default class Organism extends Observer {
     get mutationProbs()         {return this._mutationProbs}
     get mutationPeriod()        {return this._mutationPeriod}
     get mutationPercent()       {return this._mutationPercent}
-    get mutationClonePercent()  {return this._mutationClonePercent}
+    get cloneMutationPercent()  {return this._cloneMutationPercent}
     get changes()               {return this._changes}
     get energy()                {return this._energy}
     get color()                 {return this._color}
@@ -73,7 +73,7 @@ export default class Organism extends Observer {
 
     set x(newX)                 {this._x = newX}
     set y(newY)                 {this._y = newY}
-    set mutationClonePercent(m) {this._mutationClonePercent = m}
+    set cloneMutationPercent(m) {this._cloneMutationPercent = m}
     set mutationPeriod(m)       {this._mutationPeriod = m}
     set mutationPercent(p)      {this._mutationPercent = p}
     set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p}
@@ -136,7 +136,7 @@ export default class Organism extends Observer {
         this._energy                = Config.orgStartEnergy;
         this._color                 = Config.orgStartColor;
         this._mutationProbs         = Config.orgMutationProbs;
-        this._mutationClonePercent  = Config.orgCloneMutation;
+        this._cloneMutationPercent  = Config.orgCloneMutationPercent;
         this._mutationPeriod        = Config.orgRainMutationPeriod;
         this._mutationPercent       = Config.orgRainMutationPercent;
         this._cloneEnergyPercent    = Config.orgCloneEnergyPercent;
@@ -149,7 +149,7 @@ export default class Organism extends Observer {
         this._energy                = parent.energy;
         this._color                 = parent.color;
         this._mutationProbs         = parent.mutationProbs.slice();
-        this._mutationClonePercent  = parent.mutationClonePercent;
+        this._cloneMutationPercent  = parent.cloneMutationPercent;
         this._mutationPeriod        = parent.mutationPeriod;
         this._mutationPercent       = parent.mutationPercent;
         this._cloneEnergyPercent    = parent.cloneEnergyPercent;

@@ -91,7 +91,7 @@ export default class Organisms {
         if (this._fitnessMode) {
             if (org.energy > this._maxEnergy) {
                 this._maxEnergy = org.energy;
-                Console.warn('--------------------------------------------------')
+                Console.warn('--------------------------------------------------');
                 Console.warn('Max energy: ', org.energy, ', org Id: ', org.id);
                 Console.warn('[' + org.code.code + ']');
                 Console.warn(this._manager.api.formatCode(org.code.code));
@@ -103,7 +103,7 @@ export default class Organisms {
 
     _onStop(org) {
         this._manager.stop();
-        Console.warn('--------------------------------------------------')
+        Console.warn('--------------------------------------------------');
         Console.warn('org id: ', org.id, ', energy: ', org.energy);
         Console.warn('[' + org.code.code + ']');
         Console.warn(this._manager.api.formatCode(org.code.code));
