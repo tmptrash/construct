@@ -9,13 +9,13 @@
  *
  * @author DeadbraiN
  */
-import Helper      from './../../global/Helper';
-import Config      from './../../global/Config';
-import Console     from './../../global/Console';
-import Events      from './../../global/Events';
-import Queue       from './../../global/Queue';
-import Organism    from './../../organism/Organism';
-import Backup      from './Backup';
+import Helper         from './../../global/Helper';
+import Config         from './../../global/Config';
+import Console        from './../../global/Console';
+import {EVENTS}       from './../../global/Events';
+import Queue          from './../../global/Queue';
+import Organism       from './../../organism/Organism';
+import Backup         from './Backup';
 
 const EMPTY    = 0;
 const ENERGY   = 1;
@@ -76,7 +76,7 @@ export default class Organisms {
         while (item && (org = item.val)) {
             org.run();
             this._onOrganism(org);
-            man.fire(Events.ORGANISM, org);
+            man.fire(EVENTS.ORGANISM, org);
             item = item.next;
         }
 
@@ -167,7 +167,7 @@ export default class Organisms {
         const orgs = this._orgs.size;
         let   ips  = this._codeRuns / orgs / (ts / 1000);
 
-        man.fire(Events.IPS, ips, this._orgs);
+        man.fire(EVENTS.IPS, ips, this._orgs);
         this._codeRuns = 0;
         this._stamp = stamp;
     }
@@ -223,7 +223,7 @@ export default class Organisms {
             org.grabEnergy(energy);
             child.grabEnergy(child.energy - energy);
         }
-        this._manager.fire(Events.CLONE, org, child);
+        this._manager.fire(EVENTS.CLONE, org, child);
 
         return true;
     }
@@ -254,13 +254,13 @@ export default class Organisms {
     }
 
     _addHandlers(org) {
-        org.on(Events.DESTROY, this._onKillOrg.bind(this));
-        org.on(Events.GET_ENERGY, this._onGetEnergy.bind(this));
-        org.on(Events.EAT, this._onEat.bind(this));
-        org.on(Events.STEP, this._onStep.bind(this));
-        org.on(Events.CHECK_AT, this._onCheckAt.bind(this));
+        org.on(EVENTS.DESTROY, this._onKillOrg.bind(this));
+        org.on(EVENTS.GET_ENERGY, this._onGetEnergy.bind(this));
+        org.on(EVENTS.EAT, this._onEat.bind(this));
+        org.on(EVENTS.STEP, this._onStep.bind(this));
+        org.on(EVENTS.CHECK_AT, this._onCheckAt.bind(this));
         if (this._fitnessMode) {
-            org.on(Events.STOP, this._onStop.bind(this));
+            org.on(EVENTS.STOP, this._onStop.bind(this));
         }
     }
 
@@ -320,7 +320,7 @@ export default class Organisms {
         this._addHandlers(org);
         this._manager.move(pos.x, pos.y, pos.x, pos.y, org);
         this._positions[org.posId] = org;
-        this._manager.fire(Events.BORN_ORGANISM, org);
+        this._manager.fire(EVENTS.BORN_ORGANISM, org);
         Console.info(org.id, ' born');
 
         return true;
@@ -330,7 +330,7 @@ export default class Organisms {
         this._orgs.del(org.item);
         this._manager.world.setDot(org.x, org.y, 0);
         delete this._positions[org.posId];
-        this._manager.fire(Events.KILL_ORGANISM, org);
+        this._manager.fire(EVENTS.KILL_ORGANISM, org);
         Console.info(org.id, ' die');
     }
 }

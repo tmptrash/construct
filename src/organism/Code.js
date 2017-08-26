@@ -7,15 +7,16 @@
  * TODO: think about custom operators callbacks from outside. This is how
  * TODO: we may solve custom tasks
  */
-import Config      from './../global/Config';
-import Helper      from './../global/Helper';
-import Observer    from './../global/Observer'
-import Events      from './../global/Events';
-import Num         from './Num';
+import Config         from './../global/Config';
+import Helper         from './../global/Helper';
+import Observer       from './../global/Observer'
+import {EVENTS}       from './../global/Events';
+import {EVENT_AMOUNT} from './../global/Events';
+import Num            from './Num';
 
 export default class Code extends Observer {
     constructor(codeEndCb, org, classMap, vars = null) {
-        super();
+        super(EVENT_AMOUNT);
 
         /**
          * {Function} Callback, which is called on every organism
@@ -151,7 +152,7 @@ export default class Code extends Observer {
     }
 
     _reset() {
-        this.fire(Events.RESET_CODE);
+        this.fire(EVENTS.RESET_CODE);
         this._line           = 0;
         this._offsets.length = 0;
     }

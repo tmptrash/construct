@@ -4,11 +4,12 @@
  * TODO:   -
  * @author DeadbraiN
  */
-import Config    from './../global/Config';
-import Observer  from './../global/Observer';
-import Events    from './../global/Events';
-import Helper    from './../global/Helper';
-import Code      from './Code';
+import Config         from './../global/Config';
+import Observer       from './../global/Observer';
+import {EVENTS}       from './../global/Events';
+import {EVENT_AMOUNT} from './../global/Events';
+import Helper         from './../global/Helper';
+import Code           from './Code';
 
 const IS_NUM = $.isNumeric;
 
@@ -29,7 +30,7 @@ export default class Organism extends Observer {
      * @param {Organism} parent Parent organism if cloning is needed
      */
     constructor(id, x, y, alive, item, codeEndCb, classMap, parent = null) {
-        super();
+        super(EVENT_AMOUNT);
 
         this._codeEndCb   = codeEndCb;
         this._classMap    = classMap;
@@ -50,7 +51,7 @@ export default class Organism extends Observer {
             this._needRun = true;
         }
 
-        this._code.on(Events.RESET_CODE, this._onResetCode.bind(this));
+        this._code.on(EVENTS.RESET_CODE, this._onResetCode.bind(this));
     }
 
     get id()                    {return this._id}
@@ -93,7 +94,7 @@ export default class Organism extends Observer {
 
         let fitnessCls;
         if (this._fitnessMode && (fitnessCls = Config.codeFitnessCls && this._classMap[Config.codeFitnessCls])) {
-            if (fitnessCls.run(this)) {this.fire(Events.STOP, this)}
+            if (fitnessCls.run(this)) {this.fire(EVENTS.STOP, this)}
             this._needRun = false;
         } else {
             this._code.run(this);
@@ -114,7 +115,7 @@ export default class Organism extends Observer {
     }
 
     destroy() {
-        this.fire(Events.DESTROY, this);
+        this.fire(EVENTS.DESTROY, this);
         this._alive      = false;
         this._energy     = 0;
         this._item       = null;
@@ -193,7 +194,7 @@ export default class Organism extends Observer {
         if (codeSize > Config.codeMaxSize) {grabSize = codeSize * Config.codeSizeCoef;}
         if (grabSize < 1) {grabSize = 1;}
         grabSize = Math.min(this._energy, grabSize);
-        this.fire(Events.GRAB_ENERGY, grabSize);
+        this.fire(EVENTS.GRAB_ENERGY, grabSize);
 
         return this.grabEnergy(grabSize);
     }

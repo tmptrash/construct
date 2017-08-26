@@ -9,11 +9,11 @@
  *
  * @author DeadbraiN
  */
-import Events   from './../../global/Events';
+import {EVENTS} from './../../global/Events';
 import Config   from './../../global/Config';
 import Helper   from './../../global/Helper';
 import Organism from './../../organism/Organism';
-import Num      from '../../organism/Num';
+import Num      from './../../organism/Num';
 
 const VAR_BITS_OFFS = Num.VAR_BITS_OFFS - 1;
 const VARS          = Num.VARS;
@@ -34,8 +34,8 @@ export default class Mutator {
             this._onCloneEnergyPercent
         ];
 
-        manager.on(Events.ORGANISM, this._onOrganism.bind(this));
-        manager.on(Events.CLONE, this._onCloneOrg.bind(this));
+        manager.on(EVENTS.ORGANISM, this._onOrganism.bind(this));
+        manager.on(EVENTS.CLONE, this._onCloneOrg.bind(this));
     }
 
     destroy() {
@@ -63,7 +63,7 @@ export default class Mutator {
             mTypes[type](org);
         }
         org.changes += mutations;
-        this._manager.fire(Events.MUTATIONS, org, mutations, clone);
+        this._manager.fire(EVENTS.MUTATIONS, org, mutations, clone);
 
         return mutations;
     }

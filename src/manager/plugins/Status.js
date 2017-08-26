@@ -3,8 +3,8 @@
  *
  * @author DeadbraiN
  */
-import Events from './../../global/Events';
-import Config from './../../global/Config';
+import {EVENTS} from './../../global/Events';
+import Config   from './../../global/Config';
 
 const GREEN  = 'color: #00aa00';
 const RED    = 'color: #aa0000';
@@ -24,8 +24,8 @@ export default class {
         this._fitness     = 0;
         this._fitnessMode = Config.codeFitnessCls !== null;
 
-        manager.on(Events.IPS, this._onIps.bind(this));
-        manager.on(Events.ORGANISM, this._onOrganism.bind(this));
+        manager.on(EVENTS.IPS, this._onIps.bind(this));
+        manager.on(EVENTS.ORGANISM, this._onOrganism.bind(this));
     }
 
     _onIps(ips, orgs) {
@@ -41,7 +41,7 @@ export default class {
         const sorgs     = ('org:' + (orgAmount).toFixed()).padEnd(10);
         const senergy   = ('nrg:' + ((((this._energy   / amount) / orgAmount) / this._runLines) * 1000).toFixed(3)).padEnd(14);
         const schanges  = ('che:' + ((((this._changes  / amount) / orgAmount) / this._runLines) * 100000).toFixed(3)).padEnd(12);
-        const sfit      = ('fit:' + ((((this._fitness  / amount) / orgAmount) / this._runLines) * 1000).toFixed(3)).padEnd(12);
+        const sfit      = ('fit:' + ((((this._fitness  / amount) / orgAmount) / this._runLines) * 1000).toFixed(3)).padEnd(13);
         const scode     = ('cod:' + ((this._codeSize / amount) / orgAmount).toFixed(1)).padEnd(12);
 
         console.log(`%c${sips}${slps}${sorgs}%c${senergy}${schanges}${sfit}${scode}`, GREEN, RED);

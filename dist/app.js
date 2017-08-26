@@ -1217,6 +1217,63 @@ const Config = {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return EVENTS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return EVENT_AMOUNT; });
+/**
+ * List of all available event ids. New events should be added to
+ * the end of the list.
+ *
+ * @author DeadbraiN
+ * TODO: find unused and remove. But after main code is done.
+ */
+const EVENTS = {
+    YIELD          : 0,
+    ITERATION      : 1,
+    IPS            : 2,
+    REQUEST        : 3,
+    BACKUP         : 4,
+    YIELDTO        : 5,
+    ORGANISM       : 6,
+    GRAB_ENERGY    : 7,
+    UPDATE_ENERGY  : 8,
+    KILL_ORGANISM  : 9,
+    MUTATIONS      : 10,
+    CLONE          : 11,
+    EAT            : 12,
+    STEP           : 13,
+    EAT_ORGANISM   : 14,
+    EAT_ENERGY     : 15,
+    BORN_ORGANISM  : 16,
+    DOT_REQUEST    : 17,
+    STEP_YIELD     : 18,
+    BEFORE_RESPONSE: 19,
+    AFTER_REQUEST  : 20,
+    GET_ENERGY     : 21,
+    PROP_LEFT      : 22,
+    PROP_RIGHT     : 23,
+    PROP_UP        : 24,
+    PROP_DOWN      : 25,
+    DOT            : 26,
+    MOVE           : 27,
+    GRAB_LEFT      : 28,
+    GRAB_RIGHT     : 29,
+    GRAB_UP        : 30,
+    GRAB_DOWN      : 31,
+    DESTROY        : 32,
+    STOP           : 33,
+    RESET_CODE     : 34,
+    CHECK_AT       : 35
+};
+
+const EVENT_AMOUNT = Object.keys(EVENTS).length;
+
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Config__ = __webpack_require__(0);
 /**
  * Global helper class
@@ -1352,64 +1409,11 @@ class Helper {
 
 
 /***/ }),
-/* 2 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/**
- * List of all available event ids. New events should be added to
- * the end of the list.
- *
- * @author DeadbraiN
- * TODO: find unused and remove. But after main code is done.
- */
-const Events = {
-    YIELD: 1,
-    ITERATION: 2,
-    IPS: 3,
-    REQUEST: 4,
-    BACKUP: 5,
-    YIELDTO: 6,
-    ORGANISM: 7,
-    GRAB_ENERGY: 8,
-    UPDATE_ENERGY: 9,
-    KILL_ORGANISM: 10,
-    MUTATIONS: 11,
-    CLONE: 12,
-    EAT: 13,
-    STEP: 17,
-    EAT_ORGANISM: 21,
-    EAT_ENERGY: 22,
-    BORN_ORGANISM: 23,
-    DOT_REQUEST: 24,
-    STEP_YIELD: 25,
-    BEFORE_RESPONSE: 26,
-    AFTER_REQUEST: 27,
-    GET_ENERGY: 28,
-    PROP_LEFT: 29,
-    PROP_RIGHT: 30,
-    PROP_UP: 31,
-    PROP_DOWN: 32,
-    DOT: 33,
-    MOVE: 34,
-    GRAB_LEFT: 35,
-    GRAB_RIGHT: 36,
-    GRAB_UP: 37,
-    GRAB_DOWN: 38,
-    DESTROY: 39,
-    STOP: 40,
-    RESET_CODE: 41,
-    CHECK_AT: 42
-};
-
-/* harmony default export */ __webpack_exports__["a"] = (Events);
-
-/***/ }),
 /* 3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
 /**
  * Class - helper for working with with byte code numbers
@@ -1541,48 +1545,56 @@ class Console {
 "use strict";
 /**
  * Observer implementation. May fire, listen(on()) and clear all the event
- * handlers
+ * handlers. This class is optimized for speed. This is why it works with
+ * array of number as events instead of strings.
  *
  * Usage:
- *   import Events from '.../Events.js'
+ *   import {EVENTS}       from '.../Events.js'
+ *   import {EVENT_AMOUNT} from '.../Events.js'
+ *
  *   let bus = new Observer();
- *   bus.on(Events.EVENT, () => console.log(arguments));
- *   bus.fire(Events.EVENT, 1, 2, 3);
+ *   bus.on(EVENTS.EVENT, () => console.log(arguments));
+ *   bus.fire(EVENTS.EVENT, 1, 2, 3);
  *
  * @author DeadbraiN
  */
 class Observer {
-    constructor() {
-        this._handlers = {};
+    /**
+     * Constructs handlers map
+     * @param {Number} maxIndex Maximum event index, for current instance
+     */
+    constructor(maxIndex) {
+        this._maxIndex = maxIndex;
+        this._resetEvents();
     }
 
     on (event, handler) {
-        (this._handlers[event] || (this._handlers[event] = [])).push(handler);
+        this._handlers[event].push(handler);
     }
 
     off (event, handler) {
         let index;
         let handlers = this._handlers[event];
 
-        if (typeof(handlers) === 'undefined' || (index = this._handlers[event].indexOf(handler)) < 0) {return false;}
-        this._handlers[event].splice(index, 1);
-        if (this._handlers[event].length === 0) {delete this._handlers[event];}
+        if ((index = handlers.indexOf(handler)) < 0) {return false;}
+        handlers.splice(index, 1);
 
         return true;
     }
 
     fire (event, ...args) {
-        let handler;
-        let handlers = this._handlers[event];
-        if (typeof(handlers) === 'undefined') {return false;}
-
-        for (handler of handlers) {handler(...args);}
-
-        return true;
+        let handlers = this._handlers[event] || [];
+        for (let handler of handlers) {handler(...args);}
     }
 
     clear () {
-        this._handlers = null;
+        this._resetEvents();
+    }
+
+    _resetEvents() {
+        const handlers = this._handlers = new Array(this._maxIndex);
+        const len      = handlers.length;
+        for (let i = 0; i < len; i++) {handlers[i] = []}
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Observer;
@@ -1595,8 +1607,8 @@ class Observer {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Code__ = __webpack_require__(16);
 /**
  * TODO: add description:
@@ -1604,6 +1616,7 @@ class Observer {
  * TODO:   -
  * @author DeadbraiN
  */
+
 
 
 
@@ -1629,7 +1642,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
      * @param {Organism} parent Parent organism if cloning is needed
      */
     constructor(id, x, y, alive, item, codeEndCb, classMap, parent = null) {
-        super();
+        super(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* EVENT_AMOUNT */]);
 
         this._codeEndCb   = codeEndCb;
         this._classMap    = classMap;
@@ -1650,7 +1663,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
             this._needRun = true;
         }
 
-        this._code.on(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].RESET_CODE, this._onResetCode.bind(this));
+        this._code.on(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].RESET_CODE, this._onResetCode.bind(this));
     }
 
     get id()                    {return this._id}
@@ -1693,7 +1706,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 
         let fitnessCls;
         if (this._fitnessMode && (fitnessCls = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeFitnessCls && this._classMap[__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeFitnessCls])) {
-            if (fitnessCls.run(this)) {this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].STOP, this)}
+            if (fitnessCls.run(this)) {this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].STOP, this)}
             this._needRun = false;
         } else {
             this._code.run(this);
@@ -1714,7 +1727,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     }
 
     destroy() {
-        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].DESTROY, this);
+        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].DESTROY, this);
         this._alive      = false;
         this._energy     = 0;
         this._item       = null;
@@ -1793,7 +1806,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
         if (codeSize > __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeMaxSize) {grabSize = codeSize * __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].codeSizeCoef;}
         if (grabSize < 1) {grabSize = 1;}
         grabSize = Math.min(this._energy, grabSize);
-        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].GRAB_ENERGY, grabSize);
+        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].GRAB_ENERGY, grabSize);
 
         return this.grabEnergy(grabSize);
     }
@@ -1807,9 +1820,9 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Observer__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Console__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__visual_World__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__visual_Canvas__ = __webpack_require__(22);
@@ -1837,6 +1850,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
  * TODO: what about destroy of manager instance? We have to destroy plugins
  * TODO: by calling of destroy() method for every of them
  */
+
 
 
 
@@ -1892,7 +1906,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* defa
     onAfterMove() {}
 
     constructor() {
-        super();
+        super(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* EVENT_AMOUNT */]);
         this._world      = new __WEBPACK_IMPORTED_MODULE_5__visual_World__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldWidth, __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldHeight);
         this._canvas     = new __WEBPACK_IMPORTED_MODULE_6__visual_Canvas__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldWidth, __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* default */].worldHeight);
         this._plugins    = PLUGINS;
@@ -2015,7 +2029,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* defa
     }
 
     _addHandlers() {
-        this._world.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].DOT, this._onDot.bind(this));
+        this._world.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].DOT, this._onDot.bind(this));
     }
 
     _visualize(visualized = true) {
@@ -2144,7 +2158,7 @@ class Queue {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(4);
 /**
@@ -2259,7 +2273,7 @@ class Config {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(4);
 /**
@@ -2336,9 +2350,9 @@ class Energy {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__organism_Organism__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__organism_Num__ = __webpack_require__(3);
 /**
@@ -2377,8 +2391,8 @@ class Mutator {
             this._onCloneEnergyPercent
         ];
 
-        manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["a" /* default */].ORGANISM, this._onOrganism.bind(this));
-        manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["a" /* default */].CLONE, this._onCloneOrg.bind(this));
+        manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].ORGANISM, this._onOrganism.bind(this));
+        manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].CLONE, this._onCloneOrg.bind(this));
     }
 
     destroy() {
@@ -2406,7 +2420,7 @@ class Mutator {
             mTypes[type](org);
         }
         org.changes += mutations;
-        this._manager.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["a" /* default */].MUTATIONS, org, mutations, clone);
+        this._manager.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].MUTATIONS, org, mutations, clone);
 
         return mutations;
     }
@@ -2474,10 +2488,10 @@ class Mutator {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Queue__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_Organism__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Backup__ = __webpack_require__(10);
@@ -2559,7 +2573,7 @@ class Organisms {
         while (item && (org = item.val)) {
             org.run();
             this._onOrganism(org);
-            man.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].ORGANISM, org);
+            man.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].ORGANISM, org);
             item = item.next;
         }
 
@@ -2650,7 +2664,7 @@ class Organisms {
         const orgs = this._orgs.size;
         let   ips  = this._codeRuns / orgs / (ts / 1000);
 
-        man.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].IPS, ips, this._orgs);
+        man.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].IPS, ips, this._orgs);
         this._codeRuns = 0;
         this._stamp = stamp;
     }
@@ -2706,7 +2720,7 @@ class Organisms {
             org.grabEnergy(energy);
             child.grabEnergy(child.energy - energy);
         }
-        this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].CLONE, org, child);
+        this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].CLONE, org, child);
 
         return true;
     }
@@ -2737,13 +2751,13 @@ class Organisms {
     }
 
     _addHandlers(org) {
-        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].DESTROY, this._onKillOrg.bind(this));
-        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].GET_ENERGY, this._onGetEnergy.bind(this));
-        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].EAT, this._onEat.bind(this));
-        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STEP, this._onStep.bind(this));
-        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].CHECK_AT, this._onCheckAt.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].DESTROY, this._onKillOrg.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].GET_ENERGY, this._onGetEnergy.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].EAT, this._onEat.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].STEP, this._onStep.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].CHECK_AT, this._onCheckAt.bind(this));
         if (this._fitnessMode) {
-            org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].STOP, this._onStop.bind(this));
+            org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].STOP, this._onStop.bind(this));
         }
     }
 
@@ -2803,7 +2817,7 @@ class Organisms {
         this._addHandlers(org);
         this._manager.move(pos.x, pos.y, pos.x, pos.y, org);
         this._positions[org.posId] = org;
-        this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].BORN_ORGANISM, org);
+        this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].BORN_ORGANISM, org);
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].info(org.id, ' born');
 
         return true;
@@ -2813,7 +2827,7 @@ class Organisms {
         this._orgs.del(org.item);
         this._manager.world.setDot(org.x, org.y, 0);
         delete this._positions[org.posId];
-        this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].KILL_ORGANISM, org);
+        this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].KILL_ORGANISM, org);
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].info(org.id, ' die');
     }
 }
@@ -2825,7 +2839,7 @@ class Organisms {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
 /**
  * Shows console status of application
@@ -2853,8 +2867,8 @@ const PERIOD = 10000;
         this._fitness     = 0;
         this._fitnessMode = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].codeFitnessCls !== null;
 
-        manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["a" /* default */].IPS, this._onIps.bind(this));
-        manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["a" /* default */].ORGANISM, this._onOrganism.bind(this));
+        manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].IPS, this._onIps.bind(this));
+        manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].ORGANISM, this._onOrganism.bind(this));
     }
 
     _onIps(ips, orgs) {
@@ -2870,7 +2884,7 @@ const PERIOD = 10000;
         const sorgs     = ('org:' + (orgAmount).toFixed()).padEnd(10);
         const senergy   = ('nrg:' + ((((this._energy   / amount) / orgAmount) / this._runLines) * 1000).toFixed(3)).padEnd(14);
         const schanges  = ('che:' + ((((this._changes  / amount) / orgAmount) / this._runLines) * 100000).toFixed(3)).padEnd(12);
-        const sfit      = ('fit:' + ((((this._fitness  / amount) / orgAmount) / this._runLines) * 1000).toFixed(3)).padEnd(12);
+        const sfit      = ('fit:' + ((((this._fitness  / amount) / orgAmount) / this._runLines) * 1000).toFixed(3)).padEnd(13);
         const scode     = ('cod:' + ((this._codeSize / amount) / orgAmount).toFixed(1)).padEnd(12);
 
         console.log(`%c${sips}${slps}${sorgs}%c${senergy}${schanges}${sfit}${scode}`, GREEN, RED);
@@ -2932,9 +2946,9 @@ const PERIOD = 10000;
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Observer__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Num__ = __webpack_require__(3);
 /**
  * Implements organism's code logic.
@@ -2951,9 +2965,10 @@ const PERIOD = 10000;
 
 
 
+
 class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default */] {
     constructor(codeEndCb, org, classMap, vars = null) {
-        super();
+        super(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* EVENT_AMOUNT */]);
 
         /**
          * {Function} Callback, which is called on every organism
@@ -3089,7 +3104,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     }
 
     _reset() {
-        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* default */].RESET_CODE);
+        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].RESET_CODE);
         this._line           = 0;
         this._offsets.length = 0;
     }
@@ -3124,7 +3139,7 @@ class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Num__ = __webpack_require__(3);
 /**
  * This class is used only for code visualization in readable human like form.
@@ -3338,7 +3353,7 @@ class Code2String {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Num__ = __webpack_require__(3);
 /**
  * This class is used only for code visualization in readable human like form.
@@ -5498,10 +5513,9 @@ class FitnessGarmin {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Events__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Num__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Num__ = __webpack_require__(3);
 /**
  * This file contains all available operators implementation. For example:
  * for, if, variable declaration, steps, eating etc... User may override
@@ -5513,18 +5527,17 @@ class FitnessGarmin {
 
 
 
-
 /**
  * {Function} Just a shortcuts
  */
-const VAR0                  = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar;
-const VAR1                  = (n) => __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(n, 1);
-const VAR2                  = (n) => __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(n, 2);
-const BITS_AFTER_THREE_VARS = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_PER_OPERATOR + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_PER_VAR * 3;
-const BITS_WITHOUT_2_VARS   = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_WITHOUT_2_VARS;
-const BITS_OF_TWO_VARS      = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_OF_TWO_VARS;
+const VAR0                  = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getVar;
+const VAR1                  = (n) => __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getVar(n, 1);
+const VAR2                  = (n) => __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getVar(n, 2);
+const BITS_AFTER_THREE_VARS = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].BITS_PER_OPERATOR + __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].BITS_PER_VAR * 3;
+const BITS_WITHOUT_2_VARS   = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].BITS_WITHOUT_2_VARS;
+const BITS_OF_TWO_VARS      = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].BITS_OF_TWO_VARS;
 const IS_NUM                = $.isNumeric;
-const HALF_OF_VAR           = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].MAX_VAR / 2;
+const HALF_OF_VAR           = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].MAX_VAR / 2;
 
 class Operators {
     constructor(offsets, vars, obs) {
@@ -5586,7 +5599,7 @@ class Operators {
         ];
         //this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
 
-        __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].setOperatorAmount(this._OPERATORS_CB_LEN);
+        __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].setOperatorAmount(this._OPERATORS_CB_LEN);
     }
 
     destroy() {
@@ -5614,7 +5627,7 @@ class Operators {
     onVar(num, line) {
         const vars = this._vars;
         const var1 = VAR1(num);
-        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS) : vars[var1];
+        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS) : vars[var1];
 
         return line + 1;
     }
@@ -5624,8 +5637,8 @@ class Operators {
     //}
 
     onCondition(num, line, org, lines) {
-        const val3 = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
-        const offs = line + val3 < lines ? line + val3 + 1 : lines;
+        const val3 = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
+        const offs = this._getOffs(line, lines, val3);
 
         if (this._CONDITIONS[VAR2(num)](this._vars[VAR0(num)], this._vars[VAR1(num)])) {
             return line + 1;
@@ -5634,20 +5647,26 @@ class Operators {
         return offs;
     }
 
-    onLoop(num, line, org, lines, ret) {
+    onLoop(num, line, org, lines, afterIteration) {
         const vars = this._vars;
         const var0 = VAR0(num);
-        const val3 = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
-        const offs = line + val3 < lines ? line + val3 + 1 : lines;
-
-        if (ret) {
+        const val3 = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
+        const offs = this._getOffs(line, lines, val3);
+        //
+        // If last iteration has done and we've returned to the line,
+        // where "for" operator is located
+        //
+        if (afterIteration) {
             if (++vars[var0] < vars[VAR2(num)]) {
                 this._offsets.push(line, offs);
                 return line + 1;
             }
             return offs;
         }
-
+        //
+        // This is first time we are running "for" operator. No
+        // iterations hav done, yet
+        //
         vars[var0] = vars[VAR1(num)];
         if (vars[var0] < vars[VAR2(num)]) {
             this._offsets.push(line, offs);
@@ -5659,7 +5678,7 @@ class Operators {
 
     onOperator(num, line) {
         const vars = this._vars;
-        vars[VAR0(num)] = this._OPERATORS[__WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS)](vars[VAR1(num)], vars[VAR2(num)]);
+        vars[VAR0(num)] = this._OPERATORS[__WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS)](vars[VAR1(num)], vars[VAR2(num)]);
         return line + 1;
     }
 
@@ -5682,10 +5701,10 @@ class Operators {
         const vars = this._vars;
         let   x    = vars[VAR1(num)];
         let   y    = vars[VAR2(num)];
-        if (!IS_NUM(x) || !IS_NUM(y) || x < 0 || y < 0 || x >= __WEBPACK_IMPORTED_MODULE_2__global_Config__["a" /* default */].worldWidth || y >= __WEBPACK_IMPORTED_MODULE_2__global_Config__["a" /* default */].worldHeight) {return line + 1;}
+        if (!IS_NUM(x) || !IS_NUM(y) || x < 0 || y < 0 || x >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldWidth || y >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].worldHeight) {return line + 1;}
 
         let ret = {ret: 0};
-        this._obs.fire(__WEBPACK_IMPORTED_MODULE_1__global_Events__["a" /* default */].GET_ENERGY, org, x, y, ret);
+        this._obs.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].GET_ENERGY, org, x, y, ret);
         vars[VAR0(num)] = ret.ret;
 
         return line + 1;
@@ -5705,7 +5724,7 @@ class Operators {
     onToMem(num, line, org) {
         const val = this._vars[VAR1(num)];
 
-        if (IS_NUM(val) && org.mem.length < __WEBPACK_IMPORTED_MODULE_2__global_Config__["a" /* default */].orgMemSize) {
+        if (IS_NUM(val) && org.mem.length < __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* default */].orgMemSize) {
             this._vars[VAR0(num)] = org.mem.push(val);
         } else {
             this._vars[VAR0(num)] = 0;
@@ -5724,7 +5743,7 @@ class Operators {
 
     _checkAt(num, line, org, x, y) {
         const ret = {ret: 0};
-        org.fire(__WEBPACK_IMPORTED_MODULE_1__global_Events__["a" /* default */].CHECK_AT, x, y, ret);
+        org.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].CHECK_AT, x, y, ret);
         this._vars[VAR0(num)] = ret.ret;
         return line + 1;
     }
@@ -5735,7 +5754,7 @@ class Operators {
         if (!IS_NUM(amount) || amount === 0) {return 0}
 
         let ret = {ret: amount};
-        this._obs.fire(__WEBPACK_IMPORTED_MODULE_1__global_Events__["a" /* default */].EAT, org, x, y, ret);
+        this._obs.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].EAT, org, x, y, ret);
         if (!IS_NUM(ret.ret)) {return 0}
         org.energy += ret.ret;
 
@@ -5744,8 +5763,38 @@ class Operators {
 
     _step(org, x1, y1, x2, y2) {
         let ret = {ret: 0};
-        this._obs.fire(__WEBPACK_IMPORTED_MODULE_1__global_Events__["a" /* default */].STEP, org, x1, y1, x2, y2, ret);
+        this._obs.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].STEP, org, x1, y1, x2, y2, ret);
         return ret.ret;
+    }
+
+    /**
+     * Returns offset for closing bracket of blocked operators like
+     * "if", "for" and so on. These operators shouldn't overlap each
+     * other. for example:
+     *
+     *     for (...) {     // 0
+     *         if (...) {  // 1
+     *             ...     // 2
+     *         }           // 3
+     *     }               // 4
+     *
+     * Closing bracket in line 3 shouldn't be after bracket in line 4.
+     * So it's possible to set it to one of  1...3.
+     * @param {Number} line Current line index
+     * @param {Number} lines Amount of lines
+     * @param {Number} offs Local offset of closing bracket we want to set
+     * @returns {Number}
+     * @private
+     */
+    _getOffs(line, lines, offs) {
+        let   offset  = line + offs < lines ? line + offs + 1 : lines;
+        const offsets = this._offsets;
+
+        if (offsets.length > 0 && offset >= offsets[offsets.length - 1]) {
+            return offsets[offsets.length - 1];
+        }
+
+        return offset;
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Operators;
@@ -5756,7 +5805,7 @@ class Operators {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Num__ = __webpack_require__(3);
 /**
@@ -5951,7 +6000,7 @@ class Canvas {
 
         this._width     = width;
         this._height    = height;
-        this._canvasEl  = bodyEl.append('<canvas id="world" width="' + this._width + '" height="' + this._height + '" style="margin-top:10px;"></canvas>').find('#world');
+        this._canvasEl  = bodyEl.append('<canvas id="world" width="' + this._width + '" height="' + this._height + '"></canvas>').find('#world');
         this._ctx       = this._canvasEl[0].getContext('2d');
         this._text      = {x: 0, y: 0, t: ''};
         this._imgData   = this._ctx.createImageData(this._width, this._height);
@@ -6051,8 +6100,8 @@ class Canvas {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Observer__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(1);
 /**
  * 2D space, where all organisms are live. In reality this is
  * just a peace of memory, where all organisms are located. It
@@ -6076,6 +6125,7 @@ class Canvas {
 
 
 
+
 /**
  * {Number} Amount of attempts for finding free place in a world.
  * The same like this.getDot(x, y) === 0
@@ -6084,7 +6134,7 @@ const FREE_DOT_ATTEMPTS = 300;
 
 class World extends __WEBPACK_IMPORTED_MODULE_0__global_Observer__["a" /* default */] {
     constructor (width, height) {
-        super();
+        super(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* EVENT_AMOUNT */]);
         this._data   = [];
         this._width  = width;
         this._height = height;
@@ -6106,7 +6156,7 @@ class World extends __WEBPACK_IMPORTED_MODULE_0__global_Observer__["a" /* defaul
     setDot(x, y, color) {
         if (x < 0 || x >= this._width || y < 0 || y >= this._height) {return false;}
         this._data[x][y] = color;
-        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].DOT, x, y, color);
+        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].DOT, x, y, color);
 
         return true;
     }
@@ -6120,7 +6170,7 @@ class World extends __WEBPACK_IMPORTED_MODULE_0__global_Observer__["a" /* defaul
         let dot = Math.min(this.getDot(x, y), amount);
 
         if (dot > 0) {
-            this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* default */].DOT, x, y, (this._data[x][y] -= dot));
+            this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].DOT, x, y, (this._data[x][y] -= dot));
         }
 
         return dot;
