@@ -6,9 +6,8 @@
  *
  * @author DeadbraiN
  */
-import Helper from './../global/Helper';
-import Config from './../global/Config';
-import Num    from './Num';
+import {Config} from './../global/Config';
+import Num      from './Num';
 
 /**
  * {Function} Just a shortcuts

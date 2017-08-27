@@ -6,7 +6,7 @@
  * @author DeadbraiN
  */
 import {EVENTS} from './../global/Events';
-import Config   from './../global/Config';
+import {Config} from './../global/Config';
 import Num      from './Num';
 
 /**

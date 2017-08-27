@@ -1,7 +1,7 @@
 // TODO: add two events test
 describe("src/global/Observer", () => {
     let   Observer = require('../../../src/global/Observer').default;
-    let   Config   = require('../../../src/global/Config').default;
+    let   Config   = require('../../../src/global/Config').Config;
     let   Console  = require('../../../src/global/Console').default;
     const EVENT    = 0;
     const EVENT2   = 1;

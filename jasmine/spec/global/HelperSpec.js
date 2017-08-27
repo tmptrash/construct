@@ -1,6 +1,20 @@
 describe("src/global/Helper", () => {
-    let Helper = require('../../../src/global/Helper').default;
+    let   Helper = require('../../../src/global/Helper').default;
+    let   Config = require('../../../src/global/Config').Config;
+    let   api    = require('../../../src/global/Config').api;
+    const WORLD_WIDTH  = Config.worldWidth;
+    const WORLD_HEIGHT = Config.worldHeight;
 
+    it("Checking posId() method", () => {
+        expect(Helper.posId(0,0)).toEqual(0);
+        expect(Helper.posId(0,1)).toEqual(Config.worldWidth);
+        expect(Helper.posId(1,0)).toEqual(1);
+        expect(Helper.posId(1,1)).toEqual(Config.worldWidth + 1);
+        expect(Helper.posId(2,1)).toEqual(Config.worldWidth + 2);
+        expect(Helper.posId(3,2)).toEqual(Config.worldWidth * 2 + 3);
+        expect(Helper.posId(3,2) === Helper.posId(3,2)).toEqual(true);
+        expect(Helper.posId(3,2) === Helper.posId(2,3)).toEqual(false);
+    });
     it("Checking override() method", () => {
         class Tmp {method() {inc++;}}
         function oMethod() {inc++;}
@@ -75,5 +89,16 @@ describe("src/global/Helper", () => {
         expect(Helper.empty({x: 0, y: 2})).toEqual(false);
         expect(Helper.empty({x: 3, y: 2})).toEqual(false);
         expect(Helper.empty({})).toEqual(false);
+    });
+
+    it("Checking normalize() method", () => {
+        const cyc = api.get('worldCyclical');
+
+        api.set('worldCyclical', true);
+        expect(Helper.normalize(0,0)).toEqual([0,0]);
+        expect(Helper.normalize(WORLD_WIDTH - 1, WORLD_HEIGHT - 1)).toEqual([WORLD_WIDTH - 1, WORLD_HEIGHT - 1]);
+        expect(Helper.normalize(WORLD_WIDTH, WORLD_HEIGHT)).toEqual([0, 0]);
+        expect(Helper.normalize(-1, WORLD_HEIGHT - 1)).toEqual([WORLD_WIDTH - 1, WORLD_HEIGHT - 1]);
+        api.set('worldCyclical', cyc);
     });
 });

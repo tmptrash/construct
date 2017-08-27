@@ -3,8 +3,8 @@
  *
  * @author DeadbraiN
  */
-import Helper from './../global/Helper';
-import Config from './../global/Config';
+import Helper   from './../global/Helper';
+import {Config} from './../global/Config';
 
 const BITS_PER_VAR        = Config.codeBitsPerVar;
 const BITS_PER_OPERATOR   = Config.codeBitsPerOperator;

@@ -9,11 +9,11 @@
  *
  * @author DeadbraiN
  */
-import {EVENTS} from './../../global/Events';
-import Config   from './../../global/Config';
-import Helper   from './../../global/Helper';
-import Organism from './../../organism/Organism';
-import Num      from './../../organism/Num';
+import {EVENTS}  from './../../global/Events';
+import {Config}  from './../../global/Config';
+import Helper    from './../../global/Helper';
+import Organism  from './../../organism/Organism';
+import Num       from './../../organism/Num';
 
 const VAR_BITS_OFFS = Num.VAR_BITS_OFFS - 1;
 const VARS          = Num.VARS;

@@ -3,7 +3,7 @@
  * instance. Other instances may have different configuration values
  *
  * @author DeadbraiN
- * TODO: find and remove unused values
+ * TODO: find and remove unused configs
  */
 const QUIET_ALL               = 0;
 const QUIET_IMPORTANT         = 1;
@@ -368,7 +368,12 @@ const Config = {
     modeQuiet: QUIET_IMPORTANT
 };
 
-export default Config;
+const api = {
+    set: (key, val) => Config[key] = val,
+    get: (key)      => Config[key]
+};
+
+export {Config, api};
 
 // /**
 //  * Global jevo.js configuration file. Affects only current jevo

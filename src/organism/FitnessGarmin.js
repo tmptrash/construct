@@ -4,7 +4,6 @@
  *
  * @author DeadbraiN
  */
-import Config from './../global/Config';
 
 const FIELDS      = [
     'Date',

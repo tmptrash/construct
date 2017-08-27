@@ -1,6 +1,6 @@
 /**
  * List of all available event ids. New events should be added to
- * the end of the list.
+ * the end of the list. Last event id should be bigger then all other
  *
  * @author DeadbraiN
  * TODO: find unused and remove. But after main code is done.

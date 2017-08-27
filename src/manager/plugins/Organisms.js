@@ -10,7 +10,7 @@
  * @author DeadbraiN
  */
 import Helper         from './../../global/Helper';
-import Config         from './../../global/Config';
+import {Config}       from './../../global/Config';
 import Console        from './../../global/Console';
 import {EVENTS}       from './../../global/Events';
 import Queue          from './../../global/Queue';

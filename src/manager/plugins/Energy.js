@@ -3,9 +3,9 @@
  *
  * @author DeadbraiN
  */
-import Helper  from './../../global/Helper';
-import Config  from './../../global/Config';
-import Console from './../../global/Console';
+import Helper   from './../../global/Helper';
+import {Config} from './../../global/Config';
+import Console  from './../../global/Console';
 
 export default class Energy {
     constructor(manager) {

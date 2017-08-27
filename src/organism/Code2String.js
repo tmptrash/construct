@@ -5,7 +5,6 @@
  *
  * @author DeadbraiN
  */
-import Helper from './../global/Helper';
 import Num    from './Num';
 
 /**
