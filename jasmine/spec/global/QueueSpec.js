@@ -35,6 +35,22 @@ describe('src/global/Queue', () => {
         expect(q.size).toEqual(0);
         expect(q.first.val !== 12).toEqual(true);
     });
+    it('Checking deletion of two elements', () => {
+        q.add(123);
+        q.add(-4);
+        expect(q.first.val).toEqual(123);
+        expect(q.first.next.val).toEqual(-4);
+        expect(q.size).toEqual(2);
+        expect(q.get(1).val).toEqual(-4);
+
+        q.del(q.first);
+        expect(q.size).toEqual(1);
+        expect(q.first.val === -4).toEqual(true);
+
+        q.del(q.first);
+        expect(q.size).toEqual(0);
+        expect(q.first.val === null).toEqual(true);
+    });
     
     it('Checking size field', () => {
         expect(q.size).toEqual(0);
