@@ -5,10 +5,6 @@
  */
 import {Config} from './Config';
 
-const WORLD_WIDTH    = Config.worldWidth;
-const WORLD_HEIGHT   = Config.worldHeight;
-const WORLD_CYCLICAL = Config.worldCyclical;
-
 export default class Helper {
     /**
      * Calculates unique id for world's coordinates. For the same x,y
@@ -18,7 +14,7 @@ export default class Helper {
      * @returns {Number} unique id
      */
     static posId(x, y) {
-        return y * WORLD_WIDTH + x;
+        return y * Config.worldWidth + x;
     }
     /**
      * Overrides specified function in two ways: softly - by
@@ -99,18 +95,19 @@ export default class Helper {
     /**
      * Does normalization of X and Y coordinates. It's used
      * in cyclical mode for checking if we out of bound (world).
+     * In non cyclical mode it just returns the same coordinates.
      * Usage: [x, y] = Helper.normalize(10, -1); // 10, 100 (height - 1)
      * @param {Number} x
      * @param {Number} y
      * @returns {[x,y]}
      */
     static normalize(x, y) {
-        if (WORLD_CYCLICAL) {
-            if (x < 0)                  {x = WORLD_WIDTH - 1;}
-            else if (x >= WORLD_WIDTH)  {x = 0;}
+        if (Config.worldCyclical) {
+            if (x < 0) {x = Config.worldWidth - 1;}
+            else if (x >= Config.worldWidth)  {x = 0;}
 
-            if (y < 0)                  {y = WORLD_HEIGHT - 1;}
-            else if (y >= WORLD_HEIGHT) {y = 0;}
+            if (y < 0) {y = Config.worldHeight - 1;}
+            else if (y >= Config.worldHeight) {y = 0;}
         }
 
         return [x, y];

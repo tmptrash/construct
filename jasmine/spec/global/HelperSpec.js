@@ -2,8 +2,6 @@ describe("src/global/Helper", () => {
     let   Helper = require('../../../src/global/Helper').default;
     let   Config = require('../../../src/global/Config').Config;
     let   api    = require('../../../src/global/Config').api;
-    const WORLD_WIDTH  = Config.worldWidth;
-    const WORLD_HEIGHT = Config.worldHeight;
 
     it("Checking posId() method", () => {
         expect(Helper.posId(0,0)).toEqual(0);
@@ -91,14 +89,37 @@ describe("src/global/Helper", () => {
         expect(Helper.empty({})).toEqual(false);
     });
 
-    it("Checking normalize() method", () => {
+    it("Checking normalize() method in cyclical mode", () => {
         const cyc = api.get('worldCyclical');
 
         api.set('worldCyclical', true);
         expect(Helper.normalize(0,0)).toEqual([0,0]);
-        expect(Helper.normalize(WORLD_WIDTH - 1, WORLD_HEIGHT - 1)).toEqual([WORLD_WIDTH - 1, WORLD_HEIGHT - 1]);
-        expect(Helper.normalize(WORLD_WIDTH, WORLD_HEIGHT)).toEqual([0, 0]);
-        expect(Helper.normalize(-1, WORLD_HEIGHT - 1)).toEqual([WORLD_WIDTH - 1, WORLD_HEIGHT - 1]);
+        expect(Helper.normalize(Config.worldWidth - 1, Config.worldHeight - 1)).toEqual([Config.worldWidth - 1, Config.worldHeight - 1]);
+        expect(Helper.normalize(Config.worldWidth, Config.worldHeight)).toEqual([0, 0]);
+        expect(Helper.normalize(Config.worldWidth + 1, Config.worldHeight)).toEqual([0, 0]);
+        expect(Helper.normalize(Config.worldWidth, Config.worldHeight + 1)).toEqual([0, 0]);
+        expect(Helper.normalize(Config.worldWidth + 1, Config.worldHeight + 1)).toEqual([0, 0]);
+
+        expect(Helper.normalize(-1, Config.worldHeight - 1)).toEqual([Config.worldWidth - 1, Config.worldHeight - 1]);
+        expect(Helper.normalize(-2, Config.worldHeight - 1)).toEqual([Config.worldWidth - 1, Config.worldHeight - 1]);
+        expect(Helper.normalize(-2, -1)).toEqual([Config.worldWidth - 1, Config.worldHeight - 1]);
+        api.set('worldCyclical', cyc);
+    });
+
+    it("Checking normalize() method in not cyclical mode", () => {
+        const cyc = api.get('worldCyclical');
+
+        api.set('worldCyclical', false);
+        expect(Helper.normalize(0,0)).toEqual([0,0]);
+        expect(Helper.normalize(Config.worldWidth - 1, Config.worldHeight - 1)).toEqual([Config.worldWidth - 1, Config.worldHeight - 1]);
+        expect(Helper.normalize(Config.worldWidth, Config.worldHeight)).toEqual([Config.worldWidth, Config.worldHeight]);
+        expect(Helper.normalize(Config.worldWidth + 1, Config.worldHeight)).toEqual([Config.worldWidth + 1, Config.worldHeight]);
+        expect(Helper.normalize(Config.worldWidth, Config.worldHeight + 1)).toEqual([Config.worldWidth, Config.worldHeight + 1]);
+        expect(Helper.normalize(Config.worldWidth + 1, Config.worldHeight + 1)).toEqual([Config.worldWidth + 1, Config.worldHeight + 1]);
+
+        expect(Helper.normalize(-1, Config.worldHeight - 1)).toEqual([-1, Config.worldHeight - 1]);
+        expect(Helper.normalize(-2, Config.worldHeight - 1)).toEqual([-2, Config.worldHeight - 1]);
+        expect(Helper.normalize(-2, -1)).toEqual([-2, -1]);
         api.set('worldCyclical', cyc);
     });
 });
