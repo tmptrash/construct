@@ -1,3 +1,4 @@
+// TODO: add two events test
 describe("src/global/Observer", () => {
     let   Observer = require('../../../src/global/Observer').default;
     const EVENT    = 0;
@@ -14,6 +15,24 @@ describe("src/global/Observer", () => {
         obs.on(EVENT, handler);
         obs.fire(EVENT);
         expect(flag).toEqual(true);
+    });
+    it("Checking on()/fire() for two events", () => {
+        let flag = false;
+
+        function handler() {flag = true;}
+
+        obs.on(EVENT, handler);
+        obs.on(EVENT2, handler);
+        obs.fire(EVENT);
+        flag = false;
+        obs.fire(EVENT2);
+        expect(flag).toEqual(true);
+
+        flag = false;
+        obs.clear();
+        obs.fire(EVENT);
+        obs.fire(EVENT2);
+        expect(flag).toEqual(false);
     });
     it("Checking on() without firing", () => {
         let flag = false;

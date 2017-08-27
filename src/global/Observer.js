@@ -19,7 +19,7 @@ export default class Observer {
      * @param {Number} maxIndex Maximum event index, for current instance
      */
     constructor(maxIndex) {
-        this._maxIndex = maxIndex;
+        this._maxIndex = +maxIndex || 0;
         this._resetEvents();
     }
 
@@ -37,6 +37,13 @@ export default class Observer {
         return true;
     }
 
+    /**
+     * This method is a most frequently called one. So we have to
+     * optimize it as deep as possible
+     * @param {Number} event Event number
+     * @param {*} args List of arguments
+     * @param args
+     */
     fire (event, ...args) {
         let handlers = this._handlers[event] || [];
         for (let handler of handlers) {handler(...args);}
