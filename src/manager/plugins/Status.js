@@ -50,7 +50,7 @@ export default class {
     }
 
     _onOrganism(org) {
-        this._runLines += (this._fitnessMode ? org.code.size : Config.codeYieldPeriod);
+        this._runLines += (this._fitnessMode ? org.jsvm.size : Config.codeYieldPeriod);
     }
 
     _onBeforeIps(ips, orgs) {
@@ -84,7 +84,7 @@ export default class {
         while(item) {
             org = item.val;
             energy   += org.energy;
-            codeSize += org.code.size;
+            codeSize += org.jsvm.size;
             changes  += org.changes;
             fitness  += org.fitness();
             item = item.next;

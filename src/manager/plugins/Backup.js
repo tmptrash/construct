@@ -44,8 +44,8 @@ export default class Backup {
                 mutationPeriod      : org.mutationPeriod,
                 mutationPercent     : org.mutationPercent,
                 color               : org.color,
-                vars                : org.code.vars,
-                code                : org.code.cloneByteCode()
+                vars                : org.jsvm.vars,
+                code                : org.jsvm.cloneByteCode()
             });
             cur = cur.next;
         }

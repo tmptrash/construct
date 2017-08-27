@@ -103,17 +103,17 @@ const Config = {
     ORG_MAX_COLOR          : ORG_MAX_COLOR,
     /**
      * {Array} Probabilities with which mutator decides what to do:
-     * add, change, delete character of the code; change amount of
+     * add, change, delete character of the jsvm; change amount of
      * mutations or change mutations period... Depending on these
      * values, organism may have different strategies of living.
      * For example: if add value is bigger then del and change,
-     * then code size will be grow up all the time. If del value is
+     * then jsvm size will be grow up all the time. If del value is
      * bigger then other, then it will be decreased to zero lines
-     * of code and will die.
+     * of jsvm and will die.
      * Format: [
-     *     add          - Probability of adding of new character to the code
-     *     change       - Probability of changing existing character in a code
-     *     delete       - Probability of deleting of a character in a code
+     *     add          - Probability of adding of new character to the jsvm
+     *     change       - Probability of changing existing character in a jsvm
+     *     delete       - Probability of deleting of a character in a jsvm
      *     small-change - Probability of "small change" - change of expression part
      *     clone        - Probability for amount of mutations on clone
      *     period       - Probability of period of organism mutations
@@ -128,7 +128,7 @@ const Config = {
      */
     orgMutationProbsMaxValue: 100,
     /**
-     * {Number} Percent of mutations from code size, which will be applied to
+     * {Number} Percent of mutations from jsvm size, which will be applied to
      * organism after cloning. Should be <= 1.0
      */
     orgCloneMutationPercent: 0.01,
@@ -159,12 +159,12 @@ const Config = {
     orgStartAmount: 500,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
-     * Eve. It means that these empty (without code) organism were created
+     * Eve. It means that these empty (without jsvm) organism were created
      * by operator and not by evolution.
      */
     orgStartEnergy: 10000,
     /**
-     * {Number} Begin color of "empty" organism (organism without code).
+     * {Number} Begin color of "empty" organism (organism without jsvm).
      */
     orgStartColor: 0xFF0000,
     /**
@@ -201,7 +201,7 @@ const Config = {
      */
     codeFuncParamAmount: 2,
     /**
-     * {Number} If organism reach this limit of amount of code lines, then codeSizeCoef
+     * {Number} If organism reach this limit of amount of jsvm lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
      * because our CPU's are slow and organisms with big codes are very slow. But
      * it's possible for organisms to go outside the limit by inventing new
@@ -211,12 +211,12 @@ const Config = {
     /**
      * {Number} This coefficiend is used for calculating of amount of energy,
      * which grabbed from each organism depending on his codeSize.
-     * This coefficient affects entire code size of population and
+     * This coefficient affects entire jsvm size of population and
      * entire system speed. It depends on CPU speed also. So, for
      * different PC's it may be different.
      * Formula is the following: grabEnergy = cfg.codeSizeCoef * org.codeSize
      * See Config.codeMaxSize for details. This config will be turn on only if
-     * organism reaches code size limit Config.codeMaxSize
+     * organism reaches jsvm size limit Config.codeMaxSize
      */
     codeSizeCoef: 10000,
     /**
@@ -231,9 +231,9 @@ const Config = {
      */
     codeVarInitRange: 1000,
     /**
-     * {Number} Every code line 'yield' operator will be inserted to prevent
-     * locking of threads. Set this value to value bigger then code size, then
-     * entire code of organism will be run
+     * {Number} Every jsvm line 'yield' operator will be inserted to prevent
+     * locking of threads. Set this value to value bigger then jsvm size, then
+     * entire jsvm of organism will be run
      */
     codeYieldPeriod: 5,
     /**
@@ -263,7 +263,7 @@ const Config = {
      */
     codeOperatorsCls: 'Operators',//'OperatorsGarmin',
     /**
-     * {String} Name of the class for string representation of byte code
+     * {String} Name of the class for string representation of byte jsvm
      */
     code2StringCls: 'Code2String',//'Code2StringGarmin',
     /**
@@ -320,7 +320,7 @@ const Config = {
     /**
      * {Number} Period of milliseconds, which is user for checking IPS value. It's
      * possible to increase it to reduce amount of requests and additional
-     * code in main loop
+     * jsvm in main loop
      */
     worldIpsPeriodMs: 10000,
     /**
@@ -444,8 +444,8 @@ const Config = {
 };
 
 const api = {
-    setConfig: (key, val) => Config[key] = val,
-    getConfig: (key)      => Config[key]
+    set: (key, val) => Config[key] = val,
+    get: (key)      => Config[key]
 };
 
 
@@ -480,17 +480,17 @@ const api = {
 //     ORG_MAX_COLOR          : ORG_MAX_COLOR,
 //     /**
 //      * {Array} Probabilities with which mutator decides what to do:
-//      * add, change, delete character of the code; change amount of
+//      * add, change, delete character of the jsvm; change amount of
 //      * mutations or change mutations period... Depending on these
 //      * values, organism may have different strategies of living.
 //      * For example: if add value is bigger then del and change,
-//      * then code size will be grow up all the time. If del value is
+//      * then jsvm size will be grow up all the time. If del value is
 //      * bigger then other, then it will be decreased to zero lines
-//      * of code and will die.
+//      * of jsvm and will die.
 //      * Format: [
-//      *     add          - Probability of adding of new character to the code
-//      *     change       - Probability of changing existing character in a code
-//      *     delete       - Probability of deleting of a character in a code
+//      *     add          - Probability of adding of new character to the jsvm
+//      *     change       - Probability of changing existing character in a jsvm
+//      *     delete       - Probability of deleting of a character in a jsvm
 //      *     small-change - Probability of "small change" - change of expression part
 //      *     clone        - Probability for amount of mutations on clone
 //      *     period       - Probability of period of organism mutations
@@ -505,7 +505,7 @@ const api = {
 //      */
 //     orgMutationProbsMaxValue: 100,
 //     /**
-//      * {Number} Percent of mutations from code size, which will be applied to
+//      * {Number} Percent of mutations from jsvm size, which will be applied to
 //      * organism after cloning. Should be <= 1.0
 //      */
 //     orgCloneMutationPercent: 0.01,
@@ -536,12 +536,12 @@ const api = {
 //     orgStartAmount: 3,
 //     /**
 //      * {Number} Amount of energy for first organisms. They are like Adam and
-//      * Eve. It means that these empty (without code) organism were created
+//      * Eve. It means that these empty (without jsvm) organism were created
 //      * by operator and not by evolution.
 //      */
 //     orgStartEnergy: 100,
 //     /**
-//      * {Number} Begin color of "empty" organism (organism without code).
+//      * {Number} Begin color of "empty" organism (organism without jsvm).
 //      */
 //     orgStartColor: 0xFF0000,
 //     /**
@@ -584,7 +584,7 @@ const api = {
 //      */
 //     codeFuncParamAmount: 2,
 //     /**
-//      * {Number} If organism reach this limit of amount of code lines, then codeSizeCoef
+//      * {Number} If organism reach this limit of amount of jsvm lines, then codeSizeCoef
 //      * will be used during it's energy grabbing by system. We use this approach,
 //      * because our CPU's are slow and organisms with big codes are very slow. But
 //      * it's possible for organisms to go outside the limit by inventing new
@@ -594,12 +594,12 @@ const api = {
 //     /**
 //      * {Number} This coefficiend is used for calculating of amount of energy,
 //      * which grabbed from each organism depending on his codeSize.
-//      * This coefficient affects entire code size of population and
+//      * This coefficient affects entire jsvm size of population and
 //      * entire system speed. It depends on CPU speed also. So, for
 //      * different PC's it may be different.
 //      * Formula is the following: grabEnergy = cfg.codeSizeCoef * org.codeSize
 //      * See Config.codeMaxSize for details. This config will be turn on only if
-//      * organism reaches code size limit Config.codeMaxSize
+//      * organism reaches jsvm size limit Config.codeMaxSize
 //      */
 //     codeSizeCoef: 10000,
 //     /**
@@ -614,9 +614,9 @@ const api = {
 //      */
 //     codeVarInitRange: 1000,
 //     /**
-//      * {Number} Every code line 'yield' operator will be inserted to prevent
-//      * locking of threads. Set this value to value bigger then code size, then
-//      * entire code of organism will be run
+//      * {Number} Every jsvm line 'yield' operator will be inserted to prevent
+//      * locking of threads. Set this value to value bigger then jsvm size, then
+//      * entire jsvm of organism will be run
 //      */
 //     codeYieldPeriod: 1,
 //     /**
@@ -646,7 +646,7 @@ const api = {
 //      */
 //     codeOperatorsCls: 'Operators',//'OperatorsGarmin',
 //     /**
-//      * {String} Name of the class for string representation of byte code
+//      * {String} Name of the class for string representation of byte jsvm
 //      */
 //     code2StringCls: 'Code2String',//'Code2StringGarmin',
 //     /**
@@ -709,7 +709,7 @@ const api = {
 //     /**
 //      * {Number} Period of milliseconds, which is user for checking IPS value. It's
 //      * possible to increase it to reduce amount of requests and additional
-//      * code in main loop
+//      * jsvm in main loop
 //      */
 //     worldIpsPeriodMs: 10000,
 //     /**
@@ -864,17 +864,17 @@ const api = {
 //     ORG_MAX_COLOR          : ORG_MAX_COLOR,
 //     /**
 //      * {Array} Probabilities with which mutator decides what to do:
-//      * add, change, delete character of the code; change amount of
+//      * add, change, delete character of the jsvm; change amount of
 //      * mutations or change mutations period... Depending on these
 //      * values, organism may have different strategies of living.
 //      * For example: if add value is bigger then del and change,
-//      * then code size will be grow up all the time. If del value is
+//      * then jsvm size will be grow up all the time. If del value is
 //      * bigger then other, then it will be decreased to zero lines
-//      * of code and will die.
+//      * of jsvm and will die.
 //      * Format: [
-//      *     add          - Probability of adding of new character to the code
-//      *     change       - Probability of changing existing character in a code
-//      *     delete       - Probability of deleting of a character in a code
+//      *     add          - Probability of adding of new character to the jsvm
+//      *     change       - Probability of changing existing character in a jsvm
+//      *     delete       - Probability of deleting of a character in a jsvm
 //      *     small-change - Probability of "small change" - change of expression part
 //      *     clone        - Probability for amount of mutations on clone
 //      *     period       - Probability of period of organism mutations
@@ -889,7 +889,7 @@ const api = {
 //      */
 //     orgMutationProbsMaxValue: 100,
 //     /**
-//      * {Number} Percent of mutations from code size, which will be applied to
+//      * {Number} Percent of mutations from jsvm size, which will be applied to
 //      * organism after cloning. Should be <= 1.0
 //      */
 //     orgCloneMutationPercent: 0.01,
@@ -920,12 +920,12 @@ const api = {
 //     orgStartAmount: 500,
 //     /**
 //      * {Number} Amount of energy for first organisms. They are like Adam and
-//      * Eve. It means that these empty (without code) organism were created
+//      * Eve. It means that these empty (without jsvm) organism were created
 //      * by operator and not by evolution.
 //      */
 //     orgStartEnergy: 1,
 //     /**
-//      * {Number} Begin color of "empty" organism (organism without code).
+//      * {Number} Begin color of "empty" organism (organism without jsvm).
 //      */
 //     orgStartColor: 0xFF0000,
 //     /**
@@ -962,7 +962,7 @@ const api = {
 //      */
 //     codeFuncParamAmount: 2,
 //     /**
-//      * {Number} If organism reach this limit of amount of code lines, then codeSizeCoef
+//      * {Number} If organism reach this limit of amount of jsvm lines, then codeSizeCoef
 //      * will be used during it's energy grabbing by system. We use this approach,
 //      * because our CPU's are slow and organisms with big codes are very slow. But
 //      * it's possible for organisms to go outside the limit by inventing new
@@ -972,12 +972,12 @@ const api = {
 //     /**
 //      * {Number} This coefficiend is used for calculating of amount of energy,
 //      * which grabbed from each organism depending on his codeSize.
-//      * This coefficient affects entire code size of population and
+//      * This coefficient affects entire jsvm size of population and
 //      * entire system speed. It depends on CPU speed also. So, for
 //      * different PC's it may be different.
 //      * Formula is the following: grabEnergy = cfg.codeSizeCoef * org.codeSize
 //      * See Config.codeMaxSize for details. This config will be turn on only if
-//      * organism reaches code size limit Config.codeMaxSize
+//      * organism reaches jsvm size limit Config.codeMaxSize
 //      */
 //     codeSizeCoef: 10000,
 //     /**
@@ -992,9 +992,9 @@ const api = {
 //      */
 //     codeVarInitRange: 1000,
 //     /**
-//      * {Number} Every code line 'yield' operator will be inserted to prevent
-//      * locking of threads. Set this value to value bigger then code size, then
-//      * entire code of organism will be run
+//      * {Number} Every jsvm line 'yield' operator will be inserted to prevent
+//      * locking of threads. Set this value to value bigger then jsvm size, then
+//      * entire jsvm of organism will be run
 //      */
 //     codeYieldPeriod: 1000,
 //     /**
@@ -1024,7 +1024,7 @@ const api = {
 //      */
 //     codeOperatorsCls: 'OperatorsGarmin',
 //     /**
-//      * {String} Name of the class for string representation of byte code
+//      * {String} Name of the class for string representation of byte jsvm
 //      */
 //     code2StringCls: 'Code2StringGarmin',
 //     /**
@@ -1087,7 +1087,7 @@ const api = {
 //     /**
 //      * {Number} Period of milliseconds, which is user for checking IPS value. It's
 //      * possible to increase it to reduce amount of requests and additional
-//      * code in main loop
+//      * jsvm in main loop
 //      */
 //     worldIpsPeriodMs: 10000,
 //     /**
@@ -1283,10 +1283,6 @@ const EVENT_AMOUNT = Object.keys(EVENTS).length;
  */
 
 
-const WORLD_WIDTH    = __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* Config */].worldWidth;
-const WORLD_HEIGHT   = __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* Config */].worldHeight;
-const WORLD_CYCLICAL = __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* Config */].worldCyclical;
-
 class Helper {
     /**
      * Calculates unique id for world's coordinates. For the same x,y
@@ -1296,7 +1292,7 @@ class Helper {
      * @returns {Number} unique id
      */
     static posId(x, y) {
-        return y * WORLD_WIDTH + x;
+        return y * __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* Config */].worldWidth + x;
     }
     /**
      * Overrides specified function in two ways: softly - by
@@ -1377,17 +1373,19 @@ class Helper {
     /**
      * Does normalization of X and Y coordinates. It's used
      * in cyclical mode for checking if we out of bound (world).
+     * In non cyclical mode it just returns the same coordinates.
      * Usage: [x, y] = Helper.normalize(10, -1); // 10, 100 (height - 1)
      * @param {Number} x
      * @param {Number} y
      * @returns {[x,y]}
      */
     static normalize(x, y) {
-        if (WORLD_CYCLICAL) {
-            if (x < 0)                  {x = WORLD_WIDTH - 1;}
-            else if (x >= WORLD_WIDTH)  {x = 0;}
-            else if (y < 0)             {y = WORLD_HEIGHT - 1;}
-            else if (y >= WORLD_HEIGHT) {y = 0;}
+        if (__WEBPACK_IMPORTED_MODULE_0__Config__["a" /* Config */].worldCyclical) {
+            if (x < 0) {x = __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* Config */].worldWidth - 1;}
+            else if (x >= __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* Config */].worldWidth)  {x = 0;}
+
+            if (y < 0) {y = __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* Config */].worldHeight - 1;}
+            else if (y >= __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* Config */].worldHeight) {y = 0;}
         }
 
         return [x, y];
@@ -1641,7 +1639,7 @@ class Observer {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Helper__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Code__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__JSVM__ = __webpack_require__(19);
 /**
  * TODO: add description:
  * TODO:   - events
@@ -1676,7 +1674,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     constructor(id, x, y, alive, item, codeEndCb, classMap, parent = null) {
         super(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* EVENT_AMOUNT */]);
 
-        this._codeEndCb   = codeEndCb;
+        this._jsvmEndCb   = codeEndCb;
         this._classMap    = classMap;
 
         if (parent === null) {this._create();}
@@ -1695,7 +1693,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
             this._needRun = true;
         }
 
-        this._code.on(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].RESET_CODE, this._onResetCode.bind(this));
+        this._jsvm.on(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].RESET_CODE, this._onResetCode.bind(this));
     }
 
     get id()                    {return this._id}
@@ -1712,7 +1710,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     get color()                 {return this._color}
     get mem()                   {return this._mem}
     get cloneEnergyPercent()    {return this._cloneEnergyPercent}
-    get code()                  {return this._code}
+    get jsvm()                  {return this._jsvm}
     get posId()                 {return __WEBPACK_IMPORTED_MODULE_3__global_Helper__["a" /* default */].posId(this._x, this._y)}
     get iterations()            {return this._iterations}
 
@@ -1741,7 +1739,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
             if (fitnessCls.run(this)) {this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].STOP, this)}
             this._needRun = false;
         } else {
-            this._code.run(this);
+            this._jsvm.run(this);
         }
 
         return this._updateDestroy() && this._updateEnergy();
@@ -1764,9 +1762,9 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
         this._energy     = 0;
         this._item       = null;
         this._mem        = null;
-        this._code.destroy();
-        this._code       = null;
-        this._codeEndCb  = null;
+        this._jsvm.destroy();
+        this._jsvm       = null;
+        this._jsvmEndCb  = null;
         this.clear();
     }
 
@@ -1777,7 +1775,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     }
 
     _create() {
-        this._code                  = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._codeEndCb.bind(this, this), this, this._classMap);
+        this._jsvm                  = new __WEBPACK_IMPORTED_MODULE_4__JSVM__["a" /* default */](this._jsvmEndCb.bind(this, this), this, this._classMap);
         this._energy                = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgStartEnergy;
         this._color                 = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgStartColor;
         this._mutationProbs         = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgMutationProbs;
@@ -1789,8 +1787,8 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     }
 
     _clone(parent) {
-        this._code                  = new __WEBPACK_IMPORTED_MODULE_4__Code__["a" /* default */](this._codeEndCb.bind(this, this), this, this._classMap, parent.code.vars);
-        this._code.clone(parent.code);
+        this._jsvm                  = new __WEBPACK_IMPORTED_MODULE_4__JSVM__["a" /* default */](this._jsvmEndCb.bind(this, this), this, this._classMap, parent.jsvm.vars);
+        this._jsvm.clone(parent.jsvm);
         this._energy                = parent.energy;
         this._color                 = parent.color;
         this._mutationProbs         = parent.mutationProbs.slice();
@@ -1832,7 +1830,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
      */
     _updateEnergy() {
         if (__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgEnergySpendPeriod === 0 || this._iterations % __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgEnergySpendPeriod !== 0) {return true;}
-        const codeSize = this._code.size;
+        const codeSize = this._jsvm.size;
         let   grabSize = Math.floor(codeSize / __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgGarbagePeriod);
 
         if (codeSize > __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeMaxSize) {grabSize = codeSize * __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeSizeCoef;}
@@ -1865,9 +1863,9 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__plugins_Status__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__organism_Operators__ = __webpack_require__(20);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__organism_OperatorsGarmin__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__organism_Code2String__ = __webpack_require__(17);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__organism_Code2StringGarmin__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__organism_FitnessGarmin__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__organism_Code2String__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__organism_Code2StringGarmin__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__organism_FitnessGarmin__ = __webpack_require__(18);
 /**
  * Main manager class of application. Contains all parts of jevo.js app
  * like World, Connection, Console etc... Runs infinite loop inside run()
@@ -2112,6 +2110,9 @@ manager.run();
  * items, where you may iterate back and forward using internal references
  * (next, prev). Every item of the queue contains custom value (in
  * 'val' field). This queue is used for speeding up organisms iteration.
+ * Removing of Queue element is done at the moment and not affects items
+ * iteration in comparison with an array or an object. Also removing of
+ * element from the Queue is very fast.
  *
  * @author DeadbraiN
  */
@@ -2176,6 +2177,12 @@ class Queue {
         else {this._last = item.prev;}
     }
 
+    /**
+     * Possibly slow method, because we have to iterate index times
+     * in a loop.
+     * @param {Number} index Index of element in a Queue
+     * @returns {null|Object} Item or null if index is incorrect
+     */
     get(index) {
         let item = this._first;
         while (--index > -1 && item) {item = item.next;}
@@ -2239,8 +2246,8 @@ class Backup {
                 mutationPeriod      : org.mutationPeriod,
                 mutationPercent     : org.mutationPercent,
                 color               : org.color,
-                vars                : org.code.vars,
-                code                : org.code.cloneByteCode()
+                vars                : org.jsvm.vars,
+                code                : org.jsvm.cloneByteCode()
             });
             cur = cur.next;
         }
@@ -2293,8 +2300,8 @@ class Backup {
 
 class Config {
     constructor(manager) {
-        manager.api.setConfig = __WEBPACK_IMPORTED_MODULE_0__global_Config__["b" /* api */].setConfig;
-        manager.api.getConfig = __WEBPACK_IMPORTED_MODULE_0__global_Config__["b" /* api */].getConfig;
+        manager.api.setConfig = __WEBPACK_IMPORTED_MODULE_0__global_Config__["b" /* api */].set;
+        manager.api.getConfig = __WEBPACK_IMPORTED_MODULE_0__global_Config__["b" /* api */].get;
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Config;
@@ -2441,7 +2448,7 @@ class Mutator {
     }
 
     _mutate(org, clone = true) {
-        const code      = org.code;
+        const code      = org.jsvm;
         const probIndex = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].probIndex;
         const mTypes    = this._MUTATION_TYPES;
         let   mutations = Math.round(code.size * (clone ? org.cloneMutationPercent : org.mutationPercent)) || 1;
@@ -2458,17 +2465,17 @@ class Mutator {
     }
 
     _onAdd(org) {
-        if (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].codeFitnessCls !== null && org.code.size >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].codeMaxSize) {return}
-        org.code.insertLine();
+        if (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].codeFitnessCls !== null && org.jsvm.size >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].codeMaxSize) {return}
+        org.jsvm.insertLine();
     }
 
     _onChange(org) {
-        const code = org.code;
+        const code = org.jsvm;
         code.updateLine(__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(code.size), __WEBPACK_IMPORTED_MODULE_4__organism_Num__["a" /* default */].get());
     }
 
     _onDel(org) {
-        org.code.removeLine();
+        org.jsvm.removeLine();
     }
 
     /**
@@ -2478,8 +2485,8 @@ class Mutator {
      */
     _onSmallChange(org) {
         const rand  = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand;
-        const index = rand(org.code.size);
-        const code  = org.code;
+        const index = rand(org.jsvm.size);
+        const code  = org.jsvm;
         const rnd   = rand(3);
 
         if (rnd === 0) {
@@ -2622,8 +2629,8 @@ class Organisms {
                 this._maxEnergy = org.energy;
                 __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('--------------------------------------------------');
                 __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('Max energy: ', org.energy, ', org Id: ', org.id);
-                __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('[' + org.code.code + ']');
-                __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn(this._manager.api.formatCode(org.code.code));
+                __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('[' + org.jsvm.code + ']');
+                __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn(this._manager.api.formatCode(org.jsvm.code));
             }
 
             if (org.changes > this._maxChanges) {this._maxChanges = org.changes}
@@ -2634,8 +2641,8 @@ class Organisms {
         this._manager.stop();
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('--------------------------------------------------');
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('org id: ', org.id, ', energy: ', org.energy);
-        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('[' + org.code.code + ']');
-        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn(this._manager.api.formatCode(org.code.code));
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('[' + org.jsvm.code + ']');
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn(this._manager.api.formatCode(org.jsvm.code));
     }
 
     /**
@@ -2734,7 +2741,7 @@ class Organisms {
         let child  = orgs.last.val;
 
         if (child.alive && looser.alive) {
-            child.changes += child.code.crossover(looser.code);
+            child.changes += child.jsvm.crossover(looser.jsvm);
             if (orgs.size >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].worldMaxOrgs) {looser.destroy()}
         }
     }
@@ -2925,7 +2932,7 @@ const PERIOD = 10000;
     }
 
     _onOrganism(org) {
-        this._runLines += (this._fitnessMode ? org.code.size : __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].codeYieldPeriod);
+        this._runLines += (this._fitnessMode ? org.jsvm.size : __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].codeYieldPeriod);
     }
 
     _onBeforeIps(ips, orgs) {
@@ -2959,7 +2966,7 @@ const PERIOD = 10000;
         while(item) {
             org = item.val;
             energy   += org.energy;
-            codeSize += org.code.size;
+            codeSize += org.jsvm.size;
             changes  += org.changes;
             fitness  += org.fitness();
             item = item.next;
@@ -2974,200 +2981,6 @@ const PERIOD = 10000;
 
 /***/ }),
 /* 16 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Observer__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Num__ = __webpack_require__(3);
-/**
- * Implements organism's code logic.
- * TODO: explain here code one number format,...
- *
- * @author DeadbraiN
- * TODO: may be this module is redundant
- * TODO: think about custom operators callbacks from outside. This is how
- * TODO: we may solve custom tasks
- */
-
-
-
-
-
-
-
-class Code extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default */] {
-    constructor(codeEndCb, org, classMap, vars = null) {
-        super(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* EVENT_AMOUNT */]);
-
-        /**
-         * {Function} Callback, which is called on every organism
-         * code iteration. On it's end.
-         */
-        this._onCodeEnd   = codeEndCb;
-        this._classMap    = classMap;
-        /**
-         * {Array} Array of two numbers. first - line number where we have
-         * to return if first line appears. second - line number, where ends
-         * closing block '}' of for or if operator.
-         */
-        this._offsets     = [];
-        this._vars        = vars && vars.slice() || this._getVars();
-        /**
-         * {Array} Array of offsets for closing braces. For 'for', 'if'
-         * and all block operators.
-         */
-        this._operators   = new this._classMap[__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeOperatorsCls](this._offsets, this._vars, org);
-        this._code        = [];
-        this._line        = 0;
-        this._fitnessMode = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeFitnessCls !== null;
-    }
-
-    get code() {return this._code;}
-    get size() {return this._code.length;}
-    get operators() {return this._operators.size;};
-    get vars() {return this._vars;}
-
-    run(org) {
-        let line    = this._line;
-        let code    = this._code;
-        let lines   = code.length;
-        let len     = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeYieldPeriod || lines;
-        let fitMode = this._fitnessMode;
-        let ops     = this._operators.operators;
-        let getOp   = __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].getOperator;
-        let ret     = false;
-        let offs    = this._offsets;
-
-        while (lines > 0 && len-- > 0 && org.alive) {
-            line = ops[getOp(code[line])](code[line], line, org, lines, ret);
-
-            if (ret = (offs.length > 0 && line === offs[offs.length - 1])) {
-                offs.pop();
-                line = offs.pop();
-                continue;
-            }
-            if (line >= lines) {
-                line = 0;
-                offs.length = 0;
-                if (this._onCodeEnd) {
-                    this._onCodeEnd();
-                }
-                if (fitMode) {break}
-            }
-        }
-
-        this._line = line;
-    }
-
-    destroy() {
-        this._operators.destroy();
-        this._operators = null;
-        this._vars      = null;
-        this._code      = null;
-        this._onCodeEnd = null;
-        this.clear();
-    }
-
-    /**
-     * Clones both byte and string code from 'code' argument
-     * @param {Code} code Source code, from which we will copy
-     */
-    // TODO: do we need this?
-    clone(code) {
-        this._code = code.cloneCode();
-    }
-
-    crossover(code) {
-        const rand    = __WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand;
-        const len     = this._code.length;
-        const len1    = code.code.length;
-        let   start   = rand(len);
-        let   end     = rand(len);
-        let   start1  = rand(len1);
-        let   end1    = rand(len1);
-        let   adds;
-
-        if (start > end) {[start, end] = [end, start];}
-        if (start1 > end1) {[start1, end1] = [end1, start1];}
-
-        adds = Math.abs(end1 - start1 - end + start);
-        if (this._fitnessMode && this._code.length + adds >= __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeMaxSize) {return 0}
-        this._code.splice.apply(this._code, [start, end - start].concat(code.code.slice(start1, end1)));
-        this._reset();
-
-        return adds;
-    }
-
-    /**
-     * Is used for cloning byte code only. This is how you
-     * can get separate copy of the byte code.
-     * @return {Array} Array of 32bit numbers
-     */
-    cloneCode() {
-        return this._code.slice();
-    }
-
-    /**
-     * Inserts random generated number into the byte code at random position
-     */
-    insertLine() {
-        this._code.splice(__WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand(this._code.length), 0, __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].get());
-        this._reset();
-    }
-
-    updateLine(index, number) {
-        this._code[index] = number;
-        this._reset();
-    }
-
-    /**
-     * Removes random generated number into byte code at random position
-     */
-    removeLine() {
-        this._code.splice(__WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand(this._code.length), 1);
-        this._reset();
-    }
-
-    getLine(index) {
-        return this._code[index];
-    }
-
-    _reset() {
-        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].RESET_CODE);
-        this._line           = 0;
-        this._offsets.length = 0;
-    }
-
-    /**
-     * Generates default variables code. It should be in ES5 version, because
-     * speed is important. Amount of vars depends on Config.codeVarAmount config.
-     * @returns {Array} vars code
-     * @private
-     */
-    _getVars() {
-        if (this._vars && this._vars.length > 0) {return this._vars;}
-
-        const len    = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeVarAmount;
-        let   vars   = new Array(len);
-        const range  = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeVarInitRange;
-        const range2 = range / 2;
-        const rand   = __WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand;
-
-        for (let i = 0; i < len; i++) {
-            vars[i] = rand(range) - range2;
-        }
-
-        return (this._vars = vars);
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = Code;
-
-
-/***/ }),
-/* 17 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3194,7 +3007,7 @@ class Code2String {
     constructor() {
         /**
          * {Object} These operator handlers should return string representation
-         * of numeric based byte code.
+         * of numeric based byte jsvm.
          */
         this._OPERATORS_CB = {
             0 : this._onVar.bind(this),
@@ -3262,8 +3075,8 @@ class Code2String {
      *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
      *   BITS_PER_VAR bits  - variable index or all bits till the end for constant
      *
-     * @param {Num} num Packed into number code line
-     * @return {String} Parsed code line string
+     * @param {Num} num Packed into number jsvm line
+     * @return {String} Parsed jsvm line string
      */
     _onVar(num) {
         const var1    = VAR1(num);
@@ -3379,7 +3192,7 @@ class Code2String {
 
 
 /***/ }),
-/* 18 */
+/* 17 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3411,7 +3224,7 @@ class Code2StringGarmin {
         this._offsets = [];
         /**
          * {Object} These operator handlers should return string representation
-         * of numeric based byte code.
+         * of numeric based byte jsvm.
          */
         this._OPERATORS_CB = {
             0 : this._onVar.bind(this),
@@ -3455,7 +3268,7 @@ class Code2StringGarmin {
         for (let i = 0; i < len; i++) {
             operator = operators[__WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].getOperator(code[i])](code[i], i, len);
             //
-            // This code is used for closing blocks for if, for and other
+            // This jsvm is used for closing blocks for if, for and other
             // blocked operators.
             //
             if (offsets[offsets.length - 1] === i && offsets.length > 0) {
@@ -3479,8 +3292,8 @@ class Code2StringGarmin {
      *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
      *   BITS_PER_VAR bits  - variable index or all bits till the end for constant
      *
-     * @param {Num} num Packed into number code line
-     * @return {String} Parsed code line string
+     * @param {Num} num Packed into number jsvm line
+     * @return {String} Parsed jsvm line string
      */
     _onVar(num) {
         const var1    = VAR1(num);
@@ -3532,7 +3345,7 @@ class Code2StringGarmin {
 
 
 /***/ }),
-/* 19 */
+/* 18 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5501,7 +5314,7 @@ class FitnessGarmin {
 
     static _run(org, data, index) {
         const len  = data.length;
-        const code = org.code;
+        const code = org.jsvm;
         const vars = code.vars;
 
         for (let i = 0; i < len; i++) {
@@ -5532,6 +5345,200 @@ class FitnessGarmin {
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = FitnessGarmin;
+
+
+/***/ }),
+/* 19 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Observer__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Num__ = __webpack_require__(3);
+/**
+ * Implements organism's code logic.
+ * TODO: explain here code one number format,...
+ *
+ * @author DeadbraiN
+ * TODO: may be this module is redundant
+ * TODO: think about custom operators callbacks from outside. This is how
+ * TODO: we may solve custom tasks
+ */
+
+
+
+
+
+
+
+class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default */] {
+    constructor(codeEndCb, org, classMap, vars = null) {
+        super(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* EVENT_AMOUNT */]);
+
+        /**
+         * {Function} Callback, which is called on every organism
+         * jsvm iteration. On it's end.
+         */
+        this._onCodeEnd   = codeEndCb;
+        this._classMap    = classMap;
+        /**
+         * {Array} Array of two numbers. first - line number where we have
+         * to return if first line appears. second - line number, where ends
+         * closing block '}' of for or if operator.
+         */
+        this._offsets     = [];
+        this._vars        = vars && vars.slice() || this._getVars();
+        /**
+         * {Array} Array of offsets for closing braces. For 'for', 'if'
+         * and all block operators.
+         */
+        this._operators   = new this._classMap[__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeOperatorsCls](this._offsets, this._vars, org);
+        this._code        = [];
+        this._line        = 0;
+        this._fitnessMode = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeFitnessCls !== null;
+    }
+
+    get code() {return this._code;}
+    get size() {return this._code.length;}
+    get operators() {return this._operators.size;};
+    get vars() {return this._vars;}
+
+    run(org) {
+        let line    = this._line;
+        let code    = this._code;
+        let lines   = code.length;
+        let len     = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeYieldPeriod || lines;
+        let fitMode = this._fitnessMode;
+        let ops     = this._operators.operators;
+        let getOp   = __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].getOperator;
+        let ret     = false;
+        let offs    = this._offsets;
+
+        while (lines > 0 && len-- > 0 && org.alive) {
+            line = ops[getOp(code[line])](code[line], line, org, lines, ret);
+
+            if (ret = (offs.length > 0 && line === offs[offs.length - 1])) {
+                offs.pop();
+                line = offs.pop();
+                continue;
+            }
+            if (line >= lines) {
+                line = 0;
+                offs.length = 0;
+                if (this._onCodeEnd) {
+                    this._onCodeEnd();
+                }
+                if (fitMode) {break}
+            }
+        }
+
+        this._line = line;
+    }
+
+    destroy() {
+        this._operators.destroy();
+        this._operators = null;
+        this._vars      = null;
+        this._code      = null;
+        this._onCodeEnd = null;
+        this.clear();
+    }
+
+    /**
+     * Clones both byte and string jsvm from 'jsvm' argument
+     * @param {JSVM} code Source jsvm, from which we will copy
+     */
+    // TODO: do we need this?
+    clone(code) {
+        this._code = code.cloneCode();
+    }
+
+    crossover(jsvm) {
+        const rand    = __WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand;
+        const len     = this._code.length;
+        const len1    = jsvm.code.length;
+        let   start   = rand(len);
+        let   end     = rand(len);
+        let   start1  = rand(len1);
+        let   end1    = rand(len1);
+        let   adds;
+
+        if (start > end) {[start, end] = [end, start];}
+        if (start1 > end1) {[start1, end1] = [end1, start1];}
+
+        adds = Math.abs(end1 - start1 - end + start);
+        if (this._fitnessMode && this._code.length + adds >= __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeMaxSize) {return 0}
+        this._code.splice.apply(this._code, [start, end - start].concat(jsvm.code.slice(start1, end1)));
+        this._reset();
+
+        return adds;
+    }
+
+    /**
+     * Is used for cloning byte jsvm only. This is how you
+     * can get separate copy of the byte jsvm.
+     * @return {Array} Array of 32bit numbers
+     */
+    cloneCode() {
+        return this._code.slice();
+    }
+
+    /**
+     * Inserts random generated number into the byte jsvm at random position
+     */
+    insertLine() {
+        this._code.splice(__WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand(this._code.length), 0, __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].get());
+        this._reset();
+    }
+
+    updateLine(index, number) {
+        this._code[index] = number;
+        this._reset();
+    }
+
+    /**
+     * Removes random generated number into byte jsvm at random position
+     */
+    removeLine() {
+        this._code.splice(__WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand(this._code.length), 1);
+        this._reset();
+    }
+
+    getLine(index) {
+        return this._code[index];
+    }
+
+    _reset() {
+        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].RESET_CODE);
+        this._line           = 0;
+        this._offsets.length = 0;
+    }
+
+    /**
+     * Generates default variables jsvm. It should be in ES5 version, because
+     * speed is important. Amount of vars depends on Config.codeVarAmount config.
+     * @returns {Array} vars jsvm
+     * @private
+     */
+    _getVars() {
+        if (this._vars && this._vars.length > 0) {return this._vars;}
+
+        const len    = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeVarAmount;
+        let   vars   = new Array(len);
+        const range  = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeVarInitRange;
+        const range2 = range / 2;
+        const rand   = __WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand;
+
+        for (let i = 0; i < len; i++) {
+            vars[i] = rand(range) - range2;
+        }
+
+        return (this._vars = vars);
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = JSVM;
 
 
 /***/ }),
@@ -5577,7 +5584,7 @@ class Operators {
          */
         this._vars = vars;
         /**
-         * {Observer} Observer for sending events outside of the code
+         * {Observer} Observer for sending events outside of the jsvm
          */
         this._obs = obs;
         /**
@@ -5646,9 +5653,9 @@ class Operators {
      *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
      *   BITS_PER_VAR bits  - variable index or all bits till the end for constant
      *
-     * @param {Num} num Packed into number code line
-     * @param {Number} line Current line in code
-     * @return {Number} Parsed code line string
+     * @param {Num} num Packed into number jsvm line
+     * @param {Number} line Current line in jsvm
+     * @return {Number} Parsed jsvm line string
      */
     onVar(num, line) {
         const vars = this._vars;
@@ -5868,7 +5875,7 @@ class OperatorsGarmin {
          */
         this._vars = vars;
         /**
-         * {Observer} Observer for sending events outside of the code
+         * {Observer} Observer for sending events outside of the jsvm
          */
         this._obs = obs;
         /**
@@ -5921,9 +5928,9 @@ class OperatorsGarmin {
      *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
      *   BITS_PER_VAR bits  - variable index or all bits till the end for constant
      *
-     * @param {Num} num Packed into number code line
-     * @param {Number} line Current line in code
-     * @return {Number} Parsed code line string
+     * @param {Num} num Packed into number jsvm line
+     * @param {Number} line Current line in jsvm
+     * @return {Number} Parsed jsvm line string
      */
     onVar(num, line) {
         const vars = this._vars;

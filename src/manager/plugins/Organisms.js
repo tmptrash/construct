@@ -93,8 +93,8 @@ export default class Organisms {
                 this._maxEnergy = org.energy;
                 Console.warn('--------------------------------------------------');
                 Console.warn('Max energy: ', org.energy, ', org Id: ', org.id);
-                Console.warn('[' + org.code.code + ']');
-                Console.warn(this._manager.api.formatCode(org.code.code));
+                Console.warn('[' + org.jsvm.code + ']');
+                Console.warn(this._manager.api.formatCode(org.jsvm.code));
             }
 
             if (org.changes > this._maxChanges) {this._maxChanges = org.changes}
@@ -105,8 +105,8 @@ export default class Organisms {
         this._manager.stop();
         Console.warn('--------------------------------------------------');
         Console.warn('org id: ', org.id, ', energy: ', org.energy);
-        Console.warn('[' + org.code.code + ']');
-        Console.warn(this._manager.api.formatCode(org.code.code));
+        Console.warn('[' + org.jsvm.code + ']');
+        Console.warn(this._manager.api.formatCode(org.jsvm.code));
     }
 
     /**
@@ -205,7 +205,7 @@ export default class Organisms {
         let child  = orgs.last.val;
 
         if (child.alive && looser.alive) {
-            child.changes += child.code.crossover(looser.code);
+            child.changes += child.jsvm.crossover(looser.jsvm);
             if (orgs.size >= Config.worldMaxOrgs) {looser.destroy()}
         }
     }

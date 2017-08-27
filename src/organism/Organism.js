@@ -9,7 +9,7 @@ import Observer       from './../global/Observer';
 import {EVENTS}       from './../global/Events';
 import {EVENT_AMOUNT} from './../global/Events';
 import Helper         from './../global/Helper';
-import Code           from './Code';
+import JSVM           from './JSVM';
 
 const IS_NUM = $.isNumeric;
 
@@ -32,7 +32,7 @@ export default class Organism extends Observer {
     constructor(id, x, y, alive, item, codeEndCb, classMap, parent = null) {
         super(EVENT_AMOUNT);
 
-        this._codeEndCb   = codeEndCb;
+        this._jsvmEndCb   = codeEndCb;
         this._classMap    = classMap;
 
         if (parent === null) {this._create();}
@@ -51,7 +51,7 @@ export default class Organism extends Observer {
             this._needRun = true;
         }
 
-        this._code.on(EVENTS.RESET_CODE, this._onResetCode.bind(this));
+        this._jsvm.on(EVENTS.RESET_CODE, this._onResetCode.bind(this));
     }
 
     get id()                    {return this._id}
@@ -68,7 +68,7 @@ export default class Organism extends Observer {
     get color()                 {return this._color}
     get mem()                   {return this._mem}
     get cloneEnergyPercent()    {return this._cloneEnergyPercent}
-    get code()                  {return this._code}
+    get jsvm()                  {return this._jsvm}
     get posId()                 {return Helper.posId(this._x, this._y)}
     get iterations()            {return this._iterations}
 
@@ -97,7 +97,7 @@ export default class Organism extends Observer {
             if (fitnessCls.run(this)) {this.fire(EVENTS.STOP, this)}
             this._needRun = false;
         } else {
-            this._code.run(this);
+            this._jsvm.run(this);
         }
 
         return this._updateDestroy() && this._updateEnergy();
@@ -120,9 +120,9 @@ export default class Organism extends Observer {
         this._energy     = 0;
         this._item       = null;
         this._mem        = null;
-        this._code.destroy();
-        this._code       = null;
-        this._codeEndCb  = null;
+        this._jsvm.destroy();
+        this._jsvm       = null;
+        this._jsvmEndCb  = null;
         this.clear();
     }
 
@@ -133,7 +133,7 @@ export default class Organism extends Observer {
     }
 
     _create() {
-        this._code                  = new Code(this._codeEndCb.bind(this, this), this, this._classMap);
+        this._jsvm                  = new JSVM(this._jsvmEndCb.bind(this, this), this, this._classMap);
         this._energy                = Config.orgStartEnergy;
         this._color                 = Config.orgStartColor;
         this._mutationProbs         = Config.orgMutationProbs;
@@ -145,8 +145,8 @@ export default class Organism extends Observer {
     }
 
     _clone(parent) {
-        this._code                  = new Code(this._codeEndCb.bind(this, this), this, this._classMap, parent.code.vars);
-        this._code.clone(parent.code);
+        this._jsvm                  = new JSVM(this._jsvmEndCb.bind(this, this), this, this._classMap, parent.jsvm.vars);
+        this._jsvm.clone(parent.jsvm);
         this._energy                = parent.energy;
         this._color                 = parent.color;
         this._mutationProbs         = parent.mutationProbs.slice();
@@ -188,7 +188,7 @@ export default class Organism extends Observer {
      */
     _updateEnergy() {
         if (Config.orgEnergySpendPeriod === 0 || this._iterations % Config.orgEnergySpendPeriod !== 0) {return true;}
-        const codeSize = this._code.size;
+        const codeSize = this._jsvm.size;
         let   grabSize = Math.floor(codeSize / Config.orgGarbagePeriod);
 
         if (codeSize > Config.codeMaxSize) {grabSize = codeSize * Config.codeSizeCoef;}

@@ -52,7 +52,7 @@ export default class Mutator {
     }
 
     _mutate(org, clone = true) {
-        const code      = org.code;
+        const code      = org.jsvm;
         const probIndex = Helper.probIndex;
         const mTypes    = this._MUTATION_TYPES;
         let   mutations = Math.round(code.size * (clone ? org.cloneMutationPercent : org.mutationPercent)) || 1;
@@ -69,17 +69,17 @@ export default class Mutator {
     }
 
     _onAdd(org) {
-        if (Config.codeFitnessCls !== null && org.code.size >= Config.codeMaxSize) {return}
-        org.code.insertLine();
+        if (Config.codeFitnessCls !== null && org.jsvm.size >= Config.codeMaxSize) {return}
+        org.jsvm.insertLine();
     }
 
     _onChange(org) {
-        const code = org.code;
+        const code = org.jsvm;
         code.updateLine(Helper.rand(code.size), Num.get());
     }
 
     _onDel(org) {
-        org.code.removeLine();
+        org.jsvm.removeLine();
     }
 
     /**
@@ -89,8 +89,8 @@ export default class Mutator {
      */
     _onSmallChange(org) {
         const rand  = Helper.rand;
-        const index = rand(org.code.size);
-        const code  = org.code;
+        const index = rand(org.jsvm.size);
+        const code  = org.jsvm;
         const rnd   = rand(3);
 
         if (rnd === 0) {

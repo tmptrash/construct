@@ -20,7 +20,7 @@ export default class Code2String {
     constructor() {
         /**
          * {Object} These operator handlers should return string representation
-         * of numeric based byte code.
+         * of numeric based byte jsvm.
          */
         this._OPERATORS_CB = {
             0 : this._onVar.bind(this),
@@ -88,8 +88,8 @@ export default class Code2String {
      *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
      *   BITS_PER_VAR bits  - variable index or all bits till the end for constant
      *
-     * @param {Num} num Packed into number code line
-     * @return {String} Parsed code line string
+     * @param {Num} num Packed into number jsvm line
+     * @return {String} Parsed jsvm line string
      */
     _onVar(num) {
         const var1    = VAR1(num);

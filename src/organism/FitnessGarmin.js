@@ -1963,7 +1963,7 @@ export default class FitnessGarmin {
 
     static _run(org, data, index) {
         const len  = data.length;
-        const code = org.code;
+        const code = org.jsvm;
         const vars = code.vars;
 
         for (let i = 0; i < len; i++) {

@@ -33,7 +33,7 @@ export default class Operators {
          */
         this._vars = vars;
         /**
-         * {Observer} Observer for sending events outside of the code
+         * {Observer} Observer for sending events outside of the jsvm
          */
         this._obs = obs;
         /**
@@ -102,9 +102,9 @@ export default class Operators {
      *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
      *   BITS_PER_VAR bits  - variable index or all bits till the end for constant
      *
-     * @param {Num} num Packed into number code line
-     * @param {Number} line Current line in code
-     * @return {Number} Parsed code line string
+     * @param {Num} num Packed into number jsvm line
+     * @param {Number} line Current line in jsvm
+     * @return {Number} Parsed jsvm line string
      */
     onVar(num, line) {
         const vars = this._vars;

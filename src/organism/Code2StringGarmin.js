@@ -25,7 +25,7 @@ export default class Code2StringGarmin {
         this._offsets = [];
         /**
          * {Object} These operator handlers should return string representation
-         * of numeric based byte code.
+         * of numeric based byte jsvm.
          */
         this._OPERATORS_CB = {
             0 : this._onVar.bind(this),
@@ -69,7 +69,7 @@ export default class Code2StringGarmin {
         for (let i = 0; i < len; i++) {
             operator = operators[Num.getOperator(code[i])](code[i], i, len);
             //
-            // This code is used for closing blocks for if, for and other
+            // This jsvm is used for closing blocks for if, for and other
             // blocked operators.
             //
             if (offsets[offsets.length - 1] === i && offsets.length > 0) {
@@ -93,8 +93,8 @@ export default class Code2StringGarmin {
      *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
      *   BITS_PER_VAR bits  - variable index or all bits till the end for constant
      *
-     * @param {Num} num Packed into number code line
-     * @return {String} Parsed code line string
+     * @param {Num} num Packed into number jsvm line
+     * @return {String} Parsed jsvm line string
      */
     _onVar(num) {
         const var1    = VAR1(num);
