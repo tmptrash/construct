@@ -63,17 +63,17 @@ describe("src/organism/JSVM", () => {
         expect(jsvm.code).toEqual(null);
     });
 
-    it("Checking 'code' property", () => {
+    it("Checking 'code' and 'size' properties", () => {
         const clss = {ops: () => {}};
         const obs  = new Observer(2);
         const jsvm = new JSVM(()=>{}, obs, clss);
 
         expect(jsvm.code instanceof Array).toEqual(true);
-        expect(jsvm.code.length).toEqual(0);
+        expect(jsvm.size).toEqual(0);
 
         jsvm.insertLine();
         expect(jsvm.code instanceof Array).toEqual(true);
-        expect(jsvm.code.length).toEqual(1);
+        expect(jsvm.size).toEqual(1);
     });
     //
     // it("Checking clone()", () => {

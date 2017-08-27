@@ -2448,14 +2448,14 @@ class Mutator {
     }
 
     _mutate(org, clone = true) {
-        const code      = org.jsvm;
+        const jsvm      = org.jsvm;
         const probIndex = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].probIndex;
         const mTypes    = this._MUTATION_TYPES;
-        let   mutations = Math.round(code.size * (clone ? org.cloneMutationPercent : org.mutationPercent)) || 1;
+        let   mutations = Math.round(jsvm.size * (clone ? org.cloneMutationPercent : org.mutationPercent)) || 1;
         let   type;
 
         for (let i = 0; i < mutations; i++) {
-            type = code.size < 1 ? 0 : probIndex(org.mutationProbs);
+            type = jsvm.size < 1 ? 0 : probIndex(org.mutationProbs);
             mTypes[type](org);
         }
         org.changes += mutations;
@@ -2470,8 +2470,8 @@ class Mutator {
     }
 
     _onChange(org) {
-        const code = org.jsvm;
-        code.updateLine(__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(code.size), __WEBPACK_IMPORTED_MODULE_4__organism_Num__["a" /* default */].get());
+        const jsvm = org.jsvm;
+        jsvm.updateLine(__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand(jsvm.size), __WEBPACK_IMPORTED_MODULE_4__organism_Num__["a" /* default */].get());
     }
 
     _onDel(org) {
@@ -2486,16 +2486,16 @@ class Mutator {
     _onSmallChange(org) {
         const rand  = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand;
         const index = rand(org.jsvm.size);
-        const code  = org.jsvm;
+        const jsvm  = org.jsvm;
         const rnd   = rand(3);
 
         if (rnd === 0) {
-            code.updateLine(index, __WEBPACK_IMPORTED_MODULE_4__organism_Num__["a" /* default */].setOperator(code.getLine(index), rand(code.operators)));
+            jsvm.updateLine(index, __WEBPACK_IMPORTED_MODULE_4__organism_Num__["a" /* default */].setOperator(jsvm.getLine(index), rand(jsvm.operatorsSize)));
         } else if (rnd === 1) {
-            code.updateLine(index, __WEBPACK_IMPORTED_MODULE_4__organism_Num__["a" /* default */].setVar(code.getLine(index), rand(VARS), rand(MAX_VAR)));
+            jsvm.updateLine(index, __WEBPACK_IMPORTED_MODULE_4__organism_Num__["a" /* default */].setVar(jsvm.getLine(index), rand(VARS), rand(MAX_VAR)));
         } else {
             // toggle specified bit
-            code.updateLine(index, code.getLine(index) ^ (1 << rand(VAR_BITS_OFFS)));
+            jsvm.updateLine(index, jsvm.getLine(index) ^ (1 << rand(VAR_BITS_OFFS)));
         }
     }
 
@@ -5374,7 +5374,16 @@ class FitnessGarmin {
 
 
 class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default */] {
-    constructor(codeEndCb, org, classMap, vars = null) {
+    /**
+     * Creates JSVM instance. codeEndCb will be called after last code line is run. classMap
+     * is a map of classes. We need only one - Operators class. We use this approach, because
+     * it's impossible to set class in a Config module.
+     * @param {Function} codeEndCb
+     * @param {Observer} obs Observer instance for Operators class
+     * @param {Array} classMap
+     * @param {Array} vars Variables array for case if we have parent organism after cloning
+     */
+    constructor(codeEndCb, obs, classMap, vars = null) {
         super(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* EVENT_AMOUNT */]);
 
         /**
@@ -5382,19 +5391,17 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
          * jsvm iteration. On it's end.
          */
         this._onCodeEnd   = codeEndCb;
-        this._classMap    = classMap;
         /**
          * {Array} Array of two numbers. first - line number where we have
          * to return if first line appears. second - line number, where ends
-         * closing block '}' of for or if operator.
+         * closing block '}' of block operator (e.g. for, if,...).
          */
         this._offsets     = [];
         this._vars        = vars && vars.slice() || this._getVars();
         /**
-         * {Array} Array of offsets for closing braces. For 'for', 'if'
-         * and all block operators.
+         * {Function} Class, which implement all supported operators
          */
-        this._operators   = new this._classMap[__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeOperatorsCls](this._offsets, this._vars, org);
+        this._operators   = new classMap[__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeOperatorsCls](this._offsets, this._vars, obs);
         this._code        = [];
         this._line        = 0;
         this._fitnessMode = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeFitnessCls !== null;
@@ -5402,7 +5409,7 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
 
     get code() {return this._code;}
     get size() {return this._code.length;}
-    get operators() {return this._operators.size;};
+    get operatorsSize() {return this._operators.size;};
     get vars() {return this._vars;}
 
     run(org) {
@@ -5438,7 +5445,7 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     }
 
     destroy() {
-        this._operators.destroy();
+        this._operators.destroy && this._operators.destroy();
         this._operators = null;
         this._vars      = null;
         this._code      = null;
