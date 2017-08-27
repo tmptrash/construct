@@ -243,12 +243,6 @@ const Config = {
      */
     worldZoom: 1,
     /**
-     * {Number} Quite mode. This mode affects on amount and
-     * types of console messages. For example in QUIET_IMPORTANT
-     * mode info messages will be hidden.
-     */
-    worldQuiteMode: QUIET_IMPORTANT,
-    /**
      * {Number} Period of milliseconds, which is user for checking IPS value. It's
      * possible to increase it to reduce amount of requests and additional
      * code in main loop
@@ -371,7 +365,7 @@ const Config = {
      *   1 - only important messages
      *   2 - no messages
      */
-    modeQuiet: 1
+    modeQuiet: QUIET_IMPORTANT
 };
 
 export default Config;

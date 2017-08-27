@@ -1,7 +1,7 @@
 /**
  * Observer implementation. May fire, listen(on()) and clear all the event
  * handlers. This class is optimized for speed. This is why it works with
- * array of number as events instead of strings.
+ * array of numbers as events instead of frequent strings.
  *
  * Usage:
  *   import {EVENTS}       from '.../Events.js'
@@ -13,9 +13,12 @@
  *
  * @author DeadbraiN
  */
+import Console from './../global/Console';
+
 export default class Observer {
     /**
-     * Constructs handlers map
+     * Constructs handlers map. maxIndex means maximum event value
+     * for entire Observer instance life.
      * @param {Number} maxIndex Maximum event index, for current instance
      */
     constructor(maxIndex) {
@@ -24,6 +27,10 @@ export default class Observer {
     }
 
     on (event, handler) {
+        if (typeof(this._handlers[event]) === 'undefined') {
+            Console.warn('Invalid event id. Possibly Observer was created with "maxIndex" parameter, which is smaller then "event" id.');
+            return;
+        }
         this._handlers[event].push(handler);
     }
 
@@ -39,7 +46,7 @@ export default class Observer {
 
     /**
      * This method is a most frequently called one. So we have to
-     * optimize it as deep as possible
+     * optimize it as much as possible
      * @param {Number} event Event number
      * @param {*} args List of arguments
      * @param args
@@ -49,6 +56,11 @@ export default class Observer {
         for (let handler of handlers) {handler(...args);}
     }
 
+    /**
+     * Removes all the handlers from Observer. It's still possible
+     * to use on()/off() methods for working with events, but max
+     * event index set in constructor will be the same.
+     */
     clear () {
         this._resetEvents();
     }

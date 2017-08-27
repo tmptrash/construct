@@ -1,12 +1,27 @@
 // TODO: add two events test
 describe("src/global/Observer", () => {
     let   Observer = require('../../../src/global/Observer').default;
+    let   Config   = require('../../../src/global/Config').default;
+    let   Console  = require('../../../src/global/Console').default;
     const EVENT    = 0;
     const EVENT2   = 1;
     let   obs;
 
     beforeEach(() => obs = new Observer(2));
+    afterEach(() => obs = null);
 
+    it("Checking empty Observer creation", () => {
+        let o    = new Observer();
+        let flag = false;
+
+        function handler() {flag = true;}
+        Console.mode(Config.QUIET_NO);
+        o.on(EVENT, handler);
+        expect(flag).toEqual(false);
+        o.fire(EVENT);
+        expect(flag).toEqual(false);
+        Console.mode(Config.QUIET_IMPORTANT);
+    });
     it("Checking on()/fire() methods", () => {
         let flag = false;
 
@@ -51,6 +66,16 @@ describe("src/global/Observer", () => {
         expect(obs.off(EVENT, handler)).toEqual(true);
         obs.fire(EVENT);
         expect(flag).toEqual(false);
+    });
+    it("Checking off() method with incorrect event id", () => {
+        let flag = false;
+
+        function handler() {flag = true;}
+
+        obs.on(EVENT, handler);
+        expect(obs.off(EVENT2, handler)).toEqual(false);
+        obs.fire(EVENT);
+        expect(flag).toEqual(true);
     });
     it("Checking double off() method", () => {
         let flag = false;
@@ -127,5 +152,20 @@ describe("src/global/Observer", () => {
         obs.on(EVENT, handler1);
         obs.fire(EVENT);
         expect(inc).toEqual(1);
+    });
+    it("Checking clear() method and fire with incorrect event id", () => {
+        let inc = 0;
+
+        function handler() {inc++;}
+
+        obs.on(EVENT, handler);
+        obs.clear();
+        obs.fire(EVENT);
+        obs.fire(EVENT2);
+        expect(inc).toEqual(0);
+
+        obs.on(EVENT, handler);
+        obs.fire(EVENT2);
+        expect(inc).toEqual(0);
     });
 });
