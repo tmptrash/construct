@@ -178,7 +178,10 @@ export default class Operators {
         const vars = this._vars;
         let   x    = vars[VAR1(num)];
         let   y    = vars[VAR2(num)];
-        if (!IS_NUM(x) || !IS_NUM(y) || x < 0 || y < 0 || x >= Config.worldWidth || y >= Config.worldHeight) {return line + 1;}
+        if (!IS_NUM(x) || !IS_NUM(y) || x < 0 || y < 0 || x >= Config.worldWidth || y >= Config.worldHeight) {
+            vars[VAR0(num)] = 0;
+            return line + 1;
+        }
 
         let ret = {ret: 0};
         this._obs.fire(Events.GET_ENERGY, org, x, y, ret);
