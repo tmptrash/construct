@@ -3,6 +3,9 @@
  * items, where you may iterate back and forward using internal references
  * (next, prev). Every item of the queue contains custom value (in
  * 'val' field). This queue is used for speeding up organisms iteration.
+ * Removing of Queue element is done at the moment and not affects items
+ * iteration in comparison with an array or an object. Also removing of
+ * element from the Queue is very fast.
  *
  * @author DeadbraiN
  */
@@ -67,6 +70,12 @@ export default class Queue {
         else {this._last = item.prev;}
     }
 
+    /**
+     * Possibly slow method, because we have to iterate index times
+     * in a loop.
+     * @param {Number} index Index of element in a Queue
+     * @returns {null|Object} Item or null if index is incorrect
+     */
     get(index) {
         let item = this._first;
         while (--index > -1 && item) {item = item.next;}

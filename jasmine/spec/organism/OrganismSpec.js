@@ -1,6 +1,6 @@
 describe("src/organism/Organism", () => {
     let Organism = require('../../../src/organism/Organism').default;
-    let Config   = require('../../../src/global/Config').default;
+    let Config   = require('../../../src/global/Config').Config;
 
     it("Checking organism creation", () => {
         let org = new Organism(0, 1, 2, true, null);

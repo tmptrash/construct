@@ -3,13 +3,13 @@
  * instance. Other instances may have different configuration values
  *
  * @author DeadbraiN
- * TODO: find and remove unused values
+ * TODO: find and remove unused configs
  */
 const QUIET_ALL               = 0;
 const QUIET_IMPORTANT         = 1;
 const QUIET_NO                = 2;
 
-const ORG_MAX_MUTATION_PERIOD = 1000;
+const ORG_MAX_MUTATION_PERIOD = 10000;
 const ORG_FIRST_COLOR         = 1;
 const ORG_MAX_COLOR           = Number.MAX_SAFE_INTEGER;
 
@@ -28,17 +28,17 @@ const Config = {
     ORG_MAX_COLOR          : ORG_MAX_COLOR,
     /**
      * {Array} Probabilities with which mutator decides what to do:
-     * add, change, delete character of the code; change amount of
+     * add, change, delete character of the jsvm; change amount of
      * mutations or change mutations period... Depending on these
      * values, organism may have different strategies of living.
      * For example: if add value is bigger then del and change,
-     * then code size will be grow up all the time. If del value is
+     * then jsvm size will be grow up all the time. If del value is
      * bigger then other, then it will be decreased to zero lines
-     * of code and will die.
+     * of jsvm and will die.
      * Format: [
-     *     add          - Probability of adding of new character to the code
-     *     change       - Probability of changing existing character in a code
-     *     delete       - Probability of deleting of a character in a code
+     *     add          - Probability of adding of new character to the jsvm
+     *     change       - Probability of changing existing character in a jsvm
+     *     delete       - Probability of deleting of a character in a jsvm
      *     small-change - Probability of "small change" - change of expression part
      *     clone        - Probability for amount of mutations on clone
      *     period       - Probability of period of organism mutations
@@ -53,10 +53,10 @@ const Config = {
      */
     orgMutationProbsMaxValue: 100,
     /**
-     * {Number} Percent of mutations from code size, which will be applied to
+     * {Number} Percent of mutations from jsvm size, which will be applied to
      * organism after cloning. Should be <= 1.0
      */
-    orgCloneMutation: 0.01,
+    orgCloneMutationPercent: 0.01,
     /**
      * {Number} Amount of iterations before cloning process
      */
@@ -65,13 +65,13 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
      */
-    orgCrossoverPeriod: 200,
+    orgCrossoverPeriod: 500,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 300,
+    orgRainMutationPeriod: 0,
     /**
      * {Number} Value, which will be used like amount of mutations per
      * orgRainMutationPeriod iterations. 0 is a possible value if
@@ -84,12 +84,12 @@ const Config = {
     orgStartAmount: 500,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
-     * Eve. It means that these empty (without code) organism were created
+     * Eve. It means that these empty (without jsvm) organism were created
      * by operator and not by evolution.
      */
     orgStartEnergy: 10000,
     /**
-     * {Number} Begin color of "empty" organism (organism without code).
+     * {Number} Begin color of "empty" organism (organism without jsvm).
      */
     orgStartColor: 0xFF0000,
     /**
@@ -126,7 +126,7 @@ const Config = {
      */
     codeFuncParamAmount: 2,
     /**
-     * {Number} If organism reach this limit of amount of code lines, then codeSizeCoef
+     * {Number} If organism reach this limit of amount of jsvm lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
      * because our CPU's are slow and organisms with big codes are very slow. But
      * it's possible for organisms to go outside the limit by inventing new
@@ -136,12 +136,12 @@ const Config = {
     /**
      * {Number} This coefficiend is used for calculating of amount of energy,
      * which grabbed from each organism depending on his codeSize.
-     * This coefficient affects entire code size of population and
+     * This coefficient affects entire jsvm size of population and
      * entire system speed. It depends on CPU speed also. So, for
      * different PC's it may be different.
      * Formula is the following: grabEnergy = cfg.codeSizeCoef * org.codeSize
      * See Config.codeMaxSize for details. This config will be turn on only if
-     * organism reaches code size limit Config.codeMaxSize
+     * organism reaches jsvm size limit Config.codeMaxSize
      */
     codeSizeCoef: 10000,
     /**
@@ -156,11 +156,11 @@ const Config = {
      */
     codeVarInitRange: 1000,
     /**
-     * {Number} Every code line 'yield' operator will be inserted to prevent
-     * locking of threads. Set this value to value bigger then code size, then
-     * entire code of organism will be run
+     * {Number} Every jsvm line 'yield' operator will be inserted to prevent
+     * locking of threads. Set this value to value bigger then jsvm size, then
+     * entire jsvm of organism will be run
      */
-    codeYieldPeriod: 3,
+    codeYieldPeriod: 5,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain
@@ -188,7 +188,7 @@ const Config = {
      */
     codeOperatorsCls: 'Operators',//'OperatorsGarmin',
     /**
-     * {String} Name of the class for string representation of byte code
+     * {String} Name of the class for string representation of byte jsvm
      */
     code2StringCls: 'Code2String',//'Code2StringGarmin',
     /**
@@ -212,7 +212,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 5000,
+    worldMaxOrgs: 2000,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
@@ -243,15 +243,9 @@ const Config = {
      */
     worldZoom: 1,
     /**
-     * {Number} Quite mode. This mode affects on amount and
-     * types of console messages. For example in QUIET_IMPORTANT
-     * mode info messages will be hidden.
-     */
-    worldQuiteMode: QUIET_IMPORTANT,
-    /**
      * {Number} Period of milliseconds, which is user for checking IPS value. It's
      * possible to increase it to reduce amount of requests and additional
-     * code in main loop
+     * jsvm in main loop
      */
     worldIpsPeriodMs: 10000,
     /**
@@ -371,10 +365,15 @@ const Config = {
      *   1 - only important messages
      *   2 - no messages
      */
-    modeQuiet: 1
+    modeQuiet: QUIET_IMPORTANT
 };
 
-export default Config;
+const api = {
+    set: (key, val) => Config[key] = val,
+    get: (key)      => Config[key]
+};
+
+export {Config, api};
 
 // /**
 //  * Global jevo.js configuration file. Affects only current jevo
@@ -406,17 +405,17 @@ export default Config;
 //     ORG_MAX_COLOR          : ORG_MAX_COLOR,
 //     /**
 //      * {Array} Probabilities with which mutator decides what to do:
-//      * add, change, delete character of the code; change amount of
+//      * add, change, delete character of the jsvm; change amount of
 //      * mutations or change mutations period... Depending on these
 //      * values, organism may have different strategies of living.
 //      * For example: if add value is bigger then del and change,
-//      * then code size will be grow up all the time. If del value is
+//      * then jsvm size will be grow up all the time. If del value is
 //      * bigger then other, then it will be decreased to zero lines
-//      * of code and will die.
+//      * of jsvm and will die.
 //      * Format: [
-//      *     add          - Probability of adding of new character to the code
-//      *     change       - Probability of changing existing character in a code
-//      *     delete       - Probability of deleting of a character in a code
+//      *     add          - Probability of adding of new character to the jsvm
+//      *     change       - Probability of changing existing character in a jsvm
+//      *     delete       - Probability of deleting of a character in a jsvm
 //      *     small-change - Probability of "small change" - change of expression part
 //      *     clone        - Probability for amount of mutations on clone
 //      *     period       - Probability of period of organism mutations
@@ -431,10 +430,10 @@ export default Config;
 //      */
 //     orgMutationProbsMaxValue: 100,
 //     /**
-//      * {Number} Percent of mutations from code size, which will be applied to
+//      * {Number} Percent of mutations from jsvm size, which will be applied to
 //      * organism after cloning. Should be <= 1.0
 //      */
-//     orgCloneMutation: 0.01,
+//     orgCloneMutationPercent: 0.01,
 //     /**
 //      * {Number} Amount of iterations before cloning process
 //      */
@@ -462,12 +461,12 @@ export default Config;
 //     orgStartAmount: 3,
 //     /**
 //      * {Number} Amount of energy for first organisms. They are like Adam and
-//      * Eve. It means that these empty (without code) organism were created
+//      * Eve. It means that these empty (without jsvm) organism were created
 //      * by operator and not by evolution.
 //      */
 //     orgStartEnergy: 100,
 //     /**
-//      * {Number} Begin color of "empty" organism (organism without code).
+//      * {Number} Begin color of "empty" organism (organism without jsvm).
 //      */
 //     orgStartColor: 0xFF0000,
 //     /**
@@ -510,7 +509,7 @@ export default Config;
 //      */
 //     codeFuncParamAmount: 2,
 //     /**
-//      * {Number} If organism reach this limit of amount of code lines, then codeSizeCoef
+//      * {Number} If organism reach this limit of amount of jsvm lines, then codeSizeCoef
 //      * will be used during it's energy grabbing by system. We use this approach,
 //      * because our CPU's are slow and organisms with big codes are very slow. But
 //      * it's possible for organisms to go outside the limit by inventing new
@@ -520,12 +519,12 @@ export default Config;
 //     /**
 //      * {Number} This coefficiend is used for calculating of amount of energy,
 //      * which grabbed from each organism depending on his codeSize.
-//      * This coefficient affects entire code size of population and
+//      * This coefficient affects entire jsvm size of population and
 //      * entire system speed. It depends on CPU speed also. So, for
 //      * different PC's it may be different.
 //      * Formula is the following: grabEnergy = cfg.codeSizeCoef * org.codeSize
 //      * See Config.codeMaxSize for details. This config will be turn on only if
-//      * organism reaches code size limit Config.codeMaxSize
+//      * organism reaches jsvm size limit Config.codeMaxSize
 //      */
 //     codeSizeCoef: 10000,
 //     /**
@@ -540,9 +539,9 @@ export default Config;
 //      */
 //     codeVarInitRange: 1000,
 //     /**
-//      * {Number} Every code line 'yield' operator will be inserted to prevent
-//      * locking of threads. Set this value to value bigger then code size, then
-//      * entire code of organism will be run
+//      * {Number} Every jsvm line 'yield' operator will be inserted to prevent
+//      * locking of threads. Set this value to value bigger then jsvm size, then
+//      * entire jsvm of organism will be run
 //      */
 //     codeYieldPeriod: 1,
 //     /**
@@ -572,7 +571,7 @@ export default Config;
 //      */
 //     codeOperatorsCls: 'Operators',//'OperatorsGarmin',
 //     /**
-//      * {String} Name of the class for string representation of byte code
+//      * {String} Name of the class for string representation of byte jsvm
 //      */
 //     code2StringCls: 'Code2String',//'Code2StringGarmin',
 //     /**
@@ -635,7 +634,7 @@ export default Config;
 //     /**
 //      * {Number} Period of milliseconds, which is user for checking IPS value. It's
 //      * possible to increase it to reduce amount of requests and additional
-//      * code in main loop
+//      * jsvm in main loop
 //      */
 //     worldIpsPeriodMs: 10000,
 //     /**
@@ -790,17 +789,17 @@ export default Config;
 //     ORG_MAX_COLOR          : ORG_MAX_COLOR,
 //     /**
 //      * {Array} Probabilities with which mutator decides what to do:
-//      * add, change, delete character of the code; change amount of
+//      * add, change, delete character of the jsvm; change amount of
 //      * mutations or change mutations period... Depending on these
 //      * values, organism may have different strategies of living.
 //      * For example: if add value is bigger then del and change,
-//      * then code size will be grow up all the time. If del value is
+//      * then jsvm size will be grow up all the time. If del value is
 //      * bigger then other, then it will be decreased to zero lines
-//      * of code and will die.
+//      * of jsvm and will die.
 //      * Format: [
-//      *     add          - Probability of adding of new character to the code
-//      *     change       - Probability of changing existing character in a code
-//      *     delete       - Probability of deleting of a character in a code
+//      *     add          - Probability of adding of new character to the jsvm
+//      *     change       - Probability of changing existing character in a jsvm
+//      *     delete       - Probability of deleting of a character in a jsvm
 //      *     small-change - Probability of "small change" - change of expression part
 //      *     clone        - Probability for amount of mutations on clone
 //      *     period       - Probability of period of organism mutations
@@ -815,10 +814,10 @@ export default Config;
 //      */
 //     orgMutationProbsMaxValue: 100,
 //     /**
-//      * {Number} Percent of mutations from code size, which will be applied to
+//      * {Number} Percent of mutations from jsvm size, which will be applied to
 //      * organism after cloning. Should be <= 1.0
 //      */
-//     orgCloneMutation: 0.01,
+//     orgCloneMutationPercent: 0.01,
 //     /**
 //      * {Number} Amount of iterations before clonning process
 //      */
@@ -846,12 +845,12 @@ export default Config;
 //     orgStartAmount: 500,
 //     /**
 //      * {Number} Amount of energy for first organisms. They are like Adam and
-//      * Eve. It means that these empty (without code) organism were created
+//      * Eve. It means that these empty (without jsvm) organism were created
 //      * by operator and not by evolution.
 //      */
 //     orgStartEnergy: 1,
 //     /**
-//      * {Number} Begin color of "empty" organism (organism without code).
+//      * {Number} Begin color of "empty" organism (organism without jsvm).
 //      */
 //     orgStartColor: 0xFF0000,
 //     /**
@@ -888,7 +887,7 @@ export default Config;
 //      */
 //     codeFuncParamAmount: 2,
 //     /**
-//      * {Number} If organism reach this limit of amount of code lines, then codeSizeCoef
+//      * {Number} If organism reach this limit of amount of jsvm lines, then codeSizeCoef
 //      * will be used during it's energy grabbing by system. We use this approach,
 //      * because our CPU's are slow and organisms with big codes are very slow. But
 //      * it's possible for organisms to go outside the limit by inventing new
@@ -898,12 +897,12 @@ export default Config;
 //     /**
 //      * {Number} This coefficiend is used for calculating of amount of energy,
 //      * which grabbed from each organism depending on his codeSize.
-//      * This coefficient affects entire code size of population and
+//      * This coefficient affects entire jsvm size of population and
 //      * entire system speed. It depends on CPU speed also. So, for
 //      * different PC's it may be different.
 //      * Formula is the following: grabEnergy = cfg.codeSizeCoef * org.codeSize
 //      * See Config.codeMaxSize for details. This config will be turn on only if
-//      * organism reaches code size limit Config.codeMaxSize
+//      * organism reaches jsvm size limit Config.codeMaxSize
 //      */
 //     codeSizeCoef: 10000,
 //     /**
@@ -918,9 +917,9 @@ export default Config;
 //      */
 //     codeVarInitRange: 1000,
 //     /**
-//      * {Number} Every code line 'yield' operator will be inserted to prevent
-//      * locking of threads. Set this value to value bigger then code size, then
-//      * entire code of organism will be run
+//      * {Number} Every jsvm line 'yield' operator will be inserted to prevent
+//      * locking of threads. Set this value to value bigger then jsvm size, then
+//      * entire jsvm of organism will be run
 //      */
 //     codeYieldPeriod: 1000,
 //     /**
@@ -950,7 +949,7 @@ export default Config;
 //      */
 //     codeOperatorsCls: 'OperatorsGarmin',
 //     /**
-//      * {String} Name of the class for string representation of byte code
+//      * {String} Name of the class for string representation of byte jsvm
 //      */
 //     code2StringCls: 'Code2StringGarmin',
 //     /**
@@ -1013,7 +1012,7 @@ export default Config;
 //     /**
 //      * {Number} Period of milliseconds, which is user for checking IPS value. It's
 //      * possible to increase it to reduce amount of requests and additional
-//      * code in main loop
+//      * jsvm in main loop
 //      */
 //     worldIpsPeriodMs: 10000,
 //     /**

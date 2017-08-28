@@ -12,10 +12,11 @@
  * TODO: what about destroy of manager instance? We have to destroy plugins
  * TODO: by calling of destroy() method for every of them
  */
-import Config            from './../global/Config';
+import {Config}          from './../global/Config';
 import Helper            from './../global/Helper';
 import Observer          from './../global/Observer';
-import Events            from './../global/Events';
+import {EVENTS}          from './../global/Events';
+import {EVENT_AMOUNT}    from './../global/Events';
 import Console           from './../global/Console';
 import World             from './../visual/World';
 import Canvas            from './../visual/Canvas';
@@ -67,7 +68,7 @@ export default class Manager extends Observer {
     onAfterMove() {}
 
     constructor() {
-        super();
+        super(EVENT_AMOUNT);
         this._world      = new World(Config.worldWidth, Config.worldHeight);
         this._canvas     = new Canvas(Config.worldWidth, Config.worldHeight);
         this._plugins    = PLUGINS;
@@ -190,7 +191,7 @@ export default class Manager extends Observer {
     }
 
     _addHandlers() {
-        this._world.on(Events.DOT, this._onDot.bind(this));
+        this._world.on(EVENTS.DOT, this._onDot.bind(this));
     }
 
     _visualize(visualized = true) {

@@ -7,34 +7,42 @@
  * TODO: think about custom operators callbacks from outside. This is how
  * TODO: we may solve custom tasks
  */
-import Config      from './../global/Config';
-import Helper      from './../global/Helper';
-import Observer    from './../global/Observer'
-import Events      from './../global/Events';
-import Num         from './Num';
+import {Config}       from './../global/Config';
+import Helper         from './../global/Helper';
+import Observer       from './../global/Observer'
+import {EVENTS}       from './../global/Events';
+import {EVENT_AMOUNT} from './../global/Events';
+import Num            from './Num';
 
-export default class Code extends Observer {
-    constructor(codeEndCb, org, classMap, vars = null) {
-        super();
+export default class JSVM extends Observer {
+    /**
+     * Creates JSVM instance. codeEndCb will be called after last code line is run. classMap
+     * is a map of classes. We need only one - Operators class. We use this approach, because
+     * it's impossible to set class in a Config module.
+     * @param {Function} codeEndCb
+     * @param {Observer} obs Observer instance for Operators class
+     * @param {Array} classMap
+     * @param {Array} vars Variables array for case if we have parent organism after cloning
+     */
+    constructor(codeEndCb, obs, classMap, vars = null) {
+        super(EVENT_AMOUNT);
 
         /**
          * {Function} Callback, which is called on every organism
-         * code iteration. On it's end.
+         * jsvm iteration. On it's end.
          */
         this._onCodeEnd   = codeEndCb;
-        this._classMap    = classMap;
         /**
          * {Array} Array of two numbers. first - line number where we have
          * to return if first line appears. second - line number, where ends
-         * closing block '}' of for or if operator.
+         * closing block '}' of block operator (e.g. for, if,...).
          */
         this._offsets     = [];
         this._vars        = vars && vars.slice() || this._getVars();
         /**
-         * {Array} Array of offsets for closing braces. For 'for', 'if'
-         * and all block operators.
+         * {Function} Class, which implement all supported operators
          */
-        this._operators   = new this._classMap[Config.codeOperatorsCls](this._offsets, this._vars, org);
+        this._operators   = new classMap[Config.codeOperatorsCls](this._offsets, this._vars, obs);
         this._code        = [];
         this._line        = 0;
         this._fitnessMode = Config.codeFitnessCls !== null;
@@ -42,7 +50,7 @@ export default class Code extends Observer {
 
     get code() {return this._code;}
     get size() {return this._code.length;}
-    get operators() {return this._operators.size;};
+    get operatorsSize() {return this._operators.size;};
     get vars() {return this._vars;}
 
     run(org) {
@@ -78,7 +86,7 @@ export default class Code extends Observer {
     }
 
     destroy() {
-        this._operators.destroy();
+        this._operators.destroy && this._operators.destroy();
         this._operators = null;
         this._vars      = null;
         this._code      = null;
@@ -87,18 +95,18 @@ export default class Code extends Observer {
     }
 
     /**
-     * Clones both byte and string code from 'code' argument
-     * @param {Code} code Source code, from which we will copy
+     * Clones both byte and string jsvm from 'jsvm' argument
+     * @param {JSVM} code Source jsvm, from which we will copy
      */
     // TODO: do we need this?
     clone(code) {
         this._code = code.cloneCode();
     }
 
-    crossover(code) {
+    crossover(jsvm) {
         const rand    = Helper.rand;
         const len     = this._code.length;
-        const len1    = code.code.length;
+        const len1    = jsvm.code.length;
         let   start   = rand(len);
         let   end     = rand(len);
         let   start1  = rand(len1);
@@ -110,15 +118,15 @@ export default class Code extends Observer {
 
         adds = Math.abs(end1 - start1 - end + start);
         if (this._fitnessMode && this._code.length + adds >= Config.codeMaxSize) {return 0}
-        this._code.splice.apply(this._code, [start, end - start].concat(code.code.slice(start1, end1)));
+        this._code.splice.apply(this._code, [start, end - start].concat(jsvm.code.slice(start1, end1)));
         this._reset();
 
         return adds;
     }
 
     /**
-     * Is used for cloning byte code only. This is how you
-     * can get separate copy of the byte code.
+     * Is used for cloning byte jsvm only. This is how you
+     * can get separate copy of the byte jsvm.
      * @return {Array} Array of 32bit numbers
      */
     cloneCode() {
@@ -126,7 +134,7 @@ export default class Code extends Observer {
     }
 
     /**
-     * Inserts random generated number into the byte code at random position
+     * Inserts random generated number into the byte jsvm at random position
      */
     insertLine() {
         this._code.splice(Helper.rand(this._code.length), 0, Num.get());
@@ -139,7 +147,7 @@ export default class Code extends Observer {
     }
 
     /**
-     * Removes random generated number into byte code at random position
+     * Removes random generated number into byte jsvm at random position
      */
     removeLine() {
         this._code.splice(Helper.rand(this._code.length), 1);
@@ -151,15 +159,15 @@ export default class Code extends Observer {
     }
 
     _reset() {
-        this.fire(Events.RESET_CODE);
+        this.fire(EVENTS.RESET_CODE);
         this._line           = 0;
         this._offsets.length = 0;
     }
 
     /**
-     * Generates default variables code. It should be in ES5 version, because
+     * Generates default variables jsvm. It should be in ES5 version, because
      * speed is important. Amount of vars depends on Config.codeVarAmount config.
-     * @returns {Array} vars code
+     * @returns {Array} vars jsvm
      * @private
      */
     _getVars() {

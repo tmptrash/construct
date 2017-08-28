@@ -5,10 +5,9 @@
  *
  * @author DeadbraiN
  */
-import Helper from './../global/Helper';
-import Events from './../global/Events';
-import Config from './../global/Config';
-import Num    from './Num';
+import {EVENTS} from './../global/Events';
+import {Config} from './../global/Config';
+import Num      from './Num';
 
 /**
  * {Function} Just a shortcuts
@@ -34,7 +33,7 @@ export default class Operators {
          */
         this._vars = vars;
         /**
-         * {Observer} Observer for sending events outside of the code
+         * {Observer} Observer for sending events outside of the jsvm
          */
         this._obs = obs;
         /**
@@ -103,9 +102,9 @@ export default class Operators {
      *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
      *   BITS_PER_VAR bits  - variable index or all bits till the end for constant
      *
-     * @param {Num} num Packed into number code line
-     * @param {Number} line Current line in code
-     * @return {Number} Parsed code line string
+     * @param {Num} num Packed into number jsvm line
+     * @param {Number} line Current line in jsvm
+     * @return {Number} Parsed jsvm line string
      */
     onVar(num, line) {
         const vars = this._vars;
@@ -121,7 +120,7 @@ export default class Operators {
 
     onCondition(num, line, org, lines) {
         const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
-        const offs = line + val3 < lines ? line + val3 + 1 : lines;
+        const offs = this._getOffs(line, lines, val3);
 
         if (this._CONDITIONS[VAR2(num)](this._vars[VAR0(num)], this._vars[VAR1(num)])) {
             return line + 1;
@@ -130,20 +129,26 @@ export default class Operators {
         return offs;
     }
 
-    onLoop(num, line, org, lines, ret) {
+    onLoop(num, line, org, lines, afterIteration) {
         const vars = this._vars;
         const var0 = VAR0(num);
         const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
-        const offs = line + val3 < lines ? line + val3 + 1 : lines;
-
-        if (ret) {
+        const offs = this._getOffs(line, lines, val3);
+        //
+        // If last iteration has done and we've returned to the line,
+        // where "for" operator is located
+        //
+        if (afterIteration) {
             if (++vars[var0] < vars[VAR2(num)]) {
                 this._offsets.push(line, offs);
                 return line + 1;
             }
             return offs;
         }
-
+        //
+        // This is first time we are running "for" operator. No
+        // iterations hav done, yet
+        //
         vars[var0] = vars[VAR1(num)];
         if (vars[var0] < vars[VAR2(num)]) {
             this._offsets.push(line, offs);
@@ -184,7 +189,7 @@ export default class Operators {
         }
 
         let ret = {ret: 0};
-        this._obs.fire(Events.GET_ENERGY, org, x, y, ret);
+        this._obs.fire(EVENTS.GET_ENERGY, org, x, y, ret);
         vars[VAR0(num)] = ret.ret;
 
         return line + 1;
@@ -223,7 +228,7 @@ export default class Operators {
 
     _checkAt(num, line, org, x, y) {
         const ret = {ret: 0};
-        org.fire(Events.CHECK_AT, x, y, ret);
+        org.fire(EVENTS.CHECK_AT, x, y, ret);
         this._vars[VAR0(num)] = ret.ret;
         return line + 1;
     }
@@ -234,7 +239,7 @@ export default class Operators {
         if (!IS_NUM(amount) || amount === 0) {return 0}
 
         let ret = {ret: amount};
-        this._obs.fire(Events.EAT, org, x, y, ret);
+        this._obs.fire(EVENTS.EAT, org, x, y, ret);
         if (!IS_NUM(ret.ret)) {return 0}
         org.energy += ret.ret;
 
@@ -243,7 +248,37 @@ export default class Operators {
 
     _step(org, x1, y1, x2, y2) {
         let ret = {ret: 0};
-        this._obs.fire(Events.STEP, org, x1, y1, x2, y2, ret);
+        this._obs.fire(EVENTS.STEP, org, x1, y1, x2, y2, ret);
         return ret.ret;
+    }
+
+    /**
+     * Returns offset for closing bracket of blocked operators like
+     * "if", "for" and so on. These operators shouldn't overlap each
+     * other. for example:
+     *
+     *     for (...) {     // 0
+     *         if (...) {  // 1
+     *             ...     // 2
+     *         }           // 3
+     *     }               // 4
+     *
+     * Closing bracket in line 3 shouldn't be after bracket in line 4.
+     * So it's possible to set it to one of  1...3.
+     * @param {Number} line Current line index
+     * @param {Number} lines Amount of lines
+     * @param {Number} offs Local offset of closing bracket we want to set
+     * @returns {Number}
+     * @private
+     */
+    _getOffs(line, lines, offs) {
+        let   offset  = line + offs < lines ? line + offs + 1 : lines;
+        const offsets = this._offsets;
+
+        if (offsets.length > 0 && offset >= offsets[offsets.length - 1]) {
+            return offsets[offsets.length - 1];
+        }
+
+        return offset;
     }
 }

@@ -6,9 +6,9 @@
  *
  * @author DeadbraiN
  */
-import Helper  from './../../global/Helper';
-import Config  from './../../global/Config';
-import Console from './../../global/Console';
+import Helper   from './../../global/Helper';
+import {Config} from './../../global/Config';
+import Console  from './../../global/Console';
 
 export default class Backup {
     constructor(orgs, world, positions) {
@@ -40,12 +40,12 @@ export default class Backup {
                 x                   : org.x,
                 y                   : org.y,
                 mutationProbs       : org.mutationProbs,
-                mutationClonePercent: org.mutationClonePercent,
+                cloneMutationPercent: org.cloneMutationPercent,
                 mutationPeriod      : org.mutationPeriod,
                 mutationPercent     : org.mutationPercent,
                 color               : org.color,
-                vars                : org.code.vars,
-                code                : org.code.cloneByteCode()
+                vars                : org.jsvm.vars,
+                code                : org.jsvm.cloneByteCode()
             });
             cur = cur.next;
         }

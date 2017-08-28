@@ -17,9 +17,10 @@
  *
  * @author DeadbraiN
  */
-import Observer from './../global/Observer';
-import Helper   from './../global/Helper';
-import Events   from './../global/Events';
+import Observer       from './../global/Observer';
+import Helper         from './../global/Helper';
+import {EVENTS}       from './../global/Events';
+import {EVENT_AMOUNT} from './../global/Events';
 
 /**
  * {Number} Amount of attempts for finding free place in a world.
@@ -29,7 +30,7 @@ const FREE_DOT_ATTEMPTS = 300;
 
 export default class World extends Observer {
     constructor (width, height) {
-        super();
+        super(EVENT_AMOUNT);
         this._data   = [];
         this._width  = width;
         this._height = height;
@@ -51,7 +52,7 @@ export default class World extends Observer {
     setDot(x, y, color) {
         if (x < 0 || x >= this._width || y < 0 || y >= this._height) {return false;}
         this._data[x][y] = color;
-        this.fire(Events.DOT, x, y, color);
+        this.fire(EVENTS.DOT, x, y, color);
 
         return true;
     }
@@ -65,7 +66,7 @@ export default class World extends Observer {
         let dot = Math.min(this.getDot(x, y), amount);
 
         if (dot > 0) {
-            this.fire(Events.DOT, x, y, (this._data[x][y] -= dot));
+            this.fire(EVENTS.DOT, x, y, (this._data[x][y] -= dot));
         }
 
         return dot;

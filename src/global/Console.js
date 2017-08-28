@@ -7,7 +7,7 @@
  *
  * @author DeadbraiN
  */
-import Config from './Config';
+import {Config} from './Config';
 
 export default class Console {
     static error(...msg) {

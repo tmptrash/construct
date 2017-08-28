@@ -9,11 +9,11 @@
  *
  * @author DeadbraiN
  */
-import Events   from './../../global/Events';
-import Config   from './../../global/Config';
-import Helper   from './../../global/Helper';
-import Organism from './../../organism/Organism';
-import Num      from '../../organism/Num';
+import {EVENTS}  from './../../global/Events';
+import {Config}  from './../../global/Config';
+import Helper    from './../../global/Helper';
+import Organism  from './../../organism/Organism';
+import Num       from './../../organism/Num';
 
 const VAR_BITS_OFFS = Num.VAR_BITS_OFFS - 1;
 const VARS          = Num.VARS;
@@ -34,8 +34,8 @@ export default class Mutator {
             this._onCloneEnergyPercent
         ];
 
-        manager.on(Events.ORGANISM, this._onOrganism.bind(this));
-        manager.on(Events.CLONE, this._onCloneOrg.bind(this));
+        manager.on(EVENTS.ORGANISM, this._onOrganism.bind(this));
+        manager.on(EVENTS.CLONE, this._onCloneOrg.bind(this));
     }
 
     destroy() {
@@ -48,38 +48,38 @@ export default class Mutator {
     }
 
     _onCloneOrg(parent, child) {
-        if (child.energy > 0) {this._mutate(child);}
+        if (child.energy > 0 && Config.orgCloneMutationPercent > 0) {this._mutate(child);}
     }
 
     _mutate(org, clone = true) {
-        const code      = org.code;
+        const jsvm      = org.jsvm;
         const probIndex = Helper.probIndex;
         const mTypes    = this._MUTATION_TYPES;
-        let   mutations = Math.round(code.size * (clone ? org.mutationClonePercent : org.mutationPercent)) || 1;
+        let   mutations = Math.round(jsvm.size * (clone ? org.cloneMutationPercent : org.mutationPercent)) || 1;
         let   type;
 
         for (let i = 0; i < mutations; i++) {
-            type = code.size < 1 ? 0 : probIndex(org.mutationProbs);
-            org.changes++;
+            type = jsvm.size < 1 ? 0 : probIndex(org.mutationProbs);
             mTypes[type](org);
         }
-        this._manager.fire(Events.MUTATIONS, org, mutations, clone);
+        org.changes += mutations;
+        this._manager.fire(EVENTS.MUTATIONS, org, mutations, clone);
 
         return mutations;
     }
 
     _onAdd(org) {
-        if (Config.codeFitnessCls !== null && org.code.size >= Config.codeMaxSize) {return}
-        org.code.insertLine();
+        if (Config.codeFitnessCls !== null && org.jsvm.size >= Config.codeMaxSize) {return}
+        org.jsvm.insertLine();
     }
 
     _onChange(org) {
-        const code = org.code;
-        code.updateLine(Helper.rand(code.size), Num.get());
+        const jsvm = org.jsvm;
+        jsvm.updateLine(Helper.rand(jsvm.size), Num.get());
     }
 
     _onDel(org) {
-        org.code.removeLine();
+        org.jsvm.removeLine();
     }
 
     /**
@@ -89,22 +89,22 @@ export default class Mutator {
      */
     _onSmallChange(org) {
         const rand  = Helper.rand;
-        const index = rand(org.code.size);
-        const code  = org.code;
+        const index = rand(org.jsvm.size);
+        const jsvm  = org.jsvm;
         const rnd   = rand(3);
 
         if (rnd === 0) {
-            code.updateLine(index, Num.setOperator(code.getLine(index), rand(code.operators)));
+            jsvm.updateLine(index, Num.setOperator(jsvm.getLine(index), rand(jsvm.operatorsSize)));
         } else if (rnd === 1) {
-            code.updateLine(index, Num.setVar(code.getLine(index), rand(VARS), rand(MAX_VAR)));
+            jsvm.updateLine(index, Num.setVar(jsvm.getLine(index), rand(VARS), rand(MAX_VAR)));
         } else {
             // toggle specified bit
-            code.updateLine(index, code.getLine(index) ^ (1 << rand(VAR_BITS_OFFS)));
+            jsvm.updateLine(index, jsvm.getLine(index) ^ (1 << rand(VAR_BITS_OFFS)));
         }
     }
 
     _onClone(org) {
-        org.mutationClonePercent = Math.random();
+        org.cloneMutationPercent = Math.random();
     }
 
     _onPeriod(org) {

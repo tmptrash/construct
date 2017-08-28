@@ -3,9 +3,16 @@
  *
  * @author DeadbraiN
  */
-import Config from './Config';
+import {Config} from './Config';
 
 export default class Helper {
+    /**
+     * Calculates unique id for world's coordinates. For the same x,y
+     * id will be the same.
+     * @param {Number} x
+     * @param {Number} y
+     * @returns {Number} unique id
+     */
     static posId(x, y) {
         return y * Config.worldWidth + x;
     }
@@ -86,32 +93,9 @@ export default class Helper {
      */
     static empty(pos) {return pos.x === 0 && pos.y === 0;}
     /**
-     * Saves custom data into the file. If file exists, it will
-     * be overrided. It's only rewrites existing file and not
-     * append it. It also doesn't work with native types, in sense
-     * that you can't save native values into the file without *
-     * meta information. For example, you can't store ascii string
-     * in a file without special prefic before it.
-     * @param {Object} data Data to save
-     * @param {String} file File name/Key name
-     * TODO: FileApi should be used
-     */
-    static save(data, file = "backup.data") {
-        localStorage[file] = JSON.stringify(data);
-    }
-   /**
-    * Loads custom data from the file
-    * @param file File name
-    * @return {Object} loading result or nothing
-    * TODO: FileApi should be used
-    */
-    static load(file = "backup.data") {
-        return JSON.parse(localStorage[file]);
-    }
-
-    /**
      * Does normalization of X and Y coordinates. It's used
      * in cyclical mode for checking if we out of bound (world).
+     * In non cyclical mode it just returns the same coordinates.
      * Usage: [x, y] = Helper.normalize(10, -1); // 10, 100 (height - 1)
      * @param {Number} x
      * @param {Number} y
@@ -119,12 +103,37 @@ export default class Helper {
      */
     static normalize(x, y) {
         if (Config.worldCyclical) {
-            if (x < 0)                        {x = Config.worldWidth - 1;}
+            if (x < 0) {x = Config.worldWidth - 1;}
             else if (x >= Config.worldWidth)  {x = 0;}
-            else if (y < 0)                   {y = Config.worldHeight - 1;}
+
+            if (y < 0) {y = Config.worldHeight - 1;}
             else if (y >= Config.worldHeight) {y = 0;}
         }
 
         return [x, y];
     }
+    // TODO: will be used later
+    // /**
+    //  * Saves custom data into the file. If file exists, it will
+    //  * be overrided. It's only rewrites existing file and not
+    //  * append it. It also doesn't work with native types, in sense
+    //  * that you can't save native values into the file without *
+    //  * meta information. For example, you can't store ascii string
+    //  * in a file without special prefic before it.
+    //  * @param {Object} data Data to save
+    //  * @param {String} file File name/Key name
+    //  * TODO: FileApi should be used
+    //  */
+    // static save(data, file = "backup.data") {
+    //     localStorage[file] = JSON.stringify(data);
+    // }
+    // /**
+    //  * Loads custom data from the file
+    //  * @param file File name
+    //  * @return {Object} loading result or nothing
+    //  * TODO: FileApi should be used
+    //  */
+    // static load(file = "backup.data") {
+    //     return JSON.parse(localStorage[file]);
+    // }
 }

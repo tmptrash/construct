@@ -19,6 +19,38 @@ describe('src/global/Queue', () => {
         expect(q.first.next.val).toEqual(2);
     });
 
+    it('Checking last property', () => {
+        expect(q.size).toEqual(0);
+        expect(q.last.val).toEqual(null);
+
+        q.add(23);
+        expect(q.last.val).toEqual(23);
+        q.add(78);
+        expect(q.first.val).toEqual(23);
+        expect(q.last.val).toEqual(78);
+
+        q.add(2);
+        expect(q.size).toEqual(3);
+        expect(q.first.val).toEqual(23);
+        expect(q.last.val).toEqual(2);
+
+        q.del(q.last);
+        expect(q.size).toEqual(2);
+        expect(q.last.val).toEqual(78);
+
+        q.del(q.last);
+        expect(q.size).toEqual(1);
+        expect(q.last.val).toEqual(23);
+
+        q.del(q.last);
+        expect(q.size).toEqual(0);
+        expect(q.last.val).toEqual(null);
+
+        q.del(q.last);
+        expect(q.size).toEqual(0);
+        expect(q.last.val).toEqual(null);
+    });
+
     it('Checking deletion', () => {
         q.add(123);
         expect(q.first.val).toEqual(123);
@@ -34,6 +66,22 @@ describe('src/global/Queue', () => {
         q.del(q.first);
         expect(q.size).toEqual(0);
         expect(q.first.val !== 12).toEqual(true);
+    });
+    it('Checking deletion of two elements', () => {
+        q.add(123);
+        q.add(-4);
+        expect(q.first.val).toEqual(123);
+        expect(q.first.next.val).toEqual(-4);
+        expect(q.size).toEqual(2);
+        expect(q.get(1).val).toEqual(-4);
+
+        q.del(q.first);
+        expect(q.size).toEqual(1);
+        expect(q.first.val === -4).toEqual(true);
+
+        q.del(q.first);
+        expect(q.size).toEqual(0);
+        expect(q.first.val === null).toEqual(true);
     });
     
     it('Checking size field', () => {
