@@ -2892,7 +2892,7 @@ const GREEN  = 'color: #00aa00';
 const RED    = 'color: #aa0000';
 const PERIOD = 10000;
 
-/* harmony default export */ __webpack_exports__["a"] = (class {
+class Status {
     constructor(manager) {
         this._manager = manager;
         this._stamp       = 0;
@@ -2977,7 +2977,9 @@ const PERIOD = 10000;
         this._changes  += changes;
         this._fitness  += fitness;
     }
-});
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = Status;
+
 
 /***/ }),
 /* 16 */

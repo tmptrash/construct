@@ -10,7 +10,7 @@ const GREEN  = 'color: #00aa00';
 const RED    = 'color: #aa0000';
 const PERIOD = 10000;
 
-export default class {
+export default class Status {
     constructor(manager) {
         this._manager = manager;
         this._stamp       = 0;

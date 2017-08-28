@@ -126,8 +126,8 @@ export default class Organism extends Observer {
         this.clear();
     }
 
-    _updateColor(adds) {
-        if ((this._color += adds) > Config.ORG_MAX_COLOR) {
+    _updateColor(changes) {
+        if ((this._color += changes) > Config.ORG_MAX_COLOR) {
             this._color = Config.ORG_FIRST_COLOR;
         }
     }

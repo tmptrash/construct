@@ -74,6 +74,50 @@ describe("src/organism/JSVM", () => {
         jsvm.insertLine();
         expect(jsvm.code instanceof Array).toEqual(true);
         expect(jsvm.size).toEqual(1);
+
+        jsvm.insertLine();
+        expect(jsvm.size).toEqual(2);
+        jsvm.removeLine();
+        expect(jsvm.size).toEqual(1);
+        jsvm.removeLine();
+        expect(jsvm.size).toEqual(0);
+
+        jsvm.destroy();
+    });
+
+    it("Checking 'operatorsSize' property", () => {
+        const clss = {ops: () => {}};
+        const obs  = new Observer(2);
+        const jsvm = new JSVM(()=>{}, obs, clss);
+
+        expect(jsvm.operatorsSize === undefined).toEqual(true);
+
+        jsvm.destroy();
+    });
+
+    it("Checking 'vars' getter for clone mode", () => {
+        const clss = {ops: () => {}};
+        const obs  = new Observer(2);
+        const vars = [1,2];
+        const jsvm = new JSVM(()=>{}, obs, clss, vars);
+
+        expect(
+            jsvm.vars[0] === vars[0] &&
+            jsvm.vars[1] === vars[1] &&
+            jsvm.vars !== vars
+        ).toEqual(true);
+
+        jsvm.destroy();
+    });
+
+    it("Checking 'vars' getter for non clone mode", () => {
+        const clss = {ops: () => {}};
+        const obs  = new Observer(2);
+        const jsvm = new JSVM(()=>{}, obs, clss);
+
+        expect(jsvm.vars.length === Config.codeVarAmount).toEqual(true);
+
+        jsvm.destroy();
     });
     //
     // it("Checking clone()", () => {
