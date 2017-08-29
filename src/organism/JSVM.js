@@ -51,7 +51,7 @@ export default class JSVM extends Observer {
 
     get code()      {return this._code}
     get size()      {return this._code.length}
-    get operators() {return this._operators}
+    get operators() {return this._operators};
     get vars()      {return this._vars}
 
     run(org) {

@@ -16,7 +16,7 @@ const VAR2                  = (n) => Num.getVar(n, 2);
 const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
 const HALF_OF_VAR           = Num.MAX_VAR / 2;
 
-export default class Code2String {
+export default class Code2StringDos {
     constructor() {
         /**
          * {Object} These operator handlers should return string representation

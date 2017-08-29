@@ -186,11 +186,11 @@ const Config = {
      * {Function} Class with available operators. See default Operators
      * class for details. See Manager.CLASS_MAP for additional details.
      */
-    codeOperatorsCls: 'Operators',//'OperatorsGarmin',
+    codeOperatorsCls: 'OperatorsDos',//'OperatorsGarmin',
     /**
      * {String} Name of the class for string representation of byte jsvm
      */
-    code2StringCls: 'Code2String',//'Code2StringGarmin',
+    code2StringCls: 'Code2StringDos',//'Code2StringGarmin',
     /**
      * {Number} World width
      */
@@ -569,11 +569,11 @@ export {Config, api};
 //      * {Function} Class with available operators. See default Operators
 //      * class for details. See Manager.CLASS_MAP for additional details.
 //      */
-//     codeOperatorsCls: 'Operators',//'OperatorsGarmin',
+//     codeOperatorsCls: 'OperatorsDos',//'OperatorsGarmin',
 //     /**
 //      * {String} Name of the class for string representation of byte jsvm
 //      */
-//     code2StringCls: 'Code2String',//'Code2StringGarmin',
+//     code2StringCls: 'Code2StringDos',//'Code2StringGarmin',
 //     /**
 //      * {Number} World width
 //      */

@@ -27,9 +27,9 @@ import Mutator           from './plugins/Mutator';
 import Energy            from './plugins/Energy';
 import Status            from './plugins/Status';
 
-import Operators         from './../organism/Operators';
+import OperatorsDos      from '../organism/OperatorsDos';
 import OperatorsGarmin   from './../organism/OperatorsGarmin';
-import Code2String       from './../organism/Code2String';
+import Code2StringDos    from '../organism/Code2StringDos';
 import Code2StringGarmin from './../organism/Code2StringGarmin';
 import FitnessGarmin     from './../organism/FitnessGarmin';
 /**
@@ -37,9 +37,9 @@ import FitnessGarmin     from './../organism/FitnessGarmin';
  * for switching between fitness and natural modes
  */
 const CLASS_MAP = {
-    Operators        : Operators,
+    OperatorsDos     : OperatorsDos,
     OperatorsGarmin  : OperatorsGarmin,
-    Code2String      : Code2String,
+    Code2StringDos   : Code2StringDos,
     Code2StringGarmin: Code2StringGarmin,
     FitnessGarmin    : FitnessGarmin
 };

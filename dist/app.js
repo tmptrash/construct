@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 8);
+/******/ 	return __webpack_require__(__webpack_require__.s = 9);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -261,11 +261,11 @@ const Config = {
      * {Function} Class with available operators. See default Operators
      * class for details. See Manager.CLASS_MAP for additional details.
      */
-    codeOperatorsCls: 'Operators',//'OperatorsGarmin',
+    codeOperatorsCls: 'OperatorsDos',//'OperatorsGarmin',
     /**
      * {String} Name of the class for string representation of byte jsvm
      */
-    code2StringCls: 'Code2String',//'Code2StringGarmin',
+    code2StringCls: 'Code2StringDos',//'Code2StringGarmin',
     /**
      * {Number} World width
      */
@@ -644,11 +644,11 @@ const api = {
 //      * {Function} Class with available operators. See default Operators
 //      * class for details. See Manager.CLASS_MAP for additional details.
 //      */
-//     codeOperatorsCls: 'Operators',//'OperatorsGarmin',
+//     codeOperatorsCls: 'OperatorsDos',//'OperatorsGarmin',
 //     /**
 //      * {String} Name of the class for string representation of byte jsvm
 //      */
-//     code2StringCls: 'Code2String',//'Code2StringGarmin',
+//     code2StringCls: 'Code2StringDos',//'Code2StringGarmin',
 //     /**
 //      * {Number} World width
 //      */
@@ -1639,7 +1639,7 @@ class Observer {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Helper__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__JSVM__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__JSVM__ = __webpack_require__(20);
 /**
  * TODO: add description:
  * TODO:   - events
@@ -1768,8 +1768,8 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
         this.clear();
     }
 
-    _updateColor(adds) {
-        if ((this._color += adds) > __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].ORG_MAX_COLOR) {
+    _updateColor(changes) {
+        if ((this._color += changes) > __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].ORG_MAX_COLOR) {
             this._color = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].ORG_FIRST_COLOR;
         }
     }
@@ -1787,8 +1787,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     }
 
     _clone(parent) {
-        this._jsvm                  = new __WEBPACK_IMPORTED_MODULE_4__JSVM__["a" /* default */](this._jsvmEndCb.bind(this, this), this, this._classMap, parent.jsvm.vars);
-        this._jsvm.clone(parent.jsvm);
+        this._jsvm                  = new __WEBPACK_IMPORTED_MODULE_4__JSVM__["a" /* default */](this._jsvmEndCb.bind(this, this), this, this._classMap, parent);
         this._energy                = parent.energy;
         this._color                 = parent.color;
         this._mutationProbs         = parent.mutationProbs.slice();
@@ -1849,23 +1848,80 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Num__ = __webpack_require__(3);
+/**
+ * This file contains interface for available operators for some special
+ * task. You have to inherit your operators class from this one.
+ *
+ * @author DeadbraiN
+ */
+
+
+class Operators {
+    constructor(offsets, vars, obs) {
+        /**
+         * {Array} Array of offsets for closing braces. For 'for', 'if'
+         * and other operators.
+         */
+        this.offsets = offsets;
+        /**
+         * {Array} Available variables
+         */
+        this.vars = vars;
+        /**
+         * {Observer} Observer for sending events outside
+         */
+        this.obs = obs;
+        //
+        // We have to set amount of available operators for correct
+        // working of mutations of operators.
+        //
+        __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].setOperatorAmount(this.size);
+    }
+
+    destroy() {
+        this.offsets = null;
+        this.vars    = null;
+        this.obs     = null;
+    }
+
+    /**
+     * Returns operators array. Should be overridden in child class
+     * @abstract
+     */
+    get operators() {}
+
+    /**
+     * Returns siz (amount) of operators in operators array
+     * @abstract
+     */
+    get size()      {}
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = Operators;
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Observer__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Console__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__visual_World__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__visual_Canvas__ = __webpack_require__(22);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__plugins_Organisms__ = __webpack_require__(14);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__plugins_Config__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__plugins_Mutator__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__plugins_Energy__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__plugins_Status__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__organism_Operators__ = __webpack_require__(20);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__organism_OperatorsGarmin__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__organism_Code2String__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__organism_Code2StringGarmin__ = __webpack_require__(17);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__organism_FitnessGarmin__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__visual_World__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__visual_Canvas__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__plugins_Organisms__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__plugins_Config__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__plugins_Mutator__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__plugins_Energy__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__plugins_Status__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__organism_OperatorsDos__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__organism_OperatorsGarmin__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__organism_Code2StringDos__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__organism_Code2StringGarmin__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__organism_FitnessGarmin__ = __webpack_require__(19);
 /**
  * Main manager class of application. Contains all parts of jevo.js app
  * like World, Connection, Console etc... Runs infinite loop inside run()
@@ -1905,9 +1961,9 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
  * for switching between fitness and natural modes
  */
 const CLASS_MAP = {
-    Operators        : __WEBPACK_IMPORTED_MODULE_12__organism_Operators__["a" /* default */],
+    OperatorsDos     : __WEBPACK_IMPORTED_MODULE_12__organism_OperatorsDos__["a" /* default */],
     OperatorsGarmin  : __WEBPACK_IMPORTED_MODULE_13__organism_OperatorsGarmin__["a" /* default */],
-    Code2String      : __WEBPACK_IMPORTED_MODULE_14__organism_Code2String__["a" /* default */],
+    Code2StringDos   : __WEBPACK_IMPORTED_MODULE_14__organism_Code2StringDos__["a" /* default */],
     Code2StringGarmin: __WEBPACK_IMPORTED_MODULE_15__organism_Code2StringGarmin__["a" /* default */],
     FitnessGarmin    : __WEBPACK_IMPORTED_MODULE_16__organism_FitnessGarmin__["a" /* default */]
 };
@@ -2079,12 +2135,12 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* defa
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_Manager__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_Manager__ = __webpack_require__(8);
 /**
  * This is an entry point of jevo.js application. Compiled version of
  * this file should be included into index.html
@@ -2101,7 +2157,7 @@ window.man = manager;
 manager.run();
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2193,7 +2249,7 @@ class Queue {
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2286,7 +2342,7 @@ class Backup {
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2308,7 +2364,7 @@ class Config {
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2385,7 +2441,7 @@ class Energy {
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2490,7 +2546,7 @@ class Mutator {
         const rnd   = rand(3);
 
         if (rnd === 0) {
-            jsvm.updateLine(index, __WEBPACK_IMPORTED_MODULE_4__organism_Num__["a" /* default */].setOperator(jsvm.getLine(index), rand(jsvm.operatorsSize)));
+            jsvm.updateLine(index, __WEBPACK_IMPORTED_MODULE_4__organism_Num__["a" /* default */].setOperator(jsvm.getLine(index), rand(jsvm.operators.size)));
         } else if (rnd === 1) {
             jsvm.updateLine(index, __WEBPACK_IMPORTED_MODULE_4__organism_Num__["a" /* default */].setVar(jsvm.getLine(index), rand(VARS), rand(MAX_VAR)));
         } else {
@@ -2523,7 +2579,7 @@ class Mutator {
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2531,9 +2587,9 @@ class Mutator {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Queue__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Queue__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_Organism__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Backup__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Backup__ = __webpack_require__(11);
 /**
  * Plugin for Manager module, which handles organisms population
  *
@@ -2874,7 +2930,7 @@ class Organisms {
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2982,7 +3038,7 @@ class Status {
 
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3005,7 +3061,7 @@ const VAR2                  = (n) => __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* d
 const BITS_AFTER_THREE_VARS = __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].BITS_PER_OPERATOR + __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].BITS_PER_VAR * 3;
 const HALF_OF_VAR           = __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].MAX_VAR / 2;
 
-class Code2String {
+class Code2StringDos {
     constructor() {
         /**
          * {Object} These operator handlers should return string representation
@@ -3190,11 +3246,11 @@ class Code2String {
         return `v${VAR0(num)}=checkDown()`;
     }
 }
-/* harmony export (immutable) */ __webpack_exports__["a"] = Code2String;
+/* harmony export (immutable) */ __webpack_exports__["a"] = Code2StringDos;
 
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3347,7 +3403,7 @@ class Code2StringGarmin {
 
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5350,7 +5406,7 @@ class FitnessGarmin {
 
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5379,13 +5435,14 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     /**
      * Creates JSVM instance. codeEndCb will be called after last code line is run. classMap
      * is a map of classes. We need only one - Operators class. We use this approach, because
-     * it's impossible to set class in a Config module.
+     * it's impossible to set class in a Config module. parent is used if JSVM instance is
+     * in a cloning mode and we have to create a copy of it.
      * @param {Function} codeEndCb
      * @param {Observer} obs Observer instance for Operators class
      * @param {Array} classMap
-     * @param {Array} vars Variables array for case if we have parent organism after cloning
+     * @param {JSVM} parent Parent JSVM instance in case of cloning
      */
-    constructor(codeEndCb, obs, classMap, vars = null) {
+    constructor(codeEndCb, obs, classMap, parent = null) {
         super(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* EVENT_AMOUNT */]);
 
         /**
@@ -5399,20 +5456,20 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
          * closing block '}' of block operator (e.g. for, if,...).
          */
         this._offsets     = [];
-        this._vars        = vars && vars.slice() || this._getVars();
+        this._vars        = parent && parent.vars && parent.vars.slice() || this._getVars();
         /**
          * {Function} Class, which implement all supported operators
          */
         this._operators   = new classMap[__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeOperatorsCls](this._offsets, this._vars, obs);
-        this._code        = [];
+        this._code        = parent && parent.code || [];
         this._line        = 0;
         this._fitnessMode = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeFitnessCls !== null;
     }
 
-    get code() {return this._code;}
-    get size() {return this._code.length;}
-    get operatorsSize() {return this._operators.size;};
-    get vars() {return this._vars;}
+    get code()      {return this._code}
+    get size()      {return this._code.length}
+    get operators() {return this._operators};
+    get vars()      {return this._vars}
 
     run(org) {
         let line    = this._line;
@@ -5455,15 +5512,6 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
         this.clear();
     }
 
-    /**
-     * Clones both byte and string jsvm from 'jsvm' argument
-     * @param {JSVM} code Source jsvm, from which we will copy
-     */
-    // TODO: do we need this?
-    clone(code) {
-        this._code = code.cloneCode();
-    }
-
     crossover(jsvm) {
         const rand    = __WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand;
         const len     = this._code.length;
@@ -5483,15 +5531,6 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
         this._reset();
 
         return adds;
-    }
-
-    /**
-     * Is used for cloning byte jsvm only. This is how you
-     * can get separate copy of the byte jsvm.
-     * @return {Array} Array of 32bit numbers
-     */
-    cloneCode() {
-        return this._code.slice();
     }
 
     /**
@@ -5551,13 +5590,14 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
 
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Num__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__base_Operators__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Num__ = __webpack_require__(3);
 /**
  * This file contains all available operators implementation. For example:
  * for, if, variable declaration, steps, eating etc... User may override
@@ -5569,33 +5609,21 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
 
 
 
+
 /**
  * {Function} Just a shortcuts
  */
-const VAR0                  = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getVar;
-const VAR1                  = (n) => __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getVar(n, 1);
-const VAR2                  = (n) => __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getVar(n, 2);
-const BITS_AFTER_THREE_VARS = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].BITS_PER_OPERATOR + __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].BITS_PER_VAR * 3;
-const BITS_WITHOUT_2_VARS   = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].BITS_WITHOUT_2_VARS;
-const BITS_OF_TWO_VARS      = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].BITS_OF_TWO_VARS;
+const VAR0                  = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar;
+const VAR1                  = (n) => __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(n, 1);
+const VAR2                  = (n) => __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(n, 2);
+const BITS_AFTER_THREE_VARS = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_PER_OPERATOR + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_PER_VAR * 3;
+const BITS_OF_TWO_VARS      = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_OF_TWO_VARS;
 const IS_NUM                = $.isNumeric;
-const HALF_OF_VAR           = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].MAX_VAR / 2;
+const HALF_OF_VAR           = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].MAX_VAR / 2;
 
-class Operators {
+class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a" /* default */] {
     constructor(offsets, vars, obs) {
-        /**
-         * {Array} Array of offsets for closing braces. For 'for', 'if'
-         * and all block operators.
-         */
-        this._offsets = offsets;
-        /**
-         * {Array} Available variables
-         */
-        this._vars = vars;
-        /**
-         * {Observer} Observer for sending events outside of the jsvm
-         */
-        this._obs = obs;
+        super(offsets, vars, obs);
         /**
          * {Object} These operator handlers should return string, which
          * will be added to the final string script for evaluation.
@@ -5641,11 +5669,11 @@ class Operators {
         ];
         //this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
 
-        __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].setOperatorAmount(this._OPERATORS_CB_LEN);
+        __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].setOperatorAmount(this._OPERATORS_CB_LEN);
     }
 
     destroy() {
-        this._offsets      = null;
+        super.destroy();
         this._OPERATORS_CB = null;
         this._CONDITIONS   = null;
         this._OPERATORS    = null;
@@ -5667,9 +5695,9 @@ class Operators {
      * @return {Number} Parsed jsvm line string
      */
     onVar(num, line) {
-        const vars = this._vars;
+        const vars = this.vars;
         const var1 = VAR1(num);
-        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS) : vars[var1];
+        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS) : vars[var1];
 
         return line + 1;
     }
@@ -5679,10 +5707,10 @@ class Operators {
     //}
 
     onCondition(num, line, org, lines) {
-        const val3 = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
+        const val3 = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
         const offs = this._getOffs(line, lines, val3);
 
-        if (this._CONDITIONS[VAR2(num)](this._vars[VAR0(num)], this._vars[VAR1(num)])) {
+        if (this._CONDITIONS[VAR2(num)](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
             return line + 1;
         }
 
@@ -5690,9 +5718,9 @@ class Operators {
     }
 
     onLoop(num, line, org, lines, afterIteration) {
-        const vars = this._vars;
+        const vars = this.vars;
         const var0 = VAR0(num);
-        const val3 = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
+        const val3 = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
         const offs = this._getOffs(line, lines, val3);
         //
         // If last iteration has done and we've returned to the line,
@@ -5700,7 +5728,7 @@ class Operators {
         //
         if (afterIteration) {
             if (++vars[var0] < vars[VAR2(num)]) {
-                this._offsets.push(line, offs);
+                this.offsets.push(line, offs);
                 return line + 1;
             }
             return offs;
@@ -5711,7 +5739,7 @@ class Operators {
         //
         vars[var0] = vars[VAR1(num)];
         if (vars[var0] < vars[VAR2(num)]) {
-            this._offsets.push(line, offs);
+            this.offsets.push(line, offs);
             return line + 1;
         }
 
@@ -5719,64 +5747,67 @@ class Operators {
     }
 
     onOperator(num, line) {
-        const vars = this._vars;
-        vars[VAR0(num)] = this._OPERATORS[__WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS)](vars[VAR1(num)], vars[VAR2(num)]);
+        const vars = this.vars;
+        vars[VAR0(num)] = this._OPERATORS[__WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS)](vars[VAR1(num)], vars[VAR2(num)]);
         return line + 1;
     }
 
     onNot(num, line) {
-        this._vars[VAR0(num)] = +!this._vars[VAR1(num)];
+        this.vars[VAR0(num)] = +!this.vars[VAR1(num)];
         return line + 1;
     }
 
     //onPi(num, line) {
-    //    this._vars[VAR0(num)] = Math.PI;
+    //    this.vars[VAR0(num)] = Math.PI;
     //    return line + 1;
     //}
 
     //onTrig(num, line) {
-    //    this._vars[VAR0(num)] = this._TRIGS[VAR2(num)](this._vars[VAR1(num)]);
+    //    this.vars[VAR0(num)] = this._TRIGS[VAR2(num)](this.vars[VAR1(num)]);
     //    return line + 1;
     //}
 
     onLookAt(num, line, org) {
-        const vars = this._vars;
+        const vars = this.vars;
         let   x    = vars[VAR1(num)];
         let   y    = vars[VAR2(num)];
-        if (!IS_NUM(x) || !IS_NUM(y) || x < 0 || y < 0 || x >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].worldWidth || y >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].worldHeight) {return line + 1;}
+        if (!IS_NUM(x) || !IS_NUM(y) || x < 0 || y < 0 || x >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].worldWidth || y >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].worldHeight) {
+            vars[VAR0(num)] = 0;
+            return line + 1;
+        }
 
         let ret = {ret: 0};
-        this._obs.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].GET_ENERGY, org, x, y, ret);
+        this.obs.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].GET_ENERGY, org, x, y, ret);
         vars[VAR0(num)] = ret.ret;
 
         return line + 1;
     }
 
-    onEatLeft(num, line, org)   {this._vars[VAR0(num)] = this._eat(org, num, org.x - 1, org.y); return line + 1}
-    onEatRight(num, line, org)  {this._vars[VAR0(num)] = this._eat(org, num, org.x + 1, org.y); return line + 1}
-    onEatUp(num, line, org)     {this._vars[VAR0(num)] = this._eat(org, num, org.x, org.y - 1); return line + 1}
-    onEatDown(num, line, org)   {this._vars[VAR0(num)] = this._eat(org, num, org.x, org.y + 1); return line + 1}
+    onEatLeft(num, line, org)   {this.vars[VAR0(num)] = this._eat(org, num, org.x - 1, org.y); return line + 1}
+    onEatRight(num, line, org)  {this.vars[VAR0(num)] = this._eat(org, num, org.x + 1, org.y); return line + 1}
+    onEatUp(num, line, org)     {this.vars[VAR0(num)] = this._eat(org, num, org.x, org.y - 1); return line + 1}
+    onEatDown(num, line, org)   {this.vars[VAR0(num)] = this._eat(org, num, org.x, org.y + 1); return line + 1}
 
-    onStepLeft(num, line, org)  {this._vars[VAR0(num)] = this._step(org, org.x, org.y, org.x - 1, org.y); return line + 1}
-    onStepRight(num, line, org) {this._vars[VAR0(num)] = this._step(org, org.x, org.y, org.x + 1, org.y); return line + 1}
-    onStepUp(num, line, org)    {this._vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y - 1); return line + 1}
-    onStepDown(num, line, org)  {this._vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y + 1); return line + 1}
+    onStepLeft(num, line, org)  {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x - 1, org.y); return line + 1}
+    onStepRight(num, line, org) {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x + 1, org.y); return line + 1}
+    onStepUp(num, line, org)    {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y - 1); return line + 1}
+    onStepDown(num, line, org)  {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y + 1); return line + 1}
 
-    onFromMem(num, line, org) {this._vars[VAR0(num)] = org.mem.pop() || 0; return line + 1}
+    onFromMem(num, line, org) {this.vars[VAR0(num)] = org.mem.pop() || 0; return line + 1}
     onToMem(num, line, org) {
-        const val = this._vars[VAR1(num)];
+        const val = this.vars[VAR1(num)];
 
         if (IS_NUM(val) && org.mem.length < __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].orgMemSize) {
-            this._vars[VAR0(num)] = org.mem.push(val);
+            this.vars[VAR0(num)] = org.mem.push(val);
         } else {
-            this._vars[VAR0(num)] = 0;
+            this.vars[VAR0(num)] = 0;
         }
 
         return line + 1;
     }
 
-    onMyX(num, line, org) {this._vars[VAR0(num)] = org.x; return line + 1}
-    onMyY(num, line, org) {this._vars[VAR0(num)] = org.y; return line + 1;}
+    onMyX(num, line, org) {this.vars[VAR0(num)] = org.x; return line + 1}
+    onMyY(num, line, org) {this.vars[VAR0(num)] = org.y; return line + 1;}
 
     onCheckLeft(num, line, org)  {return this._checkAt(num, line, org, org.x - 1, org.y)}
     onCheckRight(num, line, org) {return this._checkAt(num, line, org, org.x + 1, org.y)}
@@ -5786,17 +5817,17 @@ class Operators {
     _checkAt(num, line, org, x, y) {
         const ret = {ret: 0};
         org.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].CHECK_AT, x, y, ret);
-        this._vars[VAR0(num)] = ret.ret;
+        this.vars[VAR0(num)] = ret.ret;
         return line + 1;
     }
 
     _eat(org, num, x, y) {
-        const vars   = this._vars;
+        const vars   = this.vars;
         const amount = vars[VAR1(num)];
         if (!IS_NUM(amount) || amount === 0) {return 0}
 
         let ret = {ret: amount};
-        this._obs.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].EAT, org, x, y, ret);
+        this.obs.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].EAT, org, x, y, ret);
         if (!IS_NUM(ret.ret)) {return 0}
         org.energy += ret.ret;
 
@@ -5805,7 +5836,7 @@ class Operators {
 
     _step(org, x1, y1, x2, y2) {
         let ret = {ret: 0};
-        this._obs.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].STEP, org, x1, y1, x2, y2, ret);
+        this.obs.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].STEP, org, x1, y1, x2, y2, ret);
         return ret.ret;
     }
 
@@ -5830,7 +5861,7 @@ class Operators {
      */
     _getOffs(line, lines, offs) {
         let   offset  = line + offs < lines ? line + offs + 1 : lines;
-        const offsets = this._offsets;
+        const offsets = this.offsets;
 
         if (offsets.length > 0 && offset >= offsets[offsets.length - 1]) {
             return offsets[offsets.length - 1];
@@ -5839,16 +5870,17 @@ class Operators {
         return offset;
     }
 }
-/* harmony export (immutable) */ __webpack_exports__["a"] = Operators;
+/* harmony export (immutable) */ __webpack_exports__["a"] = OperatorsDos;
 
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Num__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__base_Operators__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Num__ = __webpack_require__(3);
 /**
  * This file contains all available operators implementation. For example:
  * for, if, variable declaration, steps, eating etc... User may override
@@ -5860,20 +5892,22 @@ class Operators {
 
 
 
+
 /**
  * {Function} Just a shortcuts
  */
-const VAR0                  = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getVar;
-const VAR1                  = (n) => __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getVar(n, 1);
-const VAR2                  = (n) => __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getVar(n, 2);
-const BITS_AFTER_THREE_VARS = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_PER_OPERATOR + __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_PER_VAR * 3;
-const BITS_WITHOUT_2_VARS   = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_WITHOUT_2_VARS;
-const BITS_OF_TWO_VARS      = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].BITS_OF_TWO_VARS;
+const VAR0                  = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getVar;
+const VAR1                  = (n) => __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getVar(n, 1);
+const VAR2                  = (n) => __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getVar(n, 2);
+const BITS_AFTER_THREE_VARS = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].BITS_PER_OPERATOR + __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].BITS_PER_VAR * 3;
+const BITS_WITHOUT_2_VARS   = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].BITS_WITHOUT_2_VARS;
+const BITS_OF_TWO_VARS      = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].BITS_OF_TWO_VARS;
 const IS_NUM                = $.isNumeric;
-const HALF_OF_VAR           = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].MAX_VAR / 2;
+const HALF_OF_VAR           = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].MAX_VAR / 2;
 
-class OperatorsGarmin {
+class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_1__base_Operators__["a" /* default */]{
     constructor(offsets, vars, obs) {
+        super(offsets, vars, obs);
         /**
          * {Array} Array of offsets for closing braces. For 'for', 'if'
          * and all block operators.
@@ -5916,7 +5950,7 @@ class OperatorsGarmin {
         ];
         this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
 
-        __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].setOperatorAmount(this._OPERATORS_CB_LEN);
+        __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].setOperatorAmount(this._OPERATORS_CB_LEN);
     }
 
     destroy() {
@@ -5944,13 +5978,13 @@ class OperatorsGarmin {
     onVar(num, line) {
         const vars = this._vars;
         const var1 = VAR1(num);
-        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS) : vars[var1];
+        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS) : vars[var1];
 
         return line + 1;
     }
 
     onCondition(num, line, org, lines) {
-        const val3 = __WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
+        const val3 = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
         const offs = line + val3 < lines ? line + val3 + 1 : lines;
 
         if (this._CONDITIONS[VAR2(num)](this._vars[VAR0(num)], this._vars[VAR1(num)])) {
@@ -5985,7 +6019,7 @@ class OperatorsGarmin {
 
     onOperator(num, line) {
         const vars = this._vars;
-        vars[VAR0(num)] = this._OPERATORS[__WEBPACK_IMPORTED_MODULE_1__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS)](vars[VAR1(num)], vars[VAR2(num)]);
+        vars[VAR0(num)] = this._OPERATORS[__WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS)](vars[VAR1(num)], vars[VAR2(num)]);
         return line + 1;
     }
 
@@ -6023,7 +6057,7 @@ class OperatorsGarmin {
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6135,7 +6169,7 @@ class Canvas {
 
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

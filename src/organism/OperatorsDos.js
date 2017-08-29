@@ -5,9 +5,10 @@
  *
  * @author DeadbraiN
  */
-import {EVENTS} from './../global/Events';
-import {Config} from './../global/Config';
-import Num      from './Num';
+import {EVENTS}  from './../global/Events';
+import {Config}  from './../global/Config';
+import Operators from './base/Operators';
+import Num       from './Num';
 
 /**
  * {Function} Just a shortcuts
@@ -16,26 +17,13 @@ const VAR0                  = Num.getVar;
 const VAR1                  = (n) => Num.getVar(n, 1);
 const VAR2                  = (n) => Num.getVar(n, 2);
 const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
-const BITS_WITHOUT_2_VARS   = Num.BITS_WITHOUT_2_VARS;
 const BITS_OF_TWO_VARS      = Num.BITS_OF_TWO_VARS;
 const IS_NUM                = $.isNumeric;
 const HALF_OF_VAR           = Num.MAX_VAR / 2;
 
-export default class Operators {
+export default class OperatorsDos extends Operators {
     constructor(offsets, vars, obs) {
-        /**
-         * {Array} Array of offsets for closing braces. For 'for', 'if'
-         * and all block operators.
-         */
-        this._offsets = offsets;
-        /**
-         * {Array} Available variables
-         */
-        this._vars = vars;
-        /**
-         * {Observer} Observer for sending events outside of the jsvm
-         */
-        this._obs = obs;
+        super(offsets, vars, obs);
         /**
          * {Object} These operator handlers should return string, which
          * will be added to the final string script for evaluation.
@@ -85,7 +73,7 @@ export default class Operators {
     }
 
     destroy() {
-        this._offsets      = null;
+        super.destroy();
         this._OPERATORS_CB = null;
         this._CONDITIONS   = null;
         this._OPERATORS    = null;
@@ -107,7 +95,7 @@ export default class Operators {
      * @return {Number} Parsed jsvm line string
      */
     onVar(num, line) {
-        const vars = this._vars;
+        const vars = this.vars;
         const var1 = VAR1(num);
         vars[VAR0(num)] = var1 >= HALF_OF_VAR ? Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS) : vars[var1];
 
@@ -122,7 +110,7 @@ export default class Operators {
         const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
         const offs = this._getOffs(line, lines, val3);
 
-        if (this._CONDITIONS[VAR2(num)](this._vars[VAR0(num)], this._vars[VAR1(num)])) {
+        if (this._CONDITIONS[VAR2(num)](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
             return line + 1;
         }
 
@@ -130,7 +118,7 @@ export default class Operators {
     }
 
     onLoop(num, line, org, lines, afterIteration) {
-        const vars = this._vars;
+        const vars = this.vars;
         const var0 = VAR0(num);
         const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
         const offs = this._getOffs(line, lines, val3);
@@ -140,7 +128,7 @@ export default class Operators {
         //
         if (afterIteration) {
             if (++vars[var0] < vars[VAR2(num)]) {
-                this._offsets.push(line, offs);
+                this.offsets.push(line, offs);
                 return line + 1;
             }
             return offs;
@@ -151,7 +139,7 @@ export default class Operators {
         //
         vars[var0] = vars[VAR1(num)];
         if (vars[var0] < vars[VAR2(num)]) {
-            this._offsets.push(line, offs);
+            this.offsets.push(line, offs);
             return line + 1;
         }
 
@@ -159,28 +147,28 @@ export default class Operators {
     }
 
     onOperator(num, line) {
-        const vars = this._vars;
+        const vars = this.vars;
         vars[VAR0(num)] = this._OPERATORS[Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS)](vars[VAR1(num)], vars[VAR2(num)]);
         return line + 1;
     }
 
     onNot(num, line) {
-        this._vars[VAR0(num)] = +!this._vars[VAR1(num)];
+        this.vars[VAR0(num)] = +!this.vars[VAR1(num)];
         return line + 1;
     }
 
     //onPi(num, line) {
-    //    this._vars[VAR0(num)] = Math.PI;
+    //    this.vars[VAR0(num)] = Math.PI;
     //    return line + 1;
     //}
 
     //onTrig(num, line) {
-    //    this._vars[VAR0(num)] = this._TRIGS[VAR2(num)](this._vars[VAR1(num)]);
+    //    this.vars[VAR0(num)] = this._TRIGS[VAR2(num)](this.vars[VAR1(num)]);
     //    return line + 1;
     //}
 
     onLookAt(num, line, org) {
-        const vars = this._vars;
+        const vars = this.vars;
         let   x    = vars[VAR1(num)];
         let   y    = vars[VAR2(num)];
         if (!IS_NUM(x) || !IS_NUM(y) || x < 0 || y < 0 || x >= Config.worldWidth || y >= Config.worldHeight) {
@@ -189,37 +177,37 @@ export default class Operators {
         }
 
         let ret = {ret: 0};
-        this._obs.fire(EVENTS.GET_ENERGY, org, x, y, ret);
+        this.obs.fire(EVENTS.GET_ENERGY, org, x, y, ret);
         vars[VAR0(num)] = ret.ret;
 
         return line + 1;
     }
 
-    onEatLeft(num, line, org)   {this._vars[VAR0(num)] = this._eat(org, num, org.x - 1, org.y); return line + 1}
-    onEatRight(num, line, org)  {this._vars[VAR0(num)] = this._eat(org, num, org.x + 1, org.y); return line + 1}
-    onEatUp(num, line, org)     {this._vars[VAR0(num)] = this._eat(org, num, org.x, org.y - 1); return line + 1}
-    onEatDown(num, line, org)   {this._vars[VAR0(num)] = this._eat(org, num, org.x, org.y + 1); return line + 1}
+    onEatLeft(num, line, org)   {this.vars[VAR0(num)] = this._eat(org, num, org.x - 1, org.y); return line + 1}
+    onEatRight(num, line, org)  {this.vars[VAR0(num)] = this._eat(org, num, org.x + 1, org.y); return line + 1}
+    onEatUp(num, line, org)     {this.vars[VAR0(num)] = this._eat(org, num, org.x, org.y - 1); return line + 1}
+    onEatDown(num, line, org)   {this.vars[VAR0(num)] = this._eat(org, num, org.x, org.y + 1); return line + 1}
 
-    onStepLeft(num, line, org)  {this._vars[VAR0(num)] = this._step(org, org.x, org.y, org.x - 1, org.y); return line + 1}
-    onStepRight(num, line, org) {this._vars[VAR0(num)] = this._step(org, org.x, org.y, org.x + 1, org.y); return line + 1}
-    onStepUp(num, line, org)    {this._vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y - 1); return line + 1}
-    onStepDown(num, line, org)  {this._vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y + 1); return line + 1}
+    onStepLeft(num, line, org)  {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x - 1, org.y); return line + 1}
+    onStepRight(num, line, org) {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x + 1, org.y); return line + 1}
+    onStepUp(num, line, org)    {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y - 1); return line + 1}
+    onStepDown(num, line, org)  {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y + 1); return line + 1}
 
-    onFromMem(num, line, org) {this._vars[VAR0(num)] = org.mem.pop() || 0; return line + 1}
+    onFromMem(num, line, org) {this.vars[VAR0(num)] = org.mem.pop() || 0; return line + 1}
     onToMem(num, line, org) {
-        const val = this._vars[VAR1(num)];
+        const val = this.vars[VAR1(num)];
 
         if (IS_NUM(val) && org.mem.length < Config.orgMemSize) {
-            this._vars[VAR0(num)] = org.mem.push(val);
+            this.vars[VAR0(num)] = org.mem.push(val);
         } else {
-            this._vars[VAR0(num)] = 0;
+            this.vars[VAR0(num)] = 0;
         }
 
         return line + 1;
     }
 
-    onMyX(num, line, org) {this._vars[VAR0(num)] = org.x; return line + 1}
-    onMyY(num, line, org) {this._vars[VAR0(num)] = org.y; return line + 1;}
+    onMyX(num, line, org) {this.vars[VAR0(num)] = org.x; return line + 1}
+    onMyY(num, line, org) {this.vars[VAR0(num)] = org.y; return line + 1;}
 
     onCheckLeft(num, line, org)  {return this._checkAt(num, line, org, org.x - 1, org.y)}
     onCheckRight(num, line, org) {return this._checkAt(num, line, org, org.x + 1, org.y)}
@@ -229,17 +217,17 @@ export default class Operators {
     _checkAt(num, line, org, x, y) {
         const ret = {ret: 0};
         org.fire(EVENTS.CHECK_AT, x, y, ret);
-        this._vars[VAR0(num)] = ret.ret;
+        this.vars[VAR0(num)] = ret.ret;
         return line + 1;
     }
 
     _eat(org, num, x, y) {
-        const vars   = this._vars;
+        const vars   = this.vars;
         const amount = vars[VAR1(num)];
         if (!IS_NUM(amount) || amount === 0) {return 0}
 
         let ret = {ret: amount};
-        this._obs.fire(EVENTS.EAT, org, x, y, ret);
+        this.obs.fire(EVENTS.EAT, org, x, y, ret);
         if (!IS_NUM(ret.ret)) {return 0}
         org.energy += ret.ret;
 
@@ -248,7 +236,7 @@ export default class Operators {
 
     _step(org, x1, y1, x2, y2) {
         let ret = {ret: 0};
-        this._obs.fire(EVENTS.STEP, org, x1, y1, x2, y2, ret);
+        this.obs.fire(EVENTS.STEP, org, x1, y1, x2, y2, ret);
         return ret.ret;
     }
 
@@ -273,7 +261,7 @@ export default class Operators {
      */
     _getOffs(line, lines, offs) {
         let   offset  = line + offs < lines ? line + offs + 1 : lines;
-        const offsets = this._offsets;
+        const offsets = this.offsets;
 
         if (offsets.length > 0 && offset >= offsets[offsets.length - 1]) {
             return offsets[offsets.length - 1];

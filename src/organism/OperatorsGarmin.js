@@ -6,8 +6,9 @@
  *
  * @author DeadbraiN
  */
-import {Config} from './../global/Config';
-import Num      from './Num';
+import {Config}  from './../global/Config';
+import Operators from './base/Operators';
+import Num       from './Num';
 
 /**
  * {Function} Just a shortcuts
@@ -21,8 +22,9 @@ const BITS_OF_TWO_VARS      = Num.BITS_OF_TWO_VARS;
 const IS_NUM                = $.isNumeric;
 const HALF_OF_VAR           = Num.MAX_VAR / 2;
 
-export default class OperatorsGarmin {
+export default class OperatorsGarmin extends  Operators{
     constructor(offsets, vars, obs) {
+        super(offsets, vars, obs);
         /**
          * {Array} Array of offsets for closing braces. For 'for', 'if'
          * and all block operators.

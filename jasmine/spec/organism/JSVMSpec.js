@@ -1,11 +1,11 @@
 describe("src/organism/JSVM", () => {
-    let JSVM      = require('../../../src/organism/JSVM').default;
-    let Num       = require('../../../src/organism/Num').default;
-    let Observer  = require('../../../src/global/Observer').default;
-    let Operators = require('../../../src/organism/Operators').default;
-    let Config    = require('../../../src/global/Config').Config;
-    let api       = require('../../../src/global/Config').api;
-    let cls       = null;
+    let JSVM         = require('../../../src/organism/JSVM').default;
+    let Num          = require('../../../src/organism/Num').default;
+    let Observer     = require('../../../src/global/Observer').default;
+    let Operators    = require('../../../src/organism/base/Operators').default;
+    let Config       = require('../../../src/global/Config').Config;
+    let api          = require('../../../src/global/Config').api;
+    let cls          = null;
 
     beforeEach(() => {cls = Config.codeOperatorsCls;api.set('codeOperatorsCls', 'ops')});
     afterEach(() => api.set('codeOperatorsCls', cls));
@@ -92,14 +92,34 @@ describe("src/organism/JSVM", () => {
     });
 
     it("Checking 'operators' property", () => {
-        const clss = {ops: () => {}};
+        function Ops() {}
+        const clss = {ops: Ops};
         const obs  = new Observer(2);
         const jsvm = new JSVM(()=>{}, obs, clss);
 
-        expect(jsvm.operators instanceof Operators).toEqual(true);
+        expect(jsvm.operators instanceof Ops).toEqual(true);
 
         jsvm.destroy();
     });
+
+    // it("Checking run method", () => {
+    //     let   flag = 0;
+    //     function Ops() {
+    //         this.operators = () => {return {1: (n,l)=>{flag=n+''+l;return l+1}}};
+    //         this.size      = () => 1;
+    //     }
+    //     const clss = {ops: Ops};
+    //     const obs  = new Observer(1);
+    //     const jsvm = new JSVM(()=>{}, obs, clss);
+    //     //
+    //     // Small hack. for this test only
+    //     //
+    //     jsvm._code.push(0b1000000000000000000000000);
+    //     jsvm.run();
+    //     expect(flag === '167772160').toEqual(true);
+    //
+    //     jsvm.destroy();
+    // });
 
     //
     // it("Checking clone()", () => {
