@@ -18,13 +18,14 @@ export default class JSVM extends Observer {
     /**
      * Creates JSVM instance. codeEndCb will be called after last code line is run. classMap
      * is a map of classes. We need only one - Operators class. We use this approach, because
-     * it's impossible to set class in a Config module.
+     * it's impossible to set class in a Config module. parent is used if JSVM instance is
+     * in a cloning mode and we have to create a copy of it.
      * @param {Function} codeEndCb
      * @param {Observer} obs Observer instance for Operators class
      * @param {Array} classMap
-     * @param {Array} vars Variables array for case if we have parent organism after cloning
+     * @param {JSVM} parent Parent JSVM instance in case of cloning
      */
-    constructor(codeEndCb, obs, classMap, vars = null) {
+    constructor(codeEndCb, obs, classMap, parent = null) {
         super(EVENT_AMOUNT);
 
         /**
@@ -38,20 +39,20 @@ export default class JSVM extends Observer {
          * closing block '}' of block operator (e.g. for, if,...).
          */
         this._offsets     = [];
-        this._vars        = vars && vars.slice() || this._getVars();
+        this._vars        = parent && parent.vars && parent.vars.slice() || this._getVars();
         /**
          * {Function} Class, which implement all supported operators
          */
         this._operators   = new classMap[Config.codeOperatorsCls](this._offsets, this._vars, obs);
-        this._code        = [];
+        this._code        = parent && parent.code || [];
         this._line        = 0;
         this._fitnessMode = Config.codeFitnessCls !== null;
     }
 
-    get code() {return this._code;}
-    get size() {return this._code.length;}
-    get operatorsSize() {return this._operators.size;};
-    get vars() {return this._vars;}
+    get code()      {return this._code}
+    get size()      {return this._code.length}
+    get operators() {return this._operators}
+    get vars()      {return this._vars}
 
     run(org) {
         let line    = this._line;
@@ -94,15 +95,6 @@ export default class JSVM extends Observer {
         this.clear();
     }
 
-    /**
-     * Clones both byte and string jsvm from 'jsvm' argument
-     * @param {JSVM} code Source jsvm, from which we will copy
-     */
-    // TODO: do we need this?
-    clone(code) {
-        this._code = code.cloneCode();
-    }
-
     crossover(jsvm) {
         const rand    = Helper.rand;
         const len     = this._code.length;
@@ -122,15 +114,6 @@ export default class JSVM extends Observer {
         this._reset();
 
         return adds;
-    }
-
-    /**
-     * Is used for cloning byte jsvm only. This is how you
-     * can get separate copy of the byte jsvm.
-     * @return {Array} Array of 32bit numbers
-     */
-    cloneCode() {
-        return this._code.slice();
     }
 
     /**

@@ -145,8 +145,7 @@ export default class Organism extends Observer {
     }
 
     _clone(parent) {
-        this._jsvm                  = new JSVM(this._jsvmEndCb.bind(this, this), this, this._classMap, parent.jsvm.vars);
-        this._jsvm.clone(parent.jsvm);
+        this._jsvm                  = new JSVM(this._jsvmEndCb.bind(this, this), this, this._classMap, parent);
         this._energy                = parent.energy;
         this._color                 = parent.color;
         this._mutationProbs         = parent.mutationProbs.slice();

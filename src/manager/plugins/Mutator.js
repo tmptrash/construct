@@ -94,7 +94,7 @@ export default class Mutator {
         const rnd   = rand(3);
 
         if (rnd === 0) {
-            jsvm.updateLine(index, Num.setOperator(jsvm.getLine(index), rand(jsvm.operatorsSize)));
+            jsvm.updateLine(index, Num.setOperator(jsvm.getLine(index), rand(jsvm.operators.size)));
         } else if (rnd === 1) {
             jsvm.updateLine(index, Num.setVar(jsvm.getLine(index), rand(VARS), rand(MAX_VAR)));
         } else {

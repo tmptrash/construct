@@ -1,10 +1,11 @@
 describe("src/organism/JSVM", () => {
-    let JSVM     = require('../../../src/organism/JSVM').default;
-    let Num      = require('../../../src/organism/Num').default;
-    let Observer = require('../../../src/global/Observer').default;
-    let Config   = require('../../../src/global/Config').Config;
-    let api      = require('../../../src/global/Config').api;
-    let cls      = null;
+    let JSVM      = require('../../../src/organism/JSVM').default;
+    let Num       = require('../../../src/organism/Num').default;
+    let Observer  = require('../../../src/global/Observer').default;
+    let Operators = require('../../../src/organism/Operators').default;
+    let Config    = require('../../../src/global/Config').Config;
+    let api       = require('../../../src/global/Config').api;
+    let cls       = null;
 
     beforeEach(() => {cls = Config.codeOperatorsCls;api.set('codeOperatorsCls', 'ops')});
     afterEach(() => api.set('codeOperatorsCls', cls));
@@ -21,23 +22,28 @@ describe("src/organism/JSVM", () => {
         jsvm.destroy();
     });
 
-    it("Checking not empty vars argument", () => {
-        const vars = (new Array(4)).fill(0);
-        const clss = {ops: () => {}};
-        const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, clss, vars);
+    it("Checking parent argument and 'cloning' mode", () => {
+        const clss   = {ops: () => {}};
+        const obs    = new Observer(1);
+        const parent = new JSVM(()=>{}, obs, clss);
 
-        expect(jsvm.vars).toEqual(vars);
-        expect(jsvm.size).toEqual(0);
+        parent.insertLine();
+        const jsvm   = new JSVM(()=>{}, obs, clss, parent);
 
+        expect(jsvm.code[0] === parent.code[0]).toEqual(true);
+        expect(jsvm.size === parent.size).toEqual(true);
+        expect(jsvm.vars[0] === parent.vars[0]).toEqual(true);
+
+        parent.destroy();
         jsvm.destroy();
     });
-    it("Checking empty vars argument", () => {
+
+    it("Checking 'vars' getter for non 'cloning' mode", () => {
         const clss = {ops: () => {}};
         const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, clss, null);
+        const jsvm = new JSVM(()=>{}, obs, clss);
 
-        expect(jsvm.vars.length > 0).toEqual(true);
+        expect(jsvm.vars.length === Config.codeVarAmount).toEqual(true);
 
         jsvm.destroy();
     });
@@ -85,40 +91,16 @@ describe("src/organism/JSVM", () => {
         jsvm.destroy();
     });
 
-    it("Checking 'operatorsSize' property", () => {
+    it("Checking 'operators' property", () => {
         const clss = {ops: () => {}};
         const obs  = new Observer(2);
         const jsvm = new JSVM(()=>{}, obs, clss);
 
-        expect(jsvm.operatorsSize === undefined).toEqual(true);
+        expect(jsvm.operators instanceof Operators).toEqual(true);
 
         jsvm.destroy();
     });
 
-    it("Checking 'vars' getter for clone mode", () => {
-        const clss = {ops: () => {}};
-        const obs  = new Observer(2);
-        const vars = [1,2];
-        const jsvm = new JSVM(()=>{}, obs, clss, vars);
-
-        expect(
-            jsvm.vars[0] === vars[0] &&
-            jsvm.vars[1] === vars[1] &&
-            jsvm.vars !== vars
-        ).toEqual(true);
-
-        jsvm.destroy();
-    });
-
-    it("Checking 'vars' getter for non clone mode", () => {
-        const clss = {ops: () => {}};
-        const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, clss);
-
-        expect(jsvm.vars.length === Config.codeVarAmount).toEqual(true);
-
-        jsvm.destroy();
-    });
     //
     // it("Checking clone()", () => {
     //     let code1 = new JSVM((()=>{}));
