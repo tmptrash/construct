@@ -112,6 +112,15 @@ export default class Helper {
 
         return [x, y];
     }
+
+    /**
+     * Analog of jQuery.isNumeric()
+     * @param {*} n Value to check
+     * @returns {Boolean}
+     */
+    static isNumeric(n) {
+        return !isNaN(parseFloat(n)) && isFinite(n);
+    }
     // TODO: will be used later
     // /**
     //  * Saves custom data into the file. If file exists, it will

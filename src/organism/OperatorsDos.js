@@ -7,6 +7,7 @@
  */
 import {EVENTS}  from './../global/Events';
 import {Config}  from './../global/Config';
+import Helper    from './../global/Helper';
 import Operators from './base/Operators';
 import Num       from './Num';
 
@@ -18,7 +19,7 @@ const VAR1                  = (n) => Num.getVar(n, 1);
 const VAR2                  = (n) => Num.getVar(n, 2);
 const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
 const BITS_OF_TWO_VARS      = Num.BITS_OF_TWO_VARS;
-const IS_NUM                = $.isNumeric;
+const IS_NUM                = Helper.isNumeric;
 const HALF_OF_VAR           = Num.MAX_VAR / 2;
 
 export default class OperatorsDos extends Operators {

@@ -102,24 +102,30 @@ describe("src/organism/JSVM", () => {
         jsvm.destroy();
     });
 
-    // it("Checking run method", () => {
-    //     let   flag = 0;
-    //     function Ops() {
-    //         this.operators = () => {return {1: (n,l)=>{flag=n+''+l;return l+1}}};
-    //         this.size      = () => 1;
-    //     }
-    //     const clss = {ops: Ops};
-    //     const obs  = new Observer(1);
-    //     const jsvm = new JSVM(()=>{}, obs, clss);
-    //     //
-    //     // Small hack. for this test only
-    //     //
-    //     jsvm._code.push(0b1000000000000000000000000);
-    //     jsvm.run();
-    //     expect(flag === '167772160').toEqual(true);
-    //
-    //     jsvm.destroy();
-    // });
+    it("Checking run method", () => {
+        let   flag = 0;
+        class Ops extends Operators {
+            get operators() {return {1: (n,l)=>{flag=n+''+l;return l+1}}};
+            get size     () {return 1};
+        }
+        const clss = {ops: Ops};
+        const obs  = new Observer(1);
+        const jsvm = new JSVM(()=>{}, obs, clss);
+        const yp   = api.get('codeYieldPeriod');
+        const fc   = api.get('codeFitnessCls');
+        //
+        // Small hack. Use of private field for this test only
+        //
+        jsvm._code.push(0b1000000000000000000000000);
+        api.set('codeYieldPeriod', 1);
+        api.set('codeFitnessCls', null);
+        jsvm.run({alive: true});
+        expect(flag === '167772160').toEqual(true);
+        api.set('codeYieldPeriod', yp);
+        api.set('codeFitnessCls', fc);
+
+        jsvm.destroy();
+    });
 
     //
     // it("Checking clone()", () => {

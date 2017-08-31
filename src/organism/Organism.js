@@ -11,7 +11,7 @@ import {EVENT_AMOUNT} from './../global/Events';
 import Helper         from './../global/Helper';
 import JSVM           from './JSVM';
 
-const IS_NUM = $.isNumeric;
+const IS_NUM = Helper.isNumeric;
 
 export default class Organism extends Observer {
     /**
