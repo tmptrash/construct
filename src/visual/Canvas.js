@@ -5,14 +5,17 @@
  */
 export default class Canvas {
     constructor(width, height) {
-        const bodyEl = $('body');
+        const id     = 'world';
+        const doc    = document;
+        const bodyEl = doc.body;
 
         this._prepareDom();
+        bodyEl.innerHTML += `<canvas id="${id}" width="${width}" height="${height}"></canvas>`;
 
         this._width     = width;
         this._height    = height;
-        this._canvasEl  = bodyEl.append('<canvas id="world" width="' + this._width + '" height="' + this._height + '"></canvas>').find('#world');
-        this._ctx       = this._canvasEl[0].getContext('2d');
+        this._canvasEl  = doc.querySelector('#' + id);
+        this._ctx       = this._canvasEl.getContext('2d');
         this._text      = {x: 0, y: 0, t: ''};
         this._imgData   = this._ctx.createImageData(this._width, this._height);
         this._data      = this._imgData.data;
@@ -92,13 +95,14 @@ export default class Canvas {
     }
 
     _prepareDom() {
-        $('body')
-            .width('100%')
-            .height('100%')
-            .css('margin', 0)
-        .parent()
-            .width('100%')
-            .height('100%')
-            .css('margin', 0);
+        const bodyEl = document.querySelector('body');
+        const htmlEl = document.querySelector('html');
+
+        bodyEl.style.width  = '100%';
+        bodyEl.style.height = '100%';
+        bodyEl.style.margin = 0;
+        htmlEl.style.width  = '100%';
+        htmlEl.style.height = '100%';
+        htmlEl.style.margin = 0;
     }
 }

@@ -1,4 +1,5 @@
 /**
+ * Digital Organisms Script - (DOS) is a simple language for JSVM.
  * This file contains all available operators implementation. For example:
  * for, if, variable declaration, steps, eating etc... User may override
  * this class for own needs and change operator list to custom.
@@ -29,34 +30,33 @@ export default class OperatorsDos extends Operators {
          * {Object} These operator handlers should return string, which
          * will be added to the final string script for evaluation.
          */
-        this._OPERATORS_CB = {
-            0 : this.onVar.bind(this),
-            //1: this.onFunc.bind(this),
-            1 : this.onCondition.bind(this),
-            2 : this.onLoop.bind(this),
-            3 : this.onOperator.bind(this),
-            4 : this.onNot.bind(this),
-            //5 : this.onPi.bind(this),
-            //6 : this.onTrig.bind(this),
-            5 : this.onLookAt.bind(this),
-            6 : this.onEatLeft.bind(this),
-            7 : this.onEatRight.bind(this),
-            8 : this.onEatUp.bind(this),
-            9 : this.onEatDown.bind(this),
-            10: this.onStepLeft.bind(this),
-            11: this.onStepRight.bind(this),
-            12: this.onStepUp.bind(this),
-            13: this.onStepDown.bind(this),
-            14: this.onFromMem.bind(this),
-            15: this.onToMem.bind(this),
-            16: this.onMyX.bind(this),
-            17: this.onMyY.bind(this),
-            18: this.onCheckLeft.bind(this),
-            19: this.onCheckRight.bind(this),
-            20: this.onCheckUp.bind(this),
-            21: this.onCheckDown.bind(this)
-        };
-        this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
+        this._OPERATORS_CB = [
+            this.onVar.bind(this),
+            //this.onFunc.bind(this),
+            this.onCondition.bind(this),
+            this.onLoop.bind(this),
+            this.onOperator.bind(this),
+            this.onNot.bind(this),
+            //this.onPi.bind(this),
+            //this.onTrig.bind(this),
+            this.onLookAt.bind(this),
+            this.onEatLeft.bind(this),
+            this.onEatRight.bind(this),
+            this.onEatUp.bind(this),
+            this.onEatDown.bind(this),
+            this.onStepLeft.bind(this),
+            this.onStepRight.bind(this),
+            this.onStepUp.bind(this),
+            this.onStepDown.bind(this),
+            this.onFromMem.bind(this),
+            this.onToMem.bind(this),
+            this.onMyX.bind(this),
+            this.onMyY.bind(this),
+            this.onCheckLeft.bind(this),
+            this.onCheckRight.bind(this),
+            this.onCheckUp.bind(this),
+            this.onCheckDown.bind(this)
+        ];
         /**
          * {Array} Available conditions for if operator. Amount should be
          * the same like (1 << BITS_PER_VAR)
@@ -69,8 +69,11 @@ export default class OperatorsDos extends Operators {
             (a,b)=>a+b, (a,b)=>a-b, (a,b)=>a*b, (a,b)=>a/b, (a,b)=>a%b, (a,b)=>a&b, (a,b)=>a|b, (a,b)=>a^b, (a,b)=>a>>b, (a,b)=>a<<b, (a,b)=>a>>>b, (a,b)=>+(a<b), (a,b)=>+(a>b), (a,b)=>+(a==b), (a,b)=>+(a!=b), (a,b)=>+(a<=b)
         ];
         //this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
-
-        Num.setOperatorAmount(this._OPERATORS_CB_LEN);
+        //
+        // We have to set amount of available operators for correct
+        // working of mutations of operators.
+        //
+        Num.setOperatorAmount(this._OPERATORS_CB.length);
     }
 
     destroy() {
@@ -81,8 +84,7 @@ export default class OperatorsDos extends Operators {
         //this._TRIGS        = null;
     }
 
-    get operators() {return this._OPERATORS_CB;}
-    get size()      {return this._OPERATORS_CB_LEN;}
+    get operators() {return this._OPERATORS_CB}
 
     /**
      * Parses variable operator. Format: let = const|number. Num bits format:

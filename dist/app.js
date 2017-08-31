@@ -1390,6 +1390,15 @@ class Helper {
 
         return [x, y];
     }
+
+    /**
+     * Analog of jQuery.isNumeric()
+     * @param {*} n Value to check
+     * @returns {Boolean}
+     */
+    static isNumeric(n) {
+        return !isNaN(parseFloat(n)) && isFinite(n);
+    }
     // TODO: will be used later
     // /**
     //  * Saves custom data into the file. If file exists, it will
@@ -1653,7 +1662,7 @@ class Observer {
 
 
 
-const IS_NUM = $.isNumeric;
+const IS_NUM = __WEBPACK_IMPORTED_MODULE_3__global_Helper__["a" /* default */].isNumeric;
 
 class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* default */] {
     /**
@@ -1872,11 +1881,6 @@ class Operators {
          * {Observer} Observer for sending events outside
          */
         this.obs = obs;
-        //
-        // We have to set amount of available operators for correct
-        // working of mutations of operators.
-        //
-        __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].setOperatorAmount(this.size);
     }
 
     destroy() {
@@ -1889,13 +1893,7 @@ class Operators {
      * Returns operators array. Should be overridden in child class
      * @abstract
      */
-    get operators() {}
-
-    /**
-     * Returns siz (amount) of operators in operators array
-     * @abstract
-     */
-    get size()      {}
+    get operators() {return []}
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Operators;
 
@@ -2546,7 +2544,7 @@ class Mutator {
         const rnd   = rand(3);
 
         if (rnd === 0) {
-            jsvm.updateLine(index, __WEBPACK_IMPORTED_MODULE_4__organism_Num__["a" /* default */].setOperator(jsvm.getLine(index), rand(jsvm.operators.size)));
+            jsvm.updateLine(index, __WEBPACK_IMPORTED_MODULE_4__organism_Num__["a" /* default */].setOperator(jsvm.getLine(index), rand(jsvm.operators.length)));
         } else if (rnd === 1) {
             jsvm.updateLine(index, __WEBPACK_IMPORTED_MODULE_4__organism_Num__["a" /* default */].setVar(jsvm.getLine(index), rand(VARS), rand(MAX_VAR)));
         } else {
@@ -5596,9 +5594,11 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__base_Operators__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Num__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Helper__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__base_Operators__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Num__ = __webpack_require__(3);
 /**
+ * Digital Organisms Script - (DOS) is a simple language for JSVM.
  * This file contains all available operators implementation. For example:
  * for, if, variable declaration, steps, eating etc... User may override
  * this class for own needs and change operator list to custom.
@@ -5610,52 +5610,52 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
 
 
 
+
 /**
  * {Function} Just a shortcuts
  */
-const VAR0                  = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar;
-const VAR1                  = (n) => __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(n, 1);
-const VAR2                  = (n) => __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(n, 2);
-const BITS_AFTER_THREE_VARS = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_PER_OPERATOR + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_PER_VAR * 3;
-const BITS_OF_TWO_VARS      = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_OF_TWO_VARS;
-const IS_NUM                = $.isNumeric;
-const HALF_OF_VAR           = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].MAX_VAR / 2;
+const VAR0                  = __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].getVar;
+const VAR1                  = (n) => __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].getVar(n, 1);
+const VAR2                  = (n) => __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].getVar(n, 2);
+const BITS_AFTER_THREE_VARS = __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].BITS_PER_OPERATOR + __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].BITS_PER_VAR * 3;
+const BITS_OF_TWO_VARS      = __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].BITS_OF_TWO_VARS;
+const IS_NUM                = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].isNumeric;
+const HALF_OF_VAR           = __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].MAX_VAR / 2;
 
-class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a" /* default */] {
+class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* default */] {
     constructor(offsets, vars, obs) {
         super(offsets, vars, obs);
         /**
          * {Object} These operator handlers should return string, which
          * will be added to the final string script for evaluation.
          */
-        this._OPERATORS_CB = {
-            0 : this.onVar.bind(this),
-            //1: this.onFunc.bind(this),
-            1 : this.onCondition.bind(this),
-            2 : this.onLoop.bind(this),
-            3 : this.onOperator.bind(this),
-            4 : this.onNot.bind(this),
-            //5 : this.onPi.bind(this),
-            //6 : this.onTrig.bind(this),
-            5 : this.onLookAt.bind(this),
-            6 : this.onEatLeft.bind(this),
-            7 : this.onEatRight.bind(this),
-            8 : this.onEatUp.bind(this),
-            9 : this.onEatDown.bind(this),
-            10: this.onStepLeft.bind(this),
-            11: this.onStepRight.bind(this),
-            12: this.onStepUp.bind(this),
-            13: this.onStepDown.bind(this),
-            14: this.onFromMem.bind(this),
-            15: this.onToMem.bind(this),
-            16: this.onMyX.bind(this),
-            17: this.onMyY.bind(this),
-            18: this.onCheckLeft.bind(this),
-            19: this.onCheckRight.bind(this),
-            20: this.onCheckUp.bind(this),
-            21: this.onCheckDown.bind(this)
-        };
-        this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
+        this._OPERATORS_CB = [
+            this.onVar.bind(this),
+            //this.onFunc.bind(this),
+            this.onCondition.bind(this),
+            this.onLoop.bind(this),
+            this.onOperator.bind(this),
+            this.onNot.bind(this),
+            //this.onPi.bind(this),
+            //this.onTrig.bind(this),
+            this.onLookAt.bind(this),
+            this.onEatLeft.bind(this),
+            this.onEatRight.bind(this),
+            this.onEatUp.bind(this),
+            this.onEatDown.bind(this),
+            this.onStepLeft.bind(this),
+            this.onStepRight.bind(this),
+            this.onStepUp.bind(this),
+            this.onStepDown.bind(this),
+            this.onFromMem.bind(this),
+            this.onToMem.bind(this),
+            this.onMyX.bind(this),
+            this.onMyY.bind(this),
+            this.onCheckLeft.bind(this),
+            this.onCheckRight.bind(this),
+            this.onCheckUp.bind(this),
+            this.onCheckDown.bind(this)
+        ];
         /**
          * {Array} Available conditions for if operator. Amount should be
          * the same like (1 << BITS_PER_VAR)
@@ -5668,8 +5668,11 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a" /* 
             (a,b)=>a+b, (a,b)=>a-b, (a,b)=>a*b, (a,b)=>a/b, (a,b)=>a%b, (a,b)=>a&b, (a,b)=>a|b, (a,b)=>a^b, (a,b)=>a>>b, (a,b)=>a<<b, (a,b)=>a>>>b, (a,b)=>+(a<b), (a,b)=>+(a>b), (a,b)=>+(a==b), (a,b)=>+(a!=b), (a,b)=>+(a<=b)
         ];
         //this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
-
-        __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].setOperatorAmount(this._OPERATORS_CB_LEN);
+        //
+        // We have to set amount of available operators for correct
+        // working of mutations of operators.
+        //
+        __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].setOperatorAmount(this._OPERATORS_CB.length);
     }
 
     destroy() {
@@ -5680,8 +5683,7 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a" /* 
         //this._TRIGS        = null;
     }
 
-    get operators() {return this._OPERATORS_CB;}
-    get size()      {return this._OPERATORS_CB_LEN;}
+    get operators() {return this._OPERATORS_CB}
 
     /**
      * Parses variable operator. Format: let = const|number. Num bits format:
@@ -5697,7 +5699,7 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a" /* 
     onVar(num, line) {
         const vars = this.vars;
         const var1 = VAR1(num);
-        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS) : vars[var1];
+        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS) : vars[var1];
 
         return line + 1;
     }
@@ -5707,7 +5709,7 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a" /* 
     //}
 
     onCondition(num, line, org, lines) {
-        const val3 = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
+        const val3 = __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
         const offs = this._getOffs(line, lines, val3);
 
         if (this._CONDITIONS[VAR2(num)](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
@@ -5720,7 +5722,7 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a" /* 
     onLoop(num, line, org, lines, afterIteration) {
         const vars = this.vars;
         const var0 = VAR0(num);
-        const val3 = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
+        const val3 = __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
         const offs = this._getOffs(line, lines, val3);
         //
         // If last iteration has done and we've returned to the line,
@@ -5748,7 +5750,7 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a" /* 
 
     onOperator(num, line) {
         const vars = this.vars;
-        vars[VAR0(num)] = this._OPERATORS[__WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS)](vars[VAR1(num)], vars[VAR2(num)]);
+        vars[VAR0(num)] = this._OPERATORS[__WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS)](vars[VAR1(num)], vars[VAR2(num)]);
         return line + 1;
     }
 
@@ -5879,8 +5881,9 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a" /* 
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__base_Operators__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Num__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__base_Operators__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Num__ = __webpack_require__(3);
 /**
  * This file contains all available operators implementation. For example:
  * for, if, variable declaration, steps, eating etc... User may override
@@ -5893,19 +5896,20 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a" /* 
 
 
 
+
 /**
  * {Function} Just a shortcuts
  */
-const VAR0                  = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getVar;
-const VAR1                  = (n) => __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getVar(n, 1);
-const VAR2                  = (n) => __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getVar(n, 2);
-const BITS_AFTER_THREE_VARS = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].BITS_PER_OPERATOR + __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].BITS_PER_VAR * 3;
-const BITS_WITHOUT_2_VARS   = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].BITS_WITHOUT_2_VARS;
-const BITS_OF_TWO_VARS      = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].BITS_OF_TWO_VARS;
-const IS_NUM                = $.isNumeric;
-const HALF_OF_VAR           = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].MAX_VAR / 2;
+const VAR0                  = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar;
+const VAR1                  = (n) => __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(n, 1);
+const VAR2                  = (n) => __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getVar(n, 2);
+const BITS_AFTER_THREE_VARS = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_PER_OPERATOR + __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_PER_VAR * 3;
+const BITS_WITHOUT_2_VARS   = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_WITHOUT_2_VARS;
+const BITS_OF_TWO_VARS      = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_OF_TWO_VARS;
+const IS_NUM                = __WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].isNumeric;
+const HALF_OF_VAR           = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].MAX_VAR / 2;
 
-class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_1__base_Operators__["a" /* default */]{
+class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a" /* default */]{
     constructor(offsets, vars, obs) {
         super(offsets, vars, obs);
         /**
@@ -5925,18 +5929,17 @@ class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_1__base_Operators__["a"
          * {Object} These operator handlers should return string, which
          * will be added to the final string script for evaluation.
          */
-        this._OPERATORS_CB = {
-            0 : this.onVar.bind(this),
-            1 : this.onCondition.bind(this),
-            //2 : this.onLoop.bind(this),
-            2 : this.onOperator.bind(this),
-            3 : this.onNot.bind(this),
-            //4 : this.onPi.bind(this),
-            //5 : this.onTrig.bind(this),
-            4 : this.onFromMem.bind(this),
-            5 : this.onToMem.bind(this)
-        };
-        this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
+        this._OPERATORS_CB = [
+            this.onVar.bind(this),
+            this.onCondition.bind(this),
+            //this.onLoop.bind(this),
+            this.onOperator.bind(this),
+            this.onNot.bind(this),
+            //this.onPi.bind(this),
+            //this.onTrig.bind(this),
+            this.onFromMem.bind(this),
+            this.onToMem.bind(this)
+        ];
         /**
          * {Array} Available conditions for if operator. Amount should be
          * the same like (1 << BITS_PER_VAR)
@@ -5949,8 +5952,11 @@ class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_1__base_Operators__["a"
             (a,b)=>a+b, (a,b)=>a-b, (a,b)=>a*b, (a,b)=>a/b, (a,b)=>a%b, (a,b)=>a&b, (a,b)=>a|b, (a,b)=>a^b, (a,b)=>a>>b, (a,b)=>a<<b, (a,b)=>a>>>b, (a,b)=>+(a<b), (a,b)=>+(a>b), (a,b)=>+(a==b), (a,b)=>+(a!=b), (a,b)=>+(a<=b)
         ];
         this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
-
-        __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].setOperatorAmount(this._OPERATORS_CB_LEN);
+        //
+        // We have to set amount of available operators for correct
+        // working of mutations of operators.
+        //
+        __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].setOperatorAmount(this._OPERATORS_CB.length);
     }
 
     destroy() {
@@ -5961,8 +5967,7 @@ class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_1__base_Operators__["a"
         this._TRIGS        = null;
     }
 
-    get operators() {return this._OPERATORS_CB;}
-    get size()      {return this._OPERATORS_CB_LEN;}
+    get operators() {return this._OPERATORS_CB}
 
     /**
      * Parses variable operator. Format: let = const|number. Num bits format:
@@ -5978,13 +5983,13 @@ class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_1__base_Operators__["a"
     onVar(num, line) {
         const vars = this._vars;
         const var1 = VAR1(num);
-        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS) : vars[var1];
+        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS) : vars[var1];
 
         return line + 1;
     }
 
     onCondition(num, line, org, lines) {
-        const val3 = __WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
+        const val3 = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
         const offs = line + val3 < lines ? line + val3 + 1 : lines;
 
         if (this._CONDITIONS[VAR2(num)](this._vars[VAR0(num)], this._vars[VAR1(num)])) {
@@ -6019,7 +6024,7 @@ class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_1__base_Operators__["a"
 
     onOperator(num, line) {
         const vars = this._vars;
-        vars[VAR0(num)] = this._OPERATORS[__WEBPACK_IMPORTED_MODULE_2__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS)](vars[VAR1(num)], vars[VAR2(num)]);
+        vars[VAR0(num)] = this._OPERATORS[__WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS)](vars[VAR1(num)], vars[VAR2(num)]);
         return line + 1;
     }
 
@@ -6068,14 +6073,17 @@ class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_1__base_Operators__["a"
  */
 class Canvas {
     constructor(width, height) {
-        const bodyEl = $('body');
+        const id     = 'world';
+        const doc    = document;
+        const bodyEl = doc.body;
 
         this._prepareDom();
+        bodyEl.innerHTML += `<canvas id="${id}" width="${width}" height="${height}"></canvas>`;
 
         this._width     = width;
         this._height    = height;
-        this._canvasEl  = bodyEl.append('<canvas id="world" width="' + this._width + '" height="' + this._height + '"></canvas>').find('#world');
-        this._ctx       = this._canvasEl[0].getContext('2d');
+        this._canvasEl  = doc.querySelector('#' + id);
+        this._ctx       = this._canvasEl.getContext('2d');
         this._text      = {x: 0, y: 0, t: ''};
         this._imgData   = this._ctx.createImageData(this._width, this._height);
         this._data      = this._imgData.data;
@@ -6155,14 +6163,15 @@ class Canvas {
     }
 
     _prepareDom() {
-        $('body')
-            .width('100%')
-            .height('100%')
-            .css('margin', 0)
-        .parent()
-            .width('100%')
-            .height('100%')
-            .css('margin', 0);
+        const bodyEl = document.querySelector('body');
+        const htmlEl = document.querySelector('html');
+
+        bodyEl.style.width  = '100%';
+        bodyEl.style.height = '100%';
+        bodyEl.style.margin = 0;
+        htmlEl.style.width  = '100%';
+        htmlEl.style.height = '100%';
+        htmlEl.style.margin = 0;
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Canvas;

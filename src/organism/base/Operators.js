@@ -21,11 +21,6 @@ export default class Operators {
          * {Observer} Observer for sending events outside
          */
         this.obs = obs;
-        //
-        // We have to set amount of available operators for correct
-        // working of mutations of operators.
-        //
-        Num.setOperatorAmount(this.size);
     }
 
     destroy() {
@@ -38,11 +33,5 @@ export default class Operators {
      * Returns operators array. Should be overridden in child class
      * @abstract
      */
-    get operators() {}
-
-    /**
-     * Returns siz (amount) of operators in operators array
-     * @abstract
-     */
-    get size()      {}
+    get operators() {return []}
 }

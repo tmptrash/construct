@@ -43,18 +43,17 @@ export default class OperatorsGarmin extends  Operators{
          * {Object} These operator handlers should return string, which
          * will be added to the final string script for evaluation.
          */
-        this._OPERATORS_CB = {
-            0 : this.onVar.bind(this),
-            1 : this.onCondition.bind(this),
-            //2 : this.onLoop.bind(this),
-            2 : this.onOperator.bind(this),
-            3 : this.onNot.bind(this),
-            //4 : this.onPi.bind(this),
-            //5 : this.onTrig.bind(this),
-            4 : this.onFromMem.bind(this),
-            5 : this.onToMem.bind(this)
-        };
-        this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
+        this._OPERATORS_CB = [
+            this.onVar.bind(this),
+            this.onCondition.bind(this),
+            //this.onLoop.bind(this),
+            this.onOperator.bind(this),
+            this.onNot.bind(this),
+            //this.onPi.bind(this),
+            //this.onTrig.bind(this),
+            this.onFromMem.bind(this),
+            this.onToMem.bind(this)
+        ];
         /**
          * {Array} Available conditions for if operator. Amount should be
          * the same like (1 << BITS_PER_VAR)
@@ -67,8 +66,11 @@ export default class OperatorsGarmin extends  Operators{
             (a,b)=>a+b, (a,b)=>a-b, (a,b)=>a*b, (a,b)=>a/b, (a,b)=>a%b, (a,b)=>a&b, (a,b)=>a|b, (a,b)=>a^b, (a,b)=>a>>b, (a,b)=>a<<b, (a,b)=>a>>>b, (a,b)=>+(a<b), (a,b)=>+(a>b), (a,b)=>+(a==b), (a,b)=>+(a!=b), (a,b)=>+(a<=b)
         ];
         this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
-
-        Num.setOperatorAmount(this._OPERATORS_CB_LEN);
+        //
+        // We have to set amount of available operators for correct
+        // working of mutations of operators.
+        //
+        Num.setOperatorAmount(this._OPERATORS_CB.length);
     }
 
     destroy() {
@@ -79,8 +81,7 @@ export default class OperatorsGarmin extends  Operators{
         this._TRIGS        = null;
     }
 
-    get operators() {return this._OPERATORS_CB;}
-    get size()      {return this._OPERATORS_CB_LEN;}
+    get operators() {return this._OPERATORS_CB}
 
     /**
      * Parses variable operator. Format: let = const|number. Num bits format:
