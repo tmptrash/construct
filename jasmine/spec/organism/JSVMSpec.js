@@ -175,6 +175,46 @@ describe("src/organism/JSVM", () => {
         jsvm1.destroy();
         jsvm2.destroy();
     });
+    it("Checking crossover with decreasing child code", () => {
+        const clss  = {ops: () => {}};
+        const obs   = new Observer(1);
+        const jsvm1 = new JSVM(()=>{}, obs, clss);
+        const jsvm2 = new JSVM(()=>{}, obs, clss);
+        const rand  = Helper.rand;
+        let   i     = -1;
+
+        Helper.rand = () => {
+            i++;
+            if (i === 0) {return 1}
+            if (i === 1) {return 2}
+            if (i === 2) {return 1}
+            if (i === 3) {return 1}
+        };
+
+        jsvm1._code.push(16000000);
+        jsvm1._code.push(16000001);
+        jsvm1._code.push(16000002);
+        jsvm1._code.push(16000003);
+        jsvm1._code.push(16000004);
+
+        jsvm2._code.push(17000000);
+        jsvm2._code.push(17000001);
+        jsvm2._code.push(17000002);
+        jsvm2._code.push(17000003);
+        jsvm2._code.push(17000004);
+
+        jsvm1.crossover(jsvm2);
+        expect(compare(jsvm1.code, [
+            16000000,
+            17000001,
+            16000003,
+            16000004
+        ])).toEqual(true);
+
+        Helper.rand = rand;
+        jsvm1.destroy();
+        jsvm2.destroy();
+    });
     // it('Checking insertLine() method', () => {
     //     let code = new JSVM((()=>{}));
     //
