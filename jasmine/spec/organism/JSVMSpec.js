@@ -2,10 +2,16 @@ describe("src/organism/JSVM", () => {
     let JSVM         = require('../../../src/organism/JSVM').default;
     let Num          = require('../../../src/organism/Num').default;
     let Observer     = require('../../../src/global/Observer').default;
+    let Helper       = require('../../../src/global/Helper').default;
     let Operators    = require('../../../src/organism/base/Operators').default;
     let Config       = require('../../../src/global/Config').Config;
     let api          = require('../../../src/global/Config').api;
     let cls          = null;
+
+    function compare(a1, a2) {
+        if (a1.length !== a2.length) {return false}
+        return !a1.some((a) => a2.indexOf(a) === -1)
+    }
 
     beforeEach(() => {cls = Config.codeOperatorsCls;api.set('codeOperatorsCls', 'ops')});
     afterEach(() => api.set('codeOperatorsCls', cls));
@@ -103,7 +109,7 @@ describe("src/organism/JSVM", () => {
     });
 
     it("Checking run method", () => {
-        let   flag = 0;
+        let   flag = '';
         class Ops extends Operators {
             get operators() {return {1: (n,l)=>{flag=n+''+l;return l+1}}};
             get size     () {return 1};
@@ -127,53 +133,48 @@ describe("src/organism/JSVM", () => {
         jsvm.destroy();
     });
 
-    //
-    // it("Checking clone()", () => {
-    //     let code1 = new JSVM((()=>{}));
-    //     let code2 = new JSVM(()=>{});
-    //     let bc1;
-    //     let bc2;
-    //
-    //     expect(code1.size).toEqual(0);
-    //     code1.insertLine();
-    //     expect(code1.size).toEqual(1);
-    //     code2.clone(code1);
-    //     expect(code2.size).toEqual(1);
-    //     bc1 = code1.cloneByteCode();
-    //     bc2 = code2.cloneByteCode();
-    //     expect(bc1[0] === bc2[0]).toEqual(true);
-    //
-    //     code1.destroy();
-    // });
-    //
-    // it("Checking cloneCode()", () => {
-    //     let code1 = new JSVM((()=>{}));
-    //     let bc1;
-    //
-    //     expect(code1.size).toEqual(0);
-    //     code1.insertLine();
-    //     expect(code1.size).toEqual(1);
-    //     bc1 = code1.cloneCode();
-    //     expect(code1._code !== bc1).toEqual(true);
-    //     expect(bc1[0] === code1._code[0]).toEqual(true);
-    //
-    //     code1.destroy();
-    // });
-    //
-    // it("Checking cloneByteCode()", () => {
-    //     let code1 = new JSVM((()=>{}));
-    //     let bc1;
-    //
-    //     expect(code1.size).toEqual(0);
-    //     code1.insertLine();
-    //     expect(code1.size).toEqual(1);
-    //     bc1 = code1.cloneByteCode();
-    //     expect(code1._byteCode !== bc1).toEqual(true);
-    //     expect(bc1[0] === code1._byteCode[0]).toEqual(true);
-    //
-    //     code1.destroy();
-    // });
-    //
+    it("Checking crossover with increasing child code", () => {
+        const clss  = {ops: () => {}};
+        const obs   = new Observer(1);
+        const jsvm1 = new JSVM(()=>{}, obs, clss);
+        const jsvm2 = new JSVM(()=>{}, obs, clss);
+        const rand  = Helper.rand;
+        let   i     = -1;
+
+        Helper.rand = () => {
+            i++;
+            if (i === 0) {return 1}
+            if (i === 1) {return 2}
+            if (i === 2) {return 1}
+            if (i === 3) {return 3}
+        };
+
+        jsvm1._code.push(16000000);
+        jsvm1._code.push(16000001);
+        jsvm1._code.push(16000002);
+        jsvm1._code.push(16000003);
+        jsvm1._code.push(16000004);
+
+        jsvm2._code.push(17000000);
+        jsvm2._code.push(17000001);
+        jsvm2._code.push(17000002);
+        jsvm2._code.push(17000003);
+        jsvm2._code.push(17000004);
+
+        jsvm1.crossover(jsvm2);
+        expect(compare(jsvm1.code, [
+            16000000,
+            17000001,
+            17000002,
+            17000003,
+            16000003,
+            16000004
+        ])).toEqual(true);
+
+        Helper.rand = rand;
+        jsvm1.destroy();
+        jsvm2.destroy();
+    });
     // it('Checking insertLine() method', () => {
     //     let code = new JSVM((()=>{}));
     //

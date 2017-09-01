@@ -95,6 +95,21 @@ export default class JSVM extends Observer {
         this.clear();
     }
 
+    /**
+     * Does crossover between two parent byte codes. Takes second jsvm's code part
+     * (from start1 to end1 offset) and inserts it instead first jsvm code part (start...end).
+     * For example:
+     *   code1 : [1,2,3]
+     *   code2 : [4,5,6]
+     *   start : 1
+     *   end   : 2
+     *   start1: 0
+     *   end1  : 2
+     *   jsvm1.crossover(jsvm2) // [4,5,6] instead [2,3] ->, jsvm1 === [1,4,5,6]
+     *
+     * @param {JSVM} jsvm JSVM instance, from where we have to cut code part
+     * @returns {Number} Amount of changes in current (this) jsvm
+     */
     crossover(jsvm) {
         const rand    = Helper.rand;
         const len     = this._code.length;
@@ -110,14 +125,14 @@ export default class JSVM extends Observer {
 
         adds = Math.abs(end1 - start1 - end + start);
         if (this._fitnessMode && this._code.length + adds >= Config.codeMaxSize) {return 0}
-        this._code.splice.apply(this._code, [start, end - start].concat(jsvm.code.slice(start1, end1)));
+        this._code.splice.apply(this._code, [start, end - start + 1].concat(jsvm.code.slice(start1, end1 + 1)));
         this._reset();
 
         return adds;
     }
 
     /**
-     * Inserts random generated number into the byte jsvm at random position
+     * Inserts random generated number into the byte code at random position
      */
     insertLine() {
         this._code.splice(Helper.rand(this._code.length), 0, Num.get());
