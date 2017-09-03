@@ -20,6 +20,7 @@ const VAR1                  = (n) => Num.getVar(n, 1);
 const VAR2                  = (n) => Num.getVar(n, 2);
 const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
 const BITS_OF_TWO_VARS      = Num.BITS_OF_TWO_VARS;
+const BITS_FOR_NUMBER       = 16;
 const IS_NUM                = Helper.isNumeric;
 const HALF_OF_VAR           = Num.MAX_VAR / 2;
 
@@ -87,11 +88,8 @@ export default class OperatorsDos extends Operators {
     get operators() {return this._OPERATORS_CB}
 
     /**
-     * Parses variable operator. Format: let = const|number. Num bits format:
-     *   BITS_PER_OPERATOR bits - operator id
-     *   BITS_PER_VAR bits  - destination var index
-     *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
-     *   BITS_PER_VAR bits  - variable index or all bits till the end for constant
+     * Parses variable operator. Format: var = number|var. 'num' bits format:
+     * TODO:
      *
      * @param {Num} num Packed into number jsvm line
      * @param {Number} line Current line in jsvm
@@ -99,9 +97,7 @@ export default class OperatorsDos extends Operators {
      */
     onVar(num, line) {
         const vars = this.vars;
-        const var1 = VAR1(num);
-        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS) : vars[var1];
-
+        vars[VAR0(num)] = VAR2(num) < HALF_OF_VAR ? Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_FOR_NUMBER) : vars[VAR1(num)];
         return line + 1;
     }
 

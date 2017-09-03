@@ -94,9 +94,9 @@ const Config = {
     * types of console messages. For example in QUIET_IMPORTANT
     * mode info messages will be hidden.
     */
-   QUIET_ALL              : QUIET_ALL,
-   QUIET_IMPORTANT        : QUIET_IMPORTANT,
-   QUIET_NO               : QUIET_NO,
+    QUIET_ALL              : QUIET_ALL,
+    QUIET_IMPORTANT        : QUIET_IMPORTANT,
+    QUIET_NO               : QUIET_NO,
 
     ORG_MAX_MUTATION_PERIOD: ORG_MAX_MUTATION_PERIOD,
     ORG_FIRST_COLOR        : ORG_FIRST_COLOR,
@@ -1996,8 +1996,10 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* defa
         this._plugins    = PLUGINS;
         this._stopped    = false;
         this._visualized = true;
+        this._version    = '0.1';
         this.api         = {
-            visualize: this._visualize.bind(this)
+            visualize: this._visualize.bind(this),
+            version  : () => this._version
         };
 
         this._initLoop();
@@ -5634,6 +5636,7 @@ const VAR1                  = (n) => __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* d
 const VAR2                  = (n) => __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].getVar(n, 2);
 const BITS_AFTER_THREE_VARS = __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].BITS_PER_OPERATOR + __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].BITS_PER_VAR * 3;
 const BITS_OF_TWO_VARS      = __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].BITS_OF_TWO_VARS;
+const BITS_FOR_NUMBER       = 16;
 const IS_NUM                = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].isNumeric;
 const HALF_OF_VAR           = __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].MAX_VAR / 2;
 
@@ -5701,11 +5704,8 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
     get operators() {return this._OPERATORS_CB}
 
     /**
-     * Parses variable operator. Format: let = const|number. Num bits format:
-     *   BITS_PER_OPERATOR bits - operator id
-     *   BITS_PER_VAR bits  - destination var index
-     *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
-     *   BITS_PER_VAR bits  - variable index or all bits till the end for constant
+     * Parses variable operator. Format: var = number|var. 'num' bits format:
+     * TODO:
      *
      * @param {Num} num Packed into number jsvm line
      * @param {Number} line Current line in jsvm
@@ -5713,9 +5713,10 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
      */
     onVar(num, line) {
         const vars = this.vars;
-        const var1 = VAR1(num);
-        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS) : vars[var1];
-
+        console.log(VAR0(num));
+        console.log(VAR1(num));
+        console.log(VAR2(num));
+        vars[VAR0(num)] = VAR2(num) < HALF_OF_VAR ? __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_FOR_NUMBER) : vars[VAR1(num)];
         return line + 1;
     }
 
