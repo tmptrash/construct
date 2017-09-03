@@ -24,21 +24,8 @@ const IS_NUM                = Helper.isNumeric;
 const HALF_OF_VAR           = Num.MAX_VAR / 2;
 
 export default class OperatorsGarmin extends  Operators{
-    constructor(offsets, vars, obs) {
-        super(offsets, vars, obs);
-        /**
-         * {Array} Array of offsets for closing braces. For 'for', 'if'
-         * and all block operators.
-         */
-        this._offsets = offsets;
-        /**
-         * {Array} Available variables
-         */
-        this._vars = vars;
-        /**
-         * {Observer} Observer for sending events outside of the jsvm
-         */
-        this._obs = obs;
+    constructor(offs, vars, obs) {
+        super(offs, vars, obs);
         /**
          * {Object} These operator handlers should return string, which
          * will be added to the final string script for evaluation.
@@ -74,7 +61,6 @@ export default class OperatorsGarmin extends  Operators{
     }
 
     destroy() {
-        this._offsets      = null;
         this._OPERATORS_CB = null;
         this._CONDITIONS   = null;
         this._OPERATORS    = null;
@@ -95,7 +81,7 @@ export default class OperatorsGarmin extends  Operators{
      * @return {Number} Parsed jsvm line string
      */
     onVar(num, line) {
-        const vars = this._vars;
+        const vars = this.vars;
         const var1 = VAR1(num);
         vars[VAR0(num)] = var1 >= HALF_OF_VAR ? Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS) : vars[var1];
 
@@ -106,7 +92,7 @@ export default class OperatorsGarmin extends  Operators{
         const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
         const offs = line + val3 < lines ? line + val3 + 1 : lines;
 
-        if (this._CONDITIONS[VAR2(num)](this._vars[VAR0(num)], this._vars[VAR1(num)])) {
+        if (this._CONDITIONS[VAR2(num)](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
             return line + 1;
         }
 
@@ -114,14 +100,14 @@ export default class OperatorsGarmin extends  Operators{
     }
 
 //    onLoop(num, line, org, lines, ret) {
-//        const vars = this._vars;
+//        const vars = this.vars;
 //        const var0 = VAR0(num);
 //        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
 //        const offs = line + val3 < lines ? line + val3 + 1 : lines;
 //
 //        if (ret) {
 //            if (++vars[var0] < vars[VAR2(num)]) {
-//                this._offsets.push(line, offs);
+//                this.offs.push(line, offs);
 //                return line + 1;
 //            }
 //            return offs;
@@ -129,7 +115,7 @@ export default class OperatorsGarmin extends  Operators{
 //
 //        vars[var0] = vars[VAR1(num)];
 //        if (vars[var0] < vars[VAR2(num)]) {
-//            this._offsets.push(line, offs);
+//            this.offs.push(line, offs);
 //            return line + 1;
 //        }
 //
@@ -137,36 +123,36 @@ export default class OperatorsGarmin extends  Operators{
 //    }
 
     onOperator(num, line) {
-        const vars = this._vars;
+        const vars = this.vars;
         vars[VAR0(num)] = this._OPERATORS[Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS)](vars[VAR1(num)], vars[VAR2(num)]);
         return line + 1;
     }
 
     onNot(num, line) {
-        this._vars[VAR0(num)] = +!this._vars[VAR1(num)];
+        this.vars[VAR0(num)] = +!this.vars[VAR1(num)];
         return line + 1;
     }
 
 //    onPi(num, line) {
-//        this._vars[VAR0(num)] = Math.PI;
+//        this.vars[VAR0(num)] = Math.PI;
 //        return line + 1;
 //    }
 //
 //    onTrig(num, line) {
-//        this._vars[VAR0(num)] = this._TRIGS[VAR2(num)](this._vars[VAR1(num)]);
+//        this.vars[VAR0(num)] = this._TRIGS[VAR2(num)](this.vars[VAR1(num)]);
 //        return line + 1;
 //    }
 
-    onFromMem(num, line, org) {this._vars[VAR0(num)] = org.mem.pop() || 0; return line + 1}
+    onFromMem(num, line, org) {this.vars[VAR0(num)] = org.mem.pop() || 0; return line + 1}
 
     onToMem(num, line, org) {
-        const val = this._vars[VAR1(num)];
+        const val = this.vars[VAR1(num)];
 
         if (IS_NUM(val) && org.mem.length < Config.orgMemSize) {
             org.mem.push(val);
-            this._vars[VAR0(num)] = val;
+            this.vars[VAR0(num)] = val;
         } else {
-            this._vars[VAR0(num)] = org.mem[org.mem.length - 1];
+            this.vars[VAR0(num)] = org.mem[org.mem.length - 1];
         }
 
         return line + 1;

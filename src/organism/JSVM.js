@@ -75,7 +75,7 @@ export default class JSVM extends Observer {
             }
             if (line >= lines) {
                 line = 0;
-                offs.length = 0;
+                this._operators.offsets = (this._offsets = []);
                 if (this._onCodeEnd) {
                     this._onCodeEnd();
                 }
@@ -158,8 +158,8 @@ export default class JSVM extends Observer {
 
     _reset() {
         this.fire(EVENTS.RESET_CODE);
-        this._line           = 0;
-        this._offsets.length = 0;
+        this._line    = 0;
+        this._operators.offsets = (this._offsets = []);
     }
 
     /**

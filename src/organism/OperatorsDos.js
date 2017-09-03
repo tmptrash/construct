@@ -25,8 +25,8 @@ const IS_NUM                = Helper.isNumeric;
 const HALF_OF_VAR           = Num.MAX_VAR / 2;
 
 export default class OperatorsDos extends Operators {
-    constructor(offsets, vars, obs) {
-        super(offsets, vars, obs);
+    constructor(offs, vars, obs) {
+        super(offs, vars, obs);
         /**
          * {Object} These operator handlers should return string, which
          * will be added to the final string script for evaluation.
@@ -127,7 +127,7 @@ export default class OperatorsDos extends Operators {
         //
         if (afterIteration) {
             if (++vars[var0] < vars[VAR2(num)]) {
-                this.offsets.push(line, offs);
+                this.offs.push(line, offs);
                 return line + 1;
             }
             return offs;
@@ -138,7 +138,7 @@ export default class OperatorsDos extends Operators {
         //
         vars[var0] = vars[VAR1(num)];
         if (vars[var0] < vars[VAR2(num)]) {
-            this.offsets.push(line, offs);
+            this.offs.push(line, offs);
             return line + 1;
         }
 
@@ -260,7 +260,7 @@ export default class OperatorsDos extends Operators {
      */
     _getOffs(line, lines, offs) {
         let   offset  = line + offs < lines ? line + offs + 1 : lines;
-        const offsets = this.offsets;
+        const offsets = this.offs;
 
         if (offsets.length > 0 && offset >= offsets[offsets.length - 1]) {
             return offsets[offsets.length - 1];

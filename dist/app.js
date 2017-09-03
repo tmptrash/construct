@@ -146,7 +146,7 @@ const Config = {
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 1000,
+    orgRainMutationPeriod: 100,
     /**
      * {Number} Value, which will be used like amount of mutations per
      * orgRainMutationPeriod iterations. 0 is a possible value if
@@ -1867,12 +1867,12 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 
 
 class Operators {
-    constructor(offsets, vars, obs) {
+    constructor(offs, vars, obs) {
         /**
          * {Array} Array of offsets for closing braces. For 'for', 'if'
          * and other operators.
          */
-        this.offsets = offsets;
+        this.offs = offs;
         /**
          * {Array} Available variables
          */
@@ -1884,9 +1884,9 @@ class Operators {
     }
 
     destroy() {
-        this.offsets = null;
-        this.vars    = null;
-        this.obs     = null;
+        this.offs = null;
+        this.vars = null;
+        this.obs  = null;
     }
 
     /**
@@ -1894,6 +1894,12 @@ class Operators {
      * @abstract
      */
     get operators() {return []}
+
+    /**
+     * Sets offsets array from outside
+     * @param {Array} offs New offsets array
+     */
+    set offsets(offs) {this.offs = offs}
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Operators;
 
@@ -5492,7 +5498,7 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
             }
             if (line >= lines) {
                 line = 0;
-                offs.length = 0;
+                this._operators.offsets = (this._offsets = []);
                 if (this._onCodeEnd) {
                     this._onCodeEnd();
                 }
@@ -5575,8 +5581,8 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
 
     _reset() {
         this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].RESET_CODE);
-        this._line           = 0;
-        this._offsets.length = 0;
+        this._line    = 0;
+        this._operators.offsets = (this._offsets = []);
     }
 
     /**
@@ -5641,8 +5647,8 @@ const IS_NUM                = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /
 const HALF_OF_VAR           = __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].MAX_VAR / 2;
 
 class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* default */] {
-    constructor(offsets, vars, obs) {
-        super(offsets, vars, obs);
+    constructor(offs, vars, obs) {
+        super(offs, vars, obs);
         /**
          * {Object} These operator handlers should return string, which
          * will be added to the final string script for evaluation.
@@ -5713,9 +5719,6 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
      */
     onVar(num, line) {
         const vars = this.vars;
-        console.log(VAR0(num));
-        console.log(VAR1(num));
-        console.log(VAR2(num));
         vars[VAR0(num)] = VAR2(num) < HALF_OF_VAR ? __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_FOR_NUMBER) : vars[VAR1(num)];
         return line + 1;
     }
@@ -5746,7 +5749,7 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
         //
         if (afterIteration) {
             if (++vars[var0] < vars[VAR2(num)]) {
-                this.offsets.push(line, offs);
+                this.offs.push(line, offs);
                 return line + 1;
             }
             return offs;
@@ -5757,7 +5760,7 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
         //
         vars[var0] = vars[VAR1(num)];
         if (vars[var0] < vars[VAR2(num)]) {
-            this.offsets.push(line, offs);
+            this.offs.push(line, offs);
             return line + 1;
         }
 
@@ -5879,7 +5882,7 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
      */
     _getOffs(line, lines, offs) {
         let   offset  = line + offs < lines ? line + offs + 1 : lines;
-        const offsets = this.offsets;
+        const offsets = this.offs;
 
         if (offsets.length > 0 && offset >= offsets[offsets.length - 1]) {
             return offsets[offsets.length - 1];
@@ -5926,21 +5929,8 @@ const IS_NUM                = __WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /
 const HALF_OF_VAR           = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].MAX_VAR / 2;
 
 class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a" /* default */]{
-    constructor(offsets, vars, obs) {
-        super(offsets, vars, obs);
-        /**
-         * {Array} Array of offsets for closing braces. For 'for', 'if'
-         * and all block operators.
-         */
-        this._offsets = offsets;
-        /**
-         * {Array} Available variables
-         */
-        this._vars = vars;
-        /**
-         * {Observer} Observer for sending events outside of the jsvm
-         */
-        this._obs = obs;
+    constructor(offs, vars, obs) {
+        super(offs, vars, obs);
         /**
          * {Object} These operator handlers should return string, which
          * will be added to the final string script for evaluation.
@@ -5976,7 +5966,6 @@ class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a"
     }
 
     destroy() {
-        this._offsets      = null;
         this._OPERATORS_CB = null;
         this._CONDITIONS   = null;
         this._OPERATORS    = null;
@@ -5997,7 +5986,7 @@ class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a"
      * @return {Number} Parsed jsvm line string
      */
     onVar(num, line) {
-        const vars = this._vars;
+        const vars = this.vars;
         const var1 = VAR1(num);
         vars[VAR0(num)] = var1 >= HALF_OF_VAR ? __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS) : vars[var1];
 
@@ -6008,7 +5997,7 @@ class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a"
         const val3 = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
         const offs = line + val3 < lines ? line + val3 + 1 : lines;
 
-        if (this._CONDITIONS[VAR2(num)](this._vars[VAR0(num)], this._vars[VAR1(num)])) {
+        if (this._CONDITIONS[VAR2(num)](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
             return line + 1;
         }
 
@@ -6016,14 +6005,14 @@ class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a"
     }
 
 //    onLoop(num, line, org, lines, ret) {
-//        const vars = this._vars;
+//        const vars = this.vars;
 //        const var0 = VAR0(num);
 //        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
 //        const offs = line + val3 < lines ? line + val3 + 1 : lines;
 //
 //        if (ret) {
 //            if (++vars[var0] < vars[VAR2(num)]) {
-//                this._offsets.push(line, offs);
+//                this.offs.push(line, offs);
 //                return line + 1;
 //            }
 //            return offs;
@@ -6031,7 +6020,7 @@ class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a"
 //
 //        vars[var0] = vars[VAR1(num)];
 //        if (vars[var0] < vars[VAR2(num)]) {
-//            this._offsets.push(line, offs);
+//            this.offs.push(line, offs);
 //            return line + 1;
 //        }
 //
@@ -6039,36 +6028,36 @@ class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a"
 //    }
 
     onOperator(num, line) {
-        const vars = this._vars;
+        const vars = this.vars;
         vars[VAR0(num)] = this._OPERATORS[__WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS)](vars[VAR1(num)], vars[VAR2(num)]);
         return line + 1;
     }
 
     onNot(num, line) {
-        this._vars[VAR0(num)] = +!this._vars[VAR1(num)];
+        this.vars[VAR0(num)] = +!this.vars[VAR1(num)];
         return line + 1;
     }
 
 //    onPi(num, line) {
-//        this._vars[VAR0(num)] = Math.PI;
+//        this.vars[VAR0(num)] = Math.PI;
 //        return line + 1;
 //    }
 //
 //    onTrig(num, line) {
-//        this._vars[VAR0(num)] = this._TRIGS[VAR2(num)](this._vars[VAR1(num)]);
+//        this.vars[VAR0(num)] = this._TRIGS[VAR2(num)](this.vars[VAR1(num)]);
 //        return line + 1;
 //    }
 
-    onFromMem(num, line, org) {this._vars[VAR0(num)] = org.mem.pop() || 0; return line + 1}
+    onFromMem(num, line, org) {this.vars[VAR0(num)] = org.mem.pop() || 0; return line + 1}
 
     onToMem(num, line, org) {
-        const val = this._vars[VAR1(num)];
+        const val = this.vars[VAR1(num)];
 
         if (IS_NUM(val) && org.mem.length < __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgMemSize) {
             org.mem.push(val);
-            this._vars[VAR0(num)] = val;
+            this.vars[VAR0(num)] = val;
         } else {
-            this._vars[VAR0(num)] = org.mem[org.mem.length - 1];
+            this.vars[VAR0(num)] = org.mem[org.mem.length - 1];
         }
 
         return line + 1;
