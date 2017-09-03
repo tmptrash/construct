@@ -19,9 +19,9 @@ const Config = {
     * types of console messages. For example in QUIET_IMPORTANT
     * mode info messages will be hidden.
     */
-   QUIET_ALL              : QUIET_ALL,
-   QUIET_IMPORTANT        : QUIET_IMPORTANT,
-   QUIET_NO               : QUIET_NO,
+    QUIET_ALL              : QUIET_ALL,
+    QUIET_IMPORTANT        : QUIET_IMPORTANT,
+    QUIET_NO               : QUIET_NO,
 
     ORG_MAX_MUTATION_PERIOD: ORG_MAX_MUTATION_PERIOD,
     ORG_FIRST_COLOR        : ORG_FIRST_COLOR,
@@ -71,7 +71,7 @@ const Config = {
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 2000,
+    orgRainMutationPeriod: 1000,
     /**
      * {Number} Value, which will be used like amount of mutations per
      * orgRainMutationPeriod iterations. 0 is a possible value if

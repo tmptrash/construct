@@ -74,8 +74,10 @@ export default class Manager extends Observer {
         this._plugins    = PLUGINS;
         this._stopped    = false;
         this._visualized = true;
+        this._version    = '0.1';
         this.api         = {
-            visualize: this._visualize.bind(this)
+            visualize: this._visualize.bind(this),
+            version  : () => this._version
         };
 
         this._initLoop();
