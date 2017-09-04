@@ -32,7 +32,7 @@ export default class Organism extends Observer {
     constructor(id, x, y, alive, item, codeEndCb, classMap, parent = null) {
         super(EVENT_AMOUNT);
 
-        this._jsvmEndCb   = codeEndCb;
+        this._codeEndCb   = codeEndCb;
         this._classMap    = classMap;
 
         if (parent === null) {this._create();}
@@ -122,7 +122,7 @@ export default class Organism extends Observer {
         this._mem        = null;
         this._jsvm.destroy();
         this._jsvm       = null;
-        this._jsvmEndCb  = null;
+        this._codeEndCb  = null;
         this.clear();
     }
 
@@ -133,7 +133,7 @@ export default class Organism extends Observer {
     }
 
     _create() {
-        this._jsvm                  = new JSVM(this._jsvmEndCb.bind(this, this), this, this._classMap);
+        this._jsvm                  = new JSVM(this._codeEndCb.bind(this, this), this, this._classMap);
         this._energy                = Config.orgStartEnergy;
         this._color                 = Config.orgStartColor;
         this._mutationProbs         = Config.orgMutationProbs;
@@ -145,7 +145,7 @@ export default class Organism extends Observer {
     }
 
     _clone(parent) {
-        this._jsvm                  = new JSVM(this._jsvmEndCb.bind(this, this), this, this._classMap, parent);
+        this._jsvm                  = new JSVM(this._codeEndCb.bind(this, this), this, this._classMap, parent);
         this._energy                = parent.energy;
         this._color                 = parent.color;
         this._mutationProbs         = parent.mutationProbs.slice();

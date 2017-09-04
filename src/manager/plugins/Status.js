@@ -49,8 +49,8 @@ export default class Status {
         this._onAfterIps(stamp);
     }
 
-    _onOrganism(org) {
-        this._runLines += (this._fitnessMode ? org.jsvm.size : Config.codeYieldPeriod);
+    _onOrganism(org, lines) {
+        this._runLines += lines;
     }
 
     _onBeforeIps(ips, orgs) {

@@ -76,7 +76,6 @@ export default class Organisms {
         while (item && (org = item.val)) {
             org.run();
             this._onOrganism(org);
-            man.fire(EVENTS.ORGANISM, org);
             item = item.next;
         }
 
@@ -305,8 +304,9 @@ export default class Organisms {
         }
     }
 
-    _onCodeEnd(org) {
+    _onCodeEnd(org, lines) {
         this._codeRuns++;
+        this._manager.fire(EVENTS.ORGANISM, org, lines);
     }
 
     _createOrg(pos, parent = null) {

@@ -59,7 +59,7 @@ export default class JSVM extends Observer {
         let code    = this._code;
         let lines   = code.length;
         let len     = Config.codeYieldPeriod || lines;
-        let fitMode = this._fitnessMode;
+        let len2    = len;
         let ops     = this._operators.operators;
         let getOp   = Num.getOperator;
         let ret     = false;
@@ -77,9 +77,9 @@ export default class JSVM extends Observer {
                 line = 0;
                 this._operators.offsets = (this._offsets = []);
                 if (this._onCodeEnd) {
-                    this._onCodeEnd();
+                    this._onCodeEnd(len2 - len);
                 }
-                if (fitMode) {break}
+                break;
             }
         }
 

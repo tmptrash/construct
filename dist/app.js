@@ -146,7 +146,7 @@ const Config = {
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 100,
+    orgRainMutationPeriod: 1000,
     /**
      * {Number} Value, which will be used like amount of mutations per
      * orgRainMutationPeriod iterations. 0 is a possible value if
@@ -1683,7 +1683,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     constructor(id, x, y, alive, item, codeEndCb, classMap, parent = null) {
         super(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* EVENT_AMOUNT */]);
 
-        this._jsvmEndCb   = codeEndCb;
+        this._codeEndCb   = codeEndCb;
         this._classMap    = classMap;
 
         if (parent === null) {this._create();}
@@ -1773,7 +1773,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
         this._mem        = null;
         this._jsvm.destroy();
         this._jsvm       = null;
-        this._jsvmEndCb  = null;
+        this._codeEndCb  = null;
         this.clear();
     }
 
@@ -1784,7 +1784,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     }
 
     _create() {
-        this._jsvm                  = new __WEBPACK_IMPORTED_MODULE_4__JSVM__["a" /* default */](this._jsvmEndCb.bind(this, this), this, this._classMap);
+        this._jsvm                  = new __WEBPACK_IMPORTED_MODULE_4__JSVM__["a" /* default */](this._codeEndCb.bind(this, this), this, this._classMap);
         this._energy                = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgStartEnergy;
         this._color                 = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgStartColor;
         this._mutationProbs         = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgMutationProbs;
@@ -1796,7 +1796,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     }
 
     _clone(parent) {
-        this._jsvm                  = new __WEBPACK_IMPORTED_MODULE_4__JSVM__["a" /* default */](this._jsvmEndCb.bind(this, this), this, this._classMap, parent);
+        this._jsvm                  = new __WEBPACK_IMPORTED_MODULE_4__JSVM__["a" /* default */](this._codeEndCb.bind(this, this), this, this._classMap, parent);
         this._energy                = parent.energy;
         this._color                 = parent.color;
         this._mutationProbs         = parent.mutationProbs.slice();
@@ -2674,7 +2674,6 @@ class Organisms {
         while (item && (org = item.val)) {
             org.run();
             this._onOrganism(org);
-            man.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].ORGANISM, org);
             item = item.next;
         }
 
@@ -2903,8 +2902,9 @@ class Organisms {
         }
     }
 
-    _onCodeEnd(org) {
+    _onCodeEnd(org, lines) {
         this._codeRuns++;
+        this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].ORGANISM, org, lines);
     }
 
     _createOrg(pos, parent = null) {
@@ -2993,8 +2993,8 @@ class Status {
         this._onAfterIps(stamp);
     }
 
-    _onOrganism(org) {
-        this._runLines += (this._fitnessMode ? org.jsvm.size : __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].codeYieldPeriod);
+    _onOrganism(org, lines) {
+        this._runLines += lines;
     }
 
     _onBeforeIps(ips, orgs) {
@@ -3065,6 +3065,7 @@ const VAR0                  = __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default 
 const VAR1                  = (n) => __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].getVar(n, 1);
 const VAR2                  = (n) => __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].getVar(n, 2);
 const BITS_AFTER_THREE_VARS = __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].BITS_PER_OPERATOR + __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].BITS_PER_VAR * 3;
+const BITS_FOR_NUMBER       = 16;
 const HALF_OF_VAR           = __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].MAX_VAR / 2;
 
 class Code2StringDos {
@@ -3144,9 +3145,9 @@ class Code2StringDos {
      */
     _onVar(num) {
         const var1    = VAR1(num);
-        const isConst = var1 >= HALF_OF_VAR;
+        const isConst = VAR2(num) >= HALF_OF_VAR;
 
-        return `v${VAR0(num)}=${isConst ? __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].BITS_OF_TWO_VARS) : ('v' + var1)}`;
+        return `v${VAR0(num)}=${isConst ? __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_FOR_NUMBER) : ('v' + var1)}`;
     }
 
     _onFunc(num) {
@@ -5482,7 +5483,7 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
         let code    = this._code;
         let lines   = code.length;
         let len     = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeYieldPeriod || lines;
-        let fitMode = this._fitnessMode;
+        let len2    = len;
         let ops     = this._operators.operators;
         let getOp   = __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].getOperator;
         let ret     = false;
@@ -5500,9 +5501,9 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
                 line = 0;
                 this._operators.offsets = (this._offsets = []);
                 if (this._onCodeEnd) {
-                    this._onCodeEnd();
+                    this._onCodeEnd(len2 - len);
                 }
-                if (fitMode) {break}
+                break;
             }
         }
 
