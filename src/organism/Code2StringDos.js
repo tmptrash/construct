@@ -14,6 +14,7 @@ const VAR0                  = Num.getVar;
 const VAR1                  = (n) => Num.getVar(n, 1);
 const VAR2                  = (n) => Num.getVar(n, 2);
 const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
+const BITS_FOR_NUMBER       = 16;
 const HALF_OF_VAR           = Num.MAX_VAR / 2;
 
 export default class Code2StringDos {
@@ -93,9 +94,9 @@ export default class Code2StringDos {
      */
     _onVar(num) {
         const var1    = VAR1(num);
-        const isConst = var1 >= HALF_OF_VAR;
+        const isConst = VAR2(num) >= HALF_OF_VAR;
 
-        return `v${VAR0(num)}=${isConst ? Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS) : ('v' + var1)}`;
+        return `v${VAR0(num)}=${isConst ? Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_FOR_NUMBER) : ('v' + var1)}`;
     }
 
     _onFunc(num) {
