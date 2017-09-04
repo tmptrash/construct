@@ -7,12 +7,12 @@
 import Num from '../Num';
 
 export default class Operators {
-    constructor(offsets, vars, obs) {
+    constructor(offs, vars, obs) {
         /**
          * {Array} Array of offsets for closing braces. For 'for', 'if'
          * and other operators.
          */
-        this.offsets = offsets;
+        this.offs = offs;
         /**
          * {Array} Available variables
          */
@@ -24,9 +24,9 @@ export default class Operators {
     }
 
     destroy() {
-        this.offsets = null;
-        this.vars    = null;
-        this.obs     = null;
+        this.offs = null;
+        this.vars = null;
+        this.obs  = null;
     }
 
     /**
@@ -34,4 +34,10 @@ export default class Operators {
      * @abstract
      */
     get operators() {return []}
+
+    /**
+     * Sets offsets array from outside
+     * @param {Array} offs New offsets array
+     */
+    set offsets(offs) {this.offs = offs}
 }
