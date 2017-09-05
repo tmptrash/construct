@@ -21,7 +21,7 @@ const MAX_VAR       = Num.MAX_VAR;
 
 export default class Mutator {
     constructor(manager) {
-        this._manager = manager;
+        this.manager = manager;
         this._MUTATION_TYPES = [
             this._onAdd,
             this._onChange,
@@ -63,7 +63,7 @@ export default class Mutator {
             mTypes[type](org);
         }
         org.changes += mutations;
-        this._manager.fire(EVENTS.MUTATIONS, org, mutations, clone);
+        this.manager.fire(EVENTS.MUTATIONS, org, mutations, clone);
 
         return mutations;
     }

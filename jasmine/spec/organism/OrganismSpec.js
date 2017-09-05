@@ -28,12 +28,9 @@ describe("src/organism/Organism", () => {
             expect(org.alive).toEqual(true);
             org.run();
         }
-
-        expect(org.alive).toEqual(true);
-        org.run();
         expect(org.alive).toEqual(false);
-
-        org.destroy();
+        // we don't need to call destroy, because organism
+        // should be dead at this moment
     });
     //
     // it("Checking organism destroy because of zero energy", () => {

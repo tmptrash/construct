@@ -9,7 +9,7 @@ import Console  from './../../global/Console';
 
 export default class Energy {
     constructor(manager) {
-        this._manager       = manager;
+        this.manager       = manager;
         this._checkPeriod   = Config.worldEnergyCheckPeriod;
         this._onIterationCb = this._onIteration.bind(this);
         //
@@ -20,7 +20,7 @@ export default class Energy {
     }
 
     destroy() {
-        Helper.unoverride(this._manager, 'onIteration', this._onIterationCb);
+        Helper.unoverride(this.manager, 'onIteration', this._onIterationCb);
     }
 
     _onIteration(counter) {
@@ -30,7 +30,7 @@ export default class Energy {
                 return;
             }
             let   energy = 0;
-            const world  = this._manager.world;
+            const world  = this.manager.world;
             const width  = Config.worldWidth;
             const height = Config.worldHeight;
 
@@ -47,7 +47,7 @@ export default class Energy {
     }
 
     _updateEnergy(dotAmount, energyInDot) {
-        const world  = this._manager.world;
+        const world  = this.manager.world;
         const width  = Config.worldWidth;
         const height = Config.worldHeight;
         const rand   = Helper.rand;

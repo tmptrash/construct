@@ -12,13 +12,13 @@ import Console  from './../../global/Console';
 
 export default class Backup {
     constructor(orgs, world, positions) {
-        this._orgs      = orgs;
+        this.orgs      = orgs;
         this._world     = world;
-        this._positions = positions;
+        this.positions = positions;
     }
 
     backup() {
-        this._toLocalStorage(this._toJson(this._orgs, this._world));
+        this._toLocalStorage(this._toJson(this.orgs, this._world));
         Console.info('Backup has created');
     }
 
@@ -55,7 +55,7 @@ export default class Backup {
 
     _getEnergy(world) {
         let dot;
-        let positions = this._positions;
+        let positions = this.positions;
         let posId     = Helper.posId;
         let energy    = [];
 
@@ -75,7 +75,7 @@ export default class Backup {
         // TODO: add other organism related properties saving
         // TODO: add removing of old backups
 //        localStorage[`jjs-${Date.now()}`] = JSON.stringify({
-//            world: this._manager.world.data,
+//            world: this.manager.world.data,
 //            orgs : this._getOrgsByteCode(orgs)
 //        });
     }

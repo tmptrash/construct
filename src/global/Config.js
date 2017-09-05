@@ -60,7 +60,7 @@ const Config = {
     /**
      * {Number} Amount of iterations before cloning process
      */
-    orgClonePeriod: 1,
+    orgClonePeriod: 10,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
@@ -101,7 +101,7 @@ const Config = {
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used.
      */
-    orgAlivePeriod: 10000,
+    orgAlivePeriod: 30000,
     /**
      * {Number} This value means the period between organism codeSizes, which
      * affects energy grabbing by the system. For example: we have two

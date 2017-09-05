@@ -21,7 +21,8 @@ import Console           from './../global/Console';
 import World             from './../visual/World';
 import Canvas            from './../visual/Canvas';
 
-import Organisms         from './plugins/Organisms';
+import OrganismsGarmin   from './plugins/OrganismsGarmin';
+import OrganismsDos      from './plugins/OrganismsDos';
 import ConfigPlugin      from './plugins/Config';
 import Mutator           from './plugins/Mutator';
 import Energy            from './plugins/Energy';
@@ -32,6 +33,10 @@ import OperatorsGarmin   from './../organism/OperatorsGarmin';
 import Code2StringDos    from '../organism/Code2StringDos';
 import Code2StringGarmin from './../organism/Code2StringGarmin';
 import FitnessGarmin     from './../organism/FitnessGarmin';
+/**
+ * {Boolean} Specify fitness or nature simulation mode
+ */
+const FITNESS_MODE = Config.codeFitnessCls !== null;
 /**
  * {Object} Mapping of class names and their functions. We use this map
  * for switching between fitness and natural modes
@@ -47,7 +52,7 @@ const CLASS_MAP = {
  * {Array} Plugins for Manager
  */
 const PLUGINS = {
-    Organisms: Organisms,
+    Organisms: FITNESS_MODE ? OrganismsGarmin : OrganismsDos,
     Config   : ConfigPlugin,
     Mutator  : Mutator,
     Energy   : Energy,

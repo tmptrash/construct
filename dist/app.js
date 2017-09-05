@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 9);
+/******/ 	return __webpack_require__(__webpack_require__.s = 10);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -135,7 +135,7 @@ const Config = {
     /**
      * {Number} Amount of iterations before cloning process
      */
-    orgClonePeriod: 1,
+    orgClonePeriod: 10,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
@@ -176,7 +176,7 @@ const Config = {
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used.
      */
-    orgAlivePeriod: 10000,
+    orgAlivePeriod: 30000,
     /**
      * {Number} This value means the period between organism codeSizes, which
      * affects energy grabbing by the system. For example: we have two
@@ -1648,7 +1648,7 @@ class Observer {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Helper__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__JSVM__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__JSVM__ = __webpack_require__(22);
 /**
  * TODO: add description:
  * TODO:   - events
@@ -1858,6 +1858,354 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Queue__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_Organism__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Backup__ = __webpack_require__(12);
+/**
+ * Base class for OrganismsXXX plugins
+ *
+ * @author DeadbraiN
+ */
+
+
+
+
+
+
+
+
+const EMPTY     = 0;
+const ENERGY    = 1;
+const ORGANISM  = 2;
+const RAND_OFFS = 4;
+
+class Organisms {
+    /**
+     * Is called every time after organism's code was run
+     * @param {Organism} org
+     * @abstract
+     */
+    onOrganism(org) {}
+
+    /**
+     * Compares two organisms and returns more fit one
+     * @param {Organism} org1
+     * @param {Organism} org2
+     * @return {Organism}
+     * @abstract
+     */
+    compare(org1, org2) {}
+
+    /**
+     * Is called before cloning of organism
+     * @param {Organism} org
+     * @abstract
+     */
+    onBeforeClone(org) {}
+
+    /**
+     * Is called after cloning of organism
+     * @param {Organism} org Parent organism
+     * @param {Organism} child Child organism
+     * @abstract
+     */
+    onClone(org, child) {}
+
+    constructor(manager) {
+        this.organisms      = new __WEBPACK_IMPORTED_MODULE_4__global_Queue__["a" /* default */]();
+        this.backup         = new __WEBPACK_IMPORTED_MODULE_6__Backup__["a" /* default */]();
+        this.codeRuns       = 0;
+        this.stamp          = Date.now();
+        this.manager        = manager;
+        this.positions      = {};
+        this.code2Str       = new manager.CLASS_MAP[__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].code2StringCls];
+        this.randOrgItem    = this.organisms.first;
+        this._onIterationCb = this.onIteration.bind(this);
+        this._onAfterMoveCb = this.onAfterMove.bind(this);
+
+        this.reset();
+        __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].override(manager, 'onIteration', this._onIterationCb);
+        __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].override(manager, 'onAfterMove', this._onAfterMoveCb);
+        //
+        // API of the Manager for accessing outside. (e.g. from Console)
+        //
+        manager.api.formatCode = (code) => this.code2Str.format(code);
+    }
+
+    get orgs() {return this.organisms;}
+
+    destroy() {
+        __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].unoverride(man, 'onAfterMove', this._onAfterMoveCb);
+        __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].unoverride(man, 'onIteration', this._onIterationCb);
+        for (let org of this.organisms) {org.destroy();}
+        this.organisms.destroy();
+        this.organisms      = null;
+        this.positions     = null;
+        this.manager        = null;
+        this.code2Str.destroy();
+        this.code2Str      = null;
+        this._onIterationCb = null;
+        this._onAfterMoveCb = null;
+    }
+
+    /**
+     * Override of Manager.onIteration() method. Is called on every
+     * iteration of main loop. The counter is an analog of time.
+     * @param {Number} counter Value of main loop counter.
+     * @param {Number} stamp Time stamp of current iteration
+     * @private
+     */
+    onIteration(counter, stamp) {
+        let item = this.organisms.first;
+        let org;
+
+        while (item && (org = item.val)) {
+            org.run();
+            this.onOrganism(org);
+            item = item.next;
+        }
+
+        this.updateClone(counter);
+        this.updateCrossover(counter);
+        this.updateCreate();
+        this.updateIps(stamp);
+        this.updateBackup(counter);
+    }
+
+    onAfterMove(x1, y1, x2, y2, org) {
+        if (x1 !== x2 || y1 !== y2) {
+            delete this.positions[__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x1, y1)];
+            this.positions[__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x2, y2)] = org;
+        }
+
+        return true;
+    }
+
+    addOrgHandlers(org) {
+        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].DESTROY, this._onKillOrg.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].GET_ENERGY, this._onGetEnergy.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].EAT, this._onEat.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].STEP, this._onStep.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].CHECK_AT, this._onCheckAt.bind(this));
+    }
+
+    /**
+     * Cloning parents are chosen according to tournament principle
+     * @param {Number} counter Current counter
+     * @returns {boolean}
+     * @private
+     */
+    updateClone(counter) {
+        const orgs      = this.organisms;
+        const needClone = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].orgClonePeriod === 0 ? false : counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].orgClonePeriod === 0;
+        let   orgAmount = orgs.size;
+        if (!needClone || orgAmount < 1) {return false}
+        let   org1      = this.getRandOrg();
+        let   org2      = this.getRandOrg();
+        if (!org1.alive && !org2.alive) {return false;}
+
+        let tmpOrg = this._tournament(org1, org2);
+        if (tmpOrg === org2) {[org1, org2] = [org2, org1]}
+
+        if (orgAmount >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].worldMaxOrgs) {org2.destroy();}
+        if (org1.alive) {this._clone(org1)}
+
+        return true;
+    }
+
+    updateCrossover(counter) {
+        const orgs      = this.organisms;
+        const orgAmount = orgs.size;
+        const needCrossover = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].orgCrossoverPeriod === 0 ? false : counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].orgCrossoverPeriod === 0;
+        if (!needCrossover || orgAmount < 1) {return false;}
+
+        let org1   = this._tournament();
+        let org2   = this._tournament();
+        let winner = this._tournament(org1, org2);
+        let looser = winner === org1 ? org2 : org1;
+
+        if (looser.alive) {
+            this._crossover(winner, looser);
+        }
+
+        return true;
+    }
+
+    updateCreate() {
+        if (this.organisms.size < 1) {
+            this._createPopulation();
+        }
+    }
+
+    updateIps(stamp) {
+        const ts   = stamp - this.stamp;
+        if (ts < __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].worldIpsPeriodMs) {return;}
+        const man  = this.manager;
+        const orgs = this.organisms.size;
+        let   ips  = this.codeRuns / orgs / (ts / 1000);
+
+        man.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].IPS, ips, this.organisms);
+        this.codeRuns = 0;
+        this.stamp = stamp;
+    }
+
+    updateBackup(counter) {
+        if (counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].backupPeriod !== 0 || __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].backupPeriod === 0) {return;}
+        // TODO: done this
+        //this.backup.backup(this.organisms);
+    }
+
+    getRandOrg() {
+        const offs = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(RAND_OFFS);
+        let   item = this.randOrgItem;
+
+        for (let i = 0; i < offs; i++) {
+            if ((item = item.next) === null) {
+                item = this.organisms.first;
+            }
+        }
+
+        return (this.randOrgItem = item).val;
+    }
+
+    reset() {
+        this._orgId      = 0;
+        this._maxEnergy  = 0;
+    }
+
+    _tournament(org1 = null, org2 = null) {
+        org1 = org1 || this.getRandOrg();
+        org2 = org2 || this.getRandOrg();
+
+        if (!org1.alive && !org2.alive) {return false;}
+        if ((org2.alive && !org1.alive) || this.compare(org2, org1)) {
+            return org2;
+        }
+
+        return org1;
+    }
+
+    _clone(org) {
+        if (this.onBeforeClone(org) === false) {return false}
+        let pos = this.manager.world.getNearFreePos(org.x, org.y);
+        if (pos === false || this._createOrg(pos, org) === false) {return false;}
+        let child  = this.organisms.last.val;
+
+        this.onClone(org, child);
+        this.manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].CLONE, org, child);
+
+        return true;
+    }
+
+    _crossover(winner, looser) {
+        this._clone(winner);
+        const orgs  = this.organisms;
+        let   child = orgs.last.val;
+
+        if (child.alive && looser.alive) {
+            child.changes += child.jsvm.crossover(looser.jsvm);
+            if (orgs.size >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].worldMaxOrgs) {looser.destroy()}
+        }
+    }
+
+    _createPopulation() {
+        const world = this.manager.world;
+
+        this.reset();
+        for (let i = 0; i < __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].orgStartAmount; i++) {
+            this._createOrg(world.getFreePos());
+        }
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('Population has created');
+    }
+
+    _onGetEnergy(org, x, y, ret) {
+        if (x < 0 || y < 0 || !Number.isInteger(x) || !Number.isInteger(y)) {return;}
+        const posId = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x, y);
+
+        if (typeof(this.positions[posId]) === 'undefined') {
+            ret.ret = this.manager.world.getDot(x, y)
+        } else {
+            ret.ret = this.positions[posId].energy;
+        }
+    }
+
+    _onEat(org, x, y, ret) {
+        const world = this.manager.world;
+        const positions = this.positions;
+
+        [x, y] = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].normalize(x, y);
+
+        const posId = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x, y);
+        if (typeof(positions[posId]) === 'undefined') {
+            ret.ret = world.grabDot(x, y, ret.ret);
+        } else {
+            ret.ret = ret.ret < 0 ? 0 : (ret.ret > positions[posId].energy ? positions[posId].energy : ret.ret);
+            positions[posId].grabEnergy(ret.ret);
+        }
+    }
+
+    _onStep(org, x1, y1, x2, y2, ret) {
+        if (org.alive) {
+            ret.ret = +this.manager.move(x1, y1, x2, y2, org)
+        }
+    }
+
+    _onCheckAt(x, y, ret) {
+        [x, y] = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].normalize(x, y);
+        if (typeof(this.positions[__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x, y)]) === 'undefined') {
+            ret.ret = this.manager.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
+        } else {
+            ret.ret = ORGANISM;
+        }
+    }
+
+    _onCodeEnd(org, lines) {
+        this.codeRuns++;
+        this.manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].ORGANISM, org, lines);
+    }
+
+    _createOrg(pos, parent = null) {
+        const orgs = this.organisms;
+        if (orgs.size >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].worldMaxOrgs || pos === false) {return false;}
+        orgs.add(null);
+        let last   = orgs.last;
+        let org    = new __WEBPACK_IMPORTED_MODULE_5__organism_Organism__["a" /* default */](++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), this.manager.CLASS_MAP, parent);
+
+        last.val = org;
+        this.addOrgHandlers(org);
+        this.manager.move(pos.x, pos.y, pos.x, pos.y, org);
+        this.positions[org.posId] = org;
+        this.manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].BORN_ORGANISM, org);
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].info(org.id, ' born');
+
+        return true;
+    }
+
+    _onKillOrg(org) {
+        if (this.randOrgItem === org.item) {
+            if ((this.randOrgItem = org.item.next) === null) {
+                this.randOrgItem = this.organisms.first;
+            }
+        }
+        this.organisms.del(org.item);
+        this.manager.world.setDot(org.x, org.y, 0);
+        delete this.positions[org.posId];
+        this.manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].KILL_ORGANISM, org);
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].info(org.id, ' die');
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = Organisms;
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Num__ = __webpack_require__(3);
 /**
  * This file contains interface for available operators for some special
@@ -1906,7 +2254,7 @@ class Operators {
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1915,18 +2263,19 @@ class Operators {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Observer__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Console__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__visual_World__ = __webpack_require__(24);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__visual_Canvas__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__plugins_Organisms__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__plugins_Config__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__plugins_Mutator__ = __webpack_require__(14);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__plugins_Energy__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__plugins_Status__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__organism_OperatorsDos__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__organism_OperatorsGarmin__ = __webpack_require__(22);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__organism_Code2StringDos__ = __webpack_require__(17);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__organism_Code2StringGarmin__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__organism_FitnessGarmin__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__visual_World__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__visual_Canvas__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__plugins_OrganismsGarmin__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__plugins_OrganismsDos__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__plugins_Config__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__plugins_Mutator__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__plugins_Energy__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__plugins_Status__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__organism_OperatorsDos__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__organism_OperatorsGarmin__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__organism_Code2StringDos__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__organism_Code2StringGarmin__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__organism_FitnessGarmin__ = __webpack_require__(21);
 /**
  * Main manager class of application. Contains all parts of jevo.js app
  * like World, Connection, Console etc... Runs infinite loop inside run()
@@ -1961,26 +2310,31 @@ class Operators {
 
 
 
+
+/**
+ * {Boolean} Specify fitness or nature simulation mode
+ */
+const FITNESS_MODE = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeFitnessCls !== null;
 /**
  * {Object} Mapping of class names and their functions. We use this map
  * for switching between fitness and natural modes
  */
 const CLASS_MAP = {
-    OperatorsDos     : __WEBPACK_IMPORTED_MODULE_12__organism_OperatorsDos__["a" /* default */],
-    OperatorsGarmin  : __WEBPACK_IMPORTED_MODULE_13__organism_OperatorsGarmin__["a" /* default */],
-    Code2StringDos   : __WEBPACK_IMPORTED_MODULE_14__organism_Code2StringDos__["a" /* default */],
-    Code2StringGarmin: __WEBPACK_IMPORTED_MODULE_15__organism_Code2StringGarmin__["a" /* default */],
-    FitnessGarmin    : __WEBPACK_IMPORTED_MODULE_16__organism_FitnessGarmin__["a" /* default */]
+    OperatorsDos     : __WEBPACK_IMPORTED_MODULE_13__organism_OperatorsDos__["a" /* default */],
+    OperatorsGarmin  : __WEBPACK_IMPORTED_MODULE_14__organism_OperatorsGarmin__["a" /* default */],
+    Code2StringDos   : __WEBPACK_IMPORTED_MODULE_15__organism_Code2StringDos__["a" /* default */],
+    Code2StringGarmin: __WEBPACK_IMPORTED_MODULE_16__organism_Code2StringGarmin__["a" /* default */],
+    FitnessGarmin    : __WEBPACK_IMPORTED_MODULE_17__organism_FitnessGarmin__["a" /* default */]
 };
 /**
  * {Array} Plugins for Manager
  */
 const PLUGINS = {
-    Organisms: __WEBPACK_IMPORTED_MODULE_7__plugins_Organisms__["a" /* default */],
-    Config   : __WEBPACK_IMPORTED_MODULE_8__plugins_Config__["a" /* default */],
-    Mutator  : __WEBPACK_IMPORTED_MODULE_9__plugins_Mutator__["a" /* default */],
-    Energy   : __WEBPACK_IMPORTED_MODULE_10__plugins_Energy__["a" /* default */],
-    Status   : __WEBPACK_IMPORTED_MODULE_11__plugins_Status__["a" /* default */]
+    Organisms: FITNESS_MODE ? __WEBPACK_IMPORTED_MODULE_7__plugins_OrganismsGarmin__["a" /* default */] : __WEBPACK_IMPORTED_MODULE_8__plugins_OrganismsDos__["a" /* default */],
+    Config   : __WEBPACK_IMPORTED_MODULE_9__plugins_Config__["a" /* default */],
+    Mutator  : __WEBPACK_IMPORTED_MODULE_10__plugins_Mutator__["a" /* default */],
+    Energy   : __WEBPACK_IMPORTED_MODULE_11__plugins_Energy__["a" /* default */],
+    Status   : __WEBPACK_IMPORTED_MODULE_12__plugins_Status__["a" /* default */]
 };
 
 class Manager extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default */] {
@@ -2142,12 +2496,12 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* defa
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_Manager__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_Manager__ = __webpack_require__(9);
 /**
  * This is an entry point of jevo.js application. Compiled version of
  * this file should be included into index.html
@@ -2164,7 +2518,7 @@ window.man = manager;
 manager.run();
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2256,7 +2610,7 @@ class Queue {
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2277,13 +2631,13 @@ class Queue {
 
 class Backup {
     constructor(orgs, world, positions) {
-        this._orgs      = orgs;
+        this.orgs      = orgs;
         this._world     = world;
-        this._positions = positions;
+        this.positions = positions;
     }
 
     backup() {
-        this._toLocalStorage(this._toJson(this._orgs, this._world));
+        this._toLocalStorage(this._toJson(this.orgs, this._world));
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].info('Backup has created');
     }
 
@@ -2320,7 +2674,7 @@ class Backup {
 
     _getEnergy(world) {
         let dot;
-        let positions = this._positions;
+        let positions = this.positions;
         let posId     = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId;
         let energy    = [];
 
@@ -2340,7 +2694,7 @@ class Backup {
         // TODO: add other organism related properties saving
         // TODO: add removing of old backups
 //        localStorage[`jjs-${Date.now()}`] = JSON.stringify({
-//            world: this._manager.world.data,
+//            world: this.manager.world.data,
 //            orgs : this._getOrgsByteCode(orgs)
 //        });
     }
@@ -2349,7 +2703,7 @@ class Backup {
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2371,7 +2725,7 @@ class Config {
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2389,7 +2743,7 @@ class Config {
 
 class Energy {
     constructor(manager) {
-        this._manager       = manager;
+        this.manager       = manager;
         this._checkPeriod   = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].worldEnergyCheckPeriod;
         this._onIterationCb = this._onIteration.bind(this);
         //
@@ -2400,7 +2754,7 @@ class Energy {
     }
 
     destroy() {
-        __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].unoverride(this._manager, 'onIteration', this._onIterationCb);
+        __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].unoverride(this.manager, 'onIteration', this._onIterationCb);
     }
 
     _onIteration(counter) {
@@ -2410,7 +2764,7 @@ class Energy {
                 return;
             }
             let   energy = 0;
-            const world  = this._manager.world;
+            const world  = this.manager.world;
             const width  = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].worldWidth;
             const height = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].worldHeight;
 
@@ -2427,7 +2781,7 @@ class Energy {
     }
 
     _updateEnergy(dotAmount, energyInDot) {
-        const world  = this._manager.world;
+        const world  = this.manager.world;
         const width  = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].worldWidth;
         const height = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].worldHeight;
         const rand   = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand;
@@ -2448,7 +2802,7 @@ class Energy {
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2480,7 +2834,7 @@ const MAX_VAR       = __WEBPACK_IMPORTED_MODULE_4__organism_Num__["a" /* default
 
 class Mutator {
     constructor(manager) {
-        this._manager = manager;
+        this.manager = manager;
         this._MUTATION_TYPES = [
             this._onAdd,
             this._onChange,
@@ -2522,7 +2876,7 @@ class Mutator {
             mTypes[type](org);
         }
         org.changes += mutations;
-        this._manager.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].MUTATIONS, org, mutations, clone);
+        this.manager.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].MUTATIONS, org, mutations, clone);
 
         return mutations;
     }
@@ -2586,19 +2940,75 @@ class Mutator {
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Queue__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_Organism__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Backup__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_plugins_base_Organisms__ = __webpack_require__(7);
+/**
+ * Plugin for Manager module, which handles organisms population in
+ * nature simulation mode
+ *
+ * Events od Manager:
+ *   TODO:
+ *   ORGANISM(org) Fires after one organism has processed
+ *
+ * Depends on:
+ *   manager/Manager
+ *
+ * @author DeadbraiN
+ */
+
+
+class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__manager_plugins_base_Organisms__["a" /* default */] {
+    /**
+     * Compares two organisms and returns more fit one
+     * @param {Organism} org1
+     * @param {Organism} org2
+     * @return {Organism}
+     * @override
+     */
+    compare(org1, org2) {
+        return org1.fitness() > org2.fitness();
+    }
+
+    /**
+     * Is called before cloning of organism
+     * @param {Organism} org
+     * @override
+     */
+    onBeforeClone(org) {
+        return org.energy > 0;
+    }
+
+    /**
+     * Is called after cloning of organism
+     * @param {Organism} org Parent organism
+     * @param {Organism} child Child organism
+     * @override
+     */
+    onClone(org, child) {
+        let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >>> 1; // analog of Math.round()
+        org.grabEnergy(energy);
+        child.grabEnergy(child.energy - energy);
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = OrganismsDos;
+
+
+/***/ }),
+/* 17 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Console__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__organism_Organism__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__manager_plugins_base_Organisms__ = __webpack_require__(7);
 /**
  * Plugin for Manager module, which handles organisms population
+ * in fitness mode.
  *
  * Events od Manager:
  *   ORGANISM(org) Fires after one organism has processed
@@ -2614,350 +3024,67 @@ class Mutator {
 
 
 
-
-
-const EMPTY     = 0;
-const ENERGY    = 1;
-const ORGANISM  = 2;
-const RAND_OFFS = 4; 
-
-class Organisms {
+class OrganismsGarmin extends __WEBPACK_IMPORTED_MODULE_4__manager_plugins_base_Organisms__["a" /* default */] {
     constructor(manager) {
-        this._orgs          = new __WEBPACK_IMPORTED_MODULE_4__global_Queue__["a" /* default */]();
-        this._backup        = new __WEBPACK_IMPORTED_MODULE_6__Backup__["a" /* default */]();
-        this._codeRuns      = 0;
-        this._stamp         = Date.now();
-        this._manager       = manager;
-        this._positions     = {};
-        this._code2Str      = new manager.CLASS_MAP[__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].code2StringCls];
-        this._randOrgPos    = this._orgs.first;
-        this._onIterationCb = this._onIteration.bind(this);
-        this._onAfterMoveCb = this._onAfterMove.bind(this);
+        super(manager);
 
-        this._fitnessMode   = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].codeFitnessCls !== null;
-        this._FITNESS_CLS   = manager.CLASS_MAP[__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].codeFitnessCls];
-
-        this._reset();
-        __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].override(manager, 'onIteration', this._onIterationCb);
-        __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].override(manager, 'onAfterMove', this._onAfterMoveCb);
-        //
-        // API of the Manager for accessing outside. (e.g. from Console)
-        //
-        manager.api.formatCode = (code) => this._code2Str.format(code);
-    }
-
-    get orgs() {return this._orgs;}
-
-    destroy() {
-        __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].unoverride(man, 'onAfterMove', this._onAfterMoveCb);
-        __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].unoverride(man, 'onIteration', this._onIterationCb);
-        for (let org of this._orgs) {org.destroy();}
-        this._orgs.destroy();
-        this._orgs          = null;
-        this._positions     = null;
-        this._manager       = null;
-        this._code2Str.destroy();
-        this._code2Str      = null;
-        this._onIterationCb = null;
-        this._onAfterMoveCb = null;
+        this._maxChanges  = 0;
+        this._FITNESS_CLS = manager.CLASS_MAP[__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeFitnessCls];
     }
 
     /**
-     * Override of Manager.onIteration() method. Is called on every
-     * iteration of main loop. The counter is an analog of time.
-     * @param {Number} counter Value of main loop counter.
-     * @param {Number} stamp Time stamp of current iteration
-     * @private
+     * Compares two organisms and returns fittest one
+     * @param {Organism} org1
+     * @param {Organism} org2
+     * @return {Organism}
+     * @override
      */
-    _onIteration(counter, stamp) {
-        const man  = this._manager;
-        let   item = this._orgs.first;
-        let   org;
-
-        while (item && (org = item.val)) {
-            org.run();
-            this._onOrganism(org);
-            item = item.next;
-        }
-
-        this._updateClone(counter);
-        this._updateCrossover(counter);
-        this._updateCreate();
-        this._updateIps(stamp);
-        this._updateBackup(counter);
-    }
-
-    _onOrganism(org) {
-        if (this._fitnessMode) {
-            if (org.energy > this._maxEnergy) {
-                this._maxEnergy = org.energy;
-                __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('--------------------------------------------------');
-                __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('Max energy: ', org.energy, ', org Id: ', org.id);
-                __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('[' + org.jsvm.code + ']');
-                __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn(this._manager.api.formatCode(org.jsvm.code));
-            }
-
-            if (org.changes > this._maxChanges) {this._maxChanges = org.changes}
-        }
-    }
-
-    _onStop(org) {
-        this._manager.stop();
-        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('--------------------------------------------------');
-        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('org id: ', org.id, ', energy: ', org.energy);
-        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('[' + org.jsvm.code + ']');
-        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn(this._manager.api.formatCode(org.jsvm.code));
+    compare(org1, org2) {
+        return this._FITNESS_CLS.compare(org1, org2, this._maxChanges);
     }
 
     /**
-     * Cloning parents are chosen according to tournament principle
-     * @param {Number} counter Current counter
-     * @returns {boolean}
-     * @private
+     * Is called after cloning of organism
+     * @param {Organism} org Parent organism
+     * @param {Organism} child Child organism
+     * @override
      */
-    _updateClone(counter) {
-        const orgs      = this._orgs;
-        let   orgAmount = orgs.size;
-        const needClone = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].orgClonePeriod === 0 ? false : counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].orgClonePeriod === 0;
-        if (!needClone || orgAmount < 1) {return false;}
+    onClone(org, child) {}
 
-        let org1 = this._getRandOrg();
-        let org2 = this._getRandOrg();
-        let tmpOrg;
-
-        if (!org1.alive && !org2.alive) {return false;}
-
-        tmpOrg = this._tournament(org1, org2);
-        if (tmpOrg === org2) {[org1, org2] = [org2, org1]}
-
-        if (orgAmount >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].worldMaxOrgs) {org2.destroy();}
-        if (org1.alive) {this._clone(org1)}
-
-        return true;
-    }
-
-    _updateCrossover(counter) {
-        const orgs      = this._orgs;
-        const orgAmount = orgs.size;
-        const needCrossover = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].orgCrossoverPeriod === 0 ? false : counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].orgCrossoverPeriod === 0;
-        if (!needCrossover || orgAmount < 1) {return false;}
-
-        let org1   = this._tournament();
-        let org2   = this._tournament();
-        let winner = this._tournament(org1, org2);
-        let looser = winner === org1 ? org2 : org1;
-
-        if (looser.alive) {
-            this._crossover(winner, looser);
+    onOrganism(org) {
+        if (org.energy > this._maxEnergy) {
+            this._maxEnergy = org.energy;
+            __WEBPACK_IMPORTED_MODULE_1__global_Console__["a" /* default */].warn('--------------------------------------------------');
+            __WEBPACK_IMPORTED_MODULE_1__global_Console__["a" /* default */].warn('Max energy: ', org.energy, ', org Id: ', org.id);
+            __WEBPACK_IMPORTED_MODULE_1__global_Console__["a" /* default */].warn('[' + org.jsvm.code + ']');
+            __WEBPACK_IMPORTED_MODULE_1__global_Console__["a" /* default */].warn(this.manager.api.formatCode(org.jsvm.code));
         }
 
-        return true;
+        if (org.changes > this._maxChanges) {this._maxChanges = org.changes}
     }
 
-    _updateCreate() {
-        if (this._orgs.size < 1) {
-            this._createPopulation();
-        }
+    addOrgHandlers(org) {
+        org.on(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].STOP, this._onStop.bind(this));
     }
 
-    _updateIps(stamp) {
-        const ts   = stamp - this._stamp;
-        if (ts < __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].worldIpsPeriodMs) {return;}
-        const man  = this._manager;
-        const orgs = this._orgs.size;
-        let   ips  = this._codeRuns / orgs / (ts / 1000);
-
-        man.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].IPS, ips, this._orgs);
-        this._codeRuns = 0;
-        this._stamp = stamp;
-    }
-
-    _updateBackup(counter) {
-        if (counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].backupPeriod !== 0 || __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].backupPeriod === 0) {return;}
-        // TODO: done this
-        //this._backup.backup(this._orgs);
-    }
-
-    _getRandOrg() {
-		const offs = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(RAND_OFFS);
-		let   item = this._randOrgPos;
-		
-		for (let i = 0; i < offs; i++) {
-		    if ((item = item.next) === null) {
-				item = this._orgs.first;
-			}
-		}
-		
-		return (this._randOrgPos = item).val;
-    }
-
-    _tournament(org1 = null, org2 = null) {
-        const orgs      = this._orgs;
-        const orgAmount = orgs.size;
-        org1            = org1 || this._getRandOrg();
-        org2            = org2 || this._getRandOrg();
-
-        if (!org1.alive && !org2.alive) {return false;}
-
-        if (this._fitnessMode) {
-            if ((org2.alive && !org1.alive) || this._FITNESS_CLS.compare(org2, org1, this._maxChanges)) {
-                return org2;
-            }
-        } else {
-            if ((org2.alive && !org1.alive) || org2.fitness() > org1.fitness()) {
-                return org2;
-            }
-        }
-
-        return org1;
-    }
-
-    _crossover(winner, looser) {
-        this._clone(winner);
-        const orgs = this._orgs;
-        let child  = orgs.last.val;
-
-        if (child.alive && looser.alive) {
-            child.changes += child.jsvm.crossover(looser.jsvm);
-            if (orgs.size >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].worldMaxOrgs) {looser.destroy()}
-        }
-    }
-
-    _clone(org) {
-        if (this._fitnessMode === false && org.energy < 1) {return false;}
-        let pos = this._manager.world.getNearFreePos(org.x, org.y);
-        if (pos === false || this._createOrg(pos, org) === false) {return false;}
-        let child  = this._orgs.last.val;
-        //
-        // Energy should be grabbed only in native simulation mode
-        //
-        if (this._fitnessMode === false) {
-            let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >>> 1; // analog of Math.round()
-            org.grabEnergy(energy);
-            child.grabEnergy(child.energy - energy);
-        }
-        this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].CLONE, org, child);
-
-        return true;
-    }
-
-    _createPopulation() {
-        const world = this._manager.world;
-
-        this._reset();
-        for (let i = 0; i < __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].orgStartAmount; i++) {
-            this._createOrg(world.getFreePos());
-        }
-        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('Population has created');
-    }
-
-    _reset() {
-        this._orgId      = 0;
-        this._maxEnergy  = 0;
+    reset() {
+        super.reset();
         this._maxChanges = 0;
     }
 
-    _onAfterMove(x1, y1, x2, y2, org) {
-        if (x1 !== x2 || y1 !== y2) {
-            delete this._positions[__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x1, y1)];
-            this._positions[__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x2, y2)] = org;
-        }
-
-        return true;
-    }
-
-    _addHandlers(org) {
-        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].DESTROY, this._onKillOrg.bind(this));
-        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].GET_ENERGY, this._onGetEnergy.bind(this));
-        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].EAT, this._onEat.bind(this));
-        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].STEP, this._onStep.bind(this));
-        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].CHECK_AT, this._onCheckAt.bind(this));
-        if (this._fitnessMode) {
-            org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].STOP, this._onStop.bind(this));
-        }
-    }
-
-    _onGetEnergy(org, x, y, ret) {
-        if (x < 0 || y < 0 || !Number.isInteger(x) || !Number.isInteger(y)) {return;}
-        const posId = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x, y);
-
-        if (typeof(this._positions[posId]) === 'undefined') {
-            ret.ret = this._manager.world.getDot(x, y)
-        } else {
-            ret.ret = this._positions[posId].energy;
-        }
-    }
-
-    _onEat(org, x, y, ret) {
-        const world = this._manager.world;
-        const positions = this._positions;
-
-        [x, y] = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].normalize(x, y);
-
-        const posId = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x, y);
-        if (typeof(positions[posId]) === 'undefined') {
-            ret.ret = world.grabDot(x, y, ret.ret);
-        } else {
-            ret.ret = ret.ret < 0 ? 0 : (ret.ret > positions[posId].energy ? positions[posId].energy : ret.ret);
-            positions[posId].grabEnergy(ret.ret);
-        }
-    }
-
-    _onStep(org, x1, y1, x2, y2, ret) {
-        if (org.alive) {
-            ret.ret = +this._manager.move(x1, y1, x2, y2, org)
-        }
-    }
-
-    _onCheckAt(x, y, ret) {
-        [x, y] = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].normalize(x, y);
-        if (typeof(this._positions[__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x, y)]) === 'undefined') {
-            ret.ret = this._manager.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
-        } else {
-            ret.ret = ORGANISM;
-        }
-    }
-
-    _onCodeEnd(org, lines) {
-        this._codeRuns++;
-        this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].ORGANISM, org, lines);
-    }
-
-    _createOrg(pos, parent = null) {
-        const orgs = this._orgs;
-        if (orgs.size >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].worldMaxOrgs || pos === false) {return false;}
-        orgs.add(null);
-        let last   = orgs.last;
-        let org    = new __WEBPACK_IMPORTED_MODULE_5__organism_Organism__["a" /* default */](++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), this._manager.CLASS_MAP, parent);
-
-        last.val = org;
-        this._addHandlers(org);
-        this._manager.move(pos.x, pos.y, pos.x, pos.y, org);
-        this._positions[org.posId] = org;
-        this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].BORN_ORGANISM, org);
-        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].info(org.id, ' born');
-
-        return true;
-    }
-
-    _onKillOrg(org) {
-		if (this._randOrgPos === org.item) {
-			if ((this._randOrgPos = org.item.next) === null) {
-				this._randOrgPos = this._orgs.first;
-			}
-		}
-        this._orgs.del(org.item);
-        this._manager.world.setDot(org.x, org.y, 0);
-        delete this._positions[org.posId];
-        this._manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].KILL_ORGANISM, org);
-        __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].info(org.id, ' die');
+    _onStop(org) {
+        this.manager.stop();
+        __WEBPACK_IMPORTED_MODULE_1__global_Console__["a" /* default */].warn('--------------------------------------------------');
+        __WEBPACK_IMPORTED_MODULE_1__global_Console__["a" /* default */].warn('org id: ', org.id, ', energy: ', org.energy);
+        __WEBPACK_IMPORTED_MODULE_1__global_Console__["a" /* default */].warn('[' + org.jsvm.code + ']');
+        __WEBPACK_IMPORTED_MODULE_1__global_Console__["a" /* default */].warn(this.manager.api.formatCode(org.jsvm.code));
     }
 }
-/* harmony export (immutable) */ __webpack_exports__["a"] = Organisms;
+/* harmony export (immutable) */ __webpack_exports__["a"] = OrganismsGarmin;
 
 
 /***/ }),
-/* 16 */
+/* 18 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2977,11 +3104,11 @@ const PERIOD = 10000;
 
 class Status {
     constructor(manager) {
-        this._manager = manager;
-        this._stamp       = 0;
+        this.manager = manager;
+        this.stamp       = 0;
         this._ips         = 0;
         this._ipsAmount   = 0;
-        this._orgs        = 0;
+        this.orgs        = 0;
         this._energy      = 0;
         this._codeSize    = 0;
         this._runLines    = 0;
@@ -2997,10 +3124,10 @@ class Status {
         const stamp     = Date.now();
 
         this._onBeforeIps(ips, orgs);
-        if (stamp - this._stamp < PERIOD) {return;}
+        if (stamp - this.stamp < PERIOD) {return;}
 
         const amount    = this._ipsAmount || 1;
-        const orgAmount = (this._orgs / amount) || 1;
+        const orgAmount = (this.orgs / amount) || 1;
         const sips      = ('ips:' + (this._ips      / amount).toFixed(this._ips  / amount < 10 ? 2 : 0)).padEnd(9);
         const slps      = ('lps:' + (this._runLines / amount).toFixed()).padEnd(14);
         const sorgs     = ('org:' + (orgAmount).toFixed()).padEnd(10);
@@ -3010,7 +3137,7 @@ class Status {
         const scode     = ('cod:' + ((this._codeSize / amount) / orgAmount).toFixed(1)).padEnd(12);
 
         console.log(`%c${sips}${slps}${sorgs}%c${senergy}${schanges}${sfit}${scode}`, GREEN, RED);
-        this._manager.canvas.text(5, 15, sips);
+        this.manager.canvas.text(5, 15, sips);
         this._onAfterIps(stamp);
     }
 
@@ -3020,7 +3147,7 @@ class Status {
 
     _onBeforeIps(ips, orgs) {
         this._ips  += ips;
-        this._orgs += orgs.size;
+        this.orgs += orgs.size;
 
         this._ipsAmount++;
         this._iterateOrganisms(orgs);
@@ -3029,10 +3156,10 @@ class Status {
     _onAfterIps(stamp) {
         this._ips       = 0;
         this._ipsAmount = 0;
-        this._orgs      = 0;
+        this.orgs      = 0;
         this._energy    = 0;
         this._codeSize  = 0;
-        this._stamp     = stamp;
+        this.stamp     = stamp;
         this._runLines  = 0;
         this._changes   = 0;
         this._fitness   = 0;
@@ -3065,7 +3192,7 @@ class Status {
 
 
 /***/ }),
-/* 17 */
+/* 19 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3278,7 +3405,7 @@ class Code2StringDos {
 
 
 /***/ }),
-/* 18 */
+/* 20 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3431,7 +3558,7 @@ class Code2StringGarmin {
 
 
 /***/ }),
-/* 19 */
+/* 21 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5434,7 +5561,7 @@ class FitnessGarmin {
 
 
 /***/ }),
-/* 20 */
+/* 22 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5633,14 +5760,14 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
 
 
 /***/ }),
-/* 21 */
+/* 23 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Helper__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__base_Operators__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__base_Operators__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Num__ = __webpack_require__(3);
 /**
  * Digital Organisms Script - (DOS) is a simple language for JSVM.
@@ -5917,13 +6044,13 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
 
 
 /***/ }),
-/* 22 */
+/* 24 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__base_Operators__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__base_Operators__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Num__ = __webpack_require__(3);
 /**
  * This file contains all available operators implementation. For example:
@@ -6089,7 +6216,7 @@ class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a"
 
 
 /***/ }),
-/* 23 */
+/* 25 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6205,7 +6332,7 @@ class Canvas {
 
 
 /***/ }),
-/* 24 */
+/* 26 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
