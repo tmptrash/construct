@@ -2616,9 +2616,10 @@ class Mutator {
 
 
 
-const EMPTY    = 0;
-const ENERGY   = 1;
-const ORGANISM = 2;
+const EMPTY     = 0;
+const ENERGY    = 1;
+const ORGANISM  = 2;
+const RAND_OFFS = 4; 
 
 class Organisms {
     constructor(manager) {
@@ -2629,6 +2630,7 @@ class Organisms {
         this._manager       = manager;
         this._positions     = {};
         this._code2Str      = new manager.CLASS_MAP[__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].code2StringCls];
+        this._randOrgPos    = this._orgs.first;
         this._onIterationCb = this._onIteration.bind(this);
         this._onAfterMoveCb = this._onAfterMove.bind(this);
 
@@ -2719,8 +2721,8 @@ class Organisms {
         const needClone = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].orgClonePeriod === 0 ? false : counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].orgClonePeriod === 0;
         if (!needClone || orgAmount < 1) {return false;}
 
-        let org1 = orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(orgAmount)).val;
-        let org2 = orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(orgAmount)).val;
+        let org1 = this._getRandOrg();
+        let org2 = this._getRandOrg();
         let tmpOrg;
 
         if (!org1.alive && !org2.alive) {return false;}
@@ -2776,11 +2778,24 @@ class Organisms {
         //this._backup.backup(this._orgs);
     }
 
+    _getRandOrg() {
+		const offs = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(RAND_OFFS);
+		let   item = this._randOrgPos;
+		
+		for (let i = 0; i < offs; i++) {
+		    if ((item = item.next) === null) {
+				item = this._orgs.first;
+			}
+		}
+		
+		return (this._randOrgPos = item).val;
+    }
+
     _tournament(org1 = null, org2 = null) {
         const orgs      = this._orgs;
         const orgAmount = orgs.size;
-        org1            = org1 || orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(orgAmount)).val;
-        org2            = org2 || orgs.get(__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].rand(orgAmount)).val;
+        org1            = org1 || this._getRandOrg();
+        org2            = org2 || this._getRandOrg();
 
         if (!org1.alive && !org2.alive) {return false;}
 
@@ -2926,6 +2941,11 @@ class Organisms {
     }
 
     _onKillOrg(org) {
+		if (this._randOrgPos === org.item) {
+			if ((this._randOrgPos = org.item.next) === null) {
+				this._randOrgPos = this._orgs.first;
+			}
+		}
         this._orgs.del(org.item);
         this._manager.world.setDot(org.x, org.y, 0);
         delete this._positions[org.posId];
