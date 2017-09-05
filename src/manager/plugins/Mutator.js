@@ -89,12 +89,12 @@ export default class Mutator {
      */
     _onSmallChange(org) {
         const rand  = Helper.rand;
-        const index = rand(org.jsvm.size);
         const jsvm  = org.jsvm;
+        const index = rand(jsvm.size);
         const rnd   = rand(3);
 
         if (rnd === 0) {
-            jsvm.updateLine(index, Num.setOperator(jsvm.getLine(index), rand(jsvm.operators.length)));
+            jsvm.updateLine(index, Num.setOperator(jsvm.getLine(index), rand(jsvm.operators.operators.length)));
         } else if (rnd === 1) {
             jsvm.updateLine(index, Num.setVar(jsvm.getLine(index), rand(VARS), rand(MAX_VAR)));
         } else {

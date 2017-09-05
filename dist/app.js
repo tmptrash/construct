@@ -1768,6 +1768,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     destroy() {
         this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].DESTROY, this);
         this._alive      = false;
+        this._classMap   = null;
         this._energy     = 0;
         this._item       = null;
         this._mem        = null;
@@ -2547,12 +2548,12 @@ class Mutator {
      */
     _onSmallChange(org) {
         const rand  = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].rand;
-        const index = rand(org.jsvm.size);
         const jsvm  = org.jsvm;
+        const index = rand(jsvm.size);
         const rnd   = rand(3);
 
         if (rnd === 0) {
-            jsvm.updateLine(index, __WEBPACK_IMPORTED_MODULE_4__organism_Num__["a" /* default */].setOperator(jsvm.getLine(index), rand(jsvm.operators.length)));
+            jsvm.updateLine(index, __WEBPACK_IMPORTED_MODULE_4__organism_Num__["a" /* default */].setOperator(jsvm.getLine(index), rand(jsvm.operators.operators.length)));
         } else if (rnd === 1) {
             jsvm.updateLine(index, __WEBPACK_IMPORTED_MODULE_4__organism_Num__["a" /* default */].setVar(jsvm.getLine(index), rand(VARS), rand(MAX_VAR)));
         } else {

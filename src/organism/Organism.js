@@ -117,6 +117,7 @@ export default class Organism extends Observer {
     destroy() {
         this.fire(EVENTS.DESTROY, this);
         this._alive      = false;
+        this._classMap   = null;
         this._energy     = 0;
         this._item       = null;
         this._mem        = null;
