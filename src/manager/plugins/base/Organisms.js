@@ -1,5 +1,8 @@
 /**
- * Base class for OrganismsXXX plugins
+ * Base class for OrganismsXXX plugins. Manages organisms. Makes
+ * cloning, crossover, organisms comparison, killing and more...
+ * Main function of this plugin is run organism's in an infinite
+ * loop.
  *
  * @author DeadbraiN
  */
@@ -126,7 +129,7 @@ export default class Organisms {
      */
     updateClone(counter) {
         const orgs      = this.organisms;
-        const needClone = Config.orgClonePeriod === 0 ? false : counter % Config.orgClonePeriod === 0;
+        const needClone = counter % Config.orgClonePeriod === 0 && Config.orgClonePeriod !== 0;
         let   orgAmount = orgs.size;
         if (!needClone || orgAmount < 1) {return false}
         let   org1      = this.getRandOrg();
@@ -145,7 +148,7 @@ export default class Organisms {
     updateCrossover(counter) {
         const orgs      = this.organisms;
         const orgAmount = orgs.size;
-        const needCrossover = Config.orgCrossoverPeriod === 0 ? false : counter % Config.orgCrossoverPeriod === 0;
+        const needCrossover = counter % Config.orgCrossoverPeriod === 0 && Config.orgCrossoverPeriod !== 0;
         if (!needCrossover || orgAmount < 1) {return false;}
 
         let org1   = this._tournament();
@@ -179,7 +182,7 @@ export default class Organisms {
     }
 
     updateBackup(counter) {
-        if (counter % Config.backupPeriod !== 0 || Config.backupPeriod === 0) {return;}
+        if (counter % Config.backupPeriod !== 0 || Config.backupPeriod === 0) {return}
         // TODO: done this
         //this.backup.backup(this.organisms);
     }

@@ -42,7 +42,7 @@ export default class Mutator {
     }
 
     _onOrganism(org) {
-        if (Config.orgRainMutationPeriod > 0 && org.mutationPeriod > 0 && org.iterations % org.mutationPeriod === 0 && org.alive) {
+        if (org.iterations % org.mutationPeriod === 0 && Config.orgRainMutationPeriod > 0 && org.mutationPeriod > 0 && org.alive) {
             this._mutate(org, false);
         }
     }

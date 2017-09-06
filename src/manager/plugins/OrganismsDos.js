@@ -23,7 +23,7 @@ export default class OrganismsDos extends Organisms {
     constructor(manager) {
         super(manager);
 
-        this.positions      = {};
+        this._positions     = {};
         this._onAfterMoveCb = this._onAfterMove.bind(this);
 
         Helper.override(manager, 'onAfterMove', this._onAfterMoveCb);
@@ -32,7 +32,7 @@ export default class OrganismsDos extends Organisms {
     destroy() {
         super.destroy();
         Helper.unoverride(man, 'onAfterMove', this._onAfterMoveCb);
-        this.positions      = null;
+        this._positions     = null;
         this._onAfterMoveCb = null;
     }
 
@@ -82,7 +82,7 @@ export default class OrganismsDos extends Organisms {
      * @override
      */
     onAfterCreateOrg(org) {
-        this.positions[org.posId] = org;
+        this._positions[org.posId] = org;
     }
 
     /**
@@ -91,13 +91,13 @@ export default class OrganismsDos extends Organisms {
      * @override
      */
     onAfterKillOrg(org) {
-        delete this.positions[org.posId];
+        delete this._positions[org.posId];
     }
 
     _onAfterMove(x1, y1, x2, y2, org) {
         if (x1 !== x2 || y1 !== y2) {
-            delete this.positions[Helper.posId(x1, y1)];
-            this.positions[Helper.posId(x2, y2)] = org;
+            delete this._positions[Helper.posId(x1, y1)];
+            this._positions[Helper.posId(x2, y2)] = org;
         }
 
         return true;
@@ -107,16 +107,16 @@ export default class OrganismsDos extends Organisms {
         if (x < 0 || y < 0 || !Number.isInteger(x) || !Number.isInteger(y)) {return;}
         const posId = Helper.posId(x, y);
 
-        if (typeof(this.positions[posId]) === 'undefined') {
+        if (typeof(this._positions[posId]) === 'undefined') {
             ret.ret = this.manager.world.getDot(x, y)
         } else {
-            ret.ret = this.positions[posId].energy;
+            ret.ret = this._positions[posId].energy;
         }
     }
 
     _onEat(org, x, y, ret) {
         const world = this.manager.world;
-        const positions = this.positions;
+        const positions = this._positions;
 
         [x, y] = Helper.normalize(x, y);
 
@@ -137,7 +137,7 @@ export default class OrganismsDos extends Organisms {
 
     _onCheckAt(x, y, ret) {
         [x, y] = Helper.normalize(x, y);
-        if (typeof(this.positions[Helper.posId(x, y)]) === 'undefined') {
+        if (typeof(this._positions[Helper.posId(x, y)]) === 'undefined') {
             ret.ret = this.manager.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
         } else {
             ret.ret = ORGANISM;

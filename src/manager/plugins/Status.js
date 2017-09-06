@@ -12,11 +12,11 @@ const PERIOD = 10000;
 
 export default class Status {
     constructor(manager) {
-        this.manager = manager;
-        this.stamp       = 0;
+        this._manager     = manager;
+        this.stamp        = 0;
         this._ips         = 0;
         this._ipsAmount   = 0;
-        this.orgs        = 0;
+        this._orgs        = 0;
         this._energy      = 0;
         this._codeSize    = 0;
         this._runLines    = 0;
@@ -35,7 +35,7 @@ export default class Status {
         if (stamp - this.stamp < PERIOD) {return;}
 
         const amount    = this._ipsAmount || 1;
-        const orgAmount = (this.orgs / amount) || 1;
+        const orgAmount = (this._orgs / amount) || 1;
         const sips      = ('ips:' + (this._ips      / amount).toFixed(this._ips  / amount < 10 ? 2 : 0)).padEnd(9);
         const slps      = ('lps:' + (this._runLines / amount).toFixed()).padEnd(14);
         const sorgs     = ('org:' + (orgAmount).toFixed()).padEnd(10);
@@ -45,7 +45,7 @@ export default class Status {
         const scode     = ('cod:' + ((this._codeSize / amount) / orgAmount).toFixed(1)).padEnd(12);
 
         console.log(`%c${sips}${slps}${sorgs}%c${senergy}${schanges}${sfit}${scode}`, GREEN, RED);
-        this.manager.canvas.text(5, 15, sips);
+        this._manager.canvas.text(5, 15, sips);
         this._onAfterIps(stamp);
     }
 
@@ -55,7 +55,7 @@ export default class Status {
 
     _onBeforeIps(ips, orgs) {
         this._ips  += ips;
-        this.orgs += orgs.size;
+        this._orgs += orgs.size;
 
         this._ipsAmount++;
         this._iterateOrganisms(orgs);
@@ -64,7 +64,7 @@ export default class Status {
     _onAfterIps(stamp) {
         this._ips       = 0;
         this._ipsAmount = 0;
-        this.orgs      = 0;
+        this._orgs      = 0;
         this._energy    = 0;
         this._codeSize  = 0;
         this.stamp     = stamp;

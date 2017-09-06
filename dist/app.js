@@ -1815,7 +1815,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
      */
     _updateDestroy() {
         const alivePeriod = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgAlivePeriod;
-        const needDestroy = alivePeriod > 0 && (this._energy < 1 || this._iterations >= alivePeriod);
+        const needDestroy = (this._energy < 1 || this._iterations >= alivePeriod) && alivePeriod > 0;
 
         needDestroy && this.destroy();
 
@@ -1838,7 +1838,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
      * @private
      */
     _updateEnergy() {
-        if (__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgEnergySpendPeriod === 0 || this._iterations % __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgEnergySpendPeriod !== 0) {return true;}
+        if (this._iterations % __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgEnergySpendPeriod !== 0 || __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgEnergySpendPeriod === 0) {return true}
         const codeSize = this._jsvm.size;
         let   grabSize = Math.floor(codeSize / __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgGarbagePeriod);
 
@@ -1866,7 +1866,10 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_Organism__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Backup__ = __webpack_require__(12);
 /**
- * Base class for OrganismsXXX plugins
+ * Base class for OrganismsXXX plugins. Manages organisms. Makes
+ * cloning, crossover, organisms comparison, killing and more...
+ * Main function of this plugin is run organism's in an infinite
+ * loop.
  *
  * @author DeadbraiN
  */
@@ -1993,7 +1996,7 @@ class Organisms {
      */
     updateClone(counter) {
         const orgs      = this.organisms;
-        const needClone = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].orgClonePeriod === 0 ? false : counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].orgClonePeriod === 0;
+        const needClone = counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].orgClonePeriod === 0 && __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].orgClonePeriod !== 0;
         let   orgAmount = orgs.size;
         if (!needClone || orgAmount < 1) {return false}
         let   org1      = this.getRandOrg();
@@ -2012,7 +2015,7 @@ class Organisms {
     updateCrossover(counter) {
         const orgs      = this.organisms;
         const orgAmount = orgs.size;
-        const needCrossover = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].orgCrossoverPeriod === 0 ? false : counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].orgCrossoverPeriod === 0;
+        const needCrossover = counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].orgCrossoverPeriod === 0 && __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].orgCrossoverPeriod !== 0;
         if (!needCrossover || orgAmount < 1) {return false;}
 
         let org1   = this._tournament();
@@ -2046,7 +2049,7 @@ class Organisms {
     }
 
     updateBackup(counter) {
-        if (counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].backupPeriod !== 0 || __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].backupPeriod === 0) {return;}
+        if (counter % __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].backupPeriod !== 0 || __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].backupPeriod === 0) {return}
         // TODO: done this
         //this.backup.backup(this.organisms);
     }
@@ -2584,7 +2587,7 @@ class Backup {
     constructor(orgs, world, positions) {
         this.orgs      = orgs;
         this._world     = world;
-        this.positions = positions;
+        this._positions = positions;
     }
 
     backup() {
@@ -2625,7 +2628,7 @@ class Backup {
 
     _getEnergy(world) {
         let dot;
-        let positions = this.positions;
+        let positions = this._positions;
         let posId     = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId;
         let energy    = [];
 
@@ -2806,7 +2809,7 @@ class Mutator {
     }
 
     _onOrganism(org) {
-        if (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].orgRainMutationPeriod > 0 && org.mutationPeriod > 0 && org.iterations % org.mutationPeriod === 0 && org.alive) {
+        if (org.iterations % org.mutationPeriod === 0 && __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].orgRainMutationPeriod > 0 && org.mutationPeriod > 0 && org.alive) {
             this._mutate(org, false);
         }
     }
@@ -2923,7 +2926,7 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__manager_plugins_base_Org
     constructor(manager) {
         super(manager);
 
-        this.positions      = {};
+        this._positions     = {};
         this._onAfterMoveCb = this._onAfterMove.bind(this);
 
         __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].override(manager, 'onAfterMove', this._onAfterMoveCb);
@@ -2932,7 +2935,7 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__manager_plugins_base_Org
     destroy() {
         super.destroy();
         __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].unoverride(man, 'onAfterMove', this._onAfterMoveCb);
-        this.positions      = null;
+        this._positions     = null;
         this._onAfterMoveCb = null;
     }
 
@@ -2982,7 +2985,7 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__manager_plugins_base_Org
      * @override
      */
     onAfterCreateOrg(org) {
-        this.positions[org.posId] = org;
+        this._positions[org.posId] = org;
     }
 
     /**
@@ -2991,13 +2994,13 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__manager_plugins_base_Org
      * @override
      */
     onAfterKillOrg(org) {
-        delete this.positions[org.posId];
+        delete this._positions[org.posId];
     }
 
     _onAfterMove(x1, y1, x2, y2, org) {
         if (x1 !== x2 || y1 !== y2) {
-            delete this.positions[__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].posId(x1, y1)];
-            this.positions[__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].posId(x2, y2)] = org;
+            delete this._positions[__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].posId(x1, y1)];
+            this._positions[__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].posId(x2, y2)] = org;
         }
 
         return true;
@@ -3007,16 +3010,16 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__manager_plugins_base_Org
         if (x < 0 || y < 0 || !Number.isInteger(x) || !Number.isInteger(y)) {return;}
         const posId = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].posId(x, y);
 
-        if (typeof(this.positions[posId]) === 'undefined') {
+        if (typeof(this._positions[posId]) === 'undefined') {
             ret.ret = this.manager.world.getDot(x, y)
         } else {
-            ret.ret = this.positions[posId].energy;
+            ret.ret = this._positions[posId].energy;
         }
     }
 
     _onEat(org, x, y, ret) {
         const world = this.manager.world;
-        const positions = this.positions;
+        const positions = this._positions;
 
         [x, y] = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].normalize(x, y);
 
@@ -3037,7 +3040,7 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__manager_plugins_base_Org
 
     _onCheckAt(x, y, ret) {
         [x, y] = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].normalize(x, y);
-        if (typeof(this.positions[__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].posId(x, y)]) === 'undefined') {
+        if (typeof(this._positions[__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].posId(x, y)]) === 'undefined') {
             ret.ret = this.manager.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
         } else {
             ret.ret = ORGANISM;
@@ -3157,11 +3160,11 @@ const PERIOD = 10000;
 
 class Status {
     constructor(manager) {
-        this.manager = manager;
-        this.stamp       = 0;
+        this._manager     = manager;
+        this.stamp        = 0;
         this._ips         = 0;
         this._ipsAmount   = 0;
-        this.orgs        = 0;
+        this._orgs        = 0;
         this._energy      = 0;
         this._codeSize    = 0;
         this._runLines    = 0;
@@ -3180,7 +3183,7 @@ class Status {
         if (stamp - this.stamp < PERIOD) {return;}
 
         const amount    = this._ipsAmount || 1;
-        const orgAmount = (this.orgs / amount) || 1;
+        const orgAmount = (this._orgs / amount) || 1;
         const sips      = ('ips:' + (this._ips      / amount).toFixed(this._ips  / amount < 10 ? 2 : 0)).padEnd(9);
         const slps      = ('lps:' + (this._runLines / amount).toFixed()).padEnd(14);
         const sorgs     = ('org:' + (orgAmount).toFixed()).padEnd(10);
@@ -3190,7 +3193,7 @@ class Status {
         const scode     = ('cod:' + ((this._codeSize / amount) / orgAmount).toFixed(1)).padEnd(12);
 
         console.log(`%c${sips}${slps}${sorgs}%c${senergy}${schanges}${sfit}${scode}`, GREEN, RED);
-        this.manager.canvas.text(5, 15, sips);
+        this._manager.canvas.text(5, 15, sips);
         this._onAfterIps(stamp);
     }
 
@@ -3200,7 +3203,7 @@ class Status {
 
     _onBeforeIps(ips, orgs) {
         this._ips  += ips;
-        this.orgs += orgs.size;
+        this._orgs += orgs.size;
 
         this._ipsAmount++;
         this._iterateOrganisms(orgs);
@@ -3209,7 +3212,7 @@ class Status {
     _onAfterIps(stamp) {
         this._ips       = 0;
         this._ipsAmount = 0;
-        this.orgs      = 0;
+        this._orgs      = 0;
         this._energy    = 0;
         this._codeSize  = 0;
         this.stamp     = stamp;

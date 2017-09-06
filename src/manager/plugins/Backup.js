@@ -14,7 +14,7 @@ export default class Backup {
     constructor(orgs, world, positions) {
         this.orgs      = orgs;
         this._world     = world;
-        this.positions = positions;
+        this._positions = positions;
     }
 
     backup() {
@@ -55,7 +55,7 @@ export default class Backup {
 
     _getEnergy(world) {
         let dot;
-        let positions = this.positions;
+        let positions = this._positions;
         let posId     = Helper.posId;
         let energy    = [];
 
