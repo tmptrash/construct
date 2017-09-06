@@ -35,14 +35,6 @@ export default class OrganismsGarmin extends Organisms {
         return this._FITNESS_CLS.compare(org1, org2, this._maxChanges);
     }
 
-    /**
-     * Is called after cloning of organism
-     * @param {Organism} org Parent organism
-     * @param {Organism} child Child organism
-     * @override
-     */
-    onClone(org, child) {}
-
     onOrganism(org) {
         if (org.energy > this._maxEnergy) {
             this._maxEnergy = org.energy;

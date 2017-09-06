@@ -4,7 +4,6 @@
  *
  * @author DeadbraiN
  */
-
 const FIELDS      = [
     'Date',
     'Calories',
@@ -1939,7 +1938,7 @@ const RUNNING     = [
 ];
 const ACTIVITIES  = [TENNIS, HOKKEY, RUNNING];
 const ERR_PERCENT = 0.1;
-const TOTAL       = ((arr)=>{let sum = 0; arr.forEach((el)=>sum+=el.length);return sum})(ACTIVITIES)
+const TOTAL       = ((arr)=>{let sum = 0; arr.forEach((el)=>sum+=el.length);return sum})(ACTIVITIES);
 const GOAL        = TOTAL - TOTAL * ERR_PERCENT;
 
 export default class FitnessGarmin {
