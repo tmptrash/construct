@@ -11,9 +11,6 @@ import Queue          from './../../../global/Queue';
 import Organism       from './../../../organism/Organism';
 import Backup         from './../Backup';
 
-const EMPTY     = 0;
-const ENERGY    = 1;
-const ORGANISM  = 2;
 const RAND_OFFS = 4;
 
 export default class Organisms {
@@ -48,21 +45,32 @@ export default class Organisms {
      */
     onClone(org, child) {}
 
+    /**
+     * Is called after organism has created
+     * @param {Organism} org
+     * @abstract
+     */
+    onAfterCreateOrg(org) {}
+
+    /**
+     * Is called after organism has killed
+     * @param {Organism} org Killed organism
+     * @abstract
+     */
+    onAfterKillOrg(org) {}
+
     constructor(manager) {
         this.organisms      = new Queue();
         this.backup         = new Backup();
         this.codeRuns       = 0;
         this.stamp          = Date.now();
         this.manager        = manager;
-        this.positions      = {};
         this.code2Str       = new manager.CLASS_MAP[Config.code2StringCls];
         this.randOrgItem    = this.organisms.first;
         this._onIterationCb = this.onIteration.bind(this);
-        this._onAfterMoveCb = this.onAfterMove.bind(this);
 
         this.reset();
         Helper.override(manager, 'onIteration', this._onIterationCb);
-        Helper.override(manager, 'onAfterMove', this._onAfterMoveCb);
         //
         // API of the Manager for accessing outside. (e.g. from Console)
         //
@@ -72,17 +80,14 @@ export default class Organisms {
     get orgs() {return this.organisms;}
 
     destroy() {
-        Helper.unoverride(man, 'onAfterMove', this._onAfterMoveCb);
         Helper.unoverride(man, 'onIteration', this._onIterationCb);
         for (let org of this.organisms) {org.destroy();}
         this.organisms.destroy();
         this.organisms      = null;
-        this.positions     = null;
         this.manager        = null;
         this.code2Str.destroy();
-        this.code2Str      = null;
+        this.code2Str       = null;
         this._onIterationCb = null;
-        this._onAfterMoveCb = null;
     }
 
     /**
@@ -109,21 +114,8 @@ export default class Organisms {
         this.updateBackup(counter);
     }
 
-    onAfterMove(x1, y1, x2, y2, org) {
-        if (x1 !== x2 || y1 !== y2) {
-            delete this.positions[Helper.posId(x1, y1)];
-            this.positions[Helper.posId(x2, y2)] = org;
-        }
-
-        return true;
-    }
-
     addOrgHandlers(org) {
         org.on(EVENTS.DESTROY, this._onKillOrg.bind(this));
-        org.on(EVENTS.GET_ENERGY, this._onGetEnergy.bind(this));
-        org.on(EVENTS.EAT, this._onEat.bind(this));
-        org.on(EVENTS.STEP, this._onStep.bind(this));
-        org.on(EVENTS.CHECK_AT, this._onCheckAt.bind(this));
     }
 
     /**
@@ -206,8 +198,8 @@ export default class Organisms {
     }
 
     reset() {
-        this._orgId      = 0;
-        this._maxEnergy  = 0;
+        this._orgId     = 0;
+        this._maxEnergy = 0;
     }
 
     _tournament(org1 = null, org2 = null) {
@@ -255,47 +247,6 @@ export default class Organisms {
         Console.warn('Population has created');
     }
 
-    _onGetEnergy(org, x, y, ret) {
-        if (x < 0 || y < 0 || !Number.isInteger(x) || !Number.isInteger(y)) {return;}
-        const posId = Helper.posId(x, y);
-
-        if (typeof(this.positions[posId]) === 'undefined') {
-            ret.ret = this.manager.world.getDot(x, y)
-        } else {
-            ret.ret = this.positions[posId].energy;
-        }
-    }
-
-    _onEat(org, x, y, ret) {
-        const world = this.manager.world;
-        const positions = this.positions;
-
-        [x, y] = Helper.normalize(x, y);
-
-        const posId = Helper.posId(x, y);
-        if (typeof(positions[posId]) === 'undefined') {
-            ret.ret = world.grabDot(x, y, ret.ret);
-        } else {
-            ret.ret = ret.ret < 0 ? 0 : (ret.ret > positions[posId].energy ? positions[posId].energy : ret.ret);
-            positions[posId].grabEnergy(ret.ret);
-        }
-    }
-
-    _onStep(org, x1, y1, x2, y2, ret) {
-        if (org.alive) {
-            ret.ret = +this.manager.move(x1, y1, x2, y2, org)
-        }
-    }
-
-    _onCheckAt(x, y, ret) {
-        [x, y] = Helper.normalize(x, y);
-        if (typeof(this.positions[Helper.posId(x, y)]) === 'undefined') {
-            ret.ret = this.manager.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
-        } else {
-            ret.ret = ORGANISM;
-        }
-    }
-
     _onCodeEnd(org, lines) {
         this.codeRuns++;
         this.manager.fire(EVENTS.ORGANISM, org, lines);
@@ -305,13 +256,13 @@ export default class Organisms {
         const orgs = this.organisms;
         if (orgs.size >= Config.worldMaxOrgs || pos === false) {return false;}
         orgs.add(null);
-        let last   = orgs.last;
-        let org    = new Organism(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), this.manager.CLASS_MAP, parent);
+        let last = orgs.last;
+        let org  = new Organism(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), this.manager.CLASS_MAP, parent);
 
         last.val = org;
         this.addOrgHandlers(org);
         this.manager.move(pos.x, pos.y, pos.x, pos.y, org);
-        this.positions[org.posId] = org;
+        this.onAfterCreateOrg(org);
         this.manager.fire(EVENTS.BORN_ORGANISM, org);
         Console.info(org.id, ' born');
 
@@ -326,7 +277,7 @@ export default class Organisms {
         }
         this.organisms.del(org.item);
         this.manager.world.setDot(org.x, org.y, 0);
-        delete this.positions[org.posId];
+        this.onAfterKillOrg(org);
         this.manager.fire(EVENTS.KILL_ORGANISM, org);
         Console.info(org.id, ' die');
     }

@@ -135,12 +135,12 @@ const Config = {
     /**
      * {Number} Amount of iterations before cloning process
      */
-    orgClonePeriod: 10,
+    orgClonePeriod: 5,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms.
      */
-    orgCrossoverPeriod: 500,
+    orgCrossoverPeriod: 100,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
@@ -287,7 +287,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 2000,
+    worldMaxOrgs: 500,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
@@ -1878,9 +1878,6 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 
 
 
-const EMPTY     = 0;
-const ENERGY    = 1;
-const ORGANISM  = 2;
 const RAND_OFFS = 4;
 
 class Organisms {
@@ -1915,21 +1912,32 @@ class Organisms {
      */
     onClone(org, child) {}
 
+    /**
+     * Is called after organism has created
+     * @param {Organism} org
+     * @abstract
+     */
+    onAfterCreateOrg(org) {}
+
+    /**
+     * Is called after organism has killed
+     * @param {Organism} org Killed organism
+     * @abstract
+     */
+    onAfterKillOrg(org) {}
+
     constructor(manager) {
         this.organisms      = new __WEBPACK_IMPORTED_MODULE_4__global_Queue__["a" /* default */]();
         this.backup         = new __WEBPACK_IMPORTED_MODULE_6__Backup__["a" /* default */]();
         this.codeRuns       = 0;
         this.stamp          = Date.now();
         this.manager        = manager;
-        this.positions      = {};
         this.code2Str       = new manager.CLASS_MAP[__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].code2StringCls];
         this.randOrgItem    = this.organisms.first;
         this._onIterationCb = this.onIteration.bind(this);
-        this._onAfterMoveCb = this.onAfterMove.bind(this);
 
         this.reset();
         __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].override(manager, 'onIteration', this._onIterationCb);
-        __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].override(manager, 'onAfterMove', this._onAfterMoveCb);
         //
         // API of the Manager for accessing outside. (e.g. from Console)
         //
@@ -1939,17 +1947,14 @@ class Organisms {
     get orgs() {return this.organisms;}
 
     destroy() {
-        __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].unoverride(man, 'onAfterMove', this._onAfterMoveCb);
         __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].unoverride(man, 'onIteration', this._onIterationCb);
         for (let org of this.organisms) {org.destroy();}
         this.organisms.destroy();
         this.organisms      = null;
-        this.positions     = null;
         this.manager        = null;
         this.code2Str.destroy();
-        this.code2Str      = null;
+        this.code2Str       = null;
         this._onIterationCb = null;
-        this._onAfterMoveCb = null;
     }
 
     /**
@@ -1976,21 +1981,8 @@ class Organisms {
         this.updateBackup(counter);
     }
 
-    onAfterMove(x1, y1, x2, y2, org) {
-        if (x1 !== x2 || y1 !== y2) {
-            delete this.positions[__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x1, y1)];
-            this.positions[__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x2, y2)] = org;
-        }
-
-        return true;
-    }
-
     addOrgHandlers(org) {
         org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].DESTROY, this._onKillOrg.bind(this));
-        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].GET_ENERGY, this._onGetEnergy.bind(this));
-        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].EAT, this._onEat.bind(this));
-        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].STEP, this._onStep.bind(this));
-        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].CHECK_AT, this._onCheckAt.bind(this));
     }
 
     /**
@@ -2073,8 +2065,8 @@ class Organisms {
     }
 
     reset() {
-        this._orgId      = 0;
-        this._maxEnergy  = 0;
+        this._orgId     = 0;
+        this._maxEnergy = 0;
     }
 
     _tournament(org1 = null, org2 = null) {
@@ -2122,47 +2114,6 @@ class Organisms {
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].warn('Population has created');
     }
 
-    _onGetEnergy(org, x, y, ret) {
-        if (x < 0 || y < 0 || !Number.isInteger(x) || !Number.isInteger(y)) {return;}
-        const posId = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x, y);
-
-        if (typeof(this.positions[posId]) === 'undefined') {
-            ret.ret = this.manager.world.getDot(x, y)
-        } else {
-            ret.ret = this.positions[posId].energy;
-        }
-    }
-
-    _onEat(org, x, y, ret) {
-        const world = this.manager.world;
-        const positions = this.positions;
-
-        [x, y] = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].normalize(x, y);
-
-        const posId = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x, y);
-        if (typeof(positions[posId]) === 'undefined') {
-            ret.ret = world.grabDot(x, y, ret.ret);
-        } else {
-            ret.ret = ret.ret < 0 ? 0 : (ret.ret > positions[posId].energy ? positions[posId].energy : ret.ret);
-            positions[posId].grabEnergy(ret.ret);
-        }
-    }
-
-    _onStep(org, x1, y1, x2, y2, ret) {
-        if (org.alive) {
-            ret.ret = +this.manager.move(x1, y1, x2, y2, org)
-        }
-    }
-
-    _onCheckAt(x, y, ret) {
-        [x, y] = __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].normalize(x, y);
-        if (typeof(this.positions[__WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].posId(x, y)]) === 'undefined') {
-            ret.ret = this.manager.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
-        } else {
-            ret.ret = ORGANISM;
-        }
-    }
-
     _onCodeEnd(org, lines) {
         this.codeRuns++;
         this.manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].ORGANISM, org, lines);
@@ -2172,13 +2123,13 @@ class Organisms {
         const orgs = this.organisms;
         if (orgs.size >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].worldMaxOrgs || pos === false) {return false;}
         orgs.add(null);
-        let last   = orgs.last;
-        let org    = new __WEBPACK_IMPORTED_MODULE_5__organism_Organism__["a" /* default */](++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), this.manager.CLASS_MAP, parent);
+        let last = orgs.last;
+        let org  = new __WEBPACK_IMPORTED_MODULE_5__organism_Organism__["a" /* default */](++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), this.manager.CLASS_MAP, parent);
 
         last.val = org;
         this.addOrgHandlers(org);
         this.manager.move(pos.x, pos.y, pos.x, pos.y, org);
-        this.positions[org.posId] = org;
+        this.onAfterCreateOrg(org);
         this.manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].BORN_ORGANISM, org);
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].info(org.id, ' born');
 
@@ -2193,7 +2144,7 @@ class Organisms {
         }
         this.organisms.del(org.item);
         this.manager.world.setDot(org.x, org.y, 0);
-        delete this.positions[org.posId];
+        this.onAfterKillOrg(org);
         this.manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].KILL_ORGANISM, org);
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["a" /* default */].info(org.id, ' die');
     }
@@ -2945,9 +2896,11 @@ class Mutator {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_plugins_base_Organisms__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Events__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Helper__ = __webpack_require__(2);
 /**
  * Plugin for Manager module, which handles organisms population in
- * nature simulation mode
+ * nature simulation mode. It's related to DOS language.
  *
  * Events od Manager:
  *   TODO:
@@ -2960,7 +2913,29 @@ class Mutator {
  */
 
 
+
+
+const EMPTY     = 0;
+const ENERGY    = 1;
+const ORGANISM  = 2;
+
 class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__manager_plugins_base_Organisms__["a" /* default */] {
+    constructor(manager) {
+        super(manager);
+
+        this.positions      = {};
+        this._onAfterMoveCb = this._onAfterMove.bind(this);
+
+        __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].override(manager, 'onAfterMove', this._onAfterMoveCb);
+    }
+
+    destroy() {
+        super.destroy();
+        __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].unoverride(man, 'onAfterMove', this._onAfterMoveCb);
+        this.positions      = null;
+        this._onAfterMoveCb = null;
+    }
+
     /**
      * Compares two organisms and returns more fit one
      * @param {Organism} org1
@@ -2992,6 +2967,83 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__manager_plugins_base_Org
         org.grabEnergy(energy);
         child.grabEnergy(child.energy - energy);
     }
+
+    addOrgHandlers(org) {
+        super.addOrgHandlers(org);
+        org.on(__WEBPACK_IMPORTED_MODULE_1__global_Events__["b" /* EVENTS */].GET_ENERGY, this._onGetEnergy.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_1__global_Events__["b" /* EVENTS */].EAT, this._onEat.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_1__global_Events__["b" /* EVENTS */].STEP, this._onStep.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_1__global_Events__["b" /* EVENTS */].CHECK_AT, this._onCheckAt.bind(this));
+    }
+
+    /**
+     * Is called after organism has created
+     * @param {Organism} org
+     * @override
+     */
+    onAfterCreateOrg(org) {
+        this.positions[org.posId] = org;
+    }
+
+    /**
+     * Is called after organism has killed
+     * @param {Organism} org Killed organism
+     * @override
+     */
+    onAfterKillOrg(org) {
+        delete this.positions[org.posId];
+    }
+
+    _onAfterMove(x1, y1, x2, y2, org) {
+        if (x1 !== x2 || y1 !== y2) {
+            delete this.positions[__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].posId(x1, y1)];
+            this.positions[__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].posId(x2, y2)] = org;
+        }
+
+        return true;
+    }
+
+    _onGetEnergy(org, x, y, ret) {
+        if (x < 0 || y < 0 || !Number.isInteger(x) || !Number.isInteger(y)) {return;}
+        const posId = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].posId(x, y);
+
+        if (typeof(this.positions[posId]) === 'undefined') {
+            ret.ret = this.manager.world.getDot(x, y)
+        } else {
+            ret.ret = this.positions[posId].energy;
+        }
+    }
+
+    _onEat(org, x, y, ret) {
+        const world = this.manager.world;
+        const positions = this.positions;
+
+        [x, y] = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].normalize(x, y);
+
+        const posId = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].posId(x, y);
+        if (typeof(positions[posId]) === 'undefined') {
+            ret.ret = world.grabDot(x, y, ret.ret);
+        } else {
+            ret.ret = ret.ret < 0 ? 0 : (ret.ret > positions[posId].energy ? positions[posId].energy : ret.ret);
+            positions[posId].grabEnergy(ret.ret);
+        }
+    }
+
+    _onStep(org, x1, y1, x2, y2, ret) {
+        if (org.alive) {
+            ret.ret = +this.manager.move(x1, y1, x2, y2, org);
+        }
+    }
+
+    _onCheckAt(x, y, ret) {
+        [x, y] = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].normalize(x, y);
+        if (typeof(this.positions[__WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].posId(x, y)]) === 'undefined') {
+            ret.ret = this.manager.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
+        } else {
+            ret.ret = ORGANISM;
+        }
+    }
+
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = OrganismsDos;
 
@@ -3064,6 +3116,7 @@ class OrganismsGarmin extends __WEBPACK_IMPORTED_MODULE_4__manager_plugins_base_
     }
 
     addOrgHandlers(org) {
+        super.addOrgHandlers(org);
         org.on(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].STOP, this._onStop.bind(this));
     }
 

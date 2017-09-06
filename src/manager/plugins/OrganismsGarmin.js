@@ -56,6 +56,7 @@ export default class OrganismsGarmin extends Organisms {
     }
 
     addOrgHandlers(org) {
+        super.addOrgHandlers(org);
         org.on(EVENTS.STOP, this._onStop.bind(this));
     }
 
