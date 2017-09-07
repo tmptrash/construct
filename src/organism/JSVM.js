@@ -44,7 +44,7 @@ export default class JSVM extends Observer {
          * {Function} Class, which implement all supported operators
          */
         this._operators   = new classMap[Config.codeOperatorsCls](this._offsets, this._vars, obs);
-        this._code        = parent && parent.code || [];
+        this._code        = parent && parent.code.slice() || [];
         this._line        = 0;
         this._fitnessMode = Config.codeFitnessCls !== null;
     }

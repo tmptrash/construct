@@ -6,12 +6,8 @@ describe("src/organism/JSVM", () => {
     let Operators    = require('../../../src/organism/base/Operators').default;
     let Config       = require('../../../src/global/Config').Config;
     let api          = require('../../../src/global/Config').api;
+    let THelper      = require('../Helper').default;
     let cls          = null;
-
-    function compare(a1, a2) {
-        if (a1.length !== a2.length) {return false}
-        return !a1.some((a) => a2.indexOf(a) === -1)
-    }
 
     beforeEach(() => {cls = Config.codeOperatorsCls;api.set('codeOperatorsCls', 'ops')});
     afterEach(() => api.set('codeOperatorsCls', cls));
@@ -162,7 +158,7 @@ describe("src/organism/JSVM", () => {
         jsvm2._code.push(17000004);
 
         jsvm1.crossover(jsvm2);
-        expect(compare(jsvm1.code, [
+        expect(THelper.compare(jsvm1.code, [
             16000000,
             17000001,
             17000002,
@@ -204,7 +200,7 @@ describe("src/organism/JSVM", () => {
         jsvm2._code.push(17000004);
 
         jsvm1.crossover(jsvm2);
-        expect(compare(jsvm1.code, [
+        expect(THelper.compare(jsvm1.code, [
             16000000,
             17000001,
             16000003,
@@ -244,7 +240,7 @@ describe("src/organism/JSVM", () => {
         jsvm2._code.push(17000004);
 
         jsvm1.crossover(jsvm2);
-        expect(compare(jsvm1.code, [
+        expect(THelper.compare(jsvm1.code, [
             16000000,
             17000001,
             17000002,
@@ -291,7 +287,7 @@ describe("src/organism/JSVM", () => {
         jsvm2._code.push(17000003);
 
         jsvm1.crossover(jsvm2);
-        expect(compare(jsvm1.code, [
+        expect(THelper.compare(jsvm1.code, [
             17000001,
             17000002
         ])).toEqual(true);
@@ -322,7 +318,7 @@ describe("src/organism/JSVM", () => {
         jsvm1._code.push(16000003);
 
         jsvm1.crossover(jsvm2);
-        expect(compare(jsvm1.code, [
+        expect(THelper.compare(jsvm1.code, [
             16000000,
             16000003,
         ])).toEqual(true);

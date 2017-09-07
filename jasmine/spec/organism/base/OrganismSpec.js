@@ -2,6 +2,7 @@ describe("src/organism/Organism", () => {
     let Organism = require('../../../../src/organism/base/Organism').default;
     let Config   = require('../../../../src/global/Config').Config;
     let api      = require('../../../../src/global/Config').api;
+    let THelper  = require('../../Helper').default;
     let cls;
 
     class OrganismTest extends Organism {
@@ -22,6 +23,47 @@ describe("src/organism/Organism", () => {
         expect(org.y).toEqual(2);
         expect(org.item).toEqual(null);
         expect(org.alive).toEqual(true);
+        expect(THelper.compare(org.mutationProbs, Config.orgMutationProbs)).toEqual(true);
+        expect(org.mutationPeriod === Config.orgRainMutationPeriod).toEqual(true);
+        expect(org.mutationPercent === Config.orgRainMutationPercent).toEqual(true);
+        expect(org.cloneMutationPercent === Config.orgCloneMutationPercent).toEqual(true);
+        expect(org.changes === 1).toEqual(true);
+        expect(org.energy === Config.orgStartEnergy).toEqual(true);
+        expect(org.color === Config.orgStartColor).toEqual(true);
+        expect(org.mem.length === 0).toEqual(true);
+        expect(org.cloneEnergyPercent === Config.orgCloneEnergyPercent).toEqual(true);
+        expect(org.iterations === 0).toEqual(true);
+
+        org.destroy();
+    });
+
+    it("Checking organism creation from parent", () => {
+        const clss   = {ops: ()=>{}};
+        const parent = new OrganismTest(1, 3, 4, true, null, ()=>{}, clss);
+        parent.jsvm.insertLine();
+        parent.energy               = 123;
+        parent.changes              = 0xaabbcc;
+        parent._mutationProbs       = [5,8,1,10,1,2,32,7];
+        parent.cloneMutationPercent = 0.1;
+        parent.mutationPeriod       = 145;
+        parent.mutationPercent      = 0.2;
+        parent.cloneEnergyPercent   = 0.34;
+        parent._mem                 = [1,2,4,3];
+
+        let   org    = new OrganismTest(0, 1, 2, true, null, ()=>{}, clss, parent);
+
+        expect(org.jsvm.code[0] === parent.jsvm.code[0]).toEqual(true);
+        expect(org.jsvm.size === parent.jsvm.size).toEqual(true);
+        expect(org.energy === parent.energy).toEqual(true);
+        expect(org.color === parent.color).toEqual(true);
+        expect(THelper.compare(org.mutationProbs, parent.mutationProbs)).toEqual(true);
+        expect(org.cloneMutationPercent === parent.cloneMutationPercent).toEqual(true);
+        expect(org.mutationPeriod === parent.mutationPeriod).toEqual(true);
+        expect(org.mutationPercent === parent.mutationPercent).toEqual(true);
+        expect(org.cloneEnergyPercent === parent.cloneEnergyPercent).toEqual(true);
+        expect(THelper.compare(org.mem, parent.mem)).toEqual(true);
+        expect(org.changes === 1).toEqual(true);
+        expect(org.iterations === 0).toEqual(true);
 
         org.destroy();
     });

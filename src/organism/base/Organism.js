@@ -68,11 +68,11 @@ export default class Organism extends Observer {
     get y()                     {return this._y}
     get alive()                 {return this._alive}
     get item()                  {return this._item}
+    get changes()               {return this._changes}
     get mutationProbs()         {return this._mutationProbs}
     get mutationPeriod()        {return this._mutationPeriod}
     get mutationPercent()       {return this._mutationPercent}
     get cloneMutationPercent()  {return this._cloneMutationPercent}
-    get changes()               {return this._changes}
     get energy()                {return this._energy}
     get color()                 {return this._color}
     get mem()                   {return this._mem}
@@ -146,7 +146,7 @@ export default class Organism extends Observer {
     }
 
     _clone(parent) {
-        this.jsvm                   = new JSVM(this._codeEndCb.bind(this, this), this, this._classMap, parent);
+        this.jsvm                   = new JSVM(this._codeEndCb.bind(this, this), this, this._classMap, parent.jsvm);
         this._energy                = parent.energy;
         this._color                 = parent.color;
         this._mutationProbs         = parent.mutationProbs.slice();

@@ -2095,8 +2095,6 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
         this._item        = item;
         this._iterations  = 0;
         this._fnId        = 0;
-
-        this.jsvm.on(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].RESET_CODE, this._onResetCode.bind(this));
     }
 
     get id()                    {return this._id}
@@ -2104,11 +2102,11 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     get y()                     {return this._y}
     get alive()                 {return this._alive}
     get item()                  {return this._item}
+    get changes()               {return this._changes}
     get mutationProbs()         {return this._mutationProbs}
     get mutationPeriod()        {return this._mutationPeriod}
     get mutationPercent()       {return this._mutationPercent}
     get cloneMutationPercent()  {return this._cloneMutationPercent}
-    get changes()               {return this._changes}
     get energy()                {return this._energy}
     get color()                 {return this._color}
     get mem()                   {return this._mem}
@@ -2182,7 +2180,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
     }
 
     _clone(parent) {
-        this.jsvm                   = new __WEBPACK_IMPORTED_MODULE_4__JSVM__["a" /* default */](this._codeEndCb.bind(this, this), this, this._classMap, parent);
+        this.jsvm                   = new __WEBPACK_IMPORTED_MODULE_4__JSVM__["a" /* default */](this._codeEndCb.bind(this, this), this, this._classMap, parent.jsvm);
         this._energy                = parent.energy;
         this._color                 = parent.color;
         this._mutationProbs         = parent.mutationProbs.slice();
@@ -2205,15 +2203,6 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
         needDestroy && this.destroy();
 
         return !needDestroy;
-    }
-
-    /**
-     * Is called when some modifications in code appeared and we have
-     * to re-execute it again
-     * @private
-     */
-    _onResetCode() {
-        this._needRun = true;
     }
 
     /**
@@ -3204,7 +3193,6 @@ class Status {
         this._runLines    = 0;
         this._changes     = 0;
         this._fitness     = 0;
-        this._fitnessMode = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].codeFitnessCls !== null;
 
         manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].IPS, this._onIps.bind(this));
         manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].ORGANISM, this._onOrganism.bind(this));
@@ -5705,7 +5693,7 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
          * {Function} Class, which implement all supported operators
          */
         this._operators   = new classMap[__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeOperatorsCls](this._offsets, this._vars, obs);
-        this._code        = parent && parent.code || [];
+        this._code        = parent && parent.code.slice() || [];
         this._line        = 0;
         this._fitnessMode = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeFitnessCls !== null;
     }
@@ -6343,6 +6331,8 @@ class OrganismGarmin extends __WEBPACK_IMPORTED_MODULE_0__organism_base_Organism
 
         this._fitnessCls = classMap[__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].codeFitnessCls];
         this._needRun    = true;
+
+        this.jsvm.on(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].RESET_CODE, this._onResetCode.bind(this));
     }
 
     onBeforeRun() {
@@ -6357,6 +6347,15 @@ class OrganismGarmin extends __WEBPACK_IMPORTED_MODULE_0__organism_base_Organism
     destroy() {
         super.destroy();
         this._fitnessCls = null;
+    }
+
+    /**
+     * Is called when some modifications in code appeared and we have
+     * to re-execute it again
+     * @private
+     */
+    _onResetCode() {
+        this._needRun = true;
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = OrganismGarmin;
