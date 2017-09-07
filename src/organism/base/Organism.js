@@ -1,19 +1,34 @@
 /**
+ * Base class for one organism
  * TODO: add description:
  * TODO:   - events
  * TODO:   -
  * @author DeadbraiN
  */
-import {Config}       from './../global/Config';
-import Observer       from './../global/Observer';
-import {EVENTS}       from './../global/Events';
-import {EVENT_AMOUNT} from './../global/Events';
-import Helper         from './../global/Helper';
-import JSVM           from './JSVM';
+import {Config}       from './../../global/Config';
+import Observer       from './../../global/Observer';
+import {EVENTS}       from './../../global/Events';
+import {EVENT_AMOUNT} from './../../global/Events';
+import Helper         from './../../global/Helper';
+import JSVM           from './../JSVM';
 
 const IS_NUM = Helper.isNumeric;
 
 export default class Organism extends Observer {
+    /**
+     * Is called before every run. Should return true, if everything
+     * is okay and we don't need to interrupt running. If true, then
+     * onRun() method will be called as well
+     * @abstract
+     */
+    onBeforeRun() {}
+
+    /**
+     * Is called as a running body (main) method
+     * @abstract
+     */
+    onRun() {}
+
     /**
      * Creates organism instance. If parent parameter is set, then
      * a clone of parent organism will be created.
@@ -46,12 +61,8 @@ export default class Organism extends Observer {
         this._item        = item;
         this._iterations  = 0;
         this._fnId        = 0;
-        this._fitnessMode = Config.codeFitnessCls !== null;
-        if (this._fitnessMode) {
-            this._needRun = true;
-        }
 
-        this._jsvm.on(EVENTS.RESET_CODE, this._onResetCode.bind(this));
+        this.jsvm.on(EVENTS.RESET_CODE, this._onResetCode.bind(this));
     }
 
     get id()                    {return this._id}
@@ -68,7 +79,6 @@ export default class Organism extends Observer {
     get color()                 {return this._color}
     get mem()                   {return this._mem}
     get cloneEnergyPercent()    {return this._cloneEnergyPercent}
-    get jsvm()                  {return this._jsvm}
     get posId()                 {return Helper.posId(this._x, this._y)}
     get iterations()            {return this._iterations}
 
@@ -90,16 +100,8 @@ export default class Organism extends Observer {
      */
     run() {
         this._iterations++;
-        if (this._needRun === false) {return true}
-
-        let fitnessCls;
-        if (this._fitnessMode && (fitnessCls = Config.codeFitnessCls && this._classMap[Config.codeFitnessCls])) {
-            if (fitnessCls.run(this)) {this.fire(EVENTS.STOP, this)}
-            this._needRun = false;
-        } else {
-            this._jsvm.run(this);
-        }
-
+        if (this.onBeforeRun() === false) {return true}
+        this.onRun();
         return this._updateDestroy() && this._updateEnergy();
     }
 
@@ -121,8 +123,8 @@ export default class Organism extends Observer {
         this._energy     = 0;
         this._item       = null;
         this._mem        = null;
-        this._jsvm.destroy();
-        this._jsvm       = null;
+        this.jsvm.destroy();
+        this.jsvm        = null;
         this._codeEndCb  = null;
         this.clear();
     }
@@ -134,7 +136,7 @@ export default class Organism extends Observer {
     }
 
     _create() {
-        this._jsvm                  = new JSVM(this._codeEndCb.bind(this, this), this, this._classMap);
+        this.jsvm                   = new JSVM(this._codeEndCb.bind(this, this), this, this._classMap);
         this._energy                = Config.orgStartEnergy;
         this._color                 = Config.orgStartColor;
         this._mutationProbs         = Config.orgMutationProbs;
@@ -146,7 +148,7 @@ export default class Organism extends Observer {
     }
 
     _clone(parent) {
-        this._jsvm                  = new JSVM(this._codeEndCb.bind(this, this), this, this._classMap, parent);
+        this.jsvm                   = new JSVM(this._codeEndCb.bind(this, this), this, this._classMap, parent);
         this._energy                = parent.energy;
         this._color                 = parent.color;
         this._mutationProbs         = parent.mutationProbs.slice();
@@ -177,7 +179,7 @@ export default class Organism extends Observer {
      * @private
      */
     _onResetCode() {
-        this._needRun    = true;
+        this._needRun = true;
     }
 
     /**
@@ -188,7 +190,7 @@ export default class Organism extends Observer {
      */
     _updateEnergy() {
         if (this._iterations % Config.orgEnergySpendPeriod !== 0 || Config.orgEnergySpendPeriod === 0) {return true}
-        const codeSize = this._jsvm.size;
+        const codeSize = this.jsvm.size;
         let   grabSize = Math.floor(codeSize / Config.orgGarbagePeriod);
 
         if (codeSize > Config.codeMaxSize) {grabSize = codeSize * Config.codeSizeCoef;}

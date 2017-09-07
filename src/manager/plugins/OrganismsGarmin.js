@@ -13,7 +13,7 @@
 import {Config}       from './../../global/Config';
 import Console        from './../../global/Console';
 import {EVENTS}       from './../../global/Events';
-import Organism       from './../../organism/Organism';
+import Organism       from '../../organism/OrganismDos';
 import Organisms      from './../../manager/plugins/base/Organisms';
 
 export default class OrganismsGarmin extends Organisms {

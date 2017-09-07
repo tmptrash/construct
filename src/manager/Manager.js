@@ -33,6 +33,8 @@ import OperatorsGarmin   from './../organism/OperatorsGarmin';
 import Code2StringDos    from '../organism/Code2StringDos';
 import Code2StringGarmin from './../organism/Code2StringGarmin';
 import FitnessGarmin     from './../organism/FitnessGarmin';
+import OrganismDos       from './../organism/OrganismDos';
+import OrganismGarmin    from './../organism/OrganismGarmin';
 /**
  * {Boolean} Specify fitness or nature simulation mode
  */
@@ -46,7 +48,9 @@ const CLASS_MAP = {
     OperatorsGarmin  : OperatorsGarmin,
     Code2StringDos   : Code2StringDos,
     Code2StringGarmin: Code2StringGarmin,
-    FitnessGarmin    : FitnessGarmin
+    FitnessGarmin    : FitnessGarmin,
+    OrganismDos      : OrganismDos,
+    OrganismGarmin   : OrganismGarmin
 };
 /**
  * {Array} Plugins for Manager
@@ -99,13 +103,18 @@ export default class Manager extends Observer {
      * Runs main infinite loop of application
      */
     run () {
-        let counter = 0;
-        let timer   = Date.now;
-        let stamp   = timer();
-        let call    = this.zeroTimeout;
-        let me      = this;
+        let counter     = 0;
+        let timer       = Date.now;
+        let stamp       = timer();
+        let me          = this;
+        let zeroTimeout = me.zeroTimeout;
 
         function loop () {
+            //
+            // This conditions id needed for turned on visualization mode to
+            // prevent flickering of organisms in a canvas. It makes their
+            // movement smooth
+            //
             const amount = me._visualized ? 1 : Config.codeIterationsPerOnce;
 
             for (let i = 0; i < amount; i++) {
@@ -114,9 +123,9 @@ export default class Manager extends Observer {
                 counter++;
                 stamp = timer();
             }
-            call(loop);
+            zeroTimeout(loop);
         }
-        call(loop);
+        loop();
     }
 
     stop() {

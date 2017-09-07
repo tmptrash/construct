@@ -183,6 +183,11 @@ const Config = {
      */
     codeFitnessCls: null,//'FitnessGarmin',
     /**
+     * {String} Name of the organism class. All organisms in a world
+     * will be creates as an instance of this class
+     */
+    codeOrganismCls: 'OrganismDos',//OrganismGarmin
+    /**
      * {Function} Class with available operators. See default Operators
      * class for details. See Manager.CLASS_MAP for additional details.
      */
@@ -236,7 +241,7 @@ const Config = {
      * amount. Works in pair with worldEnergyCheckPercent. May be 0 if
      * you want to disable it
      */
-    worldEnergyCheckPeriod: 200,
+    worldEnergyCheckPeriod: 5000,
     /**
      * {Number} World scaling. Today monitors pixel are so small, so we have
      * to zoom them with a coefficient.

@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 10);
+/******/ 	return __webpack_require__(__webpack_require__.s = 11);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -258,6 +258,11 @@ const Config = {
      */
     codeFitnessCls: null,//'FitnessGarmin',
     /**
+     * {String} Name of the organism class. All organisms in a world
+     * will be creates as an instance of this class
+     */
+    codeOrganismCls: 'OrganismDos',//OrganismGarmin
+    /**
      * {Function} Class with available operators. See default Operators
      * class for details. See Manager.CLASS_MAP for additional details.
      */
@@ -311,7 +316,7 @@ const Config = {
      * amount. Works in pair with worldEnergyCheckPercent. May be 0 if
      * you want to disable it
      */
-    worldEnergyCheckPeriod: 200,
+    worldEnergyCheckPeriod: 5000,
     /**
      * {Number} World scaling. Today monitors pixel are so small, so we have
      * to zoom them with a coefficient.
@@ -1644,11 +1649,7 @@ class Observer {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Helper__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__JSVM__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__organism_base_Organism__ = __webpack_require__(9);
 /**
  * TODO: add description:
  * TODO:   - events
@@ -1657,200 +1658,12 @@ class Observer {
  */
 
 
-
-
-
-
-
-const IS_NUM = __WEBPACK_IMPORTED_MODULE_3__global_Helper__["a" /* default */].isNumeric;
-
-class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* default */] {
-    /**
-     * Creates organism instance. If parent parameter is set, then
-     * a clone of parent organism will be created.
-     * @param {String} id Unique identifier of organism
-     * @param {Number} x Unique X coordinate
-     * @param {Number} y Unique Y coordinate
-     * @param {Boolean} alive true if organism is alive
-     * @param {Object} item Reference to the Queue item, where
-     * this organism is located
-     * @param {Function} codeEndCb Callback, which is called at the
-     * end of every code iteration.
-     * @param {Object} classMap Available classes map. Maps class names into
-     * classe functions
-     * @param {Organism} parent Parent organism if cloning is needed
-     */
-    constructor(id, x, y, alive, item, codeEndCb, classMap, parent = null) {
-        super(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* EVENT_AMOUNT */]);
-
-        this._codeEndCb   = codeEndCb;
-        this._classMap    = classMap;
-
-        if (parent === null) {this._create();}
-        else {this._clone(parent);}
-
-        this._id          = id;
-        this._x           = x;
-        this._y           = y;
-        this._changes     = 1;
-        this._alive       = alive;
-        this._item        = item;
-        this._iterations  = 0;
-        this._fnId        = 0;
-        this._fitnessMode = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeFitnessCls !== null;
-        if (this._fitnessMode) {
-            this._needRun = true;
-        }
-
-        this._jsvm.on(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].RESET_CODE, this._onResetCode.bind(this));
-    }
-
-    get id()                    {return this._id}
-    get x()                     {return this._x}
-    get y()                     {return this._y}
-    get alive()                 {return this._alive}
-    get item()                  {return this._item}
-    get mutationProbs()         {return this._mutationProbs}
-    get mutationPeriod()        {return this._mutationPeriod}
-    get mutationPercent()       {return this._mutationPercent}
-    get cloneMutationPercent()  {return this._cloneMutationPercent}
-    get changes()               {return this._changes}
-    get energy()                {return this._energy}
-    get color()                 {return this._color}
-    get mem()                   {return this._mem}
-    get cloneEnergyPercent()    {return this._cloneEnergyPercent}
-    get jsvm()                  {return this._jsvm}
-    get posId()                 {return __WEBPACK_IMPORTED_MODULE_3__global_Helper__["a" /* default */].posId(this._x, this._y)}
-    get iterations()            {return this._iterations}
-
-    set x(newX)                 {this._x = newX}
-    set y(newY)                 {this._y = newY}
-    set cloneMutationPercent(m) {this._cloneMutationPercent = m}
-    set mutationPeriod(m)       {this._mutationPeriod = m}
-    set mutationPercent(p)      {this._mutationPercent = p}
-    set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p}
-    set energy(e)               {this._energy = e}
-    set changes(c) {
-        this._changes = c;
-        this._updateColor(c);
-    }
-
-    /**
-     * Runs one code iteration and returns
-     * @return {Boolean} false means that organism was destroyed
-     */
-    run() {
-        this._iterations++;
-        if (this._needRun === false) {return true}
-
-        let fitnessCls;
-        if (this._fitnessMode && (fitnessCls = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeFitnessCls && this._classMap[__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeFitnessCls])) {
-            if (fitnessCls.run(this)) {this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].STOP, this)}
-            this._needRun = false;
-        } else {
-            this._jsvm.run(this);
-        }
-
-        return this._updateDestroy() && this._updateEnergy();
-    }
-
-    grabEnergy(amount) {
-        if (!IS_NUM(amount)) {return true;}
-        const noEnergy = (this._energy -= amount) < 1;
-        noEnergy && this.destroy();
-        return !noEnergy;
-    }
-
-    fitness() {
-        return this._energy * this._changes;
-    }
-
-    destroy() {
-        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].DESTROY, this);
-        this._alive      = false;
-        this._classMap   = null;
-        this._energy     = 0;
-        this._item       = null;
-        this._mem        = null;
-        this._jsvm.destroy();
-        this._jsvm       = null;
-        this._codeEndCb  = null;
-        this.clear();
-    }
-
-    _updateColor(changes) {
-        if ((this._color += changes) > __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].ORG_MAX_COLOR) {
-            this._color = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].ORG_FIRST_COLOR;
-        }
-    }
-
-    _create() {
-        this._jsvm                  = new __WEBPACK_IMPORTED_MODULE_4__JSVM__["a" /* default */](this._codeEndCb.bind(this, this), this, this._classMap);
-        this._energy                = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgStartEnergy;
-        this._color                 = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgStartColor;
-        this._mutationProbs         = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgMutationProbs;
-        this._cloneMutationPercent  = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgCloneMutationPercent;
-        this._mutationPeriod        = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgRainMutationPeriod;
-        this._mutationPercent       = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgRainMutationPercent;
-        this._cloneEnergyPercent    = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgCloneEnergyPercent;
-        this._mem                   = [];
-    }
-
-    _clone(parent) {
-        this._jsvm                  = new __WEBPACK_IMPORTED_MODULE_4__JSVM__["a" /* default */](this._codeEndCb.bind(this, this), this, this._classMap, parent);
-        this._energy                = parent.energy;
-        this._color                 = parent.color;
-        this._mutationProbs         = parent.mutationProbs.slice();
-        this._cloneMutationPercent  = parent.cloneMutationPercent;
-        this._mutationPeriod        = parent.mutationPeriod;
-        this._mutationPercent       = parent.mutationPercent;
-        this._cloneEnergyPercent    = parent.cloneEnergyPercent;
-        this._mem                   = parent.mem.slice();
-    }
-
-    /**
-     * Checks if organism need to be killed/destroyed, because of age or zero energy
-     * @return {Boolean} false means that organism was destroyed.
-     * @private
-     */
-    _updateDestroy() {
-        const alivePeriod = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgAlivePeriod;
-        const needDestroy = (this._energy < 1 || this._iterations >= alivePeriod) && alivePeriod > 0;
-
-        needDestroy && this.destroy();
-
-        return !needDestroy;
-    }
-
-    /**
-     * Is called when some modifications in code appeared and we have
-     * to re-execute it again
-     * @private
-     */
-    _onResetCode() {
-        this._needRun    = true;
-    }
-
-    /**
-     * This is how our system grabs an energy from organism if it's age is
-     * divided into Config.orgEnergySpendPeriod.
-     * @return {Boolean} false means that organism was destroyed.
-     * @private
-     */
-    _updateEnergy() {
-        if (this._iterations % __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgEnergySpendPeriod !== 0 || __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgEnergySpendPeriod === 0) {return true}
-        const codeSize = this._jsvm.size;
-        let   grabSize = Math.floor(codeSize / __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgGarbagePeriod);
-
-        if (codeSize > __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeMaxSize) {grabSize = codeSize * __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeSizeCoef;}
-        if (grabSize < 1) {grabSize = 1;}
-        grabSize = Math.min(this._energy, grabSize);
-        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].GRAB_ENERGY, grabSize);
-
-        return this.grabEnergy(grabSize);
+class OrganismDos extends __WEBPACK_IMPORTED_MODULE_0__organism_base_Organism__["a" /* default */] {
+    onRun() {
+        this.jsvm.run(this);
     }
 }
-/* harmony export (immutable) */ __webpack_exports__["a"] = Organism;
+/* harmony export (immutable) */ __webpack_exports__["a"] = OrganismDos;
 
 
 /***/ }),
@@ -1862,9 +1675,9 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Queue__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_Organism__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Backup__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Queue__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_OrganismDos__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Backup__ = __webpack_require__(13);
 /**
  * Base class for OrganismsXXX plugins. Manages organisms. Makes
  * cloning, crossover, organisms comparison, killing and more...
@@ -1935,8 +1748,10 @@ class Organisms {
         this.codeRuns       = 0;
         this.stamp          = Date.now();
         this.manager        = manager;
-        this.code2Str       = new manager.CLASS_MAP[__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].code2StringCls];
+        this._CLASS_MAP     = this.manager.CLASS_MAP;
+        this.code2Str       = new this._CLASS_MAP[__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].code2StringCls];
         this.randOrgItem    = this.organisms.first;
+        this._ORG_CLS       = this._CLASS_MAP[__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].codeOrganismCls];
         this._onIterationCb = this.onIteration.bind(this);
 
         this.reset();
@@ -2127,7 +1942,7 @@ class Organisms {
         if (orgs.size >= __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].worldMaxOrgs || pos === false) {return false;}
         orgs.add(null);
         let last = orgs.last;
-        let org  = new __WEBPACK_IMPORTED_MODULE_5__organism_Organism__["a" /* default */](++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), this.manager.CLASS_MAP, parent);
+        let org  = new this._ORG_CLS(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), this._CLASS_MAP, parent);
 
         last.val = org;
         this.addOrgHandlers(org);
@@ -2213,23 +2028,241 @@ class Operators {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Helper__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__JSVM__ = __webpack_require__(23);
+/**
+ * Base class for one organism
+ * TODO: add description:
+ * TODO:   - events
+ * TODO:   -
+ * @author DeadbraiN
+ */
+
+
+
+
+
+
+
+const IS_NUM = __WEBPACK_IMPORTED_MODULE_3__global_Helper__["a" /* default */].isNumeric;
+
+class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* default */] {
+    /**
+     * Is called before every run. Should return true, if everything
+     * is okay and we don't need to interrupt running. If true, then
+     * onRun() method will be called as well
+     * @abstract
+     */
+    onBeforeRun() {}
+
+    /**
+     * Is called as a running body (main) method
+     * @abstract
+     */
+    onRun() {}
+
+    /**
+     * Creates organism instance. If parent parameter is set, then
+     * a clone of parent organism will be created.
+     * @param {String} id Unique identifier of organism
+     * @param {Number} x Unique X coordinate
+     * @param {Number} y Unique Y coordinate
+     * @param {Boolean} alive true if organism is alive
+     * @param {Object} item Reference to the Queue item, where
+     * this organism is located
+     * @param {Function} codeEndCb Callback, which is called at the
+     * end of every code iteration.
+     * @param {Object} classMap Available classes map. Maps class names into
+     * classe functions
+     * @param {Organism} parent Parent organism if cloning is needed
+     */
+    constructor(id, x, y, alive, item, codeEndCb, classMap, parent = null) {
+        super(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* EVENT_AMOUNT */]);
+
+        this._codeEndCb   = codeEndCb;
+        this._classMap    = classMap;
+
+        if (parent === null) {this._create();}
+        else {this._clone(parent);}
+
+        this._id          = id;
+        this._x           = x;
+        this._y           = y;
+        this._changes     = 1;
+        this._alive       = alive;
+        this._item        = item;
+        this._iterations  = 0;
+        this._fnId        = 0;
+
+        this.jsvm.on(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].RESET_CODE, this._onResetCode.bind(this));
+    }
+
+    get id()                    {return this._id}
+    get x()                     {return this._x}
+    get y()                     {return this._y}
+    get alive()                 {return this._alive}
+    get item()                  {return this._item}
+    get mutationProbs()         {return this._mutationProbs}
+    get mutationPeriod()        {return this._mutationPeriod}
+    get mutationPercent()       {return this._mutationPercent}
+    get cloneMutationPercent()  {return this._cloneMutationPercent}
+    get changes()               {return this._changes}
+    get energy()                {return this._energy}
+    get color()                 {return this._color}
+    get mem()                   {return this._mem}
+    get cloneEnergyPercent()    {return this._cloneEnergyPercent}
+    get posId()                 {return __WEBPACK_IMPORTED_MODULE_3__global_Helper__["a" /* default */].posId(this._x, this._y)}
+    get iterations()            {return this._iterations}
+
+    set x(newX)                 {this._x = newX}
+    set y(newY)                 {this._y = newY}
+    set cloneMutationPercent(m) {this._cloneMutationPercent = m}
+    set mutationPeriod(m)       {this._mutationPeriod = m}
+    set mutationPercent(p)      {this._mutationPercent = p}
+    set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p}
+    set energy(e)               {this._energy = e}
+    set changes(c) {
+        this._changes = c;
+        this._updateColor(c);
+    }
+
+    /**
+     * Runs one code iteration and returns
+     * @return {Boolean} false means that organism was destroyed
+     */
+    run() {
+        this._iterations++;
+        if (this.onBeforeRun() === false) {return true}
+        this.onRun();
+        return this._updateDestroy() && this._updateEnergy();
+    }
+
+    grabEnergy(amount) {
+        if (!IS_NUM(amount)) {return true;}
+        const noEnergy = (this._energy -= amount) < 1;
+        noEnergy && this.destroy();
+        return !noEnergy;
+    }
+
+    fitness() {
+        return this._energy * this._changes;
+    }
+
+    destroy() {
+        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].DESTROY, this);
+        this._alive      = false;
+        this._classMap   = null;
+        this._energy     = 0;
+        this._item       = null;
+        this._mem        = null;
+        this.jsvm.destroy();
+        this.jsvm        = null;
+        this._codeEndCb  = null;
+        this.clear();
+    }
+
+    _updateColor(changes) {
+        if ((this._color += changes) > __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].ORG_MAX_COLOR) {
+            this._color = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].ORG_FIRST_COLOR;
+        }
+    }
+
+    _create() {
+        this.jsvm                   = new __WEBPACK_IMPORTED_MODULE_4__JSVM__["a" /* default */](this._codeEndCb.bind(this, this), this, this._classMap);
+        this._energy                = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgStartEnergy;
+        this._color                 = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgStartColor;
+        this._mutationProbs         = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgMutationProbs;
+        this._cloneMutationPercent  = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgCloneMutationPercent;
+        this._mutationPeriod        = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgRainMutationPeriod;
+        this._mutationPercent       = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgRainMutationPercent;
+        this._cloneEnergyPercent    = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgCloneEnergyPercent;
+        this._mem                   = [];
+    }
+
+    _clone(parent) {
+        this.jsvm                   = new __WEBPACK_IMPORTED_MODULE_4__JSVM__["a" /* default */](this._codeEndCb.bind(this, this), this, this._classMap, parent);
+        this._energy                = parent.energy;
+        this._color                 = parent.color;
+        this._mutationProbs         = parent.mutationProbs.slice();
+        this._cloneMutationPercent  = parent.cloneMutationPercent;
+        this._mutationPeriod        = parent.mutationPeriod;
+        this._mutationPercent       = parent.mutationPercent;
+        this._cloneEnergyPercent    = parent.cloneEnergyPercent;
+        this._mem                   = parent.mem.slice();
+    }
+
+    /**
+     * Checks if organism need to be killed/destroyed, because of age or zero energy
+     * @return {Boolean} false means that organism was destroyed.
+     * @private
+     */
+    _updateDestroy() {
+        const alivePeriod = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgAlivePeriod;
+        const needDestroy = (this._energy < 1 || this._iterations >= alivePeriod) && alivePeriod > 0;
+
+        needDestroy && this.destroy();
+
+        return !needDestroy;
+    }
+
+    /**
+     * Is called when some modifications in code appeared and we have
+     * to re-execute it again
+     * @private
+     */
+    _onResetCode() {
+        this._needRun = true;
+    }
+
+    /**
+     * This is how our system grabs an energy from organism if it's age is
+     * divided into Config.orgEnergySpendPeriod.
+     * @return {Boolean} false means that organism was destroyed.
+     * @private
+     */
+    _updateEnergy() {
+        if (this._iterations % __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgEnergySpendPeriod !== 0 || __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgEnergySpendPeriod === 0) {return true}
+        const codeSize = this.jsvm.size;
+        let   grabSize = Math.floor(codeSize / __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].orgGarbagePeriod);
+
+        if (codeSize > __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeMaxSize) {grabSize = codeSize * __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeSizeCoef;}
+        if (grabSize < 1) {grabSize = 1;}
+        grabSize = Math.min(this._energy, grabSize);
+        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].GRAB_ENERGY, grabSize);
+
+        return this.grabEnergy(grabSize);
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = Organism;
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Observer__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Console__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__visual_World__ = __webpack_require__(26);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__visual_Canvas__ = __webpack_require__(25);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__plugins_OrganismsGarmin__ = __webpack_require__(17);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__plugins_OrganismsDos__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__plugins_Config__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__plugins_Mutator__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__plugins_Energy__ = __webpack_require__(14);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__plugins_Status__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__organism_OperatorsDos__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__organism_OperatorsGarmin__ = __webpack_require__(24);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__organism_Code2StringDos__ = __webpack_require__(19);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__organism_Code2StringGarmin__ = __webpack_require__(20);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__organism_FitnessGarmin__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__visual_World__ = __webpack_require__(28);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__visual_Canvas__ = __webpack_require__(27);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__plugins_OrganismsGarmin__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__plugins_OrganismsDos__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__plugins_Config__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__plugins_Mutator__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__plugins_Energy__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__plugins_Status__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__organism_OperatorsDos__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__organism_OperatorsGarmin__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__organism_Code2StringDos__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__organism_Code2StringGarmin__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__organism_FitnessGarmin__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__organism_OrganismDos__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__organism_OrganismGarmin__ = __webpack_require__(26);
 /**
  * Main manager class of application. Contains all parts of jevo.js app
  * like World, Connection, Console etc... Runs infinite loop inside run()
@@ -2265,6 +2298,8 @@ class Operators {
 
 
 
+
+
 /**
  * {Boolean} Specify fitness or nature simulation mode
  */
@@ -2278,7 +2313,9 @@ const CLASS_MAP = {
     OperatorsGarmin  : __WEBPACK_IMPORTED_MODULE_14__organism_OperatorsGarmin__["a" /* default */],
     Code2StringDos   : __WEBPACK_IMPORTED_MODULE_15__organism_Code2StringDos__["a" /* default */],
     Code2StringGarmin: __WEBPACK_IMPORTED_MODULE_16__organism_Code2StringGarmin__["a" /* default */],
-    FitnessGarmin    : __WEBPACK_IMPORTED_MODULE_17__organism_FitnessGarmin__["a" /* default */]
+    FitnessGarmin    : __WEBPACK_IMPORTED_MODULE_17__organism_FitnessGarmin__["a" /* default */],
+    OrganismDos      : __WEBPACK_IMPORTED_MODULE_18__organism_OrganismDos__["a" /* default */],
+    OrganismGarmin   : __WEBPACK_IMPORTED_MODULE_19__organism_OrganismGarmin__["a" /* default */]
 };
 /**
  * {Array} Plugins for Manager
@@ -2331,13 +2368,18 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* defa
      * Runs main infinite loop of application
      */
     run () {
-        let counter = 0;
-        let timer   = Date.now;
-        let stamp   = timer();
-        let call    = this.zeroTimeout;
-        let me      = this;
+        let counter     = 0;
+        let timer       = Date.now;
+        let stamp       = timer();
+        let me          = this;
+        let zeroTimeout = me.zeroTimeout;
 
         function loop () {
+            //
+            // This conditions id needed for turned on visualization mode to
+            // prevent flickering of organisms in a canvas. It makes their
+            // movement smooth
+            //
             const amount = me._visualized ? 1 : __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeIterationsPerOnce;
 
             for (let i = 0; i < amount; i++) {
@@ -2346,9 +2388,9 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* defa
                 counter++;
                 stamp = timer();
             }
-            call(loop);
+            zeroTimeout(loop);
         }
-        call(loop);
+        loop();
     }
 
     stop() {
@@ -2450,12 +2492,12 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* defa
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_Manager__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_Manager__ = __webpack_require__(10);
 /**
  * This is an entry point of jevo.js application. Compiled version of
  * this file should be included into index.html
@@ -2472,7 +2514,7 @@ window.man = manager;
 manager.run();
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2564,7 +2606,7 @@ class Queue {
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2657,7 +2699,7 @@ class Backup {
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2679,7 +2721,7 @@ class Config {
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2756,14 +2798,14 @@ class Energy {
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Helper__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__organism_Organism__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__organism_OrganismDos__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__organism_Num__ = __webpack_require__(3);
 /**
  * Plugin for Manager class, which is tracks when and how many mutations
@@ -2894,7 +2936,7 @@ class Mutator {
 
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3052,14 +3094,14 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__manager_plugins_base_Org
 
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Console__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__organism_Organism__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__organism_OrganismDos__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__manager_plugins_base_Organisms__ = __webpack_require__(7);
 /**
  * Plugin for Manager module, which handles organisms population
@@ -3098,14 +3140,6 @@ class OrganismsGarmin extends __WEBPACK_IMPORTED_MODULE_4__manager_plugins_base_
         return this._FITNESS_CLS.compare(org1, org2, this._maxChanges);
     }
 
-    /**
-     * Is called after cloning of organism
-     * @param {Organism} org Parent organism
-     * @param {Organism} child Child organism
-     * @override
-     */
-    onClone(org, child) {}
-
     onOrganism(org) {
         if (org.energy > this._maxEnergy) {
             this._maxEnergy = org.energy;
@@ -3140,7 +3174,7 @@ class OrganismsGarmin extends __WEBPACK_IMPORTED_MODULE_4__manager_plugins_base_
 
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3248,7 +3282,7 @@ class Status {
 
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3461,7 +3495,7 @@ class Code2StringDos {
 
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3614,7 +3648,7 @@ class Code2StringGarmin {
 
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3624,7 +3658,6 @@ class Code2StringGarmin {
  *
  * @author DeadbraiN
  */
-
 const FIELDS      = [
     'Date',
     'Calories',
@@ -5559,7 +5592,7 @@ const RUNNING     = [
 ];
 const ACTIVITIES  = [TENNIS, HOKKEY, RUNNING];
 const ERR_PERCENT = 0.1;
-const TOTAL       = ((arr)=>{let sum = 0; arr.forEach((el)=>sum+=el.length);return sum})(ACTIVITIES)
+const TOTAL       = ((arr)=>{let sum = 0; arr.forEach((el)=>sum+=el.length);return sum})(ACTIVITIES);
 const GOAL        = TOTAL - TOTAL * ERR_PERCENT;
 
 class FitnessGarmin {
@@ -5617,7 +5650,7 @@ class FitnessGarmin {
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5816,7 +5849,7 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
 
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6100,7 +6133,7 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
 
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6272,7 +6305,65 @@ class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a"
 
 
 /***/ }),
-/* 25 */
+/* 26 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__organism_base_Organism__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(1);
+/**
+ * TODO: add description:
+ * TODO:   - events
+ * TODO:   -
+ * @author DeadbraiN
+ */
+
+
+
+
+class OrganismGarmin extends __WEBPACK_IMPORTED_MODULE_0__organism_base_Organism__["a" /* default */] {
+    /**
+     * Creates organism instance. If parent parameter is set, then
+     * a clone of parent organism will be created.
+     * @param {String} id Unique identifier of organism
+     * @param {Number} x Unique X coordinate
+     * @param {Number} y Unique Y coordinate
+     * @param {Boolean} alive true if organism is alive
+     * @param {Object} item Reference to the Queue item, where
+     * this organism is located
+     * @param {Function} codeEndCb Callback, which is called at the
+     * end of every code iteration.
+     * @param {Object} classMap Available classes map. Maps class names into
+     * classe functions
+     * @param {Organism} parent Parent organism if cloning is needed
+     */
+    constructor(id, x, y, alive, item, codeEndCb, classMap, parent = null) {
+        super(id, x, y, alive, item, codeEndCb, classMap, parent);
+
+        this._fitnessCls = classMap[__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].codeFitnessCls];
+        this._needRun    = true;
+    }
+
+    onBeforeRun() {
+        return !this._needRun;
+    }
+
+    onRun() {
+        if (this._fitnessCls.run(this)) {this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].STOP, this)}
+        this._needRun = false;
+    }
+
+    destroy() {
+        super.destroy();
+        this._fitnessCls = null;
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = OrganismGarmin;
+
+
+/***/ }),
+/* 27 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6388,7 +6479,7 @@ class Canvas {
 
 
 /***/ }),
-/* 26 */
+/* 28 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

@@ -11,7 +11,7 @@ import {Config}       from './../../../global/Config';
 import Console        from './../../../global/Console';
 import {EVENTS}       from './../../../global/Events';
 import Queue          from './../../../global/Queue';
-import Organism       from './../../../organism/Organism';
+import Organism       from '../../../organism/OrganismDos';
 import Backup         from './../Backup';
 
 const RAND_OFFS = 4;
@@ -68,8 +68,10 @@ export default class Organisms {
         this.codeRuns       = 0;
         this.stamp          = Date.now();
         this.manager        = manager;
-        this.code2Str       = new manager.CLASS_MAP[Config.code2StringCls];
+        this._CLASS_MAP     = this.manager.CLASS_MAP;
+        this.code2Str       = new this._CLASS_MAP[Config.code2StringCls];
         this.randOrgItem    = this.organisms.first;
+        this._ORG_CLS       = this._CLASS_MAP[Config.codeOrganismCls];
         this._onIterationCb = this.onIteration.bind(this);
 
         this.reset();
@@ -260,7 +262,7 @@ export default class Organisms {
         if (orgs.size >= Config.worldMaxOrgs || pos === false) {return false;}
         orgs.add(null);
         let last = orgs.last;
-        let org  = new Organism(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), this.manager.CLASS_MAP, parent);
+        let org  = new this._ORG_CLS(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), this._CLASS_MAP, parent);
 
         last.val = org;
         this.addOrgHandlers(org);
