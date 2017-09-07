@@ -22,7 +22,6 @@ export default class Status {
         this._runLines    = 0;
         this._changes     = 0;
         this._fitness     = 0;
-        this._fitnessMode = Config.codeFitnessCls !== null;
 
         manager.on(EVENTS.IPS, this._onIps.bind(this));
         manager.on(EVENTS.ORGANISM, this._onOrganism.bind(this));
