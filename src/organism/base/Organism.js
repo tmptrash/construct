@@ -61,8 +61,6 @@ export default class Organism extends Observer {
         this._item        = item;
         this._iterations  = 0;
         this._fnId        = 0;
-
-        this.jsvm.on(EVENTS.RESET_CODE, this._onResetCode.bind(this));
     }
 
     get id()                    {return this._id}
@@ -171,15 +169,6 @@ export default class Organism extends Observer {
         needDestroy && this.destroy();
 
         return !needDestroy;
-    }
-
-    /**
-     * Is called when some modifications in code appeared and we have
-     * to re-execute it again
-     * @private
-     */
-    _onResetCode() {
-        this._needRun = true;
     }
 
     /**

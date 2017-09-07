@@ -1,15 +1,21 @@
 describe("src/organism/Organism", () => {
-    let Organism = require('../../../src/organism/OrganismDos').default;
-    let Config   = require('../../../src/global/Config').Config;
-    let api      = require('../../../src/global/Config').api;
+    let Organism = require('../../../../src/organism/base/Organism').default;
+    let Config   = require('../../../../src/global/Config').Config;
+    let api      = require('../../../../src/global/Config').api;
     let cls;
+
+    class OrganismTest extends Organism {
+        onRun() {
+            this.jsvm.run(this);
+        }
+    }
 
     beforeEach(() => {cls = Config.codeOperatorsCls;api.set('codeOperatorsCls', 'ops')});
     afterEach(() => api.set('codeOperatorsCls', cls));
 
     it("Checking organism creation", () => {
         const clss = {ops: ()=>{}};
-        let   org  = new Organism(0, 1, 2, true, null, ()=>{}, clss);
+        let   org  = new OrganismTest(0, 1, 2, true, null, ()=>{}, clss);
 
         expect(org.id).toEqual(0);
         expect(org.x).toEqual(1);
@@ -22,7 +28,7 @@ describe("src/organism/Organism", () => {
 
     it("Checking organism destroy because of age", () => {
         const clss = {ops: ()=>{}};
-        let   org  = new Organism(0, 1, 2, true, null, ()=>{}, clss);
+        let   org  = new OrganismTest(0, 1, 2, true, null, ()=>{}, clss);
 
         for (let i = 0; i < Config.orgAlivePeriod; i++) {
             expect(org.alive).toEqual(true);

@@ -29,6 +29,8 @@ export default class OrganismGarmin extends Organism {
 
         this._fitnessCls = classMap[Config.codeFitnessCls];
         this._needRun    = true;
+
+        this.jsvm.on(EVENTS.RESET_CODE, this._onResetCode.bind(this));
     }
 
     onBeforeRun() {
@@ -43,5 +45,14 @@ export default class OrganismGarmin extends Organism {
     destroy() {
         super.destroy();
         this._fitnessCls = null;
+    }
+
+    /**
+     * Is called when some modifications in code appeared and we have
+     * to re-execute it again
+     * @private
+     */
+    _onResetCode() {
+        this._needRun = true;
     }
 }
