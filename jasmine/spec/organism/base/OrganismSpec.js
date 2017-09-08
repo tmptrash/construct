@@ -68,6 +68,60 @@ describe("src/organism/Organism", () => {
         org.destroy();
     });
 
+    it("Checking organism coordinates", () => {
+        const clss = {ops: ()=>{}};
+        let   org  = new OrganismTest(0, 1, 2, true, null, ()=>{}, clss);
+
+        org.x = 4;
+        org.y = 5;
+        expect(org.x === 4 && org.y === 5).toEqual(true);
+        org.x = 0;
+        org.y = 0;
+        expect(org.x === 0 && org.y === 0).toEqual(true);
+        org.x = -1;
+        org.y = -2;
+        expect(org.x === -1 && org.y === -2).toEqual(true);
+
+        org.destroy();
+    });
+
+    it("Checking if organism if alive", () => {
+        const clss    = {ops: ()=>{}};
+        let   org     = new OrganismTest(0, 1, 2, true, null, ()=>{}, clss);
+        const period  = Config.orgAlivePeriod;
+        const energy  = Config.orgStartEnergy;
+        const speriod = Config.orgEnergySpendPeriod;
+
+        api.set('orgAlivePeriod', 100);
+        api.set('orgStartEnergy', 100);
+        api.set('orgEnergySpendPeriod', 100);
+
+        expect(org.alive).toEqual(true);
+        org.run();
+        expect(org.alive).toEqual(true);
+
+        expect(org.alive).toEqual(true);
+        api.set('orgAlivePeriod', period);
+        api.set('orgStartEnergy', energy);
+        api.set('orgEnergySpendPeriod', speriod);
+
+        org.destroy();
+    });
+
+    it("Checking organism changes", () => {
+        const clss    = {ops: ()=>{}};
+        let   org     = new OrganismTest(0, 1, 2, true, null, ()=>{}, clss);
+
+        expect(org.changes).toEqual(1);
+        org.changes = 10;
+        expect(org.changes).toEqual(10);
+        org.changes += 12;
+        expect(org.changes).toEqual(22);
+
+        org.destroy();
+    });
+
+
     it("Checking organism destroy because of age", () => {
         const clss = {ops: ()=>{}};
         let   org  = new OrganismTest(0, 1, 2, true, null, ()=>{}, clss);
