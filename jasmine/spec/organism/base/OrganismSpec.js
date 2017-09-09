@@ -121,6 +121,16 @@ describe("src/organism/Organism", () => {
         org.destroy();
     });
 
+    it("Checking run() method", () => {
+        const clss    = {ops: ()=>{}};
+        let   org     = new OrganismTest(0, 1, 2, true, null, ()=>{}, clss);
+
+        expect(org.iterations).toEqual(0);
+        org.run();
+        expect(org.iterations).toEqual(1);
+
+        org.destroy();
+    });
 
     it("Checking organism destroy because of age", () => {
         const clss = {ops: ()=>{}};

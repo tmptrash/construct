@@ -1,6 +1,6 @@
 describe("src/visual/World", () => {
     let World  = require('../../../src/visual/World').default;
-    let Events = require('../../../src/global/Events').default;
+    let EVENTS = require('../../../src/global/Events').EVENTS;
 
     it("Checking world creation", () => {
         let world = new World(10, 10);
@@ -183,7 +183,7 @@ describe("src/visual/World", () => {
         let world  = new World(width, height);
         let inc    = 0;
 
-        world.on(Events.DOT, (x,y,c) => {
+        world.on(EVENTS.DOT, (x,y,c) => {
             expect(x).toEqual(3);
             expect(y).toEqual(4);
             expect(c).toEqual(2);
@@ -200,7 +200,7 @@ describe("src/visual/World", () => {
         let world  = new World(width, height);
         let inc    = 0;
 
-        world.on(Events.DOT, (x,y,c) => {
+        world.on(EVENTS.DOT, (x,y,c) => {
             expect(c).toEqual(2 - inc);
             expect(x).toEqual(3);
             expect(y).toEqual(4);
