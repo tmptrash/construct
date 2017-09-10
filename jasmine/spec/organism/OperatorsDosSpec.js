@@ -16,7 +16,11 @@ describe("src/organism/OperatorsDos", () => {
         expect(ops.vars[1] === 0).toEqual(true);
         expect(ops.vars[2] === 0).toEqual(true);
         expect(ops.vars[3] === 0).toEqual(true);
-        //expect(ops.onVar(0x001fffff)).toEqual('v0=v1');
+        expect(ops.onVar(0x0000ffff, 0)).toEqual(1);
+        expect(ops.vars[0] === 0x3fff).toEqual(true);
+        expect(ops.vars[1] === 0).toEqual(true);
+        expect(ops.vars[2] === 0).toEqual(true);
+        expect(ops.vars[3] === 0).toEqual(true);
     });
 
     // it("Checking onCondition() method", () => {
