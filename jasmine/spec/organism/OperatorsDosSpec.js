@@ -23,14 +23,14 @@ describe("src/organism/OperatorsDos", () => {
         expect(ops.vars[3] === 0).toEqual(true);
     });
 
-    // it("Checking onCondition() method", () => {
-    //     let ops = new OperatorsDos([], [0, 1, 2, 3], new Observer());
-    //
-    //     expect(ops.onCondition(0x01ffffff), 0, 1).toEqual('yield;if(v3!=v3){');
-    //     expect(ops.onCondition(0x011fffff), 0, 1).toEqual('yield;if(v0!=v1){');
-    //     expect(ops.onCondition(0x011abfff), 0, 1).toEqual('yield;if(v0==v1){');
-    //     expect(ops.onCondition(0x01ffffff), 0, 1).toEqual('yield;if(v3!=v3){');
-    // });
+    it("Checking onCondition() method", () => {
+        let ops = new OperatorsDos([], [0, 1, 2, 3], new Observer());
+
+        expect(ops.onCondition(0x01ffffff, 0, {}, 0)).toEqual(0); //if(v3!=v3)');
+        expect(ops.onCondition(0x011fffff, 0, {}, 0)).toEqual(1); //if(v0!=v1)');
+        expect(ops.onCondition(0x011abfff, 0, {}, 0)).toEqual(0); //if(v0==v1)');
+        expect(ops.onCondition(0x01ffffff, 0, {}, 0)).toEqual(0); //if(v3!=v3)');
+    });
     //
     // it("Checking onLoop() method", () => {
     //     let ops = new OperatorsDos([]);
