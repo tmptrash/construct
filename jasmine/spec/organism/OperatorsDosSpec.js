@@ -4,7 +4,7 @@ describe("src/organism/OperatorsDos", () => {
     let Observer     = require('../../../src/global/Observer').default;
 
     it("Checking onVar() method", () => {
-        let ops  = new OperatorsDos([], [0, 0, 0, 0], new Observer());
+        let ops = new OperatorsDos([], [0, 0, 0, 0], new Observer());
 
         expect(ops.onVar(0x00ffffff, 0)).toEqual(1);
         expect(ops.vars[0] === 0).toEqual(true);
