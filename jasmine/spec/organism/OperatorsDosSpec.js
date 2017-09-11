@@ -25,6 +25,10 @@ describe("src/organism/OperatorsDos", () => {
     it("Checking onVar() method 2", () => {
         let ops = new OperatorsDos([], [1, 2, 3, 4], new Observer());
 
+        expect(ops.vars[0] === 1).toEqual(true);
+        expect(ops.vars[1] === 2).toEqual(true);
+        expect(ops.vars[2] === 3).toEqual(true);
+        expect(ops.vars[3] === 4).toEqual(true);
         expect(ops.onVar(0x001fffff, 0)).toEqual(1);
         expect(ops.vars[0] === 2).toEqual(true);
         expect(ops.vars[1] === 2).toEqual(true);
@@ -35,12 +39,12 @@ describe("src/organism/OperatorsDos", () => {
     it("Checking onCondition() method", () => {
         let ops = new OperatorsDos([], [0, 1, 2, 3], new Observer());
 
-        expect(ops.onCondition(0x01ffffff, 0, {}, 0)).toEqual(0);  //if(v3!=v3)');
-        expect(ops.onCondition(0x011fffff, 0, {}, 0)).toEqual(1);  //if(v0!=v1)');
-        expect(ops.onCondition(0x011abfff, 0, {}, 0)).toEqual(0);  //if(v0==v1)');
-        expect(ops.onCondition(0x01ffffff, 0, {}, 0)).toEqual(0);  //if(v3!=v3)');
-        expect(ops.onCondition(0x011fffff, 0, {}, 2)).toEqual(1);  //if(v0!=v1)');
-        expect(ops.onCondition(0x01ffffff, 0, {}, 2)).toEqual(2);  //if(v3!=v3)');
+        expect(ops.onCondition(0x01ffffff, 0, {}, 0)).toEqual(0);   //if(v3!=v3)');
+        expect(ops.onCondition(0x011fffff, 0, {}, 0)).toEqual(1);   //if(v0!=v1)');
+        expect(ops.onCondition(0x011abfff, 0, {}, 0)).toEqual(0);   //if(v0==v1)');
+        expect(ops.onCondition(0x01ffffff, 0, {}, 0)).toEqual(0);   //if(v3!=v3)');
+        expect(ops.onCondition(0x011fffff, 0, {}, 2)).toEqual(1);   //if(v0!=v1)');
+        expect(ops.onCondition(0x01ffffff, 0, {}, 2)).toEqual(2);   //if(v3!=v3)');
         expect(ops.onCondition(0x01ffffff, 0, {}, 20)).toEqual(16); //if(v3!=v3)');
     });
     //
