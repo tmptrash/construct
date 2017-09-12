@@ -2,6 +2,8 @@ describe("src/organism/OperatorsDos", () => {
     let OperatorsDos = require('../../../src/organism/OperatorsDos').default;
     let Helper       = require('../../../src/global/Helper').default;
     let Observer     = require('../../../src/global/Observer').default;
+    let EVENTS       = require('../../../src/global/Events').EVENTS;
+    let EVENT_AMOUNT = require('../../../src/global/Events').EVENT_AMOUNT;
 
     it("Checking onVar() method", () => {
         let ops = new OperatorsDos([], [0, 0, 0, 0], new Observer());
@@ -198,14 +200,52 @@ describe("src/organism/OperatorsDos", () => {
     //     expect(ops.onTrig(0x0663ffff), 0, 1).toEqual('v1=Math.sin(v2)');
     //     expect(ops.onTrig(0x06ffffff), 0, 1).toEqual('v3=Math.abs(v3)');
     // });
-    //
-    // it("Checking onLookAt() method", () => {
-    //     let ops = new OperatorsDos([]);
-    //
-    //     expect(ops.onLookAt(0x071bffff), 0, 1).toEqual('v0=org.lookAt(v1,v2)');
-    //     expect(ops.onLookAt(0x076fffff), 0, 1).toEqual('v1=org.lookAt(v2,v3)');
-    //     expect(ops.onLookAt(0x07ffffff), 0, 1).toEqual('v3=org.lookAt(v3,v3)');
-    // });
+
+    it("Checking onLookAt() method", () => {
+        let obs = new Observer(EVENT_AMOUNT);
+        let ops = new OperatorsDos([], [1, 1, 2, 3], obs);
+
+        expect(ops.onLookAt(0x071bffff, 0, {}, 1)).toEqual(1);//v0=org.lookAt(v1,v2);
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+
+        obs.on(EVENTS.GET_ENERGY, (org, x, y, ret) => {
+            ret.ret = 7;
+            expect(x === 1 && y === 2).toEqual(true);
+        });
+        expect(ops.onLookAt(0x071bffff, 0, {}, 1)).toEqual(1);//v0=org.lookAt(v1,v2);
+        expect(ops.vars[0] === 7).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+
+        obs.clear();
+        obs.on(EVENTS.GET_ENERGY, (org, x, y, ret) => {
+            ret.ret = 8;
+            expect(x === 2 && y === 3).toEqual(true);
+        });
+        expect(ops.onLookAt(0x076fffff, 1, {}, 1)).toEqual(2);//v1=org.lookAt(v2,v3);
+        expect(ops.vars[0] === 7).toEqual(true);
+        expect(ops.vars[1] === 8).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+
+        obs.clear();
+        obs.on(EVENTS.GET_ENERGY, (org, x, y, ret) => {
+            ret.ret = 9;
+            expect(x === 3 && y === 3).toEqual(true);
+        });
+        expect(ops.onLookAt(0x07ffffff, 3, {}, 1)).toEqual(4);//v3=org.lookAt(v3,v3);
+        expect(ops.vars[0] === 7).toEqual(true);
+        expect(ops.vars[1] === 8).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 9).toEqual(true);
+
+        obs.clear();
+        ops.destroy();
+    });
     //
     // it("Checking onEatLeft() method", () => {
     //     let ops = new OperatorsDos([]);
