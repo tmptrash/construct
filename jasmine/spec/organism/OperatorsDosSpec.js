@@ -201,7 +201,7 @@ describe("src/organism/OperatorsDos", () => {
     //     expect(ops.onTrig(0x06ffffff), 0, 1).toEqual('v3=Math.abs(v3)');
     // });
 
-    it("Checking onLookAt() method", () => {
+    it("Checking onLookAt() in a complex way", () => {
         let obs = new Observer(EVENT_AMOUNT);
         let ops = new OperatorsDos([], [1, 1, 2, 3], obs);
 
