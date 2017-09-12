@@ -162,14 +162,26 @@ describe("src/organism/OperatorsDos", () => {
 
         ops.destroy();
     });
-    //
-    // it("Checking onNot() method", () => {
-    //     let ops = new OperatorsDos([]);
-    //
-    //     expect(ops.onNot(0x041fffff), 0, 1).toEqual('v0=!v1');
-    //     expect(ops.onNot(0x046fffff), 0, 1).toEqual('v1=!v2');
-    //     expect(ops.onNot(0x04ffffff), 0, 1).toEqual('v3=!v3');
-    // });
+
+    it("Checking onNot() method", () => {
+        let ops = new OperatorsDos([], [0, 1, 2, 3], new Observer());
+
+        expect(ops.onNot(0x041fffff, 0, {}, 1)).toEqual(1); //'v0=!v1';
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+        expect(ops.onNot(0x046fffff, 1, {}, 1)).toEqual(2); //'v1=!v2';
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 0).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+        expect(ops.onNot(0x04ffffff, 2, {}, 1)).toEqual(3); //'v3=!v3';
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 0).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 0).toEqual(true);
+    });
     //
     // it("Checking onPi() method", () => {
     //     let ops = new OperatorsDos([]);
