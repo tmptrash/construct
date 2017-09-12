@@ -1,6 +1,4 @@
 REM
-REM Run this batch for the first time, just after  
-REM clonning from github. It installs all nedeed 
-REM packages and modules
+REM Run this batch to compile JS files into "dist" folder
 REM
-npm install
+.\node_modules\.bin\webpack
