@@ -19,7 +19,8 @@ const VAR0                  = Num.getVar;
 const VAR1                  = (n) => Num.getVar(n, 1);
 const VAR2                  = (n) => Num.getVar(n, 2);
 const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
-const BITS_OF_TWO_VARS      = Num.BITS_OF_TWO_VARS;
+const FOUR_BITS             = 4;
+const BLOCK_MAX_LEN         = Config.codeBitsPerBlock;
 const BITS_FOR_NUMBER       = 16;
 const IS_NUM                = Helper.isNumeric;
 const HALF_OF_VAR           = Num.MAX_VAR / 2;
@@ -106,7 +107,7 @@ export default class OperatorsDos extends Operators {
     //}
 
     onCondition(num, line, org, lines) {
-        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
+        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BLOCK_MAX_LEN);
         const offs = this._getOffs(line, lines, val3);
 
         if (this._CONDITIONS[VAR2(num)](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
@@ -116,16 +117,19 @@ export default class OperatorsDos extends Operators {
         return offs;
     }
 
-    onLoop(num, line, org, lines, afterIteration) {
+    /**
+     * for(v0=v1; v0<v2; v0++)
+     */
+    onLoop(num, line, org, lines, afterIteration = false) {
         const vars = this.vars;
         const var0 = VAR0(num);
-        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
+        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BLOCK_MAX_LEN);
         const offs = this._getOffs(line, lines, val3);
         //
         // If last iteration has done and we've returned to the line,
         // where "for" operator is located
         //
-        if (afterIteration) {
+        if (afterIteration === true) {
             if (++vars[var0] < vars[VAR2(num)]) {
                 this.offs.push(line, offs);
                 return line + 1;
@@ -147,7 +151,7 @@ export default class OperatorsDos extends Operators {
 
     onOperator(num, line) {
         const vars = this.vars;
-        vars[VAR0(num)] = this._OPERATORS[Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS)](vars[VAR1(num)], vars[VAR2(num)]);
+        vars[VAR0(num)] = this._OPERATORS[Num.getBits(num, BITS_AFTER_THREE_VARS, FOUR_BITS)](vars[VAR1(num)], vars[VAR2(num)]);
         return line + 1;
     }
 

@@ -172,6 +172,11 @@ const Config = {
      */
     codeBitsPerOperator: 8,
     /**
+     * {Number} Amount of bits, which stores maximum block length. Under block
+     * length we mean maximum amount of lines in one block like if, for,...
+     */
+    codeBitsPerBlock: 4,
+    /**
      * {Number} Amount of iterations between calls to V8 event loop. See
      * Manager._initLoop(), Manager.run() methods for details.
      */

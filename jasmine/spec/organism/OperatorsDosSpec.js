@@ -47,15 +47,64 @@ describe("src/organism/OperatorsDos", () => {
         expect(ops.onCondition(0x01ffffff, 0, {}, 2)).toEqual(2);   //if(v3!=v3)');
         expect(ops.onCondition(0x01ffffff, 0, {}, 20)).toEqual(16); //if(v3!=v3)');
     });
-    //
-    // it("Checking onLoop() method", () => {
-    //     let ops = new OperatorsDos([]);
-    //
-    //     expect(ops.onLoop(0x02ffffff), 0, 1).toEqual('for(v3=v3;v3<v3;v3++){yield');
-    //     expect(ops.onLoop(0x028fffff), 0, 1).toEqual('for(v2=v0;v2<v3;v2++){yield');
-    //     expect(ops.onLoop(0x0287ffff), 0, 1).toEqual('for(v2=v0;v2<v1;v2++){yield');
-    //     expect(ops.onLoop(0x02ffffff), 0, 1).toEqual('for(v3=v3;v3<v3;v3++){yield');
-    // });
+
+    it("Checking onLoop() method", () => {
+        let ops = new OperatorsDos([], [0, 1, 2, 3], new Observer());
+
+        expect(ops.onLoop(0x02ffffff, 0, {}, 2)).toEqual(2);   //for(v3=v3;v3<v3;v3++);
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+        expect(ops.onLoop(0x02ffffff, 0, {}, 20)).toEqual(16); //for(v3=v3;v3<v3;v3++);
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+        expect(ops.onLoop(0x02ffffff, 0, {}, 20, true)).toEqual(16); //for(v3=v3;v3<v3;v3++);
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 4).toEqual(true);
+    });
+    it("Checking onLoop() method 2", () => {
+        let ops = new OperatorsDos([], [0, 1, 2, 3], new Observer());
+
+        expect(ops.onLoop(0x028fffff, 0, {}, 20)).toEqual(1);   //for(v2=v0;v2<v3;v2++);
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 0).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+        expect(ops.onLoop(0x028fffff, 0, {}, 20, true)).toEqual(1);   //for(v2=v0;v2<v3;v2++);
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 1).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+        expect(ops.onLoop(0x028fffff, 0, {}, 20, true)).toEqual(1);   //for(v2=v0;v2<v3;v2++);
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+        expect(ops.onLoop(0x028fffff, 0, {}, 20, true)).toEqual(16);   //for(v2=v0;v2<v3;v2++);
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 3).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+    });
+    it("Checking onLoop() method 3", () => {
+        let ops = new OperatorsDos([], [0, 1, 2, 3], new Observer());
+
+        expect(ops.onLoop(0x0287ffff, 0, {}, 15)).toEqual(1);   //for(v2=v0;v2<v1;v2++);
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 0).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+        expect(ops.onLoop(0x0287ffff, 0, {}, 15, true)).toEqual(15);  //for(v2=v0;v2<v1;v2++);
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 1).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+    });
     //
     // it("Checking onOperator() method", () => {
     //     let ops = new OperatorsDos([]);
