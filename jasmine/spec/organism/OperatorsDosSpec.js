@@ -246,14 +246,64 @@ describe("src/organism/OperatorsDos", () => {
         obs.clear();
         ops.destroy();
     });
-    //
-    // it("Checking onEatLeft() method", () => {
-    //     let ops = new OperatorsDos([]);
-    //
-    //     expect(ops.onEatLeft(0x081fffff), 0, 1).toEqual('v0=org.eatLeft(v1)');
-    //     expect(ops.onEatLeft(0x086fffff), 0, 1).toEqual('v1=org.eatLeft(v2)');
-    //     expect(ops.onEatLeft(0x08ffffff), 0, 1).toEqual('v3=org.eatLeft(v3)');
-    // });
+
+    it("Checking onEatLeft() method", () => {
+        let obs = new Observer(EVENT_AMOUNT);
+        let ops = new OperatorsDos([], [1, 1, 2, 3], obs);
+        let org = {x:4, y:5, energy:0};
+
+        obs.on(EVENTS.EAT, (org, x, y, ret) => {
+            expect(ret.ret === 1).toEqual(true);
+            ret.ret = 5;
+            expect(x === 3 && y === 5).toEqual(true);
+        });
+        expect(ops.onEatLeft(0x081fffff, 0, org, 1)).toEqual(1); // v0=org.eatLeft(v1);
+        expect(ops.vars[0] === 5).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+
+        obs.clear();
+        ops.destroy();
+    });
+    it("Checking onEatLeft() method 2", () => {
+        let obs = new Observer(EVENT_AMOUNT);
+        let ops = new OperatorsDos([], [1, 1, 2, 3], obs);
+        let org = {x:5, y:6, energy:0};
+
+        obs.on(EVENTS.EAT, (org, x, y, ret) => {
+            expect(ret.ret === 2).toEqual(true);
+            ret.ret = 5;
+            expect(x === 4 && y === 6).toEqual(true);
+        });
+        expect(ops.onEatLeft(0x086fffff, 0, org, 1)).toEqual(1); // v1=org.eatLeft(v2);
+        expect(ops.vars[0] === 1).toEqual(true);
+        expect(ops.vars[1] === 5).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+
+        obs.clear();
+        ops.destroy();
+    });
+    it("Checking onEatLeft() method 3", () => {
+        let obs = new Observer(EVENT_AMOUNT);
+        let ops = new OperatorsDos([], [1, 1, 2, 3], obs);
+        let org = {x:3, y:4, energy:0};
+
+        obs.on(EVENTS.EAT, (org, x, y, ret) => {
+            expect(ret.ret === 3).toEqual(true);
+            ret.ret = 1;
+            expect(x === 2 && y === 4).toEqual(true);
+        });
+        expect(ops.onEatLeft(0x08ffffff, 0, org, 1)).toEqual(1); // v3=org.eatLeft(v3);
+        expect(ops.vars[0] === 1).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 1).toEqual(true);
+
+        obs.clear();
+        ops.destroy();
+    });
     // it("Checking onEatRight() method", () => {
     //     let ops = new OperatorsDos([]);
     //
