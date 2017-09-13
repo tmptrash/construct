@@ -491,14 +491,123 @@ describe("src/organism/OperatorsDos", () => {
         ops.destroy();
     });
 
-    //
-    // it("Checking onStepLeft() method", () => {
-    //     let ops = new OperatorsDos([]);
-    //
-    //     expect(ops.onStepLeft(0x081fffff), 0, 1).toEqual('v0=org.stepLeft()');
-    //     expect(ops.onStepLeft(0x086fffff), 0, 1).toEqual('v1=org.stepLeft()');
-    //     expect(ops.onStepLeft(0x08ffffff), 0, 1).toEqual('v3=org.stepLeft()');
-    // });
+
+    it("Checking onStepLeft() method", () => {
+        let obs = new Observer(EVENT_AMOUNT);
+        let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
+        let org = {x:3, y:4};
+
+        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
+            ret.ret = 1;
+            expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
+        });
+        expect(ops.onStepLeft(0x081fffff, 0, org, 1)).toEqual(1); // v0=org.stepLeft();
+        expect(ops.vars[0] === 1).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+        expect(org.x === 2 && org.y === 4).toEqual(true);
+
+        obs.clear();
+        ops.destroy();
+    });
+    it("Checking onStepLeft() method with no free space on the left", () => {
+        let obs = new Observer(EVENT_AMOUNT);
+        let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
+        let org = {x:3, y:4};
+
+        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
+            ret.ret = 0;
+            expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
+        });
+        expect(ops.onStepLeft(0x081fffff, 0, org, 1)).toEqual(1); // v0=org.stepLeft();
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+        expect(org.x === 3 && org.y === 4).toEqual(true);
+
+        obs.clear();
+        ops.destroy();
+    });
+    it("Checking onStepLeft() method 2", () => {
+        let obs = new Observer(EVENT_AMOUNT);
+        let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
+        let org = {x:3, y:4};
+
+        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
+            ret.ret = 1;
+            expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
+        });
+        expect(ops.onStepLeft(0x086fffff, 0, org, 1)).toEqual(1); // v1=org.stepLeft();
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+        expect(org.x === 2 && org.y === 4).toEqual(true);
+        //expect(ops.onStepLeft(0x08ffffff), 0, org, 1)).toEqual()  // v3=org.stepLeft();
+
+        obs.clear();
+        ops.destroy();
+    });
+    it("Checking onStepLeft() method 2 with no free space on the left", () => {
+        let obs = new Observer(EVENT_AMOUNT);
+        let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
+        let org = {x:3, y:4};
+
+        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
+            ret.ret = 0;
+            expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
+        });
+        expect(ops.onStepLeft(0x086fffff, 0, org, 1)).toEqual(1); // v1=org.stepLeft();
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 0).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+        expect(org.x === 3 && org.y === 4).toEqual(true);
+
+        obs.clear();
+        ops.destroy();
+    });
+    it("Checking onStepLeft() method 3", () => {
+        let obs = new Observer(EVENT_AMOUNT);
+        let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
+        let org = {x:3, y:4};
+
+        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
+            ret.ret = 1;
+            expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
+        });
+        expect(ops.onStepLeft(0x08ffffff, 0, org, 1)).toEqual(1); // v3=org.stepLeft();
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 1).toEqual(true);
+        expect(org.x === 2 && org.y === 4).toEqual(true);
+
+        obs.clear();
+        ops.destroy();
+    });
+    it("Checking onStepLeft() method 3 with no free space on the left", () => {
+        let obs = new Observer(EVENT_AMOUNT);
+        let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
+        let org = {x:3, y:4};
+
+        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
+            ret.ret = 0;
+            expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
+        });
+        expect(ops.onStepLeft(0x08ffffff, 0, org, 1)).toEqual(1); // v3=org.stepLeft();
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 0).toEqual(true);
+        expect(org.x === 3 && org.y === 4).toEqual(true);
+
+        obs.clear();
+        ops.destroy();
+    });
+
     // it("Checking onStepRight() method", () => {
     //     let ops = new OperatorsDos([]);
     //

@@ -144,14 +144,9 @@ export default class Manager extends Observer {
     move(x1, y1, x2, y2, org) {
         let moved = false;
 
-        [x2, y2] = Helper.normalize(x2, y2);
         if (this._isFree(x2, y2) === false) {return false;}
-
         if (x1 !== x2 || y1 !== y2) {moved = true; this._world.setDot(x1, y1, 0);}
         this._world.setDot(x2, y2, org.color);
-        org.x = x2;
-        org.y = y2;
-
         this.onAfterMove(x1, y1, x2, y2, org);
 
         return moved;
