@@ -815,4 +815,176 @@ describe("src/organism/OperatorsDos", () => {
 
         ops.destroy();
     });
+
+    it("Checking onCheckLeft() method", () => {
+        let org = new Observer(EVENT_AMOUNT);
+        let obs = new Observer();
+        let ops = new OperatorsDos([], [1, 7, 2, 3], obs);
+
+        org.x = 1;
+        org.y = 2;
+
+        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
+            expect(x === 0 && y === 2).toEqual(true);
+            ret.ret = 0;
+        });
+        expect(ops.onCheckLeft(0x081fffff, 0, org)).toEqual(1); // v0=org.onCheckLeft();
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 7).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+
+        org.clear();
+        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
+            expect(x === 0 && y === 2).toEqual(true);
+            ret.ret = 1;
+        });
+        expect(ops.onCheckLeft(0x086fffff, 0, org)).toEqual(1); // v1=org.onCheckLeft();
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+
+        org.clear();
+        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
+            expect(x === 0 && y === 2).toEqual(true);
+            ret.ret = 2;
+        });
+        expect(ops.onCheckLeft(0x08ffffff, 0, org)).toEqual(1); // v3=org.onCheckLeft();
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 2).toEqual(true);
+
+        ops.destroy();
+    });
+
+    it("Checking onCheckRight() method", () => {
+        let org = new Observer(EVENT_AMOUNT);
+        let obs = new Observer();
+        let ops = new OperatorsDos([], [1, 7, 2, 3], obs);
+
+        org.x = 1;
+        org.y = 2;
+
+        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
+            expect(x === 2 && y === 2).toEqual(true);
+            ret.ret = 0;
+        });
+        expect(ops.onCheckRight(0x081fffff, 0, org)).toEqual(1); // v0=org.onCheckRight();
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 7).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+
+        org.clear();
+        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
+            expect(x === 2 && y === 2).toEqual(true);
+            ret.ret = 1;
+        });
+        expect(ops.onCheckRight(0x086fffff, 0, org)).toEqual(1); // v1=org.onCheckRight();
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+
+        org.clear();
+        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
+            expect(x === 2 && y === 2).toEqual(true);
+            ret.ret = 2;
+        });
+        expect(ops.onCheckRight(0x08ffffff, 0, org)).toEqual(1); // v3=org.onCheckRight();
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 2).toEqual(true);
+
+        ops.destroy();
+    });
+
+    it("Checking onCheckUp() method", () => {
+        let org = new Observer(EVENT_AMOUNT);
+        let obs = new Observer();
+        let ops = new OperatorsDos([], [1, 7, 2, 3], obs);
+
+        org.x = 1;
+        org.y = 2;
+
+        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
+            expect(x === 1 && y === 1).toEqual(true);
+            ret.ret = 0;
+        });
+        expect(ops.onCheckUp(0x081fffff, 0, org)).toEqual(1); // v0=org.onCheckUp();
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 7).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+
+        org.clear();
+        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
+            expect(x === 1 && y === 1).toEqual(true);
+            ret.ret = 1;
+        });
+        expect(ops.onCheckUp(0x086fffff, 0, org)).toEqual(1); // v1=org.onCheckUp();
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+
+        org.clear();
+        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
+            expect(x === 1 && y === 1).toEqual(true);
+            ret.ret = 2;
+        });
+        expect(ops.onCheckUp(0x08ffffff, 0, org)).toEqual(1); // v3=org.onCheckUp();
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 2).toEqual(true);
+
+        ops.destroy();
+    });
+
+    it("Checking onCheckDown() method", () => {
+        let org = new Observer(EVENT_AMOUNT);
+        let obs = new Observer();
+        let ops = new OperatorsDos([], [1, 7, 2, 3], obs);
+
+        org.x = 1;
+        org.y = 2;
+
+        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
+            expect(x === 1 && y === 3).toEqual(true);
+            ret.ret = 0;
+        });
+        expect(ops.onCheckDown(0x081fffff, 0, org)).toEqual(1); // v0=org.onCheckDown();
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 7).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+
+        org.clear();
+        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
+            expect(x === 1 && y === 3).toEqual(true);
+            ret.ret = 1;
+        });
+        expect(ops.onCheckDown(0x086fffff, 0, org)).toEqual(1); // v1=org.onCheckDown();
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+
+        org.clear();
+        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
+            expect(x === 1 && y === 3).toEqual(true);
+            ret.ret = 2;
+        });
+        expect(ops.onCheckDown(0x08ffffff, 0, org)).toEqual(1); // v3=org.onCheckDown();
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 2).toEqual(true);
+
+        ops.destroy();
+    });
 });
