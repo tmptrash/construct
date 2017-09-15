@@ -722,35 +722,97 @@ describe("src/organism/OperatorsDos", () => {
         ops.destroy();
     });
 
-    //
-    // it("Checking onFromMem() method", () => {
-    //     let ops = new OperatorsDos([]);
-    //
-    //     expect(ops.onFromMem(0x081fffff), 0, 1).toEqual('v0=org.fromMem()');
-    //     expect(ops.onFromMem(0x086fffff), 0, 1).toEqual('v1=org.fromMem()');
-    //     expect(ops.onFromMem(0x08ffffff), 0, 1).toEqual('v3=org.fromMem()');
-    // });
-    //
-    // it("Checking onToMem() method", () => {
-    //     let ops = new OperatorsDos([]);
-    //
-    //     expect(ops.onToMem(0x081fffff), 0, 1).toEqual('org.toMem(v0)');
-    //     expect(ops.onToMem(0x086fffff), 0, 1).toEqual('org.toMem(v1)');
-    //     expect(ops.onToMem(0x08ffffff), 0, 1).toEqual('org.toMem(v3)');
-    // });
-    //
-    // it("Checking onMyX() method", () => {
-    //     let ops = new OperatorsDos([]);
-    //
-    //     expect(ops.onMyX(0x081fffff), 0, 1).toEqual('v0=org.myX()');
-    //     expect(ops.onMyX(0x086fffff), 0, 1).toEqual('v1=org.myX()');
-    //     expect(ops.onMyX(0x08ffffff), 0, 1).toEqual('v3=org.myX()');
-    // });
-    // it("Checking onMyY() method", () => {
-    //     let ops = new OperatorsDos([]);
-    //
-    //     expect(ops.onMyY(0x081fffff), 0, 1).toEqual('v0=org.myY()');
-    //     expect(ops.onMyY(0x086fffff), 0, 1).toEqual('v1=org.myY()');
-    //     expect(ops.onMyY(0x08ffffff), 0, 1).toEqual('v3=org.myY()');
-    // });
+    it("Checking onFromMem() method", () => {
+        let org = {mem: [1,2,3]};
+        let ops = new OperatorsDos([], [0, 1, 2, 3], new Observer());
+
+        expect(ops.onFromMem(0x081fffff, 0, org, 1)).toEqual(1); //v0=org.fromMem();
+        expect(ops.vars[0] === 3).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+        expect(ops.onFromMem(0x086fffff, 1, org, 2)).toEqual(2); //v1=org.fromMem();
+        expect(ops.vars[0] === 3).toEqual(true);
+        expect(ops.vars[1] === 2).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+        expect(ops.onFromMem(0x08ffffff, 2, org, 3)).toEqual(3); //v3=org.fromMem();
+        expect(ops.vars[0] === 3).toEqual(true);
+        expect(ops.vars[1] === 2).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 1).toEqual(true);
+
+        ops.destroy();
+    });
+    it("Checking onFromMem() method without memory", () => {
+        let org = {mem: []};
+        let ops = new OperatorsDos([], [7, 1, 2, 3], new Observer());
+
+        expect(ops.onFromMem(0x081fffff, 0, org, 1)).toEqual(1); //v0=org.fromMem();
+        expect(ops.vars[0] === 0).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+
+        ops.destroy();
+    });
+
+    it("Checking onToMem() method", () => {
+        let org = {mem: []};
+        let ops = new OperatorsDos([], [0, 1, 2, 3], new Observer());
+
+        expect(ops.onToMem(0x08ffffff, 0, org, 1)).toEqual(1); //'v3 = org.toMem(v3)');
+        expect(org.mem[0]).toEqual(3);
+        expect(ops.onToMem(0x086fffff, 0, org, 1)).toEqual(1); //'v1 = org.toMem(v2)');
+        expect(org.mem[1]).toEqual(2);
+        expect(ops.onToMem(0x081fffff, 0, org, 1)).toEqual(1); //'v0 = org.toMem(v1)');
+        expect(org.mem[2]).toEqual(2);
+
+        ops.destroy();
+    });
+
+    it("Checking onMyX() method", () => {
+        let org = {x: 1, y:2};
+        let ops = new OperatorsDos([], [0, 7, 2, 3], new Observer());
+
+        expect(ops.onMyX(0x081fffff, 0, org, 1)).toEqual(1); // v0=org.myX();
+        expect(ops.vars[0] === 1).toEqual(true);
+        expect(ops.vars[1] === 7).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+        expect(ops.onMyX(0x086fffff, 0, org, 1)).toEqual(1); // v1=org.myX();
+        expect(ops.vars[0] === 1).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+        expect(ops.onMyX(0x08ffffff, 0, org, 1)).toEqual(1); // v3=org.myX();
+        expect(ops.vars[0] === 1).toEqual(true);
+        expect(ops.vars[1] === 1).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 1).toEqual(true);
+
+        ops.destroy();
+    });
+    it("Checking onMyX() method", () => {
+        let org = {x: 1, y:2};
+        let ops = new OperatorsDos([], [0, 7, 2, 3], new Observer());
+
+        expect(ops.onMyY(0x081fffff, 0, org, 1)).toEqual(1); // v0=org.myY();
+        expect(ops.vars[0] === 2).toEqual(true);
+        expect(ops.vars[1] === 7).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+        expect(ops.onMyY(0x086fffff, 0, org, 1)).toEqual(1); // v1=org.myY();
+        expect(ops.vars[0] === 2).toEqual(true);
+        expect(ops.vars[1] === 2).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 3).toEqual(true);
+        expect(ops.onMyY(0x08ffffff, 0, org, 1)).toEqual(1); // v3=org.myY();
+        expect(ops.vars[0] === 2).toEqual(true);
+        expect(ops.vars[1] === 2).toEqual(true);
+        expect(ops.vars[2] === 2).toEqual(true);
+        expect(ops.vars[3] === 2).toEqual(true);
+
+        ops.destroy();
+    });
 });
