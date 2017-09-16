@@ -122,4 +122,19 @@ describe("src/global/Helper", () => {
         expect(Helper.normalize(-2, -1)).toEqual([-2, -1]);
         api.set('worldCyclical', cyc);
     });
+
+    it("Checking isNumeric() method", () => {
+        expect(Helper.isNumeric(0)).toEqual(true);
+        expect(Helper.isNumeric(-1)).toEqual(true);
+        expect(Helper.isNumeric(1)).toEqual(true);
+        expect(Helper.isNumeric('0')).toEqual(true);
+        expect(Helper.isNumeric('-1')).toEqual(true);
+        expect(Helper.isNumeric('1')).toEqual(true);
+        expect(Helper.isNumeric(77)).toEqual(true);
+        expect(Helper.isNumeric('77')).toEqual(true);
+        expect(Helper.isNumeric(32.77)).toEqual(true);
+        expect(Helper.isNumeric('24.77')).toEqual(true);
+        expect(Helper.isNumeric(.77)).toEqual(true);
+        expect(Helper.isNumeric('.77')).toEqual(true);
+    });
 });
