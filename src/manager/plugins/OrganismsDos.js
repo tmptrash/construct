@@ -36,6 +36,10 @@ export default class OrganismsDos extends Organisms {
         this._onAfterMoveCb = null;
     }
 
+    version() {
+        return '0.1';
+    }
+
     /**
      * Compares two organisms and returns more fit one
      * @param {Organism} org1

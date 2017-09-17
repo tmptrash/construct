@@ -17,6 +17,16 @@ export default class Backup {
         this._positions = positions;
     }
 
+    destroy() {
+        this.orgs       = null;
+        this._world     = null;
+        this._positions = null;
+    }
+
+    version() {
+        return '0.1';
+    }
+
     backup() {
         this._toLocalStorage(this._toJson(this.orgs, this._world));
         Console.info('Backup has created');

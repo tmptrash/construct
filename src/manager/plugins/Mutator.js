@@ -41,6 +41,10 @@ export default class Mutator {
     destroy() {
     }
 
+    version() {
+        return '0.1';
+    }
+
     _onOrganism(org) {
         if (org.iterations % org.mutationPeriod === 0 && Config.orgRainMutationPeriod > 0 && org.mutationPeriod > 0 && org.alive) {
             this._mutate(org, false);

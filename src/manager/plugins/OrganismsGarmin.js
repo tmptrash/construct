@@ -24,6 +24,10 @@ export default class OrganismsGarmin extends Organisms {
         this._FITNESS_CLS = manager.CLASS_MAP[Config.codeFitnessCls];
     }
 
+    version() {
+        return '0.1';
+    }
+
     /**
      * Compares two organisms and returns fittest one
      * @param {Organism} org1

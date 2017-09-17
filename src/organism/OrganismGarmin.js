@@ -9,6 +9,10 @@ import {Config}       from './../global/Config';
 import {EVENTS}       from './../global/Events';
 
 export default class OrganismGarmin extends Organism {
+    static version() {
+        return '0.1';
+    }
+
     /**
      * Creates organism instance. If parent parameter is set, then
      * a clone of parent organism will be created.

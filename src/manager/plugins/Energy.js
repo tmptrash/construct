@@ -21,6 +21,12 @@ export default class Energy {
 
     destroy() {
         Helper.unoverride(this.manager, 'onIteration', this._onIterationCb);
+        this.manager        = null;
+        this._onIterationCb = null;
+    }
+
+    version() {
+        return '0.1';
     }
 
     _onIteration(counter) {

@@ -13,7 +13,6 @@
  * TODO: by calling of destroy() method for every of them
  */
 import {Config}          from './../global/Config';
-import Helper            from './../global/Helper';
 import Observer          from './../global/Observer';
 import {EVENTS}          from './../global/Events';
 import {EVENT_AMOUNT}    from './../global/Events';
@@ -28,13 +27,14 @@ import Mutator           from './plugins/Mutator';
 import Energy            from './plugins/Energy';
 import Status            from './plugins/Status';
 
-import OperatorsDos      from '../organism/OperatorsDos';
+import OperatorsDos      from './../organism/OperatorsDos';
 import OperatorsGarmin   from './../organism/OperatorsGarmin';
-import Code2StringDos    from '../organism/Code2StringDos';
+import Code2StringDos    from './../organism/Code2StringDos';
 import Code2StringGarmin from './../organism/Code2StringGarmin';
 import FitnessGarmin     from './../organism/FitnessGarmin';
 import OrganismDos       from './../organism/OrganismDos';
 import OrganismGarmin    from './../organism/OrganismGarmin';
+import JSVM              from './../organism/JSVM';
 /**
  * {Boolean} Specify fitness or nature simulation mode
  */
@@ -83,15 +83,42 @@ export default class Manager extends Observer {
         this._plugins    = PLUGINS;
         this._stopped    = false;
         this._visualized = true;
-        this._version    = '0.1';
+
         this.api         = {
             visualize: this._visualize.bind(this),
-            version  : () => this._version
+            version  : this.version.bind(this)
         };
 
         this._initLoop();
         this._initPlugins();
         this._addHandlers();
+    }
+
+    /**
+     * Collects versions of all nested components and returns final string
+     * @return {String}
+     */
+    version() {
+        let plugins = this._plugins;
+        let ver     = 'Manager               : 0.9\n' +
+            '    World              : ' + this._world.version() + '\n' +
+            '    Canvas             : ' + this._canvas.version() + '\n';
+
+        for (let p in plugins) {
+            if (plugins.hasOwnProperty(p) && p !== 'Organisms') {
+                ver += ('    ' + p.padEnd(19) + ': ' + plugins[p].version() + '\n');
+            }
+        }
+
+        ver += '' +
+            '    Organisms          : ' + plugins.Organisms.version() + '\n' +
+            '        JSVM           : ' + JSVM.version() + '\n' +
+            '        OperatorsDos   : ' + OperatorsDos.version() + '\n' +
+            '        OperatorsGarmin: ' + OperatorsGarmin.version() + '\n' +
+            '        OrganismDos    : ' + OrganismDos.version() + '\n' +
+            '        OrganismGarmin : ' + OrganismGarmin.version();
+
+        return ver;
     }
 
     get world()     {return this._world;}

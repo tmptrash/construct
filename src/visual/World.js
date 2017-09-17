@@ -40,13 +40,17 @@ export default class World extends Observer {
         }
     }
 
-    get data() {return this._data;}
-
     destroy() {
         this.clear();
         this._data   = null;
         this._width  = 0;
         this._height = 0;
+    }
+
+    get data() {return this._data;}
+
+    version() {
+        return '0.1';
     }
 
     setDot(x, y, color) {

@@ -56,7 +56,11 @@ export default class Code2StringGarmin {
     }
 
     destroy() {
-        this._offsets = null;
+        this._offsets      = null;
+        this._OPERATORS_CB = null;
+        this._CONDITIONS   = null;
+        this._OPERATORS    = null;
+        this._TRIGS        = null;
     }
 
     format(code, separator = '\n') {

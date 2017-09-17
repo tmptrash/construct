@@ -27,6 +27,10 @@ export default class Status {
         manager.on(EVENTS.ORGANISM, this._onOrganism.bind(this));
     }
 
+    version() {
+        return '0.1';
+    }
+
     _onIps(ips, orgs) {
         const stamp     = Date.now();
 

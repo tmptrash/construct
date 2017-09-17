@@ -28,6 +28,10 @@ export default class Canvas {
         window.requestAnimationFrame(this._animate);
     }
 
+    version () {
+        return '0.1';
+    }
+
     destroy() {
         this._canvasEl.empty();
         this._ctx     = null;

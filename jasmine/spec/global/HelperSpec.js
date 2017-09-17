@@ -136,5 +136,12 @@ describe("src/global/Helper", () => {
         expect(Helper.isNumeric('24.77')).toEqual(true);
         expect(Helper.isNumeric(.77)).toEqual(true);
         expect(Helper.isNumeric('.77')).toEqual(true);
+
+        expect(Helper.isNumeric([])).toEqual(false);
+        expect(Helper.isNumeric({})).toEqual(false);
+        expect(Helper.isNumeric(Object)).toEqual(false);
+        expect(Helper.isNumeric(undefined)).toEqual(false);
+        expect(Helper.isNumeric(null)).toEqual(false);
+        expect(Helper.isNumeric('')).toEqual(false);
     });
 });

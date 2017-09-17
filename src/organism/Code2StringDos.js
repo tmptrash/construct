@@ -68,6 +68,9 @@ export default class Code2StringDos {
     }
 
     destroy() {
+        this._OPERATORS_CB = null;
+        this._CONDITIONS   = null;
+        this._OPERATORS    = null;
     }
 
     format(code, separator = '\n') {
