@@ -2049,20 +2049,29 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     get operators() {return this._operators};
     get vars()      {return this._vars}
 
+    /**
+     * Walks through code lines (32bit numbers) one by one and runs associated
+     * with line type callback. These callbacks interpret one line of code like:
+     * condition, loop, function call etc...
+     * @param {Organism} org Current organism
+     */
     run(org) {
-        let line    = this._line;
-        let code    = this._code;
-        let lines   = code.length;
-        let len     = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeYieldPeriod || lines;
-        let len2    = len;
-        let ops     = this._operators.operators;
-        let getOp   = __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].getOperator;
-        let ret     = false;
-        let offs    = this._offsets;
+        let line  = this._line;
+        let code  = this._code;
+        let lines = code.length;
+        let len   = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeYieldPeriod || lines;
+        let len2  = len;
+        let ops   = this._operators.operators;
+        let getOp = __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].getOperator;
+        let ret   = false;
+        let offs  = this._offsets;
 
         while (lines > 0 && len-- > 0 && org.alive) {
             line = ops[getOp(code[line])](code[line], line, org, lines, ret);
-
+            //
+            // We found closing bracket '}' of some loop and have to return
+            // to the beginning of operator (e.g.: for)
+            //
             if (ret = (offs.length > 0 && line === offs[offs.length - 1])) {
                 offs.pop();
                 line = offs.pop();
@@ -3613,6 +3622,10 @@ class Code2StringDos {
             '+', '-', '*', '/', '%', '&', '|', '^', '>>', '<<', '>>>', '<', '>', '==', '!=', '<='
         ];
         //this._TRIGS = ['sin', 'cos', 'tan', 'abs'];
+        /**
+         * {Array} Contains closing bracket offset for "if", "loop",... operators
+         */
+        this._offsets = [];
 
         __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].setOperatorAmount(this._OPERATORS_CB_LEN);
     }
@@ -3626,13 +3639,39 @@ class Code2StringDos {
     format(code, separator = '\n') {
         const len       = code.length;
         const operators = this._OPERATORS_CB;
-        let   codeArr   = new Array(len);
+        const offs      = this._offsets;
+        let   lines     = new Array(len);
+        let   needClose = 0;
 
-        for (let i = 0; i < len; i++) {
-            codeArr[i] = operators[__WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].getOperator(code[i])](code[i], i, len);
+        for (let line = 0; line < len; line++) {
+            //
+            // We found closing bracket '}' of some loop and have to add
+            // it to output code array
+            //
+            if (line === offs[offs.length - 1]) {
+                while (offs.length > 0 && offs[offs.length - 1] === line) {
+                    offs.pop();
+                    needClose++;
+                }
+            }
+            lines[line] = operators[__WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].getOperator(code[line])](code[line], line, len);
+            if (needClose > 0) {
+                for (let i = 0; i < needClose; i++) {
+                    lines[line] = '}' + lines[line];
+                }
+                needClose = 0;
+            }
         }
+        //
+        // All closing brackets st the end of JS script
+        //
+        const length = lines.length - 1;
+        for (let i = 0; i < offs.length; i++) {
+            lines[length] += '}';
+        }
+        offs.length = 0;
 
-        return js_beautify(codeArr.join(separator), {indent_size: 4});
+        return js_beautify(lines.join(separator), {indent_size: 4});
     }
 
     /**
@@ -3657,18 +3696,16 @@ class Code2StringDos {
     }
 
     _onCondition(num, line, lines) {
-        const var3    = __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].BITS_OF_TWO_VARS);
-        let   offs    = line + var3 < lines ? line + var3 + 1: lines;
-
-        return `if(v${VAR0(num)}${this._CONDITIONS[VAR2(num)]}v${VAR1(num)}) goto(${offs})`;
+        const val3    = __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].BITS_OF_TWO_VARS);
+        this._offsets.push(this._getOffs(line, lines, val3));
+        return `if(v${VAR0(num)}${this._CONDITIONS[VAR2(num)]}v${VAR1(num)}){`;
     }
 
     _onLoop(num, line, lines) {
         const var0    = VAR0(num);
-        const var3    = __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].BITS_OF_TWO_VARS);
-        const offs    = line + var3 < lines ? line + var3 : lines - 1;
-
-        return `for(v${var0}=v${VAR1(num)};v${var0}<v${VAR2(num)};v${var0}++) until(${offs})`;
+        const val3    = __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, __WEBPACK_IMPORTED_MODULE_0__Num__["a" /* default */].BITS_OF_TWO_VARS);
+        this._offsets.push(this._getOffs(line, lines, val3));
+        return `for(v${var0}=v${VAR1(num)};v${var0}<v${VAR2(num)};v${var0}++){`;
     }
 
     _onOperator(num) {
@@ -3753,6 +3790,38 @@ class Code2StringDos {
 
     _onCheckDown(num) {
         return `v${VAR0(num)}=checkDown()`;
+    }
+
+    /**
+     * Returns offset for closing bracket of blocked operators like
+     * "if", "for" and so on. These operators shouldn't overlap each
+     * other. for example:
+     *
+     *     for (...) {     // 0
+     *         if (...) {  // 1
+     *             ...     // 2
+     *         }           // 3
+     *     }               // 4
+     *
+     * Closing bracket in line 3 shouldn't be after bracket in line 4.
+     * So it's possible to set it to one of  1...3. So we change it in
+     * real time to fix the overlap problem.
+     * @param {Number} line Current line index
+     * @param {Number} lines Amount of lines
+     * @param {Number} offs Local offset of closing bracket we want to set
+     * @returns {Number}
+     * @private
+     */
+    _getOffs(line, lines, offs) {
+        let   offset  = line + offs < lines ? line + offs + 1 : lines;
+        const offsets = this._offsets;
+        const length  = offsets.length;
+
+        if (length > 0 && offset >= offsets[length - 1]) {
+            return offsets[length - 1];
+        }
+
+        return offset;
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Code2StringDos;
@@ -6193,7 +6262,8 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
      *     }               // 4
      *
      * Closing bracket in line 3 shouldn't be after bracket in line 4.
-     * So it's possible to set it to one of  1...3.
+     * So it's possible to set it to one of  1...3. So we change it in
+     * real time to fix the overlap problem.
      * @param {Number} line Current line index
      * @param {Number} lines Amount of lines
      * @param {Number} offs Local offset of closing bracket we want to set
@@ -6203,9 +6273,10 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
     _getOffs(line, lines, offs) {
         let   offset  = line + offs < lines ? line + offs + 1 : lines;
         const offsets = this.offs;
+        const length  = offsets.length;
 
-        if (offsets.length > 0 && offset >= offsets[offsets.length - 1]) {
-            return offsets[offsets.length - 1];
+        if (length > 0 && offset >= offsets[length - 1]) {
+            return offsets[length - 1];
         }
 
         return offset;

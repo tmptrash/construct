@@ -58,20 +58,29 @@ export default class JSVM extends Observer {
     get operators() {return this._operators};
     get vars()      {return this._vars}
 
+    /**
+     * Walks through code lines (32bit numbers) one by one and runs associated
+     * with line type callback. These callbacks interpret one line of code like:
+     * condition, loop, function call etc...
+     * @param {Organism} org Current organism
+     */
     run(org) {
-        let line    = this._line;
-        let code    = this._code;
-        let lines   = code.length;
-        let len     = Config.codeYieldPeriod || lines;
-        let len2    = len;
-        let ops     = this._operators.operators;
-        let getOp   = Num.getOperator;
-        let ret     = false;
-        let offs    = this._offsets;
+        let line  = this._line;
+        let code  = this._code;
+        let lines = code.length;
+        let len   = Config.codeYieldPeriod || lines;
+        let len2  = len;
+        let ops   = this._operators.operators;
+        let getOp = Num.getOperator;
+        let ret   = false;
+        let offs  = this._offsets;
 
         while (lines > 0 && len-- > 0 && org.alive) {
             line = ops[getOp(code[line])](code[line], line, org, lines, ret);
-
+            //
+            // We found closing bracket '}' of some loop and have to return
+            // to the beginning of operator (e.g.: for)
+            //
             if (ret = (offs.length > 0 && line === offs[offs.length - 1])) {
                 offs.pop();
                 line = offs.pop();

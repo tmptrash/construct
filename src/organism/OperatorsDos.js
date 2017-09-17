@@ -264,7 +264,8 @@ export default class OperatorsDos extends Operators {
      *     }               // 4
      *
      * Closing bracket in line 3 shouldn't be after bracket in line 4.
-     * So it's possible to set it to one of  1...3.
+     * So it's possible to set it to one of  1...3. So we change it in
+     * real time to fix the overlap problem.
      * @param {Number} line Current line index
      * @param {Number} lines Amount of lines
      * @param {Number} offs Local offset of closing bracket we want to set
@@ -274,9 +275,10 @@ export default class OperatorsDos extends Operators {
     _getOffs(line, lines, offs) {
         let   offset  = line + offs < lines ? line + offs + 1 : lines;
         const offsets = this.offs;
+        const length  = offsets.length;
 
-        if (offsets.length > 0 && offset >= offsets[offsets.length - 1]) {
-            return offsets[offsets.length - 1];
+        if (length > 0 && offset >= offsets[length - 1]) {
+            return offsets[length - 1];
         }
 
         return offset;

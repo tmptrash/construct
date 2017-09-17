@@ -63,6 +63,10 @@ export default class Code2StringDos {
             '+', '-', '*', '/', '%', '&', '|', '^', '>>', '<<', '>>>', '<', '>', '==', '!=', '<='
         ];
         //this._TRIGS = ['sin', 'cos', 'tan', 'abs'];
+        /**
+         * {Array} Contains closing bracket offset for "if", "loop",... operators
+         */
+        this._offsets = [];
 
         Num.setOperatorAmount(this._OPERATORS_CB_LEN);
     }
@@ -76,13 +80,39 @@ export default class Code2StringDos {
     format(code, separator = '\n') {
         const len       = code.length;
         const operators = this._OPERATORS_CB;
-        let   codeArr   = new Array(len);
+        const offs      = this._offsets;
+        let   lines     = new Array(len);
+        let   needClose = 0;
 
-        for (let i = 0; i < len; i++) {
-            codeArr[i] = operators[Num.getOperator(code[i])](code[i], i, len);
+        for (let line = 0; line < len; line++) {
+            //
+            // We found closing bracket '}' of some loop and have to add
+            // it to output code array
+            //
+            if (line === offs[offs.length - 1]) {
+                while (offs.length > 0 && offs[offs.length - 1] === line) {
+                    offs.pop();
+                    needClose++;
+                }
+            }
+            lines[line] = operators[Num.getOperator(code[line])](code[line], line, len);
+            if (needClose > 0) {
+                for (let i = 0; i < needClose; i++) {
+                    lines[line] = '}' + lines[line];
+                }
+                needClose = 0;
+            }
         }
+        //
+        // All closing brackets st the end of JS script
+        //
+        const length = lines.length - 1;
+        for (let i = 0; i < offs.length; i++) {
+            lines[length] += '}';
+        }
+        offs.length = 0;
 
-        return js_beautify(codeArr.join(separator), {indent_size: 4});
+        return js_beautify(lines.join(separator), {indent_size: 4});
     }
 
     /**
@@ -107,18 +137,16 @@ export default class Code2StringDos {
     }
 
     _onCondition(num, line, lines) {
-        const var3    = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
-        let   offs    = line + var3 < lines ? line + var3 + 1: lines;
-
-        return `if(v${VAR0(num)}${this._CONDITIONS[VAR2(num)]}v${VAR1(num)}) goto(${offs})`;
+        const val3    = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
+        this._offsets.push(this._getOffs(line, lines, val3));
+        return `if(v${VAR0(num)}${this._CONDITIONS[VAR2(num)]}v${VAR1(num)}){`;
     }
 
     _onLoop(num, line, lines) {
         const var0    = VAR0(num);
-        const var3    = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
-        const offs    = line + var3 < lines ? line + var3 : lines - 1;
-
-        return `for(v${var0}=v${VAR1(num)};v${var0}<v${VAR2(num)};v${var0}++) until(${offs})`;
+        const val3    = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
+        this._offsets.push(this._getOffs(line, lines, val3));
+        return `for(v${var0}=v${VAR1(num)};v${var0}<v${VAR2(num)};v${var0}++){`;
     }
 
     _onOperator(num) {
@@ -203,5 +231,37 @@ export default class Code2StringDos {
 
     _onCheckDown(num) {
         return `v${VAR0(num)}=checkDown()`;
+    }
+
+    /**
+     * Returns offset for closing bracket of blocked operators like
+     * "if", "for" and so on. These operators shouldn't overlap each
+     * other. for example:
+     *
+     *     for (...) {     // 0
+     *         if (...) {  // 1
+     *             ...     // 2
+     *         }           // 3
+     *     }               // 4
+     *
+     * Closing bracket in line 3 shouldn't be after bracket in line 4.
+     * So it's possible to set it to one of  1...3. So we change it in
+     * real time to fix the overlap problem.
+     * @param {Number} line Current line index
+     * @param {Number} lines Amount of lines
+     * @param {Number} offs Local offset of closing bracket we want to set
+     * @returns {Number}
+     * @private
+     */
+    _getOffs(line, lines, offs) {
+        let   offset  = line + offs < lines ? line + offs + 1 : lines;
+        const offsets = this._offsets;
+        const length  = offsets.length;
+
+        if (length > 0 && offset >= offsets[length - 1]) {
+            return offsets[length - 1];
+        }
+
+        return offset;
     }
 }
