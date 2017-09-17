@@ -2566,18 +2566,19 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
      */
     version() {
         let plugins = this._plugins;
-        let ver     = 'Manager               : 0.9\n' +
-            '    World              : ' + this._world.version() + '\n' +
-            '    Canvas             : ' + this._canvas.version() + '\n';
+        let ver     = '' +
+            'Manager               : 0.9\n' +
+            '    World              : ' + __WEBPACK_IMPORTED_MODULE_4__visual_World__["a" /* default */].version() + '\n' +
+            '    Canvas             : ' + __WEBPACK_IMPORTED_MODULE_5__visual_Canvas__["a" /* default */].version() + '\n';
 
         for (let p in plugins) {
             if (plugins.hasOwnProperty(p) && p !== 'Organisms') {
-                ver += ('    ' + p.padEnd(19) + ': ' + plugins[p].version() + '\n');
+                ver += ('    ' + p.padEnd(19) + ': ' + plugins[p].constructor.version() + '\n');
             }
         }
 
         ver += '' +
-            '    Organisms          : ' + plugins.Organisms.version() + '\n' +
+            '    Organisms          : ' + __WEBPACK_IMPORTED_MODULE_7__plugins_OrganismsDos__["a" /* default */].version() + '\n' +
             '        JSVM           : ' + __WEBPACK_IMPORTED_MODULE_19__organism_JSVM__["a" /* default */].version() + '\n' +
             '        OperatorsDos   : ' + __WEBPACK_IMPORTED_MODULE_12__organism_OperatorsDos__["a" /* default */].version() + '\n' +
             '        OperatorsGarmin: ' + __WEBPACK_IMPORTED_MODULE_13__organism_OperatorsGarmin__["a" /* default */].version() + '\n' +
@@ -2849,6 +2850,10 @@ class Queue {
 
 
 class Backup {
+    static version() {
+        return '0.1';
+    }
+
     constructor(orgs, world, positions) {
         this.orgs      = orgs;
         this._world     = world;
@@ -2859,10 +2864,6 @@ class Backup {
         this.orgs       = null;
         this._world     = null;
         this._positions = null;
-    }
-
-    version() {
-        return '0.1';
     }
 
     backup() {
@@ -2945,13 +2946,13 @@ class Backup {
 
 
 class Config {
+    static version() {
+        return '0.1';
+    }
+
     constructor(manager) {
         manager.api.setConfig = __WEBPACK_IMPORTED_MODULE_0__global_Config__["b" /* api */].set;
         manager.api.getConfig = __WEBPACK_IMPORTED_MODULE_0__global_Config__["b" /* api */].get;
-    }
-
-    version() {
-        return '0.1';
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Config;
@@ -2975,6 +2976,10 @@ class Config {
 
 
 class Energy {
+    static version() {
+        return '0.1';
+    }
+
     constructor(manager) {
         this.manager       = manager;
         this._checkPeriod   = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].worldEnergyCheckPeriod;
@@ -2990,10 +2995,6 @@ class Energy {
         __WEBPACK_IMPORTED_MODULE_0__global_Helper__["a" /* default */].unoverride(this.manager, 'onIteration', this._onIterationCb);
         this.manager        = null;
         this._onIterationCb = null;
-    }
-
-    version() {
-        return '0.1';
     }
 
     _onIteration(counter) {
@@ -3072,6 +3073,10 @@ const VARS          = __WEBPACK_IMPORTED_MODULE_4__organism_Num__["a" /* default
 const MAX_VAR       = __WEBPACK_IMPORTED_MODULE_4__organism_Num__["a" /* default */].MAX_VAR;
 
 class Mutator {
+    static version() {
+        return '0.1';
+    }
+
     constructor(manager) {
         this.manager = manager;
         this._MUTATION_TYPES = [
@@ -3091,10 +3096,8 @@ class Mutator {
     }
 
     destroy() {
-    }
-
-    version() {
-        return '0.1';
+        this.manager         = null;
+        this._MUTATION_TYPES = null;
     }
 
     _onOrganism(org) {
@@ -3212,6 +3215,10 @@ const ENERGY    = 1;
 const ORGANISM  = 2;
 
 class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__manager_plugins_base_Organisms__["a" /* default */] {
+    static version() {
+        return '0.1';
+    }
+
     constructor(manager) {
         super(manager);
 
@@ -3226,10 +3233,6 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__manager_plugins_base_Org
         __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].unoverride(man, 'onAfterMove', this._onAfterMoveCb);
         this._positions     = null;
         this._onAfterMoveCb = null;
-    }
-
-    version() {
-        return '0.1';
     }
 
     /**
@@ -3373,15 +3376,15 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__manager_plugins_base_Org
 
 
 class OrganismsGarmin extends __WEBPACK_IMPORTED_MODULE_4__manager_plugins_base_Organisms__["a" /* default */] {
+    static version() {
+        return '0.1';
+    }
+
     constructor(manager) {
         super(manager);
 
         this._maxChanges  = 0;
         this._FITNESS_CLS = manager.CLASS_MAP[__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeFitnessCls];
-    }
-
-    version() {
-        return '0.1';
     }
 
     /**
@@ -3448,6 +3451,10 @@ const RED    = 'color: #aa0000';
 const PERIOD = 10000;
 
 class Status {
+    static version() {
+        return '0.1';
+    }
+
     constructor(manager) {
         this._manager     = manager;
         this.stamp        = 0;
@@ -3462,10 +3469,6 @@ class Status {
 
         manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].IPS, this._onIps.bind(this));
         manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].ORGANISM, this._onOrganism.bind(this));
-    }
-
-    version() {
-        return '0.1';
     }
 
     _onIps(ips, orgs) {
@@ -6470,6 +6473,10 @@ class OrganismGarmin extends __WEBPACK_IMPORTED_MODULE_0__organism_base_Organism
  * @author DeadbraiN
  */
 class Canvas {
+    static version () {
+        return '0.1';
+    }
+
     constructor(width, height) {
         const id     = 'world';
         const doc    = document;
@@ -6492,10 +6499,6 @@ class Canvas {
         this._ctx.fillStyle = "white";
         this.clear();
         window.requestAnimationFrame(this._animate);
-    }
-
-    version () {
-        return '0.1';
     }
 
     destroy() {
@@ -6618,6 +6621,10 @@ class Canvas {
 const FREE_DOT_ATTEMPTS = 300;
 
 class World extends __WEBPACK_IMPORTED_MODULE_0__global_Observer__["a" /* default */] {
+    static version() {
+        return '0.1';
+    }
+
     constructor (width, height) {
         super(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* EVENT_AMOUNT */]);
         this._data   = [];
@@ -6637,10 +6644,6 @@ class World extends __WEBPACK_IMPORTED_MODULE_0__global_Observer__["a" /* defaul
     }
 
     get data() {return this._data;}
-
-    version() {
-        return '0.1';
-    }
 
     setDot(x, y, color) {
         if (x < 0 || x >= this._width || y < 0 || y >= this._height) {return false;}

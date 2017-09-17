@@ -11,6 +11,10 @@ const RED    = 'color: #aa0000';
 const PERIOD = 10000;
 
 export default class Status {
+    static version() {
+        return '0.1';
+    }
+
     constructor(manager) {
         this._manager     = manager;
         this.stamp        = 0;
@@ -25,10 +29,6 @@ export default class Status {
 
         manager.on(EVENTS.IPS, this._onIps.bind(this));
         manager.on(EVENTS.ORGANISM, this._onOrganism.bind(this));
-    }
-
-    version() {
-        return '0.1';
     }
 
     _onIps(ips, orgs) {

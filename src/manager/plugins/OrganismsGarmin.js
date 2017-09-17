@@ -17,15 +17,15 @@ import Organism       from '../../organism/OrganismDos';
 import Organisms      from './../../manager/plugins/base/Organisms';
 
 export default class OrganismsGarmin extends Organisms {
+    static version() {
+        return '0.1';
+    }
+
     constructor(manager) {
         super(manager);
 
         this._maxChanges  = 0;
         this._FITNESS_CLS = manager.CLASS_MAP[Config.codeFitnessCls];
-    }
-
-    version() {
-        return '0.1';
     }
 
     /**

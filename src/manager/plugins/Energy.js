@@ -8,6 +8,10 @@ import {Config} from './../../global/Config';
 import Console  from './../../global/Console';
 
 export default class Energy {
+    static version() {
+        return '0.1';
+    }
+
     constructor(manager) {
         this.manager       = manager;
         this._checkPeriod   = Config.worldEnergyCheckPeriod;
@@ -23,10 +27,6 @@ export default class Energy {
         Helper.unoverride(this.manager, 'onIteration', this._onIterationCb);
         this.manager        = null;
         this._onIterationCb = null;
-    }
-
-    version() {
-        return '0.1';
     }
 
     _onIteration(counter) {

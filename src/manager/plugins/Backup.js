@@ -11,6 +11,10 @@ import {Config} from './../../global/Config';
 import Console  from './../../global/Console';
 
 export default class Backup {
+    static version() {
+        return '0.1';
+    }
+
     constructor(orgs, world, positions) {
         this.orgs      = orgs;
         this._world     = world;
@@ -21,10 +25,6 @@ export default class Backup {
         this.orgs       = null;
         this._world     = null;
         this._positions = null;
-    }
-
-    version() {
-        return '0.1';
     }
 
     backup() {

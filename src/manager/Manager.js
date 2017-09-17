@@ -100,18 +100,19 @@ export default class Manager extends Observer {
      */
     version() {
         let plugins = this._plugins;
-        let ver     = 'Manager               : 0.9\n' +
-            '    World              : ' + this._world.version() + '\n' +
-            '    Canvas             : ' + this._canvas.version() + '\n';
+        let ver     = '' +
+            'Manager               : 0.9\n' +
+            '    World              : ' + World.version() + '\n' +
+            '    Canvas             : ' + Canvas.version() + '\n';
 
         for (let p in plugins) {
             if (plugins.hasOwnProperty(p) && p !== 'Organisms') {
-                ver += ('    ' + p.padEnd(19) + ': ' + plugins[p].version() + '\n');
+                ver += ('    ' + p.padEnd(19) + ': ' + plugins[p].constructor.version() + '\n');
             }
         }
 
         ver += '' +
-            '    Organisms          : ' + plugins.Organisms.version() + '\n' +
+            '    Organisms          : ' + OrganismsDos.version() + '\n' +
             '        JSVM           : ' + JSVM.version() + '\n' +
             '        OperatorsDos   : ' + OperatorsDos.version() + '\n' +
             '        OperatorsGarmin: ' + OperatorsGarmin.version() + '\n' +

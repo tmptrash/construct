@@ -4,6 +4,10 @@
  * @author DeadbraiN
  */
 export default class Canvas {
+    static version () {
+        return '0.1';
+    }
+
     constructor(width, height) {
         const id     = 'world';
         const doc    = document;
@@ -26,10 +30,6 @@ export default class Canvas {
         this._ctx.fillStyle = "white";
         this.clear();
         window.requestAnimationFrame(this._animate);
-    }
-
-    version () {
-        return '0.1';
     }
 
     destroy() {

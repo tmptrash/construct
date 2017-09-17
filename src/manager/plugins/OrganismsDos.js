@@ -20,6 +20,10 @@ const ENERGY    = 1;
 const ORGANISM  = 2;
 
 export default class OrganismsDos extends Organisms {
+    static version() {
+        return '0.1';
+    }
+
     constructor(manager) {
         super(manager);
 
@@ -34,10 +38,6 @@ export default class OrganismsDos extends Organisms {
         Helper.unoverride(man, 'onAfterMove', this._onAfterMoveCb);
         this._positions     = null;
         this._onAfterMoveCb = null;
-    }
-
-    version() {
-        return '0.1';
     }
 
     /**
