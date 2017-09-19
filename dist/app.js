@@ -2060,14 +2060,14 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
         let line  = this._line;
         let code  = this._code;
         let lines = code.length;
-        let len   = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeYieldPeriod || lines;
+        let len   = lines === 0 ? 0 : __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeYieldPeriod || lines;
         let len2  = len;
         let ops   = this._operators.operators;
         let getOp = __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].getOperator;
         let ret   = false;
         let offs  = this._offsets;
 
-        while (lines > 0 && len-- > 0 && org.alive) {
+        while (len-- > 0 && org.alive) {
             line = ops[getOp(code[line])](code[line], line, org, lines, ret);
             //
             // We found closing bracket '}' of some loop and have to return
@@ -2154,7 +2154,7 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
             return;
         }
 
-        code.splice(end + rand(codeLen - end), 0, ...code.slice(start, end));
+        code.splice(end + rand(codeLen - end + 1), 0, ...code.slice(start, end));
     }
 
     /**

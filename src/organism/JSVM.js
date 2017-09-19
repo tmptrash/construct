@@ -68,14 +68,14 @@ export default class JSVM extends Observer {
         let line  = this._line;
         let code  = this._code;
         let lines = code.length;
-        let len   = Config.codeYieldPeriod || lines;
+        let len   = lines === 0 ? 0 : Config.codeYieldPeriod || lines;
         let len2  = len;
         let ops   = this._operators.operators;
         let getOp = Num.getOperator;
         let ret   = false;
         let offs  = this._offsets;
 
-        while (lines > 0 && len-- > 0 && org.alive) {
+        while (len-- > 0 && org.alive) {
             line = ops[getOp(code[line])](code[line], line, org, lines, ret);
             //
             // We found closing bracket '}' of some loop and have to return
