@@ -32,6 +32,7 @@ export default class Mutator {
             this._onDel,
             this._onSmallChange,
             this._onClone,
+            this._onCopy,
             this._onPeriod,
             this._onAmount,
             this._onProbs,
@@ -111,6 +112,10 @@ export default class Mutator {
 
     _onClone(org) {
         org.cloneMutationPercent = Math.random();
+    }
+
+    _onCopy(org) {
+        org.jsvm.copyLines();
     }
 
     _onPeriod(org) {

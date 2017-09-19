@@ -145,6 +145,27 @@ export default class JSVM extends Observer {
     }
 
     /**
+     * Takes few lines from itself and makes a copy of them. After that inserts
+     * them before or after copied part. All positions are random
+     */
+    copyLines() {
+        const rand    = Helper.rand;
+        const code    = this._code;
+        const codeLen = code.length;
+        const start   = rand(codeLen);
+        const end     = start + rand(codeLen - start);
+        //
+        // We may insert copied piece before "start" (0) or after "end" (1)
+        //
+        if (rand(2) === 0) {
+            code.splice(rand(start), 0, ...code.slice(start, end));
+            return;
+        }
+
+        code.splice(end + rand(codeLen - end + 1), 0, ...code.slice(start, end));
+    }
+
+    /**
      * Inserts random generated number into the byte code at random position
      */
     insertLine() {

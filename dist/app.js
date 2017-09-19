@@ -116,13 +116,14 @@ const Config = {
      *     delete       - Probability of deleting of a character in a jsvm
      *     small-change - Probability of "small change" - change of expression part
      *     clone        - Probability for amount of mutations on clone
+     *     copy         - Probability of copying of byte code part
      *     period       - Probability of period of organism mutations
      *     amount       - Probability of amount of mutations per period
      *     probs        - Probability of change one of probability coefficient
      *     clonePeriod  - Probability of change clone energy percent value
      * ]
      */
-    orgMutationProbs: [50,80,10,100,10,10,10,10,10],
+    orgMutationProbs: [50,80,10,100,10,10,10,10,10,10],
     /**
      * {Number} Max value, which we may use in orgMutationProbs array.
      */
@@ -2136,6 +2137,27 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
     }
 
     /**
+     * Takes few lines from itself and makes a copy of them. After that inserts
+     * them before or after copied part. All positions are random
+     */
+    copyLines() {
+        const rand    = __WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].rand;
+        const code    = this._code;
+        const codeLen = code.length;
+        const start   = rand(codeLen);
+        const end     = start + rand(codeLen - start);
+        //
+        // We may insert copied piece before "start" (0) or after "end" (1)
+        //
+        if (rand(2) === 0) {
+            code.splice(rand(start), 0, ...code.slice(start, end));
+            return;
+        }
+
+        code.splice(end + rand(codeLen - end), 0, ...code.slice(start, end));
+    }
+
+    /**
      * Inserts random generated number into the byte code at random position
      */
     insertLine() {
@@ -3094,6 +3116,7 @@ class Mutator {
             this._onDel,
             this._onSmallChange,
             this._onClone,
+            this._onCopy,
             this._onPeriod,
             this._onAmount,
             this._onProbs,
@@ -3173,6 +3196,10 @@ class Mutator {
 
     _onClone(org) {
         org.cloneMutationPercent = Math.random();
+    }
+
+    _onCopy(org) {
+        org.jsvm.copyLines();
     }
 
     _onPeriod(org) {

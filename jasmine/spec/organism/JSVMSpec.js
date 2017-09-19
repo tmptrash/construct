@@ -359,6 +359,103 @@ describe("src/organism/JSVM", () => {
         jsvm.destroy();
     });
 
+    it('Checking copyLines() method', () => {
+        const clss = {ops: ()=>{}};
+        const obs  = new Observer(2);
+        const jsvm = new JSVM(()=>{}, obs, clss);
+        let   rand = Helper.rand;
+        let   i    = -1;
+
+        jsvm.insertLine();
+        jsvm.insertLine();
+        jsvm.insertLine();
+        jsvm.insertLine();
+        Helper.rand = function (n) {
+            i++;
+            if (i === 0) {        // start
+                return 1;
+            } else if (i === 1) { // end
+                return 2;
+            } else if (i === 2) { // rand(2)
+                return 0;
+            } else if (i === 3) { // rand(start)
+                return 0;
+            }
+        };
+        expect(jsvm.size).toEqual(4);
+        jsvm.copyLines();
+        expect(jsvm.size).toEqual(6);
+        expect(jsvm.code[0]).toEqual(jsvm.code[3]);
+        expect(jsvm.code[1]).toEqual(jsvm.code[4]);
+
+        Helper.rand = rand;
+        jsvm.destroy();
+    });
+    it('Checking copyLines() method 2', () => {
+        const clss = {ops: ()=>{}};
+        const obs  = new Observer(2);
+        const jsvm = new JSVM(()=>{}, obs, clss);
+        let   rand = Helper.rand;
+        let   i    = -1;
+
+        jsvm.insertLine();
+        jsvm.insertLine();
+        jsvm.insertLine();
+        jsvm.insertLine();
+        Helper.rand = function (n) {
+            i++;
+            if (i === 0) {        // start
+                return 1;
+            } else if (i === 1) { // end
+                return 2;
+            } else if (i === 2) { // rand(2)
+                return 1;
+            } else if (i === 3) { // rand(codeLen - end)
+                return 0;
+            }
+        };
+        expect(jsvm.size).toEqual(4);
+        jsvm.copyLines();
+        expect(jsvm.size).toEqual(6);
+        expect(jsvm.code[1]).toEqual(jsvm.code[3]);
+        expect(jsvm.code[2]).toEqual(jsvm.code[4]);
+
+        Helper.rand = rand;
+        jsvm.destroy();
+    });
+    it('Checking copyLines() method 3', () => {
+        const clss = {ops: ()=>{}};
+        const obs  = new Observer(2);
+        const jsvm = new JSVM(()=>{}, obs, clss);
+        let   rand = Helper.rand;
+        let   i    = -1;
+
+        jsvm.insertLine();
+        jsvm.insertLine();
+        jsvm.insertLine();
+        jsvm.insertLine();
+        Helper.rand = function (n) {
+            i++;
+            if (i === 0) {        // start
+                return 1;
+            } else if (i === 1) { // end
+                return 2;
+            } else if (i === 2) { // rand(2)
+                return 1;
+            } else if (i === 3) { // rand(codeLen - end)
+                return 1;
+            }
+        };
+        expect(jsvm.size).toEqual(4);
+        jsvm.copyLines();
+        expect(jsvm.size).toEqual(6);
+        expect(jsvm.code[1]).toEqual(jsvm.code[4]);
+        expect(jsvm.code[2]).toEqual(jsvm.code[5]);
+
+        Helper.rand = rand;
+        jsvm.destroy();
+    });
+
     it('Checking updateLine() method', () => {
         const clss = {ops: ()=>{}};
         const obs  = new Observer(2);

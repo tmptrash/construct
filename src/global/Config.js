@@ -41,13 +41,14 @@ const Config = {
      *     delete       - Probability of deleting of a character in a jsvm
      *     small-change - Probability of "small change" - change of expression part
      *     clone        - Probability for amount of mutations on clone
+     *     copy         - Probability of copying of byte code part
      *     period       - Probability of period of organism mutations
      *     amount       - Probability of amount of mutations per period
      *     probs        - Probability of change one of probability coefficient
      *     clonePeriod  - Probability of change clone energy percent value
      * ]
      */
-    orgMutationProbs: [50,80,10,100,10,10,10,10,10],
+    orgMutationProbs: [50,80,10,100,10,10,10,10,10,10],
     /**
      * {Number} Max value, which we may use in orgMutationProbs array.
      */
