@@ -455,6 +455,20 @@ describe("src/organism/JSVM", () => {
         Helper.rand = rand;
         jsvm.destroy();
     });
+    it('Checking copyLines() method with no code', () => {
+        const clss = {ops: ()=>{}};
+        const obs  = new Observer(2);
+        const jsvm = new JSVM(()=>{}, obs, clss);
+        let   rand = Helper.rand;
+
+        Helper.rand = () => 0;
+        expect(jsvm.size).toEqual(0);
+        jsvm.copyLines();
+        expect(jsvm.size).toEqual(0);
+
+        Helper.rand = rand;
+        jsvm.destroy();
+    });
 
     it('Checking updateLine() method', () => {
         const clss = {ops: ()=>{}};
