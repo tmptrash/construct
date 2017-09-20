@@ -24,6 +24,7 @@ const BLOCK_MAX_LEN         = Config.codeBitsPerBlock;
 const BITS_FOR_NUMBER       = 16;
 const IS_NUM                = Helper.isNumeric;
 const HALF_OF_VAR           = Num.MAX_VAR / 2;
+const CONDITION_BITS        = 2;
 
 export default class OperatorsDos extends Operators {
     static version() {
@@ -113,8 +114,9 @@ export default class OperatorsDos extends Operators {
     onCondition(num, line, org, lines) {
         const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BLOCK_MAX_LEN);
         const offs = this._getOffs(line, lines, val3);
+        const cond = VAR2(num) >>> (Config.codeBitsPerVar - CONDITION_BITS);
 
-        if (this._CONDITIONS[VAR2(num)](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
+        if (this._CONDITIONS[cond](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
             return line + 1;
         }
 

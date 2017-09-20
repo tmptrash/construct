@@ -21,6 +21,7 @@ const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
 const BITS_OF_TWO_VARS      = Num.BITS_OF_TWO_VARS;
 const IS_NUM                = Helper.isNumeric;
 const HALF_OF_VAR           = Num.MAX_VAR / 2;
+const CONDITION_BITS        = 2;
 
 export default class OperatorsGarmin extends  Operators {
     static version() {
@@ -94,8 +95,9 @@ export default class OperatorsGarmin extends  Operators {
     onCondition(num, line, org, lines) {
         const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
         const offs = line + val3 < lines ? line + val3 + 1 : lines;
+        const cond = VAR2(num) >>> (Config.codeBitsPerVar - CONDITION_BITS);
 
-        if (this._CONDITIONS[VAR2(num)](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
+        if (this._CONDITIONS[cond](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
             return line + 1;
         }
 

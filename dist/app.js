@@ -123,7 +123,7 @@ const Config = {
      *     clonePeriod  - Probability of change clone energy percent value
      * ]
      */
-    orgMutationProbs: [50,80,10,100,10,10,10,10,10,10],
+    orgMutationProbs: [50,80,10,100,1,10,10,10,10,10],
     /**
      * {Number} Max value, which we may use in orgMutationProbs array.
      */
@@ -222,7 +222,7 @@ const Config = {
     codeSizeCoef: 10000,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
-     * which this variable may contain
+     * which this variable may contain. This value shouldn't be less then 2.
      */
     codeBitsPerVar: 3,
     /**
@@ -6034,6 +6034,7 @@ const BLOCK_MAX_LEN         = __WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /
 const BITS_FOR_NUMBER       = 16;
 const IS_NUM                = __WEBPACK_IMPORTED_MODULE_2__global_Helper__["a" /* default */].isNumeric;
 const HALF_OF_VAR           = __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].MAX_VAR / 2;
+const CONDITION_BITS        = 2;
 
 class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* default */] {
     static version() {
@@ -6123,8 +6124,9 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
     onCondition(num, line, org, lines) {
         const val3 = __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BLOCK_MAX_LEN);
         const offs = this._getOffs(line, lines, val3);
+        const cond = VAR2(num) >>> (__WEBPACK_IMPORTED_MODULE_1__global_Config__["a" /* Config */].codeBitsPerVar - CONDITION_BITS);
 
-        if (this._CONDITIONS[VAR2(num)](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
+        if (this._CONDITIONS[cond](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
             return line + 1;
         }
 
@@ -6329,6 +6331,7 @@ const BITS_AFTER_THREE_VARS = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default 
 const BITS_OF_TWO_VARS      = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].BITS_OF_TWO_VARS;
 const IS_NUM                = __WEBPACK_IMPORTED_MODULE_1__global_Helper__["a" /* default */].isNumeric;
 const HALF_OF_VAR           = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].MAX_VAR / 2;
+const CONDITION_BITS        = 2;
 
 class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a" /* default */] {
     static version() {
@@ -6402,8 +6405,9 @@ class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a"
     onCondition(num, line, org, lines) {
         const val3 = __WEBPACK_IMPORTED_MODULE_3__Num__["a" /* default */].getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
         const offs = line + val3 < lines ? line + val3 + 1 : lines;
+        const cond = VAR2(num) >>> (__WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeBitsPerVar - CONDITION_BITS);
 
-        if (this._CONDITIONS[VAR2(num)](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
+        if (this._CONDITIONS[cond](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
             return line + 1;
         }
 

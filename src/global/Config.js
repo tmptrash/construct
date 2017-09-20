@@ -48,7 +48,7 @@ const Config = {
      *     clonePeriod  - Probability of change clone energy percent value
      * ]
      */
-    orgMutationProbs: [50,80,10,100,10,10,10,10,10,10],
+    orgMutationProbs: [50,80,10,100,1,10,10,10,10,10],
     /**
      * {Number} Max value, which we may use in orgMutationProbs array.
      */
@@ -147,7 +147,7 @@ const Config = {
     codeSizeCoef: 10000,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
-     * which this variable may contain
+     * which this variable may contain. This value shouldn't be less then 2.
      */
     codeBitsPerVar: 3,
     /**
