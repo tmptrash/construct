@@ -221,10 +221,10 @@ const Config = {
      */
     codeSizeCoef: 10000,
     /**
-     * {Number} Amount of local variables of organism's script
-     * TODO: this amount should be calculated from codeBitsPerVar
+     * {Number} Amount of bits per one variable. It affects maximum value,
+     * which this variable may contain
      */
-    codeVarAmount: 4,
+    codeBitsPerVar: 3,
     /**
      * {Number} The value from -X/2 to X/2, which is used for setting
      * default value, while organism is delivering. So, if the value is
@@ -237,11 +237,6 @@ const Config = {
      * entire jsvm of organism will be run
      */
     codeYieldPeriod: 5,
-    /**
-     * {Number} Amount of bits per one variable. It affects maximum value,
-     * which this variable may contain
-     */
-    codeBitsPerVar: 2,
     /**
      * {Number} Amount of bits for storing operator. This is first XX bits
      * in a number.
@@ -613,11 +608,6 @@ const api = {
 //      * organism reaches jsvm size limit Config.codeMaxSize
 //      */
 //     codeSizeCoef: 10000,
-//     /**
-//      * {Number} Amount of local variables of organism's script
-//      * TODO: this amount should be calculated from codeBitsPerVar
-//      */
-//     codeVarAmount: 4,
 //     /**
 //      * {Number} The value from -X/2 to X/2, which is used for setting
 //      * default value, while organism is delivering. So, if the value is
@@ -991,11 +981,6 @@ const api = {
 //      * organism reaches jsvm size limit Config.codeMaxSize
 //      */
 //     codeSizeCoef: 10000,
-//     /**
-//      * {Number} Amount of local variables of organism's script
-//      * TODO: this amount should be calculated from codeBitsPerVar
-//      */
-//     codeVarAmount: 4,
 //     /**
 //      * {Number} The value from -X/2 to X/2, which is used for setting
 //      * default value, while organism is delivering. So, if the value is
@@ -2190,14 +2175,14 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
 
     /**
      * Generates default variables jsvm. It should be in ES5 version, because
-     * speed is important. Amount of vars depends on Config.codeVarAmount config.
+     * speed is important. Amount of vars depends on Config.codeBitsPerVar config.
      * @returns {Array} vars jsvm
      * @private
      */
     _getVars() {
         if (this._vars && this._vars.length > 0) {return this._vars;}
 
-        const len    = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeVarAmount;
+        const len    = Math.pow(2, __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeBitsPerVar);
         let   vars   = new Array(len);
         const range  = __WEBPACK_IMPORTED_MODULE_0__global_Config__["a" /* Config */].codeVarInitRange;
         const range2 = range / 2;

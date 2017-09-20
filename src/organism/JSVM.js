@@ -198,14 +198,14 @@ export default class JSVM extends Observer {
 
     /**
      * Generates default variables jsvm. It should be in ES5 version, because
-     * speed is important. Amount of vars depends on Config.codeVarAmount config.
+     * speed is important. Amount of vars depends on Config.codeBitsPerVar config.
      * @returns {Array} vars jsvm
      * @private
      */
     _getVars() {
         if (this._vars && this._vars.length > 0) {return this._vars;}
 
-        const len    = Config.codeVarAmount;
+        const len    = Math.pow(2, Config.codeBitsPerVar);
         let   vars   = new Array(len);
         const range  = Config.codeVarInitRange;
         const range2 = range / 2;

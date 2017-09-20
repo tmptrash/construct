@@ -45,7 +45,7 @@ describe("src/organism/JSVM", () => {
         const obs  = new Observer(2);
         const jsvm = new JSVM(()=>{}, obs, clss);
 
-        expect(jsvm.vars.length === Config.codeVarAmount).toEqual(true);
+        expect(jsvm.vars.length === Math.pow(2, Config.codeBitsPerVar)).toEqual(true);
 
         jsvm.destroy();
     });

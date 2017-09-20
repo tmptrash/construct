@@ -146,10 +146,10 @@ const Config = {
      */
     codeSizeCoef: 10000,
     /**
-     * {Number} Amount of local variables of organism's script
-     * TODO: this amount should be calculated from codeBitsPerVar
+     * {Number} Amount of bits per one variable. It affects maximum value,
+     * which this variable may contain
      */
-    codeVarAmount: 4,
+    codeBitsPerVar: 3,
     /**
      * {Number} The value from -X/2 to X/2, which is used for setting
      * default value, while organism is delivering. So, if the value is
@@ -162,11 +162,6 @@ const Config = {
      * entire jsvm of organism will be run
      */
     codeYieldPeriod: 5,
-    /**
-     * {Number} Amount of bits per one variable. It affects maximum value,
-     * which this variable may contain
-     */
-    codeBitsPerVar: 2,
     /**
      * {Number} Amount of bits for storing operator. This is first XX bits
      * in a number.
@@ -538,11 +533,6 @@ export {Config, api};
 //      * organism reaches jsvm size limit Config.codeMaxSize
 //      */
 //     codeSizeCoef: 10000,
-//     /**
-//      * {Number} Amount of local variables of organism's script
-//      * TODO: this amount should be calculated from codeBitsPerVar
-//      */
-//     codeVarAmount: 4,
 //     /**
 //      * {Number} The value from -X/2 to X/2, which is used for setting
 //      * default value, while organism is delivering. So, if the value is
@@ -916,11 +906,6 @@ export {Config, api};
 //      * organism reaches jsvm size limit Config.codeMaxSize
 //      */
 //     codeSizeCoef: 10000,
-//     /**
-//      * {Number} Amount of local variables of organism's script
-//      * TODO: this amount should be calculated from codeBitsPerVar
-//      */
-//     codeVarAmount: 4,
 //     /**
 //      * {Number} The value from -X/2 to X/2, which is used for setting
 //      * default value, while organism is delivering. So, if the value is
