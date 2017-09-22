@@ -4,6 +4,12 @@ describe("src/organism/OperatorsDos", () => {
     let Observer     = require('../../../src/global/Observer').default;
     let EVENTS       = require('../../../src/global/Events').EVENTS;
     let EVENT_AMOUNT = require('../../../src/global/Events').EVENT_AMOUNT;
+    let Config       = require('../../../src/global/Config').Config;
+    let api          = require('../../../src/global/Config').api;
+    let cbpv         = null;
+
+    beforeEach(() => {cbpv = Config.codeBitsPerVar;api.set('codeBitsPerVar', 2)});
+    afterEach(() => api.set('codeBitsPerVar', cbpv));
 
     it("Checking onVar() method", () => {
         let ops = new OperatorsDos([], [0, 0, 0, 0], new Observer());
@@ -26,6 +32,33 @@ describe("src/organism/OperatorsDos", () => {
 
         ops.destroy();
     });
+
+    // it("Checking onVar() method with 3 bits per var config", () => {
+    //     let ops = new OperatorsDos([], [0, 1, 2, 3], new Observer());
+    //     let bpv = Config.codeBitsPerVar;
+    //
+    //     Config.codeBitsPerVar = 4;
+    //     expect(ops.onVar(0x00ffffff, 0)).toEqual(1);
+    //     expect(ops.vars[0] === 0).toEqual(true);
+    //     expect(ops.vars[1] === 1).toEqual(true);
+    //     expect(ops.vars[2] === 2).toEqual(true);
+    //     expect(ops.vars[3] === 3).toEqual(true);
+    //     expect(ops.onVar(0x000fffff, 0)).toEqual(1);
+    //     console.log(ops.vars);
+    //     expect(ops.vars[0] === 3).toEqual(true);
+    //     expect(ops.vars[1] === 1).toEqual(true);
+    //     expect(ops.vars[2] === 2).toEqual(true);
+    //     expect(ops.vars[3] === 3).toEqual(true);
+    //     // expect(ops.onVar(0x0000ffff, 0)).toEqual(1);
+    //     // expect(ops.vars[0] === 0x3fff).toEqual(true);
+    //     // expect(ops.vars[1] === 0).toEqual(true);
+    //     // expect(ops.vars[2] === 0).toEqual(true);
+    //     // expect(ops.vars[3] === 0).toEqual(true);
+    //
+    //     Config.codeBitsPerVar = bpv;
+    //     ops.destroy();
+    // });
+
     it("Checking onVar() method 2", () => {
         let ops = new OperatorsDos([], [1, 2, 3, 4], new Observer());
 

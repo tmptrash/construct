@@ -14,6 +14,11 @@ import {EVENTS}       from './../global/Events';
 import {EVENT_AMOUNT} from './../global/Events';
 import Num            from './Num';
 
+/**
+ * {Number} Maximum stack size, which may be used for recursion or function parameters
+ */
+const MAX_STACK_SIZE = 30000;
+
 export default class JSVM extends Observer {
     static version() {
         return '0.1';
@@ -154,6 +159,13 @@ export default class JSVM extends Observer {
         const codeLen = code.length;
         const start   = rand(codeLen);
         const end     = start + rand(codeLen - start);
+        //
+        // Because we use spread (...) operator stack size is important
+        // for amount of parameters and we shouldn't exceed it
+        //
+        if (end - start > MAX_STACK_SIZE) {
+            return;
+        }
         //
         // We may insert copied piece before "start" (0) or after "end" (1)
         //

@@ -208,7 +208,7 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 40,
+    codeMaxSize: 100,
     /**
      * {Number} This coefficiend is used for calculating of amount of energy,
      * which grabbed from each organism depending on his codeSize.
@@ -236,7 +236,7 @@ const Config = {
      * locking of threads. Set this value to value bigger then jsvm size, then
      * entire jsvm of organism will be run
      */
-    codeYieldPeriod: 5,
+    codeYieldPeriod: 10,
     /**
      * {Number} Amount of bits for storing operator. This is first XX bits
      * in a number.
@@ -1428,6 +1428,41 @@ class Helper {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Config__ = __webpack_require__(0);
+/**
+ * Module for working with a browser console
+ *
+ * Usage:
+ *   import Console from '.../Console';
+ *   Console.msg('msg');
+ *
+ * @author DeadbraiN
+ */
+
+
+class Console {
+    static error(...msg) {
+        if (this._mode === __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* Config */].QUIET_NO) {return;}
+        console.log(`%c${msg.join('')}`, 'background: #fff; color: #aa0000');
+    }
+    static warn (...msg) {
+        if (this._mode === __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* Config */].QUIET_NO) {return;}
+        console.log(`%c${msg.join('')}`, 'background: #fff; color: #cc7a00');
+    }
+    static info (...msg) {
+        if (this._mode !== __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* Config */].QUIET_ALL) {return;}
+        console.log(`%c${msg.join('')}`, 'background: #fff; color: #1a1a00');
+    }
+    static mode (mode = __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* Config */].QUIET_IMPORTANT) {this._mode = mode;}
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = Console;
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
 /**
@@ -1519,46 +1554,11 @@ class Number {
 
 
 /***/ }),
-/* 4 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Config__ = __webpack_require__(0);
-/**
- * Module for working with a browser console
- *
- * Usage:
- *   import Console from '.../Console';
- *   Console.msg('msg');
- *
- * @author DeadbraiN
- */
-
-
-class Console {
-    static error(...msg) {
-        if (this._mode === __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* Config */].QUIET_NO) {return;}
-        console.log(`%c${msg.join('')}`, 'background: #fff; color: #aa0000');
-    }
-    static warn (...msg) {
-        if (this._mode === __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* Config */].QUIET_NO) {return;}
-        console.log(`%c${msg.join('')}`, 'background: #fff; color: #cc7a00');
-    }
-    static info (...msg) {
-        if (this._mode !== __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* Config */].QUIET_ALL) {return;}
-        console.log(`%c${msg.join('')}`, 'background: #fff; color: #1a1a00');
-    }
-    static mode (mode = __WEBPACK_IMPORTED_MODULE_0__Config__["a" /* Config */].QUIET_IMPORTANT) {this._mode = mode;}
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = Console;
-
-
-/***/ }),
 /* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Console__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Console__ = __webpack_require__(3);
 /**
  * Observer implementation. May fire, listen(on()) and clear all the event
  * handlers. This class is optimized for speed. This is why it works with
@@ -1668,7 +1668,7 @@ class OrganismDos extends __WEBPACK_IMPORTED_MODULE_0__organism_base_Organism__[
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Queue__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_OrganismDos__ = __webpack_require__(6);
@@ -1974,7 +1974,7 @@ class Organisms {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Observer__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Num__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Num__ = __webpack_require__(4);
 /**
  * Implements organism's code logic.
  * TODO: explain here code one number format,...
@@ -1990,6 +1990,11 @@ class Organisms {
 
 
 
+
+/**
+ * {Number} Maximum stack size, which may be used for recursion or function parameters
+ */
+const MAX_STACK_SIZE = 30000;
 
 class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default */] {
     static version() {
@@ -2132,6 +2137,13 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
         const start   = rand(codeLen);
         const end     = start + rand(codeLen - start);
         //
+        // Because we use spread (...) operator stack size is important
+        // for amount of parameters and we shouldn't exceed it
+        //
+        if (end - start > MAX_STACK_SIZE) {
+            return;
+        }
+        //
         // We may insert copied piece before "start" (0) or after "end" (1)
         //
         if (rand(2) === 0) {
@@ -2203,14 +2215,12 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Num__ = __webpack_require__(3);
 /**
  * This file contains interface for available operators for some special
  * task. You have to inherit your operators class from this one.
  *
  * @author DeadbraiN
  */
-
 
 class Operators {
     constructor(offs, vars, obs) {
@@ -2463,7 +2473,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* def
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Observer__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Console__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Console__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__visual_World__ = __webpack_require__(28);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__visual_Canvas__ = __webpack_require__(27);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__plugins_OrganismsGarmin__ = __webpack_require__(19);
@@ -2852,7 +2862,7 @@ class Queue {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(3);
 /**
  * Manager's plugin, which creates backups according to population age.
  *
@@ -2981,7 +2991,7 @@ class Config {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(3);
 /**
  * Manager's plugin, which tracks amount of energy in a world and updates it.
  *
@@ -3066,7 +3076,7 @@ class Energy {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__organism_OrganismDos__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__organism_Num__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__organism_Num__ = __webpack_require__(4);
 /**
  * Plugin for Manager class, which is tracks when and how many mutations
  * should be added to special organism's code at special moment of it's
@@ -3374,7 +3384,7 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__manager_plugins_base_Org
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Console__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Console__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__organism_OrganismDos__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__manager_plugins_base_Organisms__ = __webpack_require__(7);
@@ -3568,7 +3578,7 @@ class Status {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Num__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Num__ = __webpack_require__(4);
 /**
  * This class is used only for code visualization in readable human like form.
  * It converts numeric based byte code into JS string. This class must be
@@ -3844,7 +3854,7 @@ class Code2StringDos {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Num__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Num__ = __webpack_require__(4);
 /**
  * This class is used only for code visualization in readable human like form.
  * It converts numeric based byte code into JS string. This class must be
@@ -6007,7 +6017,7 @@ class FitnessGarmin {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__base_Operators__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Num__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Num__ = __webpack_require__(4);
 /**
  * Digital Organisms Script - (DOS) is a simple language for JSVM.
  * This file contains all available operators implementation. For example:
@@ -6307,7 +6317,7 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__base_Operators__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Num__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Num__ = __webpack_require__(4);
 /**
  * This file contains all available operators implementation. For example:
  * for, if, variable declaration, steps, eating etc... User may override

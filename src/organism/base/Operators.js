@@ -4,7 +4,6 @@
  *
  * @author DeadbraiN
  */
-import Num from '../Num';
 
 export default class Operators {
     constructor(offs, vars, obs) {

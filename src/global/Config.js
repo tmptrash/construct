@@ -133,7 +133,7 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 40,
+    codeMaxSize: 100,
     /**
      * {Number} This coefficiend is used for calculating of amount of energy,
      * which grabbed from each organism depending on his codeSize.
@@ -161,7 +161,7 @@ const Config = {
      * locking of threads. Set this value to value bigger then jsvm size, then
      * entire jsvm of organism will be run
      */
-    codeYieldPeriod: 5,
+    codeYieldPeriod: 10,
     /**
      * {Number} Amount of bits for storing operator. This is first XX bits
      * in a number.
