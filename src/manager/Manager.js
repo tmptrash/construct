@@ -101,7 +101,7 @@ export default class Manager extends Observer {
     version() {
         let plugins = this._plugins;
         let ver     = '' +
-            'Manager               : 0.9\n' +
+            'Manager               : 1.0\n' +
             '    World              : ' + World.version() + '\n' +
             '    Canvas             : ' + Canvas.version() + '\n';
 

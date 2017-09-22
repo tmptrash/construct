@@ -7,7 +7,7 @@ import {api} from './../../global/Config';
 
 export default class Config {
     static version() {
-        return '0.1';
+        return '1.0';
     }
 
     constructor(manager) {

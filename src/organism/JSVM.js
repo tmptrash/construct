@@ -21,7 +21,7 @@ const MAX_STACK_SIZE = 30000;
 
 export default class JSVM extends Observer {
     static version() {
-        return '0.1';
+        return '1.0';
     }
 
     /**

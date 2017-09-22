@@ -10,7 +10,7 @@ import {EVENTS}       from './../global/Events';
 
 export default class OrganismGarmin extends Organism {
     static version() {
-        return '0.1';
+        return '1.0';
     }
 
     /**

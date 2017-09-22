@@ -12,7 +12,7 @@ import Console  from './../../global/Console';
 
 export default class Backup {
     static version() {
-        return '0.1';
+        return '1.0';
     }
 
     constructor(orgs, world, positions) {

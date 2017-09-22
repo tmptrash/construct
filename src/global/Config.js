@@ -149,7 +149,7 @@ const Config = {
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain. This value shouldn't be less then 2.
      */
-    codeBitsPerVar: 2,
+    codeBitsPerVar: 3,
     /**
      * {Number} The value from -X/2 to X/2, which is used for setting
      * default value, while organism is delivering. So, if the value is

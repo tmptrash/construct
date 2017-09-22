@@ -21,7 +21,7 @@ const ORGANISM  = 2;
 
 export default class OrganismsDos extends Organisms {
     static version() {
-        return '0.1';
+        return '1.0';
     }
 
     constructor(manager) {

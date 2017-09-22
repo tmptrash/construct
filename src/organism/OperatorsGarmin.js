@@ -25,7 +25,7 @@ const CONDITION_BITS        = 2;
 
 export default class OperatorsGarmin extends  Operators {
     static version() {
-        return '0.1';
+        return '1.0';
     }
 
     constructor(offs, vars, obs) {

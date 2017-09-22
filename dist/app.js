@@ -1651,7 +1651,7 @@ class Observer {
 
 class OrganismDos extends __WEBPACK_IMPORTED_MODULE_0__organism_base_Organism__["a" /* default */] {
     static version() {
-        return '0.1';
+        return '1.0';
     }
 
     onRun() {
@@ -1998,7 +1998,7 @@ const MAX_STACK_SIZE = 30000;
 
 class JSVM extends __WEBPACK_IMPORTED_MODULE_2__global_Observer__["a" /* default */] {
     static version() {
-        return '0.1';
+        return '1.0';
     }
 
     /**
@@ -2593,7 +2593,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_1__global_Observer__["a" /* defa
     version() {
         let plugins = this._plugins;
         let ver     = '' +
-            'Manager               : 0.9\n' +
+            'Manager               : 1.0\n' +
             '    World              : ' + __WEBPACK_IMPORTED_MODULE_4__visual_World__["a" /* default */].version() + '\n' +
             '    Canvas             : ' + __WEBPACK_IMPORTED_MODULE_5__visual_Canvas__["a" /* default */].version() + '\n';
 
@@ -2877,7 +2877,7 @@ class Queue {
 
 class Backup {
     static version() {
-        return '0.1';
+        return '1.0';
     }
 
     constructor(orgs, world, positions) {
@@ -2973,7 +2973,7 @@ class Backup {
 
 class Config {
     static version() {
-        return '0.1';
+        return '1.0';
     }
 
     constructor(manager) {
@@ -3003,7 +3003,7 @@ class Config {
 
 class Energy {
     static version() {
-        return '0.1';
+        return '1.0';
     }
 
     constructor(manager) {
@@ -3100,7 +3100,7 @@ const MAX_VAR       = __WEBPACK_IMPORTED_MODULE_4__organism_Num__["a" /* default
 
 class Mutator {
     static version() {
-        return '0.1';
+        return '1.0';
     }
 
     constructor(manager) {
@@ -3247,7 +3247,7 @@ const ORGANISM  = 2;
 
 class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__manager_plugins_base_Organisms__["a" /* default */] {
     static version() {
-        return '0.1';
+        return '1.0';
     }
 
     constructor(manager) {
@@ -3408,7 +3408,7 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__manager_plugins_base_Org
 
 class OrganismsGarmin extends __WEBPACK_IMPORTED_MODULE_4__manager_plugins_base_Organisms__["a" /* default */] {
     static version() {
-        return '0.1';
+        return '1.0';
     }
 
     constructor(manager) {
@@ -3483,7 +3483,7 @@ const PERIOD = 10000;
 
 class Status {
     static version() {
-        return '0.1';
+        return '1.0';
     }
 
     constructor(manager) {
@@ -6048,7 +6048,7 @@ const CONDITION_BITS        = 2;
 
 class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* default */] {
     static version() {
-        return '0.1';
+        return '1.0';
     }
 
     constructor(offs, vars, obs) {
@@ -6345,7 +6345,7 @@ const CONDITION_BITS        = 2;
 
 class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a" /* default */] {
     static version() {
-        return '0.1';
+        return '1.0';
     }
 
     constructor(offs, vars, obs) {
@@ -6506,7 +6506,7 @@ class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a"
 
 class OrganismGarmin extends __WEBPACK_IMPORTED_MODULE_0__organism_base_Organism__["a" /* default */] {
     static version() {
-        return '0.1';
+        return '1.0';
     }
 
     /**
@@ -6571,7 +6571,7 @@ class OrganismGarmin extends __WEBPACK_IMPORTED_MODULE_0__organism_base_Organism
  */
 class Canvas {
     static version () {
-        return '0.1';
+        return '1.0';
     }
 
     constructor(width, height) {
@@ -6719,7 +6719,7 @@ const FREE_DOT_ATTEMPTS = 300;
 
 class World extends __WEBPACK_IMPORTED_MODULE_0__global_Observer__["a" /* default */] {
     static version() {
-        return '0.1';
+        return '1.0';
     }
 
     constructor (width, height) {

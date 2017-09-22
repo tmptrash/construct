@@ -30,7 +30,7 @@ const FREE_DOT_ATTEMPTS = 300;
 
 export default class World extends Observer {
     static version() {
-        return '0.1';
+        return '1.0';
     }
 
     constructor (width, height) {

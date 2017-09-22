@@ -21,7 +21,7 @@ const MAX_VAR       = Num.MAX_VAR;
 
 export default class Mutator {
     static version() {
-        return '0.1';
+        return '1.0';
     }
 
     constructor(manager) {

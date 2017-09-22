@@ -8,7 +8,7 @@ import Organism from './../organism/base/Organism';
 
 export default class OrganismDos extends Organism {
     static version() {
-        return '0.1';
+        return '1.0';
     }
 
     onRun() {
