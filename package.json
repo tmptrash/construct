@@ -14,7 +14,7 @@
     "webpack": "^2.6.1"
   },
   "scripts": {
-    "test": "babel-node jasmine/spec/run.js"
+    "test": "babel-node client/jasmine/spec/run.js"
   },
   "repository": {
     "type": "git",
