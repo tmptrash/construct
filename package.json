@@ -11,7 +11,8 @@
     "babel-preset-env": "^1.6.0",
     "jasmine": "^2.6.0",
     "js-beautify": "^1.6.14",
-    "webpack": "^2.6.1"
+    "webpack": "^2.6.1",
+    "ws": "^3.2.0"
   },
   "scripts": {
     "test": "babel-node client/jasmine/spec/run.js"
