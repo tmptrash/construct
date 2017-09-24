@@ -1,4 +1,4 @@
-describe("src/global/Config", () => {
+describe("client/src/global/Config", () => {
     let Config  = require('../../../src/global/Config').Config;
     let api     = require('../../../src/global/Config').api;
     let cfg;

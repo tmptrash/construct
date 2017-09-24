@@ -1,4 +1,4 @@
-describe("src/visual/World", () => {
+describe("client/src/visual/World", () => {
     let World  = require('../../../src/visual/World').default;
     let EVENTS = require('../../../src/global/Events').EVENTS;
 

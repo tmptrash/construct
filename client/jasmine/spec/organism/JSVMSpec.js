@@ -1,4 +1,4 @@
-describe("src/organism/JSVM", () => {
+describe("client/src/organism/JSVM", () => {
     let JSVM         = require('../../../src/organism/JSVM').default;
     let Num          = require('../../../src/organism/Num').default;
     let Observer     = require('../../../src/global/Observer').default;

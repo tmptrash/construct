@@ -1,4 +1,4 @@
-describe("src/global/Console", () => {
+describe("client/src/global/Console", () => {
     let Console = require('../../../src/global/Console').default;
     let Config  = require('../../../src/global/Config').Config;
     let log;

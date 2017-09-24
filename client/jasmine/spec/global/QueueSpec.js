@@ -1,4 +1,4 @@
-describe('src/global/Queue', () => {
+describe('client/src/global/Queue', () => {
     let Queue = require('../../../src/global/Queue').default;
     let q;
 

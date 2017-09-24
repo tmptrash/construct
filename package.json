@@ -15,7 +15,7 @@
     "ws": "^3.2.0"
   },
   "scripts": {
-    "test": "babel-node client/jasmine/spec/run.js"
+    "test": "babel-node tests/run.js"
   },
   "repository": {
     "type": "git",

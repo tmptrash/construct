@@ -1,7 +1,7 @@
 //
 // This spec covers two classes "Organism" and "OrganismDos"
 //
-describe("src/organism/OrganismDos", () => {
+describe("client/src/organism/OrganismDos", () => {
     let OrganismDos = require('../../../src/organism/OrganismDos').default;
     let Config      = require('../../../src/global/Config').Config;
     let api         = require('../../../src/global/Config').api;

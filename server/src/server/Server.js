@@ -26,10 +26,11 @@ class Server {
     }
 
     run() {
-        if (this._server !== null) {return}
+        if (this._server !== null) {return false}
         this._server = new WebSocket.Server({port: this._port});
         this._server.on('connection', this._onConnect.bind(this));
         Console.info('Server is ready');
+        return true;
     }
 
     /**
@@ -69,7 +70,6 @@ class Server {
             return;
         }
 
-        console.log('Region: ', region);
         sock.on('message', this._onMessage.bind(this, region));
         sock.on('error', this._onError.bind(this, region));
         sock.on('close', this._onClose.bind(this, region));

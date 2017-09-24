@@ -1,4 +1,4 @@
-describe("src/organism/OperatorsDos", () => {
+describe("client/src/organism/OperatorsDos", () => {
     let OperatorsDos = require('../../../src/organism/OperatorsDos').default;
     let Helper       = require('../../../src/global/Helper').default;
     let Observer     = require('../../../src/global/Observer').default;

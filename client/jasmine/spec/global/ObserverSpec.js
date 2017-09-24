@@ -1,5 +1,5 @@
 // TODO: add two events test
-describe("src/global/Observer", () => {
+describe("client/src/global/Observer", () => {
     let   Observer = require('../../../src/global/Observer').default;
     let   Config   = require('../../../src/global/Config').Config;
     let   Console  = require('../../../src/global/Console').default;
