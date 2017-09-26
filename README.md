@@ -7,7 +7,7 @@ jevo.js is a native JavaScript/ES6 based, digital organisms evolution simulator.
 - Clone this repo to your local machine
 - Go to the root folder of cloned repo
 - Run `install.bat` under Windows or `npm install` on other platforms
-- Run `build.bat` under Windows or `./node_modules/bin/webpack` on other platforms
+- Run `build.bat` under Windows or `./node_modules/.bin/webpack` on other platforms
 - Run `./dist/index.html` under chrome browser
 
 enjoy out team!
