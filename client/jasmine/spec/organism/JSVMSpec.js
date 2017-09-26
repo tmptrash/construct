@@ -1,12 +1,12 @@
 describe("client/src/organism/JSVM", () => {
     let JSVM         = require('../../../src/organism/JSVM').default;
     let Num          = require('../../../src/organism/Num').default;
-    let Observer     = require('../../../src/global/Observer').default;
+    let Observer     = require('../../../../src/global/Observer').default;
     let Helper       = require('../../../src/global/Helper').default;
     let Operators    = require('../../../src/organism/base/Operators').default;
     let Config       = require('../../../src/global/Config').Config;
     let api          = require('../../../src/global/Config').api;
-    let THelper      = require('../Helper').default;
+    let THelper      = require('../../../../tests/spec/Helper').default;
     let cls          = null;
 
     beforeEach(() => {cls = Config.codeOperatorsCls;api.set('codeOperatorsCls', 'ops')});

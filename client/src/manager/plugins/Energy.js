@@ -42,7 +42,7 @@ export default class Energy {
 
             for (let x = 0; x < width; x++) {
                 for (let y = 0; y < height; y++) {
-                    if (world.getDot(x, y) > 0) {energy++;}
+                    if (world.getDot(x, y) > 0) {energy++}
                 }
             }
 

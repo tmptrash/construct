@@ -17,7 +17,7 @@
  *
  * @author DeadbraiN
  */
-import Observer       from '../global/Observer';
+import Observer       from '../../../src/global/Observer';
 import Helper         from '../global/Helper';
 import {EVENTS}       from '../global/Events';
 import {EVENT_AMOUNT} from '../global/Events';
@@ -51,10 +51,10 @@ export default class World extends Observer {
         this._height = 0;
     }
 
-    get data() {return this._data;}
+    get data() {return this._data}
 
     setDot(x, y, color) {
-        if (x < 0 || x >= this._width || y < 0 || y >= this._height) {return false;}
+        if (x < 0 || x >= this._width || y < 0 || y >= this._height) {return false}
         this._data[x][y] = color;
         this.fire(EVENTS.DOT, x, y, color);
 
@@ -62,7 +62,7 @@ export default class World extends Observer {
     }
 
     getDot(x, y) {
-        if (x < 0 || x >= this._width || y < 0 || y >= this._height) {return false;}
+        if (x < 0 || x >= this._width || y < 0 || y >= this._height) {return false}
         return this._data[x][y];
     }
 

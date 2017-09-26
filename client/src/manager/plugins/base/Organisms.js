@@ -82,11 +82,11 @@ export default class Organisms {
         manager.api.formatCode = (code) => this.code2Str.format(code);
     }
 
-    get orgs() {return this.organisms;}
+    get orgs() {return this.organisms}
 
     destroy() {
         Helper.unoverride(man, 'onIteration', this._onIterationCb);
-        for (let org of this.organisms) {org.destroy();}
+        for (let org of this.organisms) {org.destroy()}
         this.organisms.destroy();
         this.organisms      = null;
         this.manager        = null;
@@ -136,12 +136,12 @@ export default class Organisms {
         if (!needClone || orgAmount < 1) {return false}
         let   org1      = this.getRandOrg();
         let   org2      = this.getRandOrg();
-        if (!org1.alive && !org2.alive) {return false;}
+        if (!org1.alive && !org2.alive) {return false}
 
         let tmpOrg = this._tournament(org1, org2);
         if (tmpOrg === org2) {[org1, org2] = [org2, org1]}
 
-        if (orgAmount >= Config.worldMaxOrgs) {org2.destroy();}
+        if (orgAmount >= Config.worldMaxOrgs) {org2.destroy()}
         if (org1.alive) {this._clone(org1)}
 
         return true;
@@ -151,7 +151,7 @@ export default class Organisms {
         const orgs      = this.organisms;
         const orgAmount = orgs.size;
         const needCrossover = counter % Config.orgCrossoverPeriod === 0 && Config.orgCrossoverPeriod !== 0;
-        if (!needCrossover || orgAmount < 1) {return false;}
+        if (!needCrossover || orgAmount < 1) {return false}
 
         let org1   = this._tournament();
         let org2   = this._tournament();
@@ -173,7 +173,7 @@ export default class Organisms {
 
     updateIps(stamp) {
         const ts   = stamp - this.stamp;
-        if (ts < Config.worldIpsPeriodMs) {return;}
+        if (ts < Config.worldIpsPeriodMs) {return}
         const man  = this.manager;
         const orgs = this.organisms.size;
         let   ips  = this.codeRuns / orgs / (ts / 1000);
@@ -211,7 +211,7 @@ export default class Organisms {
         org1 = org1 || this.getRandOrg();
         org2 = org2 || this.getRandOrg();
 
-        if (!org1.alive && !org2.alive) {return false;}
+        if (!org1.alive && !org2.alive) {return false}
         if ((org2.alive && !org1.alive) || this.compare(org2, org1)) {
             return org2;
         }
@@ -222,7 +222,7 @@ export default class Organisms {
     _clone(org) {
         if (this.onBeforeClone(org) === false) {return false}
         let pos = this.manager.world.getNearFreePos(org.x, org.y);
-        if (pos === false || this._createOrg(pos, org) === false) {return false;}
+        if (pos === false || this._createOrg(pos, org) === false) {return false}
         let child  = this.organisms.last.val;
 
         this.onClone(org, child);
@@ -259,7 +259,7 @@ export default class Organisms {
 
     _createOrg(pos, parent = null) {
         const orgs = this.organisms;
-        if (orgs.size >= Config.worldMaxOrgs || pos === false) {return false;}
+        if (orgs.size >= Config.worldMaxOrgs || pos === false) {return false}
         orgs.add(null);
         let last = orgs.last;
         let org  = new this._ORG_CLS(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), this._CLASS_MAP, parent);

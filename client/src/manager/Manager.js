@@ -12,8 +12,8 @@
  * TODO: what about destroy of manager instance? We have to destroy plugins
  * TODO: by calling of destroy() method for every of them
  */
+import Observer          from '../../../src/global/Observer';
 import {Config}          from '../global/Config';
-import Observer          from '../global/Observer';
 import {EVENTS}          from '../global/Events';
 import {EVENT_AMOUNT}    from '../global/Events';
 import Console           from '../global/Console';
@@ -122,10 +122,10 @@ export default class Manager extends Observer {
         return ver;
     }
 
-    get world()     {return this._world;}
-    get canvas()    {return this._canvas;}
-    get plugins()   {return this._plugins;}
-    get CLASS_MAP() {return CLASS_MAP;}
+    get world()     {return this._world}
+    get canvas()    {return this._canvas}
+    get plugins()   {return this._plugins}
+    get CLASS_MAP() {return CLASS_MAP}
 
     /**
      * Runs main infinite loop of application
@@ -164,7 +164,7 @@ export default class Manager extends Observer {
         const plugins = this._plugins;
         this._world.destroy();
         this._canvas.destroy();
-        for (let p in plugins) {if (plugins.hasOwnProperty(p) && plugins[p].destroy) {plugins[p].destroy();}}
+        for (let p in plugins) {if (plugins.hasOwnProperty(p) && plugins[p].destroy) {plugins[p].destroy()}}
         this._plugins = null;
         this.clear();
     }
@@ -172,8 +172,8 @@ export default class Manager extends Observer {
     move(x1, y1, x2, y2, org) {
         let moved = false;
 
-        if (this._isFree(x2, y2) === false) {return false;}
-        if (x1 !== x2 || y1 !== y2) {moved = true; this._world.setDot(x1, y1, 0);}
+        if (this._isFree(x2, y2) === false) {return false}
+        if (x1 !== x2 || y1 !== y2) {moved = true; this._world.setDot(x1, y1, 0)}
         this._world.setDot(x2, y2, org.color);
         this.onAfterMove(x1, y1, x2, y2, org);
 
@@ -189,7 +189,7 @@ export default class Manager extends Observer {
      * @hack
      */
     _initLoop() {
-        if (this.zeroTimeout) {return false;}
+        if (this.zeroTimeout) {return false}
         //
         // Only add zeroTimeout to the Manager object, and hide everything
         // else in a closure.

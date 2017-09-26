@@ -13,8 +13,6 @@
  *
  * @author DeadbraiN
  */
-import Console from './Console';
-
 export default class Observer {
     /**
      * Constructs handlers map. maxIndex means maximum event value
@@ -27,18 +25,17 @@ export default class Observer {
     }
 
     on (event, handler) {
-        if (typeof(this._handlers[event]) === 'undefined') {
-            Console.warn('Invalid event id. Possibly Observer was created with "maxIndex" parameter, which is smaller then "event" id.');
-            return;
-        }
+        if (typeof(this._handlers[event]) === 'undefined') {return false}
         this._handlers[event].push(handler);
+
+        return true;
     }
 
     off (event, handler) {
         let index;
         let handlers = this._handlers[event];
 
-        if ((index = handlers.indexOf(handler)) < 0) {return false;}
+        if ((index = handlers.indexOf(handler)) < 0) {return false}
         handlers.splice(index, 1);
 
         return true;
@@ -53,7 +50,7 @@ export default class Observer {
      */
     fire (event, ...args) {
         let handlers = this._handlers[event] || [];
-        for (let handler of handlers) {handler(...args);}
+        for (let handler of handlers) {handler(...args)}
     }
 
     /**

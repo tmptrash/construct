@@ -35,7 +35,7 @@ export default class Status {
         const stamp     = Date.now();
 
         this._onBeforeIps(ips, orgs);
-        if (stamp - this.stamp < PERIOD) {return;}
+        if (stamp - this.stamp < PERIOD) {return}
 
         const amount    = this._ipsAmount || 1;
         const orgAmount = (this._orgs / amount) || 1;

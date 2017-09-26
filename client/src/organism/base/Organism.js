@@ -6,7 +6,7 @@
  * @author DeadbraiN
  */
 import {Config}       from '../../global/Config';
-import Observer       from '../../global/Observer';
+import Observer       from '../../../../src/global/Observer';
 import {EVENTS}       from '../../global/Events';
 import {EVENT_AMOUNT} from '../../global/Events';
 import Helper         from '../../global/Helper';
@@ -50,8 +50,8 @@ export default class Organism extends Observer {
         this._codeEndCb   = codeEndCb;
         this._classMap    = classMap;
 
-        if (parent === null) {this._create();}
-        else {this._clone(parent);}
+        if (parent === null) {this._create()}
+        else {this._clone(parent)}
 
         this._id          = id;
         this._x           = x;
@@ -104,7 +104,7 @@ export default class Organism extends Observer {
     }
 
     grabEnergy(amount) {
-        if (!IS_NUM(amount)) {return true;}
+        if (!IS_NUM(amount)) {return true}
         const noEnergy = (this._energy -= amount) < 1;
         noEnergy && this.destroy();
         return !noEnergy;
@@ -182,8 +182,8 @@ export default class Organism extends Observer {
         const codeSize = this.jsvm.size;
         let   grabSize = Math.floor(codeSize / Config.orgGarbagePeriod);
 
-        if (codeSize > Config.codeMaxSize) {grabSize = codeSize * Config.codeSizeCoef;}
-        if (grabSize < 1) {grabSize = 1;}
+        if (codeSize > Config.codeMaxSize) {grabSize = codeSize * Config.codeSizeCoef}
+        if (grabSize < 1) {grabSize = 1}
         grabSize = Math.min(this._energy, grabSize);
         this.fire(EVENTS.GRAB_ENERGY, grabSize);
 

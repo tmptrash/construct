@@ -14,8 +14,8 @@ describe("client/src/global/Helper", () => {
         expect(Helper.posId(3,2) === Helper.posId(2,3)).toEqual(false);
     });
     it("Checking override() method", () => {
-        class Tmp {method() {inc++;}}
-        function oMethod() {inc++;}
+        class Tmp {method() {inc++}}
+        function oMethod() {inc++}
         let inc = 0;
         let tmp = new Tmp();
 
@@ -24,9 +24,9 @@ describe("client/src/global/Helper", () => {
         expect(inc).toEqual(2);
     });
     it("Checking two override()/unoverride() method calls", () => {
-        class Tmp1 {method() {inc++;}}
-        function oMethod1()  {inc++;one++;}
-        function oMethod2()  {inc++;two++;}
+        class Tmp1 {method() {inc++}}
+        function oMethod1()  {inc++;one++}
+        function oMethod2()  {inc++;two++}
         let inc = 0;
         let two = 0;
         let one = 0;

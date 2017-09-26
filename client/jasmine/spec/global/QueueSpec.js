@@ -131,7 +131,7 @@ describe('client/src/global/Queue', () => {
     });
 
     it('Checking getting item by index', () => {
-        for (let i=0; i<10; i++) {q.add(i);}
+        for (let i=0; i<10; i++) {q.add(i)}
         expect(q.get(3).val).toEqual(3);
         expect(q.get(0).val).toEqual(0);
         expect(q.get(9).val).toEqual(9);

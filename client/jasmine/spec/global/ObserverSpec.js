@@ -1,6 +1,6 @@
 // TODO: add two events test
 describe("client/src/global/Observer", () => {
-    let   Observer = require('../../../src/global/Observer').default;
+    let   Observer = require('../../../../src/global/Observer').default;
     let   Config   = require('../../../src/global/Config').Config;
     let   Console  = require('../../../src/global/Console').default;
     const EVENT    = 0;
@@ -14,7 +14,7 @@ describe("client/src/global/Observer", () => {
         let o    = new Observer();
         let flag = false;
 
-        function handler() {flag = true;}
+        function handler() {flag = true}
         Console.mode(Config.QUIET_NO);
         o.on(EVENT, handler);
         expect(flag).toEqual(false);
@@ -25,7 +25,7 @@ describe("client/src/global/Observer", () => {
     it("Checking on()/fire() methods", () => {
         let flag = false;
 
-        function handler() {flag = true;}
+        function handler() {flag = true}
 
         obs.on(EVENT, handler);
         obs.fire(EVENT);
@@ -34,7 +34,7 @@ describe("client/src/global/Observer", () => {
     it("Checking on()/fire() for two events", () => {
         let flag = false;
 
-        function handler() {flag = true;}
+        function handler() {flag = true}
 
         obs.on(EVENT, handler);
         obs.on(EVENT2, handler);
@@ -52,7 +52,7 @@ describe("client/src/global/Observer", () => {
     it("Checking on() without firing", () => {
         let flag = false;
 
-        function handler() {flag = true;}
+        function handler() {flag = true}
 
         obs.on(EVENT, handler);
         expect(flag).toEqual(false);
@@ -60,7 +60,7 @@ describe("client/src/global/Observer", () => {
     it("Checking off() method", () => {
         let flag = false;
 
-        function handler() {flag = true;}
+        function handler() {flag = true}
 
         obs.on(EVENT, handler);
         expect(obs.off(EVENT, handler)).toEqual(true);
@@ -70,7 +70,7 @@ describe("client/src/global/Observer", () => {
     it("Checking off() method with incorrect event id", () => {
         let flag = false;
 
-        function handler() {flag = true;}
+        function handler() {flag = true}
 
         obs.on(EVENT, handler);
         expect(obs.off(EVENT2, handler)).toEqual(false);
@@ -80,7 +80,7 @@ describe("client/src/global/Observer", () => {
     it("Checking double off() method", () => {
         let flag = false;
 
-        function handler() {flag = true;}
+        function handler() {flag = true}
 
         obs.on(EVENT, handler);
         expect(obs.off(EVENT, handler)).toEqual(true);
@@ -91,7 +91,7 @@ describe("client/src/global/Observer", () => {
     it("Checking off() with no handlers", () => {
         let flag = false;
 
-        function handler() {flag = true;}
+        function handler() {flag = true}
 
         expect(obs.off(EVENT, handler)).toEqual(false);
         obs.fire(EVENT);
@@ -100,8 +100,8 @@ describe("client/src/global/Observer", () => {
     it("Checking two event handlers", () => {
         let inc = 0;
 
-        function handler1() {inc++;}
-        function handler2() {inc++;}
+        function handler1() {inc++}
+        function handler2() {inc++}
 
         obs.on(EVENT, handler1);
         obs.on(EVENT, handler2);
@@ -111,8 +111,8 @@ describe("client/src/global/Observer", () => {
     it("Checking complex behavior", () => {
         let inc = 0;
 
-        function handler1() {inc++;}
-        function handler2() {inc++;}
+        function handler1() {inc++}
+        function handler2() {inc++}
 
         obs.on(EVENT, handler1);
         obs.on(EVENT, handler1);
@@ -127,8 +127,8 @@ describe("client/src/global/Observer", () => {
     it("Checking complex behavior 2", () => {
         let inc = 0;
 
-        function handler1() {inc++;}
-        function handler2() {inc++;}
+        function handler1() {inc++}
+        function handler2() {inc++}
 
         obs.on(EVENT, handler1);
         obs.on(EVENT, handler1);
@@ -140,8 +140,8 @@ describe("client/src/global/Observer", () => {
     it("Checking clear() method", () => {
         let inc = 0;
 
-        function handler1() {inc++;}
-        function handler2() {inc++;}
+        function handler1() {inc++}
+        function handler2() {inc++}
 
         obs.on(EVENT, handler1);
         obs.on(EVENT, handler2);
@@ -156,7 +156,7 @@ describe("client/src/global/Observer", () => {
     it("Checking clear() method and fire with incorrect event id", () => {
         let inc = 0;
 
-        function handler() {inc++;}
+        function handler() {inc++}
 
         obs.on(EVENT, handler);
         obs.clear();

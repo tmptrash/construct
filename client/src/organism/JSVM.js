@@ -9,7 +9,7 @@
  */
 import {Config}       from '../global/Config';
 import Helper         from '../global/Helper';
-import Observer       from '../global/Observer'
+import Observer       from '../../../src/global/Observer'
 import {EVENTS}       from '../global/Events';
 import {EVENT_AMOUNT} from '../global/Events';
 import Num            from './Num';
@@ -138,8 +138,8 @@ export default class JSVM extends Observer {
         let   end1    = rand(len1);
         let   adds;
 
-        if (start > end) {[start, end] = [end, start];}
-        if (start1 > end1) {[start1, end1] = [end1, start1];}
+        if (start > end) {[start, end] = [end, start]}
+        if (start1 > end1) {[start1, end1] = [end1, start1]}
 
         adds = Math.abs(end1 - start1 - end + start);
         if (this._fitnessMode && this._code.length + adds >= Config.codeMaxSize) {return 0}
@@ -215,7 +215,7 @@ export default class JSVM extends Observer {
      * @private
      */
     _getVars() {
-        if (this._vars && this._vars.length > 0) {return this._vars;}
+        if (this._vars && this._vars.length > 0) {return this._vars}
 
         const len    = Math.pow(2, Config.codeBitsPerVar);
         let   vars   = new Array(len);

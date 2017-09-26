@@ -216,7 +216,7 @@ export default class OperatorsDos extends Operators {
     }
 
     onMyX(num, line, org) {this.vars[VAR0(num)] = org.x; return line + 1}
-    onMyY(num, line, org) {this.vars[VAR0(num)] = org.y; return line + 1;}
+    onMyY(num, line, org) {this.vars[VAR0(num)] = org.y; return line + 1}
 
     onCheckLeft(num, line, org)  {return this._checkAt(num, line, org, org.x - 1, org.y)}
     onCheckRight(num, line, org) {return this._checkAt(num, line, org, org.x + 1, org.y)}

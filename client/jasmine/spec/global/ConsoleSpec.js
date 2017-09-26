@@ -8,7 +8,7 @@ describe("client/src/global/Console", () => {
 
     beforeEach(() => {
         log = console.log;
-        console.log = (msg) => {inc++;arg = msg;}
+        console.log = (msg) => {inc++;arg = msg}
     });
 
     afterEach(() => console.log = log);

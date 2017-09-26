@@ -29,9 +29,9 @@ export default class Queue {
         this._size  = 0;
     }
 
-    get first() {return this._first;}
-    get last()  {return this._last;}
-    get size()  {return this._size;}
+    get first() {return this._first}
+    get last()  {return this._last}
+    get size()  {return this._size}
 
     /**
      * Wraps the value into item object and adds it to the end of the queue
@@ -63,11 +63,11 @@ export default class Queue {
             return;
         }
 
-        if (item.prev !== null) {item.prev.next = item.next;}
-        else {this._first = item.next;}
+        if (item.prev !== null) {item.prev.next = item.next}
+        else {this._first = item.next}
 
-        if (item.next !== null) {item.next.prev = item.prev;}
-        else {this._last = item.prev;}
+        if (item.next !== null) {item.next.prev = item.prev}
+        else {this._last = item.prev}
     }
 
     /**
@@ -78,7 +78,7 @@ export default class Queue {
      */
     get(index) {
         let item = this._first;
-        while (--index > -1 && item) {item = item.next;}
+        while (--index > -1 && item) {item = item.next}
         return item;
     }
 }

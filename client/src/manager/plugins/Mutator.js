@@ -55,7 +55,7 @@ export default class Mutator {
     }
 
     _onCloneOrg(parent, child) {
-        if (child.energy > 0 && Config.orgCloneMutationPercent > 0) {this._mutate(child);}
+        if (child.energy > 0 && Config.orgCloneMutationPercent > 0) {this._mutate(child)}
     }
 
     _mutate(org, clone = true) {

@@ -54,7 +54,7 @@ export default class Helper {
      * @param {Number} n Right number value in a range
      * @return {Number}
      */
-    static rand(n) {return Math.trunc(Math.random() * n);}
+    static rand(n) {return Math.trunc(Math.random() * n)}
     /**
      * It calculates probability index from variable amount of components.
      * Let's imagine we have two actions: one and two. We want
@@ -66,9 +66,9 @@ export default class Helper {
      */
     static probIndex(probs) {
         let len = probs.length;
-        if (len < 1) {return -1;}
+        if (len < 1) {return -1}
         let sum = probs.reduce((a, b) => a + b, 0);
-        if (sum < 1) {return -1;}
+        if (sum < 1) {return -1}
         let num = Helper.rand(sum) + 1;
         let i;
         //
@@ -80,9 +80,9 @@ export default class Helper {
         //
         if (num < sum / 2) {
             sum = 0;
-            for (i = 0; i < len; i++)  {if (num <= (sum += probs[i])) break;}
+            for (i = 0; i < len; i++)  {if (num <= (sum += probs[i])) break}
         } else {
-            for (i = len-1; i>-1; i--) {if (num >  (sum -= probs[i])) break;}
+            for (i = len-1; i>-1; i--) {if (num >  (sum -= probs[i])) break}
         }
 
         return i;
@@ -91,7 +91,7 @@ export default class Helper {
      * Checks if position is empty. x == y == 0 - this is empty
      * @param {Object} pos Position to check
      */
-    static empty(pos) {return pos.x === 0 && pos.y === 0;}
+    static empty(pos) {return pos.x === 0 && pos.y === 0}
     /**
      * Does normalization of X and Y coordinates. It's used
      * in cyclical mode for checking if we out of bound (world).
@@ -103,11 +103,11 @@ export default class Helper {
      */
     static normalize(x, y) {
         if (Config.worldCyclical) {
-            if (x < 0) {x = Config.worldWidth - 1;}
-            else if (x >= Config.worldWidth)  {x = 0;}
+            if (x < 0) {x = Config.worldWidth - 1}
+            else if (x >= Config.worldWidth)  {x = 0}
 
-            if (y < 0) {y = Config.worldHeight - 1;}
-            else if (y >= Config.worldHeight) {y = 0;}
+            if (y < 0) {y = Config.worldHeight - 1}
+            else if (y >= Config.worldHeight) {y = 0}
         }
 
         return [x, y];

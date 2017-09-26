@@ -108,7 +108,7 @@ export default class OrganismsDos extends Organisms {
     }
 
     _onGetEnergy(org, x, y, ret) {
-        if (x < 0 || y < 0 || !Number.isInteger(x) || !Number.isInteger(y)) {return;}
+        if (x < 0 || y < 0 || !Number.isInteger(x) || !Number.isInteger(y)) {return}
         const posId = Helper.posId(x, y);
 
         if (typeof(this._positions[posId]) === 'undefined') {

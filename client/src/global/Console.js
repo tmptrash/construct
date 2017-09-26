@@ -11,16 +11,16 @@ import {Config} from './Config';
 
 export default class Console {
     static error(...msg) {
-        if (this._mode === Config.QUIET_NO) {return;}
+        if (this._mode === Config.QUIET_NO) {return}
         console.log(`%c${msg.join('')}`, 'background: #fff; color: #aa0000');
     }
     static warn (...msg) {
-        if (this._mode === Config.QUIET_NO) {return;}
+        if (this._mode === Config.QUIET_NO) {return}
         console.log(`%c${msg.join('')}`, 'background: #fff; color: #cc7a00');
     }
     static info (...msg) {
-        if (this._mode !== Config.QUIET_ALL) {return;}
+        if (this._mode !== Config.QUIET_ALL) {return}
         console.log(`%c${msg.join('')}`, 'background: #fff; color: #1a1a00');
     }
-    static mode (mode = Config.QUIET_IMPORTANT) {this._mode = mode;}
+    static mode (mode = Config.QUIET_IMPORTANT) {this._mode = mode}
 }
