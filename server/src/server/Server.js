@@ -50,21 +50,21 @@ class Server extends Observer {
 
     run() {
         if (this._server !== null) {return false}
-        this._server = new WebSocket.Server({port: this._port});
-        if (this._server.on('connection', this._onConnect.bind(this)) === false) {return false}
+        this._server = new WebSocket.Server({port: this._port}, () => {
+            this.fire(RUN);
+            Console.info('Server is ready');
+        });
+        this._server.on('connection', this._onConnect.bind(this));
 
-        this.fire(RUN);
-        Console.info('Server is ready');
         return true;
     }
 
     /**
      * Stops the server and terminates all clients
      */
-    stop(cb = null) {
+    stop() {
         if (this._server === null) {return}
         this._server.close(() => {
-            cb && cb();
             this.fire(STOP);
             Console.info('Server has stopped. All clients have disconnected');
         });

@@ -45,44 +45,57 @@ describe("server/src/server/Server", () => {
         server1.destroy();
     });
 
-    it("Checking server run", () => {
-        let server = new Server(8899);
+    it("Checking server run", (done) => {
+        let server  = new Server(8899);
+        let waitObj = {done: false};
 
+        server.on(EVENTS.RUN, () => waitObj.done = true);
         expect(server.run()).toEqual(true);
-        server.stop();
-
-        server.destroy();
+        Helper.waitFor(waitObj, () => {
+            waitObj.done = false;
+            server.on(EVENTS.STOP, () => waitObj.done = true);
+            server.stop();
+            Helper.waitFor(waitObj, () => {
+                server.destroy();
+                done();
+            });
+        });
     });
 
     it("Checking server run + one client connection", (done) => {
-        let server  = new Server(8898);
+        let server  = new Server(8899);
         let waitObj = {done: false};
 
         server.on(EVENTS.CONNECT, () => waitObj.done = true);
         expect(server.run()).toEqual(true);
-        const ws = new WebSocket('ws://127.0.0.1:8898');
+        const ws = new WebSocket('ws://127.0.0.1:8899');
         Helper.waitFor(waitObj, () => {
-            ws.close();
-            server.stop(() => {});
-            server.destroy();
-            done();
+            waitObj.done = false;
+            server.on(EVENTS.STOP, () => waitObj.done = true);
+            server.stop();
+            Helper.waitFor(waitObj, () => {
+                server.destroy();
+                done();
+            });
         });
     });
     it("Checking server run + two clients connection", (done) => {
-        let server  = new Server(8898);
+        let server  = new Server(8899);
         let waitObj = {done: false};
         let cons    = 0;
 
         server.on(EVENTS.CONNECT, () => {if (++cons === 2) {waitObj.done = true}});
         expect(server.run()).toEqual(true);
-        const ws1 = new WebSocket('ws://127.0.0.1:8898');
-        const ws2 = new WebSocket('ws://127.0.0.1:8898');
+        const ws1 = new WebSocket('ws://127.0.0.1:8899');
+        const ws2 = new WebSocket('ws://127.0.0.1:8899');
         Helper.waitFor(waitObj, () => {
-            ws1.close();
-            ws2.close();
-            server.stop(() => {});
-            server.destroy();
-            done();
+            waitObj.done = false;
+            server.on(EVENTS.STOP, () => waitObj.done = true);
+            server.stop();
+            Helper.waitFor(waitObj, () => {
+                server.destroy();
+                done();
+            });
         });
     });
 });
