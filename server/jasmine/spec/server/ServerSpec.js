@@ -62,6 +62,24 @@ describe("server/src/server/Server", () => {
         expect(server.run()).toEqual(true);
         const ws = new WebSocket('ws://127.0.0.1:8898');
         Helper.waitFor(waitObj, () => {
+            ws.close();
+            server.stop(() => {});
+            server.destroy();
+            done();
+        });
+    });
+    it("Checking server run + two clients connection", (done) => {
+        let server  = new Server(8898);
+        let waitObj = {done: false};
+        let cons    = 0;
+
+        server.on(EVENTS.CONNECT, () => {if (++cons === 2) {waitObj.done = true}});
+        expect(server.run()).toEqual(true);
+        const ws1 = new WebSocket('ws://127.0.0.1:8898');
+        const ws2 = new WebSocket('ws://127.0.0.1:8898');
+        Helper.waitFor(waitObj, () => {
+            ws1.close();
+            ws2.close();
             server.stop(() => {});
             server.destroy();
             done();
