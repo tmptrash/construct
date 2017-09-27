@@ -44,11 +44,17 @@ describe("server/src/server/Server", () => {
         server2.destroy();
         server1.destroy();
     });
+    it("Checking two servers creation on different ports", () => {
+        let server1 = new Server(8898);
+        let server2 = new Server(8899);
+
+        server2.destroy();
+        server1.destroy();
+    });
     it("Checking two servers running on the same port", (done) => {
         let server1 = new Server(8899);
         let server2 = new Server(8899);
         let waitObj = {done: false};
-        let times   = 0;
 
         expect(server1.run()).toEqual(true);
         expect(server2.run()).toEqual(false);
@@ -57,6 +63,22 @@ describe("server/src/server/Server", () => {
         server1.destroy();
 
         server1.on(EVENTS.STOP, () => waitObj.done = true);
+        Helper.waitFor(waitObj, done);
+    });
+    it("Checking two servers running on different ports", (done) => {
+        let server1 = new Server(8898);
+        let server2 = new Server(8899);
+        let waitObj = {done: false};
+        let times   = 0;
+
+        expect(server1.run()).toEqual(true);
+        expect(server2.run()).toEqual(true);
+
+        server2.destroy();
+        server1.destroy();
+
+        server1.on(EVENTS.STOP, () => {if (++times === 2) waitObj.done = true});
+        server2.on(EVENTS.STOP, () => {if (++times === 2) waitObj.done = true});
         Helper.waitFor(waitObj, done);
     });
 

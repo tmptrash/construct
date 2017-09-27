@@ -111,7 +111,8 @@ class Server extends Observer {
         //
         if (!this._server) {return false}
         //
-        // Server was ran, but not ready yet
+        // Server was ran, but not ready yet. stop() method
+        // will be called later after RUN event fired
         //
         if (Server.ports[this._port] && this._running === false) {
             const onRun = () => {
@@ -122,7 +123,7 @@ class Server extends Observer {
             return false;
         }
         //
-        // Server is ready to close all clients connections
+        // Server is ready to close all clients and itself
         //
         me._server.close(() => {
             delete Server.ports[me._port];
@@ -132,6 +133,14 @@ class Server extends Observer {
         });
 
         return true;
+    }
+
+    /**
+     * Returns running state. It's true only between run() and stop() calls
+     * @returns {Boolean}
+     */
+    isRunning() {
+        return this._running;
     }
 
     destroy() {
