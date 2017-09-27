@@ -18,6 +18,8 @@ export default class Helper {
      * @param {Number} timeout Timeout in milliseconds
      */
     static waitFor(obj, cb, timeout = 10000) {
+        obj.done = false;
+
         let times = 0;
         let id    = setInterval(() => {
             if (times > timeout / 50) {throw 'Waiting time is over'}

@@ -89,7 +89,6 @@ describe("server/src/server/Server", () => {
         server.on(EVENTS.RUN, () => waitObj.done = true);
         expect(server.run()).toEqual(true);
         Helper.waitFor(waitObj, () => {
-            waitObj.done = false;
             server.on(EVENTS.STOP, () => waitObj.done = true);
             server.stop();
             Helper.waitFor(waitObj, () => {
@@ -107,7 +106,6 @@ describe("server/src/server/Server", () => {
         expect(server.run()).toEqual(true);
         const ws = new WebSocket('ws://127.0.0.1:8899');
         Helper.waitFor(waitObj, () => {
-            waitObj.done = false;
             server.on(EVENTS.STOP, () => waitObj.done = true);
             server.stop();
             Helper.waitFor(waitObj, () => {
@@ -126,12 +124,53 @@ describe("server/src/server/Server", () => {
         const ws1 = new WebSocket('ws://127.0.0.1:8899');
         const ws2 = new WebSocket('ws://127.0.0.1:8899');
         Helper.waitFor(waitObj, () => {
-            waitObj.done = false;
             server.on(EVENTS.STOP, () => waitObj.done = true);
             server.stop();
             Helper.waitFor(waitObj, () => {
                 server.destroy();
                 done();
+            });
+        });
+    });
+    it("Checking server run + two clients and one disconnected", (done) => {
+        let server  = new Server(8899);
+        let waitObj = {done: false};
+        let cons    = 0;
+
+        server.on(EVENTS.CONNECT, () => {if (++cons === 2) {waitObj.done = true}});
+        expect(server.run()).toEqual(true);
+        const ws1 = new WebSocket('ws://127.0.0.1:8899');
+        const ws2 = new WebSocket('ws://127.0.0.1:8899');
+        Helper.waitFor(waitObj, () => {
+            server.on(EVENTS.CLOSE, () => waitObj.done = true);
+            ws2.close();
+            Helper.waitFor(waitObj, () => {
+                server.on(EVENTS.STOP, () => waitObj.done = true);
+                server.stop();
+                Helper.waitFor(waitObj, () => {
+                    server.destroy();
+                    done();
+                });
+            })
+        });
+    });
+    it("Checking server run + one client connect/disconnect/connect", (done) => {
+        let server  = new Server(8899);
+        let waitObj = {done: false};
+
+        server.on(EVENTS.CONNECT, () => waitObj.done = true);
+        expect(server.run()).toEqual(true);
+        let ws = new WebSocket('ws://127.0.0.1:8899');
+        Helper.waitFor(waitObj, () => {
+            ws.close();
+            server.on(EVENTS.CLOSE, () => waitObj.done = true);
+            Helper.waitFor(waitObj, () => {
+                ws = new WebSocket('ws://127.0.0.1:8899');
+                Helper.waitFor(waitObj, () => {
+                    server.on(EVENTS.STOP, () => waitObj.done = true);
+                    server.destroy();
+                    Helper.waitFor(waitObj, done);
+                });
             });
         });
     });
