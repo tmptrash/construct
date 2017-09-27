@@ -19,7 +19,7 @@ describe("server/src/server/Server", () => {
         Console.warn  = () => {};
         Console.info  = () => {};
     });
-    afterAll(() => {
+    afterAll(()  => {
         Console.error = error;
         Console.warn  = warn;
         Console.info  = info;
@@ -30,7 +30,7 @@ describe("server/src/server/Server", () => {
 
         server.destroy();
     });
-    it("Checking two servers creation", () => {
+    it("Checking two servers creation on different ports", () => {
         let server1 = new Server(8898);
         let server2 = new Server(8899);
 
@@ -43,6 +43,21 @@ describe("server/src/server/Server", () => {
 
         server2.destroy();
         server1.destroy();
+    });
+    it("Checking two servers running on the same port", (done) => {
+        let server1 = new Server(8899);
+        let server2 = new Server(8899);
+        let waitObj = {done: false};
+        let times   = 0;
+
+        expect(server1.run()).toEqual(true);
+        expect(server2.run()).toEqual(false);
+
+        server2.destroy();
+        server1.destroy();
+
+        server1.on(EVENTS.STOP, () => waitObj.done = true);
+        Helper.waitFor(waitObj, done);
     });
 
     it("Checking server run", (done) => {
