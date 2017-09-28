@@ -1,8 +1,8 @@
 // TODO: add two events test
 describe("client/src/global/Observer", () => {
-    let   Observer = require('../../../../src/global/Observer').default;
-    let   Config   = require('../../../src/global/Config').Config;
-    let   Console  = require('../../../src/global/Console').default;
+    let   Observer = require('../../../src/global/Observer').default;
+    let   Config   = require('../../../client/src/global/Config').Config;
+    let   Console  = require('../../../client/src/global/Console').default;
     const EVENT    = 0;
     const EVENT2   = 1;
     let   obs;

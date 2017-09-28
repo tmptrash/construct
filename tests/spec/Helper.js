@@ -1,3 +1,8 @@
+/**
+ * Helper for tests
+ *
+ * @author DeadbraiN
+ */
 export default class Helper {
     /**
      * Compares two arrays only on first level
