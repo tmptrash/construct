@@ -6,7 +6,7 @@
  *
  * @author DeadbraiN
  */
-import {Config}  from '../global/Config';
+import {Config}  from '../../../src/global/Config';
 import Helper    from '../global/Helper';
 import Operators from './base/Operators';
 import Num       from './Num';

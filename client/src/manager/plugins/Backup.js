@@ -7,7 +7,7 @@
  * @author DeadbraiN
  */
 import Helper   from '../../global/Helper';
-import {Config} from '../../global/Config';
+import {Config} from '../../../../src/global/Config';
 import Console  from '../../global/Console';
 
 export default class Backup {

@@ -371,7 +371,14 @@ const Config = {
      *   1 - only important messages
      *   2 - no messages
      */
-    modeQuiet: QUIET_IMPORTANT
+    modeQuiet: QUIET_IMPORTANT,
+    /**
+     * {Number} Maximum amount of connections for current server. Should
+     * be quadratic (x^2) e.g.: 4, 9, 16,... This value will be extended
+     * with additional "around" rows and columns for connecting with sibling
+     * servers. So, result amount of cells will be e.g.: 16 + 2 rows + 2 cols.
+     */
+    serMaxConnections: 100
 };
 
 const api = {

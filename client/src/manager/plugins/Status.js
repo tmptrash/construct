@@ -4,7 +4,7 @@
  * @author DeadbraiN
  */
 import {EVENTS} from '../../global/Events';
-import {Config} from '../../global/Config';
+import {Config} from '../../../../src/global/Config';
 
 const GREEN  = 'color: #00aa00';
 const RED    = 'color: #aa0000';

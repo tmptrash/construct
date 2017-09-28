@@ -5,7 +5,7 @@
  * TODO:   -
  * @author DeadbraiN
  */
-import {Config}       from '../../global/Config';
+import {Config}       from '../../../../src/global/Config';
 import Observer       from '../../../../src/global/Observer';
 import {EVENTS}       from '../../global/Events';
 import {EVENT_AMOUNT} from '../../global/Events';

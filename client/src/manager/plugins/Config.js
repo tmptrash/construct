@@ -3,7 +3,7 @@
  *
  * @author DeadbraiN
  */
-import {api} from '../../global/Config';
+import {api} from '../../../../src/global/Config';
 
 export default class Config {
     static version() {

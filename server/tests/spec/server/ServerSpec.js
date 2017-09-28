@@ -4,6 +4,7 @@ describe("server/src/server/Server", () => {
     const EVENTS    = require('./../../../src/server/Server').EVENTS;
     const Console   = require('./../../../src/global/Console');
     const Helper    = require('./../../../../tests/spec/Helper').default;
+    const Config    = require('./../../../../src/global/Config').Config;
 
     let error;
     let warn;
@@ -187,6 +188,56 @@ describe("server/src/server/Server", () => {
             Helper.waitFor(waitObj, () => {
                 expect(server.isRunning()).toEqual(false);
                 done();
+            });
+        });
+    });
+
+    it("Checking unique id on client connect", (done) => {
+        let server  = new Server(8899);
+        let waitObj = {done: false};
+        let maxCon  = Config.serMaxConnections;
+        let id      = null;
+
+        Config.serMaxConnections = 1;
+        expect(server.run()).toEqual(true);
+        const ws = new WebSocket('ws://127.0.0.1:8899');
+        ws.onmessage = (uid) => {id = uid; waitObj.done = true};
+        Helper.waitFor(waitObj, () => {
+            expect(id !== null).toEqual(true);
+            server.on(EVENTS.STOP, () => waitObj.done = true);
+            server.destroy();
+            Helper.waitFor(waitObj, () => {
+                Config.serMaxConnections = maxCon;
+                done();
+            });
+        });
+    });
+    it("Checking unique id on client connect/disconnect and connect again with the same id", (done) => {
+        let server  = new Server(8899);
+        let waitObj = {done: false};
+        let maxCon  = Config.serMaxConnections;
+        let oldId   = null;
+        let id      = null;
+
+        Config.serMaxConnections = 1;
+        expect(server.run()).toEqual(true);
+        let ws = new WebSocket('ws://127.0.0.1:8899');
+        ws.onmessage = (e) => {oldId = e.data; waitObj.done = true};
+        Helper.waitFor(waitObj, () => {
+            ws.close();
+            server.on(EVENTS.CLOSE, () => waitObj.done = true);
+            Helper.waitFor(waitObj, () => {
+                ws = new WebSocket('ws://127.0.0.1:8899');
+                ws.onmessage = (e) => {id = e.data; waitObj.done = true};
+                Helper.waitFor(waitObj, () => {
+                    expect(id).toEqual(oldId);
+                    server.on(EVENTS.STOP, () => waitObj.done = true);
+                    server.destroy();
+                    Helper.waitFor(waitObj, () => {
+                        Config.serMaxConnections = maxCon;
+                        done();
+                    });
+                });
             });
         });
     });

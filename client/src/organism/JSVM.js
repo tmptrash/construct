@@ -7,7 +7,7 @@
  * TODO: think about custom operators callbacks from outside. This is how
  * TODO: we may solve custom tasks
  */
-import {Config}       from '../global/Config';
+import {Config}       from '../../../src/global/Config';
 import Helper         from '../global/Helper';
 import Observer       from '../../../src/global/Observer'
 import {EVENTS}       from '../global/Events';

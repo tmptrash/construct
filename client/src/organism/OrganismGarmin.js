@@ -5,7 +5,7 @@
  * @author DeadbraiN
  */
 import Organism       from './base/Organism';
-import {Config}       from '../global/Config';
+import {Config}       from '../../../src/global/Config';
 import {EVENTS}       from '../global/Events';
 
 export default class OrganismGarmin extends Organism {

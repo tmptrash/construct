@@ -10,7 +10,7 @@
  * @author DeadbraiN
  */
 import {EVENTS}  from '../../global/Events';
-import {Config}  from '../../global/Config';
+import {Config}  from '../../../../src/global/Config';
 import Helper    from '../../global/Helper';
 import Organism  from '../../organism/OrganismDos';
 import Num       from '../../organism/Num';

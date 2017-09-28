@@ -10,7 +10,7 @@
  *
  * @author DeadbraiN
  */
-import {Config}       from '../../global/Config';
+import {Config}       from '../../../../src/global/Config';
 import Console        from '../../global/Console';
 import {EVENTS}       from '../../global/Events';
 import Organism       from '../../organism/OrganismDos';

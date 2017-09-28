@@ -3,8 +3,8 @@
 //
 describe("client/src/organism/OrganismDos", () => {
     let OrganismDos = require('../../../src/organism/OrganismDos').default;
-    let Config      = require('../../../src/global/Config').Config;
-    let api         = require('../../../src/global/Config').api;
+    let Config      = require('../../../../src/global/Config').Config;
+    let api         = require('../../../../src/global/Config').api;
     let THelper     = require('../../../../tests/spec/Helper').default;
     let cls;
 

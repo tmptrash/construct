@@ -1,14 +1,14 @@
 /**
  * Tiny server for jevo.js clients. Manages many browser clients. Main
  * goal of this server is to track/manage browser or phantom like based
- * clients as a distributed nodes. Server supports MAX_CONNECTIONS
+ * clients as a distributed nodes. Server supports serMaxConnections
  * clients at the time. All connected clients/nodes create big virtual
  * map for digital organisms. So one client == one map. By map i mean a
  * planar area with specific width and height configured in global config
- * (see Config.js.worldWidth/worldHeight). If MAX_CONNECTIONS + 1 client
+ * (see Config.js.worldWidth/worldHeight). If serMaxConnections + 1 client
  * try to connect, server deny the access. Every client in this system
  * has unique ID, which consists of X,Y coordinates of this client. Each
- * id is called region. So, for example, if we have MAX_CONNECTIONS === 4,
+ * id is called region. So, for example, if we have serMaxConnections === 4,
  * we will have square of 16 cells (4 inside and 12 outside):
  *
  *     0:0  1:0  2:0  3:0
@@ -16,12 +16,16 @@
  *     0:2  1:2  2:2  3:2
  *     0:3  1:3  2:3  3:3
  *
- * Cells 1:1, 2:1, 1:2, 2:2 are client connections (WebSockets). All other
- * cells are pointers to connections (also WebSockets) of sibling servers.
- * Every time, when new client connects, the server sends him back region
- * or unique id and inserts it into big map according to coordinates.
- * Connection between different clients and between sibling servers should
- * be the same (using WebSockets).
+ * Table above shows Connections instance data. Every cell is a coordinate
+ * based value, which contain WebSocket reference or null . Cells 1:1, 2:1,
+ * 1:2, 2:2 are client connections (WebSockets). All other cells are pointers
+ * to connections (also WebSockets) of sibling servers. Every time, when new
+ * client connects, the server sends him back region or unique id and inserts
+ * it into big map according to coordinates. Connection between different
+ * clients and between sibling servers should be the same (using WebSockets).
+ * If there are no sibling servers, then cells 0:0...3:0, 3:0...3:3, 3:3...0:3,
+ * 0:3...0:0 will be set to null. Corner cells (0:0, 3:0, 3:3, 0:3) are always
+ * null.
  *
  * @author DeadbraiN
  */
@@ -29,14 +33,7 @@ const Observer    = require('./../../../src/global/Observer').default;
 const WebSocket   = require('./../../../node_modules/ws/index');
 const Console     = require('./../global/Console');
 const Connections = require('./../server/Connections');
-
-/**
- * {Number} Maximum amount of connections for current server. Should
- * be quadratic (x^2) e.g.: 4, 9, 16,... This value will be extended
- * with additional "around" rows and columns for connecting with sibling
- * servers. So, result amount will be e.g.: 100 + 2 rows + 2 columns.
- */
-const MAX_CONNECTIONS = 100;
+const Config      = require('./../../../src/global/Config').Config;
 
 const RUN     = 0;
 const STOP    = 1;
@@ -66,7 +63,7 @@ class Server extends Observer {
         this._server  = null;
         this._port    = port;
         this._running = false;
-        this._conns   = new Connections(MAX_CONNECTIONS);
+        this._conns   = new Connections(Config.serMaxConnections);
     }
 
     /**

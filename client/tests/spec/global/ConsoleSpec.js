@@ -1,6 +1,6 @@
 describe("client/src/global/Console", () => {
     let Console = require('../../../src/global/Console').default;
-    let Config  = require('../../../src/global/Config').Config;
+    let Config  = require('../../../../src/global/Config').Config;
     let log;
     let inc = 0;
     let arg;

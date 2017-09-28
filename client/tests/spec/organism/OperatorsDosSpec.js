@@ -4,8 +4,8 @@ describe("client/src/organism/OperatorsDos", () => {
     let Observer     = require('../../../../src/global/Observer').default;
     let EVENTS       = require('../../../src/global/Events').EVENTS;
     let EVENT_AMOUNT = require('../../../src/global/Events').EVENT_AMOUNT;
-    let Config       = require('../../../src/global/Config').Config;
-    let api          = require('../../../src/global/Config').api;
+    let Config       = require('../../../../src/global/Config').Config;
+    let api          = require('../../../../src/global/Config').api;
     let cbpv         = null;
 
     beforeEach(() => {cbpv = Config.codeBitsPerVar;api.set('codeBitsPerVar', 2)});

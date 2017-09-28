@@ -3,7 +3,7 @@
  *
  * @author DeadbraiN
  */
-import {Config} from './Config';
+import {Config} from '../../../src/global/Config';
 
 export default class Helper {
     /**
