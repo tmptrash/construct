@@ -35,20 +35,22 @@ const Console     = require('./../global/Console');
 const Connections = require('./../server/Connections');
 const Config      = require('./../../../src/global/Config').Config;
 
-const RUN     = 0;
-const STOP    = 1;
-const CONNECT = 2;
-const MSG     = 3;
-const ERR     = 4;
-const CLOSE   = 5;
+const RUN      = 0;
+const STOP     = 1;
+const CONNECT  = 2;
+const MSG      = 3;
+const ERR      = 4;
+const CLOSE    = 5;
+const OVERFLOW = 6;
 
 const EVENTS = {
-    RUN    : RUN,
-    STOP   : STOP,
-    CONNECT: CONNECT,
-    MSG    : MSG,
-    ERR    : ERR,
-    CLOSE  : CLOSE
+    RUN     : RUN,
+    STOP    : STOP,
+    CONNECT : CONNECT,
+    MSG     : MSG,
+    ERR     : ERR,
+    CLOSE   : CLOSE,
+    OVERFLOW: OVERFLOW
 };
 const EVENTS_LEN = Object.keys(EVENTS).length;
 
@@ -160,8 +162,9 @@ class Server extends Observer {
      */
     _onConnect(sock) {
         const region = this._conns.getFreeRegion();
-        if (region === false) {
+        if (region === null) {
             sock.terminate();
+            this.fire(EVENTS.OVERFLOW, sock);
             Console.warn('This server is overloaded by clients. Try another server to connect.');
             return;
         }

@@ -193,12 +193,12 @@ describe("server/src/server/Server", () => {
     });
 
     it("Checking unique id on client connect", (done) => {
+        let maxCon  = Config.serMaxConnections;
+        Config.serMaxConnections = 1;
         let server  = new Server(8899);
         let waitObj = {done: false};
-        let maxCon  = Config.serMaxConnections;
-        let id      = null;
 
-        Config.serMaxConnections = 1;
+        let id      = null;
         expect(server.run()).toEqual(true);
         const ws = new WebSocket('ws://127.0.0.1:8899');
         ws.onmessage = (uid) => {id = uid; waitObj.done = true};
@@ -213,13 +213,13 @@ describe("server/src/server/Server", () => {
         });
     });
     it("Checking unique id on client connect/disconnect and connect again with the same id", (done) => {
+        let maxCon  = Config.serMaxConnections;
+        Config.serMaxConnections = 1;
         let server  = new Server(8899);
         let waitObj = {done: false};
-        let maxCon  = Config.serMaxConnections;
         let oldId   = null;
-        let id      = null;
 
-        Config.serMaxConnections = 1;
+        let id      = null;
         expect(server.run()).toEqual(true);
         let ws = new WebSocket('ws://127.0.0.1:8899');
         ws.onmessage = (e) => {oldId = e.data; waitObj.done = true};
@@ -237,6 +237,30 @@ describe("server/src/server/Server", () => {
                         Config.serMaxConnections = maxCon;
                         done();
                     });
+                });
+            });
+        });
+    });
+    it("Checking that extra client should be disconnected", (done) => {
+        let maxCon  = Config.serMaxConnections;
+        Config.serMaxConnections = 1;
+        let server  = new Server(8899);
+        let waitObj = {done: false};
+
+        let id;
+        expect(server.run()).toEqual(true);
+        let ws = new WebSocket('ws://127.0.0.1:8899');
+        ws.onmessage = () => waitObj.done = true;
+        Helper.waitFor(waitObj, () => {
+            let ws1 = new WebSocket('ws://127.0.0.1:8899');
+            server.on(EVENTS.OVERFLOW, () => waitObj.done = true);
+            Helper.waitFor(waitObj, () => {
+                expect(ws1.readyState).toEqual(WebSocket.CLOSED);
+                server.on(EVENTS.STOP, () => waitObj.done = true);
+                server.destroy();
+                Helper.waitFor(waitObj, () => {
+                    Config.serMaxConnections = maxCon;
+                    done();
                 });
             });
         });
