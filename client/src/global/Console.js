@@ -5,7 +5,7 @@
  *   import Console from '.../Console';
  *   Console.msg('msg');
  *
- * @author DeadbraiN
+ * @author flatline
  */
 import {Config} from '../../../src/global/Config';
 

@@ -8,7 +8,7 @@
  * Depends on:
  *   manager/Manager
  *
- * @author DeadbraiN
+ * @author flatline
  */
 import {Config}       from '../../../../src/global/Config';
 import Console        from '../../global/Console';

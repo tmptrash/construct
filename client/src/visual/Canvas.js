@@ -1,7 +1,7 @@
 /**
  * Canvas implementation with minimum logic for drawing colored dots.
  *
- * @author DeadbraiN
+ * @author flatline
  */
 export default class Canvas {
     static version () {

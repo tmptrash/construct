@@ -4,7 +4,7 @@
  * for, if, variable declaration, steps, eating etc... User may override
  * this class for own needs and change operator list to custom.
  *
- * @author DeadbraiN
+ * @author flatline
  */
 import {EVENTS}  from '../global/Events';
 import {Config}  from '../../../src/global/Config';

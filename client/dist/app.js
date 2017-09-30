@@ -77,7 +77,7 @@
  * Global jevo.js configuration file. Affects only current jevo
  * instance. Other instances may have different configuration values
  *
- * @author DeadbraiN
+ * @author flatline
  * TODO: find and remove unused configs
  */
 const QUIET_ALL               = 0;
@@ -460,7 +460,7 @@ const api = {
 //  * Global jevo.js configuration file. Affects only current jevo
 //  * instance. Other instances may have different configuration values
 //  *
-//  * @author DeadbraiN
+//  * @author flatline
 //  * TODO: find and remove unused values
 //  */
 // const QUIET_ALL               = 0;
@@ -839,7 +839,7 @@ const api = {
 //  * Global jevo.js configuration file. Affects only current jevo
 //  * instance. Other instances may have different configuration values
 //  *
-//  * @author DeadbraiN
+//  * @author flatline
 //  * TODO: find and remove unused values
 //  */
 // const QUIET_ALL               = 0;
@@ -1220,7 +1220,7 @@ const api = {
  * List of all available event ids. New events should be added to
  * the end of the list. Last event id should be bigger then all other
  *
- * @author DeadbraiN
+ * @author flatline
  * TODO: find unused and remove. But after main code is done.
  */
 const EVENTS = {
@@ -1275,7 +1275,7 @@ const EVENT_AMOUNT = Object.keys(EVENTS).length;
 /**
  * Global helper class
  *
- * @author DeadbraiN
+ * @author flatline
  */
 
 
@@ -1433,7 +1433,7 @@ class Helper {
 /**
  * Class - helper for working with with byte code numbers
  *
- * @author DeadbraiN
+ * @author flatline
  */
 
 
@@ -1531,7 +1531,7 @@ class Number {
  *   import Console from '.../Console';
  *   Console.msg('msg');
  *
- * @author DeadbraiN
+ * @author flatline
  */
 
 
@@ -1563,7 +1563,7 @@ class Console {
  * TODO: add description:
  * TODO:   - events
  * TODO:   -
- * @author DeadbraiN
+ * @author flatline
  */
 
 
@@ -1597,7 +1597,7 @@ class OrganismDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organism__["a" /* de
  *   bus.on(EVENTS.EVENT, () => console.log(arguments));
  *   bus.fire(EVENTS.EVENT, 1, 2, 3);
  *
- * @author DeadbraiN
+ * @author flatline
  */
 class Observer {
     /**
@@ -1675,7 +1675,7 @@ class Observer {
  * Main function of this plugin is run organism's in an infinite
  * loop.
  *
- * @author DeadbraiN
+ * @author flatline
  */
 
 
@@ -1975,7 +1975,7 @@ class Organisms {
  * Implements organism's code logic.
  * TODO: explain here code one number format,...
  *
- * @author DeadbraiN
+ * @author flatline
  * TODO: may be this module is redundant
  * TODO: think about custom operators callbacks from outside. This is how
  * TODO: we may solve custom tasks
@@ -2215,7 +2215,7 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__src_global_Observer__["a" /* def
  * This file contains interface for available operators for some special
  * task. You have to inherit your operators class from this one.
  *
- * @author DeadbraiN
+ * @author flatline
  */
 
 class Operators {
@@ -2271,7 +2271,7 @@ class Operators {
  * TODO: add description:
  * TODO:   - events
  * TODO:   -
- * @author DeadbraiN
+ * @author flatline
  */
 
 
@@ -2496,7 +2496,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__src_global_Observer__["a" /*
  *   const manager = new Manager();
  *   manager.run();
  *
- * @author DeadbraiN
+ * @author flatline
  * TODO: what about destroy of manager instance? We have to destroy plugins
  * TODO: by calling of destroy() method for every of them
  */
@@ -2751,7 +2751,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
  * Usage:
  *   <script src="./app.js"></script>
  *
- * @author DeadbraiN
+ * @author flatline
  */
 
 
@@ -2773,7 +2773,7 @@ manager.run();
  * iteration in comparison with an array or an object. Also removing of
  * element from the Queue is very fast.
  *
- * @author DeadbraiN
+ * @author flatline
  */
 class Queue {
     /**
@@ -2865,7 +2865,7 @@ class Queue {
  * Depends on:
  *   manager/plugins/Organisms
  *
- * @author DeadbraiN
+ * @author flatline
  */
 
 
@@ -2963,7 +2963,7 @@ class Backup {
 /**
  * Plugin for adding getter and setter to Manager's API
  *
- * @author DeadbraiN
+ * @author flatline
  */
 
 
@@ -2991,7 +2991,7 @@ class Config {
 /**
  * Manager's plugin, which tracks amount of energy in a world and updates it.
  *
- * @author DeadbraiN
+ * @author flatline
  */
 
 
@@ -3082,7 +3082,7 @@ class Energy {
  *   manager/Manager
  *   manager/plugins/Organisms
  *
- * @author DeadbraiN
+ * @author flatline
  */
 
 
@@ -3231,7 +3231,7 @@ class Mutator {
  * Depends on:
  *   manager/Manager
  *
- * @author DeadbraiN
+ * @author flatline
  */
 
 
@@ -3394,7 +3394,7 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
  * Depends on:
  *   manager/Manager
  *
- * @author DeadbraiN
+ * @author flatline
  */
 
 
@@ -3468,7 +3468,7 @@ class OrganismsGarmin extends __WEBPACK_IMPORTED_MODULE_4__base_Organisms__["a" 
 /**
  * Shows console status of application
  *
- * @author DeadbraiN
+ * @author flatline
  */
 
 
@@ -3580,7 +3580,7 @@ class Status {
  * It converts numeric based byte code into JS string. This class must be
  * synchronized with 'Operators' one.
  *
- * @author DeadbraiN
+ * @author flatline
  */
 
 
@@ -3856,7 +3856,7 @@ class Code2StringDos {
  * It converts numeric based byte code into JS string. This class must be
  * synchronized with 'Operators' one.
  *
- * @author DeadbraiN
+ * @author flatline
  */
 
 
@@ -4011,7 +4011,7 @@ class Code2StringGarmin {
  * You may override this class to set your own fitness calculation.
  * TODO: describe interface
  *
- * @author DeadbraiN
+ * @author flatline
  */
 const FIELDS      = [
     'Date',
@@ -6020,7 +6020,7 @@ class FitnessGarmin {
  * for, if, variable declaration, steps, eating etc... User may override
  * this class for own needs and change operator list to custom.
  *
- * @author DeadbraiN
+ * @author flatline
  */
 
 
@@ -6320,7 +6320,7 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
  * this class for own needs and change operator list to custom. These
  * operators are used to obtain type of training saved by Garmin watches.
  *
- * @author DeadbraiN
+ * @author flatline
  */
 
 
@@ -6494,7 +6494,7 @@ class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a"
  * TODO: add description:
  * TODO:   - events
  * TODO:   -
- * @author DeadbraiN
+ * @author flatline
  */
 
 
@@ -6563,7 +6563,7 @@ class OrganismGarmin extends __WEBPACK_IMPORTED_MODULE_0__base_Organism__["a" /*
 /**
  * Canvas implementation with minimum logic for drawing colored dots.
  *
- * @author DeadbraiN
+ * @author flatline
  */
 class Canvas {
     static version () {
@@ -6700,7 +6700,7 @@ class Canvas {
  * Events:
  *   dot(x,y,color) Fires if one dot in a worlds field changed it's color
  *
- * @author DeadbraiN
+ * @author flatline
  */
 
 

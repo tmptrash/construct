@@ -9,7 +9,7 @@
  * Depends on:
  *   manager/Manager
  *
- * @author DeadbraiN
+ * @author flatline
  */
 import Organisms from './base/Organisms';
 import {EVENTS}  from '../../global/Events';

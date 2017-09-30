@@ -3,7 +3,7 @@
  * TODO: add description:
  * TODO:   - events
  * TODO:   -
- * @author DeadbraiN
+ * @author flatline
  */
 import {Config}       from '../../../../src/global/Config';
 import Observer       from '../../../../src/global/Observer';

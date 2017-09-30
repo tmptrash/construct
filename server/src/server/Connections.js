@@ -1,7 +1,7 @@
 /**
  * Tracks connected clients at the moment
  *
- * @author DeadbraiN
+ * @author flatline
  */
 class Connections {
     /**
@@ -11,6 +11,15 @@ class Connections {
      */
     static toId(region) {
         return region !== null && region.join('-');
+    }
+
+    /**
+     * Converts client's id into client's region
+     * @param {String} id Unique id of the client
+     * @returns {Array}
+     */
+    static findRegion(id) {
+        return id.split('-');
     }
 
     constructor(amount) {
@@ -26,24 +35,37 @@ class Connections {
          * {Number} Size of one side of MAX_CONNECTIONS qub. Contains additional
          * "around" rows and columns. For qub == 16, it's 4.
          */
-        this._conns  = new Array(this._side);
+        this.conns   = new Array(this._side);
 
-        for (let col = 0; col < this._side; col++) {
-            this._conns[col] = (new Array(this._side)).fill(null);
+        for (let col = 0, conns = this.conns; col < this._side; col++) {
+            conns[col] = (new Array(this._side)).fill(null);
+            conns[col].forEach((v, i, a) => a[i] = {sock: null});
         }
     }
 
-    setSocket(sock, region) {
-        this._conns[region[0]][region[1]] = sock;
+    /**
+     * Sets value by field into region. e.g.: if region == [1,1] and
+     * field == 'test' and value == 123, then region related object
+     * will be extend with an object: {test: 123}
+     * @param {Array} region Region we are set to
+     * @param {String} field Name of the field in region structure
+     * @param {*} val Value
+     */
+    setData(region, field, val) {
+        this.conns[region[0]][region[1]][field] = val;
+    }
+
+    clearData(region) {
+        this.conns[region[0]][region[1]] = {sock: null};
     }
 
     getFreeRegion() {
-        const conns = this._conns;
+        const conns = this.conns;
         const side  = this._side - 1;
 
         for (let col = 1; col < side; col++) {
             for (let row = 1; row < side; row++) {
-                if (conns[col][row] === null) {
+                if (conns[col][row].sock === null) {
                     return [col, row];
                 }
             }

@@ -2,7 +2,7 @@
  * Server side application entry point. In fact, runs server and starts
  * listen for incoming connections from clients.
  *
- * @author DeadbraiN
+ * @author flatline
  */
 const Server = require('./server/Server');
 

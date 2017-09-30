@@ -4,7 +4,7 @@
  * this class for own needs and change operator list to custom. These
  * operators are used to obtain type of training saved by Garmin watches.
  *
- * @author DeadbraiN
+ * @author flatline
  */
 import {Config}  from '../../../src/global/Config';
 import Helper    from '../global/Helper';

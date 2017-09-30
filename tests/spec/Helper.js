@@ -1,7 +1,7 @@
 /**
  * Helper for tests
  *
- * @author DeadbraiN
+ * @author flatline
  */
 export default class Helper {
     /**

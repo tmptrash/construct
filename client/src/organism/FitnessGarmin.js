@@ -2,7 +2,7 @@
  * You may override this class to set your own fitness calculation.
  * TODO: describe interface
  *
- * @author DeadbraiN
+ * @author flatline
  */
 const FIELDS      = [
     'Date',

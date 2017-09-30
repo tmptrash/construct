@@ -15,7 +15,7 @@
  * Events:
  *   dot(x,y,color) Fires if one dot in a worlds field changed it's color
  *
- * @author DeadbraiN
+ * @author flatline
  */
 import Observer       from '../../../src/global/Observer';
 import Helper         from '../global/Helper';

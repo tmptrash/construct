@@ -27,13 +27,18 @@
  * 0:3...0:0 will be set to null. Corner cells (0:0, 3:0, 3:3, 0:3) are always
  * null.
  *
- * @author DeadbraiN
+ * @author flatline
  */
 const Observer    = require('./../../../src/global/Observer').default;
 const WebSocket   = require('./../../../node_modules/ws/index');
 const Console     = require('./../global/Console');
 const Connections = require('./../server/Connections');
 const Config      = require('./../../../src/global/Config').Config;
+const Api         = require('./plugins/Api');
+
+const PLUGINS = {
+    Api: Api
+};
 
 const RUN      = 0;
 const STOP     = 1;
@@ -62,10 +67,15 @@ class Server extends Observer {
      */
     constructor(port) {
         super(EVENTS_LEN);
-        this._server  = null;
+        this.EVENTS   = EVENTS;
         this._port    = port;
         this._running = false;
-        this._conns   = new Connections(Config.serMaxConnections);
+        this._plugins = {};
+
+        this.conns    = new Connections(Config.serMaxConnections);
+        this.server   = null;
+
+        this._initPlugins();
     }
 
     /**
@@ -76,7 +86,7 @@ class Server extends Observer {
      * @returns {Boolean} Running state
      */
     run() {
-        if (this._server !== null) {
+        if (this.server !== null) {
             Console.warn('Server has already ran on port ${this._port}');
             return false;
         }
@@ -87,12 +97,11 @@ class Server extends Observer {
         }
 
         Server.ports[this._port] = true;
-        this._server = new WebSocket.Server({port: this._port}, () => {
+        this.server = new WebSocket.Server({port: this._port}, () => {
             this._running = true;
             this.fire(RUN);
             Console.info('Server is ready');
         });
-        this._server.on('connection', this._onConnect.bind(this));
 
         return true;
     }
@@ -108,12 +117,12 @@ class Server extends Observer {
         //
         // Server wasn't ran before
         //
-        if (!this._server) {return false}
+        if (!me.server) {return false}
         //
         // Server was ran, but not ready yet. stop() method
         // will be called later after RUN event fired
         //
-        if (Server.ports[this._port] && this._running === false) {
+        if (Server.ports[me._port] && me._running === false) {
             const onRun = () => {
                 me.stop();
                 me.off(RUN, onRun);
@@ -124,7 +133,7 @@ class Server extends Observer {
         //
         // Server is ready to close all clients and itself
         //
-        me._server.close(() => {
+        me.server.close(() => {
             delete Server.ports[me._port];
             me._running = false;
             me.fire(STOP);
@@ -143,57 +152,24 @@ class Server extends Observer {
     }
 
     destroy() {
-        const me = this;
+        const me        = this;
+        const plugins   = this._plugins;
         const onDestroy = () => {
-            me._server = me._port = me._conns = null;
+            for (let p in plugins) {if (plugins.hasOwnProperty(p) && plugins[p].destroy) {plugins[p].destroy()}}
+            me.server = me.conns = me._port = me._plugins = null;
             me.clear();
         };
-        if (me._server === null) {return onDestroy()}
+
+        if (me.server === null) {return onDestroy()}
         me.on(STOP, onDestroy);
         me.stop();
     }
 
-    /**
-     * Is called if client has connected to this server. If contains free
-     * regions for new connections, then places current one in a connection
-     * cub and sends unique id to the client.
-     * @param {WebSocket} sock Client's socket
-     * @private
-     */
-    _onConnect(sock) {
-        const region = this._conns.getFreeRegion();
-        if (region === null) {
-            sock.terminate();
-            this.fire(EVENTS.OVERFLOW, sock);
-            Console.warn('This server is overloaded by clients. Try another server to connect.');
-            return;
+    _initPlugins() {
+        let plugins = this._plugins;
+        for (let p in PLUGINS) {
+            plugins[p] = new PLUGINS[p](this);
         }
-
-        sock.on('message', this._onMessage.bind(this, region, sock));
-        sock.on('error', this._onError.bind(this, region, sock));
-        sock.on('close', this._onClose.bind(this, region, sock));
-
-        const clientId = Connections.toId(region);
-        sock.send(clientId);
-        this._conns.setSocket(sock, region);
-        this.fire(CONNECT, sock);
-        Console.info(`Client ${clientId} has connected`);
-    }
-
-    _onMessage(region, sock, event) {
-        this.fire(MSG, region, sock);
-        Console.info('Received: ', JSON.stringify(event), ' for client ', region);
-    }
-
-    _onError(region, sock, err) {
-        this.fire(ERR, region, sock);
-        Console.info('Error: ', err, ' for client ', Connections.toId(region));
-    }
-
-    _onClose(region, sock) {
-        this._conns.setSocket(null, region);
-        this.fire(CLOSE, region, sock);
-        Console.info(`Client ${Connections.toId(region)} has disconnected`);
     }
 }
 

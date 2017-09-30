@@ -8,7 +8,7 @@
  *   const manager = new Manager();
  *   manager.run();
  *
- * @author DeadbraiN
+ * @author flatline
  * TODO: what about destroy of manager instance? We have to destroy plugins
  * TODO: by calling of destroy() method for every of them
  */

@@ -4,7 +4,7 @@
  * Main function of this plugin is run organism's in an infinite
  * loop.
  *
- * @author DeadbraiN
+ * @author flatline
  */
 import Helper         from '../../../global/Helper';
 import {Config}       from '../../../../../src/global/Config';

@@ -2,7 +2,7 @@
  * Implements organism's code logic.
  * TODO: explain here code one number format,...
  *
- * @author DeadbraiN
+ * @author flatline
  * TODO: may be this module is redundant
  * TODO: think about custom operators callbacks from outside. This is how
  * TODO: we may solve custom tasks

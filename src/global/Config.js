@@ -2,7 +2,7 @@
  * Global jevo.js configuration file. Affects only current jevo
  * instance. Other instances may have different configuration values
  *
- * @author DeadbraiN
+ * @author flatline
  * TODO: find and remove unused configs
  */
 const QUIET_ALL               = 0;
@@ -392,7 +392,7 @@ export {Config, api};
 //  * Global jevo.js configuration file. Affects only current jevo
 //  * instance. Other instances may have different configuration values
 //  *
-//  * @author DeadbraiN
+//  * @author flatline
 //  * TODO: find and remove unused values
 //  */
 // const QUIET_ALL               = 0;
@@ -771,7 +771,7 @@ export {Config, api};
 //  * Global jevo.js configuration file. Affects only current jevo
 //  * instance. Other instances may have different configuration values
 //  *
-//  * @author DeadbraiN
+//  * @author flatline
 //  * TODO: find and remove unused values
 //  */
 // const QUIET_ALL               = 0;

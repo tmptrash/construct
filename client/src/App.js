@@ -5,7 +5,7 @@
  * Usage:
  *   <script src="./app.js"></script>
  *
- * @author DeadbraiN
+ * @author flatline
  */
 import Manager from './manager/Manager';
 

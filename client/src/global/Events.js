@@ -2,7 +2,7 @@
  * List of all available event ids. New events should be added to
  * the end of the list. Last event id should be bigger then all other
  *
- * @author DeadbraiN
+ * @author flatline
  * TODO: find unused and remove. But after main code is done.
  */
 const EVENTS = {

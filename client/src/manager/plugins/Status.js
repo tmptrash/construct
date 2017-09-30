@@ -1,7 +1,7 @@
 /**
  * Shows console status of application
  *
- * @author DeadbraiN
+ * @author flatline
  */
 import {EVENTS} from '../../global/Events';
 import {Config} from '../../../../src/global/Config';

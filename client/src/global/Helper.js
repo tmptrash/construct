@@ -1,7 +1,7 @@
 /**
  * Global helper class
  *
- * @author DeadbraiN
+ * @author flatline
  */
 import {Config} from '../../../src/global/Config';
 

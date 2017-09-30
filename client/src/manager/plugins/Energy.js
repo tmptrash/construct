@@ -1,7 +1,7 @@
 /**
  * Manager's plugin, which tracks amount of energy in a world and updates it.
  *
- * @author DeadbraiN
+ * @author flatline
  */
 import Helper   from '../../global/Helper';
 import {Config} from '../../../../src/global/Config';

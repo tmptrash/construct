@@ -11,7 +11,7 @@
  *   bus.on(EVENTS.EVENT, () => console.log(arguments));
  *   bus.fire(EVENTS.EVENT, 1, 2, 3);
  *
- * @author DeadbraiN
+ * @author flatline
  */
 export default class Observer {
     /**

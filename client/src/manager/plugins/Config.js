@@ -1,7 +1,7 @@
 /**
  * Plugin for adding getter and setter to Manager's API
  *
- * @author DeadbraiN
+ * @author flatline
  */
 import {api} from '../../../../src/global/Config';
 

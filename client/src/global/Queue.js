@@ -7,7 +7,7 @@
  * iteration in comparison with an array or an object. Also removing of
  * element from the Queue is very fast.
  *
- * @author DeadbraiN
+ * @author flatline
  */
 export default class Queue {
     /**

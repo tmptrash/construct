@@ -4,7 +4,7 @@
  * Depends on:
  *   manager/plugins/Organisms
  *
- * @author DeadbraiN
+ * @author flatline
  */
 import Helper   from '../../global/Helper';
 import {Config} from '../../../../src/global/Config';

@@ -1,7 +1,7 @@
 /**
  * Console class for working on a server side in a terminal window.
  *
- * @author DeadbraiN
+ * @author flatline
  */
 class Console {
     static error(...msg) {console.log('\x1b[31m%s\x1b[0m', msg.join(''))}

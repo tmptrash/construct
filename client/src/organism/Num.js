@@ -1,7 +1,7 @@
 /**
  * Class - helper for working with with byte code numbers
  *
- * @author DeadbraiN
+ * @author flatline
  */
 import Helper   from '../global/Helper';
 import {Config} from '../../../src/global/Config';

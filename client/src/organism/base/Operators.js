@@ -2,7 +2,7 @@
  * This file contains interface for available operators for some special
  * task. You have to inherit your operators class from this one.
  *
- * @author DeadbraiN
+ * @author flatline
  */
 
 export default class Operators {

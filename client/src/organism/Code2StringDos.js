@@ -3,7 +3,7 @@
  * It converts numeric based byte code into JS string. This class must be
  * synchronized with 'Operators' one.
  *
- * @author DeadbraiN
+ * @author flatline
  */
 import Num    from './Num';
 

@@ -2,7 +2,7 @@
  * TODO: add description:
  * TODO:   - events
  * TODO:   -
- * @author DeadbraiN
+ * @author flatline
  */
 import Organism from './base/Organism';
 
