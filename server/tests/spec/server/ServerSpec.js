@@ -5,6 +5,7 @@ describe("server/src/server/Server", () => {
     const Console   = require('./../../../src/global/Console');
     const Helper    = require('./../../../../tests/spec/Helper').default;
     const Config    = require('./../../../../src/global/Config').Config;
+    const STOC      = require('./../../../../src/global/Requests').STOC;
 
     let error;
     let warn;
@@ -262,6 +263,25 @@ describe("server/src/server/Server", () => {
                     Config.serMaxConnections = maxCon;
                     done();
                 });
+            });
+        });
+    });
+
+    it("Checking sending message by client", (done) => {
+        let server  = new Server(8899);
+        let waitObj = {done: false};
+        let data;
+
+        expect(server.run()).toEqual(true);
+        const ws = new WebSocket('ws://127.0.0.1:8899');
+        ws.on('message', function(e) {waitObj.done = true; data = JSON.parse(e)});
+        Helper.waitFor(waitObj, () => {
+            expect(data[0] === STOC.REQ_GIVE_ID).toEqual(true);
+            server.on(EVENTS.STOP, () => waitObj.done = true);
+            server.stop();
+            Helper.waitFor(waitObj, () => {
+                server.destroy();
+                done();
             });
         });
     });
