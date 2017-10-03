@@ -11,7 +11,7 @@
  */
 import {EVENTS}  from '../../global/Events';
 import {Config}  from '../../../../src/global/Config';
-import Helper    from '../../global/Helper';
+import Helper    from '../../../../src/global/Helper';
 import Organism  from '../../organism/OrganismDos';
 import Num       from '../../organism/Num';
 

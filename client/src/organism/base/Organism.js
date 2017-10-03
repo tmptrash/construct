@@ -9,7 +9,7 @@ import {Config}       from '../../../../src/global/Config';
 import Observer       from '../../../../src/global/Observer';
 import {EVENTS}       from '../../global/Events';
 import {EVENT_AMOUNT} from '../../global/Events';
-import Helper         from '../../global/Helper';
+import Helper         from '../../../../src/global/Helper';
 import JSVM           from '../JSVM';
 
 const IS_NUM = Helper.isNumeric;

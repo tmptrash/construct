@@ -3,7 +3,7 @@
  *
  * @author flatline
  */
-import Helper   from '../../global/Helper';
+import Helper   from '../../../../src/global/Helper';
 import {Config} from '../../../../src/global/Config';
 import Console  from '../../global/Console';
 
@@ -13,7 +13,7 @@ export default class Energy {
     }
 
     constructor(manager) {
-        this.manager       = manager;
+        this.manager        = manager;
         this._checkPeriod   = Config.worldEnergyCheckPeriod;
         this._onIterationCb = this._onIteration.bind(this);
         //

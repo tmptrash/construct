@@ -12,13 +12,15 @@
  * TODO: what about destroy of manager instance? We have to destroy plugins
  * TODO: by calling of destroy() method for every of them
  */
-import Observer          from '../../../src/global/Observer';
-import {Config}          from '../../../src/global/Config';
-import {EVENTS}          from '../global/Events';
-import {EVENT_AMOUNT}    from '../global/Events';
-import Console           from '../global/Console';
-import World             from '../visual/World';
-import Canvas            from '../visual/Canvas';
+import Observer          from './../../../src/global/Observer';
+import {Config}          from './../../../src/global/Config';
+import {EVENTS}          from './../global/Events';
+import {EVENT_AMOUNT}    from './../global/Events';
+import Console           from './../global/Console';
+import World             from './../visual/World';
+import Canvas            from './../visual/Canvas';
+import Server            from './../../../server/src/server/Server';
+import Client            from './../../../client/src/manager/plugins/Client';
 
 import OrganismsGarmin   from './plugins/OrganismsGarmin';
 import OrganismsDos      from './plugins/OrganismsDos';
@@ -27,14 +29,14 @@ import Mutator           from './plugins/Mutator';
 import Energy            from './plugins/Energy';
 import Status            from './plugins/Status';
 
-import OperatorsDos      from '../organism/OperatorsDos';
-import OperatorsGarmin   from '../organism/OperatorsGarmin';
-import Code2StringDos    from '../organism/Code2StringDos';
-import Code2StringGarmin from '../organism/Code2StringGarmin';
-import FitnessGarmin     from '../organism/FitnessGarmin';
-import OrganismDos       from '../organism/OrganismDos';
-import OrganismGarmin    from '../organism/OrganismGarmin';
-import JSVM              from '../organism/JSVM';
+import OperatorsDos      from './../organism/OperatorsDos';
+import OperatorsGarmin   from './../organism/OperatorsGarmin';
+import Code2StringDos    from './../organism/Code2StringDos';
+import Code2StringGarmin from './../organism/Code2StringGarmin';
+import FitnessGarmin     from './../organism/FitnessGarmin';
+import OrganismDos       from './../organism/OrganismDos';
+import OrganismGarmin    from './../organism/OrganismGarmin';
+import JSVM              from './../organism/JSVM';
 /**
  * {Boolean} Specify fitness or nature simulation mode
  */
@@ -60,10 +62,16 @@ const PLUGINS = {
     Config   : ConfigPlugin,
     Mutator  : Mutator,
     Energy   : Energy,
-    Status   : Status
+    Status   : Status,
+    Client   : Client
 };
 
 export default class Manager extends Observer {
+    /**
+     * Is called before server is running
+     * @abstract
+     */
+    onBeforeRun() {}
     /**
      * Is called on every iteration in main loop. May be overridden in plugins
      * @abstract
@@ -101,9 +109,10 @@ export default class Manager extends Observer {
     version() {
         let plugins = this._plugins;
         let ver     = '' +
-            'Manager               : 0.9\n' +
+            'Manager                : 2.0\n' +
             '    World              : ' + World.version() + '\n' +
-            '    Canvas             : ' + Canvas.version() + '\n';
+            '    Canvas             : ' + Canvas.version() + '\n' +
+            '    Server             : ' + Server.version() + '\n';
 
         for (let p in plugins) {
             if (plugins.hasOwnProperty(p) && p !== 'Organisms') {
@@ -136,6 +145,11 @@ export default class Manager extends Observer {
         let stamp       = timer();
         let me          = this;
         let zeroTimeout = me.zeroTimeout;
+        //
+        // Someone has stopped the server. Running will be started later...
+        //
+        this.onBeforeRun();
+        if (this._stopped) {return}
 
         function loop () {
             //

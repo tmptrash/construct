@@ -18,7 +18,7 @@
  * @author flatline
  */
 import Observer       from '../../../src/global/Observer';
-import Helper         from '../global/Helper';
+import Helper         from '../../../src/global/Helper';
 import {EVENTS}       from '../global/Events';
 import {EVENT_AMOUNT} from '../global/Events';
 

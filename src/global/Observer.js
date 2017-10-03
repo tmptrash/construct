@@ -13,7 +13,7 @@
  *
  * @author flatline
  */
-export default class Observer {
+class Observer {
     /**
      * Constructs handlers map. maxIndex means maximum event value
      * for entire Observer instance life.
@@ -68,3 +68,5 @@ export default class Observer {
         for (let i = 0; i < len; i++) {handlers[i] = []}
     }
 }
+
+module.exports = Observer;

@@ -7,7 +7,7 @@
  * @author flatline
  */
 import {Config}  from '../../../src/global/Config';
-import Helper    from '../global/Helper';
+import Helper    from '../../../src/global/Helper';
 import Operators from './base/Operators';
 import Num       from './Num';
 

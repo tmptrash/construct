@@ -3,7 +3,7 @@
  *
  * @author flatline
  */
-import Helper   from '../global/Helper';
+import Helper   from '../../../src/global/Helper';
 import {Config} from '../../../src/global/Config';
 
 const BITS_PER_VAR        = Config.codeBitsPerVar;

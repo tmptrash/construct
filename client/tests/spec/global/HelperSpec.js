@@ -1,5 +1,5 @@
 describe("client/src/global/Helper", () => {
-    let   Helper = require('../../../src/global/Helper').default;
+    let   Helper = require('../../../../src/global/Helper');
     let   Config = require('../../../../src/global/Config').Config;
     let   api    = require('../../../../src/global/Config').api;
 

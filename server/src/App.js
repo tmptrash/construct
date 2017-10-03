@@ -4,7 +4,7 @@
  *
  * @author flatline
  */
-const Server = require('./server/Server');
+const Server = require('./server/Server').Server;
 
 // TODO: port should be obtained from command line parameter
 const server = new Server(8080);

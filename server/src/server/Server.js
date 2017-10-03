@@ -29,17 +29,18 @@
  *
  * @author flatline
  */
-const Observer    = require('./../../../src/global/Observer').default;
+const Observer    = require('./../../../src/global/Observer');
 const WebSocket   = require('./../../../node_modules/ws/index');
 const Console     = require('./../global/Console');
 const Connections = require('./../server/Connections');
 const Config      = require('./../../../src/global/Config').Config;
 const Api         = require('./plugins/Api');
-const CTOS        = require('./../../../src/global/Requests').CTOS;
+const Request     = require('./../../../src/global/plugins/Request');
 const STOC        = require('./../../../src/global/Requests').STOC;
 
 const PLUGINS = {
-    Api: Api
+    Api    : Api,
+    Request: Request
 };
 
 const RUN      = 0;
@@ -62,17 +63,32 @@ const EVENTS = {
 const EVENTS_LEN = Object.keys(EVENTS).length;
 
 class Server extends Observer {
+    static version() {
+        return '0.1';
+    }
+
     /**
-     * Sends data to the client. first two parameters are required. All
+     * Sends data to the client. First two parameters are required. All
      * other parameters depend of special request and will be send to
      * the client as an array.
      * @param {WebSocket} sock
-     * @param {Number} reqId Request id
+     * @param {Number} type Request type (see Requests.STOC|CTOS)
      * @param {*} params Array of parameters
+     * @return {Number} Unique request id
+     * @abstract
      */
-    static send(sock, reqId, ...params) {
-        sock.send(JSON.stringify([reqId].concat(params)));
-    }
+    send(sock, type, ...params) {}
+
+    /**
+     * Is user for answering on requests. May not be called if answer
+     * (response) don't needed.
+     * @param {WebSocket} sock Socket where send the answer
+     * @param {Number} type Request type (see Requests.STOC|CTOS)
+     * @param {Number} reqId Unique request id, returned by send() method
+     * @param {Array} params Custom parameters to send
+     * @abstract
+     */
+    answer(sock, type, reqId, ...params) {}
 
     /**
      * Creates an instance of the server. Also creates regions map
@@ -175,6 +191,7 @@ class Server extends Observer {
         const plugins   = this._plugins;
         const onDestroy = () => {
             for (let p in plugins) {if (plugins.hasOwnProperty(p) && plugins[p].destroy) {plugins[p].destroy()}}
+            me.conns.destroy();
             me._server = me.conns = me._port = me._plugins = null;
             me.clear();
         };
@@ -200,18 +217,18 @@ class Server extends Observer {
             return;
         }
 
-        sock.on('message', this.onMessage.bind(this, clientId, sock));
+        sock.on('message', this.onMessage.bind(this, sock));
         sock.on('error', this.onError.bind(this, clientId, sock));
         sock.on('close', this.onClose.bind(this, clientId, sock));
 
-        Server.send(sock, STOC.REQ_GIVE_ID, clientId);
+        this.send(sock, STOC.REQ_GIVE_ID, clientId);
         this.conns.setData(region, 'sock', sock);
         this.fire(EVENTS.CONNECT, sock);
         Console.info(`Client ${clientId} has connected`);
     }
 
-    onMessage(clientId, sock, event) {
-        this.fire(EVENTS.MSG, sock, clientId, event.data);
+    onMessage(sock, event) {
+        this.fire(EVENTS.MSG, sock, event.data);
     }
 
     onError(clientId, sock, err) {
@@ -220,7 +237,7 @@ class Server extends Observer {
     }
 
     onClose(clientId, sock) {
-        const region = Connections.findRegion(clientId);
+        const region = Connections.toRegion(clientId);
         this.conns.clearData(region);
         sock.removeAllListeners('message');
         sock.removeAllListeners('error');

@@ -6,7 +6,7 @@
  *
  * @author flatline
  */
-import Helper         from '../../../global/Helper';
+import Helper         from '../../../../../src/global/Helper';
 import {Config}       from '../../../../../src/global/Config';
 import Console        from '../../../global/Console';
 import {EVENTS}       from '../../../global/Events';

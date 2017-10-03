@@ -18,7 +18,7 @@ class Connections {
      * @param {String} id Unique id of the client
      * @returns {Array}
      */
-    static findRegion(id) {
+    static toRegion(id) {
         return id.split('-');
     }
 
@@ -41,6 +41,19 @@ class Connections {
             conns[col] = (new Array(this._side)).fill(null);
             conns[col].forEach((v, i, a) => a[i] = {sock: null});
         }
+    }
+
+    destroy() {
+        this.conns = null;
+    }
+
+    /**
+     * Returns connection object by region
+     * @param {Array} region Region to get
+     * @returns {Object|null}
+     */
+    getConnection(region) {
+        return this.conns[region[0]][region[1]];
     }
 
     /**

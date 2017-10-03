@@ -276,60 +276,6 @@ const Config = {
      */
     conStepEnergySpendPercent: 20,
     /**
-     * {Number} Starting number for TCP/IP listening
-     */
-    conServerPort: 2010,
-    /**
-     * {String} Works in pair with conServerPort. An IP of current
-     * server/instance.
-     * TODO: IPv6?
-     */
-    conServerIp: '127.0.0.1',
-    /**
-     * {Number} Port number for "fast" mode. It uses, for example, for pooling
-     */
-    conFastServerPort: 2011,
-    /**
-     * {Number} Left side server's (instance) port we want connect to. May be
-     * zero (0) if no left side server available.
-     */
-    conLeftServerPort: 0,
-    /**
-     * {String} Left server(instance) IP address. Works in pair with
-     * conLeftServerPort
-     */
-    conLeftServerIp: '127.0.0.1',
-    /**
-     * {Number} Right side server's (instance) port we want connect to. May be
-     * zero (0) if no right side server available.
-     */
-    conRightServerPort: 0,
-    /**
-     * {String} Right server(instance) IP address. Works in pair with
-     * conRightServerPort
-     */
-    conRightServerIp: '127.0.0.1',
-    /**
-     * {Number} Left up server's (instance) port we want connect to. May be
-     * zero (0) if no up side server available.
-     */
-    conUpServerPort: 0,
-    /**
-     * {String} Up server(instance) IP address. Works in pair with
-     * conUpServerPort
-     */
-    conUpServerIp: '127.0.0.1',
-    /**
-     * {Number} Left down server's (instance) port we want connect to. May be
-     * zero (0) if no down side server available.
-     */
-    conDownServerPort: 0,
-    /**
-     * {String} Down server(instance) IP address. Works in pair with
-     * conDownServerPort
-     */
-    conDownServerIp: '127.0.0.1',
-    /**
      * {Array} Array of included plugins
      */
     plugIncluded: [],
@@ -378,7 +324,15 @@ const Config = {
      * with additional "around" rows and columns for connecting with sibling
      * servers. So, result amount of cells will be e.g.: 16 + 2 rows + 2 cols.
      */
-    serMaxConnections: 100
+    serMaxConnections: 100,
+    /**
+     * {Number} Port number for connecting with server
+     */
+    serPort: 8099,
+    /**
+     * {String} Host for connecting with server
+     */
+    serHost: 'ws://127.0.0.1'
 };
 
 const api = {
@@ -386,7 +340,7 @@ const api = {
     get: (key)      => Config[key]
 };
 
-export {Config, api};
+module.exports = {Config, api};
 
 // /**
 //  * Global jevo.js configuration file. Affects only current jevo

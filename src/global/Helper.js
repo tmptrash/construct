@@ -3,9 +3,9 @@
  *
  * @author flatline
  */
-import {Config} from '../../../src/global/Config';
+const Config = require('./Config').Config;
 
-export default class Helper {
+class Helper {
     /**
      * Calculates unique id for world's coordinates. For the same x,y
      * id will be the same.
@@ -121,6 +121,19 @@ export default class Helper {
     static isNumeric(n) {
         return !isNaN(parseFloat(n)) && isFinite(n);
     }
+
+    /**
+     * Generates unique numeric ids
+     * @returns {Number}
+     */
+    static getId() {
+        return ++this._id;
+    }
+
+    static isFunc(v) {
+        return typeof v === 'function';
+    }
+
     // TODO: will be used later
     // /**
     //  * Saves custom data into the file. If file exists, it will
@@ -146,3 +159,10 @@ export default class Helper {
     //     return JSON.parse(localStorage[file]);
     // }
 }
+
+/**
+ * {Number} Is used as unique id generator
+ */
+Helper._id = 0;
+
+module.exports = Helper;
