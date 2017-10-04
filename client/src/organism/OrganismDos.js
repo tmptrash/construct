@@ -6,7 +6,7 @@
  */
 import Organism from './base/Organism';
 
-class OrganismDos extends Organism {
+export default class OrganismDos extends Organism {
     static version() {
         return '0.1';
     }
@@ -15,5 +15,3 @@ class OrganismDos extends Organism {
         this.jsvm.run(this);
     }
 }
-
-module.exports = OrganismDos;

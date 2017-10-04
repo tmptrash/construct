@@ -88,7 +88,7 @@ class Client {
      */
     _onBeforeRun() {
         this._manager.stop();
-        const reqId = this.send(this._client, TYPES.REQ_SET_ACTIVE, true, (type) => {
+        this.send(this._client, TYPES.REQ_SET_ACTIVE, true, (type) => {
             if (type === TYPES.RES_ACTIVE_OK) {
                 this._manager.run();
             }

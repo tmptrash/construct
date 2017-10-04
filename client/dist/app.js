@@ -8487,7 +8487,7 @@ exports.PassThrough = __webpack_require__(211);
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(module) {/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base_Organism__ = __webpack_require__(56);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base_Organism__ = __webpack_require__(56);
 /**
  * TODO: add description:
  * TODO:   - events
@@ -8505,9 +8505,8 @@ class OrganismDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organism__["a" /* de
         this.jsvm.run(this);
     }
 }
+/* harmony export (immutable) */ __webpack_exports__["a"] = OrganismDos;
 
-module.exports = OrganismDos;
-/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(229)(module)))
 
 /***/ }),
 /* 29 */
@@ -11416,7 +11415,7 @@ Stream.prototype.pipe = function(dest, options) {
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {var ClientRequest = __webpack_require__(220)
-var extend = __webpack_require__(233)
+var extend = __webpack_require__(232)
 var statusCodes = __webpack_require__(154)
 var url = __webpack_require__(50)
 
@@ -14170,7 +14169,7 @@ if (typeof self === 'object') {
 } else {
   // Node.js or Web worker with no crypto support
   try {
-    var crypto = __webpack_require__(236);
+    var crypto = __webpack_require__(235);
     if (typeof crypto.randomBytes !== 'function')
       throw new Error('Not supported');
 
@@ -15919,7 +15918,7 @@ util.inherits = __webpack_require__(1);
 /*</replacement>*/
 
 /*<replacement>*/
-var debugUtil = __webpack_require__(237);
+var debugUtil = __webpack_require__(236);
 var debug = void 0;
 if (debugUtil && debugUtil.debuglog) {
   debug = debugUtil.debuglog('stream');
@@ -18433,7 +18432,7 @@ module.exports = function(module) {
 
 const WebSocket = __webpack_require__(108);
 
-WebSocket.Server = __webpack_require__(232);
+WebSocket.Server = __webpack_require__(231);
 WebSocket.Receiver = __webpack_require__(106);
 WebSocket.Sender = __webpack_require__(107);
 
@@ -18565,7 +18564,7 @@ module.exports = { format, parse };
 const safeBuffer = __webpack_require__(8);
 
 const PerMessageDeflate = __webpack_require__(38);
-const isValidUTF8 = __webpack_require__(231);
+const isValidUTF8 = __webpack_require__(230);
 const bufferUtil = __webpack_require__(51);
 const ErrorCodes = __webpack_require__(104);
 const constants = __webpack_require__(52);
@@ -19544,7 +19543,7 @@ const http = __webpack_require__(49);
 const url = __webpack_require__(50);
 
 const PerMessageDeflate = __webpack_require__(38);
-const EventTarget = __webpack_require__(230);
+const EventTarget = __webpack_require__(229);
 const Extensions = __webpack_require__(105);
 const constants = __webpack_require__(52);
 const Receiver = __webpack_require__(106);
@@ -20375,7 +20374,7 @@ module.exports = Connections;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Console__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__visual_World__ = __webpack_require__(129);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__visual_Canvas__ = __webpack_require__(128);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__server_src_server_Server__ = __webpack_require__(234);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__server_src_server_Server__ = __webpack_require__(233);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__server_src_server_Server___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6__server_src_server_Server__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__client_src_manager_plugins_Client__ = __webpack_require__(115);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__client_src_manager_plugins_Client___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7__client_src_manager_plugins_Client__);
@@ -20446,7 +20445,7 @@ const CLASS_MAP = {
     Code2StringDos   : __WEBPACK_IMPORTED_MODULE_16__organism_Code2StringDos__["a" /* default */],
     Code2StringGarmin: __WEBPACK_IMPORTED_MODULE_17__organism_Code2StringGarmin__["a" /* default */],
     FitnessGarmin    : __WEBPACK_IMPORTED_MODULE_18__organism_FitnessGarmin__["a" /* default */],
-    OrganismDos      : __WEBPACK_IMPORTED_MODULE_19__organism_OrganismDos__["default"],
+    OrganismDos      : __WEBPACK_IMPORTED_MODULE_19__organism_OrganismDos__["a" /* default */],
     OrganismGarmin   : __WEBPACK_IMPORTED_MODULE_20__organism_OrganismGarmin__["a" /* default */]
 };
 /**
@@ -20520,7 +20519,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
             '        JSVM           : ' + __WEBPACK_IMPORTED_MODULE_21__organism_JSVM__["a" /* default */].version() + '\n' +
             '        OperatorsDos   : ' + __WEBPACK_IMPORTED_MODULE_14__organism_OperatorsDos__["a" /* default */].version() + '\n' +
             '        OperatorsGarmin: ' + __WEBPACK_IMPORTED_MODULE_15__organism_OperatorsGarmin__["a" /* default */].version() + '\n' +
-            '        OrganismDos    : ' + __WEBPACK_IMPORTED_MODULE_19__organism_OrganismDos__["default"].version() + '\n' +
+            '        OrganismDos    : ' + __WEBPACK_IMPORTED_MODULE_19__organism_OrganismDos__["a" /* default */].version() + '\n' +
             '        OrganismGarmin : ' + __WEBPACK_IMPORTED_MODULE_20__organism_OrganismGarmin__["a" /* default */].version();
 
         return ver;
@@ -42562,36 +42561,6 @@ exports.createContext = Script.createContext = function (context) {
 
 /***/ }),
 /* 229 */
-/***/ (function(module, exports) {
-
-module.exports = function(originalModule) {
-	if(!originalModule.webpackPolyfill) {
-		var module = Object.create(originalModule);
-		// module.parent = undefined by default
-		if(!module.children) module.children = [];
-		Object.defineProperty(module, "loaded", {
-			enumerable: true,
-			get: function() {
-				return module.l;
-			}
-		});
-		Object.defineProperty(module, "id", {
-			enumerable: true,
-			get: function() {
-				return module.i;
-			}
-		});
-		Object.defineProperty(module, "exports", {
-			enumerable: true,
-		});
-		module.webpackPolyfill = 1;
-	}
-	return module;
-};
-
-
-/***/ }),
-/* 230 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42749,7 +42718,7 @@ module.exports = EventTarget;
 
 
 /***/ }),
-/* 231 */
+/* 230 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42773,7 +42742,7 @@ try {
 
 
 /***/ }),
-/* 232 */
+/* 231 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43114,7 +43083,7 @@ function abortConnection (socket, code, message) {
 
 
 /***/ }),
-/* 233 */
+/* 232 */
 /***/ (function(module, exports) {
 
 module.exports = extend
@@ -43139,7 +43108,7 @@ function extend() {
 
 
 /***/ }),
-/* 234 */
+/* 233 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -43180,7 +43149,7 @@ const Request     = __webpack_require__(58);
 const TYPES       = __webpack_require__(12).TYPES;
 const Console     = __webpack_require__(109);
 const Connections = __webpack_require__(110);
-const Api         = __webpack_require__(235);
+const Api         = __webpack_require__(234);
 
 const PLUGINS = {
     Api    : Api,
@@ -43407,7 +43376,7 @@ Server.ports = {};
 module.exports = {Server: Server, EVENTS: EVENTS};
 
 /***/ }),
-/* 235 */
+/* 234 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -43477,13 +43446,13 @@ class Api extends BaseApi {
 module.exports = Api;
 
 /***/ }),
-/* 236 */
+/* 235 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 237 */
+/* 236 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
