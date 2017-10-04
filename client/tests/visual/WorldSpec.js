@@ -1,6 +1,6 @@
 describe("client/src/visual/World", () => {
-    let World  = require('../../../src/visual/World').default;
-    let EVENTS = require('../../../src/global/Events').EVENTS;
+    let World  = require('./../../../client/src/visual/World').default;
+    let EVENTS = require('./../../../client/src/global/Events').EVENTS;
 
     it("Checking world creation", () => {
         let world = new World(10, 10);

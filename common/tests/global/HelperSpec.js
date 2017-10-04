@@ -1,7 +1,7 @@
-describe("client/src/global/Helper", () => {
-    let   Helper = require('../../../../src/global/Helper');
-    let   Config = require('../../../../src/global/Config').Config;
-    let   api    = require('../../../../src/global/Config').api;
+describe("common/src/global/Helper", () => {
+    let   Helper = require('./../../../common/src/global/Helper');
+    let   Config = require('./../../../common/src/global/Config').Config;
+    let   api    = require('./../../../common/src/global/Config').api;
 
     it("Checking posId() method", () => {
         expect(Helper.posId(0,0)).toEqual(0);

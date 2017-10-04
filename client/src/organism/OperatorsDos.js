@@ -7,8 +7,8 @@
  * @author flatline
  */
 import {EVENTS}  from '../global/Events';
-import {Config}  from '../../../src/global/Config';
-import Helper    from '../../../src/global/Helper';
+import {Config}  from '../../../common/src/global/Config';
+import Helper    from '../../../common/src/global/Helper';
 import Operators from './base/Operators';
 import Num       from './Num';
 

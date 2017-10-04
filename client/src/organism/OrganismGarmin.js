@@ -5,7 +5,7 @@
  * @author flatline
  */
 import Organism       from './base/Organism';
-import {Config}       from '../../../src/global/Config';
+import {Config}       from '../../../common/src/global/Config';
 import {EVENTS}       from '../global/Events';
 
 export default class OrganismGarmin extends Organism {

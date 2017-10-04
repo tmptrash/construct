@@ -5,16 +5,14 @@
  *
  * @author flatline
  */
-const Helper = require('./../Helper');
-
-const REQ_MASK = 0x80000000;
-const RES_MASK = 0x7fffffff;
+const Helper   = require('./../../global/Helper');
+const MASKS    = require('./../../global/Requests').MASKS;
 
 class Request {
     /**
      * Creates Request instance and overrides two required methods:
      * send() and onMessage()
-     * @param {Function} parent Instance of custom class
+     * @param {Object} parent Instance of custom class
      */
     constructor(parent) {
         this._parent      = parent;
@@ -51,7 +49,7 @@ class Request {
      *
      * Sends data to the client or server. First two parameters are required.
      * They are: 'socket' for sending params and 'type' for sending special
-     * request type (see Requests.CTOS|STOC constants for details). All other
+     * request type (see Requests.TYPES constants for details). All other
      * parameters depend of special request and will be send to the client
      * as an array. Last parameter is optional callback, which is called after
      * send is complete. If last parameter present, then we should wait for
@@ -67,7 +65,7 @@ class Request {
      */
     _onSend(sock, type, ...params) {
         const cb    = Helper.isFunc(params[params.length - 1]) ? params.pop() : null;
-        const reqId = cb ? Helper.getId() | REQ_MASK : null;
+        const reqId = cb ? Helper.getId() | MASKS.REQ_MASK : null;
 
         cb && (this._requests[reqId] = cb);
         sock.send(JSON.stringify([type, reqId].concat(params)));

@@ -1,11 +1,11 @@
-describe("server/src/server/Server", () => {
+describe("server/common/server/Server", () => {
     const WebSocket = require('ws');
-    const Server    = require('./../../../src/server/Server').Server;
-    const EVENTS    = require('./../../../src/server/Server').EVENTS;
-    const Console   = require('./../../../src/global/Console');
-    const Helper    = require('./../../../../tests/spec/Helper').default;
-    const Config    = require('./../../../../src/global/Config').Config;
-    const STOC      = require('./../../../../src/global/Requests').STOC;
+    const Server    = require('./../../../server/src/server/Server').Server;
+    const EVENTS    = require('./../../../server/src/server/Server').EVENTS;
+    const Console   = require('./../../../server/src/global/Console');
+    const Helper    = require('./../../../common/tests/Helper');
+    const Config    = require('./../../../common/src/global/Config').Config;
+    const TYPES     = require('./../../../common/src/global/Requests').TYPES;
 
     let error;
     let warn;
@@ -276,7 +276,7 @@ describe("server/src/server/Server", () => {
         const ws = new WebSocket('ws://127.0.0.1:8899');
         ws.on('message', function(e) {waitObj.done = true; data = JSON.parse(e)});
         Helper.waitFor(waitObj, () => {
-            expect(data[0] === STOC.REQ_GIVE_ID).toEqual(true);
+            expect(data[0] === TYPES.REQ_GIVE_ID).toEqual(true);
             server.on(EVENTS.STOP, () => waitObj.done = true);
             server.stop();
             Helper.waitFor(waitObj, () => {

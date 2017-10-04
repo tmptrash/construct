@@ -8,11 +8,11 @@
  * @author flatline
  */
 const WebSocket = require('./../../../../node_modules/ws/index');
-const Helper    = require('./../../../../src/global/Helper');
-const Config    = require('./../../../../src/global/Config');
-const CTOS      = require('./../../../../src/global/Requests').CTOS;
-const STOC      = require('./../../../../src/global/Requests').STOC;
-const Request   = require('./../../../../src/global/plugins/Request');
+const Helper    = require('./../../.././common/Helper');
+const Config    = require('./../../.././common/Config');
+const TYPES     = require('./../../.././common/Requests').TYPES;
+const Request   = require('./../../.././Request');
+const Api       = require('./Api');
 const Console   = require('./../../global/Console');
 
 class Client {
@@ -25,7 +25,7 @@ class Client {
      * other parameters depend of special request and will be send to
      * the client as an array.
      * @param {WebSocket} sock
-     * @param {Number} type Request type (see Requests.STOC|CTOS)
+     * @param {Number} type Request type (see Requests.TYPES)
      * @param {*} params Array of parameters
      * @return {Number} Unique request id
      * @abstract
@@ -36,7 +36,7 @@ class Client {
      * Is user for answering on requests. May not be called if answer
      * (response) don't needed.
      * @param {WebSocket} sock Socket where send the answer
-     * @param {Number} type Request type (see Requests.STOC|CTOS)
+     * @param {Number} type Request type (see Requests.TYPES)
      * @param {Number} reqId Unique request id, returned by send() method
      * @param {Array} params Custom parameters to send
      * @abstract
@@ -56,6 +56,7 @@ class Client {
         this._manager       = manager;
         this._client        = new WebSocket(`${Config.serHost}:${Config.serPort}`);
         this._request       = new Request(this);
+        this._api           = new Api(this);
         this._onBeforeRunCb = this._onBeforeRun.bind(this);
 
         Helper.override(manager, 'onBeforeRun', this._onBeforeRunCb);
@@ -70,6 +71,8 @@ class Client {
         this._client.removeAllListeners('message');
         this._client.removeAllListeners('error');
         this._client.removeAllListeners('close');
+        this._api.destroy();
+        this._api           = null;
         this._request.destroy();
         this._request       = null;
         Helper.unoverride(this._manager, 'onBeforeRun', this._onBeforeRunCb);
@@ -85,8 +88,8 @@ class Client {
      */
     _onBeforeRun() {
         this._manager.stop();
-        const reqId = this.send(this._client, CTOS.REQ_SET_ACTIVE, true, (type) => {
-            if (type === STOC.RES_ACTIVE_OK) {
+        const reqId = this.send(this._client, TYPES.REQ_SET_ACTIVE, true, (type) => {
+            if (type === TYPES.RES_ACTIVE_OK) {
                 this._manager.run();
             }
         });

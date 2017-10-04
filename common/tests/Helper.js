@@ -3,7 +3,7 @@
  *
  * @author flatline
  */
-export default class Helper {
+class Helper {
     /**
      * Compares two arrays only on first level
      * @param {Array} arr1
@@ -36,3 +36,5 @@ export default class Helper {
         }, 50);
     }
 }
+
+module.exports = Helper;

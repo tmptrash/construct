@@ -6516,7 +6516,7 @@ elliptic.eddsa = __webpack_require__(172);
 // shim for using process in browser
 var process = module.exports = {};
 
-// cached from whatever global is present so that test runners that stub it
+// cached from whatever common is present so that test runners that stub it
 // don't break things.  But we need to wrap it in a try catch in case it is
 // wrapped in strict mode code which doesn't define any globals.  It's inside a
 // function because try/catches deoptimize in certain engines.
@@ -6565,10 +6565,10 @@ function runTimeout(fun) {
         return cachedSetTimeout(fun, 0);
     } catch(e){
         try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the common object when called normally
             return cachedSetTimeout.call(null, fun, 0);
         } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            // same as above but when it's a version of I.E. that must have the common object for 'this', hopfully our context correct otherwise it will throw a common error
             return cachedSetTimeout.call(this, fun, 0);
         }
     }
@@ -6590,10 +6590,10 @@ function runClearTimeout(marker) {
         return cachedClearTimeout(marker);
     } catch (e){
         try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the common object when called normally
             return cachedClearTimeout.call(null, marker);
         } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // same as above but when it's a version of I.E. that must have the common object for 'this', hopfully our context correct otherwise it will throw a common error.
             // Some versions of I.E. have different rules for clearTimeout vs setTimeout
             return cachedClearTimeout.call(this, marker);
         }
@@ -6983,7 +6983,7 @@ try {
 
 // g can still be undefined, but nothing to do about it...
 // We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
+// easier to handle this case. if(!common) { ...}
 
 module.exports = g;
 
@@ -9449,7 +9449,7 @@ const EMPTY_BLOCK = Buffer.from([0x00]);
 // as documented in https://github.com/nodejs/node/issues/8871#issuecomment-250915913
 // and https://github.com/websockets/ws/issues/1202
 //
-// Intentionally global; it's the global thread pool that's
+// Intentionally common; it's the common thread pool that's
 // an issue.
 let zlibLimiter;
 
@@ -17424,7 +17424,7 @@ function checkTypeSupport (type) {
 	return false
 }
 
-// For some strange reason, Safari 7.0 reports typeof global.ArrayBuffer === 'object'.
+// For some strange reason, Safari 7.0 reports typeof common.ArrayBuffer === 'object'.
 // Safari 7.1 appears to have fixed this bug.
 var haveArrayBuffer = typeof global.ArrayBuffer !== 'undefined'
 var haveSlice = haveArrayBuffer && isFunction(global.ArrayBuffer.prototype.slice)
@@ -20588,7 +20588,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
  * this file should be included into index.html
  *
  * Usage:
- *   <script src="./app.js"></script>
+ *   <script common="./app.js"></script>
  *
  * @author flatline
  */
@@ -20799,7 +20799,7 @@ class Backup {
 
 /**
  * Manager's plugin. Implements WebSocket client logic. Work in pair with
- * server/src/server/Server class. Activates current manager on a server
+ * server/common/server/Server class. Activates current manager on a server
  * side and run it.
  * TODO: this plugin should listen organisms movings outside of the world
  * TODO: and send appropriate requests
@@ -26005,7 +26005,7 @@ function _deepEqual(actual, expected, strict, memos) {
 
   // 7.3 If the expected value is a RegExp object, the actual value is
   // equivalent if it is also a RegExp object with the same source and
-  // properties (`global`, `multiline`, `lastIndex`, `ignoreCase`).
+  // properties (`common`, `multiline`, `lastIndex`, `ignoreCase`).
   } else if (util.isRegExp(actual) && util.isRegExp(expected)) {
     return actual.source === expected.source &&
            actual.global === expected.global &&
@@ -38695,7 +38695,7 @@ function tr_static_init() {
   // do check in _tr_init()
   //if (static_init_done) return;
 
-  /* For some embedded targets, global variables are not initialized: */
+  /* For some embedded targets, common variables are not initialized: */
 /*#ifdef NO_INIT_GLOBAL_POINTERS
   static_l_desc.static_tree = static_ltree;
   static_l_desc.extra_bits = extra_lbits;
@@ -41124,7 +41124,7 @@ module.exports = __webpack_require__(45);
 
     function canUsePostMessage() {
         // The test against `importScripts` prevents this implementation from being installed inside a web worker,
-        // where `global.postMessage` means something completely different and can't be used for this purpose.
+        // where `common.postMessage` means something completely different and can't be used for this purpose.
         if (global.postMessage && !global.importScripts) {
             var postMessageIsAsynchronous = true;
             var oldOnMessage = global.onmessage;
@@ -41138,7 +41138,7 @@ module.exports = __webpack_require__(45);
     }
 
     function installPostMessageImplementation() {
-        // Installs an event handler on `global` for the `message` event: see
+        // Installs an event handler on `common` for the `message` event: see
         // * https://developer.mozilla.org/en/DOM/window.postMessage
         // * http://www.whatwg.org/specs/web-apps/current-work/multipage/comms.html#crossDocumentMessages
 
@@ -41196,7 +41196,7 @@ module.exports = __webpack_require__(45);
         };
     }
 
-    // If supported, we should attach to the prototype of global, since that is where setTimeout et al. live.
+    // If supported, we should attach to the prototype of common, since that is where setTimeout et al. live.
     var attachTo = Object.getPrototypeOf && Object.getPrototypeOf(global);
     attachTo = attachTo && attachTo.setTimeout ? attachTo : global;
 
@@ -42110,7 +42110,7 @@ exports._unrefActive = exports.active = function(item) {
   }
 };
 
-// setimmediate attaches itself to the global object
+// setimmediate attaches itself to the common object
 __webpack_require__(213);
 exports.setImmediate = setImmediate;
 exports.clearImmediate = clearImmediate;
@@ -42233,7 +42233,7 @@ function deprecate (fn, msg) {
  */
 
 function config (name) {
-  // accessing global.localStorage can trigger a DOMException in sandboxed iframes
+  // accessing common.localStorage can trigger a DOMException in sandboxed iframes
   try {
     if (!global.localStorage) return false;
   } catch (_) {
@@ -42713,7 +42713,7 @@ class WebSocketServer extends EventEmitter {
     }
 
     if (options.port != null) {
-      this._server = http.createServer((req, res) => {
+      this._parent = http.createServer((req, res) => {
         const body = http.STATUS_CODES[426];
 
         res.writeHead(426, {
@@ -42722,14 +42722,14 @@ class WebSocketServer extends EventEmitter {
         });
         res.end(body);
       });
-      this._server.allowHalfOpen = false;
-      this._server.listen(options.port, options.host, options.backlog, callback);
+      this._parent.allowHalfOpen = false;
+      this._parent.listen(options.port, options.host, options.backlog, callback);
     } else if (options.server) {
-      this._server = options.server;
+      this._parent = options.server;
     }
 
-    if (this._server) {
-      this._ultron = new Ultron(this._server);
+    if (this._parent) {
+      this._ultron = new Ultron(this._parent);
       this._ultron.on('listening', () => this.emit('listening'));
       this._ultron.on('error', (err) => this.emit('error', err));
       this._ultron.on('upgrade', (req, socket, head) => {
@@ -42757,11 +42757,11 @@ class WebSocketServer extends EventEmitter {
       for (const client of this.clients) client.terminate();
     }
 
-    const server = this._server;
+    const server = this._parent;
 
     if (server) {
       this._ultron.destroy();
-      this._ultron = this._server = null;
+      this._ultron = this._parent = null;
 
       //
       // Close the http server if it was internally created.
@@ -43018,7 +43018,7 @@ function extend() {
  * clients as a distributed nodes. Server supports serMaxConnections
  * clients at the time. All connected clients/nodes create big virtual
  * map for digital organisms. So one client == one map. By map i mean a
- * planar area with specific width and height configured in global config
+ * planar area with specific width and height configured in common config
  * (see Config.js.worldWidth/worldHeight). If serMaxConnections + 1 client
  * try to connect, server deny the access. Every client in this system
  * has unique ID, which consists of X,Y coordinates of this client. Each
@@ -43115,7 +43115,7 @@ class Server extends Observer {
         this._port        = port;
         this._running     = false;
         this._plugins     = {};
-        this._server      = null;
+        this._parent      = null;
 
         this.conns        = new Connections(Config.serMaxConnections);
 
@@ -43130,7 +43130,7 @@ class Server extends Observer {
      * @returns {Boolean} Running state
      */
     run() {
-        if (this._server !== null) {
+        if (this._parent !== null) {
             Console.warn('Server has already ran on port ${this._port}');
             return false;
         }
@@ -43141,9 +43141,9 @@ class Server extends Observer {
         }
 
         Server.ports[this._port] = true;
-        this._server = new WebSocket.Server({port: this._port}, () => {
+        this._parent = new WebSocket.Server({port: this._port}, () => {
             this._running = true;
-            this._server.on('connection', this.onConnect.bind(this));
+            this._parent.on('connection', this.onConnect.bind(this));
             this.fire(RUN);
             Console.info('Server is ready');
         });
@@ -43162,7 +43162,7 @@ class Server extends Observer {
         //
         // Server wasn't ran before
         //
-        if (!me._server) {return false}
+        if (!me._parent) {return false}
         //
         // Server was ran, but not ready yet. stop() method
         // will be called later after RUN event fired
@@ -43178,10 +43178,10 @@ class Server extends Observer {
         //
         // Server is ready to close all clients and itself
         //
-        me._server.close(() => {
+        me._parent.close(() => {
             delete Server.ports[me._port];
             me._running = false;
-            this._server.removeAllListeners('connection');
+            this._parent.removeAllListeners('connection');
             me.fire(STOP);
             Console.info('Server has stopped. All clients have disconnected');
         });
@@ -43206,11 +43206,11 @@ class Server extends Observer {
         const onDestroy = () => {
             for (let p in plugins) {if (plugins.hasOwnProperty(p) && plugins[p].destroy) {plugins[p].destroy()}}
             me.conns.destroy();
-            me._server = me.conns = me._port = me._plugins = null;
+            me._parent = me.conns = me._port = me._plugins = null;
             me.clear();
         };
 
-        if (me._server === null) {return onDestroy()}
+        if (me._parent === null) {return onDestroy()}
         me.on(STOP, onDestroy);
         me.stop();
     }
@@ -43307,17 +43307,17 @@ class Api {
         api[CTOS.REQ_SET_ACTIVE] = this._setActive;
         api[CTOS.REQ_MOVE_ORG]   = this._moveOrg;
 
-        this._server      = server;
+        this._parent      = server;
         this._onMessageCb = this._onMessage.bind(this);
 
         server.on(server.EVENTS.MSG, this._onMessageCb);
     }
 
     destroy() {
-        this._server.off(this._server.EVENTS.MSG, this._onMessageCb);
+        this._parent.off(this._parent.EVENTS.MSG, this._onMessageCb);
         this._onMessageCb = null;
         this._API         = null;
-        this._server      = null;
+        this._parent      = null;
     }
 
     /**
@@ -43345,7 +43345,7 @@ class Api {
      */
     _setActive(clientId, reqId, active) {
         const region = Connections.toRegion(clientId);
-        const server = this._server;
+        const server = this._parent;
         const con    = server.conns.getConnection(region);
 
         server.conns.setData(region, 'active', active);
@@ -43368,13 +43368,13 @@ class Api {
         else if (dir === DIR.DOWN)  {region[1]++}
         else if (dir === DIR.LEFT)  {region[0]--}
 
-        const con = this._server.conns.getConnection(region);
+        const con = this._parent.conns.getConnection(region);
         if (con.active) {
-            this._server.send(con.sock, STOC.REQ_MOVE_ORG, Helper.getId(), dir, org);
+            this._parent.send(con.sock, STOC.REQ_MOVE_ORG, Helper.getId(), dir, org);
         } else {
             const backRegion = Connections.toRegion(clientId);
-            const backCon    = this._server.conns.getConnection(backRegion);
-            this._server.send(backCon.sock, STOC.RES_MOVE_ERR, reqId, dir, org, `Region ${region} is not active`);
+            const backCon    = this._parent.conns.getConnection(backRegion);
+            this._parent.send(backCon.sock, STOC.RES_MOVE_ERR, reqId, dir, org, `Region ${region} is not active`);
         }
     }
 }

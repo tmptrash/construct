@@ -1,5 +1,5 @@
 describe("client/src/organism/Num", () => {
-    let Num = require('../../../src/organism/Num').default;
+    let Num = require('./../../../client/src/organism/Num').default;
 
     it("Checking getting random zero operator", () => {
         Num.setOperatorAmount(0);

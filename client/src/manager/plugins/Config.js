@@ -3,7 +3,7 @@
  *
  * @author flatline
  */
-import {api} from '../../../../src/global/Config';
+import {api} from '../../../../common/src/global/Config';
 
 export default class Config {
     static version() {

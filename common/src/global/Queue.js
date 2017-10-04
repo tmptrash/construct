@@ -9,7 +9,7 @@
  *
  * @author flatline
  */
-export default class Queue {
+class Queue {
     /**
      * At least one object should exist to exclude check
      * of empty queue in add/del methods
@@ -82,3 +82,5 @@ export default class Queue {
         return item;
     }
 }
+
+module.exports = Queue;

@@ -1,5 +1,5 @@
-describe('client/src/global/Queue', () => {
-    let Queue = require('../../../src/global/Queue').default;
+describe('common/src/global/Queue', () => {
+    let Queue = require('./../../../common/src/global/Queue');
     let q;
 
     beforeEach(() => q = new Queue());

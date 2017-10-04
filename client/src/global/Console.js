@@ -7,7 +7,7 @@
  *
  * @author flatline
  */
-import {Config} from '../../../src/global/Config';
+import {Config} from './../../../common/src/global/Config';
 
 export default class Console {
     static error(...msg) {

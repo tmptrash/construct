@@ -13,7 +13,7 @@
  */
 import Organisms from './base/Organisms';
 import {EVENTS}  from '../../global/Events';
-import Helper    from '../../../../src/global/Helper';
+import Helper    from '../../../../common/src/global/Helper';
 
 const EMPTY     = 0;
 const ENERGY    = 1;

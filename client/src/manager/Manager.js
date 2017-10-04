@@ -12,8 +12,8 @@
  * TODO: what about destroy of manager instance? We have to destroy plugins
  * TODO: by calling of destroy() method for every of them
  */
-import Observer          from './../../../src/global/Observer';
-import {Config}          from './../../../src/global/Config';
+import Observer          from '../../../common/src/global/Observer';
+import {Config}          from '../../../common/src/global/Config';
 import {EVENTS}          from './../global/Events';
 import {EVENT_AMOUNT}    from './../global/Events';
 import Console           from './../global/Console';

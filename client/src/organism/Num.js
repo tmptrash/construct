@@ -3,8 +3,8 @@
  *
  * @author flatline
  */
-import Helper   from '../../../src/global/Helper';
-import {Config} from '../../../src/global/Config';
+import Helper   from '../../../common/src/global/Helper';
+import {Config} from '../../../common/src/global/Config';
 
 const BITS_PER_VAR        = Config.codeBitsPerVar;
 const BITS_PER_OPERATOR   = Config.codeBitsPerOperator;
@@ -16,7 +16,7 @@ const MAX_OPERATOR        = 1 << BITS_PER_OPERATOR;
 const VAR_BITS_OFFS       = 32 - BITS_PER_OPERATOR;
 const BITS_WITHOUT_2_VARS = 1 << (VAR_BITS_OFFS - BITS_PER_VAR * 2);
 
-export default class Number {
+export default class Num {
     static get VAR_BITS_OFFS()       {return VAR_BITS_OFFS}
     static get BITS_PER_VAR()        {return BITS_PER_VAR}
     static get BITS_PER_OPERATOR()   {return BITS_PER_OPERATOR}

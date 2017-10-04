@@ -6,11 +6,11 @@
  *
  * @author flatline
  */
-import Helper         from '../../../../../src/global/Helper';
-import {Config}       from '../../../../../src/global/Config';
+import Helper         from '../../../../../common/src/global/Helper';
+import {Config}       from '../../../../../common/src/global/Config';
 import Console        from '../../../global/Console';
 import {EVENTS}       from '../../../global/Events';
-import Queue          from '../../../global/Queue';
+import Queue          from '../../../../../common/src/global/Queue';
 import Organism       from '../../../organism/OrganismDos';
 import Backup         from '../Backup';
 

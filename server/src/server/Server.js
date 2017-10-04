@@ -29,14 +29,14 @@
  *
  * @author flatline
  */
-const Observer    = require('./../../../src/global/Observer');
 const WebSocket   = require('./../../../node_modules/ws/index');
+const Observer    = require('./../../../common/src/global/Observer');
+const Config      = require('./../../../common/src/global/Config').Config;
+const Request     = require('./../../../common/src/net/plugins/Request');
+const TYPES       = require('./../../../common/src/global/Requests').TYPES;
 const Console     = require('./../global/Console');
 const Connections = require('./../server/Connections');
-const Config      = require('./../../../src/global/Config').Config;
 const Api         = require('./plugins/Api');
-const Request     = require('./../../../src/global/plugins/Request');
-const STOC        = require('./../../../src/global/Requests').STOC;
 
 const PLUGINS = {
     Api    : Api,
@@ -72,7 +72,7 @@ class Server extends Observer {
      * other parameters depend of special request and will be send to
      * the client as an array.
      * @param {WebSocket} sock
-     * @param {Number} type Request type (see Requests.STOC|CTOS)
+     * @param {Number} type Request type (see Requests.TYPES)
      * @param {*} params Array of parameters
      * @return {Number} Unique request id
      * @abstract
@@ -83,7 +83,7 @@ class Server extends Observer {
      * Is user for answering on requests. May not be called if answer
      * (response) don't needed.
      * @param {WebSocket} sock Socket where send the answer
-     * @param {Number} type Request type (see Requests.STOC|CTOS)
+     * @param {Number} type Request type (see Requests.TYPES)
      * @param {Number} reqId Unique request id, returned by send() method
      * @param {Array} params Custom parameters to send
      * @abstract
@@ -101,7 +101,7 @@ class Server extends Observer {
         this._port        = port;
         this._running     = false;
         this._plugins     = {};
-        this._server      = null;
+        this._parent      = null;
 
         this.conns        = new Connections(Config.serMaxConnections);
 
@@ -116,7 +116,7 @@ class Server extends Observer {
      * @returns {Boolean} Running state
      */
     run() {
-        if (this._server !== null) {
+        if (this._parent !== null) {
             Console.warn('Server has already ran on port ${this._port}');
             return false;
         }
@@ -127,9 +127,9 @@ class Server extends Observer {
         }
 
         Server.ports[this._port] = true;
-        this._server = new WebSocket.Server({port: this._port}, () => {
+        this._parent = new WebSocket.Server({port: this._port}, () => {
             this._running = true;
-            this._server.on('connection', this.onConnect.bind(this));
+            this._parent.on('connection', this.onConnect.bind(this));
             this.fire(RUN);
             Console.info('Server is ready');
         });
@@ -148,7 +148,7 @@ class Server extends Observer {
         //
         // Server wasn't ran before
         //
-        if (!me._server) {return false}
+        if (!me._parent) {return false}
         //
         // Server was ran, but not ready yet. stop() method
         // will be called later after RUN event fired
@@ -164,10 +164,10 @@ class Server extends Observer {
         //
         // Server is ready to close all clients and itself
         //
-        me._server.close(() => {
+        me._parent.close(() => {
             delete Server.ports[me._port];
             me._running = false;
-            this._server.removeAllListeners('connection');
+            this._parent.removeAllListeners('connection');
             me.fire(STOP);
             Console.info('Server has stopped. All clients have disconnected');
         });
@@ -192,11 +192,11 @@ class Server extends Observer {
         const onDestroy = () => {
             for (let p in plugins) {if (plugins.hasOwnProperty(p) && plugins[p].destroy) {plugins[p].destroy()}}
             me.conns.destroy();
-            me._server = me.conns = me._port = me._plugins = null;
+            me._parent = me.conns = me._port = me._plugins = null;
             me.clear();
         };
 
-        if (me._server === null) {return onDestroy()}
+        if (me._parent === null) {return onDestroy()}
         me.on(STOP, onDestroy);
         me.stop();
     }
@@ -221,7 +221,7 @@ class Server extends Observer {
         sock.on('error', this.onError.bind(this, clientId, sock));
         sock.on('close', this.onClose.bind(this, clientId, sock));
 
-        this.send(sock, STOC.REQ_GIVE_ID, clientId);
+        this.send(sock, TYPES.REQ_GIVE_ID, clientId);
         this.conns.setData(region, 'sock', sock);
         this.fire(EVENTS.CONNECT, sock);
         Console.info(`Client ${clientId} has connected`);

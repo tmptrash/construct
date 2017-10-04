@@ -10,7 +10,7 @@
  *
  * @author flatline
  */
-import {Config}       from '../../../../src/global/Config';
+import {Config}       from '../../../../common/src/global/Config';
 import Console        from '../../global/Console';
 import {EVENTS}       from '../../global/Events';
 import Organism       from '../../organism/OrganismDos';

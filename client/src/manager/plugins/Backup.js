@@ -6,8 +6,8 @@
  *
  * @author flatline
  */
-import Helper   from '../../../../src/global/Helper';
-import {Config} from '../../../../src/global/Config';
+import Helper   from '../../../../common/src/global/Helper';
+import {Config} from '../../../../common/src/global/Config';
 import Console  from '../../global/Console';
 
 export default class Backup {
