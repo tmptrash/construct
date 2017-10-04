@@ -8,10 +8,10 @@
  * @author flatline
  */
 const WebSocket = require('./../../../../node_modules/ws/index');
-const Helper    = require('./../../.././common/Helper');
-const Config    = require('./../../.././common/Config');
-const TYPES     = require('./../../.././common/Requests').TYPES;
-const Request   = require('./../../.././Request');
+const Helper    = require('./../../../../common/src/global/Helper');
+const Config    = require('./../../../../common/src/global/Config');
+const TYPES     = require('./../../../../common/src/global/Requests').TYPES;
+const Request   = require('./../../../../common/src/net/plugins/Request');
 const Api       = require('./Api');
 const Console   = require('./../../global/Console');
 

@@ -4,8 +4,8 @@
  *
  * @author flatline
  */
-const TYPES   = require('./../../.././common/Requests').TYPES;
-const BaseApi = require('./../../.././net/plugins/Api');
+const TYPES   = require('./../../../../common/src/global/Requests').TYPES;
+const BaseApi = require('./../../../../common/src/net/plugins/Api');
 
 class Api extends BaseApi {
     constructor(client) {
