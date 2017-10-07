@@ -23,17 +23,12 @@ export default class OrganismsDos extends Organisms {
     constructor(manager) {
         super(manager);
 
-        this._positions     = {};
-        this._onAfterMoveCb = this._onAfterMove.bind(this);
-
-        Helper.override(manager, 'onAfterMove', this._onAfterMoveCb);
+        this._positions = {};
     }
 
     destroy() {
         super.destroy();
-        Helper.unoverride(man, 'onAfterMove', this._onAfterMoveCb);
-        this._positions     = null;
-        this._onAfterMoveCb = null;
+        this._positions = null;
     }
 
     /**
@@ -94,7 +89,18 @@ export default class OrganismsDos extends Organisms {
         delete this._positions[org.posId];
     }
 
-    _onAfterMove(x1, y1, x2, y2, org) {
+    /**
+     * Is called after moving of organism is done. Updates this._positions
+     * map with a new position of organism
+     * @param {Number} x1 Start X position
+     * @param {Number} y1 Start Y position
+     * @param {Number} x2 End X position
+     * @param {Number} y2 End Y position
+     * @param {Organism} org Organism, which is moving
+     * @returns {Boolean}
+     * @override
+     */
+    onAfterMove(x1, y1, x2, y2, org) {
         if (x1 !== x2 || y1 !== y2) {
             delete this._positions[Helper.posId(x1, y1)];
             this._positions[Helper.posId(x2, y2)] = org;
@@ -131,7 +137,7 @@ export default class OrganismsDos extends Organisms {
 
     _onStep(org, x1, y1, x2, y2, ret) {
         if (org.alive) {
-            ret.ret = +this.manager.move(x1, y1, x2, y2, org);
+            ret.ret = +this.move(x1, y1, x2, y2, org);
         }
     }
 

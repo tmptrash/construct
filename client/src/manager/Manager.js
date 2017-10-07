@@ -12,15 +12,14 @@
  * TODO: what about destroy of manager instance? We have to destroy plugins
  * TODO: by calling of destroy() method for every of them
  */
-import Observer          from '../../../common/src/global/Observer';
-import {Config}          from '../../../common/src/global/Config';
-import Plugins           from '../../../common/src/global/Plugins';
+import Observer          from './../../../common/src/global/Observer';
+import {Config}          from './../../../common/src/global/Config';
+import Plugins           from './../../../common/src/global/Plugins';
 import {EVENTS}          from './../global/Events';
 import {EVENT_AMOUNT}    from './../global/Events';
 import Console           from './../global/Console';
 import World             from './../visual/World';
 import Canvas            from './../visual/Canvas';
-import Server            from './../../../server/src/server/Server';
 import Client            from './../../../client/src/manager/plugins/Client';
 
 import OrganismsGarmin   from './plugins/OrganismsGarmin';
@@ -79,18 +78,17 @@ export default class Manager extends Observer {
      */
     onIteration() {}
 
-    /**
-     * Is called at the end on move() method
-     * @abstract
-     */
-    onAfterMove() {}
-
     constructor() {
         super(EVENT_AMOUNT);
         this._world      = new World(Config.worldWidth, Config.worldHeight);
         this._canvas     = new Canvas(Config.worldWidth, Config.worldHeight);
         this._stopped    = false;
         this._visualized = true;
+        /**
+         * {Object} This field is used as a container for public API of the Manager.
+         * It may be used in a user console by the Operator of jevo.js. Plugins
+         * may add their methods to this map also.
+         */
         this.api         = {
             visualize: this._visualize.bind(this),
             version  : () => '0.2'
@@ -157,17 +155,6 @@ export default class Manager extends Observer {
         this.clear();
     }
 
-    move(x1, y1, x2, y2, org) {
-        let moved = false;
-
-        if (this._isFree(x2, y2) === false) {return false}
-        if (x1 !== x2 || y1 !== y2) {moved = true; this._world.setDot(x1, y1, 0)}
-        this._world.setDot(x2, y2, org.color);
-        this.onAfterMove(x1, y1, x2, y2, org);
-
-        return moved;
-    }
-
     /**
      * This hacky function is obtained from here: https://dbaron.org/log/20100309-faster-timeouts
      * It runs a setTimeout() based infinite loop, but faster, then simply using native setTimeout().
@@ -221,9 +208,5 @@ export default class Manager extends Observer {
 
     _onDot(x, y, color) {
         this._canvas.dot(x, y, color);
-    }
-
-    _isFree(x, y) {
-        return this._world.getDot(x, y) === 0;
     }
 }

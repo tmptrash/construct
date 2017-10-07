@@ -106,4 +106,8 @@ export default class World extends Observer {
 
         return false;
     }
+
+    isFree(x, y) {
+        return this.getDot(x, y) === 0;
+    }
 }

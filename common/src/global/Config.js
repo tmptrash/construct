@@ -64,7 +64,7 @@ const Config = {
     orgClonePeriod: 5,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
-     * to random organisms.
+     * to random organisms. May be set to 0 to turn crossover off
      */
     orgCrossoverPeriod: 100,
     /**

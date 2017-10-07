@@ -18,13 +18,6 @@ const RAND_OFFS = 4;
 
 export default class Organisms {
     /**
-     * Is called every time after organism's code was run
-     * @param {Organism} org
-     * @abstract
-     */
-    onOrganism(org) {}
-
-    /**
      * Compares two organisms and returns more fit one
      * @param {Organism} org1
      * @param {Organism} org2
@@ -32,6 +25,26 @@ export default class Organisms {
      * @abstract
      */
     compare(org1, org2) {}
+
+    /**
+     * Is called every time after organism's code was run
+     * @param {Organism} org
+     * @abstract
+     */
+    onOrganism(org) {}
+
+    /**
+     * Is called after moving of organism is done. Updates this._positions
+     * map with a new position of organism
+     * @param {Number} x1 Start X position
+     * @param {Number} y1 Start Y position
+     * @param {Number} x2 End X position
+     * @param {Number} y2 End Y position
+     * @param {Organism} org Organism, which is moving
+     * @returns {Boolean}
+     * @abstract
+     */
+    onAfterMove(x1, y1, x2, y2, org) {}
 
     /**
      * Is called before cloning of organism
@@ -207,6 +220,18 @@ export default class Organisms {
         this._maxEnergy = 0;
     }
 
+    move(x1, y1, x2, y2, org) {
+        let   moved = false;
+        const world = this.manager.world;
+
+        if (world.isFree(x2, y2) === false) {return false}
+        if (x1 !== x2 || y1 !== y2) {moved = true; world.setDot(x1, y1, 0)}
+        world.setDot(x2, y2, org.color);
+        this.onAfterMove(x1, y1, x2, y2, org);
+
+        return moved;
+    }
+
     _tournament(org1 = null, org2 = null) {
         org1 = org1 || this.getRandOrg();
         org2 = org2 || this.getRandOrg();
@@ -266,7 +291,7 @@ export default class Organisms {
 
         last.val = org;
         this.addOrgHandlers(org);
-        this.manager.move(pos.x, pos.y, pos.x, pos.y, org);
+        this.move(pos.x, pos.y, pos.x, pos.y, org);
         this.onAfterCreateOrg(org);
         this.manager.fire(EVENTS.BORN_ORGANISM, org);
         Console.info(org.id, ' born');
