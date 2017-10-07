@@ -29,10 +29,6 @@ import {EVENT_AMOUNT} from '../global/Events';
 const FREE_DOT_ATTEMPTS = 300;
 
 export default class World extends Observer {
-    static version() {
-        return '0.1';
-    }
-
     constructor (width, height) {
         super(EVENT_AMOUNT);
         this._data   = [];

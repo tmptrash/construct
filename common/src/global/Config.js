@@ -332,7 +332,7 @@ const Config = {
     /**
      * {String} Host for connecting with server
      */
-    serHost: 'ws://127.0.0.1'
+    serHost: 'ws://localhost'
 };
 
 const api = {

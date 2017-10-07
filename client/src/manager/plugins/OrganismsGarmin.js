@@ -17,10 +17,6 @@ import Organism       from '../../organism/OrganismDos';
 import Organisms      from './base/Organisms';
 
 export default class OrganismsGarmin extends Organisms {
-    static version() {
-        return '0.1';
-    }
-
     constructor(manager) {
         super(manager);
 

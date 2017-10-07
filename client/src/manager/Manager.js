@@ -14,6 +14,7 @@
  */
 import Observer          from '../../../common/src/global/Observer';
 import {Config}          from '../../../common/src/global/Config';
+import Plugins           from '../../../common/src/global/Plugins';
 import {EVENTS}          from './../global/Events';
 import {EVENT_AMOUNT}    from './../global/Events';
 import Console           from './../global/Console';
@@ -88,52 +89,24 @@ export default class Manager extends Observer {
         super(EVENT_AMOUNT);
         this._world      = new World(Config.worldWidth, Config.worldHeight);
         this._canvas     = new Canvas(Config.worldWidth, Config.worldHeight);
-        this._plugins    = PLUGINS;
         this._stopped    = false;
         this._visualized = true;
-
         this.api         = {
             visualize: this._visualize.bind(this),
-            version  : this.version.bind(this)
+            version  : () => '0.2'
         };
 
         this._initLoop();
-        this._initPlugins();
         this._addHandlers();
-    }
-
-    /**
-     * Collects versions of all nested components and returns final string
-     * @return {String}
-     */
-    version() {
-        let plugins = this._plugins;
-        let ver     = '' +
-            'Manager                : 2.0\n' +
-            '    World              : ' + World.version() + '\n' +
-            '    Canvas             : ' + Canvas.version() + '\n' +
-            '    Server             : ' + Server.version() + '\n';
-
-        for (let p in plugins) {
-            if (plugins.hasOwnProperty(p) && p !== 'Organisms') {
-                ver += ('    ' + p.padEnd(19) + ': ' + plugins[p].constructor.version() + '\n');
-            }
-        }
-
-        ver += '' +
-            '    Organisms          : ' + OrganismsDos.version() + '\n' +
-            '        JSVM           : ' + JSVM.version() + '\n' +
-            '        OperatorsDos   : ' + OperatorsDos.version() + '\n' +
-            '        OperatorsGarmin: ' + OperatorsGarmin.version() + '\n' +
-            '        OrganismDos    : ' + OrganismDos.version() + '\n' +
-            '        OrganismGarmin : ' + OrganismGarmin.version();
-
-        return ver;
+        //
+        // Plugins creation should be at the end of initialization to
+        // have an ability access Manager's API from them
+        //
+        this._plugins    = new Plugins(this, PLUGINS);
     }
 
     get world()     {return this._world}
     get canvas()    {return this._canvas}
-    get plugins()   {return this._plugins}
     get CLASS_MAP() {return CLASS_MAP}
 
     /**
@@ -145,6 +118,8 @@ export default class Manager extends Observer {
         let stamp       = timer();
         let me          = this;
         let zeroTimeout = me.zeroTimeout;
+
+        this._stopped = false;
         //
         // Someone has stopped the server. Running will be started later...
         //
@@ -175,11 +150,10 @@ export default class Manager extends Observer {
     }
 
     destroy() {
-        const plugins = this._plugins;
         this._world.destroy();
         this._canvas.destroy();
-        for (let p in plugins) {if (plugins.hasOwnProperty(p) && plugins[p].destroy) {plugins[p].destroy()}}
         this._plugins = null;
+        this.api = null;
         this.clear();
     }
 
@@ -234,13 +208,6 @@ export default class Manager extends Observer {
         })();
 
         return true;
-    }
-
-    _initPlugins() {
-        let plugins = this._plugins;
-        for (let p in plugins) {
-            plugins[p] = new plugins[p](this);
-        }
     }
 
     _addHandlers() {

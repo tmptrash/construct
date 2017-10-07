@@ -11,10 +11,6 @@ const RED    = 'color: #aa0000';
 const PERIOD = 10000;
 
 export default class Status {
-    static version() {
-        return '0.1';
-    }
-
     constructor(manager) {
         this._manager     = manager;
         this.stamp        = 0;

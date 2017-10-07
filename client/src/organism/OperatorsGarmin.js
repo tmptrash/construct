@@ -24,10 +24,6 @@ const HALF_OF_VAR           = Num.MAX_VAR / 2;
 const CONDITION_BITS        = 2;
 
 export default class OperatorsGarmin extends  Operators {
-    static version() {
-        return '0.1';
-    }
-
     constructor(offs, vars, obs) {
         super(offs, vars, obs);
         /**

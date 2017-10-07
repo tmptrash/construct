@@ -2,75 +2,73 @@
  * Manager's plugin. Implements WebSocket client logic. Work in pair with
  * server/src/server/Server class. Activates current manager on a server
  * side and run it.
- * TODO: this plugin should listen organisms movings outside of the world
+ * TODO: this plugin should listen organisms moves outside of the world
  * TODO: and send appropriate requests
+ * TODO: we have to use events in this class
  *
  * @author flatline
  */
-const WebSocket = require('./../../../../node_modules/ws/index');
-const Helper    = require('./../../../../common/src/global/Helper');
-const Config    = require('./../../../../common/src/global/Config');
-const TYPES     = require('./../../../../common/src/global/Requests').TYPES;
-const Request   = require('./../../../../common/src/net/plugins/Request');
-const Api       = require('./Api');
-const Console   = require('./../../global/Console');
+const Helper     = require('./../../../../common/src/global/Helper');
+const Config     = require('./../../../../common/src/global/Config').Config;
+const TYPES      = require('./../../../../common/src/global/Requests').TYPES;
+const Request    = require('./../../../../common/src/net/plugins/Request');
+const Api        = require('./Api');
+const Console    = require('./../../global/Console').default;
+const Connection = require('./../../../../common/src/net/Connection');
 
-class Client {
-    static version() {
-        return '0.1';
+class Client extends Connection {
+    constructor(manager) {
+        super(0);
+        this._manager       = manager;
+        this._request       = new Request(this);
+        this._api           = new Api(this);
+        this._client        = this._createWebSocket();
+        this._onBeforeRunCb = this._onBeforeRun.bind(this);
+
+        if (this._client === null) {return}
+        Helper.override(manager, 'onBeforeRun', this._onBeforeRunCb);
+        this._client.onopen    = this._onOpen.bind(this);
+        this._client.onmessage = this.onMessage.bind(this, this._client);
+        this._client.onerror   = this.onError.bind(this);
+        this._client.onclose   = this.onClose.bind(this);
     }
 
     /**
-     * Sends data to the client. First two parameters are required. All
-     * other parameters depend of special request and will be send to
-     * the client as an array.
-     * @param {WebSocket} sock
-     * @param {Number} type Request type (see Requests.TYPES)
-     * @param {*} params Array of parameters
-     * @return {Number} Unique request id
-     * @abstract
+     * Is called on connection close with server. Close reason will be in
+     * this.closeReason field after calling super.onClose() method
+     * @param {Event} event
      */
-    send(sock, type, ...params) {}
+    onClose(event) {
+        super.onClose(event);
+        Console.info(`Client "${this._api.clientId}" has disconnected by reason: ${this.closeReason}`);
+    }
 
     /**
-     * Is user for answering on requests. May not be called if answer
-     * (response) don't needed.
-     * @param {WebSocket} sock Socket where send the answer
-     * @param {Number} type Request type (see Requests.TYPES)
-     * @param {Number} reqId Unique request id, returned by send() method
-     * @param {Array} params Custom parameters to send
-     * @abstract
+     * Is called when this client start to be activated on a server side.
+     * It means, that this Manager may start evolution process.
      */
-    answer(sock, type, reqId, ...params) {}
+    onActivate() {
+        this._manager.run();
+    }
 
     /**
-     * Is called every time if server sends us a request or answer (response)
-     * us.
-     * @param {WebSocket} sock Socket, received the message
-     * @param {Event} event Message event. Data is in 'data' property
-     * @abstract
+     * Sends a request to the server. Wrapper around WebSocket.send()
+     * method. Adds clientId to every request.
+     * @param {Number} type Request type (see Requests.TYPES const)
+     * @param {*} params Custom request parameters
+     * @return {Number|null} Unique request id or null if answer is
+     * not needed
      */
-    onMessage(sock, event) {}
-
-    constructor(manager) {
-        this._manager       = manager;
-        this._client        = new WebSocket(`${Config.serHost}:${Config.serPort}`);
-        this._request       = new Request(this);
-        this._api           = new Api(this);
-        this._onBeforeRunCb = this._onBeforeRun.bind(this);
-
-        Helper.override(manager, 'onBeforeRun', this._onBeforeRunCb);
-        this._client.on('open',    this._onOpen.bind(this));
-        this._client.on('message', this.onMessage.bind(this, this._client));
-        this._client.on('error',   this._onError.bind(this));
-        this._client.on('close',   this._onClose.bind(this));
+    request(type, ...params) {
+        return this.send(this._client, type, ...[this._api.clientId].concat(params));
     }
 
     destroy() {
-        this._client.removeAllListeners('close');
-        this._client.removeAllListeners('message');
-        this._client.removeAllListeners('error');
-        this._client.removeAllListeners('close');
+        super.destroy();
+        this._client.onclose   = null;
+        this._client.onmessage = null;
+        this._client.onerror   = null;
+        this._client.onclose   = null;
         this._api.destroy();
         this._api           = null;
         this._request.destroy();
@@ -87,24 +85,27 @@ class Client {
      * @override
      */
     _onBeforeRun() {
-        this._manager.stop();
-        this.send(this._client, TYPES.REQ_SET_ACTIVE, true, (type) => {
-            if (type === TYPES.RES_ACTIVE_OK) {
-                this._manager.run();
+        if (this._api.clientId === null) {
+            this._manager.stop();
+        }
+    }
+
+    _createWebSocket() {
+        let ws = null;
+        try {
+            ws = new WebSocket(`${Config.serHost}:${Config.serPort}`);
+            if (ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING) {
+                Console.error('Connection to server has closed');
             }
-        });
+        } catch (e) {
+            Console.error(e.message);
+        }
+
+        return ws;
     }
 
     _onOpen() {
-        Console.info('Server connection has created');
-    }
-
-    _onError(err) {
-        Console.error(`Communication error: ${err.message}`);
-    }
-
-    _onClose() {
-        Console.info('Server connection has closed');
+        Console.info('Connection with Server has opened');
     }
 }
 

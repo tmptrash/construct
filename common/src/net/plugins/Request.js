@@ -15,7 +15,7 @@ class Request {
      * @param {Object} parent Instance of custom class
      */
     constructor(parent) {
-        this._parent      = parent;
+        this.parent      = parent;
         /**
          * {Object} Contains requests map: key - request id, val -
          * response callback
@@ -31,7 +31,7 @@ class Request {
     }
 
     destroy() {
-        const parent = this._parent;
+        const parent = this.parent;
         Helper.unoverride(parent, 'onMessage', this._onMessageCb);
         Helper.unoverride(parent, 'answer', this._onAnswerCb);
         Helper.unoverride(parent, 'send', this._onSendCb);
@@ -39,7 +39,7 @@ class Request {
         this._onAnswerCb  = null;
         this._onSendCb    = null;
         this._requests    = null;
-        this._parent      = null;
+        this.parent      = null;
     }
 
     /**
@@ -65,10 +65,12 @@ class Request {
      */
     _onSend(sock, type, ...params) {
         const cb    = Helper.isFunc(params[params.length - 1]) ? params.pop() : null;
-        const reqId = cb ? Helper.getId() | MASKS.REQ_MASK : null;
+        const reqId = Helper.getId();
 
         cb && (this._requests[reqId] = cb);
-        sock.send(JSON.stringify([type, reqId].concat(params)));
+        sock.send(JSON.stringify([type, reqId | MASKS.REQ_MASK].concat(params)));
+
+        return reqId;
     }
 
     /**
@@ -82,7 +84,7 @@ class Request {
      * @override
      */
     _onAnswer(sock, type, reqId, ...params) {
-        sock.send(JSON.stringify([type, reqId & RES_MASK].concat(params)));
+        sock.send(JSON.stringify([type, reqId & MASKS.RES_MASK].concat(params)));
     }
 
     /**
@@ -96,8 +98,8 @@ class Request {
      * @private
      */
     _onMessage(sock, event) {
-        const data  = event.data;
-        const reqId = data[1];
+        const data  = JSON.parse(event.data || event);
+        const reqId = data[1] & MASKS.RES_MASK;
         const cb    = this._requests[reqId];
         //
         // data[0] is type

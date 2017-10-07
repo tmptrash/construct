@@ -20,10 +20,6 @@ const VARS          = Num.VARS;
 const MAX_VAR       = Num.MAX_VAR;
 
 export default class Mutator {
-    static version() {
-        return '0.1';
-    }
-
     constructor(manager) {
         this.manager = manager;
         this._MUTATION_TYPES = [

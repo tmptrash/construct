@@ -8,10 +8,6 @@ import {Config} from '../../../../common/src/global/Config';
 import Console  from '../../global/Console';
 
 export default class Energy {
-    static version() {
-        return '0.1';
-    }
-
     constructor(manager) {
         this.manager        = manager;
         this._checkPeriod   = Config.worldEnergyCheckPeriod;

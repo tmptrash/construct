@@ -20,10 +20,6 @@ const ENERGY    = 1;
 const ORGANISM  = 2;
 
 export default class OrganismsDos extends Organisms {
-    static version() {
-        return '0.1';
-    }
-
     constructor(manager) {
         super(manager);
 

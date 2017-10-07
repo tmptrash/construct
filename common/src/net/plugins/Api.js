@@ -31,16 +31,16 @@ class Api {
          */
         this.API = {};
 
-        this._parent      = parent;
+        this.parent       = parent;
         this._onMessageCb = this._onMessage.bind(this);
 
         Helper.override(parent, 'onMessage', this._onMessageCb);
     }
 
     destroy() {
-        Helper.unoverride(this._parent, 'onMessage', this._onMessageCb);
+        Helper.unoverride(this.parent, 'onMessage', this._onMessageCb);
         this._onMessageCb = null;
-        this._parent      = null;
+        this.parent      = null;
         this.API          = null;
     }
 
@@ -51,17 +51,20 @@ class Api {
      * parameters. Handlers are called only for requests and skipped for
      * answers.
      * @param {WebSocket} sock Communication socket
-     * @param {Array} data Parameters obtained from the client
+     * @param {Event} event Event with parameters obtained from the client
      * @private
      */
-    _onMessage(sock, {data}) {
+    _onMessage(sock, event) {
+        const data  = JSON.parse(event.data || event);
         const reqId = data[1];
         const type  = data[0];
 
         if (reqId & MASKS.REQ_MASK > 0) {
-            this.API[type] && this.API[type](...[reqId].concat(data.slice(1)));
-        } else {
-            this._parent.answer(sock, TYPES.RES_INVALID_TYPE, reqId, `Invalid request type ${type}`);
+            if (this.API[type]) {
+                this.API[type](...[reqId].concat(data.slice(2)));
+            } else {
+                this.parent.answer(sock, TYPES.RES_INVALID_TYPE, reqId, `Invalid request type ${type}`);
+            }
         }
     }
 }

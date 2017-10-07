@@ -63,8 +63,8 @@ class Observer {
     }
 
     _resetEvents() {
-        const handlers = this._handlers = new Array(this._maxIndex);
-        const len      = handlers.length;
+        const len      = this._maxIndex;
+        const handlers = this._handlers = new Array(len);
         for (let i = 0; i < len; i++) {handlers[i] = []}
     }
 }

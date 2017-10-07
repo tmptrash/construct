@@ -20,10 +20,6 @@ import Num            from './Num';
 const MAX_STACK_SIZE = 30000;
 
 export default class JSVM extends Observer {
-    static version() {
-        return '0.1';
-    }
-
     /**
      * Creates JSVM instance. codeEndCb will be called after last code line is run. classMap
      * is a map of classes. We need only one - Operators class. We use this approach, because
