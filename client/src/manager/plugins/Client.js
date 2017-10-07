@@ -70,12 +70,12 @@ class Client extends Connection {
         this._client.onerror   = null;
         this._client.onclose   = null;
         this._api.destroy();
-        this._api           = null;
+        this._api              = null;
         this._request.destroy();
-        this._request       = null;
+        this._request          = null;
         Helper.unoverride(this._manager, 'onBeforeRun', this._onBeforeRunCb);
-        this._manager       = null;
-        this._onBeforeRunCb = null;
+        this._manager          = null;
+        this._onBeforeRunCb    = null;
     }
 
     /**

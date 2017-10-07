@@ -193,8 +193,8 @@ class Server extends Connection {
         sock.on('error', this.onError.bind(this, clientId, sock));
         sock.on('close', this.onClose.bind(this, clientId, sock));
 
-        this.send(sock, TYPES.REQ_GIVE_ID, clientId);
         this.conns.setData(region, 'sock', sock);
+        this.send(sock, TYPES.REQ_GIVE_ID, clientId);
         this.fire(EVENTS.CONNECT, sock);
         Console.info(`Client ${clientId} has connected`);
     }

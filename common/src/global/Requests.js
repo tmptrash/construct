@@ -14,8 +14,8 @@ const DIR = {
  * {Object} Different bit masks
  */
 const MASKS = {
-    REQ_MASK: 0x80000000,
-    RES_MASK: 0x7fffffff
+    REQ_MASK: 0x80000000, // 10000000000000000000000000000000
+    RES_MASK: 0x7fffffff  // 01111111111111111111111111111111
 };
 /**
  * {Object} Id's of requests from client to server and visa versa

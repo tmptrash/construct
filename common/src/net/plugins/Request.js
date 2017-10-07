@@ -68,7 +68,7 @@ class Request {
         const reqId = Helper.getId();
 
         cb && (this._requests[reqId] = cb);
-        sock.send(JSON.stringify([type, reqId | MASKS.REQ_MASK].concat(params)));
+        sock.send(JSON.stringify([type, (reqId | MASKS.REQ_MASK) >>> 0].concat(params)));
 
         return reqId;
     }
@@ -84,7 +84,7 @@ class Request {
      * @override
      */
     _onAnswer(sock, type, reqId, ...params) {
-        sock.send(JSON.stringify([type, reqId & MASKS.RES_MASK].concat(params)));
+        sock.send(JSON.stringify([type, (reqId & MASKS.RES_MASK) >>> 0].concat(params)));
     }
 
     /**
@@ -99,7 +99,7 @@ class Request {
      */
     _onMessage(sock, event) {
         const data  = JSON.parse(event.data || event);
-        const reqId = data[1] & MASKS.RES_MASK;
+        const reqId = (data[1] & MASKS.RES_MASK) >>> 0;
         const cb    = this._requests[reqId];
         //
         // data[0] is type

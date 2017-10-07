@@ -231,7 +231,7 @@ describe("server/common/server/Server", () => {
                 ws = new WebSocket('ws://127.0.0.1:8899');
                 ws.onmessage = (e) => {id = e.data; waitObj.done = true};
                 Helper.waitFor(waitObj, () => {
-                    expect(id).toEqual(oldId);
+                    expect(id[2]).toEqual(oldId[2]);
                     server.on(EVENTS.STOP, () => waitObj.done = true);
                     server.destroy();
                     Helper.waitFor(waitObj, () => {

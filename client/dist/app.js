@@ -7261,8 +7261,8 @@ const DIR = {
  * {Object} Different bit masks
  */
 const MASKS = {
-    REQ_MASK: 0x80000000,
-    RES_MASK: 0x7fffffff
+    REQ_MASK: 0x80000000, // 10000000000000000000000000000000
+    RES_MASK: 0x7fffffff  // 01111111111111111111111111111111
 };
 /**
  * {Object} Id's of requests from client to server and visa versa
@@ -13377,7 +13377,7 @@ class Api {
         const reqId = data[1];
         const type  = data[0];
 
-        if (reqId & MASKS.REQ_MASK > 0) {
+        if (((reqId & MASKS.REQ_MASK) >>> 0) > 0) {
             if (this.API[type]) {
                 this.API[type](...[reqId].concat(data.slice(2)));
             } else {
@@ -13463,7 +13463,7 @@ class Request {
         const reqId = Helper.getId();
 
         cb && (this._requests[reqId] = cb);
-        sock.send(JSON.stringify([type, reqId | MASKS.REQ_MASK].concat(params)));
+        sock.send(JSON.stringify([type, (reqId | MASKS.REQ_MASK) >>> 0].concat(params)));
 
         return reqId;
     }
@@ -13479,7 +13479,7 @@ class Request {
      * @override
      */
     _onAnswer(sock, type, reqId, ...params) {
-        sock.send(JSON.stringify([type, reqId & MASKS.RES_MASK].concat(params)));
+        sock.send(JSON.stringify([type, (reqId & MASKS.RES_MASK) >>> 0].concat(params)));
     }
 
     /**
@@ -13494,7 +13494,7 @@ class Request {
      */
     _onMessage(sock, event) {
         const data  = JSON.parse(event.data || event);
-        const reqId = data[1] & MASKS.RES_MASK;
+        const reqId = (data[1] & MASKS.RES_MASK) >>> 0;
         const cb    = this._requests[reqId];
         //
         // data[0] is type
@@ -20669,10 +20669,10 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
         let zeroTimeout = me.zeroTimeout;
 
         this._stopped = false;
+        this.onBeforeRun();
         //
         // Someone has stopped the server. Running will be started later...
         //
-        this.onBeforeRun();
         if (this._stopped) {return}
 
         function loop () {
@@ -21027,12 +21027,12 @@ class Client extends Connection {
         this._client.onerror   = null;
         this._client.onclose   = null;
         this._api.destroy();
-        this._api           = null;
+        this._api              = null;
         this._request.destroy();
-        this._request       = null;
+        this._request          = null;
         Helper.unoverride(this._manager, 'onBeforeRun', this._onBeforeRunCb);
-        this._manager       = null;
-        this._onBeforeRunCb = null;
+        this._manager          = null;
+        this._onBeforeRunCb    = null;
     }
 
     /**
@@ -43422,8 +43422,8 @@ class Server extends Connection {
         sock.on('error', this.onError.bind(this, clientId, sock));
         sock.on('close', this.onClose.bind(this, clientId, sock));
 
-        this.send(sock, TYPES.REQ_GIVE_ID, clientId);
         this.conns.setData(region, 'sock', sock);
+        this.send(sock, TYPES.REQ_GIVE_ID, clientId);
         this.fire(EVENTS.CONNECT, sock);
         Console.info(`Client ${clientId} has connected`);
     }

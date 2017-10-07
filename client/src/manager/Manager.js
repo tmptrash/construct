@@ -120,10 +120,10 @@ export default class Manager extends Observer {
         let zeroTimeout = me.zeroTimeout;
 
         this._stopped = false;
+        this.onBeforeRun();
         //
         // Someone has stopped the server. Running will be started later...
         //
-        this.onBeforeRun();
         if (this._stopped) {return}
 
         function loop () {

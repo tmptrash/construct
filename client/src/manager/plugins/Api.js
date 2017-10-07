@@ -6,6 +6,7 @@
  */
 const TYPES   = require('./../../../../common/src/global/Requests').TYPES;
 const BaseApi = require('./../../../../common/src/net/plugins/Api');
+const Helper  = require('./../../../../common/src/global/Helper');
 
 class Api extends BaseApi {
     constructor(client) {
@@ -17,10 +18,28 @@ class Api extends BaseApi {
          * id should be passed with every request to the server to
          * identify this client instance vs others.
          */
-        this._clientId = null;
+        this._clientId  = null;
+        this._onCloseCb = this._onClose.bind(this);
+
+        Helper.override(client, 'onClose', this._onCloseCb);
     }
 
     get clientId() {return this._clientId}
+
+    destroy() {
+        super.destroy();
+        Helper.unoverride(this.parent, 'onClose', this._onCloseCb);
+        this._onCloseCb = null;
+        this._clientId  = null;
+    }
+
+    /**
+     * Is called on closing connection between client and server.
+     * Resets this.clientId field
+     */
+    _onClose() {
+        this._clientId = null;
+    }
 
     /**
      * Handler of request from server, where it passes us unique client
