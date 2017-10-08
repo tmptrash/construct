@@ -2979,12 +2979,9 @@ class Client extends Connection {
         this._onBeforeRunCb = this._onBeforeRun.bind(this);
         //
         // Client has no connection with server, so we have to start in
-        // "separates instance" mode.
+        // "separate instance" mode.
         //
-        if (this._client === null || this._client.readyState === WebSocket.CLOSING || this._client.readyState === WebSocket.CLOSED) {
-            this._manager.run();
-            return;
-        }
+        if (this._client === null || this._client.readyState === WebSocket.CLOSING || this._client.readyState === WebSocket.CLOSED) {return}
         Helper.override(manager, 'onBeforeRun', this._onBeforeRunCb);
         this._client.onopen    = this._onOpen.bind(this);
         this._client.onmessage = this.onMessage.bind(this, this._client);

@@ -1,5 +1,5 @@
 /**
- * Tracks connected clients at the moment
+ * Tracks connected clients at the moment. Is used on server side.
  *
  * @author flatline
  */
