@@ -25,12 +25,14 @@ class Client extends Connection {
         this._client        = this._createWebSocket();
         this._closed        = true;
         this._onBeforeRunCb = this._onBeforeRun.bind(this);
+        this._onMoveOutCb   = this._onMoveOut.bind(this);
         //
         // Client has no connection with server, so we have to start in
         // "separate instance" mode.
         //
         if (this._client === null || this._client.readyState === WebSocket.CLOSING || this._client.readyState === WebSocket.CLOSED) {return}
         Helper.override(manager, 'onBeforeRun', this._onBeforeRunCb);
+        Helper.override(manager, 'onMoveOut', this._onMoveOutCb);
         this._client.onopen    = this._onOpen.bind(this);
         this._client.onmessage = this.onMessage.bind(this, this._client);
         this._client.onerror   = this.onError.bind(this);
@@ -80,6 +82,7 @@ class Client extends Connection {
         this._request          = null;
         Helper.unoverride(this._manager, 'onBeforeRun', this._onBeforeRunCb);
         this._manager          = null;
+        this._onMoveOutCb      = null;
         this._onBeforeRunCb    = null;
     }
 
@@ -109,6 +112,10 @@ class Client extends Connection {
     _onOpen() {
         this._closed = false;
         Console.info('Connection with Server has opened');
+    }
+
+    _onMoveOut(x1, y1, x2, y2, dir, org) {
+        this.request(TYPES.REQ_MOVE_ORG, x1, y1, dir, org.serialize());
     }
 }
 

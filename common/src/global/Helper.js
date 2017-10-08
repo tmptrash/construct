@@ -4,6 +4,7 @@
  * @author flatline
  */
 const Config = require('./Config').Config;
+const DIR    = require('./Directions');
 
 class Helper {
     /**
@@ -102,15 +103,17 @@ class Helper {
      * @returns {[x,y]}
      */
     static normalize(x, y) {
-        if (Config.worldCyclical) {
-            if (x < 0) {x = Config.worldWidth - 1}
-            else if (x >= Config.worldWidth)  {x = 0}
+        let dir = DIR.NO;
 
-            if (y < 0) {y = Config.worldHeight - 1}
-            else if (y >= Config.worldHeight) {y = 0}
+        if (Config.worldCyclical) {
+            if (x < 0) {dir = DIR.LEFT; x = Config.worldWidth - 1}
+            else if (x >= Config.worldWidth)  {dir = DIR.RIGHT; x = 0}
+
+            if (y < 0) {dir = DIR.UP; y = Config.worldHeight - 1}
+            else if (y >= Config.worldHeight) {dir = DIR.DOWN; y = 0}
         }
 
-        return [x, y];
+        return [x, y, dir];
     }
 
     /**

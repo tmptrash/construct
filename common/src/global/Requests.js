@@ -3,13 +3,6 @@
  *
  * @author flatline
  */
-
-const DIR = {
-    UP   : 0,
-    RIGHT: 1,
-    DOWN : 2,
-    LEFT : 3
-};
 /**
  * {Object} Different bit masks
  */

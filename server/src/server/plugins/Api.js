@@ -8,7 +8,7 @@ const Connections = require('./../Connections');
 const Console     = require('./../../global/Console');
 const Helper      = require('./../../../../common/src/global/Helper');
 const TYPES       = require('./../../../../common/src/global/Requests').TYPES;
-const DIR         = require('./../../../../common/src/global/Requests').DIR;
+const DIR         = require('./../../../../common/src/global/Directions');
 const BaseApi     = require('./../../../../common/src/net/plugins/Api');
 
 class Api extends BaseApi {
@@ -39,11 +39,13 @@ class Api extends BaseApi {
      * Moves organism from one client to another
      * @param {Number} reqId Unique request id. Needed for response
      * @param {String} clientId Unique client id
+     * @param {Number} x Current org X position
+     * @param {Number} y Current org Y position
      * @param {Number} dir Moving direction
      * @param {Object} org Organism's serialized json
      * @api
      */
-    _moveOrg(reqId, clientId, dir, org) {
+    _moveOrg(reqId, clientId, x, y, dir, org) {
         const region = Connections.toRegion(clientId);
 
         if      (dir === DIR.UP)    {region[1]--}
@@ -53,7 +55,7 @@ class Api extends BaseApi {
 
         const con = this.parent.conns.getConnection(region);
         if (con.active) {
-            this.parent.send(con.sock, TYPES.REQ_MOVE_ORG, Helper.getId(), dir, org);
+            this.parent.send(con.sock, TYPES.REQ_MOVE_ORG, x, y, dir, org);
         } else {
             const backRegion = Connections.toRegion(clientId);
             const backCon    = this.parent.conns.getConnection(backRegion);

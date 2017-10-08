@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 13);
+/******/ 	return __webpack_require__(__webpack_require__.s = 14);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -1177,6 +1177,7 @@ module.exports = {Config, api};
  * @author flatline
  */
 const Config = __webpack_require__(0).Config;
+const DIR    = __webpack_require__(12);
 
 class Helper {
     /**
@@ -1275,15 +1276,17 @@ class Helper {
      * @returns {[x,y]}
      */
     static normalize(x, y) {
-        if (Config.worldCyclical) {
-            if (x < 0) {x = Config.worldWidth - 1}
-            else if (x >= Config.worldWidth)  {x = 0}
+        let dir = DIR.NO;
 
-            if (y < 0) {y = Config.worldHeight - 1}
-            else if (y >= Config.worldHeight) {y = 0}
+        if (Config.worldCyclical) {
+            if (x < 0) {dir = DIR.LEFT; x = Config.worldWidth - 1}
+            else if (x >= Config.worldWidth)  {dir = DIR.RIGHT; x = 0}
+
+            if (y < 0) {dir = DIR.UP; y = Config.worldHeight - 1}
+            else if (y >= Config.worldHeight) {dir = DIR.DOWN; y = 0}
         }
 
-        return [x, y];
+        return [x, y, dir];
     }
 
     /**
@@ -1617,13 +1620,6 @@ module.exports = Observer;
  *
  * @author flatline
  */
-
-const DIR = {
-    UP   : 0,
-    RIGHT: 1,
-    DOWN : 2,
-    LEFT : 3
-};
 /**
  * {Object} Different bit masks
  */
@@ -1684,10 +1680,10 @@ class OrganismDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organism__["a" /* de
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__common_src_global_Queue__ = __webpack_require__(32);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__common_src_global_Queue__ = __webpack_require__(33);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__common_src_global_Queue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4__common_src_global_Queue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_OrganismDos__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Backup__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Backup__ = __webpack_require__(16);
 /**
  * Base class for OrganismsXXX plugins. Manages organisms. Makes
  * cloning, crossover, organisms comparison, killing and more...
@@ -2074,10 +2070,31 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__common_src_global_Observer___def
         this._fitnessMode = __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].codeFitnessCls !== null;
     }
 
+
     get code()      {return this._code}
     get size()      {return this._code.length}
     get operators() {return this._operators};
     get vars()      {return this._vars}
+    get offsets()   {return this._offsets}
+    get line()      {return this._line}
+
+    serialize() {
+        return {
+            offsets         : this._offsets,
+            vars            : this._vars.slice(),
+            // 'operators' field will be added after insertion
+            code            : this._code.slice(),
+            line            : this._line
+            // 'fitnessMode' field will be added after insertion
+        };
+    }
+
+    unserialize(json) {
+        this._offsets = json.offsets;
+        this._vars    = json.vars;
+        this._code    = json.code;
+        this._line    = json.line;
+    }
 
     /**
      * Walks through code lines (32bit numbers) one by one and runs associated
@@ -2313,7 +2330,7 @@ class Operators {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__common_src_global_Helper__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__JSVM__ = __webpack_require__(9);
 /**
- * Base class for one organism
+ * Base class for organism
  * TODO: add description:
  * TODO:   - events
  * TODO:   -
@@ -2393,6 +2410,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__
     get cloneEnergyPercent()    {return this._cloneEnergyPercent}
     get posId()                 {return __WEBPACK_IMPORTED_MODULE_3__common_src_global_Helper___default.a.posId(this._x, this._y)}
     get iterations()            {return this._iterations}
+    get fnId()                  {return this._fnId}
 
     set x(newX)                 {this._x = newX}
     set y(newY)                 {this._y = newY}
@@ -2415,6 +2433,62 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__
         if (this.onBeforeRun() === false) {return true}
         this.onRun();
         return this._updateDestroy() && this._updateEnergy();
+    }
+
+    /**
+     * Serializes an organism into the JSON string
+     * @return {String} JSON string
+     */
+    serialize() {
+        let   json = {
+            // 'id' will be added after insertion
+            x                   : this.x,
+            y                   : this.y,
+            changes             : this.changes,
+            alive               : this.alive,
+            // 'item' will be added after insertion
+            iterations          : this.iterations(),
+            fnId                : this.fnId(),
+            jsvm                : this.jsvm.serialize(),
+            energy              : this.energy,
+            color               : this.color,
+            mutationProbs       : this.mutationProbs,
+            cloneMutationPercent: this.cloneMutationPercent,
+            mutationPeriod      : this.mutationPeriod,
+            mutationPercent     : this.mutationPercent,
+            cloneEnergyPercent  : this.cloneEnergyPercent,
+            mem                 : this.mem.slice()
+        };
+
+        return JSON.stringify(json);
+    }
+
+    /**
+     * Opposite to serialize(). Parses provided JSON string and fill
+     * current instance by passed values.
+     * @param {String} str JSON string
+     */
+    unserialize(str) {
+        const jsvm = this.jsvm;
+        let   json = JSON.parse(str);
+
+        // 'id' will be added after insertion
+        this._x                    = json.x;
+        this._y                    = json.y;
+        this._changes              = json.changes;
+        this._alive                = json.alive;
+        // 'item' will be added after insertion
+        this._iterations           = json.iterations();
+        this._fnId                 = json.fnId();
+        this.jsvm.unserialize(json.jsvm);
+        this._energy               = json.energy;
+        this._color                = json.color;
+        this._mutationProbs        = json.mutationProbs;
+        this._cloneMutationPercent = json.cloneMutationPercent;
+        this._mutationPeriod       = json.mutationPeriod;
+        this._mutationPercent      = json.mutationPercent;
+        this._cloneEnergyPercent   = json.cloneEnergyPercent;
+        this._mem                  = json.mem.slice();
     }
 
     grabEnergy(amount) {
@@ -2509,6 +2583,25 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__
 
 /***/ }),
 /* 12 */
+/***/ (function(module, exports) {
+
+/**
+ * Contains available directions, where organism may move to
+ *
+ * @author slackline
+ */
+const DIR = {
+    UP   : 0,
+    RIGHT: 1,
+    DOWN : 2,
+    LEFT : 3,
+    NO   : 4
+};
+
+module.exports = DIR;
+
+/***/ }),
+/* 13 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2516,27 +2609,27 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Plugins__ = __webpack_require__(31);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Plugins__ = __webpack_require__(32);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Plugins___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__common_src_global_Plugins__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Console__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__visual_World__ = __webpack_require__(30);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__visual_Canvas__ = __webpack_require__(29);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__client_src_manager_plugins_Client__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__visual_World__ = __webpack_require__(31);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__visual_Canvas__ = __webpack_require__(30);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__client_src_manager_plugins_Client__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__client_src_manager_plugins_Client___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7__client_src_manager_plugins_Client__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__plugins_OrganismsGarmin__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__plugins_OrganismsDos__ = __webpack_require__(20);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__plugins_Config__ = __webpack_require__(17);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__plugins_Mutator__ = __webpack_require__(19);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__plugins_Energy__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__plugins_Status__ = __webpack_require__(22);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__organism_OperatorsDos__ = __webpack_require__(26);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__organism_OperatorsGarmin__ = __webpack_require__(27);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__organism_Code2StringDos__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__organism_Code2StringGarmin__ = __webpack_require__(24);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__organism_FitnessGarmin__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__plugins_OrganismsGarmin__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__plugins_OrganismsDos__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__plugins_Config__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__plugins_Mutator__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__plugins_Energy__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__plugins_Status__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__organism_OperatorsDos__ = __webpack_require__(27);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__organism_OperatorsGarmin__ = __webpack_require__(28);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__organism_Code2StringDos__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__organism_Code2StringGarmin__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__organism_FitnessGarmin__ = __webpack_require__(26);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__organism_OrganismDos__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__organism_OrganismGarmin__ = __webpack_require__(28);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__organism_OrganismGarmin__ = __webpack_require__(29);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__organism_JSVM__ = __webpack_require__(9);
 /**
  * Main manager class of application. Contains all parts of jevo.js app
@@ -2618,6 +2711,19 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
      */
     onIteration() {}
 
+    /**
+     * Is called if organism try to move out of the world in any direction.
+     * Plugins may override this method to have their related logic
+     * @param {Number} x1 Old X value
+     * @param {Number} y1 Old Y value
+     * @param {Number} x2 New X value
+     * @param {Number} y2 New Y value
+     * @param {Number} dir Moving direction
+     * @param {Organism} org Organism
+     * @abstract
+     */
+    onMoveOut(x1, y1, x2, y2, dir, org) {}
+
     constructor() {
         super(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* EVENT_AMOUNT */]);
         this._world      = new __WEBPACK_IMPORTED_MODULE_5__visual_World__["a" /* default */](__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldWidth, __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldHeight);
@@ -2643,9 +2749,9 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
         //
         this._plugins    = new __WEBPACK_IMPORTED_MODULE_2__common_src_global_Plugins___default.a(this, PLUGINS);
     }
-
     get world()     {return this._world}
     get canvas()    {return this._canvas}
+
     get CLASS_MAP() {return CLASS_MAP}
 
     /**
@@ -2659,7 +2765,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
         this._stopped = false;
         this.onBeforeRun();
         if (this._stopped) {return}
-        
+
         this._counter = 0;
         this._onLoop();
     }
@@ -2756,12 +2862,12 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_Manager__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_Manager__ = __webpack_require__(13);
 /**
  * This is an entry point of jevo.js application. Compiled version of
  * this file should be included into index.html
@@ -2778,7 +2884,7 @@ window.man = manager;
 manager.run();
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -2788,7 +2894,7 @@ manager.run();
  * @author flatline
  */
 const TYPES   = __webpack_require__(6).TYPES;
-const BaseApi = __webpack_require__(34);
+const BaseApi = __webpack_require__(35);
 const Helper  = __webpack_require__(1);
 
 class Api extends BaseApi {
@@ -2846,7 +2952,7 @@ class Api extends BaseApi {
 module.exports = Api;
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2947,7 +3053,7 @@ class Backup {
 
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -2963,10 +3069,10 @@ class Backup {
 const Helper     = __webpack_require__(1);
 const Config     = __webpack_require__(0).Config;
 const TYPES      = __webpack_require__(6).TYPES;
-const Request    = __webpack_require__(35);
-const Api        = __webpack_require__(14);
+const Request    = __webpack_require__(36);
+const Api        = __webpack_require__(15);
 const Console    = __webpack_require__(3).default;
-const Connection = __webpack_require__(33);
+const Connection = __webpack_require__(34);
 
 class Client extends Connection {
     constructor(manager) {
@@ -2977,12 +3083,14 @@ class Client extends Connection {
         this._client        = this._createWebSocket();
         this._closed        = true;
         this._onBeforeRunCb = this._onBeforeRun.bind(this);
+        this._onMoveOutCb   = this._onMoveOut.bind(this);
         //
         // Client has no connection with server, so we have to start in
         // "separate instance" mode.
         //
         if (this._client === null || this._client.readyState === WebSocket.CLOSING || this._client.readyState === WebSocket.CLOSED) {return}
         Helper.override(manager, 'onBeforeRun', this._onBeforeRunCb);
+        Helper.override(manager, 'onMoveOut', this._onMoveOutCb);
         this._client.onopen    = this._onOpen.bind(this);
         this._client.onmessage = this.onMessage.bind(this, this._client);
         this._client.onerror   = this.onError.bind(this);
@@ -3032,6 +3140,7 @@ class Client extends Connection {
         this._request          = null;
         Helper.unoverride(this._manager, 'onBeforeRun', this._onBeforeRunCb);
         this._manager          = null;
+        this._onMoveOutCb      = null;
         this._onBeforeRunCb    = null;
     }
 
@@ -3062,12 +3171,16 @@ class Client extends Connection {
         this._closed = false;
         Console.info('Connection with Server has opened');
     }
+
+    _onMoveOut(x1, y1, x2, y2, dir, org) {
+        this.request(TYPES.REQ_MOVE_ORG, x1, y1, dir, org.serialize());
+    }
 }
 
 module.exports = Client;
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3090,7 +3203,7 @@ class Config {
 
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3171,7 +3284,7 @@ class Energy {
 
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3318,7 +3431,7 @@ class Mutator {
 
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3326,6 +3439,8 @@ class Mutator {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Events__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions__);
 /**
  * Plugin for Manager module, which handles organisms population in
  * nature simulation mode. It's related to DOS language.
@@ -3339,6 +3454,7 @@ class Mutator {
  *
  * @author flatline
  */
+
 
 
 
@@ -3451,8 +3567,9 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
     _onEat(org, x, y, ret) {
         const world = this.manager.world;
         const positions = this._positions;
+        let   dir;
 
-        [x, y] = __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.normalize(x, y);
+        [x, y, dir] = __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.normalize(x, y);
 
         const posId = __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.posId(x, y);
         if (typeof(positions[posId]) === 'undefined') {
@@ -3463,14 +3580,25 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
         }
     }
 
-    _onStep(org, x1, y1, x2, y2, ret) {
-        if (org.alive) {
+    _onStep(org, x1, y1, x2, y2, dir, ret) {
+        //
+        // Current organism try to move out of the world.
+        // We have to pass him to the server to another
+        // world (Manager)
+        //
+        if (dir !== __WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions___default.a.NO) {
+            this.manager.onMoveOut(x1, y1, x2, y2, dir, org);
+            org.destroy();
+        }
+        else if (org.alive) {
             ret.ret = +this.move(x1, y1, x2, y2, org);
         }
     }
 
     _onCheckAt(x, y, ret) {
-        [x, y] = __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.normalize(x, y);
+        let dir;
+
+        [x, y, dir] = __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.normalize(x, y);
         if (typeof(this._positions[__WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.posId(x, y)]) === 'undefined') {
             ret.ret = this.manager.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
         } else {
@@ -3483,7 +3611,7 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
 
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3564,7 +3692,7 @@ class OrganismsGarmin extends __WEBPACK_IMPORTED_MODULE_4__base_Organisms__["a" 
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3672,7 +3800,7 @@ class Status {
 
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3948,7 +4076,7 @@ class Code2StringDos {
 
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4105,7 +4233,7 @@ class Code2StringGarmin {
 
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6107,7 +6235,7 @@ class FitnessGarmin {
 
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6361,12 +6489,15 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
 
     _step(org, x1, y1, x2, y2) {
         let ret = {ret: 0};
-        [x2, y2] = __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.normalize(x2, y2);
-        this.obs.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].STEP, org, x1, y1, x2, y2, ret);
+        let dir;
+
+        [x2, y2, dir] = __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.normalize(x2, y2);
+        this.obs.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].STEP, org, x1, y1, x2, y2, dir, ret);
         if (ret.ret > 0) {
             org.x = x2;
             org.y = y2;
         }
+
         return ret.ret;
     }
 
@@ -6406,7 +6537,7 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
 
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6581,7 +6712,7 @@ class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a"
 
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6651,7 +6782,7 @@ class OrganismGarmin extends __WEBPACK_IMPORTED_MODULE_0__base_Organism__["a" /*
 
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6767,7 +6898,7 @@ class Canvas {
 
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6893,7 +7024,7 @@ class World extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___de
 
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -6958,7 +7089,7 @@ class Plugins {
 module.exports = Plugins;
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports) {
 
 /**
@@ -7049,7 +7180,7 @@ class Queue {
 module.exports = Queue;
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -7162,7 +7293,7 @@ class Connection extends Observer {
 module.exports = Connection;
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -7239,7 +7370,7 @@ class Api {
 module.exports = Api;
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -7283,7 +7414,7 @@ class Request {
         this._onAnswerCb  = null;
         this._onSendCb    = null;
         this._requests    = null;
-        this.parent      = null;
+        this.parent       = null;
     }
 
     /**

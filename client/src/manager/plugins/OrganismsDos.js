@@ -12,8 +12,9 @@
  * @author flatline
  */
 import Organisms from './base/Organisms';
-import {EVENTS}  from '../../global/Events';
-import Helper    from '../../../../common/src/global/Helper';
+import {EVENTS}  from './../../global/Events';
+import Helper    from './../../../../common/src/global/Helper';
+import DIR       from './../../../../common/src/global/Directions';
 
 const EMPTY     = 0;
 const ENERGY    = 1;
@@ -123,8 +124,9 @@ export default class OrganismsDos extends Organisms {
     _onEat(org, x, y, ret) {
         const world = this.manager.world;
         const positions = this._positions;
+        let   dir;
 
-        [x, y] = Helper.normalize(x, y);
+        [x, y, dir] = Helper.normalize(x, y);
 
         const posId = Helper.posId(x, y);
         if (typeof(positions[posId]) === 'undefined') {
@@ -135,14 +137,25 @@ export default class OrganismsDos extends Organisms {
         }
     }
 
-    _onStep(org, x1, y1, x2, y2, ret) {
-        if (org.alive) {
+    _onStep(org, x1, y1, x2, y2, dir, ret) {
+        //
+        // Current organism try to move out of the world.
+        // We have to pass him to the server to another
+        // world (Manager)
+        //
+        if (dir !== DIR.NO) {
+            this.manager.onMoveOut(x1, y1, x2, y2, dir, org);
+            org.destroy();
+        }
+        else if (org.alive) {
             ret.ret = +this.move(x1, y1, x2, y2, org);
         }
     }
 
     _onCheckAt(x, y, ret) {
-        [x, y] = Helper.normalize(x, y);
+        let dir;
+
+        [x, y, dir] = Helper.normalize(x, y);
         if (typeof(this._positions[Helper.posId(x, y)]) === 'undefined') {
             ret.ret = this.manager.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
         } else {

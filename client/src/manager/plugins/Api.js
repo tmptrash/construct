@@ -12,7 +12,8 @@ class Api extends BaseApi {
     constructor(client) {
         super(client);
 
-        this.API[TYPES.REQ_GIVE_ID] = this._giveId.bind(this);
+        this.API[TYPES.REQ_GIVE_ID]  = this._giveId.bind(this);
+        this.API[TYPES.REQ_MOVE_ORG] = this._moveOrg.bind(this);
         /**
          * {String} Unique client id, obtained from the Server. This
          * id should be passed with every request to the server to
@@ -57,6 +58,10 @@ class Api extends BaseApi {
                 this.parent.onActivate();
             }
         });
+    }
+
+    _moveOrg(reqId, x, y, dir, orgJson) {
+        // TODO: ...
     }
 }
 
