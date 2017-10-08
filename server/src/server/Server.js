@@ -73,10 +73,10 @@ class Server extends Connection {
         super(EVENTS_LEN);
         this.EVENTS   = EVENTS;
         this.conns    = new Connections(Config.serMaxConnections);
-
+        this.parent   = null;
+        
         this._port    = port;
         this._running = false;
-        this.parent  = null;
         this._plugins = new Plugins(this, PLUGINS, false);
     }
 

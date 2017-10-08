@@ -1,5 +1,5 @@
 /**
- * Base class for one organism
+ * Base class for organism
  * TODO: add description:
  * TODO:   - events
  * TODO:   -
@@ -79,6 +79,7 @@ export default class Organism extends Observer {
     get cloneEnergyPercent()    {return this._cloneEnergyPercent}
     get posId()                 {return Helper.posId(this._x, this._y)}
     get iterations()            {return this._iterations}
+    get fnId()                  {return this._fnId}
 
     set x(newX)                 {this._x = newX}
     set y(newY)                 {this._y = newY}
@@ -101,6 +102,62 @@ export default class Organism extends Observer {
         if (this.onBeforeRun() === false) {return true}
         this.onRun();
         return this._updateDestroy() && this._updateEnergy();
+    }
+
+    /**
+     * Serializes an organism into the JSON string
+     * @return {String} JSON string
+     */
+    serialize() {
+        let   json = {
+            // 'id' will be added after insertion
+            x                   : this.x,
+            y                   : this.y,
+            changes             : this.changes,
+            alive               : this.alive,
+            // 'item' will be added after insertion
+            iterations          : this.iterations(),
+            fnId                : this.fnId(),
+            jsvm                : this.jsvm.serialize(),
+            energy              : this.energy,
+            color               : this.color,
+            mutationProbs       : this.mutationProbs,
+            cloneMutationPercent: this.cloneMutationPercent,
+            mutationPeriod      : this.mutationPeriod,
+            mutationPercent     : this.mutationPercent,
+            cloneEnergyPercent  : this.cloneEnergyPercent,
+            mem                 : this.mem.slice()
+        };
+
+        return JSON.stringify(json);
+    }
+
+    /**
+     * Opposite to serialize(). Parses provided JSON string and fill
+     * current instance by passed values.
+     * @param {String} str JSON string
+     */
+    unserialize(str) {
+        const jsvm = this.jsvm;
+        let   json = JSON.parse(str);
+
+        // 'id' will be added after insertion
+        this._x                    = json.x;
+        this._y                    = json.y;
+        this._changes              = json.changes;
+        this._alive                = json.alive;
+        // 'item' will be added after insertion
+        this._iterations           = json.iterations();
+        this._fnId                 = json.fnId();
+        this.jsvm.unserialize(json.jsvm);
+        this._energy               = json.energy;
+        this._color                = json.color;
+        this._mutationProbs        = json.mutationProbs;
+        this._cloneMutationPercent = json.cloneMutationPercent;
+        this._mutationPeriod       = json.mutationPeriod;
+        this._mutationPercent      = json.mutationPercent;
+        this._cloneEnergyPercent   = json.cloneEnergyPercent;
+        this._mem                  = json.mem.slice();
     }
 
     grabEnergy(amount) {

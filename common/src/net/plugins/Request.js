@@ -39,7 +39,7 @@ class Request {
         this._onAnswerCb  = null;
         this._onSendCb    = null;
         this._requests    = null;
-        this.parent      = null;
+        this.parent       = null;
     }
 
     /**
