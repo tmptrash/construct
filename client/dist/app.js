@@ -2624,6 +2624,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
         this._canvas     = new __WEBPACK_IMPORTED_MODULE_6__visual_Canvas__["a" /* default */](__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldWidth, __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldHeight);
         this._stopped    = false;
         this._visualized = true;
+        this._onLoopCb   = this._onLoop.bind(this);
         /**
          * {Object} This field is used as a container for public API of the Manager.
          * It may be used in a user console by the Operator of jevo.js. Plugins
@@ -2651,47 +2652,29 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
      * Runs main infinite loop of application
      */
     run () {
-        let counter     = 0;
-        let timer       = Date.now;
-        let stamp       = timer();
-        let me          = this;
-        let zeroTimeout = me.zeroTimeout;
-
+        //
+        // Plugins may override onBeforeRun() method to prevent starting
+        // Manager at the beginning. For this thy may call Manager.stop()
+        //
         this._stopped = false;
         this.onBeforeRun();
-        //
-        // Someone has stopped the server. Running will be started later...
-        //
         if (this._stopped) {return}
-
-        function loop () {
-            //
-            // This conditions id needed for turned on visualization mode to
-            // prevent flickering of organisms in a canvas. It makes their
-            // movement smooth
-            //
-            const amount = me._visualized ? 1 : __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].codeIterationsPerOnce;
-
-            for (let i = 0; i < amount; i++) {
-                me.onIteration(counter, stamp);
-
-                counter++;
-                stamp = timer();
-            }
-            zeroTimeout(loop);
-        }
-        loop();
+        
+        this._counter = 0;
+        this._onLoop();
     }
 
     stop() {
         this._stopped = true;
+        this._counter = 0;
     }
 
     destroy() {
         this._world.destroy();
         this._canvas.destroy();
-        this._plugins = null;
-        this.api = null;
+        this._onLoopCb = null;
+        this._plugins  = null;
+        this.api       = null;
         this.clear();
     }
 
@@ -2700,18 +2683,16 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
      * It runs a setTimeout() based infinite loop, but faster, then simply using native setTimeout().
      * See this article for details.
      * @return {Boolean} Initialization status. false if function has already exist
-     * @private
      * @hack
      */
     _initLoop() {
-        if (this.zeroTimeout) {return false}
         //
-        // Only add zeroTimeout to the Manager object, and hide everything
+        // Only adds zeroTimeout to the Manager object, and hides everything
         // else in a closure.
         //
         (() => {
             let   callback;
-            const msgName = 'zm';
+            const msgName = 'm';
 
             window.addEventListener('message', (event) => {
                 if (event.data === msgName) {
@@ -2737,6 +2718,27 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
         return true;
     }
 
+    /**
+     * Is called every time if new loop iteration is appeared. This is not the
+     * same like onIteration() method. This one is for loop with many iterations
+     * (onIteration()) inside by calling this.zeroTimeout().
+     */
+    _onLoop () {
+        //
+        // This conditions id needed for turned on visualization mode to
+        // prevent flickering of organisms in a canvas. It makes their
+        // movement smooth
+        //
+        const amount  = this._visualized ? 1 : __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].codeIterationsPerOnce;
+        const timer   = Date.now;
+        let   counter = this._counter;
+
+        for (let i = 0; i < amount; i++) {
+            this.onIteration(counter++, timer());
+        }
+        this._counter = counter;
+        this.zeroTimeout(this._onLoopCb);
+    }
     _addHandlers() {
         this._world.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].DOT, this._onDot.bind(this));
     }
@@ -2973,9 +2975,16 @@ class Client extends Connection {
         this._request       = new Request(this);
         this._api           = new Api(this);
         this._client        = this._createWebSocket();
+        this._closed        = true;
         this._onBeforeRunCb = this._onBeforeRun.bind(this);
-
-        if (this._client === null) {return}
+        //
+        // Client has no connection with server, so we have to start in
+        // "separates instance" mode.
+        //
+        if (this._client === null || this._client.readyState === WebSocket.CLOSING || this._client.readyState === WebSocket.CLOSED) {
+            this._manager.run();
+            return;
+        }
         Helper.override(manager, 'onBeforeRun', this._onBeforeRunCb);
         this._client.onopen    = this._onOpen.bind(this);
         this._client.onmessage = this.onMessage.bind(this, this._client);
@@ -2990,6 +2999,7 @@ class Client extends Connection {
      */
     onClose(event) {
         super.onClose(event);
+        this._closed = false;
         Console.info(`Client "${this._api.clientId}" has disconnected by reason: ${this.closeReason}`);
     }
 
@@ -3035,7 +3045,7 @@ class Client extends Connection {
      * @override
      */
     _onBeforeRun() {
-        if (this._api.clientId === null) {
+        if (this._api.clientId === null && this._closed === false) {
             this._manager.stop();
         }
     }
@@ -3044,9 +3054,6 @@ class Client extends Connection {
         let ws = null;
         try {
             ws = new WebSocket(`${Config.serHost}:${Config.serPort}`);
-            if (ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING) {
-                Console.error('Connection to server has closed');
-            }
         } catch (e) {
             Console.error(e.message);
         }
@@ -3055,6 +3062,7 @@ class Client extends Connection {
     }
 
     _onOpen() {
+        this._closed = false;
         Console.info('Connection with Server has opened');
     }
 }

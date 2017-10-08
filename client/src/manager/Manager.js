@@ -84,6 +84,7 @@ export default class Manager extends Observer {
         this._canvas     = new Canvas(Config.worldWidth, Config.worldHeight);
         this._stopped    = false;
         this._visualized = true;
+        this._onLoopCb   = this._onLoop.bind(this);
         /**
          * {Object} This field is used as a container for public API of the Manager.
          * It may be used in a user console by the Operator of jevo.js. Plugins
@@ -111,47 +112,29 @@ export default class Manager extends Observer {
      * Runs main infinite loop of application
      */
     run () {
-        let counter     = 0;
-        let timer       = Date.now;
-        let stamp       = timer();
-        let me          = this;
-        let zeroTimeout = me.zeroTimeout;
-
+        //
+        // Plugins may override onBeforeRun() method to prevent starting
+        // Manager at the beginning. For this thy may call Manager.stop()
+        //
         this._stopped = false;
         this.onBeforeRun();
-        //
-        // Someone has stopped the server. Running will be started later...
-        //
         if (this._stopped) {return}
-
-        function loop () {
-            //
-            // This conditions id needed for turned on visualization mode to
-            // prevent flickering of organisms in a canvas. It makes their
-            // movement smooth
-            //
-            const amount = me._visualized ? 1 : Config.codeIterationsPerOnce;
-
-            for (let i = 0; i < amount; i++) {
-                me.onIteration(counter, stamp);
-
-                counter++;
-                stamp = timer();
-            }
-            zeroTimeout(loop);
-        }
-        loop();
+        
+        this._counter = 0;
+        this._onLoop();
     }
 
     stop() {
         this._stopped = true;
+        this._counter = 0;
     }
 
     destroy() {
         this._world.destroy();
         this._canvas.destroy();
-        this._plugins = null;
-        this.api = null;
+        this._onLoopCb = null;
+        this._plugins  = null;
+        this.api       = null;
         this.clear();
     }
 
@@ -160,18 +143,16 @@ export default class Manager extends Observer {
      * It runs a setTimeout() based infinite loop, but faster, then simply using native setTimeout().
      * See this article for details.
      * @return {Boolean} Initialization status. false if function has already exist
-     * @private
      * @hack
      */
     _initLoop() {
-        if (this.zeroTimeout) {return false}
         //
-        // Only add zeroTimeout to the Manager object, and hide everything
+        // Only adds zeroTimeout to the Manager object, and hides everything
         // else in a closure.
         //
         (() => {
             let   callback;
-            const msgName = 'zm';
+            const msgName = 'm';
 
             window.addEventListener('message', (event) => {
                 if (event.data === msgName) {
@@ -197,6 +178,27 @@ export default class Manager extends Observer {
         return true;
     }
 
+    /**
+     * Is called every time if new loop iteration is appeared. This is not the
+     * same like onIteration() method. This one is for loop with many iterations
+     * (onIteration()) inside by calling this.zeroTimeout().
+     */
+    _onLoop () {
+        //
+        // This conditions id needed for turned on visualization mode to
+        // prevent flickering of organisms in a canvas. It makes their
+        // movement smooth
+        //
+        const amount  = this._visualized ? 1 : Config.codeIterationsPerOnce;
+        const timer   = Date.now;
+        let   counter = this._counter;
+
+        for (let i = 0; i < amount; i++) {
+            this.onIteration(counter++, timer());
+        }
+        this._counter = counter;
+        this.zeroTimeout(this._onLoopCb);
+    }
     _addHandlers() {
         this._world.on(EVENTS.DOT, this._onDot.bind(this));
     }
