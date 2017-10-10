@@ -26,6 +26,7 @@
  * If there are no sibling servers, then cells 0:0...3:0, 3:0...3:3, 3:3...0:3,
  * 0:3...0:0 will be set to null. Corner cells (0:0, 3:0, 3:3, 0:3) are always
  * null.
+ * TODO: all clients should be notified if near client stay active
  *
  * @author flatline
  */

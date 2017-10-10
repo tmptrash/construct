@@ -93,12 +93,18 @@ export default class Manager extends Observer {
 
     constructor() {
         super(EVENT_AMOUNT);
-        this._world      = new World(Config.worldWidth, Config.worldHeight);
-        this._canvas     = new Canvas(Config.worldWidth, Config.worldHeight);
-        this._stopped    = false;
-        this._visualized = true;
-        this._clientId   = null;
-        this._onLoopCb   = this._onLoop.bind(this);
+        this._world        = new World(Config.worldWidth, Config.worldHeight);
+        this._canvas       = new Canvas(Config.worldWidth, Config.worldHeight);
+        this._stopped      = false;
+        this._visualized   = true;
+        this._clientId     = null;
+        /**
+         * {Array} Array of four bool elements (four sides), which stores activeness
+         * of up, right, down and left near Managers (maps). If side is active, then
+         * organisms may go there out of borders.
+         */
+        this._activeAround = [false, false, false, false];
+        this._onLoopCb     = this._onLoop.bind(this);
         /**
          * {Object} This field is used as a container for public API of the Manager.
          * It may be used in a user console by the Operator of jevo.js. Plugins
@@ -117,10 +123,11 @@ export default class Manager extends Observer {
         //
         this._plugins    = new Plugins(this, PLUGINS);
     }
-    get world()     {return this._world}
-    get canvas()    {return this._canvas}
-    get clientId()  {return this._clientId}
-    get CLASS_MAP() {return CLASS_MAP}
+    get world()        {return this._world}
+    get canvas()       {return this._canvas}
+    get clientId()     {return this._clientId}
+    get activeAround() {return this._activeAround}
+    get CLASS_MAP()    {return CLASS_MAP}
 
     /**
      * Runs main infinite loop of application

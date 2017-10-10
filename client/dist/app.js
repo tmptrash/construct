@@ -1372,28 +1372,29 @@ const EVENTS = {
     CLONE          : 11,
     EAT            : 12,
     STEP           : 13,
-    EAT_ORGANISM   : 14,
-    EAT_ENERGY     : 15,
-    BORN_ORGANISM  : 16,
-    DOT_REQUEST    : 17,
-    STEP_YIELD     : 18,
-    BEFORE_RESPONSE: 19,
-    AFTER_REQUEST  : 20,
-    GET_ENERGY     : 21,
-    PROP_LEFT      : 22,
-    PROP_RIGHT     : 23,
-    PROP_UP        : 24,
-    PROP_DOWN      : 25,
-    DOT            : 26,
-    MOVE           : 27,
-    GRAB_LEFT      : 28,
-    GRAB_RIGHT     : 29,
-    GRAB_UP        : 30,
-    GRAB_DOWN      : 31,
-    DESTROY        : 32,
-    STOP           : 33,
-    RESET_CODE     : 34,
-    CHECK_AT       : 35
+    STEP_OUT       : 14,
+    EAT_ORGANISM   : 15,
+    EAT_ENERGY     : 16,
+    BORN_ORGANISM  : 17,
+    DOT_REQUEST    : 18,
+    STEP_YIELD     : 19,
+    BEFORE_RESPONSE: 20,
+    AFTER_REQUEST  : 21,
+    GET_ENERGY     : 22,
+    PROP_LEFT      : 23,
+    PROP_RIGHT     : 24,
+    PROP_UP        : 25,
+    PROP_DOWN      : 26,
+    DOT            : 27,
+    MOVE           : 28,
+    GRAB_LEFT      : 29,
+    GRAB_RIGHT     : 30,
+    GRAB_UP        : 31,
+    GRAB_DOWN      : 32,
+    DESTROY        : 33,
+    STOP           : 34,
+    RESET_CODE     : 35,
+    CHECK_AT       : 36
 };
 
 const EVENT_AMOUNT = Object.keys(EVENTS).length;
@@ -2789,12 +2790,18 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
 
     constructor() {
         super(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* EVENT_AMOUNT */]);
-        this._world      = new __WEBPACK_IMPORTED_MODULE_5__visual_World__["a" /* default */](__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldWidth, __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldHeight);
-        this._canvas     = new __WEBPACK_IMPORTED_MODULE_6__visual_Canvas__["a" /* default */](__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldWidth, __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldHeight);
-        this._stopped    = false;
-        this._visualized = true;
-        this._clientId   = null;
-        this._onLoopCb   = this._onLoop.bind(this);
+        this._world        = new __WEBPACK_IMPORTED_MODULE_5__visual_World__["a" /* default */](__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldWidth, __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldHeight);
+        this._canvas       = new __WEBPACK_IMPORTED_MODULE_6__visual_Canvas__["a" /* default */](__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldWidth, __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldHeight);
+        this._stopped      = false;
+        this._visualized   = true;
+        this._clientId     = null;
+        /**
+         * {Array} Array of four bool elements (four sides), which stores activeness
+         * of up, right, down and left near Managers (maps). If side is active, then
+         * organisms may go there out of borders.
+         */
+        this._activeAround = [false, false, false, false];
+        this._onLoopCb     = this._onLoop.bind(this);
         /**
          * {Object} This field is used as a container for public API of the Manager.
          * It may be used in a user console by the Operator of jevo.js. Plugins
@@ -2813,10 +2820,11 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
         //
         this._plugins    = new __WEBPACK_IMPORTED_MODULE_2__common_src_global_Plugins___default.a(this, PLUGINS);
     }
-    get world()     {return this._world}
-    get canvas()    {return this._canvas}
-    get clientId()  {return this._clientId}
-    get CLASS_MAP() {return CLASS_MAP}
+    get world()        {return this._world}
+    get canvas()       {return this._canvas}
+    get clientId()     {return this._clientId}
+    get activeAround() {return this._activeAround}
+    get CLASS_MAP()    {return CLASS_MAP}
 
     /**
      * Runs main infinite loop of application
@@ -3643,7 +3651,7 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
         // We have to pass him to the server to another
         // world (Manager)
         //
-        if (dir !== __WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions___default.a.NO) {
+        if (dir !== __WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions___default.a.NO && this.manager.activeAround[dir]) {
             this.manager.onMoveOut(x1, y1, x2, y2, dir, org);
             org.destroy();
         }

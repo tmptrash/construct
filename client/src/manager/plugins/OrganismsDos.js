@@ -143,7 +143,7 @@ export default class OrganismsDos extends Organisms {
         // We have to pass him to the server to another
         // world (Manager)
         //
-        if (dir !== DIR.NO) {
+        if (dir !== DIR.NO && this.manager.activeAround[dir]) {
             this.manager.onMoveOut(x1, y1, x2, y2, dir, org);
             org.destroy();
         }
