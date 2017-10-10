@@ -110,7 +110,7 @@ export default class JSVM extends Observer {
             }
             if (line >= lines) {
                 line = 0;
-                this._operators.offsets = (this._offsets = []);
+                org.alive && (this._operators.offsets = (this._offsets = []));
                 if (this._onCodeEnd) {
                     this._onCodeEnd(len2 - len);
                 }

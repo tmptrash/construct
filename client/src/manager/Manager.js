@@ -78,19 +78,6 @@ export default class Manager extends Observer {
      */
     onIteration() {}
 
-    /**
-     * Is called if organism try to move out of the world in any direction.
-     * Plugins may override this method to have their related logic
-     * @param {Number} x1 Old X value
-     * @param {Number} y1 Old Y value
-     * @param {Number} x2 New X value
-     * @param {Number} y2 New Y value
-     * @param {Number} dir Moving direction
-     * @param {Organism} org Organism
-     * @abstract
-     */
-    onMoveOut(x1, y1, x2, y2, dir, org) {}
-
     constructor() {
         super(EVENT_AMOUNT);
         this._world        = new World(Config.worldWidth, Config.worldHeight);

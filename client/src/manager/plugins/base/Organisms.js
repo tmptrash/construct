@@ -232,6 +232,23 @@ export default class Organisms {
         return moved;
     }
 
+    createOrg(pos, parent = null) {
+        const orgs = this.organisms;
+        if (orgs.size >= Config.worldMaxOrgs || pos === false) {return false}
+        orgs.add(null);
+        let last = orgs.last;
+        let org  = new this._ORG_CLS(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), this._CLASS_MAP, parent);
+
+        last.val = org;
+        this.addOrgHandlers(org);
+        this.move(pos.x, pos.y, pos.x, pos.y, org);
+        this.onAfterCreateOrg(org);
+        this.manager.fire(EVENTS.BORN_ORGANISM, org);
+        Console.info(org.id, ' born');
+
+        return true;
+    }
+
     _tournament(org1 = null, org2 = null) {
         org1 = org1 || this.getRandOrg();
         org2 = org2 || this.getRandOrg();
@@ -247,7 +264,7 @@ export default class Organisms {
     _clone(org) {
         if (this.onBeforeClone(org) === false) {return false}
         let pos = this.manager.world.getNearFreePos(org.x, org.y);
-        if (pos === false || this._createOrg(pos, org) === false) {return false}
+        if (pos === false || this.createOrg(pos, org) === false) {return false}
         let child  = this.organisms.last.val;
 
         this.onClone(org, child);
@@ -272,7 +289,7 @@ export default class Organisms {
 
         this.reset();
         for (let i = 0; i < Config.orgStartAmount; i++) {
-            this._createOrg(world.getFreePos());
+            this.createOrg(world.getFreePos());
         }
         Console.warn('Population has created');
     }
@@ -280,23 +297,6 @@ export default class Organisms {
     _onCodeEnd(org, lines) {
         this.codeRuns++;
         this.manager.fire(EVENTS.ORGANISM, org, lines);
-    }
-
-    _createOrg(pos, parent = null) {
-        const orgs = this.organisms;
-        if (orgs.size >= Config.worldMaxOrgs || pos === false) {return false}
-        orgs.add(null);
-        let last = orgs.last;
-        let org  = new this._ORG_CLS(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), this._CLASS_MAP, parent);
-
-        last.val = org;
-        this.addOrgHandlers(org);
-        this.move(pos.x, pos.y, pos.x, pos.y, org);
-        this.onAfterCreateOrg(org);
-        this.manager.fire(EVENTS.BORN_ORGANISM, org);
-        Console.info(org.id, ' born');
-
-        return true;
     }
 
     _onKillOrg(org) {

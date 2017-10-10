@@ -99,7 +99,7 @@ export default class Organism extends Observer {
         this._iterations++;
         if (this.onBeforeRun() === false) {return true}
         this.onRun();
-        return this._updateDestroy() && this._updateEnergy();
+        return this.alive && this._updateDestroy() && this._updateEnergy();
     }
 
     /**
@@ -176,7 +176,7 @@ export default class Organism extends Observer {
         this._energy     = 0;
         this._item       = null;
         this._mem        = null;
-        this.jsvm.destroy();
+        this.jsvm && this.jsvm.destroy();
         this.jsvm        = null;
         this._codeEndCb  = null;
         this.clear();

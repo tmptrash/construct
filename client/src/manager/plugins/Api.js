@@ -7,6 +7,7 @@
 const TYPES   = require('./../../../../common/src/global/Requests').TYPES;
 const BaseApi = require('./../../../../common/src/net/plugins/Api');
 const Helper  = require('./../../../../common/src/global/Helper');
+const EVENTS  = require('./../../global/Events').EVENTS;
 
 class Api extends BaseApi {
     constructor(client) {
@@ -14,6 +15,7 @@ class Api extends BaseApi {
 
         this.API[TYPES.REQ_GIVE_ID]  = this._giveId.bind(this);
         this.API[TYPES.REQ_MOVE_ORG] = this._moveOrg.bind(this);
+        this.API[TYPES.RES_MOVE_ERR] = this._moveOrg.bind(this);
     }
 
     destroy() {
@@ -30,16 +32,25 @@ class Api extends BaseApi {
      * @api
      */
     _giveId(reqId, clientId) {
-        this.parent.onSetClientId(clientId);
+        this.parent.manager.setClientId(clientId);
         this.parent.request(TYPES.REQ_SET_ACTIVE, true, (type) => {
             if (type === TYPES.RES_ACTIVE_OK) {
-                this.parent.onActivate();
+                this.parent.manager.run();
             }
         });
     }
 
+    /**
+     * Is called if organism is move in from other Manager (world)
+     * @param {String} reqId Unique request id
+     * @param {Number} x Current org X position
+     * @param {Number} y Current org Y position
+     * @param {Number} dir Moving direction
+     * @param {String} orgJson Organism's serialized json
+     * @api
+     */
     _moveOrg(reqId, x, y, dir, orgJson) {
-        // TODO: ...
+        this.parent.manager.fire(EVENTS.STEP_IN, x, y, dir, orgJson);
     }
 }
 

@@ -24,12 +24,14 @@ export default class OrganismsDos extends Organisms {
     constructor(manager) {
         super(manager);
 
-        this._positions = {};
+        this._positions  = {};
+        this._onStepInCb = this._onStepIn.bind(this);
     }
 
     destroy() {
         super.destroy();
-        this._positions = null;
+        this._onStepInCb = null;
+        this._positions  = null;
     }
 
     /**
@@ -70,6 +72,7 @@ export default class OrganismsDos extends Organisms {
         org.on(EVENTS.EAT, this._onEat.bind(this));
         org.on(EVENTS.STEP, this._onStep.bind(this));
         org.on(EVENTS.CHECK_AT, this._onCheckAt.bind(this));
+        this.manager.on(EVENTS.STEP_IN, this._onStepInCb);
     }
 
     /**
@@ -138,13 +141,14 @@ export default class OrganismsDos extends Organisms {
     }
 
     _onStep(org, x1, y1, x2, y2, dir, ret) {
+        const man = this.manager;
         //
         // Current organism try to move out of the world.
         // We have to pass him to the server to another
         // world (Manager)
         //
-        if (dir !== DIR.NO && this.manager.activeAround[dir]) {
-            this.manager.onMoveOut(x1, y1, x2, y2, dir, org);
+        if (dir !== DIR.NO && man.clientId && man.activeAround[dir]) {
+            this.manager.fire(EVENTS.STEP_OUT, x1, y1, x2, y2, dir, org);
             org.destroy();
         }
         else if (org.alive) {
@@ -163,4 +167,18 @@ export default class OrganismsDos extends Organisms {
         }
     }
 
+    /**
+     * Is called if organism step in from the server or other client (Manager/World).
+     * If step in position is not free, then organism die at the moment
+     * @param {Number} x Current org X position
+     * @param {Number} y Current org Y position
+     * @param {Number} dir Moving direction
+     * @param {String} orgJson Organism's serialized json
+     * @private
+     */
+    _onStepIn(x, y, dir, orgJson) {
+        if (this.manager.world.isFree(x, y) && this.createOrg({x:x, y:y})) {
+            this.manager.organisms.last.val.unserialize(orgJson);
+        }
+    }
 }

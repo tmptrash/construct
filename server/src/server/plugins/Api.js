@@ -42,7 +42,7 @@ class Api extends BaseApi {
      * @param {Number} x Current org X position
      * @param {Number} y Current org Y position
      * @param {Number} dir Moving direction
-     * @param {Object} orgJson Organism's serialized json
+     * @param {String} orgJson Organism's serialized json
      * @api
      */
     _moveOrg(reqId, clientId, x, y, dir, orgJson) {
@@ -59,7 +59,8 @@ class Api extends BaseApi {
         } else {
             const backRegion = Connections.toRegion(clientId);
             const backCon    = this.parent.conns.getConnection(backRegion);
-            this.parent.send(backCon.sock, TYPES.RES_MOVE_ERR, reqId, dir, orgJson, `Region ${region} is not active`);
+            this.parent.send(backCon.sock, TYPES.RES_MOVE_ERR, x, y, dir, orgJson, `Region ${region} is not active`);
+            Console.error(`Destination region ${region} is not active. Organism ${orgJson.id} will be sent back.`);
         }
     }
 }

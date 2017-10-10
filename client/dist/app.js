@@ -68,6 +68,66 @@
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EVENTS", function() { return EVENTS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EVENT_AMOUNT", function() { return EVENT_AMOUNT; });
+/**
+ * List of all available event ids. New events should be added to
+ * the end of the list. Last event id should be bigger then all other
+ *
+ * @author flatline
+ * TODO: find unused and remove. But after main code is done.
+ */
+const EVENTS = {
+    YIELD          : 0,
+    ITERATION      : 1,
+    IPS            : 2,
+    REQUEST        : 3,
+    BACKUP         : 4,
+    YIELDTO        : 5,
+    ORGANISM       : 6,
+    GRAB_ENERGY    : 7,
+    UPDATE_ENERGY  : 8,
+    KILL_ORGANISM  : 9,
+    MUTATIONS      : 10,
+    CLONE          : 11,
+    EAT            : 12,
+    STEP           : 13,
+    STEP_OUT       : 14,
+    STEP_IN        : 15,
+    EAT_ORGANISM   : 16,
+    EAT_ENERGY     : 17,
+    BORN_ORGANISM  : 18,
+    DOT_REQUEST    : 19,
+    STEP_YIELD     : 20,
+    BEFORE_RESPONSE: 21,
+    AFTER_REQUEST  : 22,
+    GET_ENERGY     : 23,
+    PROP_LEFT      : 24,
+    PROP_RIGHT     : 25,
+    PROP_UP        : 26,
+    PROP_DOWN      : 27,
+    DOT            : 28,
+    MOVE           : 29,
+    GRAB_LEFT      : 30,
+    GRAB_RIGHT     : 31,
+    GRAB_UP        : 32,
+    GRAB_DOWN      : 33,
+    DESTROY        : 34,
+    STOP           : 35,
+    RESET_CODE     : 36,
+    CHECK_AT       : 37
+};
+
+const EVENT_AMOUNT = Object.keys(EVENTS).length;
+
+
+
+/***/ }),
+/* 1 */
 /***/ (function(module, exports) {
 
 /**
@@ -1168,7 +1228,7 @@ module.exports = {Config, api};
 
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -1176,7 +1236,7 @@ module.exports = {Config, api};
  *
  * @author flatline
  */
-const Config = __webpack_require__(0).Config;
+const Config = __webpack_require__(1).Config;
 const DIR    = __webpack_require__(12);
 
 class Helper {
@@ -1344,70 +1404,12 @@ Helper._id = 0;
 module.exports = Helper;
 
 /***/ }),
-/* 2 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return EVENTS; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return EVENT_AMOUNT; });
-/**
- * List of all available event ids. New events should be added to
- * the end of the list. Last event id should be bigger then all other
- *
- * @author flatline
- * TODO: find unused and remove. But after main code is done.
- */
-const EVENTS = {
-    YIELD          : 0,
-    ITERATION      : 1,
-    IPS            : 2,
-    REQUEST        : 3,
-    BACKUP         : 4,
-    YIELDTO        : 5,
-    ORGANISM       : 6,
-    GRAB_ENERGY    : 7,
-    UPDATE_ENERGY  : 8,
-    KILL_ORGANISM  : 9,
-    MUTATIONS      : 10,
-    CLONE          : 11,
-    EAT            : 12,
-    STEP           : 13,
-    STEP_OUT       : 14,
-    EAT_ORGANISM   : 15,
-    EAT_ENERGY     : 16,
-    BORN_ORGANISM  : 17,
-    DOT_REQUEST    : 18,
-    STEP_YIELD     : 19,
-    BEFORE_RESPONSE: 20,
-    AFTER_REQUEST  : 21,
-    GET_ENERGY     : 22,
-    PROP_LEFT      : 23,
-    PROP_RIGHT     : 24,
-    PROP_UP        : 25,
-    PROP_DOWN      : 26,
-    DOT            : 27,
-    MOVE           : 28,
-    GRAB_LEFT      : 29,
-    GRAB_RIGHT     : 30,
-    GRAB_UP        : 31,
-    GRAB_DOWN      : 32,
-    DESTROY        : 33,
-    STOP           : 34,
-    RESET_CODE     : 35,
-    CHECK_AT       : 36
-};
-
-const EVENT_AMOUNT = Object.keys(EVENTS).length;
-
-
-
-/***/ }),
 /* 3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__);
 /**
  * Module for working with a browser console
@@ -1443,9 +1445,9 @@ class Console {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
 /**
  * Class - helper for working with with byte code numbers
@@ -1675,12 +1677,12 @@ class OrganismDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organism__["a" /* de
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__common_src_global_Queue__ = __webpack_require__(33);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__common_src_global_Queue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4__common_src_global_Queue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_OrganismDos__ = __webpack_require__(7);
@@ -1820,7 +1822,7 @@ class Organisms {
     }
 
     addOrgHandlers(org) {
-        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].DESTROY, this._onKillOrg.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["EVENTS"].DESTROY, this._onKillOrg.bind(this));
     }
 
     /**
@@ -1878,7 +1880,7 @@ class Organisms {
         const orgs = this.organisms.size;
         let   ips  = this.codeRuns / orgs / (ts / 1000);
 
-        man.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].IPS, ips, this.organisms);
+        man.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["EVENTS"].IPS, ips, this.organisms);
         this.codeRuns = 0;
         this.stamp = stamp;
     }
@@ -1919,6 +1921,23 @@ class Organisms {
         return moved;
     }
 
+    createOrg(pos, parent = null) {
+        const orgs = this.organisms;
+        if (orgs.size >= __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldMaxOrgs || pos === false) {return false}
+        orgs.add(null);
+        let last = orgs.last;
+        let org  = new this._ORG_CLS(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), this._CLASS_MAP, parent);
+
+        last.val = org;
+        this.addOrgHandlers(org);
+        this.move(pos.x, pos.y, pos.x, pos.y, org);
+        this.onAfterCreateOrg(org);
+        this.manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["EVENTS"].BORN_ORGANISM, org);
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["default"].info(org.id, ' born');
+
+        return true;
+    }
+
     _tournament(org1 = null, org2 = null) {
         org1 = org1 || this.getRandOrg();
         org2 = org2 || this.getRandOrg();
@@ -1934,11 +1953,11 @@ class Organisms {
     _clone(org) {
         if (this.onBeforeClone(org) === false) {return false}
         let pos = this.manager.world.getNearFreePos(org.x, org.y);
-        if (pos === false || this._createOrg(pos, org) === false) {return false}
+        if (pos === false || this.createOrg(pos, org) === false) {return false}
         let child  = this.organisms.last.val;
 
         this.onClone(org, child);
-        this.manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].CLONE, org, child);
+        this.manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["EVENTS"].CLONE, org, child);
 
         return true;
     }
@@ -1959,31 +1978,14 @@ class Organisms {
 
         this.reset();
         for (let i = 0; i < __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].orgStartAmount; i++) {
-            this._createOrg(world.getFreePos());
+            this.createOrg(world.getFreePos());
         }
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["default"].warn('Population has created');
     }
 
     _onCodeEnd(org, lines) {
         this.codeRuns++;
-        this.manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].ORGANISM, org, lines);
-    }
-
-    _createOrg(pos, parent = null) {
-        const orgs = this.organisms;
-        if (orgs.size >= __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldMaxOrgs || pos === false) {return false}
-        orgs.add(null);
-        let last = orgs.last;
-        let org  = new this._ORG_CLS(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), this._CLASS_MAP, parent);
-
-        last.val = org;
-        this.addOrgHandlers(org);
-        this.move(pos.x, pos.y, pos.x, pos.y, org);
-        this.onAfterCreateOrg(org);
-        this.manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].BORN_ORGANISM, org);
-        __WEBPACK_IMPORTED_MODULE_2__global_Console__["default"].info(org.id, ' born');
-
-        return true;
+        this.manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["EVENTS"].ORGANISM, org, lines);
     }
 
     _onKillOrg(org) {
@@ -1995,7 +1997,7 @@ class Organisms {
         this.organisms.del(org.item);
         this.manager.world.setDot(org.x, org.y, 0);
         this.onAfterKillOrg(org);
-        this.manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].KILL_ORGANISM, org);
+        this.manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["EVENTS"].KILL_ORGANISM, org);
         __WEBPACK_IMPORTED_MODULE_2__global_Console__["default"].info(org.id, ' die');
     }
 }
@@ -2007,13 +2009,13 @@ class Organisms {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Observer__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Observer___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__common_src_global_Observer__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Num__ = __webpack_require__(4);
 /**
  * Implements organism's code logic.
@@ -2048,7 +2050,7 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__common_src_global_Observer___def
      * @param {JSVM} parent Parent JSVM instance in case of cloning
      */
     constructor(codeEndCb, obs, classMap, parent = null) {
-        super(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* EVENT_AMOUNT */]);
+        super(__WEBPACK_IMPORTED_MODULE_3__global_Events__["EVENT_AMOUNT"]);
 
         /**
          * {Function} Callback, which is called on every organism
@@ -2127,7 +2129,7 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__common_src_global_Observer___def
             }
             if (line >= lines) {
                 line = 0;
-                this._operators.offsets = (this._offsets = []);
+                org.alive && (this._operators.offsets = (this._offsets = []));
                 if (this._onCodeEnd) {
                     this._onCodeEnd(len2 - len);
                 }
@@ -2237,7 +2239,7 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__common_src_global_Observer___def
     }
 
     _reset() {
-        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].RESET_CODE);
+        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["EVENTS"].RESET_CODE);
         this._line    = 0;
         this._operators.offsets = (this._offsets = []);
     }
@@ -2322,12 +2324,12 @@ class Operators {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__common_src_global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__common_src_global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__common_src_global_Helper__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__JSVM__ = __webpack_require__(9);
 /**
@@ -2377,7 +2379,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__
      * @param {Organism} parent Parent organism if cloning is needed
      */
     constructor(id, x, y, alive, item, codeEndCb, classMap, parent = null) {
-        super(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* EVENT_AMOUNT */]);
+        super(__WEBPACK_IMPORTED_MODULE_2__global_Events__["EVENT_AMOUNT"]);
 
         this._codeEndCb   = codeEndCb;
         this._classMap    = classMap;
@@ -2431,7 +2433,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__
         this._iterations++;
         if (this.onBeforeRun() === false) {return true}
         this.onRun();
-        return this._updateDestroy() && this._updateEnergy();
+        return this.alive && this._updateDestroy() && this._updateEnergy();
     }
 
     /**
@@ -2502,13 +2504,13 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__
     }
 
     destroy() {
-        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].DESTROY, this);
+        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["EVENTS"].DESTROY, this);
         this._alive      = false;
         this._classMap   = null;
         this._energy     = 0;
         this._item       = null;
         this._mem        = null;
-        this.jsvm.destroy();
+        this.jsvm && this.jsvm.destroy();
         this.jsvm        = null;
         this._codeEndCb  = null;
         this.clear();
@@ -2572,7 +2574,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__
         if (codeSize > __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].codeMaxSize) {grabSize = codeSize * __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].codeSizeCoef}
         if (grabSize < 1) {grabSize = 1}
         grabSize = Math.min(this._energy, grabSize);
-        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].GRAB_ENERGY, grabSize);
+        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["EVENTS"].GRAB_ENERGY, grabSize);
 
         return this.grabEnergy(grabSize);
     }
@@ -2609,7 +2611,7 @@ module.exports = DIR;
  *
  * @author slackline
  */
-const Helper = __webpack_require__(1);
+const Helper = __webpack_require__(2);
 
 class Plugins {
     /**
@@ -2671,11 +2673,11 @@ module.exports = Plugins;
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Plugins__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Plugins___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__common_src_global_Plugins__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Console__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__visual_World__ = __webpack_require__(32);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__visual_Canvas__ = __webpack_require__(31);
@@ -2775,21 +2777,8 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
      */
     onIteration() {}
 
-    /**
-     * Is called if organism try to move out of the world in any direction.
-     * Plugins may override this method to have their related logic
-     * @param {Number} x1 Old X value
-     * @param {Number} y1 Old Y value
-     * @param {Number} x2 New X value
-     * @param {Number} y2 New Y value
-     * @param {Number} dir Moving direction
-     * @param {Organism} org Organism
-     * @abstract
-     */
-    onMoveOut(x1, y1, x2, y2, dir, org) {}
-
     constructor() {
-        super(__WEBPACK_IMPORTED_MODULE_3__global_Events__["a" /* EVENT_AMOUNT */]);
+        super(__WEBPACK_IMPORTED_MODULE_3__global_Events__["EVENT_AMOUNT"]);
         this._world        = new __WEBPACK_IMPORTED_MODULE_5__visual_World__["a" /* default */](__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldWidth, __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldHeight);
         this._canvas       = new __WEBPACK_IMPORTED_MODULE_6__visual_Canvas__["a" /* default */](__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldWidth, __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldHeight);
         this._stopped      = false;
@@ -2922,7 +2911,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
         this.zeroTimeout(this._onLoopCb);
     }
     _addHandlers() {
-        this._world.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["b" /* EVENTS */].DOT, this._onDot.bind(this));
+        this._world.on(__WEBPACK_IMPORTED_MODULE_3__global_Events__["EVENTS"].DOT, this._onDot.bind(this));
     }
 
     _visualize(visualized = true) {
@@ -2971,7 +2960,8 @@ manager.run();
  */
 const TYPES   = __webpack_require__(6).TYPES;
 const BaseApi = __webpack_require__(35);
-const Helper  = __webpack_require__(1);
+const Helper  = __webpack_require__(2);
+const EVENTS  = __webpack_require__(0).EVENTS;
 
 class Api extends BaseApi {
     constructor(client) {
@@ -2979,6 +2969,7 @@ class Api extends BaseApi {
 
         this.API[TYPES.REQ_GIVE_ID]  = this._giveId.bind(this);
         this.API[TYPES.REQ_MOVE_ORG] = this._moveOrg.bind(this);
+        this.API[TYPES.RES_MOVE_ERR] = this._moveOrg.bind(this);
     }
 
     destroy() {
@@ -2995,16 +2986,25 @@ class Api extends BaseApi {
      * @api
      */
     _giveId(reqId, clientId) {
-        this.parent.onSetClientId(clientId);
+        this.parent.manager.setClientId(clientId);
         this.parent.request(TYPES.REQ_SET_ACTIVE, true, (type) => {
             if (type === TYPES.RES_ACTIVE_OK) {
-                this.parent.onActivate();
+                this.parent.manager.run();
             }
         });
     }
 
+    /**
+     * Is called if organism is move in from other Manager (world)
+     * @param {String} reqId Unique request id
+     * @param {Number} x Current org X position
+     * @param {Number} y Current org Y position
+     * @param {Number} dir Moving direction
+     * @param {String} orgJson Organism's serialized json
+     * @api
+     */
     _moveOrg(reqId, x, y, dir, orgJson) {
-        // TODO: ...
+        this.parent.manager.fire(EVENTS.STEP_IN, x, y, dir, orgJson);
     }
 }
 
@@ -3015,9 +3015,9 @@ module.exports = Api;
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(3);
 /**
@@ -3125,14 +3125,15 @@ class Backup {
  *
  * @author flatline
  */
-const Helper     = __webpack_require__(1);
-const Config     = __webpack_require__(0).Config;
+const Helper     = __webpack_require__(2);
+const Config     = __webpack_require__(1).Config;
 const TYPES      = __webpack_require__(6).TYPES;
 const Request    = __webpack_require__(36);
 const Api        = __webpack_require__(16);
 const Console    = __webpack_require__(3).default;
 const Connection = __webpack_require__(34);
 const Plugins    = __webpack_require__(13);
+const EVENTS     = __webpack_require__(0).EVENTS;
 
 const PLUGINS = {
     Request: Request,
@@ -3154,7 +3155,7 @@ class Client extends Connection {
         //
         if (this._client === null || this._client.readyState === WebSocket.CLOSING || this._client.readyState === WebSocket.CLOSED) {return}
         Helper.override(manager, 'onBeforeRun', this._onBeforeRunCb);
-        Helper.override(manager, 'onMoveOut', this._onMoveOutCb);
+        manager.on(EVENTS.STEP_OUT, this._onMoveOutCb);
         this._client.onopen    = this._onOpen.bind(this);
         this._client.onmessage = this.onMessage.bind(this, this._client);
         this._client.onerror   = this.onError.bind(this);
@@ -3172,17 +3173,7 @@ class Client extends Connection {
         Console.info(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
     }
 
-    /**
-     * Is called when this client start to be activated on a server side.
-     * It means, that this Manager may start evolution process.
-     */
-    onActivate() {
-        this._manager.run();
-    }
-
-    onSetClientId(id) {
-        this._manager.setClientId(id);
-    }
+    get manager() {return this._manager}
 
     /**
      * Sends a request to the server. Wrapper around WebSocket.send()
@@ -3203,6 +3194,7 @@ class Client extends Connection {
         this._client.onerror   = null;
         this._client.onclose   = null;
         Helper.unoverride(this._manager, 'onBeforeRun', this._onBeforeRunCb);
+        this._manager.off(EVENTS.STEP_OUT, this._onMoveOutCb);
         this._manager          = null;
         this._plugins          = null;
         this._onMoveOutCb      = null;
@@ -3249,7 +3241,7 @@ module.exports = Client;
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__);
 /**
  * Plugin for adding getter and setter to Manager's API
@@ -3272,9 +3264,9 @@ class Config {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(3);
 /**
@@ -3353,10 +3345,10 @@ class Energy {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__organism_OrganismDos__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__organism_Num__ = __webpack_require__(4);
@@ -3397,8 +3389,8 @@ class Mutator {
             this._onCloneEnergyPercent
         ];
 
-        manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].ORGANISM, this._onOrganism.bind(this));
-        manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].CLONE, this._onCloneOrg.bind(this));
+        manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["EVENTS"].ORGANISM, this._onOrganism.bind(this));
+        manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["EVENTS"].CLONE, this._onCloneOrg.bind(this));
     }
 
     destroy() {
@@ -3428,7 +3420,7 @@ class Mutator {
             mTypes[type](org);
         }
         org.changes += mutations;
-        this.manager.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].MUTATIONS, org, mutations, clone);
+        this.manager.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["EVENTS"].MUTATIONS, org, mutations, clone);
 
         return mutations;
     }
@@ -3501,8 +3493,8 @@ class Mutator {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base_Organisms__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Events__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Events__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions__ = __webpack_require__(12);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions__);
@@ -3532,12 +3524,14 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
     constructor(manager) {
         super(manager);
 
-        this._positions = {};
+        this._positions  = {};
+        this._onStepInCb = this._onStepIn.bind(this);
     }
 
     destroy() {
         super.destroy();
-        this._positions = null;
+        this._onStepInCb = null;
+        this._positions  = null;
     }
 
     /**
@@ -3574,10 +3568,11 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
 
     addOrgHandlers(org) {
         super.addOrgHandlers(org);
-        org.on(__WEBPACK_IMPORTED_MODULE_1__global_Events__["b" /* EVENTS */].GET_ENERGY, this._onGetEnergy.bind(this));
-        org.on(__WEBPACK_IMPORTED_MODULE_1__global_Events__["b" /* EVENTS */].EAT, this._onEat.bind(this));
-        org.on(__WEBPACK_IMPORTED_MODULE_1__global_Events__["b" /* EVENTS */].STEP, this._onStep.bind(this));
-        org.on(__WEBPACK_IMPORTED_MODULE_1__global_Events__["b" /* EVENTS */].CHECK_AT, this._onCheckAt.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].GET_ENERGY, this._onGetEnergy.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].EAT, this._onEat.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].STEP, this._onStep.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].CHECK_AT, this._onCheckAt.bind(this));
+        this.manager.on(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].STEP_IN, this._onStepInCb);
     }
 
     /**
@@ -3646,13 +3641,14 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
     }
 
     _onStep(org, x1, y1, x2, y2, dir, ret) {
+        const man = this.manager;
         //
         // Current organism try to move out of the world.
         // We have to pass him to the server to another
         // world (Manager)
         //
-        if (dir !== __WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions___default.a.NO && this.manager.activeAround[dir]) {
-            this.manager.onMoveOut(x1, y1, x2, y2, dir, org);
+        if (dir !== __WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions___default.a.NO && man.clientId /*&& man.activeAround[dir]*/) {
+            this.manager.fire(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].STEP_OUT, x1, y1, x2, y2, dir, org);
             org.destroy();
         }
         else if (org.alive) {
@@ -3671,6 +3667,20 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
         }
     }
 
+    /**
+     * Is called if organism step in from the server or other client (Manager/World).
+     * If step in position is not free, then organism die at the moment
+     * @param {Number} x Current org X position
+     * @param {Number} y Current org Y position
+     * @param {Number} dir Moving direction
+     * @param {String} orgJson Organism's serialized json
+     * @private
+     */
+    _onStepIn(x, y, dir, orgJson) {
+        if (this.manager.world.isFree(x, y) && this.createOrg({x:x, y:y})) {
+            this.manager.organisms.last.val.unserialize(orgJson);
+        }
+    }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = OrganismsDos;
 
@@ -3680,10 +3690,10 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Console__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__organism_OrganismDos__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__base_Organisms__ = __webpack_require__(8);
 /**
@@ -3737,7 +3747,7 @@ class OrganismsGarmin extends __WEBPACK_IMPORTED_MODULE_4__base_Organisms__["a" 
 
     addOrgHandlers(org) {
         super.addOrgHandlers(org);
-        org.on(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].STOP, this._onStop.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_2__global_Events__["EVENTS"].STOP, this._onStop.bind(this));
     }
 
     reset() {
@@ -3761,8 +3771,8 @@ class OrganismsGarmin extends __WEBPACK_IMPORTED_MODULE_4__base_Organisms__["a" 
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
 /**
  * Shows console status of application
@@ -3789,8 +3799,8 @@ class Status {
         this._changes     = 0;
         this._fitness     = 0;
 
-        manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].IPS, this._onIps.bind(this));
-        manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].ORGANISM, this._onOrganism.bind(this));
+        manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["EVENTS"].IPS, this._onIps.bind(this));
+        manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["EVENTS"].ORGANISM, this._onOrganism.bind(this));
     }
 
     _onIps(ips, orgs) {
@@ -6304,10 +6314,10 @@ class FitnessGarmin {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__base_Operators__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Num__ = __webpack_require__(4);
@@ -6495,7 +6505,7 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
         }
 
         let ret = {ret: 0};
-        this.obs.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].GET_ENERGY, org, x, y, ret);
+        this.obs.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["EVENTS"].GET_ENERGY, org, x, y, ret);
         vars[VAR0(num)] = ret.ret;
 
         return line + 1;
@@ -6534,7 +6544,7 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
 
     _checkAt(num, line, org, x, y) {
         const ret = {ret: 0};
-        org.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].CHECK_AT, x, y, ret);
+        org.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["EVENTS"].CHECK_AT, x, y, ret);
         this.vars[VAR0(num)] = ret.ret;
         return line + 1;
     }
@@ -6545,7 +6555,7 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
         if (!IS_NUM(amount) || amount === 0) {return 0}
 
         let ret = {ret: amount};
-        this.obs.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].EAT, org, x, y, ret);
+        this.obs.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["EVENTS"].EAT, org, x, y, ret);
         if (!IS_NUM(ret.ret)) {return 0}
         org.energy += ret.ret;
 
@@ -6557,7 +6567,7 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
         let dir;
 
         [x2, y2, dir] = __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.normalize(x2, y2);
-        this.obs.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["b" /* EVENTS */].STEP, org, x1, y1, x2, y2, dir, ret);
+        this.obs.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["EVENTS"].STEP, org, x1, y1, x2, y2, dir, ret);
         if (ret.ret > 0) {
             org.x = x2;
             org.y = y2;
@@ -6606,9 +6616,9 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__base_Operators__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Num__ = __webpack_require__(4);
@@ -6782,9 +6792,9 @@ class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a"
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base_Organism__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(0);
 /**
  * TODO: add description:
  * TODO:   - events
@@ -6817,7 +6827,7 @@ class OrganismGarmin extends __WEBPACK_IMPORTED_MODULE_0__base_Organism__["a" /*
         this._fitnessCls = classMap[__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].codeFitnessCls];
         this._needRun    = true;
 
-        this.jsvm.on(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].RESET_CODE, this._onResetCode.bind(this));
+        this.jsvm.on(__WEBPACK_IMPORTED_MODULE_2__global_Events__["EVENTS"].RESET_CODE, this._onResetCode.bind(this));
     }
 
     onBeforeRun() {
@@ -6825,7 +6835,7 @@ class OrganismGarmin extends __WEBPACK_IMPORTED_MODULE_0__base_Organism__["a" /*
     }
 
     onRun() {
-        if (this._fitnessCls.run(this)) {this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].STOP, this)}
+        if (this._fitnessCls.run(this)) {this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["EVENTS"].STOP, this)}
         this._needRun = false;
     }
 
@@ -6969,9 +6979,9 @@ class Canvas {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(0);
 /**
  * 2D space, where all organisms are live. In reality this is
  * just a peace of memory, where all organisms are located. It
@@ -7004,7 +7014,7 @@ const FREE_DOT_ATTEMPTS = 300;
 
 class World extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___default.a {
     constructor (width, height) {
-        super(__WEBPACK_IMPORTED_MODULE_2__global_Events__["a" /* EVENT_AMOUNT */]);
+        super(__WEBPACK_IMPORTED_MODULE_2__global_Events__["EVENT_AMOUNT"]);
         this._data   = [];
         this._width  = width;
         this._height = height;
@@ -7026,7 +7036,7 @@ class World extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___de
     setDot(x, y, color) {
         if (x < 0 || x >= this._width || y < 0 || y >= this._height) {return false}
         this._data[x][y] = color;
-        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].DOT, x, y, color);
+        this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["EVENTS"].DOT, x, y, color);
 
         return true;
     }
@@ -7040,7 +7050,7 @@ class World extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___de
         let dot = Math.min(this.getDot(x, y), amount);
 
         if (dot > 0) {
-            this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["b" /* EVENTS */].DOT, x, y, (this._data[x][y] -= dot));
+            this.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["EVENTS"].DOT, x, y, (this._data[x][y] -= dot));
         }
 
         return dot;
@@ -7316,7 +7326,7 @@ module.exports = Connection;
  *
  * @author flatline
  */
-const Helper = __webpack_require__(1);
+const Helper = __webpack_require__(2);
 const TYPES  = __webpack_require__(6).TYPES;
 const MASKS  = __webpack_require__(6).MASKS;
 
@@ -7380,7 +7390,7 @@ module.exports = Api;
  *
  * @author flatline
  */
-const Helper   = __webpack_require__(1);
+const Helper   = __webpack_require__(2);
 const MASKS    = __webpack_require__(6).MASKS;
 
 class Request {

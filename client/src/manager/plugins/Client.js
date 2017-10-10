@@ -16,6 +16,7 @@ const Api        = require('./Api');
 const Console    = require('./../../global/Console').default;
 const Connection = require('./../../../../common/src/net/Connection');
 const Plugins    = require('./../../../../common/src/global/Plugins');
+const EVENTS     = require('./../../global/Events').EVENTS;
 
 const PLUGINS = {
     Request: Request,
@@ -37,7 +38,7 @@ class Client extends Connection {
         //
         if (this._client === null || this._client.readyState === WebSocket.CLOSING || this._client.readyState === WebSocket.CLOSED) {return}
         Helper.override(manager, 'onBeforeRun', this._onBeforeRunCb);
-        Helper.override(manager, 'onMoveOut', this._onMoveOutCb);
+        manager.on(EVENTS.STEP_OUT, this._onMoveOutCb);
         this._client.onopen    = this._onOpen.bind(this);
         this._client.onmessage = this.onMessage.bind(this, this._client);
         this._client.onerror   = this.onError.bind(this);
@@ -55,17 +56,7 @@ class Client extends Connection {
         Console.info(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
     }
 
-    /**
-     * Is called when this client start to be activated on a server side.
-     * It means, that this Manager may start evolution process.
-     */
-    onActivate() {
-        this._manager.run();
-    }
-
-    onSetClientId(id) {
-        this._manager.setClientId(id);
-    }
+    get manager() {return this._manager}
 
     /**
      * Sends a request to the server. Wrapper around WebSocket.send()
@@ -86,6 +77,7 @@ class Client extends Connection {
         this._client.onerror   = null;
         this._client.onclose   = null;
         Helper.unoverride(this._manager, 'onBeforeRun', this._onBeforeRunCb);
+        this._manager.off(EVENTS.STEP_OUT, this._onMoveOutCb);
         this._manager          = null;
         this._plugins          = null;
         this._onMoveOutCb      = null;
