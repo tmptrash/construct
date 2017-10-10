@@ -28,4 +28,4 @@ const TYPES = {
     RES_INVALID_TYPE: 1002
 };
 
-module.exports = {TYPES: TYPES, DIR: DIR, MASKS: MASKS};
+module.exports = {TYPES: TYPES, MASKS: MASKS};

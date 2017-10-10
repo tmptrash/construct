@@ -15,15 +15,20 @@ const Request    = require('./../../../../common/src/net/plugins/Request');
 const Api        = require('./Api');
 const Console    = require('./../../global/Console').default;
 const Connection = require('./../../../../common/src/net/Connection');
+const Plugins    = require('./../../../../common/src/global/Plugins');
+
+const PLUGINS = {
+    Request: Request,
+    Api    : Api
+};
 
 class Client extends Connection {
     constructor(manager) {
         super(0);
         this._manager       = manager;
-        this._request       = new Request(this);
-        this._api           = new Api(this);
         this._client        = this._createWebSocket();
         this._closed        = true;
+        this._plugins       = new Plugins(this, PLUGINS);
         this._onBeforeRunCb = this._onBeforeRun.bind(this);
         this._onMoveOutCb   = this._onMoveOut.bind(this);
         //
@@ -47,7 +52,7 @@ class Client extends Connection {
     onClose(event) {
         super.onClose(event);
         this._closed = false;
-        Console.info(`Client "${this._api.clientId}" has disconnected by reason: ${this.closeReason}`);
+        Console.info(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
     }
 
     /**
@@ -56,6 +61,10 @@ class Client extends Connection {
      */
     onActivate() {
         this._manager.run();
+    }
+
+    onSetClientId(id) {
+        this._manager.setClientId(id);
     }
 
     /**
@@ -67,7 +76,7 @@ class Client extends Connection {
      * not needed
      */
     request(type, ...params) {
-        return this.send(this._client, type, ...[this._api.clientId].concat(params));
+        return this.send(this._client, type, ...[this._manager.clientId].concat(params));
     }
 
     destroy() {
@@ -76,12 +85,9 @@ class Client extends Connection {
         this._client.onmessage = null;
         this._client.onerror   = null;
         this._client.onclose   = null;
-        this._api.destroy();
-        this._api              = null;
-        this._request.destroy();
-        this._request          = null;
         Helper.unoverride(this._manager, 'onBeforeRun', this._onBeforeRunCb);
         this._manager          = null;
+        this._plugins          = null;
         this._onMoveOutCb      = null;
         this._onBeforeRunCb    = null;
     }
@@ -93,7 +99,7 @@ class Client extends Connection {
      * @override
      */
     _onBeforeRun() {
-        if (this._api.clientId === null && this._closed === false) {
+        if (this._manager.clientId === null && this._closed === false) {
             this._manager.stop();
         }
     }

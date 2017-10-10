@@ -51,9 +51,9 @@ class Plugins {
             }
         }
         this.parent.plugins = null;
-        this._onDestroyCb    = null;
+        this._onDestroyCb   = null;
         this.parent         = null;
-        this._destroyed      = true;
+        this._destroyed     = true;
     }
 }
 

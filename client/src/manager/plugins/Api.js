@@ -14,32 +14,10 @@ class Api extends BaseApi {
 
         this.API[TYPES.REQ_GIVE_ID]  = this._giveId.bind(this);
         this.API[TYPES.REQ_MOVE_ORG] = this._moveOrg.bind(this);
-        /**
-         * {String} Unique client id, obtained from the Server. This
-         * id should be passed with every request to the server to
-         * identify this client instance vs others.
-         */
-        this._clientId  = null;
-        this._onCloseCb = this._onClose.bind(this);
-
-        Helper.override(client, 'onClose', this._onCloseCb);
     }
-
-    get clientId() {return this._clientId}
 
     destroy() {
         super.destroy();
-        Helper.unoverride(this.parent, 'onClose', this._onCloseCb);
-        this._onCloseCb = null;
-        this._clientId  = null;
-    }
-
-    /**
-     * Is called on closing connection between client and server.
-     * Resets this.clientId field
-     */
-    _onClose() {
-        this._clientId = null;
     }
 
     /**
@@ -52,7 +30,7 @@ class Api extends BaseApi {
      * @api
      */
     _giveId(reqId, clientId) {
-        this._clientId = clientId;
+        this.parent.onSetClientId(clientId);
         this.parent.request(TYPES.REQ_SET_ACTIVE, true, (type) => {
             if (type === TYPES.RES_ACTIVE_OK) {
                 this.parent.onActivate();

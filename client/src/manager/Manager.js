@@ -97,6 +97,7 @@ export default class Manager extends Observer {
         this._canvas     = new Canvas(Config.worldWidth, Config.worldHeight);
         this._stopped    = false;
         this._visualized = true;
+        this._clientId   = null;
         this._onLoopCb   = this._onLoop.bind(this);
         /**
          * {Object} This field is used as a container for public API of the Manager.
@@ -118,7 +119,7 @@ export default class Manager extends Observer {
     }
     get world()     {return this._world}
     get canvas()    {return this._canvas}
-
+    get clientId()  {return this._clientId}
     get CLASS_MAP() {return CLASS_MAP}
 
     /**
@@ -140,6 +141,10 @@ export default class Manager extends Observer {
     stop() {
         this._stopped = true;
         this._counter = 0;
+    }
+
+    setClientId(id) {
+        this._clientId = id;
     }
 
     destroy() {

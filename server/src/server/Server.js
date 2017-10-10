@@ -40,8 +40,8 @@ const Connections = require('./../server/Connections');
 const Api         = require('./plugins/Api');
 
 const PLUGINS = {
-    Api    : Api,
-    Request: Request
+    Request: Request,
+    Api    : Api
 };
 
 const RUN      = 0;

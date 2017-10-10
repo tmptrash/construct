@@ -78,8 +78,6 @@ export default class Organism extends Observer {
     get mem()                   {return this._mem}
     get cloneEnergyPercent()    {return this._cloneEnergyPercent}
     get posId()                 {return Helper.posId(this._x, this._y)}
-    get iterations()            {return this._iterations}
-    get fnId()                  {return this._fnId}
 
     set x(newX)                 {this._x = newX}
     set y(newY)                 {this._y = newY}
@@ -111,21 +109,21 @@ export default class Organism extends Observer {
     serialize() {
         let   json = {
             // 'id' will be added after insertion
-            x                   : this.x,
-            y                   : this.y,
-            changes             : this.changes,
-            alive               : this.alive,
+            x                   : this._x,
+            y                   : this._y,
+            changes             : this._changes,
+            alive               : this._alive,
             // 'item' will be added after insertion
-            iterations          : this.iterations(),
-            fnId                : this.fnId(),
+            iterations          : this._iterations,
+            fnId                : this._fnId,
             jsvm                : this.jsvm.serialize(),
-            energy              : this.energy,
-            color               : this.color,
-            mutationProbs       : this.mutationProbs,
-            cloneMutationPercent: this.cloneMutationPercent,
-            mutationPeriod      : this.mutationPeriod,
-            mutationPercent     : this.mutationPercent,
-            cloneEnergyPercent  : this.cloneEnergyPercent,
+            energy              : this._energy,
+            color               : this._color,
+            mutationProbs       : this._mutationProbs,
+            cloneMutationPercent: this._cloneMutationPercent,
+            mutationPeriod      : this._mutationPeriod,
+            mutationPercent     : this._mutationPercent,
+            cloneEnergyPercent  : this._cloneEnergyPercent,
             mem                 : this.mem.slice()
         };
 
@@ -147,8 +145,8 @@ export default class Organism extends Observer {
         this._changes              = json.changes;
         this._alive                = json.alive;
         // 'item' will be added after insertion
-        this._iterations           = json.iterations();
-        this._fnId                 = json.fnId();
+        this._iterations           = json.iterations;
+        this._fnId                 = json.fnId;
         this.jsvm.unserialize(json.jsvm);
         this._energy               = json.energy;
         this._color                = json.color;

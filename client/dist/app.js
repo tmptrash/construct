@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 14);
+/******/ 	return __webpack_require__(__webpack_require__.s = 15);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -1645,7 +1645,7 @@ const TYPES = {
     RES_INVALID_TYPE: 1002
 };
 
-module.exports = {TYPES: TYPES, DIR: DIR, MASKS: MASKS};
+module.exports = {TYPES: TYPES, MASKS: MASKS};
 
 /***/ }),
 /* 7 */
@@ -1683,7 +1683,7 @@ class OrganismDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organism__["a" /* de
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__common_src_global_Queue__ = __webpack_require__(33);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__common_src_global_Queue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4__common_src_global_Queue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_OrganismDos__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Backup__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Backup__ = __webpack_require__(17);
 /**
  * Base class for OrganismsXXX plugins. Manages organisms. Makes
  * cloning, crossover, organisms comparison, killing and more...
@@ -2409,8 +2409,6 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__
     get mem()                   {return this._mem}
     get cloneEnergyPercent()    {return this._cloneEnergyPercent}
     get posId()                 {return __WEBPACK_IMPORTED_MODULE_3__common_src_global_Helper___default.a.posId(this._x, this._y)}
-    get iterations()            {return this._iterations}
-    get fnId()                  {return this._fnId}
 
     set x(newX)                 {this._x = newX}
     set y(newY)                 {this._y = newY}
@@ -2442,21 +2440,21 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__
     serialize() {
         let   json = {
             // 'id' will be added after insertion
-            x                   : this.x,
-            y                   : this.y,
-            changes             : this.changes,
-            alive               : this.alive,
+            x                   : this._x,
+            y                   : this._y,
+            changes             : this._changes,
+            alive               : this._alive,
             // 'item' will be added after insertion
-            iterations          : this.iterations(),
-            fnId                : this.fnId(),
+            iterations          : this._iterations,
+            fnId                : this._fnId,
             jsvm                : this.jsvm.serialize(),
-            energy              : this.energy,
-            color               : this.color,
-            mutationProbs       : this.mutationProbs,
-            cloneMutationPercent: this.cloneMutationPercent,
-            mutationPeriod      : this.mutationPeriod,
-            mutationPercent     : this.mutationPercent,
-            cloneEnergyPercent  : this.cloneEnergyPercent,
+            energy              : this._energy,
+            color               : this._color,
+            mutationProbs       : this._mutationProbs,
+            cloneMutationPercent: this._cloneMutationPercent,
+            mutationPeriod      : this._mutationPeriod,
+            mutationPercent     : this._mutationPercent,
+            cloneEnergyPercent  : this._cloneEnergyPercent,
             mem                 : this.mem.slice()
         };
 
@@ -2478,8 +2476,8 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__
         this._changes              = json.changes;
         this._alive                = json.alive;
         // 'item' will be added after insertion
-        this._iterations           = json.iterations();
-        this._fnId                 = json.fnId();
+        this._iterations           = json.iterations;
+        this._fnId                 = json.fnId;
         this.jsvm.unserialize(json.jsvm);
         this._energy               = json.energy;
         this._color                = json.color;
@@ -2602,6 +2600,71 @@ module.exports = DIR;
 
 /***/ }),
 /* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Plugins manager. Adds plugins into specified instance and destroy
+ * them on parent destroy. This class is also a plugin.
+ *
+ * @author slackline
+ */
+const Helper = __webpack_require__(1);
+
+class Plugins {
+    /**
+     * Creates plugin instances and adds them into target class instance
+     * (parent). For this 'plugins' property will be created in parent.
+     * @param {Object} parent Instance we inserting plugins to
+     * @param {Object} plugins Map of names and classes/functions of plugins.
+     * Like this: {Api: Api,...}
+     * @param {Boolean} destroy If true, then onDestroy() method will be
+     * called, when parent.destroy() is called.
+     */
+    constructor(parent, plugins, destroy = true) {
+        const parentPlugins = parent.plugins = {};
+
+        for (let p in plugins) {
+            parentPlugins[p] = new plugins[p](parent);
+        }
+
+        this.parent      = parent;
+        this._onDestroyCb = this.onDestroy.bind(this);
+        this._destroy     = destroy;
+        this._destroyed   = false;
+
+        Helper.override(parent, 'destroy', this._onDestroyCb);
+    }
+
+    /**
+     * Is called if parent instance calls destroy() method. Here we
+     * destroy all created plugins and the reference to this instance
+     * in parent instance. This method may be called by hands from
+     * parent instance also. It's impossible to call this method more
+     * then one time.
+     */
+    onDestroy() {
+        if (this._destroyed) {return}
+        //
+        // User doesn't want to automatic destroy of plugins.
+        // He will call this method manually, later.
+        //
+        if (this._destroy) {
+            const plugins = this.parent.plugins;
+            for (let p in plugins) {
+                plugins.hasOwnProperty(p) && plugins[p].destroy && plugins[p].destroy();
+            }
+        }
+        this.parent.plugins = null;
+        this._onDestroyCb   = null;
+        this.parent         = null;
+        this._destroyed     = true;
+    }
+}
+
+module.exports = Plugins;
+
+/***/ }),
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2609,27 +2672,27 @@ module.exports = DIR;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Plugins__ = __webpack_require__(32);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Plugins__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Plugins___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__common_src_global_Plugins__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Console__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__visual_World__ = __webpack_require__(31);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__visual_Canvas__ = __webpack_require__(30);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__client_src_manager_plugins_Client__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__visual_World__ = __webpack_require__(32);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__visual_Canvas__ = __webpack_require__(31);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__client_src_manager_plugins_Client__ = __webpack_require__(18);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__client_src_manager_plugins_Client___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7__client_src_manager_plugins_Client__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__plugins_OrganismsGarmin__ = __webpack_require__(22);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__plugins_OrganismsDos__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__plugins_Config__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__plugins_Mutator__ = __webpack_require__(20);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__plugins_Energy__ = __webpack_require__(19);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__plugins_Status__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__organism_OperatorsDos__ = __webpack_require__(27);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__organism_OperatorsGarmin__ = __webpack_require__(28);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__organism_Code2StringDos__ = __webpack_require__(24);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__organism_Code2StringGarmin__ = __webpack_require__(25);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__organism_FitnessGarmin__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__plugins_OrganismsGarmin__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__plugins_OrganismsDos__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__plugins_Config__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__plugins_Mutator__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__plugins_Energy__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__plugins_Status__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__organism_OperatorsDos__ = __webpack_require__(28);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__organism_OperatorsGarmin__ = __webpack_require__(29);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__organism_Code2StringDos__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__organism_Code2StringGarmin__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__organism_FitnessGarmin__ = __webpack_require__(27);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__organism_OrganismDos__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__organism_OrganismGarmin__ = __webpack_require__(29);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__organism_OrganismGarmin__ = __webpack_require__(30);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__organism_JSVM__ = __webpack_require__(9);
 /**
  * Main manager class of application. Contains all parts of jevo.js app
@@ -2730,6 +2793,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
         this._canvas     = new __WEBPACK_IMPORTED_MODULE_6__visual_Canvas__["a" /* default */](__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldWidth, __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldHeight);
         this._stopped    = false;
         this._visualized = true;
+        this._clientId   = null;
         this._onLoopCb   = this._onLoop.bind(this);
         /**
          * {Object} This field is used as a container for public API of the Manager.
@@ -2751,7 +2815,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
     }
     get world()     {return this._world}
     get canvas()    {return this._canvas}
-
+    get clientId()  {return this._clientId}
     get CLASS_MAP() {return CLASS_MAP}
 
     /**
@@ -2773,6 +2837,10 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
     stop() {
         this._stopped = true;
         this._counter = 0;
+    }
+
+    setClientId(id) {
+        this._clientId = id;
     }
 
     destroy() {
@@ -2862,12 +2930,12 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_Manager__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_Manager__ = __webpack_require__(14);
 /**
  * This is an entry point of jevo.js application. Compiled version of
  * this file should be included into index.html
@@ -2884,7 +2952,7 @@ window.man = manager;
 manager.run();
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -2901,33 +2969,12 @@ class Api extends BaseApi {
     constructor(client) {
         super(client);
 
-        this.API[TYPES.REQ_GIVE_ID] = this._giveId.bind(this);
-        /**
-         * {String} Unique client id, obtained from the Server. This
-         * id should be passed with every request to the server to
-         * identify this client instance vs others.
-         */
-        this._clientId  = null;
-        this._onCloseCb = this._onClose.bind(this);
-
-        Helper.override(client, 'onClose', this._onCloseCb);
+        this.API[TYPES.REQ_GIVE_ID]  = this._giveId.bind(this);
+        this.API[TYPES.REQ_MOVE_ORG] = this._moveOrg.bind(this);
     }
-
-    get clientId() {return this._clientId}
 
     destroy() {
         super.destroy();
-        Helper.unoverride(this.parent, 'onClose', this._onCloseCb);
-        this._onCloseCb = null;
-        this._clientId  = null;
-    }
-
-    /**
-     * Is called on closing connection between client and server.
-     * Resets this.clientId field
-     */
-    _onClose() {
-        this._clientId = null;
     }
 
     /**
@@ -2940,19 +2987,23 @@ class Api extends BaseApi {
      * @api
      */
     _giveId(reqId, clientId) {
-        this._clientId = clientId;
+        this.parent.onSetClientId(clientId);
         this.parent.request(TYPES.REQ_SET_ACTIVE, true, (type) => {
             if (type === TYPES.RES_ACTIVE_OK) {
                 this.parent.onActivate();
             }
         });
     }
+
+    _moveOrg(reqId, x, y, dir, orgJson) {
+        // TODO: ...
+    }
 }
 
 module.exports = Api;
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3053,7 +3104,7 @@ class Backup {
 
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -3070,18 +3121,23 @@ const Helper     = __webpack_require__(1);
 const Config     = __webpack_require__(0).Config;
 const TYPES      = __webpack_require__(6).TYPES;
 const Request    = __webpack_require__(36);
-const Api        = __webpack_require__(15);
+const Api        = __webpack_require__(16);
 const Console    = __webpack_require__(3).default;
 const Connection = __webpack_require__(34);
+const Plugins    = __webpack_require__(13);
+
+const PLUGINS = {
+    Request: Request,
+    Api    : Api
+};
 
 class Client extends Connection {
     constructor(manager) {
         super(0);
         this._manager       = manager;
-        this._request       = new Request(this);
-        this._api           = new Api(this);
         this._client        = this._createWebSocket();
         this._closed        = true;
+        this._plugins       = new Plugins(this, PLUGINS);
         this._onBeforeRunCb = this._onBeforeRun.bind(this);
         this._onMoveOutCb   = this._onMoveOut.bind(this);
         //
@@ -3105,7 +3161,7 @@ class Client extends Connection {
     onClose(event) {
         super.onClose(event);
         this._closed = false;
-        Console.info(`Client "${this._api.clientId}" has disconnected by reason: ${this.closeReason}`);
+        Console.info(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
     }
 
     /**
@@ -3114,6 +3170,10 @@ class Client extends Connection {
      */
     onActivate() {
         this._manager.run();
+    }
+
+    onSetClientId(id) {
+        this._manager.setClientId(id);
     }
 
     /**
@@ -3125,7 +3185,7 @@ class Client extends Connection {
      * not needed
      */
     request(type, ...params) {
-        return this.send(this._client, type, ...[this._api.clientId].concat(params));
+        return this.send(this._client, type, ...[this._manager.clientId].concat(params));
     }
 
     destroy() {
@@ -3134,12 +3194,9 @@ class Client extends Connection {
         this._client.onmessage = null;
         this._client.onerror   = null;
         this._client.onclose   = null;
-        this._api.destroy();
-        this._api              = null;
-        this._request.destroy();
-        this._request          = null;
         Helper.unoverride(this._manager, 'onBeforeRun', this._onBeforeRunCb);
         this._manager          = null;
+        this._plugins          = null;
         this._onMoveOutCb      = null;
         this._onBeforeRunCb    = null;
     }
@@ -3151,7 +3208,7 @@ class Client extends Connection {
      * @override
      */
     _onBeforeRun() {
-        if (this._api.clientId === null && this._closed === false) {
+        if (this._manager.clientId === null && this._closed === false) {
             this._manager.stop();
         }
     }
@@ -3180,7 +3237,7 @@ class Client extends Connection {
 module.exports = Client;
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3203,7 +3260,7 @@ class Config {
 
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3284,7 +3341,7 @@ class Energy {
 
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3431,7 +3488,7 @@ class Mutator {
 
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3611,7 +3668,7 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3692,7 +3749,7 @@ class OrganismsGarmin extends __WEBPACK_IMPORTED_MODULE_4__base_Organisms__["a" 
 
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3800,7 +3857,7 @@ class Status {
 
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4076,7 +4133,7 @@ class Code2StringDos {
 
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4233,7 +4290,7 @@ class Code2StringGarmin {
 
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6235,7 +6292,7 @@ class FitnessGarmin {
 
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6537,7 +6594,7 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
 
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6712,7 +6769,7 @@ class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a"
 
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6782,7 +6839,7 @@ class OrganismGarmin extends __WEBPACK_IMPORTED_MODULE_0__base_Organism__["a" /*
 
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6898,7 +6955,7 @@ class Canvas {
 
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -7022,71 +7079,6 @@ class World extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___de
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = World;
 
-
-/***/ }),
-/* 32 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Plugins manager. Adds plugins into specified instance and destroy
- * them on parent destroy. This class is also a plugin.
- *
- * @author slackline
- */
-const Helper = __webpack_require__(1);
-
-class Plugins {
-    /**
-     * Creates plugin instances and adds them into target class instance
-     * (parent). For this 'plugins' property will be created in parent.
-     * @param {Object} parent Instance we inserting plugins to
-     * @param {Object} plugins Map of names and classes/functions of plugins.
-     * Like this: {Api: Api,...}
-     * @param {Boolean} destroy If true, then onDestroy() method will be
-     * called, when parent.destroy() is called.
-     */
-    constructor(parent, plugins, destroy = true) {
-        const parentPlugins = parent.plugins = {};
-
-        for (let p in plugins) {
-            parentPlugins[p] = new plugins[p](parent);
-        }
-
-        this.parent      = parent;
-        this._onDestroyCb = this.onDestroy.bind(this);
-        this._destroy     = destroy;
-        this._destroyed   = false;
-
-        Helper.override(parent, 'destroy', this._onDestroyCb);
-    }
-
-    /**
-     * Is called if parent instance calls destroy() method. Here we
-     * destroy all created plugins and the reference to this instance
-     * in parent instance. This method may be called by hands from
-     * parent instance also. It's impossible to call this method more
-     * then one time.
-     */
-    onDestroy() {
-        if (this._destroyed) {return}
-        //
-        // User doesn't want to automatic destroy of plugins.
-        // He will call this method manually, later.
-        //
-        if (this._destroy) {
-            const plugins = this.parent.plugins;
-            for (let p in plugins) {
-                plugins.hasOwnProperty(p) && plugins[p].destroy && plugins[p].destroy();
-            }
-        }
-        this.parent.plugins = null;
-        this._onDestroyCb    = null;
-        this.parent         = null;
-        this._destroyed      = true;
-    }
-}
-
-module.exports = Plugins;
 
 /***/ }),
 /* 33 */
