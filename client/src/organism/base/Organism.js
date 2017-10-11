@@ -108,7 +108,6 @@ export default class Organism extends Observer {
      */
     serialize() {
         let   json = {
-            // 'id' will be added after insertion
             id                  : this._id,
             x                   : this._x,
             y                   : this._y,

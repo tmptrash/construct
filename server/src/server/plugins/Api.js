@@ -58,10 +58,11 @@ class Api extends BaseApi {
         if (con.active) {
             this.parent.send(con.sock, TYPES.REQ_MOVE_ORG, x, y, dir, orgJson);
         } else {
+            const org        = JSON.parse(orgJson);
             const backRegion = Connections.toRegion(clientId);
             const backCon    = this.parent.conns.getConnection(backRegion);
             this.parent.send(backCon.sock, TYPES.RES_MOVE_ERR, x, y, dir, orgJson, `Region "${region}" on direction "${DIR_NAMES[dir]}" is not active`);
-            Console.error(`Destination region ${region} is not active. Organism "${orgJson.id}" will be sent back.`);
+            Console.error(`Destination region ${region} is not active. Organism "${org.id}" will be sent back.`);
         }
     }
 }
