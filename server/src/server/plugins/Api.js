@@ -13,8 +13,8 @@ const DIR_NAMES   = require('./../../../../common/src/global/Directions').NAMES;
 const BaseApi     = require('./../../../../common/src/net/plugins/Api');
 
 class Api extends BaseApi {
-    constructor(server) {
-        super(server);
+    constructor(parent) {
+        super(parent);
         this.API[TYPES.REQ_SET_ACTIVE] = this._setActive.bind(this);
         this.API[TYPES.REQ_MOVE_ORG]   = this._moveOrg.bind(this);
     }
@@ -33,7 +33,7 @@ class Api extends BaseApi {
         const con    = server.conns.getConnection(region);
 
         server.conns.setData(region, 'active', active);
-        server.answer(con.sock, TYPES.RES_ACTIVE_OK, reqId);
+        server.response(con.sock, TYPES.RES_ACTIVE_OK, reqId);
     }
 
     /**
@@ -56,12 +56,12 @@ class Api extends BaseApi {
 
         const con = this.parent.conns.getConnection(region);
         if (con.active) {
-            this.parent.send(con.sock, TYPES.REQ_MOVE_ORG, x, y, dir, orgJson);
+            this.parent.request(con.sock, TYPES.REQ_MOVE_ORG, x, y, dir, orgJson);
         } else {
             const org        = JSON.parse(orgJson);
             const backRegion = Connections.toRegion(clientId);
             const backCon    = this.parent.conns.getConnection(backRegion);
-            this.parent.send(backCon.sock, TYPES.RES_MOVE_ERR, x, y, dir, orgJson, `Region "${region}" on direction "${DIR_NAMES[dir]}" is not active`);
+            this.parent.request(backCon.sock, TYPES.RES_MOVE_ERR, x, y, dir, orgJson, `Region "${region}" on direction "${DIR_NAMES[dir]}" is not active`);
             Console.error(`Destination region ${region} is not active. Organism "${org.id}" will be sent back.`);
         }
     }

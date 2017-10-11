@@ -63,7 +63,7 @@ class Api {
             if (this.API[type]) {
                 this.API[type](...[reqId].concat(data.slice(2)));
             } else {
-                this.parent.answer(sock, TYPES.RES_INVALID_TYPE, reqId, `Invalid request type ${type}`);
+                this.parent.response(sock, TYPES.RES_INVALID_TYPE, reqId, `Invalid request type ${type}`);
             }
         }
     }

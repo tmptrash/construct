@@ -15,35 +15,35 @@ class Request {
      * @param {Object} parent Instance of custom class
      */
     constructor(parent) {
-        this.parent      = parent;
+        this.parent        = parent;
         /**
          * {Object} Contains requests map: key - request id, val -
          * response callback
          */
-        this._requests    = {};
-        this._onSendCb    = this._onSend.bind(this);
-        this._onAnswerCb  = this._onAnswer.bind(this);
-        this._onMessageCb = this._onMessage.bind(this);
+        this._requests     = {};
+        this._onRequestCb  = this._onRequest.bind(this);
+        this._onResponseCb = this._onResponse.bind(this);
+        this._onMessageCb  = this._onMessage.bind(this);
 
-        Helper.override(parent, 'send', this._onSendCb);
-        Helper.override(parent, 'answer', this._onAnswerCb);
+        Helper.override(parent, 'request', this._onRequestCb);
+        Helper.override(parent, 'response', this._onResponseCb);
         Helper.override(parent, 'onMessage', this._onMessageCb);
     }
 
     destroy() {
         const parent = this.parent;
         Helper.unoverride(parent, 'onMessage', this._onMessageCb);
-        Helper.unoverride(parent, 'answer', this._onAnswerCb);
-        Helper.unoverride(parent, 'send', this._onSendCb);
-        this._onMessageCb = null;
-        this._onAnswerCb  = null;
-        this._onSendCb    = null;
-        this._requests    = null;
-        this.parent       = null;
+        Helper.unoverride(parent, 'response', this._onResponseCb);
+        Helper.unoverride(parent, 'request', fthis._onRequestCb);
+        this._onMessageCb  = null;
+        this._onResponseCb = null;
+        this._onRequestCb  = null;
+        this._requests     = null;
+        this.parent        = null;
     }
 
     /**
-     * IMPORTANT: It's impossible to have more then one overrides of 'send'
+     * IMPORTANT: It's impossible to have more then one overrides of 'request'
      * IMPORTANT: method, because return value of second overridden method
      * IMPORTANT: will overlap first one.
      *
@@ -59,11 +59,11 @@ class Request {
      * @param {WebSocket} sock Socket where to send params
      * @param {Number} type Type of the request
      * @param {*} params Array of parameters to send
-     * @return {Number|null} Unique request id or null if no answer needed
+     * @return {Number|null} Unique request id or null if no response needed
      * @override
      * TODO: add timer for tracking request timeout
      */
-    _onSend(sock, type, ...params) {
+    _onRequest(sock, type, ...params) {
         const cb    = Helper.isFunc(params[params.length - 1]) ? params.pop() : null;
         const reqId = Helper.getId();
 
@@ -74,23 +74,23 @@ class Request {
     }
 
     /**
-     * Is called on every answer (response). Required unique request id
-     * (reqId) should be used as a parameter. Format of answer data is:
+     * Is called on every response (response). Required unique request id
+     * (reqId) should be used as a parameter. Format of response data is:
      * [type, reqId, ...params].
-     * @param {WebSocket} sock Socket where to send answer
+     * @param {WebSocket} sock Socket where to send response
      * @param {Number} type Type of the request
      * @param {Number} reqId Unique request id, returned by send() method
      * @param {*} params Array of parameters to send
      * @override
      */
-    _onAnswer(sock, type, reqId, ...params) {
+    _onResponse(sock, type, reqId, ...params) {
         sock.send(JSON.stringify([type, (reqId & MASKS.RES_MASK) >>> 0].concat(params)));
     }
 
     /**
      * Is called on every input message is received. It may be a request
-     * from remote host or an answer (response). In case of request we do
-     * nothing. In case of answer (response) we have to call callback
+     * from remote host or an response (response). In case of request we do
+     * nothing. In case of response (response) we have to call callback
      * function, bind in send() method. event.data contains:
      * [type, reqId|null, ...params].
      * @param {WebSocket} sock Owner socket

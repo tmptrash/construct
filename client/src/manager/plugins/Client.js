@@ -52,11 +52,11 @@ class Client extends Connection {
      * method. Adds clientId to every request.
      * @param {Number} type Request type (see Requests.TYPES const)
      * @param {*} params Custom request parameters
-     * @return {Number|null} Unique request id or null if answer is
+     * @return {Number|null} Unique request id or null if response is
      * not needed
      */
     request(type, ...params) {
-        return this.send(this._client, type, ...[this._manager.clientId].concat(params));
+        return super.request(this._client, type, ...[this._manager.clientId].concat(params));
     }
 
     destroy() {

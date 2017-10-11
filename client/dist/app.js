@@ -2445,7 +2445,6 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__
      */
     serialize() {
         let   json = {
-            // 'id' will be added after insertion
             id                  : this._id,
             x                   : this._x,
             y                   : this._y,
@@ -2977,7 +2976,7 @@ const EVENTS  = __webpack_require__(0).EVENTS;
 const Console = __webpack_require__(3).default;
 
 class Api extends BaseApi {
-    constructor(client) {
+    constructor(client, manager) {
         super(client);
 
         this.API[TYPES.REQ_GIVE_ID]  = this._giveId.bind(this);
@@ -3184,11 +3183,11 @@ class Client extends Connection {
      * method. Adds clientId to every request.
      * @param {Number} type Request type (see Requests.TYPES const)
      * @param {*} params Custom request parameters
-     * @return {Number|null} Unique request id or null if answer is
+     * @return {Number|null} Unique request id or null if response is
      * not needed
      */
     request(type, ...params) {
-        return this.send(this._client, type, ...[this._manager.clientId].concat(params));
+        return super.request(this._client, type, ...[this._manager.clientId].concat(params));
     }
 
     destroy() {
@@ -3665,7 +3664,7 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
         // world (Manager). We determine this by checking
         // dir !== DIR.NO
         //
-        if (dir !== __WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions__["DIR"].NO && man.clientId /*&& man.activeAround[dir]*/) {
+        if (dir !== __WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions__["DIR"].NO && man.clientId && man.activeAround[dir]) {
             man.fire(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].STEP_OUT, x1, y1, x2, y2, dir, org);
             org.destroy();
         }
@@ -7247,21 +7246,21 @@ class Connection extends Observer {
      * @return {Number} Unique request id
      * @abstract
      */
-    send(sock, type, ...params) {}
+    request(sock, type, ...params) {}
 
     /**
-     * Is user for answering on requests. May not be called if answer
+     * Is user for answering on requests. May not be called if response
      * (response) don't needed.
-     * @param {WebSocket} sock Socket where send the answer
+     * @param {WebSocket} sock Socket where send the response
      * @param {Number} type Request type (see Requests.TYPES)
      * @param {Number} reqId Unique request id, returned by send() method
      * @param {Array} params Custom parameters to send
      * @abstract
      */
-    answer(sock, type, reqId, ...params) {}
+    response(sock, type, reqId, ...params) {}
 
     /**
-     * Is called every time if server/client sends us a request or answer (response).
+     * Is called every time if server/client sends us a request or response (response).
      * @param {WebSocket} sock Socket, received the message
      * @param {Event} event Message event. Data is in 'data' property
      * @abstract
@@ -7389,7 +7388,7 @@ class Api {
             if (this.API[type]) {
                 this.API[type](...[reqId].concat(data.slice(2)));
             } else {
-                this.parent.answer(sock, TYPES.RES_INVALID_TYPE, reqId, `Invalid request type ${type}`);
+                this.parent.response(sock, TYPES.RES_INVALID_TYPE, reqId, `Invalid request type ${type}`);
             }
         }
     }
@@ -7418,31 +7417,31 @@ class Request {
      * @param {Object} parent Instance of custom class
      */
     constructor(parent) {
-        this.parent      = parent;
+        this.parent        = parent;
         /**
          * {Object} Contains requests map: key - request id, val -
          * response callback
          */
-        this._requests    = {};
-        this._onSendCb    = this._onSend.bind(this);
-        this._onAnswerCb  = this._onAnswer.bind(this);
-        this._onMessageCb = this._onMessage.bind(this);
+        this._requests     = {};
+        this._onRequestCb  = this._onRequest.bind(this);
+        this._onResponseCb = this._onResponse.bind(this);
+        this._onMessageCb  = this._onMessage.bind(this);
 
-        Helper.override(parent, 'send', this._onSendCb);
-        Helper.override(parent, 'answer', this._onAnswerCb);
+        Helper.override(parent, 'request', this._onRequestCb);
+        Helper.override(parent, 'response', this._onResponseCb);
         Helper.override(parent, 'onMessage', this._onMessageCb);
     }
 
     destroy() {
         const parent = this.parent;
         Helper.unoverride(parent, 'onMessage', this._onMessageCb);
-        Helper.unoverride(parent, 'answer', this._onAnswerCb);
-        Helper.unoverride(parent, 'send', this._onSendCb);
-        this._onMessageCb = null;
-        this._onAnswerCb  = null;
-        this._onSendCb    = null;
-        this._requests    = null;
-        this.parent       = null;
+        Helper.unoverride(parent, 'response', this._onResponseCb);
+        Helper.unoverride(parent, 'request', fthis._onRequestCb);
+        this._onMessageCb  = null;
+        this._onResponseCb = null;
+        this._onRequestCb  = null;
+        this._requests     = null;
+        this.parent        = null;
     }
 
     /**
@@ -7462,11 +7461,11 @@ class Request {
      * @param {WebSocket} sock Socket where to send params
      * @param {Number} type Type of the request
      * @param {*} params Array of parameters to send
-     * @return {Number|null} Unique request id or null if no answer needed
+     * @return {Number|null} Unique request id or null if no response needed
      * @override
      * TODO: add timer for tracking request timeout
      */
-    _onSend(sock, type, ...params) {
+    _onRequest(sock, type, ...params) {
         const cb    = Helper.isFunc(params[params.length - 1]) ? params.pop() : null;
         const reqId = Helper.getId();
 
@@ -7477,23 +7476,23 @@ class Request {
     }
 
     /**
-     * Is called on every answer (response). Required unique request id
-     * (reqId) should be used as a parameter. Format of answer data is:
+     * Is called on every response (response). Required unique request id
+     * (reqId) should be used as a parameter. Format of response data is:
      * [type, reqId, ...params].
-     * @param {WebSocket} sock Socket where to send answer
+     * @param {WebSocket} sock Socket where to send response
      * @param {Number} type Type of the request
      * @param {Number} reqId Unique request id, returned by send() method
      * @param {*} params Array of parameters to send
      * @override
      */
-    _onAnswer(sock, type, reqId, ...params) {
+    _onResponse(sock, type, reqId, ...params) {
         sock.send(JSON.stringify([type, (reqId & MASKS.RES_MASK) >>> 0].concat(params)));
     }
 
     /**
      * Is called on every input message is received. It may be a request
-     * from remote host or an answer (response). In case of request we do
-     * nothing. In case of answer (response) we have to call callback
+     * from remote host or an response (response). In case of request we do
+     * nothing. In case of response (response) we have to call callback
      * function, bind in send() method. event.data contains:
      * [type, reqId|null, ...params].
      * @param {WebSocket} sock Owner socket

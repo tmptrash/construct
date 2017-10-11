@@ -11,7 +11,7 @@ const EVENTS  = require('./../../global/Events').EVENTS;
 const Console = require('./../../../../client/src/global/Console').default;
 
 class Api extends BaseApi {
-    constructor(client) {
+    constructor(client, manager) {
         super(client);
 
         this.API[TYPES.REQ_GIVE_ID]  = this._giveId.bind(this);

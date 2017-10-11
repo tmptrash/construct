@@ -34,21 +34,21 @@ class Connection extends Observer {
      * @return {Number} Unique request id
      * @abstract
      */
-    send(sock, type, ...params) {}
+    request(sock, type, ...params) {}
 
     /**
-     * Is user for answering on requests. May not be called if answer
+     * Is user for answering on requests. May not be called if response
      * (response) don't needed.
-     * @param {WebSocket} sock Socket where send the answer
+     * @param {WebSocket} sock Socket where send the response
      * @param {Number} type Request type (see Requests.TYPES)
      * @param {Number} reqId Unique request id, returned by send() method
      * @param {Array} params Custom parameters to send
      * @abstract
      */
-    answer(sock, type, reqId, ...params) {}
+    response(sock, type, reqId, ...params) {}
 
     /**
-     * Is called every time if server/client sends us a request or answer (response).
+     * Is called every time if server/client sends us a request or response (response).
      * @param {WebSocket} sock Socket, received the message
      * @param {Event} event Message event. Data is in 'data' property
      * @abstract
