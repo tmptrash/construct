@@ -14,7 +14,7 @@
 import Organisms from './base/Organisms';
 import {EVENTS}  from './../../global/Events';
 import Helper    from './../../../../common/src/global/Helper';
-import DIR       from './../../../../common/src/global/Directions';
+import {DIR}     from './../../../../common/src/global/Directions';
 
 const EMPTY     = 0;
 const ENERGY    = 1;
@@ -26,10 +26,13 @@ export default class OrganismsDos extends Organisms {
 
         this._positions  = {};
         this._onStepInCb = this._onStepIn.bind(this);
+
+        this.manager.on(EVENTS.STEP_IN, this._onStepInCb);
     }
 
     destroy() {
         super.destroy();
+        this.manager.off(EVENTS.STEP_IN, this._onStepInCb);
         this._onStepInCb = null;
         this._positions  = null;
     }
@@ -72,7 +75,6 @@ export default class OrganismsDos extends Organisms {
         org.on(EVENTS.EAT, this._onEat.bind(this));
         org.on(EVENTS.STEP, this._onStep.bind(this));
         org.on(EVENTS.CHECK_AT, this._onCheckAt.bind(this));
-        this.manager.on(EVENTS.STEP_IN, this._onStepInCb);
     }
 
     /**
@@ -145,10 +147,11 @@ export default class OrganismsDos extends Organisms {
         //
         // Current organism try to move out of the world.
         // We have to pass him to the server to another
-        // world (Manager)
+        // world (Manager). We determine this by checking
+        // dir !== DIR.NO
         //
         if (dir !== DIR.NO && man.clientId && man.activeAround[dir]) {
-            this.manager.fire(EVENTS.STEP_OUT, x1, y1, x2, y2, dir, org);
+            man.fire(EVENTS.STEP_OUT, x1, y1, x2, y2, dir, org);
             org.destroy();
         }
         else if (org.alive) {
@@ -178,7 +181,7 @@ export default class OrganismsDos extends Organisms {
      */
     _onStepIn(x, y, dir, orgJson) {
         if (this.manager.world.isFree(x, y) && this.createOrg({x:x, y:y})) {
-            this.manager.organisms.last.val.unserialize(orgJson);
+            this.organisms.last.val.unserialize(orgJson);
         }
     }
 }

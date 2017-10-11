@@ -45,17 +45,6 @@ class Client extends Connection {
         this._client.onclose   = this.onClose.bind(this);
     }
 
-    /**
-     * Is called on connection close with server. Close reason will be in
-     * this.closeReason field after calling super.onClose() method
-     * @param {Event} event
-     */
-    onClose(event) {
-        super.onClose(event);
-        this._closed = false;
-        Console.info(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
-    }
-
     get manager() {return this._manager}
 
     /**
@@ -82,6 +71,17 @@ class Client extends Connection {
         this._plugins          = null;
         this._onMoveOutCb      = null;
         this._onBeforeRunCb    = null;
+    }
+
+    /**
+     * Is called on connection close with server. Close reason will be in
+     * this.closeReason field after calling super.onClose() method
+     * @param {Event} event
+     */
+    onClose(event) {
+        super.onClose(event);
+        this._closed = false;
+        Console.info(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
     }
 
     /**

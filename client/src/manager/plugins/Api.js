@@ -8,6 +8,7 @@ const TYPES   = require('./../../../../common/src/global/Requests').TYPES;
 const BaseApi = require('./../../../../common/src/net/plugins/Api');
 const Helper  = require('./../../../../common/src/global/Helper');
 const EVENTS  = require('./../../global/Events').EVENTS;
+const Console = require('./../../../../client/src/global/Console').default;
 
 class Api extends BaseApi {
     constructor(client) {
@@ -47,10 +48,12 @@ class Api extends BaseApi {
      * @param {Number} y Current org Y position
      * @param {Number} dir Moving direction
      * @param {String} orgJson Organism's serialized json
+     * @param {String|null} errMsg Error message
      * @api
      */
-    _moveOrg(reqId, x, y, dir, orgJson) {
+    _moveOrg(reqId, x, y, dir, orgJson, errMsg = null) {
         this.parent.manager.fire(EVENTS.STEP_IN, x, y, dir, orgJson);
+        errMsg && Console.warn(errMsg);
     }
 }
 

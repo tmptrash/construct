@@ -8,7 +8,8 @@ const Connections = require('./../Connections');
 const Console     = require('./../../global/Console');
 const Helper      = require('./../../../../common/src/global/Helper');
 const TYPES       = require('./../../../../common/src/global/Requests').TYPES;
-const DIR         = require('./../../../../common/src/global/Directions');
+const DIR         = require('./../../../../common/src/global/Directions').DIR;
+const DIR_NAMES   = require('./../../../../common/src/global/Directions').NAMES;
 const BaseApi     = require('./../../../../common/src/net/plugins/Api');
 
 class Api extends BaseApi {
@@ -59,8 +60,8 @@ class Api extends BaseApi {
         } else {
             const backRegion = Connections.toRegion(clientId);
             const backCon    = this.parent.conns.getConnection(backRegion);
-            this.parent.send(backCon.sock, TYPES.RES_MOVE_ERR, x, y, dir, orgJson, `Region ${region} is not active`);
-            Console.error(`Destination region ${region} is not active. Organism ${orgJson.id} will be sent back.`);
+            this.parent.send(backCon.sock, TYPES.RES_MOVE_ERR, x, y, dir, orgJson, `Region "${region}" on direction "${DIR_NAMES[dir]}" is not active`);
+            Console.error(`Destination region ${region} is not active. Organism "${orgJson.id}" will be sent back.`);
         }
     }
 }

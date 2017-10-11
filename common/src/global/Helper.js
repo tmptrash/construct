@@ -4,7 +4,7 @@
  * @author flatline
  */
 const Config = require('./Config').Config;
-const DIR    = require('./Directions');
+const DIR    = require('./Directions').DIR;
 
 class Helper {
     /**
@@ -97,10 +97,13 @@ class Helper {
      * Does normalization of X and Y coordinates. It's used
      * in cyclical mode for checking if we out of bound (world).
      * In non cyclical mode it just returns the same coordinates.
-     * Usage: [x, y] = Helper.normalize(10, -1); // 10, 100 (height - 1)
+     * Usage: [x, y, dir] = Helper.normalize(10, -1); // 10, 100 (height - 1)
+     * 'dir' parameter means 'direction' and will be set only if
+     * one or two coordinates are out of bounds (world). Otherwise
+     * 'dir' parameter will be set to DIR.NO value.
      * @param {Number} x
      * @param {Number} y
-     * @returns {[x,y]}
+     * @returns {[x,y,dir]}
      */
     static normalize(x, y) {
         let dir = DIR.NO;

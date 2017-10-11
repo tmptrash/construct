@@ -11,4 +11,12 @@ const DIR = {
     NO   : 4
 };
 
-module.exports = DIR;
+const DIR_NAMES = {
+    0: 'Up',
+    1: 'Right',
+    2: 'Down',
+    3: 'Left',
+    4: 'No'
+};
+
+module.exports = {DIR: DIR, NAMES: DIR_NAMES};

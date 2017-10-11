@@ -1237,7 +1237,7 @@ module.exports = {Config, api};
  * @author flatline
  */
 const Config = __webpack_require__(1).Config;
-const DIR    = __webpack_require__(12);
+const DIR    = __webpack_require__(12).DIR;
 
 class Helper {
     /**
@@ -1330,10 +1330,13 @@ class Helper {
      * Does normalization of X and Y coordinates. It's used
      * in cyclical mode for checking if we out of bound (world).
      * In non cyclical mode it just returns the same coordinates.
-     * Usage: [x, y] = Helper.normalize(10, -1); // 10, 100 (height - 1)
+     * Usage: [x, y, dir] = Helper.normalize(10, -1); // 10, 100 (height - 1)
+     * 'dir' parameter means 'direction' and will be set only if
+     * one or two coordinates are out of bounds (world). Otherwise
+     * 'dir' parameter will be set to DIR.NO value.
      * @param {Number} x
      * @param {Number} y
-     * @returns {[x,y]}
+     * @returns {[x,y,dir]}
      */
     static normalize(x, y) {
         let dir = DIR.NO;
@@ -2443,6 +2446,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__
     serialize() {
         let   json = {
             // 'id' will be added after insertion
+            id                  : this._id,
             x                   : this._x,
             y                   : this._y,
             changes             : this._changes,
@@ -2599,7 +2603,15 @@ const DIR = {
     NO   : 4
 };
 
-module.exports = DIR;
+const DIR_NAMES = {
+    0: 'Up',
+    1: 'Right',
+    2: 'Down',
+    3: 'Left',
+    4: 'No'
+};
+
+module.exports = {DIR: DIR, NAMES: DIR_NAMES};
 
 /***/ }),
 /* 13 */
@@ -2962,6 +2974,7 @@ const TYPES   = __webpack_require__(6).TYPES;
 const BaseApi = __webpack_require__(35);
 const Helper  = __webpack_require__(2);
 const EVENTS  = __webpack_require__(0).EVENTS;
+const Console = __webpack_require__(3).default;
 
 class Api extends BaseApi {
     constructor(client) {
@@ -3001,10 +3014,12 @@ class Api extends BaseApi {
      * @param {Number} y Current org Y position
      * @param {Number} dir Moving direction
      * @param {String} orgJson Organism's serialized json
+     * @param {String|null} errMsg Error message
      * @api
      */
-    _moveOrg(reqId, x, y, dir, orgJson) {
+    _moveOrg(reqId, x, y, dir, orgJson, errMsg = null) {
         this.parent.manager.fire(EVENTS.STEP_IN, x, y, dir, orgJson);
+        errMsg && Console.warn(errMsg);
     }
 }
 
@@ -3162,17 +3177,6 @@ class Client extends Connection {
         this._client.onclose   = this.onClose.bind(this);
     }
 
-    /**
-     * Is called on connection close with server. Close reason will be in
-     * this.closeReason field after calling super.onClose() method
-     * @param {Event} event
-     */
-    onClose(event) {
-        super.onClose(event);
-        this._closed = false;
-        Console.info(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
-    }
-
     get manager() {return this._manager}
 
     /**
@@ -3199,6 +3203,17 @@ class Client extends Connection {
         this._plugins          = null;
         this._onMoveOutCb      = null;
         this._onBeforeRunCb    = null;
+    }
+
+    /**
+     * Is called on connection close with server. Close reason will be in
+     * this.closeReason field after calling super.onClose() method
+     * @param {Event} event
+     */
+    onClose(event) {
+        super.onClose(event);
+        this._closed = false;
+        Console.info(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
     }
 
     /**
@@ -3526,10 +3541,13 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
 
         this._positions  = {};
         this._onStepInCb = this._onStepIn.bind(this);
+
+        this.manager.on(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].STEP_IN, this._onStepInCb);
     }
 
     destroy() {
         super.destroy();
+        this.manager.off(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].STEP_IN, this._onStepInCb);
         this._onStepInCb = null;
         this._positions  = null;
     }
@@ -3572,7 +3590,6 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
         org.on(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].EAT, this._onEat.bind(this));
         org.on(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].STEP, this._onStep.bind(this));
         org.on(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].CHECK_AT, this._onCheckAt.bind(this));
-        this.manager.on(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].STEP_IN, this._onStepInCb);
     }
 
     /**
@@ -3645,10 +3662,11 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
         //
         // Current organism try to move out of the world.
         // We have to pass him to the server to another
-        // world (Manager)
+        // world (Manager). We determine this by checking
+        // dir !== DIR.NO
         //
-        if (dir !== __WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions___default.a.NO && man.clientId /*&& man.activeAround[dir]*/) {
-            this.manager.fire(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].STEP_OUT, x1, y1, x2, y2, dir, org);
+        if (dir !== __WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions__["DIR"].NO && man.clientId /*&& man.activeAround[dir]*/) {
+            man.fire(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].STEP_OUT, x1, y1, x2, y2, dir, org);
             org.destroy();
         }
         else if (org.alive) {
@@ -3678,7 +3696,7 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
      */
     _onStepIn(x, y, dir, orgJson) {
         if (this.manager.world.isFree(x, y) && this.createOrg({x:x, y:y})) {
-            this.manager.organisms.last.val.unserialize(orgJson);
+            this.organisms.last.val.unserialize(orgJson);
         }
     }
 }
