@@ -1,6 +1,6 @@
 /**
  * Base class for Client and Server classes. Contains basic methods like
- * send(), answer(), onMessage(), onClose(),... Client and Server should
+ * request(), response(), onMessage(), onClose(),... Client and Server should
  * override them in their classes.
  *
  * @author slackline
