@@ -2778,11 +2778,6 @@ const PLUGINS = {
 
 class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___default.a {
     /**
-     * Is called before server is running
-     * @abstract
-     */
-    onBeforeRun() {}
-    /**
      * Is called on every iteration in main loop. May be overridden in plugins
      * @abstract
      */
@@ -2830,14 +2825,6 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
      * Runs main infinite loop of application
      */
     run () {
-        //
-        // Plugins may override onBeforeRun() method to prevent starting
-        // Manager at the beginning. For this thy may call Manager.stop()
-        //
-        this._stopped = false;
-        this.onBeforeRun();
-        if (this._stopped) {return}
-
         this._counter = 0;
         this._onLoop();
     }
@@ -2956,8 +2943,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 const manager = new __WEBPACK_IMPORTED_MODULE_0__manager_Manager__["a" /* default */]();
+//
+// manager.run() method will be called after attempt of connection
+// to the jevo.js server
+//
 window.man = manager;
-manager.run();
+
 
 /***/ }),
 /* 16 */
@@ -2999,7 +2990,7 @@ class Api extends BaseApi {
      */
     _giveId(reqId, clientId) {
         this.parent.manager.setClientId(clientId);
-        this.parent.request(TYPES.REQ_SET_ACTIVE, true, (type) => {
+        this._request(TYPES.REQ_SET_ACTIVE, true, (type) => {
             if (type === TYPES.RES_ACTIVE_OK) {
                 this.parent.manager.run();
             }
@@ -3019,6 +3010,10 @@ class Api extends BaseApi {
     _moveOrg(reqId, x, y, dir, orgJson, errMsg = null) {
         this.parent.manager.fire(EVENTS.STEP_IN, x, y, dir, orgJson);
         errMsg && Console.warn(errMsg);
+    }
+
+    _request(type, ...params) {
+        return this.parent.request(this.parent.socket, type, this.parent.manager.clientId, ...params);
     }
 }
 
@@ -3161,14 +3156,15 @@ class Client extends Connection {
         this._client        = this._createWebSocket();
         this._closed        = true;
         this._plugins       = new Plugins(this, PLUGINS);
-        this._onBeforeRunCb = this._onBeforeRun.bind(this);
         this._onMoveOutCb   = this._onMoveOut.bind(this);
         //
         // Client has no connection with server, so we have to start in
         // "separate instance" mode.
         //
-        if (this._client === null || this._client.readyState === WebSocket.CLOSING || this._client.readyState === WebSocket.CLOSED) {return}
-        Helper.override(manager, 'onBeforeRun', this._onBeforeRunCb);
+        if (this._client === null || this._client.readyState === WebSocket.CLOSING || this._client.readyState === WebSocket.CLOSED) {
+            this._manager.run();
+            return;
+        }
         manager.on(EVENTS.STEP_OUT, this._onMoveOutCb);
         this._client.onopen    = this._onOpen.bind(this);
         this._client.onmessage = this.onMessage.bind(this, this._client);
@@ -3177,18 +3173,7 @@ class Client extends Connection {
     }
 
     get manager() {return this._manager}
-
-    /**
-     * Sends a request to the server. Wrapper around WebSocket.send()
-     * method. Adds clientId to every request.
-     * @param {Number} type Request type (see Requests.TYPES const)
-     * @param {*} params Custom request parameters
-     * @return {Number|null} Unique request id or null if response is
-     * not needed
-     */
-    request(type, ...params) {
-        return super.request(this._client, type, ...[this._manager.clientId].concat(params));
-    }
+    get socket()  {return this._client}
 
     destroy() {
         super.destroy();
@@ -3196,12 +3181,10 @@ class Client extends Connection {
         this._client.onmessage = null;
         this._client.onerror   = null;
         this._client.onclose   = null;
-        Helper.unoverride(this._manager, 'onBeforeRun', this._onBeforeRunCb);
         this._manager.off(EVENTS.STEP_OUT, this._onMoveOutCb);
         this._manager          = null;
         this._plugins          = null;
         this._onMoveOutCb      = null;
-        this._onBeforeRunCb    = null;
     }
 
     /**
@@ -3211,20 +3194,8 @@ class Client extends Connection {
      */
     onClose(event) {
         super.onClose(event);
-        this._closed = false;
+        this._closed = true;
         Console.info(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
-    }
-
-    /**
-     * Is called before running of server. Before running we have to connect
-     * this manager with the Server and activate it on a server side. Only after
-     * that it have to be ran. Running manager means 'active' manager.
-     * @override
-     */
-    _onBeforeRun() {
-        if (this._manager.clientId === null && this._closed === false) {
-            this._manager.stop();
-        }
     }
 
     _createWebSocket() {
@@ -3664,23 +3635,12 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
         // world (Manager). We determine this by checking
         // dir !== DIR.NO
         //
-        if (dir !== __WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions__["DIR"].NO && man.clientId && man.activeAround[dir]) {
+        if (dir !== __WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions__["DIR"].NO && man.activeAround[dir]) {
             man.fire(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].STEP_OUT, x1, y1, x2, y2, dir, org);
             org.destroy();
         }
         else if (org.alive) {
             ret.ret = +this.move(x1, y1, x2, y2, org);
-        }
-    }
-
-    _onCheckAt(x, y, ret) {
-        let dir;
-
-        [x, y, dir] = __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.normalize(x, y);
-        if (typeof(this._positions[__WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.posId(x, y)]) === 'undefined') {
-            ret.ret = this.manager.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
-        } else {
-            ret.ret = ORGANISM;
         }
     }
 
@@ -3696,6 +3656,17 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
     _onStepIn(x, y, dir, orgJson) {
         if (this.manager.world.isFree(x, y) && this.createOrg({x:x, y:y})) {
             this.organisms.last.val.unserialize(orgJson);
+        }
+    }
+
+    _onCheckAt(x, y, ret) {
+        let dir;
+
+        [x, y, dir] = __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.normalize(x, y);
+        if (typeof(this._positions[__WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.posId(x, y)]) === 'undefined') {
+            ret.ret = this.manager.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
+        } else {
+            ret.ret = ORGANISM;
         }
     }
 }
@@ -7212,12 +7183,17 @@ module.exports = Queue;
 
 /**
  * Base class for Client and Server classes. Contains basic methods like
- * send(), answer(), onMessage(), onClose(),... Client and Server should
+ * request(), response(), onMessage(), onClose(),... Client and Server should
  * override them in their classes.
  *
  * @author slackline
  */
 const Observer = __webpack_require__(5);
+
+const EVENTS = {
+    REQUESTS: 0,
+    RESPONSE: 1
+};
 
 class Connection extends Observer {
     constructor(eventAmount) {
@@ -7231,11 +7207,6 @@ class Connection extends Observer {
 
     get closeReason() {return this._closeReason}
 
-    /**
-     * @destructor
-     * @abstract
-     */
-    destroy() {}
     /**
      * Sends data to the client. First two parameters are required. All
      * other parameters depend of special request and will be send to
@@ -7315,6 +7286,12 @@ class Connection extends Observer {
 
         this._closeReason = reason;
     }
+
+    /**
+     * @destructor
+     * @abstract
+     */
+    destroy() {}
 }
 
 module.exports = Connection;
@@ -7445,7 +7422,7 @@ class Request {
     }
 
     /**
-     * IMPORTANT: It's impossible to have more then one overrides of 'send'
+     * IMPORTANT: It's impossible to have more then one overrides of 'request'
      * IMPORTANT: method, because return value of second overridden method
      * IMPORTANT: will overlap first one.
      *

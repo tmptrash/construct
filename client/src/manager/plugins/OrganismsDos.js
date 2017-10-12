@@ -150,23 +150,12 @@ export default class OrganismsDos extends Organisms {
         // world (Manager). We determine this by checking
         // dir !== DIR.NO
         //
-        if (dir !== DIR.NO && man.clientId && man.activeAround[dir]) {
+        if (dir !== DIR.NO && man.activeAround[dir]) {
             man.fire(EVENTS.STEP_OUT, x1, y1, x2, y2, dir, org);
             org.destroy();
         }
         else if (org.alive) {
             ret.ret = +this.move(x1, y1, x2, y2, org);
-        }
-    }
-
-    _onCheckAt(x, y, ret) {
-        let dir;
-
-        [x, y, dir] = Helper.normalize(x, y);
-        if (typeof(this._positions[Helper.posId(x, y)]) === 'undefined') {
-            ret.ret = this.manager.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
-        } else {
-            ret.ret = ORGANISM;
         }
     }
 
@@ -182,6 +171,17 @@ export default class OrganismsDos extends Organisms {
     _onStepIn(x, y, dir, orgJson) {
         if (this.manager.world.isFree(x, y) && this.createOrg({x:x, y:y})) {
             this.organisms.last.val.unserialize(orgJson);
+        }
+    }
+
+    _onCheckAt(x, y, ret) {
+        let dir;
+
+        [x, y, dir] = Helper.normalize(x, y);
+        if (typeof(this._positions[Helper.posId(x, y)]) === 'undefined') {
+            ret.ret = this.manager.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
+        } else {
+            ret.ret = ORGANISM;
         }
     }
 }

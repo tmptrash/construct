@@ -10,5 +10,8 @@
 import Manager from './manager/Manager';
 
 const manager = new Manager();
+//
+// manager.run() method will be called after attempt of connection
+// to the jevo.js server
+//
 window.man = manager;
-manager.run();

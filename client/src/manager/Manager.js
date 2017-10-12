@@ -68,11 +68,6 @@ const PLUGINS = {
 
 export default class Manager extends Observer {
     /**
-     * Is called before server is running
-     * @abstract
-     */
-    onBeforeRun() {}
-    /**
      * Is called on every iteration in main loop. May be overridden in plugins
      * @abstract
      */
@@ -120,14 +115,6 @@ export default class Manager extends Observer {
      * Runs main infinite loop of application
      */
     run () {
-        //
-        // Plugins may override onBeforeRun() method to prevent starting
-        // Manager at the beginning. For this thy may call Manager.stop()
-        //
-        this._stopped = false;
-        this.onBeforeRun();
-        if (this._stopped) {return}
-
         this._counter = 0;
         this._onLoop();
     }

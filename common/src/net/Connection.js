@@ -20,11 +20,6 @@ class Connection extends Observer {
     get closeReason() {return this._closeReason}
 
     /**
-     * @destructor
-     * @abstract
-     */
-    destroy() {}
-    /**
      * Sends data to the client. First two parameters are required. All
      * other parameters depend of special request and will be send to
      * the client as an array.
@@ -103,6 +98,12 @@ class Connection extends Observer {
 
         this._closeReason = reason;
     }
+
+    /**
+     * @destructor
+     * @abstract
+     */
+    destroy() {}
 }
 
 module.exports = Connection;

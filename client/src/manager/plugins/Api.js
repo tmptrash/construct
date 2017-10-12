@@ -34,7 +34,7 @@ class Api extends BaseApi {
      */
     _giveId(reqId, clientId) {
         this.parent.manager.setClientId(clientId);
-        this.parent.request(TYPES.REQ_SET_ACTIVE, true, (type) => {
+        this._request(TYPES.REQ_SET_ACTIVE, true, (type) => {
             if (type === TYPES.RES_ACTIVE_OK) {
                 this.parent.manager.run();
             }
@@ -54,6 +54,10 @@ class Api extends BaseApi {
     _moveOrg(reqId, x, y, dir, orgJson, errMsg = null) {
         this.parent.manager.fire(EVENTS.STEP_IN, x, y, dir, orgJson);
         errMsg && Console.warn(errMsg);
+    }
+
+    _request(type, ...params) {
+        return this.parent.request(this.parent.socket, type, this.parent.manager.clientId, ...params);
     }
 }
 
