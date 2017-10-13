@@ -64,7 +64,7 @@ class Connections {
      */
     rightRegion(region) {
         region = region.slice();
-        return ++region[0] >= this._amount ? null : region;
+        return ++region[0] > this._amount + 1 ? null : region;
     }
 
     /**
@@ -74,7 +74,7 @@ class Connections {
      */
     downRegion(region) {
         region = region.slice();
-        return ++region[1] >= this._amount ? null : region;
+        return ++region[1] > this._amount + 1 ? null : region;
     }
 
     /**

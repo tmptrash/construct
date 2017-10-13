@@ -79,9 +79,10 @@ class Api extends BaseApi {
     }
 
     /**
-     * This code passes active flag to clients around current.
-     * This is how our client knows, that client above for example
-     * is active and it may pass organism there, if it (organism)
+     * This code passes active flag of current client to clients
+     * around and to active flags of around client to current.
+     * This is how our client knows, that client for example above
+     * is active and it may pass organism there, if he (organism)
      * goes out of the world (borders). We have to update active
      * state for current and nearest clients as well.
      * @param {Array} activeRegion Region of activated client

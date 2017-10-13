@@ -2,6 +2,7 @@ describe("common/src/global/Helper", () => {
     let   Helper = require('./../../../common/src/global/Helper');
     let   Config = require('./../../../common/src/global/Config').Config;
     let   api    = require('./../../../common/src/global/Config').api;
+    let   DIR    = require('./../../../common/src/global/Directions').DIR;
 
     it("Checking posId() method", () => {
         expect(Helper.posId(0,0)).toEqual(0);
@@ -93,16 +94,16 @@ describe("common/src/global/Helper", () => {
         const cyc = api.get('worldCyclical');
 
         api.set('worldCyclical', true);
-        expect(Helper.normalize(0,0)).toEqual([0,0]);
-        expect(Helper.normalize(Config.worldWidth - 1, Config.worldHeight - 1)).toEqual([Config.worldWidth - 1, Config.worldHeight - 1]);
-        expect(Helper.normalize(Config.worldWidth, Config.worldHeight)).toEqual([0, 0]);
-        expect(Helper.normalize(Config.worldWidth + 1, Config.worldHeight)).toEqual([0, 0]);
-        expect(Helper.normalize(Config.worldWidth, Config.worldHeight + 1)).toEqual([0, 0]);
-        expect(Helper.normalize(Config.worldWidth + 1, Config.worldHeight + 1)).toEqual([0, 0]);
+        expect(Helper.normalize(0,0)).toEqual([0,0, DIR.NO]);
+        expect(Helper.normalize(Config.worldWidth - 1, Config.worldHeight - 1)).toEqual([Config.worldWidth - 1, Config.worldHeight - 1, DIR.NO]);
+        expect(Helper.normalize(Config.worldWidth, Config.worldHeight)).toEqual([0, 0, DIR.DOWN]);
+        expect(Helper.normalize(Config.worldWidth + 1, Config.worldHeight)).toEqual([0, 0, DIR.DOWN]);
+        expect(Helper.normalize(Config.worldWidth, Config.worldHeight + 1)).toEqual([0, 0, DIR.DOWN]);
+        expect(Helper.normalize(Config.worldWidth + 1, Config.worldHeight + 1)).toEqual([0, 0, DIR.DOWN]);
 
-        expect(Helper.normalize(-1, Config.worldHeight - 1)).toEqual([Config.worldWidth - 1, Config.worldHeight - 1]);
-        expect(Helper.normalize(-2, Config.worldHeight - 1)).toEqual([Config.worldWidth - 1, Config.worldHeight - 1]);
-        expect(Helper.normalize(-2, -1)).toEqual([Config.worldWidth - 1, Config.worldHeight - 1]);
+        expect(Helper.normalize(-1, Config.worldHeight - 1)).toEqual([Config.worldWidth - 1, Config.worldHeight - 1, DIR.LEFT]);
+        expect(Helper.normalize(-2, Config.worldHeight - 1)).toEqual([Config.worldWidth - 1, Config.worldHeight - 1, DIR.LEFT]);
+        expect(Helper.normalize(-2, -1)).toEqual([Config.worldWidth - 1, Config.worldHeight - 1, DIR.UP]);
         api.set('worldCyclical', cyc);
     });
 
@@ -110,16 +111,16 @@ describe("common/src/global/Helper", () => {
         const cyc = api.get('worldCyclical');
 
         api.set('worldCyclical', false);
-        expect(Helper.normalize(0,0)).toEqual([0,0]);
-        expect(Helper.normalize(Config.worldWidth - 1, Config.worldHeight - 1)).toEqual([Config.worldWidth - 1, Config.worldHeight - 1]);
-        expect(Helper.normalize(Config.worldWidth, Config.worldHeight)).toEqual([Config.worldWidth, Config.worldHeight]);
-        expect(Helper.normalize(Config.worldWidth + 1, Config.worldHeight)).toEqual([Config.worldWidth + 1, Config.worldHeight]);
-        expect(Helper.normalize(Config.worldWidth, Config.worldHeight + 1)).toEqual([Config.worldWidth, Config.worldHeight + 1]);
-        expect(Helper.normalize(Config.worldWidth + 1, Config.worldHeight + 1)).toEqual([Config.worldWidth + 1, Config.worldHeight + 1]);
+        expect(Helper.normalize(0,0)).toEqual([0,0, DIR.NO]);
+        expect(Helper.normalize(Config.worldWidth - 1, Config.worldHeight - 1)).toEqual([Config.worldWidth - 1, Config.worldHeight - 1, DIR.NO]);
+        expect(Helper.normalize(Config.worldWidth, Config.worldHeight)).toEqual([Config.worldWidth, Config.worldHeight, DIR.NO]);
+        expect(Helper.normalize(Config.worldWidth + 1, Config.worldHeight)).toEqual([Config.worldWidth + 1, Config.worldHeight, DIR.NO]);
+        expect(Helper.normalize(Config.worldWidth, Config.worldHeight + 1)).toEqual([Config.worldWidth, Config.worldHeight + 1, DIR.NO]);
+        expect(Helper.normalize(Config.worldWidth + 1, Config.worldHeight + 1)).toEqual([Config.worldWidth + 1, Config.worldHeight + 1, DIR.NO]);
 
-        expect(Helper.normalize(-1, Config.worldHeight - 1)).toEqual([-1, Config.worldHeight - 1]);
-        expect(Helper.normalize(-2, Config.worldHeight - 1)).toEqual([-2, Config.worldHeight - 1]);
-        expect(Helper.normalize(-2, -1)).toEqual([-2, -1]);
+        expect(Helper.normalize(-1, Config.worldHeight - 1)).toEqual([-1, Config.worldHeight - 1, DIR.NO]);
+        expect(Helper.normalize(-2, Config.worldHeight - 1)).toEqual([-2, Config.worldHeight - 1, DIR.NO]);
+        expect(Helper.normalize(-2, -1)).toEqual([-2, -1, DIR.NO]);
         api.set('worldCyclical', cyc);
     });
 

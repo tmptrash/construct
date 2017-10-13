@@ -68,6 +68,7 @@ export default class Organism extends Observer {
     get y()                     {return this._y}
     get alive()                 {return this._alive}
     get item()                  {return this._item}
+    get iterations()            {return this._iterations}
     get changes()               {return this._changes}
     get mutationProbs()         {return this._mutationProbs}
     get mutationPeriod()        {return this._mutationPeriod}
