@@ -20,14 +20,6 @@ import {EVENT_AMOUNT}    from './../global/Events';
 import Console           from './../global/Console';
 import World             from './../visual/World';
 import Canvas            from './../visual/Canvas';
-import Client            from './../../../client/src/manager/plugins/Client';
-
-import OrganismsGarmin   from './plugins/OrganismsGarmin';
-import OrganismsDos      from './plugins/OrganismsDos';
-import ConfigPlugin      from './plugins/Config';
-import Mutator           from './plugins/Mutator';
-import Energy            from './plugins/Energy';
-import Status            from './plugins/Status';
 
 import OperatorsDos      from './../organism/OperatorsDos';
 import OperatorsGarmin   from './../organism/OperatorsGarmin';
@@ -36,7 +28,6 @@ import Code2StringGarmin from './../organism/Code2StringGarmin';
 import FitnessGarmin     from './../organism/FitnessGarmin';
 import OrganismDos       from './../organism/OrganismDos';
 import OrganismGarmin    from './../organism/OrganismGarmin';
-import JSVM              from './../organism/JSVM';
 /**
  * {Boolean} Specify fitness or nature simulation mode
  */
@@ -53,17 +44,6 @@ const CLASS_MAP = {
     FitnessGarmin    : FitnessGarmin,
     OrganismDos      : OrganismDos,
     OrganismGarmin   : OrganismGarmin
-};
-/**
- * {Array} Plugins for Manager
- */
-const PLUGINS = {
-    Organisms: FITNESS_MODE ? OrganismsGarmin : OrganismsDos,
-    Config   : ConfigPlugin,
-    Mutator  : Mutator,
-    Energy   : Energy,
-    Status   : Status,
-    Client   : Client
 };
 
 export default class Manager extends Observer {

@@ -6,6 +6,13 @@ describe("server/common/server/Server", () => {
     const Helper    = require('./../../../common/tests/Helper');
     const Config    = require('./../../../common/src/global/Config').Config;
     const TYPES     = require('./../../../common/src/global/Requests').TYPES;
+    const Api       = require('./../../src/server/plugins/Api');
+    const Request   = require('./../../../common/src/net/plugins/Request');
+
+    const PLUGINS = {
+        Request: Request,
+        Api    : Api
+    };
 
     let error;
     let warn;
@@ -26,34 +33,34 @@ describe("server/common/server/Server", () => {
     });
 
     it("Checking server creation", () => {
-        let server = new Server(8899);
+        let server = new Server(8899, PLUGINS);
 
         server.destroy();
     });
     it("Checking two servers creation on different ports", () => {
-        let server1 = new Server(8898);
-        let server2 = new Server(8899);
+        let server1 = new Server(8898, PLUGINS);
+        let server2 = new Server(8899, PLUGINS);
 
         server2.destroy();
         server1.destroy();
     });
     it("Checking two servers creation on the same port", () => {
-        let server1 = new Server(8899);
-        let server2 = new Server(8899);
+        let server1 = new Server(8899, PLUGINS);
+        let server2 = new Server(8899, PLUGINS);
 
         server2.destroy();
         server1.destroy();
     });
     it("Checking two servers creation on different ports", () => {
-        let server1 = new Server(8898);
-        let server2 = new Server(8899);
+        let server1 = new Server(8898, PLUGINS);
+        let server2 = new Server(8899, PLUGINS);
 
         server2.destroy();
         server1.destroy();
     });
     it("Checking two servers running on the same port", (done) => {
-        let server1 = new Server(8899);
-        let server2 = new Server(8899);
+        let server1 = new Server(8899, PLUGINS);
+        let server2 = new Server(8899, PLUGINS);
         let waitObj = {done: false};
 
         expect(server1.run()).toEqual(true);
@@ -66,8 +73,8 @@ describe("server/common/server/Server", () => {
         Helper.waitFor(waitObj, done);
     });
     it("Checking two servers running on different ports", (done) => {
-        let server1 = new Server(8898);
-        let server2 = new Server(8899);
+        let server1 = new Server(8898, PLUGINS);
+        let server2 = new Server(8899, PLUGINS);
         let waitObj = {done: false};
         let times   = 0;
 
@@ -83,7 +90,7 @@ describe("server/common/server/Server", () => {
     });
 
     it("Checking server run", (done) => {
-        let server  = new Server(8899);
+        let server  = new Server(8899, PLUGINS);
         let waitObj = {done: false};
 
         server.on(EVENTS.RUN, () => waitObj.done = true);
@@ -99,7 +106,7 @@ describe("server/common/server/Server", () => {
     });
 
     it("Checking server run + one client connection", (done) => {
-        let server  = new Server(8899);
+        let server  = new Server(8899, PLUGINS);
         let waitObj = {done: false};
 
         server.on(EVENTS.CONNECT, () => waitObj.done = true);
@@ -115,7 +122,7 @@ describe("server/common/server/Server", () => {
         });
     });
     it("Checking server run + two clients connection", (done) => {
-        let server  = new Server(8899);
+        let server  = new Server(8899, PLUGINS);
         let waitObj = {done: false};
         let cons    = 0;
 
@@ -133,7 +140,7 @@ describe("server/common/server/Server", () => {
         });
     });
     it("Checking server run + two clients and one disconnected", (done) => {
-        let server  = new Server(8899);
+        let server  = new Server(8899, PLUGINS);
         let waitObj = {done: false};
         let cons    = 0;
 
@@ -155,7 +162,7 @@ describe("server/common/server/Server", () => {
         });
     });
     it("Checking server run + one client connect/disconnect/connect", (done) => {
-        let server  = new Server(8899);
+        let server  = new Server(8899, PLUGINS);
         let waitObj = {done: false};
 
         server.on(EVENTS.CONNECT, () => waitObj.done = true);
@@ -176,7 +183,7 @@ describe("server/common/server/Server", () => {
     });
 
     it("Checking isRunning() method", (done) => {
-        let server  = new Server(8899);
+        let server  = new Server(8899, PLUGINS);
         let waitObj = {done: false};
 
         server.on(EVENTS.CONNECT, () => waitObj.done = true);
@@ -196,7 +203,7 @@ describe("server/common/server/Server", () => {
     it("Checking unique id on client connect", (done) => {
         let maxCon  = Config.serMaxConnections;
         Config.serMaxConnections = 1;
-        let server  = new Server(8899);
+        let server  = new Server(8899, PLUGINS);
         let waitObj = {done: false};
 
         let id      = null;
@@ -216,7 +223,7 @@ describe("server/common/server/Server", () => {
     it("Checking unique id on client connect/disconnect and connect again with the same id", (done) => {
         let maxCon  = Config.serMaxConnections;
         Config.serMaxConnections = 1;
-        let server  = new Server(8899);
+        let server  = new Server(8899, PLUGINS);
         let waitObj = {done: false};
         let oldId   = null;
 
@@ -245,7 +252,7 @@ describe("server/common/server/Server", () => {
     it("Checking that extra client should be disconnected", (done) => {
         let maxCon  = Config.serMaxConnections;
         Config.serMaxConnections = 1;
-        let server  = new Server(8899);
+        let server  = new Server(8899, PLUGINS);
         let waitObj = {done: false};
 
         let id;
@@ -268,7 +275,7 @@ describe("server/common/server/Server", () => {
     });
 
     it("Checking sending message by client", (done) => {
-        let server  = new Server(8899);
+        let server  = new Server(8899, PLUGINS);
         let waitObj = {done: false};
         let data;
 

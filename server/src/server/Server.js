@@ -33,17 +33,11 @@
 const WebSocket   = require('./../../../node_modules/ws/index');
 const Connection  = require('./../../../common/src/net/Connection');
 const Config      = require('./../../../common/src/global/Config').Config;
-const Request     = require('./../../../common/src/net/plugins/Request');
 const TYPES       = require('./../../../common/src/global/Requests').TYPES;
 const Plugins     = require('./../../../common/src/global/Plugins');
 const Console     = require('./../global/Console');
 const Connections = require('./../server/Connections');
-const Api         = require('./plugins/Api');
 
-const PLUGINS = {
-    Request: Request,
-    Api    : Api
-};
 
 const RUN      = 0;
 const STOP     = 1;
@@ -69,8 +63,9 @@ class Server extends Connection {
      * Creates an instance of the server. Also creates regions map
      * with initially null values.
      * @param {Number} port
+     * @param {Object} plugins Map of plugins. key: name, val: Class
      */
-    constructor(port) {
+    constructor(port, plugins) {
         super(EVENTS_LEN);
         this.EVENTS   = EVENTS;
         this.conns    = new Connections(Config.serMaxConnections);
@@ -78,7 +73,7 @@ class Server extends Connection {
         
         this._port    = port;
         this._running = false;
-        this._plugins = new Plugins(this, PLUGINS, false);
+        this._plugins = new Plugins(this, plugins, false);
     }
 
     /**
