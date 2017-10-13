@@ -89,7 +89,7 @@ class Client extends Connection {
     }
 
     _onMoveOut(x1, y1, x2, y2, dir, org) {
-        this.request(TYPES.REQ_MOVE_ORG, x1, y1, dir, org.serialize());
+        this.request(this._client, TYPES.REQ_MOVE_ORG, this._manager.clientId, x1, y1, dir, org.serialize());
     }
 }
 

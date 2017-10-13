@@ -14,9 +14,10 @@ class Api extends BaseApi {
     constructor(client, manager) {
         super(client);
 
-        this.API[TYPES.REQ_GIVE_ID]  = this._giveId.bind(this);
-        this.API[TYPES.REQ_MOVE_ORG] = this._moveOrg.bind(this);
-        this.API[TYPES.RES_MOVE_ERR] = this._moveOrg.bind(this);
+        this.API[TYPES.REQ_GIVE_ID]         = this._giveId.bind(this);
+        this.API[TYPES.REQ_MOVE_ORG]        = this._moveOrg.bind(this);
+        this.API[TYPES.RES_MOVE_ERR]        = this._moveOrg.bind(this);
+        this.API[TYPES.REQ_SET_NEAR_ACTIVE] = this._setActive.bind(this);
     }
 
     destroy() {
@@ -34,6 +35,7 @@ class Api extends BaseApi {
      */
     _giveId(reqId, clientId) {
         this.parent.manager.setClientId(clientId);
+        Console.info(`Client id "${clientId}" obtained from the server`);
         this._request(TYPES.REQ_SET_ACTIVE, true, (type) => {
             if (type === TYPES.RES_ACTIVE_OK) {
                 this.parent.manager.run();
@@ -54,6 +56,19 @@ class Api extends BaseApi {
     _moveOrg(reqId, x, y, dir, orgJson, errMsg = null) {
         this.parent.manager.fire(EVENTS.STEP_IN, x, y, dir, orgJson);
         errMsg && Console.warn(errMsg);
+    }
+
+    /**
+     * Is called to set active flag of nearest manager/client. After
+     * setting it to true, nearest client/Manager may pass it's organisms
+     * to the current client/Manager
+     * @param {String} reqId Unique request id
+     * @param {Number} dir Direction of nearest client/Manager
+     * @param {Boolean} active Active state of nearest client/Manager
+     * @api
+     */
+    _setActive(reqId, dir, active) {
+        this.parent.manager.activeAround[dir] = active;
     }
 
     _request(type, ...params) {

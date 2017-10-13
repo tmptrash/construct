@@ -94,7 +94,7 @@ export default class Manager extends Observer {
          */
         this.api         = {
             visualize: this._visualize.bind(this),
-            version  : () => '0.2'
+            version  : () => '2.0'
         };
 
         this._initLoop();
@@ -115,6 +115,7 @@ export default class Manager extends Observer {
      * Runs main infinite loop of application
      */
     run () {
+        Console.info('Manager has run');
         this._counter = 0;
         this._onLoop();
     }
@@ -122,6 +123,7 @@ export default class Manager extends Observer {
     stop() {
         this._stopped = true;
         this._counter = 0;
+        Console.log('Manager has stopped');
     }
 
     setClientId(id) {
@@ -156,10 +158,7 @@ export default class Manager extends Observer {
             window.addEventListener('message', (event) => {
                 if (event.data === msgName) {
                     event.stopPropagation();
-                    if (this._stopped) {
-                        Console.warn('Manager has stopped');
-                        return;
-                    }
+                    if (this._stopped) {return}
                     callback();
                 }
             }, true);

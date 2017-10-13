@@ -48,12 +48,52 @@ class Connections {
     }
 
     /**
+     * Returns region above specified
+     * @param {Array} region Region object
+     * @returns {Array|null}
+     */
+    upRegion(region) {
+        region = region.slice();
+        return --region[1] < 0 ? null : region;
+    }
+
+    /**
+     * Returns region at the right side of specified
+     * @param {Array} region Region object
+     * @returns {Array|null}
+     */
+    rightRegion(region) {
+        region = region.slice();
+        return ++region[0] >= this._amount ? null : region;
+    }
+
+    /**
+     * Returns region below specified
+     * @param {Array} region Region object
+     * @returns {Array|null}
+     */
+    downRegion(region) {
+        region = region.slice();
+        return ++region[1] >= this._amount ? null : region;
+    }
+
+    /**
+     * Returns region at the left side of specified
+     * @param {Array} region Region object
+     * @returns {Array|null}
+     */
+    leftRegion(region) {
+        region = region.slice();
+        return --region[0] < 0 ? null : region;
+    }
+
+    /**
      * Returns connection object by region
      * @param {Array} region Region to get
      * @returns {Object|null}
      */
     getConnection(region) {
-        return this.conns[region[0]][region[1]];
+        return region && this.conns[region[0]][region[1]];
     }
 
     /**

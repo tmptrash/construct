@@ -244,7 +244,7 @@ export default class Organisms {
         this.move(pos.x, pos.y, pos.x, pos.y, org);
         this.onAfterCreateOrg(org);
         this.manager.fire(EVENTS.BORN_ORGANISM, org);
-        Console.info(org.id, ' born');
+        //Console.info(org.id, ' born');
 
         return true;
     }
@@ -291,7 +291,7 @@ export default class Organisms {
         for (let i = 0; i < Config.orgStartAmount; i++) {
             this.createOrg(world.getFreePos());
         }
-        Console.warn('Population has created');
+        Console.info('Population has created');
     }
 
     _onCodeEnd(org, lines) {
@@ -309,6 +309,6 @@ export default class Organisms {
         this.manager.world.setDot(org.x, org.y, 0);
         this.onAfterKillOrg(org);
         this.manager.fire(EVENTS.KILL_ORGANISM, org);
-        Console.info(org.id, ' die');
+        //Console.info(org.id, ' die');
     }
 }

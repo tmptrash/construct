@@ -1640,15 +1640,16 @@ const TYPES = {
     //
     // Requests section
     //
-    REQ_SET_ACTIVE  : 0,
-    REQ_MOVE_ORG    : 1,
-    REQ_GIVE_ID     : 2,
+    REQ_SET_ACTIVE     : 0,
+    REQ_MOVE_ORG       : 1,
+    REQ_GIVE_ID        : 2,
+    REQ_SET_NEAR_ACTIVE: 3,
     //
     // Responses section
     //
-    RES_MOVE_ERR    : 1000,
-    RES_ACTIVE_OK   : 1001,
-    RES_INVALID_TYPE: 1002
+    RES_MOVE_ERR       : 1000,
+    RES_ACTIVE_OK      : 1001,
+    RES_INVALID_TYPE   : 1002
 };
 
 module.exports = {TYPES: TYPES, MASKS: MASKS};
@@ -1936,7 +1937,7 @@ class Organisms {
         this.move(pos.x, pos.y, pos.x, pos.y, org);
         this.onAfterCreateOrg(org);
         this.manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["EVENTS"].BORN_ORGANISM, org);
-        __WEBPACK_IMPORTED_MODULE_2__global_Console__["default"].info(org.id, ' born');
+        //Console.info(org.id, ' born');
 
         return true;
     }
@@ -1983,7 +1984,7 @@ class Organisms {
         for (let i = 0; i < __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].orgStartAmount; i++) {
             this.createOrg(world.getFreePos());
         }
-        __WEBPACK_IMPORTED_MODULE_2__global_Console__["default"].warn('Population has created');
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["default"].info('Population has created');
     }
 
     _onCodeEnd(org, lines) {
@@ -2001,7 +2002,7 @@ class Organisms {
         this.manager.world.setDot(org.x, org.y, 0);
         this.onAfterKillOrg(org);
         this.manager.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["EVENTS"].KILL_ORGANISM, org);
-        __WEBPACK_IMPORTED_MODULE_2__global_Console__["default"].info(org.id, ' die');
+        //Console.info(org.id, ' die');
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Organisms;
@@ -2804,7 +2805,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
          */
         this.api         = {
             visualize: this._visualize.bind(this),
-            version  : () => '0.2'
+            version  : () => '2.0'
         };
 
         this._initLoop();
@@ -2825,6 +2826,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
      * Runs main infinite loop of application
      */
     run () {
+        __WEBPACK_IMPORTED_MODULE_4__global_Console__["default"].info('Manager has run');
         this._counter = 0;
         this._onLoop();
     }
@@ -2832,6 +2834,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
     stop() {
         this._stopped = true;
         this._counter = 0;
+        __WEBPACK_IMPORTED_MODULE_4__global_Console__["default"].log('Manager has stopped');
     }
 
     setClientId(id) {
@@ -2866,10 +2869,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
             window.addEventListener('message', (event) => {
                 if (event.data === msgName) {
                     event.stopPropagation();
-                    if (this._stopped) {
-                        __WEBPACK_IMPORTED_MODULE_4__global_Console__["default"].warn('Manager has stopped');
-                        return;
-                    }
+                    if (this._stopped) {return}
                     callback();
                 }
             }, true);
@@ -2970,9 +2970,10 @@ class Api extends BaseApi {
     constructor(client, manager) {
         super(client);
 
-        this.API[TYPES.REQ_GIVE_ID]  = this._giveId.bind(this);
-        this.API[TYPES.REQ_MOVE_ORG] = this._moveOrg.bind(this);
-        this.API[TYPES.RES_MOVE_ERR] = this._moveOrg.bind(this);
+        this.API[TYPES.REQ_GIVE_ID]         = this._giveId.bind(this);
+        this.API[TYPES.REQ_MOVE_ORG]        = this._moveOrg.bind(this);
+        this.API[TYPES.RES_MOVE_ERR]        = this._moveOrg.bind(this);
+        this.API[TYPES.REQ_SET_NEAR_ACTIVE] = this._setActive.bind(this);
     }
 
     destroy() {
@@ -2990,6 +2991,7 @@ class Api extends BaseApi {
      */
     _giveId(reqId, clientId) {
         this.parent.manager.setClientId(clientId);
+        Console.info(`Client id "${clientId}" obtained from the server`);
         this._request(TYPES.REQ_SET_ACTIVE, true, (type) => {
             if (type === TYPES.RES_ACTIVE_OK) {
                 this.parent.manager.run();
@@ -3010,6 +3012,19 @@ class Api extends BaseApi {
     _moveOrg(reqId, x, y, dir, orgJson, errMsg = null) {
         this.parent.manager.fire(EVENTS.STEP_IN, x, y, dir, orgJson);
         errMsg && Console.warn(errMsg);
+    }
+
+    /**
+     * Is called to set active flag of nearest manager/client. After
+     * setting it to true, nearest client/Manager may pass it's organisms
+     * to the current client/Manager
+     * @param {String} reqId Unique request id
+     * @param {Number} dir Direction of nearest client/Manager
+     * @param {Boolean} active Active state of nearest client/Manager
+     * @api
+     */
+    _setActive(reqId, dir, active) {
+        this.parent.manager.activeAround[dir] = active;
     }
 
     _request(type, ...params) {
@@ -3215,7 +3230,7 @@ class Client extends Connection {
     }
 
     _onMoveOut(x1, y1, x2, y2, dir, org) {
-        this.request(TYPES.REQ_MOVE_ORG, x1, y1, dir, org.serialize());
+        this.request(this._client, TYPES.REQ_MOVE_ORG, this._manager.clientId, x1, y1, dir, org.serialize());
     }
 }
 
@@ -7189,11 +7204,6 @@ module.exports = Queue;
  * @author slackline
  */
 const Observer = __webpack_require__(5);
-
-const EVENTS = {
-    REQUESTS: 0,
-    RESPONSE: 1
-};
 
 class Connection extends Observer {
     constructor(eventAmount) {

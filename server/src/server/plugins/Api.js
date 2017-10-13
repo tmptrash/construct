@@ -17,6 +17,17 @@ class Api extends BaseApi {
         super(parent);
         this.API[TYPES.REQ_SET_ACTIVE] = this._setActive.bind(this);
         this.API[TYPES.REQ_MOVE_ORG]   = this._moveOrg.bind(this);
+
+        this._onCloseCb = this._onClose.bind(this);
+
+        Helper.override(parent, 'onClose', this._onCloseCb);
+    }
+
+    destroy() {
+        super.destroy();
+
+        Helper.unoverride(this.parent, 'onClose', this._onCloseCb);
+        this._onCloseCb = null;
     }
 
     /**
@@ -28,12 +39,13 @@ class Api extends BaseApi {
      * @api
      */
     _setActive(reqId, clientId, active) {
-        const region = Connections.toRegion(clientId);
+        const region =  Connections.toRegion(clientId);
         const server = this.parent;
         const con    = server.conns.getConnection(region);
 
         server.conns.setData(region, 'active', active);
         server.response(con.sock, TYPES.RES_ACTIVE_OK, reqId);
+        this._activateAll(region);
     }
 
     /**
@@ -64,6 +76,66 @@ class Api extends BaseApi {
             this.parent.request(backCon.sock, TYPES.RES_MOVE_ERR, x, y, dir, orgJson, `Region "${region}" on direction "${DIR_NAMES[dir]}" is not active`);
             Console.error(`Destination region ${region} is not active. Organism "${org.id}" will be sent back.`);
         }
+    }
+
+    /**
+     * This code passes active flag to clients around current.
+     * This is how our client knows, that client above for example
+     * is active and it may pass organism there, if it (organism)
+     * goes out of the world (borders). We have to update active
+     * state for current and nearest clients as well.
+     * @param {Array} activeRegion Region of activated client
+     */
+    _activateAll(activeRegion) {
+        const server    = this.parent;
+        const conns     = server.conns;
+        const sock      = server.conns.getConnection(activeRegion).sock;
+        const upSock    = conns.getConnection(conns.upRegion(activeRegion)).sock;
+        const rightSock = conns.getConnection(conns.rightRegion(activeRegion)).sock;
+        const downSock  = conns.getConnection(conns.downRegion(activeRegion)).sock;
+        const leftSock  = conns.getConnection(conns.leftRegion(activeRegion)).sock;
+        //
+        // We have to send activate message every nearest client to
+        // current lying on activeRegion
+        //
+        this._activateAround(activeRegion);
+        //
+        // We also should send current active client activation status of
+        // all nearest clients as well
+        //
+        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.DOWN,  !!downSock);
+        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.LEFT,  !!leftSock);
+        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.UP,    !!upSock);
+        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.RIGHT, !!rightSock);
+    }
+
+    /**
+     * Sends activate flag to all four nearest clients/Managers (up, right, down, left)
+     * @param {Array} region Activated or deactivated region
+     * @param {Boolean} activate Activation value
+     */
+    _activateAround(region, activate = true) {
+        const server    = this.parent;
+        const conns     = server.conns;
+        const upSock    = conns.getConnection(conns.upRegion(region)).sock;
+        const rightSock = conns.getConnection(conns.rightRegion(region)).sock;
+        const downSock  = conns.getConnection(conns.downRegion(region)).sock;
+        const leftSock  = conns.getConnection(conns.leftRegion(region)).sock;
+
+        upSock    && server.request(upSock,    TYPES.REQ_SET_NEAR_ACTIVE, DIR.DOWN,  activate);
+        rightSock && server.request(rightSock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.LEFT,  activate);
+        downSock  && server.request(downSock,  TYPES.REQ_SET_NEAR_ACTIVE, DIR.UP,    activate);
+        leftSock  && server.request(leftSock,  TYPES.REQ_SET_NEAR_ACTIVE, DIR.RIGHT, activate);
+    }
+
+    /**
+     * On connection close with one of the client we have to update active
+     * state for nearest clients/Managers
+     * @param {String} clientId Deactivated client id
+     * @private
+     */
+    _onClose(clientId) {
+        this._activateAround(Connections.toRegion(clientId), false);
     }
 }
 
