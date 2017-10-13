@@ -1,4 +1,4 @@
-describe("server/common/server/Server", () => {
+describe("server/src/server/Server", () => {
     const WebSocket = require('ws');
     const Server    = require('./../../../server/src/server/Server').Server;
     const EVENTS    = require('./../../../server/src/server/Server').EVENTS;

@@ -38,7 +38,6 @@ const Plugins     = require('./../../../common/src/global/Plugins');
 const Console     = require('./../global/Console');
 const Connections = require('./../server/Connections');
 
-
 const RUN      = 0;
 const STOP     = 1;
 const CONNECT  = 2;

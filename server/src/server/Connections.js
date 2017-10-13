@@ -1,5 +1,10 @@
 /**
- * Tracks connected clients at the moment. Is used on server side.
+ * Tracks connected clients/servers at the moment. Is used on server side.
+ * Consists of 2D squared array, which stores information about connections,
+ * active states of clients and so on...
+ * Every cell of this 2D array is an object with at least one required field:
+ * 'sock'. These cells are called regions. Regions has a coordinates X and Y.
+ * Region may be converted to unique ID and vise versa.
  *
  * @author flatline
  */
@@ -30,12 +35,15 @@ class Connections {
          * servers. So, result amount will be e.g.: 100 + 2 rows + 2 columns.
          */
         this._amount = amount;
-        this._side   = Math.sqrt(amount) + 2;
         /**
          * {Number} Size of one side of MAX_CONNECTIONS qub. Contains additional
          * "around" rows and columns. For qub == 16, it's 4.
          */
-        this.conns   = new Array(this._side);
+        this.conns   = new Array(amount);
+        /**
+         * {Number} Size of one full side of the connections squire
+         */
+        this._side   = Math.sqrt(amount) + 2;
 
         for (let col = 0, conns = this.conns; col < this._side; col++) {
             conns[col] = (new Array(this._side)).fill(null);
