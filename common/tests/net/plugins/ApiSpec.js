@@ -21,6 +21,7 @@ describe("common/src/net/plugins/Api", () => {
 
         parent.onMessage({}, '[' + REQ_TYPE + ',' + ((REQ_ID | MASKS.REQ_MASK) >>> 0) + ',"test"]');
         expect(val).toEqual('test');
+        expect(api.parent).toEqual(parent);
 
         api.destroy();
     });
