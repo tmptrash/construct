@@ -2,13 +2,13 @@
  * Base class of plugin for Client or Server classes, which implement their API. It separated
  * from Client/Server to have an ability to change API any time without changing server's/client's
  * code. You have to inherit your class from this one to have special API for client/ or server.
- * Also, you have to set API map (see this.API map) to bind request types and their handlers
+ * Also, you have to set API map (see this.api map) to bind request types and their handlers
  * together. For example:
  *
  *     class ServerApi extends Api {
  *         constructor() {
  *             super();
- *             this.API[TYPES.REQ_SET_ACTIVE] = this._setActive;
+ *             this.api[TYPES.REQ_SET_ACTIVE] = this._setActive;
  *             ...
  *         }
  *         _setActive() {
@@ -29,8 +29,7 @@ class Api {
          * is a map, which is used when client/server/server sends message
          * to server/client.
          */
-        this.API = {};
-
+        this.api          = {};
         this.parent       = parent;
         this._onMessageCb = this._onMessage.bind(this);
 
@@ -40,8 +39,8 @@ class Api {
     destroy() {
         Helper.unoverride(this.parent, 'onMessage', this._onMessageCb);
         this._onMessageCb = null;
-        this.parent      = null;
-        this.API          = null;
+        this.parent       = null;
+        this.api          = null;
     }
 
     /**
@@ -60,8 +59,8 @@ class Api {
         const type  = data[0];
 
         if (((reqId & MASKS.REQ_MASK) >>> 0) > 0) {
-            if (this.API[type]) {
-                this.API[type](...[reqId].concat(data.slice(2)));
+            if (this.api[type]) {
+                this.api[type](...[reqId].concat(data.slice(2)));
             } else {
                 this.parent.response(sock, TYPES.RES_INVALID_TYPE, reqId, `Invalid request type ${type}`);
             }

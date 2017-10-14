@@ -15,8 +15,8 @@ const BaseApi     = require('./../../../../common/src/net/plugins/Api');
 class Api extends BaseApi {
     constructor(parent) {
         super(parent);
-        this.API[TYPES.REQ_SET_ACTIVE] = this._setActive.bind(this);
-        this.API[TYPES.REQ_MOVE_ORG]   = this._moveOrg.bind(this);
+        this.api[TYPES.REQ_SET_ACTIVE] = this._setActive.bind(this);
+        this.api[TYPES.REQ_MOVE_ORG]   = this._moveOrg.bind(this);
 
         this._onCloseCb = this._onClose.bind(this);
 

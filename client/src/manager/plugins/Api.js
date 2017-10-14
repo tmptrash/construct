@@ -14,10 +14,10 @@ class Api extends BaseApi {
     constructor(client, manager) {
         super(client);
 
-        this.API[TYPES.REQ_GIVE_ID]         = this._giveId.bind(this);
-        this.API[TYPES.REQ_MOVE_ORG]        = this._moveOrg.bind(this);
-        this.API[TYPES.RES_MOVE_ERR]        = this._moveOrg.bind(this);
-        this.API[TYPES.REQ_SET_NEAR_ACTIVE] = this._setActive.bind(this);
+        this.api[TYPES.REQ_GIVE_ID]         = this._giveId.bind(this);
+        this.api[TYPES.REQ_MOVE_ORG]        = this._moveOrg.bind(this);
+        this.api[TYPES.RES_MOVE_ERR]        = this._moveOrg.bind(this);
+        this.api[TYPES.REQ_SET_NEAR_ACTIVE] = this._setActive.bind(this);
     }
 
     destroy() {
