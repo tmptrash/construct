@@ -28,7 +28,6 @@ class Client extends Connection {
         super(0);
         this._manager       = manager;
         this._client        = this._createWebSocket();
-        this._closed        = true;
         this._plugins       = new Plugins(this, PLUGINS);
         this._onMoveOutCb   = this._onMoveOut.bind(this);
         //
@@ -68,7 +67,6 @@ class Client extends Connection {
      */
     onClose(event) {
         super.onClose(event);
-        this._closed = true;
         Console.info(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
     }
 
@@ -84,7 +82,6 @@ class Client extends Connection {
     }
 
     _onOpen() {
-        this._closed = false;
         Console.info('Connection with Server has opened');
     }
 

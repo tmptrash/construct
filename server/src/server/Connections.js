@@ -8,6 +8,12 @@
  *
  * @author flatline
  */
+/**
+ * {String} Separator string, which separates id parts. Like
+ * 'X' + ID_SEPARATOR + 'X'
+ */
+const ID_SEPARATOR = '-';
+
 class Connections {
     /**
      * Converts region to unique id
@@ -15,16 +21,17 @@ class Connections {
      * @returns {Boolean|String}
      */
     static toId(region) {
-        return region !== null && region.join('-');
+        return region !== null && region.join(ID_SEPARATOR);
     }
 
     /**
-     * Converts client's id into client's region
+     * Converts client's id into client's region. Elements of
+     * the array(region) will have type Number.
      * @param {String} id Unique id of the client
-     * @returns {Array}
+     * @returns {Array} Array of numbers (region)
      */
     static toRegion(id) {
-        return id.split('-');
+        return id.split(ID_SEPARATOR).map(Number);
     }
 
     constructor(amount) {
