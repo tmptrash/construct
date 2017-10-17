@@ -143,20 +143,32 @@ export default class OrganismsDos extends Organisms {
     }
 
     _onStep(org, x1, y1, x2, y2, dir, ret) {
+        if (org.alive === false) {return}
         const man = this.manager;
+        //
+        // Organism has moved, but still within the current world (client)
+        //
+        if (dir === DIR.NO) {
+            ret.ret = +this.move(x1, y1, x2, y2, org);
+            return;
+        }
         //
         // Current organism try to move out of the world.
         // We have to pass him to the server to another
         // world (Manager). We determine this by checking
         // dir !== DIR.NO
         //
-        if (dir !== DIR.NO && man.activeAround[dir]) {
+        if (man.activeAround[dir]) {
             man.fire(EVENTS.STEP_OUT, x1, y1, x2, y2, dir, org);
             org.destroy();
+            return;
         }
-        else if (org.alive) {
-            ret.ret = +this.move(x1, y1, x2, y2, org);
-        }
+        //
+        // Organism try to go outside of the world, but there is no
+        // activated client on that side. So this is a border for him.
+        // In this case coordinates (x,y) should stay the same
+        //
+        ret.ret = +this.move(x1, y1, x1, y1, org);
     }
 
     /**

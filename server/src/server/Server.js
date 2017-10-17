@@ -212,7 +212,7 @@ class Server extends Connection {
         sock.removeAllListeners('error');
         sock.removeAllListeners('close');
         this.fire(EVENTS.CLOSE, sock, clientId, region);
-        Console.info(`Client ${clientId} has disconnected by reason: ${this.closeReason}`);
+        Console.warn(`Client ${clientId} has disconnected by reason: ${this.closeReason}`);
     }
 }
 

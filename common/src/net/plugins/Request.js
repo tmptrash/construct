@@ -19,6 +19,8 @@ class Request {
         /**
          * {Object} Contains requests map: key - request id, val -
          * response callback
+         * TODO: we have to check if connection has closed with socket
+         * TODO: and we have to remove "broken" requests ids from _requests
          */
         this._requests     = {};
         this._onRequestCb  = this._onRequest.bind(this);
@@ -34,7 +36,7 @@ class Request {
         const parent = this.parent;
         Helper.unoverride(parent, 'onMessage', this._onMessageCb);
         Helper.unoverride(parent, 'response', this._onResponseCb);
-        Helper.unoverride(parent, 'request', fthis._onRequestCb);
+        Helper.unoverride(parent, 'request', this._onRequestCb);
         this._onMessageCb  = null;
         this._onResponseCb = null;
         this._onRequestCb  = null;

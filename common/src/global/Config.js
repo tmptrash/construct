@@ -210,7 +210,8 @@ const Config = {
      * it's border, but still be inside. For example, if the world has 10x10
      * size and the organism has 10x5 position in it, one step right will move
      * this organism at the position 1x5. The same scenario regarding Y
-     * coordinate (height).
+     * coordinate (height). It actual only for one instance mode (no distributed
+     * calculations).
      */
     worldCyclical: true,
     /**

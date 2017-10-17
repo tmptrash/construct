@@ -29,10 +29,6 @@ import FitnessGarmin     from './../organism/FitnessGarmin';
 import OrganismDos       from './../organism/OrganismDos';
 import OrganismGarmin    from './../organism/OrganismGarmin';
 /**
- * {Boolean} Specify fitness or nature simulation mode
- */
-const FITNESS_MODE = Config.codeFitnessCls !== null;
-/**
  * {Object} Mapping of class names and their functions. We use this map
  * for switching between fitness and natural modes
  */
@@ -53,7 +49,11 @@ export default class Manager extends Observer {
      */
     onIteration() {}
 
-    constructor() {
+    /**
+     *
+     * @param {Object} plugins Manager's plugins
+     */
+    constructor(plugins) {
         super(EVENT_AMOUNT);
         this._world        = new World(Config.worldWidth, Config.worldHeight);
         this._canvas       = new Canvas(Config.worldWidth, Config.worldHeight);
@@ -83,7 +83,7 @@ export default class Manager extends Observer {
         // Plugins creation should be at the end of initialization to
         // have an ability access Manager's API from them
         //
-        this._plugins    = new Plugins(this, PLUGINS);
+        this._plugins    = new Plugins(this, plugins);
     }
     get world()        {return this._world}
     get canvas()       {return this._canvas}
@@ -108,6 +108,10 @@ export default class Manager extends Observer {
 
     setClientId(id) {
         this._clientId = id;
+    }
+
+    hasOtherClients() {
+        return this._activeAround.indexOf(true) !== -1;
     }
 
     destroy() {

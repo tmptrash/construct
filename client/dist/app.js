@@ -63,71 +63,11 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 15);
+/******/ 	return __webpack_require__(__webpack_require__.s = 21);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EVENTS", function() { return EVENTS; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EVENT_AMOUNT", function() { return EVENT_AMOUNT; });
-/**
- * List of all available event ids. New events should be added to
- * the end of the list. Last event id should be bigger then all other
- *
- * @author flatline
- * TODO: find unused and remove. But after main code is done.
- */
-const EVENTS = {
-    YIELD          : 0,
-    ITERATION      : 1,
-    IPS            : 2,
-    REQUEST        : 3,
-    BACKUP         : 4,
-    YIELDTO        : 5,
-    ORGANISM       : 6,
-    GRAB_ENERGY    : 7,
-    UPDATE_ENERGY  : 8,
-    KILL_ORGANISM  : 9,
-    MUTATIONS      : 10,
-    CLONE          : 11,
-    EAT            : 12,
-    STEP           : 13,
-    STEP_OUT       : 14,
-    STEP_IN        : 15,
-    EAT_ORGANISM   : 16,
-    EAT_ENERGY     : 17,
-    BORN_ORGANISM  : 18,
-    DOT_REQUEST    : 19,
-    STEP_YIELD     : 20,
-    BEFORE_RESPONSE: 21,
-    AFTER_REQUEST  : 22,
-    GET_ENERGY     : 23,
-    PROP_LEFT      : 24,
-    PROP_RIGHT     : 25,
-    PROP_UP        : 26,
-    PROP_DOWN      : 27,
-    DOT            : 28,
-    MOVE           : 29,
-    GRAB_LEFT      : 30,
-    GRAB_RIGHT     : 31,
-    GRAB_UP        : 32,
-    GRAB_DOWN      : 33,
-    DESTROY        : 34,
-    STOP           : 35,
-    RESET_CODE     : 36,
-    CHECK_AT       : 37
-};
-
-const EVENT_AMOUNT = Object.keys(EVENTS).length;
-
-
-
-/***/ }),
-/* 1 */
 /***/ (function(module, exports) {
 
 /**
@@ -1228,6 +1168,66 @@ module.exports = {Config, api};
 
 
 /***/ }),
+/* 1 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EVENTS", function() { return EVENTS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EVENT_AMOUNT", function() { return EVENT_AMOUNT; });
+/**
+ * List of all available event ids. New events should be added to
+ * the end of the list. Last event id should be bigger then all other
+ *
+ * @author flatline
+ * TODO: find unused and remove. But after main code is done.
+ */
+const EVENTS = {
+    YIELD          : 0,
+    ITERATION      : 1,
+    IPS            : 2,
+    REQUEST        : 3,
+    BACKUP         : 4,
+    YIELDTO        : 5,
+    ORGANISM       : 6,
+    GRAB_ENERGY    : 7,
+    UPDATE_ENERGY  : 8,
+    KILL_ORGANISM  : 9,
+    MUTATIONS      : 10,
+    CLONE          : 11,
+    EAT            : 12,
+    STEP           : 13,
+    STEP_OUT       : 14,
+    STEP_IN        : 15,
+    EAT_ORGANISM   : 16,
+    EAT_ENERGY     : 17,
+    BORN_ORGANISM  : 18,
+    DOT_REQUEST    : 19,
+    STEP_YIELD     : 20,
+    BEFORE_RESPONSE: 21,
+    AFTER_REQUEST  : 22,
+    GET_ENERGY     : 23,
+    PROP_LEFT      : 24,
+    PROP_RIGHT     : 25,
+    PROP_UP        : 26,
+    PROP_DOWN      : 27,
+    DOT            : 28,
+    MOVE           : 29,
+    GRAB_LEFT      : 30,
+    GRAB_RIGHT     : 31,
+    GRAB_UP        : 32,
+    GRAB_DOWN      : 33,
+    DESTROY        : 34,
+    STOP           : 35,
+    RESET_CODE     : 36,
+    CHECK_AT       : 37
+};
+
+const EVENT_AMOUNT = Object.keys(EVENTS).length;
+
+
+
+/***/ }),
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1236,8 +1236,8 @@ module.exports = {Config, api};
  *
  * @author flatline
  */
-const Config = __webpack_require__(1).Config;
-const DIR    = __webpack_require__(12).DIR;
+const Config = __webpack_require__(0).Config;
+const DIR    = __webpack_require__(11).DIR;
 
 class Helper {
     /**
@@ -1412,7 +1412,7 @@ module.exports = Helper;
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__);
 /**
  * Module for working with a browser console
@@ -1450,7 +1450,7 @@ class Console {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
 /**
  * Class - helper for working with with byte code numbers
@@ -1659,7 +1659,7 @@ module.exports = {TYPES: TYPES, MASKS: MASKS};
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base_Organism__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base_Organism__ = __webpack_require__(10);
 /**
  * TODO: add description:
  * TODO:   - events
@@ -1683,14 +1683,14 @@ class OrganismDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organism__["a" /* de
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__common_src_global_Queue__ = __webpack_require__(33);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__common_src_global_Queue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4__common_src_global_Queue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__organism_OrganismDos__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Backup__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__Backup__ = __webpack_require__(23);
 /**
  * Base class for OrganismsXXX plugins. Manages organisms. Makes
  * cloning, crossover, organisms comparison, killing and more...
@@ -1748,7 +1748,7 @@ class Organisms {
 
     /**
      * Is called after cloning of organism
-     * @param {Organism} org Parent organism
+     * @param {Organism} org Parent1 organism
      * @param {Organism} child Child organism
      * @abstract
      */
@@ -2013,271 +2013,6 @@ class Organisms {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Observer__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Observer___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__common_src_global_Observer__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Num__ = __webpack_require__(4);
-/**
- * Implements organism's code logic.
- * TODO: explain here code one number format,...
- *
- * @author flatline
- * TODO: may be this module is redundant
- * TODO: think about custom operators callbacks from outside. This is how
- * TODO: we may solve custom tasks
- */
-
-
-
-
-
-
-
-/**
- * {Number} Maximum stack size, which may be used for recursion or function parameters
- */
-const MAX_STACK_SIZE = 30000;
-
-class JSVM extends __WEBPACK_IMPORTED_MODULE_2__common_src_global_Observer___default.a {
-    /**
-     * Creates JSVM instance. codeEndCb will be called after last code line is run. classMap
-     * is a map of classes. We need only one - Operators class. We use this approach, because
-     * it's impossible to set class in a Config module. parent is used if JSVM instance is
-     * in a cloning mode and we have to create a copy of it.
-     * @param {Function} codeEndCb
-     * @param {Observer} obs Observer instance for Operators class
-     * @param {Array} classMap
-     * @param {JSVM} parent Parent JSVM instance in case of cloning
-     */
-    constructor(codeEndCb, obs, classMap, parent = null) {
-        super(__WEBPACK_IMPORTED_MODULE_3__global_Events__["EVENT_AMOUNT"]);
-
-        /**
-         * {Function} Callback, which is called on every organism
-         * jsvm iteration. On it's end.
-         */
-        this._onCodeEnd   = codeEndCb;
-        /**
-         * {Array} Array of two numbers. first - line number where we have
-         * to return if first line appears. second - line number, where ends
-         * closing block '}' of block operator (e.g. for, if,...).
-         */
-        this._offsets     = [];
-        this._vars        = parent && parent.vars && parent.vars.slice() || this._getVars();
-        /**
-         * {Function} Class, which implement all supported operators
-         */
-        this._operators   = new classMap[__WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].codeOperatorsCls](this._offsets, this._vars, obs);
-        this._code        = parent && parent.code.slice() || [];
-        this._line        = 0;
-        this._fitnessMode = __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].codeFitnessCls !== null;
-    }
-
-
-    get code()      {return this._code}
-    get size()      {return this._code.length}
-    get operators() {return this._operators};
-    get vars()      {return this._vars}
-    get offsets()   {return this._offsets}
-    get line()      {return this._line}
-
-    serialize() {
-        return {
-            offsets         : this._offsets,
-            vars            : this._vars.slice(),
-            // 'operators' field will be added after insertion
-            code            : this._code.slice(),
-            line            : this._line
-            // 'fitnessMode' field will be added after insertion
-        };
-    }
-
-    unserialize(json) {
-        this._offsets = json.offsets;
-        this._vars    = json.vars;
-        this._code    = json.code;
-        this._line    = json.line;
-    }
-
-    /**
-     * Walks through code lines (32bit numbers) one by one and runs associated
-     * with line type callback. These callbacks interpret one line of code like:
-     * condition, loop, function call etc...
-     * @param {Organism} org Current organism
-     */
-    run(org) {
-        let line  = this._line;
-        let code  = this._code;
-        let lines = code.length;
-        let len   = lines === 0 ? 0 : __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].codeYieldPeriod || lines;
-        let len2  = len;
-        let ops   = this._operators.operators;
-        let getOp = __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].getOperator;
-        let ret   = false;
-        let offs  = this._offsets;
-
-        while (len-- > 0 && org.alive) {
-            line = ops[getOp(code[line])](code[line], line, org, lines, ret);
-            //
-            // We found closing bracket '}' of some loop and have to return
-            // to the beginning of operator (e.g.: for)
-            //
-            if (ret = (offs.length > 0 && line === offs[offs.length - 1])) {
-                offs.pop();
-                line = offs.pop();
-                continue;
-            }
-            if (line >= lines) {
-                line = 0;
-                org.alive && (this._operators.offsets = (this._offsets = []));
-                if (this._onCodeEnd) {
-                    this._onCodeEnd(len2 - len);
-                }
-                break;
-            }
-        }
-
-        this._line = line;
-    }
-
-    destroy() {
-        this._operators.destroy && this._operators.destroy();
-        this._operators = null;
-        this._vars      = null;
-        this._code      = null;
-        this._onCodeEnd = null;
-        this.clear();
-    }
-
-    /**
-     * Does crossover between two parent byte codes. Takes second jsvm's code part
-     * (from start1 to end1 offset) and inserts it instead first jsvm code part (start...end).
-     * For example:
-     *   code1 : [1,2,3]
-     *   code2 : [4,5,6]
-     *   start : 1
-     *   end   : 2
-     *   start1: 0
-     *   end1  : 2
-     *   jsvm1.crossover(jsvm2) // [4,5,6] instead [2,3] ->, jsvm1 === [1,4,5,6]
-     *
-     * @param {JSVM} jsvm JSVM instance, from where we have to cut code part
-     * @returns {Number} Amount of changes in current (this) jsvm
-     */
-    crossover(jsvm) {
-        const rand    = __WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper___default.a.rand;
-        const len     = this._code.length;
-        const len1    = jsvm.code.length;
-        let   start   = rand(len);
-        let   end     = rand(len);
-        let   start1  = rand(len1);
-        let   end1    = rand(len1);
-        let   adds;
-
-        if (start > end) {[start, end] = [end, start]}
-        if (start1 > end1) {[start1, end1] = [end1, start1]}
-
-        adds = Math.abs(end1 - start1 - end + start);
-        if (this._fitnessMode && this._code.length + adds >= __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].codeMaxSize) {return 0}
-        this._code.splice.apply(this._code, [start, end - start + 1].concat(jsvm.code.slice(start1, end1 + 1)));
-        this._reset();
-
-        return adds;
-    }
-
-    /**
-     * Takes few lines from itself and makes a copy of them. After that inserts
-     * them before or after copied part. All positions are random
-     */
-    copyLines() {
-        const rand    = __WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper___default.a.rand;
-        const code    = this._code;
-        const codeLen = code.length;
-        const start   = rand(codeLen);
-        const end     = start + rand(codeLen - start);
-        //
-        // Because we use spread (...) operator stack size is important
-        // for amount of parameters and we shouldn't exceed it
-        //
-        if (end - start > MAX_STACK_SIZE) {
-            return;
-        }
-        //
-        // We may insert copied piece before "start" (0) or after "end" (1)
-        //
-        if (rand(2) === 0) {
-            code.splice(rand(start), 0, ...code.slice(start, end));
-            return;
-        }
-
-        code.splice(end + rand(codeLen - end + 1), 0, ...code.slice(start, end));
-    }
-
-    /**
-     * Inserts random generated number into the byte code at random position
-     */
-    insertLine() {
-        this._code.splice(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper___default.a.rand(this._code.length), 0, __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].get());
-        this._reset();
-    }
-
-    updateLine(index, number) {
-        this._code[index] = number;
-        this._reset();
-    }
-
-    /**
-     * Removes random generated number into byte jsvm at random position
-     */
-    removeLine() {
-        this._code.splice(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper___default.a.rand(this._code.length), 1);
-        this._reset();
-    }
-
-    getLine(index) {
-        return this._code[index];
-    }
-
-    _reset() {
-        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["EVENTS"].RESET_CODE);
-        this._line    = 0;
-        this._operators.offsets = (this._offsets = []);
-    }
-
-    /**
-     * Generates default variables jsvm. It should be in ES5 version, because
-     * speed is important. Amount of vars depends on Config.codeBitsPerVar config.
-     * @returns {Array} vars jsvm
-     * @private
-     */
-    _getVars() {
-        if (this._vars && this._vars.length > 0) {return this._vars}
-
-        const len    = Math.pow(2, __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].codeBitsPerVar);
-        let   vars   = new Array(len);
-        const range  = __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].codeVarInitRange;
-        const range2 = range / 2;
-        const rand   = __WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper___default.a.rand;
-
-        for (let i = 0; i < len; i++) {
-            vars[i] = rand(range) - range2;
-        }
-
-        return (this._vars = vars);
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = JSVM;
-
-
-/***/ }),
-/* 10 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
 /**
  * This file contains interface for available operators for some special
  * task. You have to inherit your operators class from this one.
@@ -2324,18 +2059,18 @@ class Operators {
 
 
 /***/ }),
-/* 11 */
+/* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__common_src_global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__common_src_global_Helper__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__JSVM__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__JSVM__ = __webpack_require__(27);
 /**
  * Base class for organism
  * TODO: add description:
@@ -2406,6 +2141,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__
     get y()                     {return this._y}
     get alive()                 {return this._alive}
     get item()                  {return this._item}
+    get iterations()            {return this._iterations}
     get changes()               {return this._changes}
     get mutationProbs()         {return this._mutationProbs}
     get mutationPeriod()        {return this._mutationPeriod}
@@ -2587,7 +2323,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__
 
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ (function(module, exports) {
 
 /**
@@ -2614,7 +2350,7 @@ const DIR_NAMES = {
 module.exports = {DIR: DIR, NAMES: DIR_NAMES};
 
 /***/ }),
-/* 13 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -2679,36 +2415,27 @@ class Plugins {
 module.exports = Plugins;
 
 /***/ }),
-/* 14 */
+/* 13 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Plugins__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Plugins__ = __webpack_require__(12);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Plugins___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__common_src_global_Plugins__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__global_Console__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__visual_World__ = __webpack_require__(32);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__visual_Canvas__ = __webpack_require__(31);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__client_src_manager_plugins_Client__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__client_src_manager_plugins_Client___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7__client_src_manager_plugins_Client__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__plugins_OrganismsGarmin__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__plugins_OrganismsDos__ = __webpack_require__(22);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__plugins_Config__ = __webpack_require__(19);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__plugins_Mutator__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__plugins_Energy__ = __webpack_require__(20);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__plugins_Status__ = __webpack_require__(24);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__organism_OperatorsDos__ = __webpack_require__(28);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__organism_OperatorsGarmin__ = __webpack_require__(29);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__organism_Code2StringDos__ = __webpack_require__(25);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__organism_Code2StringGarmin__ = __webpack_require__(26);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__organism_FitnessGarmin__ = __webpack_require__(27);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__organism_OrganismDos__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__organism_OrganismGarmin__ = __webpack_require__(30);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__organism_JSVM__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__organism_OperatorsDos__ = __webpack_require__(28);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__organism_OperatorsGarmin__ = __webpack_require__(29);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__organism_Code2StringDos__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__organism_Code2StringGarmin__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__organism_FitnessGarmin__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__organism_OrganismDos__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__organism_OrganismGarmin__ = __webpack_require__(30);
 /**
  * Main manager class of application. Contains all parts of jevo.js app
  * like World, Connection, Console etc... Runs infinite loop inside run()
@@ -2739,42 +2466,18 @@ module.exports = Plugins;
 
 
 
-
-
-
-
-
-
-
-
-
-/**
- * {Boolean} Specify fitness or nature simulation mode
- */
-const FITNESS_MODE = __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].codeFitnessCls !== null;
 /**
  * {Object} Mapping of class names and their functions. We use this map
  * for switching between fitness and natural modes
  */
 const CLASS_MAP = {
-    OperatorsDos     : __WEBPACK_IMPORTED_MODULE_14__organism_OperatorsDos__["a" /* default */],
-    OperatorsGarmin  : __WEBPACK_IMPORTED_MODULE_15__organism_OperatorsGarmin__["a" /* default */],
-    Code2StringDos   : __WEBPACK_IMPORTED_MODULE_16__organism_Code2StringDos__["a" /* default */],
-    Code2StringGarmin: __WEBPACK_IMPORTED_MODULE_17__organism_Code2StringGarmin__["a" /* default */],
-    FitnessGarmin    : __WEBPACK_IMPORTED_MODULE_18__organism_FitnessGarmin__["a" /* default */],
-    OrganismDos      : __WEBPACK_IMPORTED_MODULE_19__organism_OrganismDos__["a" /* default */],
-    OrganismGarmin   : __WEBPACK_IMPORTED_MODULE_20__organism_OrganismGarmin__["a" /* default */]
-};
-/**
- * {Array} Plugins for Manager
- */
-const PLUGINS = {
-    Organisms: FITNESS_MODE ? __WEBPACK_IMPORTED_MODULE_8__plugins_OrganismsGarmin__["a" /* default */] : __WEBPACK_IMPORTED_MODULE_9__plugins_OrganismsDos__["a" /* default */],
-    Config   : __WEBPACK_IMPORTED_MODULE_10__plugins_Config__["a" /* default */],
-    Mutator  : __WEBPACK_IMPORTED_MODULE_11__plugins_Mutator__["a" /* default */],
-    Energy   : __WEBPACK_IMPORTED_MODULE_12__plugins_Energy__["a" /* default */],
-    Status   : __WEBPACK_IMPORTED_MODULE_13__plugins_Status__["a" /* default */],
-    Client   : __WEBPACK_IMPORTED_MODULE_7__client_src_manager_plugins_Client___default.a
+    OperatorsDos     : __WEBPACK_IMPORTED_MODULE_7__organism_OperatorsDos__["a" /* default */],
+    OperatorsGarmin  : __WEBPACK_IMPORTED_MODULE_8__organism_OperatorsGarmin__["a" /* default */],
+    Code2StringDos   : __WEBPACK_IMPORTED_MODULE_9__organism_Code2StringDos__["a" /* default */],
+    Code2StringGarmin: __WEBPACK_IMPORTED_MODULE_10__organism_Code2StringGarmin__["a" /* default */],
+    FitnessGarmin    : __WEBPACK_IMPORTED_MODULE_11__organism_FitnessGarmin__["a" /* default */],
+    OrganismDos      : __WEBPACK_IMPORTED_MODULE_12__organism_OrganismDos__["a" /* default */],
+    OrganismGarmin   : __WEBPACK_IMPORTED_MODULE_13__organism_OrganismGarmin__["a" /* default */]
 };
 
 class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___default.a {
@@ -2784,7 +2487,11 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
      */
     onIteration() {}
 
-    constructor() {
+    /**
+     *
+     * @param {Object} plugins Manager's plugins
+     */
+    constructor(plugins) {
         super(__WEBPACK_IMPORTED_MODULE_3__global_Events__["EVENT_AMOUNT"]);
         this._world        = new __WEBPACK_IMPORTED_MODULE_5__visual_World__["a" /* default */](__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldWidth, __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldHeight);
         this._canvas       = new __WEBPACK_IMPORTED_MODULE_6__visual_Canvas__["a" /* default */](__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldWidth, __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldHeight);
@@ -2814,7 +2521,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
         // Plugins creation should be at the end of initialization to
         // have an ability access Manager's API from them
         //
-        this._plugins    = new __WEBPACK_IMPORTED_MODULE_2__common_src_global_Plugins___default.a(this, PLUGINS);
+        this._plugins    = new __WEBPACK_IMPORTED_MODULE_2__common_src_global_Plugins___default.a(this, plugins);
     }
     get world()        {return this._world}
     get canvas()       {return this._canvas}
@@ -2925,218 +2632,7 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
 
 
 /***/ }),
-/* 15 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_Manager__ = __webpack_require__(14);
-/**
- * This is an entry point of jevo.js application. Compiled version of
- * this file should be included into index.html
- *
- * Usage:
- *   <script src="./app.js"></script>
- *
- * @author flatline
- */
-
-
-const manager = new __WEBPACK_IMPORTED_MODULE_0__manager_Manager__["a" /* default */]();
-//
-// manager.run() method will be called after attempt of connection
-// to the jevo.js server
-//
-window.man = manager;
-
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Plugin for a Client class, which provides API of client for the server. The
- * same like Api class plugin for the Server class (see server/src/server/plugins/Api).
- *
- * @author flatline
- */
-const TYPES   = __webpack_require__(6).TYPES;
-const BaseApi = __webpack_require__(35);
-const Helper  = __webpack_require__(2);
-const EVENTS  = __webpack_require__(0).EVENTS;
-const Console = __webpack_require__(3).default;
-
-class Api extends BaseApi {
-    constructor(client, manager) {
-        super(client);
-
-        this.API[TYPES.REQ_GIVE_ID]         = this._giveId.bind(this);
-        this.API[TYPES.REQ_MOVE_ORG]        = this._moveOrg.bind(this);
-        this.API[TYPES.RES_MOVE_ERR]        = this._moveOrg.bind(this);
-        this.API[TYPES.REQ_SET_NEAR_ACTIVE] = this._setActive.bind(this);
-    }
-
-    destroy() {
-        super.destroy();
-    }
-
-    /**
-     * Handler of request from server, where it passes us unique client
-     * id. We have to save this id and pass it with every request. This
-     * is how server will differentiate us from other clients.
-     * @param {Number} reqId Unique request id. Unused for this request
-     * @param {String} clientId Unique id of current client obtained from
-     * the server
-     * @api
-     */
-    _giveId(reqId, clientId) {
-        this.parent.manager.setClientId(clientId);
-        Console.info(`Client id "${clientId}" obtained from the server`);
-        this._request(TYPES.REQ_SET_ACTIVE, true, (type) => {
-            if (type === TYPES.RES_ACTIVE_OK) {
-                this.parent.manager.run();
-            }
-        });
-    }
-
-    /**
-     * Is called if organism is move in from other Manager (world)
-     * @param {String} reqId Unique request id
-     * @param {Number} x Current org X position
-     * @param {Number} y Current org Y position
-     * @param {Number} dir Moving direction
-     * @param {String} orgJson Organism's serialized json
-     * @param {String|null} errMsg Error message
-     * @api
-     */
-    _moveOrg(reqId, x, y, dir, orgJson, errMsg = null) {
-        this.parent.manager.fire(EVENTS.STEP_IN, x, y, dir, orgJson);
-        errMsg && Console.warn(errMsg);
-    }
-
-    /**
-     * Is called to set active flag of nearest manager/client. After
-     * setting it to true, nearest client/Manager may pass it's organisms
-     * to the current client/Manager
-     * @param {String} reqId Unique request id
-     * @param {Number} dir Direction of nearest client/Manager
-     * @param {Boolean} active Active state of nearest client/Manager
-     * @api
-     */
-    _setActive(reqId, dir, active) {
-        this.parent.manager.activeAround[dir] = active;
-    }
-
-    _request(type, ...params) {
-        return this.parent.request(this.parent.socket, type, this.parent.manager.clientId, ...params);
-    }
-}
-
-module.exports = Api;
-
-/***/ }),
-/* 17 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(3);
-/**
- * Manager's plugin, which creates backups according to population age.
- *
- * Depends on:
- *   manager/plugins/Organisms
- *
- * @author flatline
- */
-
-
-
-
-class Backup {
-    constructor(orgs, world, positions) {
-        this.orgs      = orgs;
-        this._world     = world;
-        this._positions = positions;
-    }
-
-    destroy() {
-        this.orgs       = null;
-        this._world     = null;
-        this._positions = null;
-    }
-
-    backup() {
-        this._toLocalStorage(this._toJson(this.orgs, this._world));
-        __WEBPACK_IMPORTED_MODULE_2__global_Console__["default"].info('Backup has created');
-    }
-
-    _toJson(orgs, world) {
-        return {
-            orgs  : this._getOrgs(orgs),
-            energy: this._getEnergy(world)
-        };
-    }
-
-    _getOrgs(orgs) {
-        let cur  = orgs.first;
-        let json = [];
-
-        while (cur) {
-            let org = cur.val;
-            json.push({
-                id                  : org.id,
-                x                   : org.x,
-                y                   : org.y,
-                mutationProbs       : org.mutationProbs,
-                cloneMutationPercent: org.cloneMutationPercent,
-                mutationPeriod      : org.mutationPeriod,
-                mutationPercent     : org.mutationPercent,
-                color               : org.color,
-                vars                : org.jsvm.vars,
-                code                : org.jsvm.cloneByteCode()
-            });
-            cur = cur.next;
-        }
-
-        return json;
-    }
-
-    _getEnergy(world) {
-        let dot;
-        let positions = this._positions;
-        let posId     = __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper___default.a.posId;
-        let energy    = [];
-
-        for (let x = 0; x < __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldWidth; x++) {
-            for (let y = 0; y < __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldHeight; y++) {
-                dot = world.getDot(x, y);
-                if (dot > 0 && positions[posId(x, y)] !== null) {
-                    energy.push(x, y);
-                }
-            }
-        }
-
-        return energy;
-    }
-
-    _toLocalStorage(json) {
-        // TODO: add other organism related properties saving
-        // TODO: add removing of old backups
-//        localStorage[`jjs-${Date.now()}`] = JSON.stringify({
-//            world: this.manager.world.data,
-//            orgs : this._getOrgsByteCode(orgs)
-//        });
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = Backup;
-
-
-/***/ }),
-/* 18 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -3150,14 +2646,14 @@ class Backup {
  * @author flatline
  */
 const Helper     = __webpack_require__(2);
-const Config     = __webpack_require__(1).Config;
+const Config     = __webpack_require__(0).Config;
 const TYPES      = __webpack_require__(6).TYPES;
 const Request    = __webpack_require__(36);
-const Api        = __webpack_require__(16);
+const Api        = __webpack_require__(22);
 const Console    = __webpack_require__(3).default;
 const Connection = __webpack_require__(34);
-const Plugins    = __webpack_require__(13);
-const EVENTS     = __webpack_require__(0).EVENTS;
+const Plugins    = __webpack_require__(12);
+const EVENTS     = __webpack_require__(1).EVENTS;
 
 const PLUGINS = {
     Request: Request,
@@ -3169,7 +2665,6 @@ class Client extends Connection {
         super(0);
         this._manager       = manager;
         this._client        = this._createWebSocket();
-        this._closed        = true;
         this._plugins       = new Plugins(this, PLUGINS);
         this._onMoveOutCb   = this._onMoveOut.bind(this);
         //
@@ -3209,7 +2704,6 @@ class Client extends Connection {
      */
     onClose(event) {
         super.onClose(event);
-        this._closed = true;
         Console.info(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
     }
 
@@ -3225,7 +2719,6 @@ class Client extends Connection {
     }
 
     _onOpen() {
-        this._closed = false;
         Console.info('Connection with Server has opened');
     }
 
@@ -3237,11 +2730,11 @@ class Client extends Connection {
 module.exports = Client;
 
 /***/ }),
-/* 19 */
+/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__);
 /**
  * Plugin for adding getter and setter to Manager's API
@@ -3260,13 +2753,13 @@ class Config {
 
 
 /***/ }),
-/* 20 */
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(3);
 /**
@@ -3341,12 +2834,12 @@ class Energy {
 
 
 /***/ }),
-/* 21 */
+/* 17 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper__);
@@ -3488,15 +2981,15 @@ class Mutator {
 
 
 /***/ }),
-/* 22 */
+/* 18 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base_Organisms__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Events__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions__);
 /**
  * Plugin for Manager module, which handles organisms population in
@@ -3689,14 +3182,14 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
 
 
 /***/ }),
-/* 23 */
+/* 19 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Console__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__organism_OrganismDos__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__base_Organisms__ = __webpack_require__(8);
 /**
@@ -3770,12 +3263,12 @@ class OrganismsGarmin extends __WEBPACK_IMPORTED_MODULE_4__base_Organisms__["a" 
 
 
 /***/ }),
-/* 24 */
+/* 20 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
 /**
  * Shows console status of application
@@ -3878,7 +3371,250 @@ class Status {
 
 
 /***/ }),
-/* 25 */
+/* 21 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__manager_Manager__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__client_src_manager_plugins_Client__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__client_src_manager_plugins_Client___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__client_src_manager_plugins_Client__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__src_manager_plugins_OrganismsGarmin__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__src_manager_plugins_OrganismsDos__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__src_manager_plugins_Config__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__src_manager_plugins_Mutator__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__src_manager_plugins_Energy__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__src_manager_plugins_Status__ = __webpack_require__(20);
+/**
+ * This is an entry point of jevo.js application. Compiled version of
+ * this file should be included into index.html
+ *
+ * Usage:
+ *   <script src="./app.js"></script>
+ *
+ * @author flatline
+ */
+
+
+
+
+
+
+
+
+
+/**
+ * {Boolean} Specify fitness or nature simulation mode
+ */
+const FITNESS_MODE = __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].codeFitnessCls !== null;
+/**
+ * {Array} Plugins for Manager
+ */
+const PLUGINS = {
+    Organisms: FITNESS_MODE ? __WEBPACK_IMPORTED_MODULE_3__src_manager_plugins_OrganismsGarmin__["a" /* default */] : __WEBPACK_IMPORTED_MODULE_4__src_manager_plugins_OrganismsDos__["a" /* default */],
+    Config   : __WEBPACK_IMPORTED_MODULE_5__src_manager_plugins_Config__["a" /* default */],
+    Mutator  : __WEBPACK_IMPORTED_MODULE_6__src_manager_plugins_Mutator__["a" /* default */],
+    Energy   : __WEBPACK_IMPORTED_MODULE_7__src_manager_plugins_Energy__["a" /* default */],
+    Status   : __WEBPACK_IMPORTED_MODULE_8__src_manager_plugins_Status__["a" /* default */],
+    Client   : __WEBPACK_IMPORTED_MODULE_2__client_src_manager_plugins_Client___default.a
+};
+const manager = new __WEBPACK_IMPORTED_MODULE_0__manager_Manager__["a" /* default */](PLUGINS);
+//
+// manager.run() method will be called after attempt of connection
+// to the jevo.js server
+//
+window.man = manager;
+
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Plugin for a Client class, which provides API of client for the server. The
+ * same like Api class plugin for the Server class (see server/src/server/plugins/Api).
+ *
+ * @author flatline
+ */
+const TYPES   = __webpack_require__(6).TYPES;
+const BaseApi = __webpack_require__(35);
+const Helper  = __webpack_require__(2);
+const EVENTS  = __webpack_require__(1).EVENTS;
+const Console = __webpack_require__(3).default;
+
+class Api extends BaseApi {
+    constructor(client, manager) {
+        super(client);
+
+        this.api[TYPES.REQ_GIVE_ID]         = this._giveId.bind(this);
+        this.api[TYPES.REQ_MOVE_ORG]        = this._moveOrg.bind(this);
+        this.api[TYPES.RES_MOVE_ERR]        = this._moveOrg.bind(this);
+        this.api[TYPES.REQ_SET_NEAR_ACTIVE] = this._setActive.bind(this);
+    }
+
+    destroy() {
+        super.destroy();
+    }
+
+    /**
+     * Handler of request from server, where it passes us unique client
+     * id. We have to save this id and pass it with every request. This
+     * is how server will differentiate us from other clients.
+     * @param {Number} reqId Unique request id. Unused for this request
+     * @param {String} clientId Unique id of current client obtained from
+     * the server
+     * @api
+     */
+    _giveId(reqId, clientId) {
+        this.parent.manager.setClientId(clientId);
+        Console.info(`Client id "${clientId}" obtained from the server`);
+        this._request(TYPES.REQ_SET_ACTIVE, true, (type) => {
+            if (type === TYPES.RES_ACTIVE_OK) {
+                this.parent.manager.run();
+            }
+        });
+    }
+
+    /**
+     * Is called if organism is move in from other Manager (world)
+     * @param {String} reqId Unique request id
+     * @param {Number} x Current org X position
+     * @param {Number} y Current org Y position
+     * @param {Number} dir Moving direction
+     * @param {String} orgJson Organism's serialized json
+     * @param {String|null} errMsg Error message
+     * @api
+     */
+    _moveOrg(reqId, x, y, dir, orgJson, errMsg = null) {
+        this.parent.manager.fire(EVENTS.STEP_IN, x, y, dir, orgJson);
+        errMsg && Console.warn(errMsg);
+    }
+
+    /**
+     * Is called to set active flag of nearest manager/client. After
+     * setting it to true, nearest client/Manager may pass it's organisms
+     * to the current client/Manager
+     * @param {String} reqId Unique request id
+     * @param {Number} dir Direction of nearest client/Manager
+     * @param {Boolean} active Active state of nearest client/Manager
+     * @api
+     */
+    _setActive(reqId, dir, active) {
+        this.parent.manager.activeAround[dir] = active;
+    }
+
+    _request(type, ...params) {
+        return this.parent.request(this.parent.socket, type, this.parent.manager.clientId, ...params);
+    }
+}
+
+module.exports = Api;
+
+/***/ }),
+/* 23 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Console__ = __webpack_require__(3);
+/**
+ * Manager's plugin, which creates backups according to population age.
+ *
+ * Depends on:
+ *   manager/plugins/Organisms
+ *
+ * @author flatline
+ */
+
+
+
+
+class Backup {
+    constructor(orgs, world, positions) {
+        this.orgs      = orgs;
+        this._world     = world;
+        this._positions = positions;
+    }
+
+    destroy() {
+        this.orgs       = null;
+        this._world     = null;
+        this._positions = null;
+    }
+
+    backup() {
+        this._toLocalStorage(this._toJson(this.orgs, this._world));
+        __WEBPACK_IMPORTED_MODULE_2__global_Console__["default"].info('Backup has created');
+    }
+
+    _toJson(orgs, world) {
+        return {
+            orgs  : this._getOrgs(orgs),
+            energy: this._getEnergy(world)
+        };
+    }
+
+    _getOrgs(orgs) {
+        let cur  = orgs.first;
+        let json = [];
+
+        while (cur) {
+            let org = cur.val;
+            json.push({
+                id                  : org.id,
+                x                   : org.x,
+                y                   : org.y,
+                mutationProbs       : org.mutationProbs,
+                cloneMutationPercent: org.cloneMutationPercent,
+                mutationPeriod      : org.mutationPeriod,
+                mutationPercent     : org.mutationPercent,
+                color               : org.color,
+                vars                : org.jsvm.vars,
+                code                : org.jsvm.cloneByteCode()
+            });
+            cur = cur.next;
+        }
+
+        return json;
+    }
+
+    _getEnergy(world) {
+        let dot;
+        let positions = this._positions;
+        let posId     = __WEBPACK_IMPORTED_MODULE_0__common_src_global_Helper___default.a.posId;
+        let energy    = [];
+
+        for (let x = 0; x < __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldWidth; x++) {
+            for (let y = 0; y < __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldHeight; y++) {
+                dot = world.getDot(x, y);
+                if (dot > 0 && positions[posId(x, y)] !== null) {
+                    energy.push(x, y);
+                }
+            }
+        }
+
+        return energy;
+    }
+
+    _toLocalStorage(json) {
+        // TODO: add other organism related properties saving
+        // TODO: add removing of old backups
+//        localStorage[`jjs-${Date.now()}`] = JSON.stringify({
+//            world: this.manager.world.data,
+//            orgs : this._getOrgsByteCode(orgs)
+//        });
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = Backup;
+
+
+/***/ }),
+/* 24 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4154,7 +3890,7 @@ class Code2StringDos {
 
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4311,7 +4047,7 @@ class Code2StringGarmin {
 
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6313,16 +6049,281 @@ class FitnessGarmin {
 
 
 /***/ }),
+/* 27 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Observer__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Observer___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__common_src_global_Observer__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__global_Events__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Num__ = __webpack_require__(4);
+/**
+ * Implements organism's code logic.
+ * TODO: explain here code one number format,...
+ *
+ * @author flatline
+ * TODO: may be this module is redundant
+ * TODO: think about custom operators callbacks from outside. This is how
+ * TODO: we may solve custom tasks
+ */
+
+
+
+
+
+
+
+/**
+ * {Number} Maximum stack size, which may be used for recursion or function parameters
+ */
+const MAX_STACK_SIZE = 30000;
+
+class JSVM extends __WEBPACK_IMPORTED_MODULE_2__common_src_global_Observer___default.a {
+    /**
+     * Creates JSVM instance. codeEndCb will be called after last code line is run. classMap
+     * is a map of classes. We need only one - Operators class. We use this approach, because
+     * it's impossible to set class in a Config module. parent is used if JSVM instance is
+     * in a cloning mode and we have to create a copy of it.
+     * @param {Function} codeEndCb
+     * @param {Observer} obs Observer instance for Operators class
+     * @param {Array} classMap
+     * @param {JSVM} parent Parent JSVM instance in case of cloning
+     */
+    constructor(codeEndCb, obs, classMap, parent = null) {
+        super(__WEBPACK_IMPORTED_MODULE_3__global_Events__["EVENT_AMOUNT"]);
+
+        /**
+         * {Function} Callback, which is called on every organism
+         * jsvm iteration. On it's end.
+         */
+        this._onCodeEnd   = codeEndCb;
+        /**
+         * {Array} Array of two numbers. first - line number where we have
+         * to return if first line appears. second - line number, where ends
+         * closing block '}' of block operator (e.g. for, if,...).
+         */
+        this._offsets     = [];
+        this._vars        = parent && parent.vars && parent.vars.slice() || this._getVars();
+        /**
+         * {Function} Class, which implement all supported operators
+         */
+        this._operators   = new classMap[__WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].codeOperatorsCls](this._offsets, this._vars, obs);
+        this._code        = parent && parent.code.slice() || [];
+        this._line        = 0;
+        this._fitnessMode = __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].codeFitnessCls !== null;
+    }
+
+
+    get code()      {return this._code}
+    get size()      {return this._code.length}
+    get operators() {return this._operators};
+    get vars()      {return this._vars}
+    get offsets()   {return this._offsets}
+    get line()      {return this._line}
+
+    serialize() {
+        return {
+            offsets         : this._offsets,
+            vars            : this._vars.slice(),
+            // 'operators' field will be added after insertion
+            code            : this._code.slice(),
+            line            : this._line
+            // 'fitnessMode' field will be added after insertion
+        };
+    }
+
+    unserialize(json) {
+        this._offsets = json.offsets;
+        this._vars    = json.vars;
+        this._code    = json.code;
+        this._line    = json.line;
+    }
+
+    /**
+     * Walks through code lines (32bit numbers) one by one and runs associated
+     * with line type callback. These callbacks interpret one line of code like:
+     * condition, loop, function call etc...
+     * @param {Organism} org Current organism
+     */
+    run(org) {
+        let line  = this._line;
+        let code  = this._code;
+        let lines = code.length;
+        let len   = lines === 0 ? 0 : __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].codeYieldPeriod || lines;
+        let len2  = len;
+        let ops   = this._operators.operators;
+        let getOp = __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].getOperator;
+        let ret   = false;
+        let offs  = this._offsets;
+
+        while (len-- > 0 && org.alive) {
+            line = ops[getOp(code[line])](code[line], line, org, lines, ret);
+            //
+            // We found closing bracket '}' of some loop and have to return
+            // to the beginning of operator (e.g.: for)
+            //
+            if (ret = (offs.length > 0 && line === offs[offs.length - 1])) {
+                offs.pop();
+                line = offs.pop();
+                continue;
+            }
+            if (line >= lines) {
+                line = 0;
+                org.alive && (this._operators.offsets = (this._offsets = []));
+                if (this._onCodeEnd) {
+                    this._onCodeEnd(len2 - len);
+                }
+                break;
+            }
+        }
+
+        this._line = line;
+    }
+
+    destroy() {
+        this._operators.destroy && this._operators.destroy();
+        this._operators = null;
+        this._vars      = null;
+        this._code      = null;
+        this._onCodeEnd = null;
+        this.clear();
+    }
+
+    /**
+     * Does crossover between two parent byte codes. Takes second jsvm's code part
+     * (from start1 to end1 offset) and inserts it instead first jsvm code part (start...end).
+     * For example:
+     *   code1 : [1,2,3]
+     *   code2 : [4,5,6]
+     *   start : 1
+     *   end   : 2
+     *   start1: 0
+     *   end1  : 2
+     *   jsvm1.crossover(jsvm2) // [4,5,6] instead [2,3] ->, jsvm1 === [1,4,5,6]
+     *
+     * @param {JSVM} jsvm JSVM instance, from where we have to cut code part
+     * @returns {Number} Amount of changes in current (this) jsvm
+     */
+    crossover(jsvm) {
+        const rand    = __WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper___default.a.rand;
+        const len     = this._code.length;
+        const len1    = jsvm.code.length;
+        let   start   = rand(len);
+        let   end     = rand(len);
+        let   start1  = rand(len1);
+        let   end1    = rand(len1);
+        let   adds;
+
+        if (start > end) {[start, end] = [end, start]}
+        if (start1 > end1) {[start1, end1] = [end1, start1]}
+
+        adds = Math.abs(end1 - start1 - end + start);
+        if (this._fitnessMode && this._code.length + adds >= __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].codeMaxSize) {return 0}
+        this._code.splice.apply(this._code, [start, end - start + 1].concat(jsvm.code.slice(start1, end1 + 1)));
+        this._reset();
+
+        return adds;
+    }
+
+    /**
+     * Takes few lines from itself and makes a copy of them. After that inserts
+     * them before or after copied part. All positions are random
+     */
+    copyLines() {
+        const rand    = __WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper___default.a.rand;
+        const code    = this._code;
+        const codeLen = code.length;
+        const start   = rand(codeLen);
+        const end     = start + rand(codeLen - start);
+        //
+        // Because we use spread (...) operator stack size is important
+        // for amount of parameters and we shouldn't exceed it
+        //
+        if (end - start > MAX_STACK_SIZE) {
+            return;
+        }
+        //
+        // We may insert copied piece before "start" (0) or after "end" (1)
+        //
+        if (rand(2) === 0) {
+            code.splice(rand(start), 0, ...code.slice(start, end));
+            return;
+        }
+
+        code.splice(end + rand(codeLen - end + 1), 0, ...code.slice(start, end));
+    }
+
+    /**
+     * Inserts random generated number into the byte code at random position
+     */
+    insertLine() {
+        this._code.splice(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper___default.a.rand(this._code.length), 0, __WEBPACK_IMPORTED_MODULE_4__Num__["a" /* default */].get());
+        this._reset();
+    }
+
+    updateLine(index, number) {
+        this._code[index] = number;
+        this._reset();
+    }
+
+    /**
+     * Removes random generated number into byte jsvm at random position
+     */
+    removeLine() {
+        this._code.splice(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper___default.a.rand(this._code.length), 1);
+        this._reset();
+    }
+
+    getLine(index) {
+        return this._code[index];
+    }
+
+    _reset() {
+        this.fire(__WEBPACK_IMPORTED_MODULE_3__global_Events__["EVENTS"].RESET_CODE);
+        this._line    = 0;
+        this._operators.offsets = (this._offsets = []);
+    }
+
+    /**
+     * Generates default variables jsvm. It should be in ES5 version, because
+     * speed is important. Amount of vars depends on Config.codeBitsPerVar config.
+     * @returns {Array} vars jsvm
+     * @private
+     */
+    _getVars() {
+        if (this._vars && this._vars.length > 0) {return this._vars}
+
+        const len    = Math.pow(2, __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].codeBitsPerVar);
+        let   vars   = new Array(len);
+        const range  = __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].codeVarInitRange;
+        const range2 = range / 2;
+        const rand   = __WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper___default.a.rand;
+
+        for (let i = 0; i < len; i++) {
+            vars[i] = rand(range) - range2;
+        }
+
+        return (this._vars = vars);
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = JSVM;
+
+
+/***/ }),
 /* 28 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__global_Events__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__base_Operators__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__base_Operators__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Num__ = __webpack_require__(4);
 /**
  * Digital Organisms Script - (DOS) is a simple language for JSVM.
@@ -6619,11 +6620,11 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__base_Operators__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__base_Operators__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Num__ = __webpack_require__(4);
 /**
  * This file contains all available operators implementation. For example:
@@ -6794,10 +6795,10 @@ class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a"
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base_Organism__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base_Organism__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(1);
 /**
  * TODO: add description:
  * TODO:   - events
@@ -6984,7 +6985,7 @@ class Canvas {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Helper__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(1);
 /**
  * 2D space, where all organisms are live. In reality this is
  * just a peace of memory, where all organisms are located. It
@@ -7314,13 +7315,13 @@ module.exports = Connection;
  * Base class of plugin for Client or Server classes, which implement their API. It separated
  * from Client/Server to have an ability to change API any time without changing server's/client's
  * code. You have to inherit your class from this one to have special API for client/ or server.
- * Also, you have to set API map (see this.API map) to bind request types and their handlers
+ * Also, you have to set API map (see this.api map) to bind request types and their handlers
  * together. For example:
  *
  *     class ServerApi extends Api {
  *         constructor() {
  *             super();
- *             this.API[TYPES.REQ_SET_ACTIVE] = this._setActive;
+ *             this.api[TYPES.REQ_SET_ACTIVE] = this._setActive;
  *             ...
  *         }
  *         _setActive() {
@@ -7341,8 +7342,7 @@ class Api {
          * is a map, which is used when client/server/server sends message
          * to server/client.
          */
-        this.API = {};
-
+        this.api          = {};
         this.parent       = parent;
         this._onMessageCb = this._onMessage.bind(this);
 
@@ -7352,8 +7352,8 @@ class Api {
     destroy() {
         Helper.unoverride(this.parent, 'onMessage', this._onMessageCb);
         this._onMessageCb = null;
-        this.parent      = null;
-        this.API          = null;
+        this.parent       = null;
+        this.api          = null;
     }
 
     /**
@@ -7372,8 +7372,8 @@ class Api {
         const type  = data[0];
 
         if (((reqId & MASKS.REQ_MASK) >>> 0) > 0) {
-            if (this.API[type]) {
-                this.API[type](...[reqId].concat(data.slice(2)));
+            if (this.api[type]) {
+                this.api[type](...[reqId].concat(data.slice(2)));
             } else {
                 this.parent.response(sock, TYPES.RES_INVALID_TYPE, reqId, `Invalid request type ${type}`);
             }
@@ -7408,6 +7408,8 @@ class Request {
         /**
          * {Object} Contains requests map: key - request id, val -
          * response callback
+         * TODO: we have to check if connection has closed with socket
+         * TODO: and we have to remove "broken" requests ids from _requests
          */
         this._requests     = {};
         this._onRequestCb  = this._onRequest.bind(this);
@@ -7423,7 +7425,7 @@ class Request {
         const parent = this.parent;
         Helper.unoverride(parent, 'onMessage', this._onMessageCb);
         Helper.unoverride(parent, 'response', this._onResponseCb);
-        Helper.unoverride(parent, 'request', fthis._onRequestCb);
+        Helper.unoverride(parent, 'request', this._onRequestCb);
         this._onMessageCb  = null;
         this._onResponseCb = null;
         this._onRequestCb  = null;

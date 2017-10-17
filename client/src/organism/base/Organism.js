@@ -137,8 +137,7 @@ export default class Organism extends Observer {
      * @param {String} str JSON string
      */
     unserialize(str) {
-        const jsvm = this.jsvm;
-        let   json = JSON.parse(str);
+        const json = JSON.parse(str);
 
         // 'id' will be added after insertion
         this._x                    = json.x;

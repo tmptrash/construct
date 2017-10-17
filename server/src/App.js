@@ -14,5 +14,7 @@ const PLUGINS = {
 };
 
 // TODO: port should be obtained from command line parameter
+// TODO: max connections should be obtained from cmd line parameter
+// TODO: Or, maybe these parameter will be obtained from Admin server
 const server = new Server(8099, PLUGINS);
 server.run();

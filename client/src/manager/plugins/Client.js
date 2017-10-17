@@ -67,7 +67,7 @@ class Client extends Connection {
      */
     onClose(event) {
         super.onClose(event);
-        Console.info(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
+        Console.warn(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
     }
 
     _createWebSocket() {
