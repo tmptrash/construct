@@ -51,9 +51,7 @@ export default class JSVM extends Observer {
         this._operators   = new classMap[Config.codeOperatorsCls](this._offsets, this._vars, obs);
         this._code        = parent && parent.code.slice() || [];
         this._line        = 0;
-        this._fitnessMode = Config.codeFitnessCls !== null;
     }
-
 
     get code()      {return this._code}
     get size()      {return this._code.length}
@@ -69,7 +67,6 @@ export default class JSVM extends Observer {
             // 'operators' field will be added after insertion
             code            : this._code.slice(),
             line            : this._line
-            // 'fitnessMode' field will be added after insertion
         };
     }
 
@@ -159,7 +156,7 @@ export default class JSVM extends Observer {
         if (start1 > end1) {[start1, end1] = [end1, start1]}
 
         adds = Math.abs(end1 - start1 - end + start);
-        if (this._fitnessMode && this._code.length + adds >= Config.codeMaxSize) {return 0}
+        if (this._code.length + adds >= Config.codeMaxSize) {return 0}
         this._code.splice.apply(this._code, [start, end - start + 1].concat(jsvm.code.slice(start1, end1 + 1)));
         this._reset();
 

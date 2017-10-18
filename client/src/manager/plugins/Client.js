@@ -26,23 +26,15 @@ const PLUGINS = {
 class Client extends Connection {
     constructor(manager) {
         super(0);
-        this._manager       = manager;
-        this._client        = this._createWebSocket();
-        this._plugins       = new Plugins(this, PLUGINS);
-        this._onMoveOutCb   = this._onMoveOut.bind(this);
-        //
-        // Client has no connection with server, so we have to start in
-        // "separate instance" mode.
-        //
-        if (this._client === null || this._client.readyState === WebSocket.CLOSING || this._client.readyState === WebSocket.CLOSED) {
-            this._manager.run();
-            return;
-        }
-        manager.on(EVENTS.STEP_OUT, this._onMoveOutCb);
-        this._client.onopen    = this._onOpen.bind(this);
-        this._client.onmessage = this.onMessage.bind(this, this._client);
-        this._client.onerror   = this.onError.bind(this);
-        this._client.onclose   = this.onClose.bind(this);
+        this._manager        = manager;
+        this._closed         = true;
+        this._client         = this._createWebSocket();
+        this._plugins        = new Plugins(this, PLUGINS);
+        this._onMoveOutCb    = this._onMoveOut.bind(this);
+
+        this._client.onerror = this.onError.bind(this);
+        this._client.onclose = this.onClose.bind(this);
+        this._client.onopen  = this._onOpen.bind(this);
     }
 
     get manager() {return this._manager}
@@ -66,7 +58,16 @@ class Client extends Connection {
      * @param {Event} event
      */
     onClose(event) {
+        const client = this._client;
         super.onClose(event);
+        //
+        // Client has no connection with server, so we have to start in
+        // "separate instance" mode.
+        //
+        if (this._closed && client === null || client.readyState === WebSocket.CLOSING || client.readyState === WebSocket.CLOSED) {
+            this._manager.run();
+        }
+        this._closed = true;
         Console.warn(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
     }
 
@@ -82,11 +83,16 @@ class Client extends Connection {
     }
 
     _onOpen() {
+        const client = this._client;
+
+        this._closed = false;
+        this._manager.on(EVENTS.STEP_OUT, this._onMoveOutCb);
+        client.onmessage = this.onMessage.bind(this, client);
         Console.info('Connection with Server has opened');
     }
 
-    _onMoveOut(x1, y1, x2, y2, dir, org) {
-        this.request(this._client, TYPES.REQ_MOVE_ORG, this._manager.clientId, x1, y1, dir, org.serialize());
+    _onMoveOut(x, y, dir, org) {
+        this.request(this._client, TYPES.REQ_MOVE_ORG, this._manager.clientId, x, y, dir, org.serialize());
     }
 }
 

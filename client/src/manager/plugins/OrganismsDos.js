@@ -142,11 +142,14 @@ export default class OrganismsDos extends Organisms {
         }
     }
 
-    _onStep(org, x1, y1, x2, y2, dir, ret) {
+    _onStep(org, x1, y1, x2, y2, ret) {
         if (org.alive === false) {return}
         const man = this.manager;
+        let   dir;
+
+        [x2, y2, dir] = Helper.normalize(x2, y2);
         //
-        // Organism has moved, but still within the current world (client)
+        // Organism has moved, but still is within the current world (client)
         //
         if (dir === DIR.NO) {
             ret.ret = +this.move(x1, y1, x2, y2, org);
@@ -159,7 +162,9 @@ export default class OrganismsDos extends Organisms {
         // dir !== DIR.NO
         //
         if (man.activeAround[dir]) {
-            man.fire(EVENTS.STEP_OUT, x1, y1, x2, y2, dir, org);
+            org.x = x2;
+            org.y = y2;
+            man.fire(EVENTS.STEP_OUT, x2, y2, dir, org);
             org.destroy();
             return;
         }

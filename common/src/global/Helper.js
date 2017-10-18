@@ -108,13 +108,11 @@ class Helper {
     static normalize(x, y) {
         let dir = DIR.NO;
 
-        if (Config.worldCyclical) {
-            if (x < 0) {dir = DIR.LEFT; x = Config.worldWidth - 1}
-            else if (x >= Config.worldWidth)  {dir = DIR.RIGHT; x = 0}
+        if (x < 0) {dir = DIR.LEFT; x = Config.worldWidth - 1}
+        else if (x >= Config.worldWidth)  {dir = DIR.RIGHT; x = 0}
 
-            if (y < 0) {dir = DIR.UP; y = Config.worldHeight - 1}
-            else if (y >= Config.worldHeight) {dir = DIR.DOWN; y = 0}
-        }
+        if (y < 0) {dir = DIR.UP; y = Config.worldHeight - 1}
+        else if (y >= Config.worldHeight) {dir = DIR.DOWN; y = 0}
 
         return [x, y, dir];
     }

@@ -129,7 +129,7 @@ const Config = {
      * {Number} Percent of mutations from jsvm size, which will be applied to
      * organism after cloning. Should be <= 1.0
      */
-    orgCloneMutationPercent: 0.01,
+    orgCloneMutationPercent: 0.10,
     /**
      * {Number} Amount of iterations before cloning process
      */
@@ -272,17 +272,18 @@ const Config = {
     /**
      * {Number} World width
      */
-    worldWidth: 1920,
+    worldWidth: 10,
     /**
      * {Number} World height
      */
-    worldHeight: 1080,
+    worldHeight: 10,
     /**
      * {Number} Turns on ciclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
      * size and the organism has 10x5 position in it, one step right will move
      * this organism at the position 1x5. The same scenario regarding Y
-     * coordinate (height).
+     * coordinate (height). It actual only for one instance mode (no distributed
+     * calculations).
      */
     worldCyclical: true,
     /**
@@ -290,12 +291,12 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 500,
+    worldMaxOrgs: 5,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
      */
-    worldEnergyDots: 1000,
+    worldEnergyDots: 10,
     /**
      * {Number} Amount of energy in every block. See worldEnergyDots
      * config for details.
@@ -1341,13 +1342,11 @@ class Helper {
     static normalize(x, y) {
         let dir = DIR.NO;
 
-        if (Config.worldCyclical) {
-            if (x < 0) {dir = DIR.LEFT; x = Config.worldWidth - 1}
-            else if (x >= Config.worldWidth)  {dir = DIR.RIGHT; x = 0}
+        if (x < 0) {dir = DIR.LEFT; x = Config.worldWidth - 1}
+        else if (x >= Config.worldWidth)  {dir = DIR.RIGHT; x = 0}
 
-            if (y < 0) {dir = DIR.UP; y = Config.worldHeight - 1}
-            else if (y >= Config.worldHeight) {dir = DIR.DOWN; y = 0}
-        }
+        if (y < 0) {dir = DIR.UP; y = Config.worldHeight - 1}
+        else if (y >= Config.worldHeight) {dir = DIR.DOWN; y = 0}
 
         return [x, y, dir];
     }
@@ -1748,7 +1747,7 @@ class Organisms {
 
     /**
      * Is called after cloning of organism
-     * @param {Organism} org Parent1 organism
+     * @param {Organism} org Parent organism
      * @param {Organism} child Child organism
      * @abstract
      */
@@ -2210,8 +2209,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__
      * @param {String} str JSON string
      */
     unserialize(str) {
-        const jsvm = this.jsvm;
-        let   json = JSON.parse(str);
+        const json = JSON.parse(str);
 
         // 'id' will be added after insertion
         this._x                    = json.x;
@@ -2548,6 +2546,10 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
         this._clientId = id;
     }
 
+    hasOtherClients() {
+        return this._activeAround.indexOf(true) !== -1;
+    }
+
     destroy() {
         this._world.destroy();
         this._canvas.destroy();
@@ -2663,23 +2665,15 @@ const PLUGINS = {
 class Client extends Connection {
     constructor(manager) {
         super(0);
-        this._manager       = manager;
-        this._client        = this._createWebSocket();
-        this._plugins       = new Plugins(this, PLUGINS);
-        this._onMoveOutCb   = this._onMoveOut.bind(this);
-        //
-        // Client has no connection with server, so we have to start in
-        // "separate instance" mode.
-        //
-        if (this._client === null || this._client.readyState === WebSocket.CLOSING || this._client.readyState === WebSocket.CLOSED) {
-            this._manager.run();
-            return;
-        }
-        manager.on(EVENTS.STEP_OUT, this._onMoveOutCb);
-        this._client.onopen    = this._onOpen.bind(this);
-        this._client.onmessage = this.onMessage.bind(this, this._client);
-        this._client.onerror   = this.onError.bind(this);
-        this._client.onclose   = this.onClose.bind(this);
+        this._manager        = manager;
+        this._closed         = true;
+        this._client         = this._createWebSocket();
+        this._plugins        = new Plugins(this, PLUGINS);
+        this._onMoveOutCb    = this._onMoveOut.bind(this);
+
+        this._client.onerror = this.onError.bind(this);
+        this._client.onclose = this.onClose.bind(this);
+        this._client.onopen  = this._onOpen.bind(this);
     }
 
     get manager() {return this._manager}
@@ -2703,8 +2697,17 @@ class Client extends Connection {
      * @param {Event} event
      */
     onClose(event) {
+        const client = this._client;
         super.onClose(event);
-        Console.info(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
+        //
+        // Client has no connection with server, so we have to start in
+        // "separate instance" mode.
+        //
+        if (this._closed && client === null || client.readyState === WebSocket.CLOSING || client.readyState === WebSocket.CLOSED) {
+            this._manager.run();
+        }
+        this._closed = true;
+        Console.warn(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
     }
 
     _createWebSocket() {
@@ -2719,11 +2722,16 @@ class Client extends Connection {
     }
 
     _onOpen() {
+        const client = this._client;
+
+        this._closed = false;
+        this._manager.on(EVENTS.STEP_OUT, this._onMoveOutCb);
+        client.onmessage = this.onMessage.bind(this, client);
         Console.info('Connection with Server has opened');
     }
 
-    _onMoveOut(x1, y1, x2, y2, dir, org) {
-        this.request(this._client, TYPES.REQ_MOVE_ORG, this._manager.clientId, x1, y1, dir, org.serialize());
+    _onMoveOut(x, y, dir, org) {
+        this.request(this._client, TYPES.REQ_MOVE_ORG, this._manager.clientId, x, y, dir, org.serialize());
     }
 }
 
@@ -2881,7 +2889,7 @@ class Mutator {
             this._onProbs,
             this._onCloneEnergyPercent
         ];
-
+        
         manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["EVENTS"].ORGANISM, this._onOrganism.bind(this));
         manager.on(__WEBPACK_IMPORTED_MODULE_0__global_Events__["EVENTS"].CLONE, this._onCloneOrg.bind(this));
     }
@@ -2905,10 +2913,15 @@ class Mutator {
         const jsvm      = org.jsvm;
         const probIndex = __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.probIndex;
         const mTypes    = this._MUTATION_TYPES;
+        const maxSize   = __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].codeMaxSize;
         let   mutations = Math.round(jsvm.size * (clone ? org.cloneMutationPercent : org.mutationPercent)) || 1;
         let   type;
 
         for (let i = 0; i < mutations; i++) {
+            if (jsvm.size > maxSize) {
+                mutations = i;
+                break;
+            }
             type = jsvm.size < 1 ? 0 : probIndex(org.mutationProbs);
             mTypes[type](org);
         }
@@ -3135,21 +3148,38 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
         }
     }
 
-    _onStep(org, x1, y1, x2, y2, dir, ret) {
+    _onStep(org, x1, y1, x2, y2, ret) {
+        if (org.alive === false) {return}
         const man = this.manager;
+        let   dir;
+
+        [x2, y2, dir] = __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.normalize(x2, y2);
+        //
+        // Organism has moved, but still is within the current world (client)
+        //
+        if (dir === __WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions__["DIR"].NO) {
+            ret.ret = +this.move(x1, y1, x2, y2, org);
+            return;
+        }
         //
         // Current organism try to move out of the world.
         // We have to pass him to the server to another
         // world (Manager). We determine this by checking
         // dir !== DIR.NO
         //
-        if (dir !== __WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions__["DIR"].NO && man.activeAround[dir]) {
-            man.fire(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].STEP_OUT, x1, y1, x2, y2, dir, org);
+        if (man.activeAround[dir]) {
+            org.x = x2;
+            org.y = y2;
+            man.fire(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].STEP_OUT, x2, y2, dir, org);
             org.destroy();
+            return;
         }
-        else if (org.alive) {
-            ret.ret = +this.move(x1, y1, x2, y2, org);
-        }
+        //
+        // Organism try to go outside of the world, but there is no
+        // activated client on that side. So this is a border for him.
+        // In this case coordinates (x,y) should stay the same
+        //
+        ret.ret = +this.move(x1, y1, x1, y1, org);
     }
 
     /**
@@ -6114,9 +6144,7 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__common_src_global_Observer___def
         this._operators   = new classMap[__WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].codeOperatorsCls](this._offsets, this._vars, obs);
         this._code        = parent && parent.code.slice() || [];
         this._line        = 0;
-        this._fitnessMode = __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].codeFitnessCls !== null;
     }
-
 
     get code()      {return this._code}
     get size()      {return this._code.length}
@@ -6132,7 +6160,6 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__common_src_global_Observer___def
             // 'operators' field will be added after insertion
             code            : this._code.slice(),
             line            : this._line
-            // 'fitnessMode' field will be added after insertion
         };
     }
 
@@ -6222,7 +6249,7 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__common_src_global_Observer___def
         if (start1 > end1) {[start1, end1] = [end1, start1]}
 
         adds = Math.abs(end1 - start1 - end + start);
-        if (this._fitnessMode && this._code.length + adds >= __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].codeMaxSize) {return 0}
+        if (this._code.length + adds >= __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].codeMaxSize) {return 0}
         this._code.splice.apply(this._code, [start, end - start + 1].concat(jsvm.code.slice(start1, end1 + 1)));
         this._reset();
 
@@ -6570,8 +6597,7 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
         let ret = {ret: 0};
         let dir;
 
-        [x2, y2, dir] = __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.normalize(x2, y2);
-        this.obs.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["EVENTS"].STEP, org, x1, y1, x2, y2, dir, ret);
+        this.obs.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["EVENTS"].STEP, org, x1, y1, x2, y2, ret);
         if (ret.ret > 0) {
             org.x = x2;
             org.y = y2;

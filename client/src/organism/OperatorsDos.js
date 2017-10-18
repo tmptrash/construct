@@ -243,8 +243,7 @@ export default class OperatorsDos extends Operators {
         let ret = {ret: 0};
         let dir;
 
-        [x2, y2, dir] = Helper.normalize(x2, y2);
-        this.obs.fire(EVENTS.STEP, org, x1, y1, x2, y2, dir, ret);
+        this.obs.fire(EVENTS.STEP, org, x1, y1, x2, y2, ret);
         if (ret.ret > 0) {
             org.x = x2;
             org.y = y2;

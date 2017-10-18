@@ -200,11 +200,11 @@ const Config = {
     /**
      * {Number} World width
      */
-    worldWidth: 1920,
+    worldWidth: 10,
     /**
      * {Number} World height
      */
-    worldHeight: 1080,
+    worldHeight: 10,
     /**
      * {Number} Turns on ciclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
@@ -219,12 +219,12 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 500,
+    worldMaxOrgs: 5,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
      */
-    worldEnergyDots: 1000,
+    worldEnergyDots: 10,
     /**
      * {Number} Amount of energy in every block. See worldEnergyDots
      * config for details.

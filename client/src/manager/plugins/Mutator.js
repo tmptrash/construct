@@ -34,7 +34,7 @@ export default class Mutator {
             this._onProbs,
             this._onCloneEnergyPercent
         ];
-
+        
         manager.on(EVENTS.ORGANISM, this._onOrganism.bind(this));
         manager.on(EVENTS.CLONE, this._onCloneOrg.bind(this));
     }
@@ -58,10 +58,15 @@ export default class Mutator {
         const jsvm      = org.jsvm;
         const probIndex = Helper.probIndex;
         const mTypes    = this._MUTATION_TYPES;
+        const maxSize   = Config.codeMaxSize;
         let   mutations = Math.round(jsvm.size * (clone ? org.cloneMutationPercent : org.mutationPercent)) || 1;
         let   type;
 
         for (let i = 0; i < mutations; i++) {
+            if (jsvm.size > maxSize) {
+                mutations = i;
+                break;
+            }
             type = jsvm.size < 1 ? 0 : probIndex(org.mutationProbs);
             mTypes[type](org);
         }
