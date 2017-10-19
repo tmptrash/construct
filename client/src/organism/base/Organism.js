@@ -192,7 +192,7 @@ export default class Organism extends Observer {
         this.jsvm                   = new JSVM(this._codeEndCb.bind(this, this), this, this._classMap);
         this._energy                = Config.orgStartEnergy;
         this._color                 = Config.orgStartColor;
-        this._mutationProbs         = Config.orgMutationProbs;
+        this._mutationProbs         = Config.orgMutationProbs.slice();
         this._cloneMutationPercent  = Config.orgCloneMutationPercent;
         this._mutationPeriod        = Config.orgRainMutationPeriod;
         this._mutationPercent       = Config.orgRainMutationPercent;

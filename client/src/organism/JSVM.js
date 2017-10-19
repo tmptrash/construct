@@ -33,6 +33,8 @@ export default class JSVM extends Observer {
     constructor(codeEndCb, obs, classMap, parent = null) {
         super(EVENT_AMOUNT);
 
+        this._classMap    = classMap;
+        this._obs         = obs;
         /**
          * {Function} Callback, which is called on every organism
          * jsvm iteration. On it's end.
@@ -62,7 +64,7 @@ export default class JSVM extends Observer {
 
     serialize() {
         return {
-            offsets         : this._offsets,
+            offsets         : this._offsets.slice(),
             vars            : this._vars.slice(),
             // 'operators' field will be added after insertion
             code            : this._code.slice(),
@@ -71,10 +73,11 @@ export default class JSVM extends Observer {
     }
 
     unserialize(json) {
-        this._offsets = json.offsets;
-        this._vars    = json.vars;
-        this._code    = json.code;
-        this._line    = json.line;
+        this._offsets   = json.offsets;
+        this._vars      = json.vars;
+        this._code      = json.code;
+        this._line      = json.line;
+        this._operators = new this._classMap[Config.codeOperatorsCls](this._offsets, this._vars, this._obs);
     }
 
     /**

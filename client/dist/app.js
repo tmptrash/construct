@@ -2221,7 +2221,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__
         this._fnId                 = json.fnId;
         this.jsvm.unserialize(json.jsvm);
         this._energy               = json.energy;
-        this._color                = 0xffff00;//json.color;
+        this._color                = json.color;
         this._mutationProbs        = json.mutationProbs;
         this._cloneMutationPercent = json.cloneMutationPercent;
         this._mutationPeriod       = json.mutationPeriod;
@@ -2264,7 +2264,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__
         this.jsvm                   = new __WEBPACK_IMPORTED_MODULE_4__JSVM__["a" /* default */](this._codeEndCb.bind(this, this), this, this._classMap);
         this._energy                = __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].orgStartEnergy;
         this._color                 = __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].orgStartColor;
-        this._mutationProbs         = __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].orgMutationProbs;
+        this._mutationProbs         = __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].orgMutationProbs.slice();
         this._cloneMutationPercent  = __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].orgCloneMutationPercent;
         this._mutationPeriod        = __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].orgRainMutationPeriod;
         this._mutationPercent       = __WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].orgRainMutationPercent;
@@ -6125,6 +6125,8 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__common_src_global_Observer___def
     constructor(codeEndCb, obs, classMap, parent = null) {
         super(__WEBPACK_IMPORTED_MODULE_3__global_Events__["EVENT_AMOUNT"]);
 
+        this._classMap    = classMap;
+        this._obs         = obs;
         /**
          * {Function} Callback, which is called on every organism
          * jsvm iteration. On it's end.
@@ -6154,7 +6156,7 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__common_src_global_Observer___def
 
     serialize() {
         return {
-            offsets         : this._offsets,
+            offsets         : this._offsets.slice(),
             vars            : this._vars.slice(),
             // 'operators' field will be added after insertion
             code            : this._code.slice(),
@@ -6163,10 +6165,11 @@ class JSVM extends __WEBPACK_IMPORTED_MODULE_2__common_src_global_Observer___def
     }
 
     unserialize(json) {
-        this._offsets = json.offsets;
-        this._vars    = json.vars;
-        this._code    = json.code;
-        this._line    = json.line;
+        this._offsets   = json.offsets;
+        this._vars      = json.vars;
+        this._code      = json.code;
+        this._line      = json.line;
+        this._operators = new this._classMap[__WEBPACK_IMPORTED_MODULE_0__common_src_global_Config__["Config"].codeOperatorsCls](this._offsets, this._vars, this._obs);
     }
 
     /**
