@@ -200,11 +200,11 @@ const Config = {
     /**
      * {Number} World width
      */
-    worldWidth: 450,
+    worldWidth: 400,
     /**
      * {Number} World height
      */
-    worldHeight: 450,
+    worldHeight: 400,
     /**
      * {Number} Turns on ciclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
@@ -213,7 +213,7 @@ const Config = {
      * coordinate (height). It actual only for one instance mode (no distributed
      * calculations).
      */
-    worldCyclical: true,
+    worldCyclical: false,
     /**
      * {Number} Maximum amount of organisms in a world. If some organisms will
      * try to clone itself, when entire amount of organisms are equal

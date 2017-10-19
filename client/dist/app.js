@@ -272,11 +272,11 @@ const Config = {
     /**
      * {Number} World width
      */
-    worldWidth: 450,
+    worldWidth: 400,
     /**
      * {Number} World height
      */
-    worldHeight: 450,
+    worldHeight: 400,
     /**
      * {Number} Turns on ciclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
@@ -285,7 +285,7 @@ const Config = {
      * coordinate (height). It actual only for one instance mode (no distributed
      * calculations).
      */
-    worldCyclical: true,
+    worldCyclical: false,
     /**
      * {Number} Maximum amount of organisms in a world. If some organisms will
      * try to clone itself, when entire amount of organisms are equal
@@ -2486,7 +2486,6 @@ class Manager extends __WEBPACK_IMPORTED_MODULE_0__common_src_global_Observer___
     onIteration() {}
 
     /**
-     *
      * @param {Object} plugins Manager's plugins
      */
     constructor(plugins) {
@@ -2671,6 +2670,7 @@ class Client extends Connection {
         this._plugins        = new Plugins(this, PLUGINS);
         this._onStepOutCb    = this._onStepOut.bind(this);
 
+        this._manager.on(EVENTS.STEP_OUT, this._onStepOutCb);
         this._client.onerror = this.onError.bind(this);
         this._client.onclose = this.onClose.bind(this);
         this._client.onopen  = this._onOpen.bind(this);
@@ -2697,15 +2697,12 @@ class Client extends Connection {
      * @param {Event} event
      */
     onClose(event) {
-        const client = this._client;
         super.onClose(event);
         //
         // Client has no connection with server, so we have to start in
         // "separate instance" mode.
         //
-        if (this._closed && client === null || client.readyState === WebSocket.CLOSING || client.readyState === WebSocket.CLOSED) {
-            this._manager.run();
-        }
+        if (this._closed) {this._manager.run()}
         this._closed = true;
         Console.warn(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
     }
@@ -2725,7 +2722,6 @@ class Client extends Connection {
         const client = this._client;
 
         this._closed = false;
-        this._manager.on(EVENTS.STEP_OUT, this._onStepOutCb);
         client.onmessage = this.onMessage.bind(this, client);
         Console.info('Connection with Server has opened');
     }
@@ -2999,11 +2995,13 @@ class Mutator {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__base_Organisms__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__global_Events__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__global_Events__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__common_src_global_Helper__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__common_src_global_Helper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__common_src_global_Helper__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__common_src_global_Directions__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__common_src_global_Directions___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4__common_src_global_Directions__);
 /**
  * Plugin for Manager module, which handles organisms population in
  * nature simulation mode. It's related to DOS language.
@@ -3022,6 +3020,7 @@ class Mutator {
 
 
 
+
 const EMPTY     = 0;
 const ENERGY    = 1;
 const ORGANISM  = 2;
@@ -3033,12 +3032,12 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
         this._positions  = {};
         this._onStepInCb = this._onStepIn.bind(this);
 
-        this.manager.on(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].STEP_IN, this._onStepInCb);
+        this.manager.on(__WEBPACK_IMPORTED_MODULE_2__global_Events__["EVENTS"].STEP_IN, this._onStepInCb);
     }
 
     destroy() {
         super.destroy();
-        this.manager.off(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].STEP_IN, this._onStepInCb);
+        this.manager.off(__WEBPACK_IMPORTED_MODULE_2__global_Events__["EVENTS"].STEP_IN, this._onStepInCb);
         this._onStepInCb = null;
         this._positions  = null;
     }
@@ -3077,10 +3076,10 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
 
     addOrgHandlers(org) {
         super.addOrgHandlers(org);
-        org.on(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].GET_ENERGY, this._onGetEnergy.bind(this));
-        org.on(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].EAT, this._onEat.bind(this));
-        org.on(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].STEP, this._onStep.bind(this));
-        org.on(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].CHECK_AT, this._onCheckAt.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_2__global_Events__["EVENTS"].GET_ENERGY, this._onGetEnergy.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_2__global_Events__["EVENTS"].EAT, this._onEat.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_2__global_Events__["EVENTS"].STEP, this._onStep.bind(this));
+        org.on(__WEBPACK_IMPORTED_MODULE_2__global_Events__["EVENTS"].CHECK_AT, this._onCheckAt.bind(this));
     }
 
     /**
@@ -3114,8 +3113,8 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
      */
     onAfterMove(x1, y1, x2, y2, org) {
         if (x1 !== x2 || y1 !== y2) {
-            delete this._positions[__WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.posId(x1, y1)];
-            this._positions[__WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.posId(x2, y2)] = org;
+            delete this._positions[__WEBPACK_IMPORTED_MODULE_3__common_src_global_Helper___default.a.posId(x1, y1)];
+            this._positions[__WEBPACK_IMPORTED_MODULE_3__common_src_global_Helper___default.a.posId(x2, y2)] = org;
         }
 
         return true;
@@ -3123,7 +3122,7 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
 
     _onGetEnergy(org, x, y, ret) {
         if (x < 0 || y < 0 || !Number.isInteger(x) || !Number.isInteger(y)) {return}
-        const posId = __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.posId(x, y);
+        const posId = __WEBPACK_IMPORTED_MODULE_3__common_src_global_Helper___default.a.posId(x, y);
 
         if (typeof(this._positions[posId]) === 'undefined') {
             ret.ret = this.manager.world.getDot(x, y)
@@ -3137,9 +3136,9 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
         const positions = this._positions;
         let   dir;
 
-        [x, y, dir] = __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.normalize(x, y);
+        [x, y, dir] = __WEBPACK_IMPORTED_MODULE_3__common_src_global_Helper___default.a.normalize(x, y);
 
-        const posId = __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.posId(x, y);
+        const posId = __WEBPACK_IMPORTED_MODULE_3__common_src_global_Helper___default.a.posId(x, y);
         if (typeof(positions[posId]) === 'undefined') {
             ret.ret = world.grabDot(x, y, ret.ret);
         } else {
@@ -3153,23 +3152,29 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
         const man = this.manager;
         let   dir;
 
-        [x2, y2, dir] = __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.normalize(x2, y2);
+        [x2, y2, dir] = __WEBPACK_IMPORTED_MODULE_3__common_src_global_Helper___default.a.normalize(x2, y2);
         //
         // Organism has moved, but still is within the current world (client)
         //
-        if (dir === __WEBPACK_IMPORTED_MODULE_3__common_src_global_Directions__["DIR"].NO) {
+        if (dir === __WEBPACK_IMPORTED_MODULE_4__common_src_global_Directions__["DIR"].NO) {
+            ret.x = x2;
+            ret.y = y2;
             ret.ret = +this.move(x1, y1, x2, y2, org);
             return;
         }
         //
         // Current organism try to move out of the world.
         // We have to pass him to the server to another
-        // client (Manager)
+        // client (Manager). Changing x,y two times is needed
+        // for serializing correct coordinates for destination
+        // world and correct removing from current world
         //
         if (man.activeAround[dir]) {
             org.x = x2;
             org.y = y2;
-            man.fire(__WEBPACK_IMPORTED_MODULE_1__global_Events__["EVENTS"].STEP_OUT, x2, y2, dir, org);
+            man.fire(__WEBPACK_IMPORTED_MODULE_2__global_Events__["EVENTS"].STEP_OUT, x2, y2, dir, org);
+            org.x = x1;
+            org.y = y1;
             org.destroy();
             return;
         }
@@ -3178,7 +3183,16 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
         // activated client on that side. So this is a border for him.
         // In this case coordinates (x,y) should stay the same
         //
-        ret.ret = +this.move(x1, y1, x1, y1, org);
+        if (man.hasOtherClients() || __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldCyclical === false) {
+            ret.x = x1;
+            ret.y = y1;
+            ret.ret = +this.move(x1, y1, x1, y1, org);
+            return;
+        }
+
+        ret.x = x2;
+        ret.y = y2;
+        ret.ret = +this.move(x1, y1, x2, y2, org);
     }
 
     /**
@@ -3186,11 +3200,10 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
      * If step in position is not free, then organism die at the moment
      * @param {Number} x Current org X position
      * @param {Number} y Current org Y position
-     * @param {Number} dir Moving direction
      * @param {String} orgJson Organism's serialized json
      * @private
      */
-    _onStepIn(x, y, dir, orgJson) {
+    _onStepIn(x, y, orgJson) {
         if (this.manager.world.isFree(x, y) && this.createOrg({x:x, y:y})) {
             this.organisms.last.val.unserialize(orgJson);
         }
@@ -3199,8 +3212,8 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
     _onCheckAt(x, y, ret) {
         let dir;
 
-        [x, y, dir] = __WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.normalize(x, y);
-        if (typeof(this._positions[__WEBPACK_IMPORTED_MODULE_2__common_src_global_Helper___default.a.posId(x, y)]) === 'undefined') {
+        [x, y, dir] = __WEBPACK_IMPORTED_MODULE_3__common_src_global_Helper___default.a.normalize(x, y);
+        if (typeof(this._positions[__WEBPACK_IMPORTED_MODULE_3__common_src_global_Helper___default.a.posId(x, y)]) === 'undefined') {
             ret.ret = this.manager.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
         } else {
             ret.ret = ORGANISM;
@@ -3511,13 +3524,12 @@ class Api extends BaseApi {
      * @param {String} reqId Unique request id
      * @param {Number} x Current org X position
      * @param {Number} y Current org Y position
-     * @param {Number} dir Moving direction
      * @param {String} orgJson Organism's serialized json
      * @param {String|null} errMsg Error message
      * @api
      */
-    _moveOrg(reqId, x, y, dir, orgJson, errMsg = null) {
-        this.parent.manager.fire(EVENTS.STEP_IN, x, y, dir, orgJson);
+    _moveOrg(reqId, x, y, orgJson, errMsg = null) {
+        this.parent.manager.fire(EVENTS.STEP_IN, x, y, orgJson);
         errMsg && Console.warn(errMsg);
     }
 
@@ -6597,12 +6609,11 @@ class OperatorsDos extends __WEBPACK_IMPORTED_MODULE_3__base_Operators__["a" /* 
 
     _step(org, x1, y1, x2, y2) {
         let ret = {ret: 0};
-        let dir;
 
         this.obs.fire(__WEBPACK_IMPORTED_MODULE_0__global_Events__["EVENTS"].STEP, org, x1, y1, x2, y2, ret);
         if (ret.ret > 0) {
-            org.x = x2;
-            org.y = y2;
+            org.x = ret.x;
+            org.y = ret.y;
         }
 
         return ret.ret;

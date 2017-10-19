@@ -32,6 +32,7 @@ class Client extends Connection {
         this._plugins        = new Plugins(this, PLUGINS);
         this._onStepOutCb    = this._onStepOut.bind(this);
 
+        this._manager.on(EVENTS.STEP_OUT, this._onStepOutCb);
         this._client.onerror = this.onError.bind(this);
         this._client.onclose = this.onClose.bind(this);
         this._client.onopen  = this._onOpen.bind(this);
@@ -58,15 +59,12 @@ class Client extends Connection {
      * @param {Event} event
      */
     onClose(event) {
-        const client = this._client;
         super.onClose(event);
         //
         // Client has no connection with server, so we have to start in
         // "separate instance" mode.
         //
-        if (this._closed && client === null || client.readyState === WebSocket.CLOSING || client.readyState === WebSocket.CLOSED) {
-            this._manager.run();
-        }
+        if (this._closed) {this._manager.run()}
         this._closed = true;
         Console.warn(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
     }
@@ -86,7 +84,6 @@ class Client extends Connection {
         const client = this._client;
 
         this._closed = false;
-        this._manager.on(EVENTS.STEP_OUT, this._onStepOutCb);
         client.onmessage = this.onMessage.bind(this, client);
         Console.info('Connection with Server has opened');
     }

@@ -241,12 +241,11 @@ export default class OperatorsDos extends Operators {
 
     _step(org, x1, y1, x2, y2) {
         let ret = {ret: 0};
-        let dir;
 
         this.obs.fire(EVENTS.STEP, org, x1, y1, x2, y2, ret);
         if (ret.ret > 0) {
-            org.x = x2;
-            org.y = y2;
+            org.x = ret.x;
+            org.y = ret.y;
         }
 
         return ret.ret;

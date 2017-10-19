@@ -12,6 +12,7 @@
  * @author flatline
  */
 import Organisms from './base/Organisms';
+import {Config}  from './../../../../common/src/global/Config';
 import {EVENTS}  from './../../global/Events';
 import Helper    from './../../../../common/src/global/Helper';
 import {DIR}     from './../../../../common/src/global/Directions';
@@ -152,18 +153,24 @@ export default class OrganismsDos extends Organisms {
         // Organism has moved, but still is within the current world (client)
         //
         if (dir === DIR.NO) {
+            ret.x = x2;
+            ret.y = y2;
             ret.ret = +this.move(x1, y1, x2, y2, org);
             return;
         }
         //
         // Current organism try to move out of the world.
         // We have to pass him to the server to another
-        // client (Manager)
+        // client (Manager). Changing x,y two times is needed
+        // for serializing correct coordinates for destination
+        // world and correct removing from current world
         //
         if (man.activeAround[dir]) {
             org.x = x2;
             org.y = y2;
             man.fire(EVENTS.STEP_OUT, x2, y2, dir, org);
+            org.x = x1;
+            org.y = y1;
             org.destroy();
             return;
         }
@@ -172,7 +179,16 @@ export default class OrganismsDos extends Organisms {
         // activated client on that side. So this is a border for him.
         // In this case coordinates (x,y) should stay the same
         //
-        ret.ret = +this.move(x1, y1, x1, y1, org);
+        if (man.hasOtherClients() || Config.worldCyclical === false) {
+            ret.x = x1;
+            ret.y = y1;
+            ret.ret = +this.move(x1, y1, x1, y1, org);
+            return;
+        }
+
+        ret.x = x2;
+        ret.y = y2;
+        ret.ret = +this.move(x1, y1, x2, y2, org);
     }
 
     /**
@@ -180,11 +196,10 @@ export default class OrganismsDos extends Organisms {
      * If step in position is not free, then organism die at the moment
      * @param {Number} x Current org X position
      * @param {Number} y Current org Y position
-     * @param {Number} dir Moving direction
      * @param {String} orgJson Organism's serialized json
      * @private
      */
-    _onStepIn(x, y, dir, orgJson) {
+    _onStepIn(x, y, orgJson) {
         if (this.manager.world.isFree(x, y) && this.createOrg({x:x, y:y})) {
             this.organisms.last.val.unserialize(orgJson);
         }

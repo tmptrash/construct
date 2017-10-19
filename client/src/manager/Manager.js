@@ -50,7 +50,6 @@ export default class Manager extends Observer {
     onIteration() {}
 
     /**
-     *
      * @param {Object} plugins Manager's plugins
      */
     constructor(plugins) {

@@ -68,7 +68,7 @@ class Api extends BaseApi {
 
         const con = this.parent.conns.getConnection(region);
         if (con.active) {
-            this.parent.request(con.sock, TYPES.REQ_MOVE_ORG, x, y, dir, orgJson);
+            this.parent.request(con.sock, TYPES.REQ_MOVE_ORG, x, y, orgJson);
         } else {
             const org        = JSON.parse(orgJson);
             const backRegion = Connections.toRegion(clientId);
