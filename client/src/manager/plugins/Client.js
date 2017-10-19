@@ -30,7 +30,7 @@ class Client extends Connection {
         this._closed         = true;
         this._client         = this._createWebSocket();
         this._plugins        = new Plugins(this, PLUGINS);
-        this._onMoveOutCb    = this._onMoveOut.bind(this);
+        this._onStepOutCb    = this._onStepOut.bind(this);
 
         this._client.onerror = this.onError.bind(this);
         this._client.onclose = this.onClose.bind(this);
@@ -46,10 +46,10 @@ class Client extends Connection {
         this._client.onmessage = null;
         this._client.onerror   = null;
         this._client.onclose   = null;
-        this._manager.off(EVENTS.STEP_OUT, this._onMoveOutCb);
+        this._manager.off(EVENTS.STEP_OUT, this._onStepOutCb);
         this._manager          = null;
         this._plugins          = null;
-        this._onMoveOutCb      = null;
+        this._onStepOutCb      = null;
     }
 
     /**
@@ -86,12 +86,12 @@ class Client extends Connection {
         const client = this._client;
 
         this._closed = false;
-        this._manager.on(EVENTS.STEP_OUT, this._onMoveOutCb);
+        this._manager.on(EVENTS.STEP_OUT, this._onStepOutCb);
         client.onmessage = this.onMessage.bind(this, client);
         Console.info('Connection with Server has opened');
     }
 
-    _onMoveOut(x, y, dir, org) {
+    _onStepOut(x, y, dir, org) {
         this.request(this._client, TYPES.REQ_MOVE_ORG, this._manager.clientId, x, y, dir, org.serialize());
     }
 }

@@ -158,8 +158,7 @@ export default class OrganismsDos extends Organisms {
         //
         // Current organism try to move out of the world.
         // We have to pass him to the server to another
-        // world (Manager). We determine this by checking
-        // dir !== DIR.NO
+        // client (Manager)
         //
         if (man.activeAround[dir]) {
             org.x = x2;

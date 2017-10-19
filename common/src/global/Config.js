@@ -57,7 +57,7 @@ const Config = {
      * {Number} Percent of mutations from jsvm size, which will be applied to
      * organism after cloning. Should be <= 1.0
      */
-    orgCloneMutationPercent: 0.01,
+    orgCloneMutationPercent: 0.10,
     /**
      * {Number} Amount of iterations before cloning process
      */
@@ -200,11 +200,11 @@ const Config = {
     /**
      * {Number} World width
      */
-    worldWidth: 10,
+    worldWidth: 450,
     /**
      * {Number} World height
      */
-    worldHeight: 10,
+    worldHeight: 450,
     /**
      * {Number} Turns on ciclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
@@ -219,12 +219,12 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 5,
+    worldMaxOrgs: 500,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
      */
-    worldEnergyDots: 10,
+    worldEnergyDots: 1000,
     /**
      * {Number} Amount of energy in every block. See worldEnergyDots
      * config for details.

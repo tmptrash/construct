@@ -272,11 +272,11 @@ const Config = {
     /**
      * {Number} World width
      */
-    worldWidth: 10,
+    worldWidth: 450,
     /**
      * {Number} World height
      */
-    worldHeight: 10,
+    worldHeight: 450,
     /**
      * {Number} Turns on ciclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
@@ -291,12 +291,12 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 5,
+    worldMaxOrgs: 500,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
      */
-    worldEnergyDots: 10,
+    worldEnergyDots: 1000,
     /**
      * {Number} Amount of energy in every block. See worldEnergyDots
      * config for details.
@@ -2221,7 +2221,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__
         this._fnId                 = json.fnId;
         this.jsvm.unserialize(json.jsvm);
         this._energy               = json.energy;
-        this._color                = json.color;
+        this._color                = 0xffff00;//json.color;
         this._mutationProbs        = json.mutationProbs;
         this._cloneMutationPercent = json.cloneMutationPercent;
         this._mutationPeriod       = json.mutationPeriod;
@@ -2669,7 +2669,7 @@ class Client extends Connection {
         this._closed         = true;
         this._client         = this._createWebSocket();
         this._plugins        = new Plugins(this, PLUGINS);
-        this._onMoveOutCb    = this._onMoveOut.bind(this);
+        this._onStepOutCb    = this._onStepOut.bind(this);
 
         this._client.onerror = this.onError.bind(this);
         this._client.onclose = this.onClose.bind(this);
@@ -2685,10 +2685,10 @@ class Client extends Connection {
         this._client.onmessage = null;
         this._client.onerror   = null;
         this._client.onclose   = null;
-        this._manager.off(EVENTS.STEP_OUT, this._onMoveOutCb);
+        this._manager.off(EVENTS.STEP_OUT, this._onStepOutCb);
         this._manager          = null;
         this._plugins          = null;
-        this._onMoveOutCb      = null;
+        this._onStepOutCb      = null;
     }
 
     /**
@@ -2725,12 +2725,12 @@ class Client extends Connection {
         const client = this._client;
 
         this._closed = false;
-        this._manager.on(EVENTS.STEP_OUT, this._onMoveOutCb);
+        this._manager.on(EVENTS.STEP_OUT, this._onStepOutCb);
         client.onmessage = this.onMessage.bind(this, client);
         Console.info('Connection with Server has opened');
     }
 
-    _onMoveOut(x, y, dir, org) {
+    _onStepOut(x, y, dir, org) {
         this.request(this._client, TYPES.REQ_MOVE_ORG, this._manager.clientId, x, y, dir, org.serialize());
     }
 }
@@ -3164,8 +3164,7 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
         //
         // Current organism try to move out of the world.
         // We have to pass him to the server to another
-        // world (Manager). We determine this by checking
-        // dir !== DIR.NO
+        // client (Manager)
         //
         if (man.activeAround[dir]) {
             org.x = x2;
