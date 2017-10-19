@@ -107,8 +107,8 @@ describe("client/src/organism/JSVM", () => {
     it("Checking run method", () => {
         let   flag = '';
         class Ops extends Operators {
-            get operators() {return {1: (n,l)=>{flag=n+''+l;return l+1}}};
-            get size     () {return 1};
+            get operators() {return {1: (n,l)=>{flag=n+''+l;return l+1}}}
+            get size     () {return 1}
         }
         const clss = {ops: Ops};
         const obs  = new Observer(1);
