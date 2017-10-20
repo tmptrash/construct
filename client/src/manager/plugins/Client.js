@@ -25,8 +25,8 @@ const EVENTS     = require('./../../global/Events').EVENTS;
 const WS         = Config.modeType === Modes.MODE_NODE ? require('ws') : window.WebSocket;
 
 const PLUGINS = {
-    Request: Request,
-    Api    : Api
+    Request,
+    Api
 };
 
 class Client extends Connection {
