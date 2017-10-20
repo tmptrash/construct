@@ -529,8 +529,10 @@ describe("client/src/organism/OperatorsDos", () => {
         let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
         let org = {x:3, y:4};
 
-        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, dir, ret) => {
+        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
             ret.ret = 1;
+            ret.x   = 2;
+            ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
         });
         expect(ops.onStepLeft(0x081fffff, 0, org, 1)).toEqual(1); // v0=org.stepLeft();
@@ -548,8 +550,10 @@ describe("client/src/organism/OperatorsDos", () => {
         let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
         let org = {x:3, y:4};
 
-        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, dir, ret) => {
+        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
             ret.ret = 0;
+            ret.x   = 3;
+            ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
         });
         expect(ops.onStepLeft(0x081fffff, 0, org, 1)).toEqual(1); // v0=org.stepLeft();
@@ -567,8 +571,10 @@ describe("client/src/organism/OperatorsDos", () => {
         let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
         let org = {x:3, y:4};
 
-        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, dir, ret) => {
+        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
             ret.ret = 1;
+            ret.x   = 2;
+            ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
         });
         expect(ops.onStepLeft(0x086fffff, 0, org, 1)).toEqual(1); // v1=org.stepLeft();
@@ -587,8 +593,10 @@ describe("client/src/organism/OperatorsDos", () => {
         let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
         let org = {x:3, y:4};
 
-        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, dir, ret) => {
+        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
             ret.ret = 0;
+            ret.x   = 3;
+            ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
         });
         expect(ops.onStepLeft(0x086fffff, 0, org, 1)).toEqual(1); // v1=org.stepLeft();
@@ -606,8 +614,10 @@ describe("client/src/organism/OperatorsDos", () => {
         let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
         let org = {x:3, y:4};
 
-        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, dir, ret) => {
+        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
             ret.ret = 1;
+            ret.x   = 2;
+            ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
         });
         expect(ops.onStepLeft(0x08ffffff, 0, org, 1)).toEqual(1); // v3=org.stepLeft();
@@ -625,8 +635,10 @@ describe("client/src/organism/OperatorsDos", () => {
         let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
         let org = {x:3, y:4};
 
-        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, dir, ret) => {
+        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
             ret.ret = 0;
+            ret.x   = 3;
+            ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
         });
         expect(ops.onStepLeft(0x08ffffff, 0, org, 1)).toEqual(1); // v3=org.stepLeft();
@@ -645,8 +657,10 @@ describe("client/src/organism/OperatorsDos", () => {
         let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
         let org = {x:3, y:4};
 
-        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, dir, ret) => {
+        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
             ret.ret = 1;
+            ret.x   = 4;
+            ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 4 && y2 === 4).toEqual(true);
         });
         expect(ops.onStepRight(0x081fffff, 0, org, 1)).toEqual(1); // v0=org.stepRight();
@@ -664,8 +678,10 @@ describe("client/src/organism/OperatorsDos", () => {
         let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
         let org = {x:3, y:4};
 
-        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, dir, ret) => {
+        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
             ret.ret = 0;
+            ret.x   = 3;
+            ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 4 && y2 === 4).toEqual(true);
         });
         expect(ops.onStepRight(0x081fffff, 0, org, 1)).toEqual(1); // v0=org.stepRight();
@@ -683,8 +699,10 @@ describe("client/src/organism/OperatorsDos", () => {
         let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
         let org = {x:3, y:4};
 
-        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, dir, ret) => {
+        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
             ret.ret = 1;
+            ret.x   = 4;
+            ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 4 && y2 === 4).toEqual(true);
         });
         expect(ops.onStepRight(0x086fffff, 0, org, 1)).toEqual(1); // v1=org.stepRight();
@@ -702,8 +720,10 @@ describe("client/src/organism/OperatorsDos", () => {
         let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
         let org = {x:3, y:4};
 
-        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, dir, ret) => {
+        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
             ret.ret = 0;
+            ret.x   = 3;
+            ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 4 && y2 === 4).toEqual(true);
         });
         expect(ops.onStepRight(0x086fffff, 0, org, 1)).toEqual(1); // v1=org.stepRight();
@@ -721,8 +741,10 @@ describe("client/src/organism/OperatorsDos", () => {
         let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
         let org = {x:3, y:4};
 
-        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, dir, ret) => {
+        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
             ret.ret = 1;
+            ret.x   = 4;
+            ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 4 && y2 === 4).toEqual(true);
         });
         expect(ops.onStepRight(0x08ffffff, 0, org, 1)).toEqual(1); // v3=org.stepRight();
@@ -740,8 +762,10 @@ describe("client/src/organism/OperatorsDos", () => {
         let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
         let org = {x:3, y:4};
 
-        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, dir, ret) => {
+        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
             ret.ret = 0;
+            ret.x   = 3;
+            ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 4 && y2 === 4).toEqual(true);
         });
         expect(ops.onStepRight(0x08ffffff, 0, org, 1)).toEqual(1); // v3=org.stepRight();

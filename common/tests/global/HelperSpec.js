@@ -15,9 +15,9 @@ describe("common/src/global/Helper", () => {
         expect(Helper.posId(3,2) === Helper.posId(2,3)).toEqual(false);
     });
     it("Checking override() method", () => {
+        let inc = 0;
         class Tmp {method() {inc++}}
         function oMethod() {inc++}
-        let inc = 0;
         let tmp = new Tmp();
 
         Helper.override(tmp, 'method', oMethod);
@@ -25,10 +25,10 @@ describe("common/src/global/Helper", () => {
         expect(inc).toEqual(2);
     });
     it("Checking two override()/unoverride() method calls", () => {
+        let inc = 0;
         class Tmp1 {method() {inc++}}
         function oMethod1()  {inc++;one++}
         function oMethod2()  {inc++;two++}
-        let inc = 0;
         let two = 0;
         let one = 0;
         let tmp = new Tmp1();
@@ -113,14 +113,14 @@ describe("common/src/global/Helper", () => {
         api.set('worldCyclical', false);
         expect(Helper.normalize(0,0)).toEqual([0,0, DIR.NO]);
         expect(Helper.normalize(Config.worldWidth - 1, Config.worldHeight - 1)).toEqual([Config.worldWidth - 1, Config.worldHeight - 1, DIR.NO]);
-        expect(Helper.normalize(Config.worldWidth, Config.worldHeight)).toEqual([Config.worldWidth, Config.worldHeight, DIR.NO]);
-        expect(Helper.normalize(Config.worldWidth + 1, Config.worldHeight)).toEqual([Config.worldWidth + 1, Config.worldHeight, DIR.NO]);
-        expect(Helper.normalize(Config.worldWidth, Config.worldHeight + 1)).toEqual([Config.worldWidth, Config.worldHeight + 1, DIR.NO]);
-        expect(Helper.normalize(Config.worldWidth + 1, Config.worldHeight + 1)).toEqual([Config.worldWidth + 1, Config.worldHeight + 1, DIR.NO]);
+        expect(Helper.normalize(Config.worldWidth, Config.worldHeight)).toEqual([0, 0, DIR.DOWN]);
+        expect(Helper.normalize(Config.worldWidth + 1, Config.worldHeight)).toEqual([0, 0, DIR.DOWN]);
+        expect(Helper.normalize(Config.worldWidth, Config.worldHeight + 1)).toEqual([0, 0, DIR.DOWN]);
+        expect(Helper.normalize(Config.worldWidth + 1, Config.worldHeight + 1)).toEqual([0, 0, DIR.DOWN]);
 
-        expect(Helper.normalize(-1, Config.worldHeight - 1)).toEqual([-1, Config.worldHeight - 1, DIR.NO]);
-        expect(Helper.normalize(-2, Config.worldHeight - 1)).toEqual([-2, Config.worldHeight - 1, DIR.NO]);
-        expect(Helper.normalize(-2, -1)).toEqual([-2, -1, DIR.NO]);
+        expect(Helper.normalize(-1, Config.worldHeight - 1)).toEqual([Config.worldWidth - 1, Config.worldHeight - 1, DIR.LEFT]);
+        expect(Helper.normalize(-2, Config.worldHeight - 1)).toEqual([Config.worldWidth - 1, Config.worldHeight - 1, DIR.LEFT]);
+        expect(Helper.normalize(-2, -1)).toEqual([Config.worldWidth - 1, Config.worldHeight - 1, DIR.UP]);
         api.set('worldCyclical', cyc);
     });
 

@@ -10,6 +10,7 @@
  */
 const Helper     = require('./../../../../common/src/global/Helper');
 const Config     = require('./../../../../common/src/global/Config').Config;
+const Modes      = require('./../../../../common/src/global/Config').Modes;
 const TYPES      = require('./../../../../common/src/global/Requests').TYPES;
 const Request    = require('./../../../../common/src/net/plugins/Request');
 const Api        = require('./Api');
@@ -17,6 +18,11 @@ const Console    = require('./../../global/Console').default;
 const Connection = require('./../../../../common/src/net/Connection');
 const Plugins    = require('./../../../../common/src/global/Plugins');
 const EVENTS     = require('./../../global/Events').EVENTS;
+//
+// In browser we use browser's native WS implementation. On node.js
+// we use implementation of 'ws' library
+//
+const WS         = Config.modeType === Modes.MODE_NODE ? require('ws') : window.WebSocket;
 
 const PLUGINS = {
     Request: Request,
@@ -43,6 +49,7 @@ class Client extends Connection {
 
     destroy() {
         super.destroy();
+        this._client.close();
         this._client.onclose   = null;
         this._client.onmessage = null;
         this._client.onerror   = null;
@@ -72,7 +79,7 @@ class Client extends Connection {
     _createWebSocket() {
         let ws = null;
         try {
-            ws = new WebSocket(`${Config.serHost}:${Config.serPort}`);
+            ws = new WS(`${Config.serHost}:${Config.serPort}`);
         } catch (e) {
             Console.error(e.message);
         }
