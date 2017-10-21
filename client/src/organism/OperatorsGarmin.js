@@ -45,7 +45,7 @@ export default class OperatorsGarmin extends  Operators {
          * {Array} Available conditions for if operator. Amount should be
          * the same like (1 << BITS_PER_VAR)
          */
-        this._CONDITIONS = [(a,b)=>a<b, (a,b)=>a>b, (a,b)=>a==b, (a,b)=>a!=b];
+        this._CONDITIONS = [(a,b)=>a<b, (a,b)=>a>b, (a,b)=>a===b, (a,b)=>a!==b];
         /**
          * {Array} Available operators for math calculations
          */

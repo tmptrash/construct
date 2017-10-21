@@ -26,11 +26,11 @@ describe("common/src/global/Helper", () => {
     });
     it("Checking two override()/unoverride() method calls", () => {
         let inc = 0;
+        let two = 0;
+        let one = 0;
         class Tmp1 {method() {inc++}}
         function oMethod1()  {inc++;one++}
         function oMethod2()  {inc++;two++}
-        let two = 0;
-        let one = 0;
         let tmp = new Tmp1();
 
         Helper.override(tmp, 'method', oMethod1);
