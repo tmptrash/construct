@@ -11,7 +11,7 @@ const DIR = {
     NO   : 4
 };
 
-const DIR_NAMES = {
+const NAMES = {
     0: 'Up',
     1: 'Right',
     2: 'Down',
@@ -19,4 +19,4 @@ const DIR_NAMES = {
     4: 'No'
 };
 
-module.exports = {DIR: DIR, NAMES: DIR_NAMES};
+module.exports = {DIR, NAMES};

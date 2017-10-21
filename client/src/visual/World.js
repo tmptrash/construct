@@ -82,7 +82,7 @@ export default class World extends Observer {
 
         while (this.getDot(x = rand(width), y = rand(height)) > 0 && i-- > 0) {}
 
-        return i > 0 ? {x: x, y: y} : false
+        return i > 0 ? {x, y} : false
     }
 
     getNearFreePos(x, y) {

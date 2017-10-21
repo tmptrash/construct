@@ -42,7 +42,7 @@ class Queue {
             this._last = this._last.next = {
                 prev: this._last,
                 next: null,
-                val : val
+                val
             };
             return;
         }

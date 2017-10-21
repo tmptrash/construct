@@ -84,8 +84,8 @@ describe("server/src/server/Server", () => {
         server2.destroy();
         server1.destroy();
 
-        server1.on(EVENTS.STOP, () => {if (++times === 2) waitObj.done = true});
-        server2.on(EVENTS.STOP, () => {if (++times === 2) waitObj.done = true});
+        server1.on(EVENTS.STOP, () => {if (++times === 2) {waitObj.done = true}});
+        server2.on(EVENTS.STOP, () => {if (++times === 2) {waitObj.done = true}});
         Helper.waitFor(waitObj, done);
     });
 

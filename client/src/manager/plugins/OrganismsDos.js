@@ -200,7 +200,7 @@ export default class OrganismsDos extends Organisms {
      * @private
      */
     _onStepIn(x, y, orgJson) {
-        if (this.manager.world.isFree(x, y) && this.createOrg({x:x, y:y})) {
+        if (this.manager.world.isFree(x, y) && this.createOrg({x, y})) {
             this.organisms.last.val.unserialize(orgJson);
         }
     }
