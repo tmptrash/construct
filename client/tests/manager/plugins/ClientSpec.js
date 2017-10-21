@@ -72,25 +72,75 @@ describe("client/src/manager/plugins/Client", () => {
         man.clear();
     });
     it("Checking client creation with a server", (done) => {
-        let client;
-        const man        = new Observer(EVENT_AMOUNT);
-        let  waitObj     = {done: false};
-        man.activeAround = [false,false,false,false];
-        man.run          = () => {waitObj.done = true};
-        man.setClientId  = (id) => {man.clientId = id};
+        const waitObj = {done: false};
+        class Man extends Observer {
+            constructor() {
+                super(EVENT_AMOUNT);
+                this.activeAround = [false,false,false,false];
+                this.clientId = null;
+            }
+            run()           {waitObj.done = true}
+            setClientId(id) {this.clientId = id}
+        }
+        const man    = new Man();
+        const server = new Server(Config.serPort, PLUGINS);
 
-        const server = new Server(8099, PLUGINS);
         server.on(EVENTS.RUN, () => waitObj.done = true);
         server.run();
         THelper.waitFor(waitObj, () => {
-            client = new Client(man);
-            THelper.waitFor(waitObj, () => {
+            const client = new Client(man);
+            THelper.waitFor(waitObj, () => { // waiting for Man.run()
+                server.on(EVENTS.STOP, () => waitObj.done = true);
                 server.destroy();
-                client.destroy();
-                man.clear();
-                done();
+                THelper.waitFor(waitObj, () => {
+                    client.destroy();
+                    man.clear();
+                    done();
+                });
             });
         });
-        //expect(run).toEqual(true);
+    });
+    it("Checking two clients with server", (done) => {
+        const waitObj = {done: false};
+        let   count   = 0;
+        class Man1 extends Observer {
+            constructor() {
+                super(EVENT_AMOUNT);
+                this.activeAround = [false,false,false,false];
+                this.clientId = null;
+            }
+            run()           {++count === 2 && (waitObj.done = true)}
+            setClientId(id) {this.clientId = id}
+        }
+        class Man2 extends Observer {
+            constructor() {
+                super(EVENT_AMOUNT);
+                this.activeAround = [false,false,false,false];
+                this.clientId = null;
+            }
+            run()           {++count === 2 && (waitObj.done = true)}
+            setClientId(id) {this.clientId = id}
+        }
+        const man1    = new Man1();
+        const man2    = new Man2();
+        const server  = new Server(Config.serPort, PLUGINS);
+
+        server.on(EVENTS.RUN, () => waitObj.done = true);
+        server.run();
+        THelper.waitFor(waitObj, () => {
+            const client1 = new Client(man1);
+            const client2 = new Client(man2);
+            THelper.waitFor(waitObj, () => { // waiting for Man1.run()
+                server.on(EVENTS.STOP, () => waitObj.done = true);
+                server.destroy();
+                THelper.waitFor(waitObj, () => {
+                    client1.destroy();
+                    client2.destroy();
+                    man1.clear();
+                    man2.clear();
+                    done();
+                });
+            });
+        });
     });
 });
