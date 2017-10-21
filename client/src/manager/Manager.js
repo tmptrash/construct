@@ -109,7 +109,7 @@ export default class Manager extends Observer {
         this._clientId = id;
     }
 
-    () {
+    hasOtherClients() {
         return this._activeAround.indexOf(true) !== -1;
     }
 
