@@ -47,13 +47,13 @@ const CLOSE    = 5;
 const OVERFLOW = 6;
 
 const EVENTS = {
-    RUN     : RUN,
-    STOP    : STOP,
-    CONNECT : CONNECT,
-    MSG     : MSG,
-    ERR     : ERR,
-    CLOSE   : CLOSE,
-    OVERFLOW: OVERFLOW
+    RUN,
+    STOP,
+    CONNECT,
+    MSG,
+    ERR,
+    CLOSE,
+    OVERFLOW
 };
 const EVENTS_LEN = Object.keys(EVENTS).length;
 

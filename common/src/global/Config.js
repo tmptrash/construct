@@ -29,13 +29,13 @@ const Config = {
     * types of console messages. For example in QUIET_IMPORTANT
     * mode info messages will be hidden.
     */
-    QUIET_ALL              : QUIET_ALL,
-    QUIET_IMPORTANT        : QUIET_IMPORTANT,
-    QUIET_NO               : QUIET_NO,
+    QUIET_ALL,
+    QUIET_IMPORTANT,
+    QUIET_NO,
 
-    ORG_MAX_MUTATION_PERIOD: ORG_MAX_MUTATION_PERIOD,
-    ORG_FIRST_COLOR        : ORG_FIRST_COLOR,
-    ORG_MAX_COLOR          : ORG_MAX_COLOR,
+    ORG_MAX_MUTATION_PERIOD,
+    ORG_FIRST_COLOR,
+    ORG_MAX_COLOR,
     /**
      * {Array} Probabilities with which mutator decides what to do:
      * add, change, delete character of the jsvm; change amount of

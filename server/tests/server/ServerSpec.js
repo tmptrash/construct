@@ -10,8 +10,8 @@ describe("server/src/server/Server", () => {
     const Request   = require('./../../../common/src/net/plugins/Request');
 
     const PLUGINS = {
-        Request: Request,
-        Api    : Api
+        Request,
+        Api
     };
 
     let error;
