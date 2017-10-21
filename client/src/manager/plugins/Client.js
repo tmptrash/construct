@@ -23,7 +23,7 @@ const EVENTS     = require('./../../global/Events').EVENTS;
 // we use implementation of 'ws' library
 //
 const WS         = Config.modeType === Modes.MODE_NODE ? require('ws') : window.WebSocket;
-
+// TODO: should be moved to global config #
 const PLUGINS = {
     Request,
     Api

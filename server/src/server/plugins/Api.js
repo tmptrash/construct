@@ -39,7 +39,7 @@ class Api extends BaseApi {
      * @api
      */
     _setActive(reqId, clientId, active) {
-        const region =  Connections.toRegion(clientId);
+        const region = Connections.toRegion(clientId);
         const server = this.parent;
         const con    = server.conns.getConnection(region);
 
