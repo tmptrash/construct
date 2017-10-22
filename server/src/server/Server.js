@@ -62,13 +62,18 @@ class Server extends Connection {
      */
     constructor(port, plugins) {
         super(SERVER_EVENTS_LEN);
-        this.EVENTS   = SERVER_EVENTS;
-        this.conns    = new Connections(Config.serMaxConnections);
+        this.EVENTS        = SERVER_EVENTS;
+        this.conns         = new Connections(Config.serMaxConnections);
 
-        this._server  = null;
-        this._port    = port;
-        this._running = false;
-        this._plugins = new Plugins(this, plugins, false);
+        /**
+         * {Array} Array of four bool elements (four sides), which stores sockets
+         * of up, right, down and left near servers.
+         */
+        this._activeAround = [false, false, false, false];
+        this._server       = null;
+        this._port         = port;
+        this._running      = false;
+        this._plugins      = new Plugins(this, plugins, false);
     }
 
     /**
@@ -185,8 +190,6 @@ class Server extends Connection {
         sock.on('error', this.onError.bind(this, clientId, sock));
         sock.on('close', this.onClose.bind(this, clientId, sock));
 
-        this.conns.setData(region, 'sock', sock);
-        this.request(sock, TYPES.REQ_GIVE_ID, clientId);
         this.fire(SERVER_EVENTS.CONNECT, sock);
         Console.info(`Client ${clientId} has connected`);
     }

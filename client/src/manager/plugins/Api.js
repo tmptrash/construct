@@ -14,7 +14,6 @@ class Api extends BaseApi {
     constructor(client, manager) {
         super(client);
 
-        this.api[TYPES.REQ_GIVE_ID]         = this._giveId.bind(this);
         this.api[TYPES.REQ_MOVE_ORG]        = this._moveOrg.bind(this);
         this.api[TYPES.RES_MOVE_ERR]        = this._moveOrg.bind(this);
         this.api[TYPES.REQ_SET_NEAR_ACTIVE] = this._setActive.bind(this);
@@ -22,25 +21,6 @@ class Api extends BaseApi {
 
     destroy() {
         super.destroy();
-    }
-
-    /**
-     * Handler of request from server, where it passes us unique client
-     * id. We have to save this id and pass it with every request. This
-     * is how server will differentiate us from other clients.
-     * @param {Number} reqId Unique request id. Unused for this request
-     * @param {String} clientId Unique id of current client obtained from
-     * the server
-     * @api
-     */
-    _giveId(reqId, clientId) {
-        this.parent.manager.setClientId(clientId);
-        Console.info(`Client id "${clientId}" obtained from the server`);
-        this._request(TYPES.REQ_SET_ACTIVE, true, (type) => {
-            if (type === TYPES.RES_ACTIVE_OK) {
-                this.parent.manager.run();
-            }
-        });
     }
 
     /**

@@ -85,6 +85,19 @@ class Client extends Connection {
     onOpen(event) {
         this._closed = false;
         this._client.onmessage = this.onMessage.bind(this, this._client);
+        //
+        // First we send request to get unique clientId from server. It
+        // also means that this client is active and ready to run
+        //
+        this.request(this._client, TYPES.REQ_GET_ID, (type, clientId) => {
+            if (type !== TYPES.RES_GET_ID_OK) {
+                Console.error(`Unable to get unique client id from server. Response type: ${type}`);
+                return;
+            }
+            this.manager.setClientId(clientId);
+            this.manager.run();
+            Console.info(`Client id "${clientId}" obtained from the server`);
+        });
         Console.info('Connection with Server has opened');
     }
 

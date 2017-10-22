@@ -17,16 +17,16 @@ const TYPES = {
     //
     // Requests section
     //
-    REQ_SET_ACTIVE     : 0,
-    REQ_MOVE_ORG       : 1,
-    REQ_GIVE_ID        : 2,
-    REQ_SET_NEAR_ACTIVE: 3,
+    REQ_MOVE_ORG       : 0,
+    REQ_GIVE_ID        : 1,
+    REQ_SET_NEAR_ACTIVE: 2,
+    REQ_GET_ID         : 3,
     //
     // Responses section
     //
     RES_MOVE_ERR       : 1000,
-    RES_ACTIVE_OK      : 1001,
-    RES_INVALID_TYPE   : 1002
+    RES_INVALID_TYPE   : 1001,
+    RES_GET_ID_OK      : 1002
 };
 
 module.exports = {TYPES, MASKS};
