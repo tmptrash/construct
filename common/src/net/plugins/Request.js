@@ -107,7 +107,7 @@ class Request {
         // data[0] is type
         // data.slice(2) are params
         //
-        cb && cb(data[0], data.slice(2));
+        cb && cb(data[0], ...data.slice(2));
         delete this._requests[reqId];
     }
 }

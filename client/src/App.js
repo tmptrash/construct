@@ -9,7 +9,7 @@
  */
 import Manager from './manager/Manager';
 import {Config}          from './../../common/src/global/Config';
-import Client            from './../../client/src/manager/plugins/Client';
+import {Client}          from './../../client/src/manager/plugins/Client';
 import OrganismsGarmin   from './../src/manager/plugins/OrganismsGarmin';
 import OrganismsDos      from './../src/manager/plugins/OrganismsDos';
 import ConfigPlugin      from './../src/manager/plugins/Config';

@@ -132,13 +132,18 @@ class Server extends Connection {
         //
         // Server is ready to close all clients and itself
         //
-        me._server.close(() => {
-            delete Server.ports[me._port];
-            me._running = false;
-            this._server.removeAllListeners('connection');
-            me.fire(STOP);
-            Console.info('Server has stopped. All clients have disconnected');
-        });
+        try {
+            me._server.close(() => {
+                console.log('n: ', STOP);
+                delete Server.ports[me._port];
+                me._running = false;
+                this._server.removeAllListeners('connection');
+                me.fire(STOP);
+                Console.info('Server has stopped. All clients have disconnected');
+            });
+        } catch(e) {
+            console.log(e);
+        }
 
         return true;
     }

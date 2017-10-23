@@ -67,14 +67,14 @@ class Api extends BaseApi {
      * @api
      */
     _getId(reqId, isClient = true) {
-        isClient && this._getClientId(reqId) || this._getServerId(reqId);
+        isClient && this._onGetClientId(reqId) || this._onGetServerId(reqId);
     }
 
     /**
      * If it was a request from client, then we have to create unique clientId for him.
      * @param {Number} reqId Unique request id
      */
-    _getClientId(reqId) {
+    _onGetClientId(reqId) {
         const sock     = this.sock;
         const region   = this.parent.conns.getFreeRegion();
         const clientId = Connections.toId(region);
@@ -94,7 +94,7 @@ class Api extends BaseApi {
      * If it was a server, then we have to update our "around" servers (this.parent.activeAround)
      * @param {Number} reqId Unique request id
      */
-    _getServerId(reqId) {
+    _onGetServerId(reqId) {
         // TODO:
     }
 

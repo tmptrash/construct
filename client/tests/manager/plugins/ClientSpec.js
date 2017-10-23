@@ -4,7 +4,7 @@ describe("client/src/manager/plugins/Client", () => {
     let Observer     = require('./../../../../common/src/global/Observer');
     let Config       = require('./../../../../common/src/global/Config').Config;
     let EVENT_AMOUNT = require('./../../../../client/src/global/Events').EVENT_AMOUNT;
-    let EVENTS       = require('./../../../../server/src/server/Server').EVENTS;
+    let SEVENTS      = require('./../../../../server/src/server/Server').EVENTS;
     let Modes        = require('./../../../../common/src/global/Config').Modes;
     let api          = require('./../../../../common/src/global/Config').api;
     let Console      = require('./../../../../client/src/global/Console').default;
@@ -13,6 +13,7 @@ describe("client/src/manager/plugins/Client", () => {
     const Request    = require('./../../../../common/src/net/plugins/Request');
     let type;
     let Client;
+    let CEVENTS;
     let Server;
 
     const PLUGINS = {
@@ -31,9 +32,10 @@ describe("client/src/manager/plugins/Client", () => {
         //
         // These two lines set MODE_NODE mode to set Node.js as running environment
         //
-        type   = Config.modeType;api.set('modeType', Modes.MODE_NODE);
-        Client = require('./../../../../client/src/manager/plugins/Client');
-        Server = require('./../../../../server/src/server/Server').Server;
+        type     = Config.modeType;api.set('modeType', Modes.MODE_NODE);
+        Client   = require('./../../../../client/src/manager/plugins/Client').Client;
+        CEVENTS  = require('./../../../../client/src/manager/plugins/Client').EVENTS;
+        Server   = require('./../../../../server/src/server/Server').Server;
         //
         // These lines prevents classes put messages to the console
         //
@@ -85,12 +87,12 @@ describe("client/src/manager/plugins/Client", () => {
         const man    = new Man();
         const server = new Server(Config.serPort, PLUGINS);
 
-        server.on(EVENTS.RUN, () => waitObj.done = true);
+        server.on(SEVENTS.RUN, () => waitObj.done = true);
         server.run();
         THelper.waitFor(waitObj, () => {
             const client = new Client(man);
             THelper.waitFor(waitObj, () => { // waiting for Man.run()
-                server.on(EVENTS.STOP, () => waitObj.done = true);
+                server.on(SEVENTS.STOP, () => waitObj.done = true);
                 server.destroy();
                 THelper.waitFor(waitObj, () => {
                     client.destroy();
@@ -125,15 +127,17 @@ describe("client/src/manager/plugins/Client", () => {
         const man2    = new Man2();
         const server  = new Server(Config.serPort, PLUGINS);
 
-        server.on(EVENTS.RUN, () => waitObj.done = true);
+        server.on(SEVENTS.RUN, () => waitObj.done = true);
         server.run();
         THelper.waitFor(waitObj, () => {
             const client1 = new Client(man1);
             const client2 = new Client(man2);
             THelper.waitFor(waitObj, () => { // waiting for Man1.run()
-                server.on(EVENTS.STOP, () => waitObj.done = true);
+                console.log(SEVENTS.STOP);
+                server.on(SEVENTS.STOP, () => {console.log('stop');waitObj.done = true});
                 server.destroy();
                 THelper.waitFor(waitObj, () => {
+                    console.log('dest')
                     client1.destroy();
                     client2.destroy();
                     man1.clear();

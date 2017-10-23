@@ -20229,9 +20229,18 @@ const PLUGINS = {
     Api
 };
 
+const EVENTS_LEN  = Object.keys(EVENTS).length;
+const OPEN        = EVENTS_LEN;
+
+const CLIENT_EVENTS = Object.assign({
+    OPEN
+}, EVENTS);
+const CLIENT_EVENTS_LEN = Object.keys(CLIENT_EVENTS).length;
+
 class Client extends Connection {
     constructor(manager) {
         super(0);
+        this._EVENTS         = CLIENT_EVENTS;
         this._manager        = manager;
         this._closed         = true;
         this._client         = this._createWebSocket();
@@ -20298,6 +20307,7 @@ class Client extends Connection {
             this.manager.run();
             Console.info(`Client id "${clientId}" obtained from the server`);
         });
+        this.fire(OPEN, event);
         Console.info('Connection with Server has opened');
     }
 
@@ -20317,7 +20327,7 @@ class Client extends Connection {
     }
 }
 
-module.exports = Client;
+module.exports = {Client, EVENTS: CLIENT_EVENTS};
 
 /***/ }),
 /* 109 */
@@ -21045,7 +21055,7 @@ const PLUGINS = {
     Mutator: __WEBPACK_IMPORTED_MODULE_6__src_manager_plugins_Mutator__["a" /* default */],
     Energy: __WEBPACK_IMPORTED_MODULE_7__src_manager_plugins_Energy__["a" /* default */],
     Status: __WEBPACK_IMPORTED_MODULE_8__src_manager_plugins_Status__["a" /* default */],
-    Client: __WEBPACK_IMPORTED_MODULE_2__client_src_manager_plugins_Client___default.a
+    Client: __WEBPACK_IMPORTED_MODULE_2__client_src_manager_plugins_Client__["Client"]
 };
 const manager = new __WEBPACK_IMPORTED_MODULE_0__manager_Manager__["a" /* default */](PLUGINS);
 //
@@ -24286,7 +24296,7 @@ class OperatorsGarmin extends  __WEBPACK_IMPORTED_MODULE_2__base_Operators__["a"
          * {Array} Available operators for math calculations
          */
         this._OPERATORS = [
-            (a,b)=>a+b, (a,b)=>a-b, (a,b)=>a*b, (a,b)=>a/b, (a,b)=>a%b, (a,b)=>a&b, (a,b)=>a|b, (a,b)=>a^b, (a,b)=>a>>b, (a,b)=>a<<b, (a,b)=>a>>>b, (a,b)=>+(a<b), (a,b)=>+(a>b), (a,b)=>+(a===b), (a,b)=>+(a!=b), (a,b)=>+(a<=b)
+            (a,b)=>a+b, (a,b)=>a-b, (a,b)=>a*b, (a,b)=>a/b, (a,b)=>a%b, (a,b)=>a&b, (a,b)=>a|b, (a,b)=>a^b, (a,b)=>a>>b, (a,b)=>a<<b, (a,b)=>a>>>b, (a,b)=>+(a<b), (a,b)=>+(a>b), (a,b)=>+(a===b), (a,b)=>+(a!==b), (a,b)=>+(a<=b)
         ];
         this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
         //
@@ -25133,7 +25143,7 @@ class Request {
         // data[0] is type
         // data.slice(2) are params
         //
-        cb && cb(data[0], data.slice(2));
+        cb && cb(data[0], ...data.slice(2));
         delete this._requests[reqId];
     }
 }

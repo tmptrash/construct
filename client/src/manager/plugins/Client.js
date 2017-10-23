@@ -16,8 +16,9 @@ const Request    = require('./../../../../common/src/net/plugins/Request');
 const Api        = require('./Api');
 const Console    = require('./../../global/Console').default;
 const Connection = require('./../../../../common/src/net/Connection').Connection;
+const EVENTS     = require('./../../../../common/src/net/Connection').EVENTS;
 const Plugins    = require('./../../../../common/src/global/Plugins');
-const EVENTS     = require('./../../global/Events').EVENTS;
+const GEVENTS    = require('./../../global/Events').EVENTS;
 //
 // In browser we use browser's native WS implementation. On node.js
 // we use implementation of 'ws' library
@@ -29,16 +30,25 @@ const PLUGINS = {
     Api
 };
 
+const EVENTS_LEN  = Object.keys(EVENTS).length;
+const OPEN        = EVENTS_LEN;
+
+const CLIENT_EVENTS = Object.assign({
+    OPEN
+}, EVENTS);
+const CLIENT_EVENTS_LEN = Object.keys(CLIENT_EVENTS).length;
+
 class Client extends Connection {
     constructor(manager) {
-        super(0);
+        super(CLIENT_EVENTS_LEN);
+        this.EVENTS          = CLIENT_EVENTS;
         this._manager        = manager;
         this._closed         = true;
         this._client         = this._createWebSocket();
         this._plugins        = new Plugins(this, PLUGINS);
         this._onStepOutCb    = this._onStepOut.bind(this);
 
-        this._manager.on(EVENTS.STEP_OUT, this._onStepOutCb);
+        this._manager.on(GEVENTS.STEP_OUT, this._onStepOutCb);
         this._client.onerror = this.onError.bind(this);
         this._client.onclose = this.onClose.bind(this);
         this._client.onopen  = this.onOpen.bind(this);
@@ -54,7 +64,7 @@ class Client extends Connection {
         this._client.onmessage = null;
         this._client.onerror   = null;
         this._client.onclose   = null;
-        this._manager.off(EVENTS.STEP_OUT, this._onStepOutCb);
+        this._manager.off(GEVENTS.STEP_OUT, this._onStepOutCb);
         this._manager          = null;
         this._plugins          = null;
         this._onStepOutCb      = null;
@@ -94,10 +104,11 @@ class Client extends Connection {
                 Console.error(`Unable to get unique client id from server. Response type: ${type}`);
                 return;
             }
-            this.manager.setClientId(clientId);
-            this.manager.run();
+            this._manager.setClientId(clientId);
+            this._manager.run();
             Console.info(`Client id "${clientId}" obtained from the server`);
         });
+        this.fire(OPEN, event);
         Console.info('Connection with Server has opened');
     }
 
@@ -117,4 +128,4 @@ class Client extends Connection {
     }
 }
 
-module.exports = Client;
+module.exports = {Client, EVENTS: CLIENT_EVENTS};
