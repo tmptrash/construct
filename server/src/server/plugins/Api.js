@@ -15,8 +15,8 @@ const BaseApi     = require('./../../../../common/src/net/plugins/Api');
 class Api extends BaseApi {
     constructor(parent) {
         super(parent);
-        this.api[TYPES.REQ_SET_ACTIVE] = this._setActive.bind(this);
         this.api[TYPES.REQ_MOVE_ORG]   = this._moveOrg.bind(this);
+        this.api[TYPES.REQ_GET_ID]     = this._getId.bind(this);
 
         this._onCloseCb = this._onClose.bind(this);
 
@@ -28,24 +28,6 @@ class Api extends BaseApi {
 
         Helper.unoverride(this.parent, 'onClose', this._onCloseCb);
         this._onCloseCb = null;
-    }
-
-    /**
-     * Sets client active. It means, that sibling active client may
-     * transfer it's organisms to this client
-     * @param {Number} reqId Unique request id. Needed for response
-     * @param {String} clientId
-     * @param {Boolean} active
-     * @api
-     */
-    _setActive(reqId, clientId, active) {
-        const region =  Connections.toRegion(clientId);
-        const server = this.parent;
-        const con    = server.conns.getConnection(region);
-
-        server.conns.setData(region, 'active', active);
-        server.response(con.sock, TYPES.RES_ACTIVE_OK, reqId);
-        this._activateAll(region);
     }
 
     /**
@@ -76,6 +58,56 @@ class Api extends BaseApi {
             this.parent.request(backCon.sock, TYPES.RES_MOVE_ERR, x, y, dir, orgJson, `Region "${region}" on direction "${DIR_NAMES[dir]}" is not active`);
             Console.error(`Destination region ${region} is not active. Organism "${org.id}" will be sent back.`);
         }
+    }
+
+    /**
+     * Creates response with unique client id for just connected clients or servers
+     * @param {Number} reqId Unique request id. Needed for response
+     * @param {Boolean} isClient true for request from client, false for server
+     * @api
+     */
+    _getId(reqId, isClient = true) {
+        isClient && this._getClientId(reqId) || this._getServerId(reqId);
+    }
+
+    /**
+     * If it was a request from client, then we have to create unique clientId for him.
+     * @param {Number} reqId Unique request id
+     */
+    _getClientId(reqId) {
+        const sock     = this.sock;
+        const region   = this.parent.conns.getFreeRegion();
+        const clientId = Connections.toId(region);
+
+        if (region === null) {
+            sock.terminate();
+            this.parent.fire(this.parent.EVENTS.OVERFLOW, sock);
+            Console.warn('This server is overloaded by clients. Try another server to connect.');
+            return;
+        }
+        this.parent.conns.setData(region, 'sock', sock);
+        this.parent.response(sock, TYPES.RES_GET_ID_OK, reqId, clientId);
+        this._setActive(clientId, true);
+    }
+
+    /**
+     * If it was a server, then we have to update our "around" servers (this.parent.activeAround)
+     * @param {Number} reqId Unique request id
+     */
+    _getServerId(reqId) {
+        // TODO:
+    }
+
+    /**
+     * Sets client active. It means, that sibling active client may
+     * transfer it's organisms to this client
+     * @param {String} clientId
+     * @param {Boolean} active
+     */
+    _setActive(clientId, active) {
+        const region = Connections.toRegion(clientId);
+        this.parent.conns.setData(region, 'active', active);
+        this._activateAll(region);
     }
 
     /**

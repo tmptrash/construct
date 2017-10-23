@@ -8,10 +8,10 @@
  *     class ServerApi extends Api {
  *         constructor() {
  *             super();
- *             this.api[TYPES.REQ_SET_ACTIVE] = this._setActive;
+ *             this.api[TYPES.XXX] = this._setXXX;
  *             ...
  *         }
- *         _setActive() {
+ *         _setXXX() {
  *             ...
  *         }
  *     }
@@ -31,10 +31,18 @@ class Api {
          */
         this.api          = {};
         this.parent       = parent;
+
+        /**
+         * {WebSocket} Currently active socket. It's available only during
+         * message is received
+         */
+        this._sock        = null;
         this._onMessageCb = this._onMessage.bind(this);
 
         Helper.override(parent, 'onMessage', this._onMessageCb);
     }
+
+    get sock() {return this._sock}
 
     destroy() {
         Helper.unoverride(this.parent, 'onMessage', this._onMessageCb);
@@ -58,6 +66,7 @@ class Api {
         const reqId = data[1];
         const type  = data[0];
 
+        this._sock = sock;
         if (((reqId & MASKS.REQ_MASK) >>> 0) > 0) {
             if (this.api[type]) {
                 this.api[type](...[reqId].concat(data.slice(2)));
@@ -65,6 +74,7 @@ class Api {
                 this.parent.response(sock, TYPES.RES_INVALID_TYPE, reqId, `Invalid request type ${type}`);
             }
         }
+        this._sock = null;
     }
 }
 

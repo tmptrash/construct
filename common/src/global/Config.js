@@ -12,6 +12,16 @@ const QUIET_NO                = 2;
 const ORG_MAX_MUTATION_PERIOD = 10000;
 const ORG_FIRST_COLOR         = 1;
 const ORG_MAX_COLOR           = Number.MAX_SAFE_INTEGER;
+/**
+ * {Number} Running modes
+ */
+const MODE_BROWSER            = 0;
+const MODE_NODE               = 1;
+
+const Modes = {
+    MODE_BROWSER,
+    MODE_NODE
+};
 
 const Config = {
    /**
@@ -19,13 +29,13 @@ const Config = {
     * types of console messages. For example in QUIET_IMPORTANT
     * mode info messages will be hidden.
     */
-    QUIET_ALL              : QUIET_ALL,
-    QUIET_IMPORTANT        : QUIET_IMPORTANT,
-    QUIET_NO               : QUIET_NO,
+    QUIET_ALL,
+    QUIET_IMPORTANT,
+    QUIET_NO,
 
-    ORG_MAX_MUTATION_PERIOD: ORG_MAX_MUTATION_PERIOD,
-    ORG_FIRST_COLOR        : ORG_FIRST_COLOR,
-    ORG_MAX_COLOR          : ORG_MAX_COLOR,
+    ORG_MAX_MUTATION_PERIOD,
+    ORG_FIRST_COLOR,
+    ORG_MAX_COLOR,
     /**
      * {Array} Probabilities with which mutator decides what to do:
      * add, change, delete character of the jsvm; change amount of
@@ -320,6 +330,11 @@ const Config = {
      */
     modeQuiet: QUIET_IMPORTANT,
     /**
+     * {String} Running mode. It's also possible to run jevo.js only on
+     * server side without browser
+     */
+    modeType: MODE_BROWSER,
+    /**
      * {Number} Maximum amount of connections for current server. Should
      * be quadratic (x^2) e.g.: 4, 9, 16,... This value will be extended
      * with additional "around" rows and columns for connecting with sibling
@@ -341,7 +356,7 @@ const api = {
     get: (key)      => Config[key]
 };
 
-module.exports = {Config, api};
+module.exports = {Config, api, Modes};
 
 // /**
 //  * Global jevo.js configuration file. Affects only current jevo

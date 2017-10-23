@@ -5,8 +5,8 @@
  *
  * @author flatline
  */
-const Helper   = require('./../../global/Helper');
-const MASKS    = require('./../../global/Requests').MASKS;
+const Helper = require('./../../global/Helper');
+const MASKS  = require('./../../global/Requests').MASKS;
 
 class Request {
     /**

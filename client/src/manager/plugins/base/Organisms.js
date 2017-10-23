@@ -98,7 +98,7 @@ export default class Organisms {
     get orgs() {return this.organisms}
 
     destroy() {
-        Helper.unoverride(man, 'onIteration', this._onIterationCb);
+        Helper.unoverride(this.manager, 'onIteration', this._onIterationCb);
         for (let org of this.organisms) {org.destroy()}
         this.organisms.destroy();
         this.organisms      = null;

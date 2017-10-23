@@ -7,6 +7,18 @@
  */
 const Observer = require('./../global/Observer');
 
+const MSG     = 0;
+const ERR     = 1;
+const CLOSE   = 2;
+const DESTROY = 3;
+
+const EVENTS  = {
+    MSG,
+    ERR,
+    CLOSE,
+    DESTROY
+};
+
 class Connection extends Observer {
     constructor(eventAmount) {
         super(eventAmount);
@@ -48,14 +60,18 @@ class Connection extends Observer {
      * @param {Event} event Message event. Data is in 'data' property
      * @abstract
      */
-    onMessage(sock, event) {}
+    onMessage(sock, event) {
+        this.fire(MSG, sock, event);
+    }
 
     /**
-     * Is called on every error during websockets work
+     * Is called on every error during web sockets work
      * @param {Event} event Error event
      * @abstract
      */
-    onError(event) {}
+    onError(event) {
+        this.fire(ERR, event);
+    }
 
     /**
      * Connection has closed
@@ -97,13 +113,16 @@ class Connection extends Observer {
         }
 
         this._closeReason = reason;
+        this.fire(CLOSE, event);
     }
 
     /**
      * @destructor
      * @abstract
      */
-    destroy() {}
+    destroy() {
+        this.fire(DESTROY);
+    }
 }
 
-module.exports = Connection;
+module.exports = {Connection, EVENTS};

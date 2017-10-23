@@ -9,8 +9,8 @@ const Api     = require('./server/plugins/Api');
 const Request = require('./../../common/src/net/plugins/Request');
 
 const PLUGINS = {
-    Request: Request,
-    Api    : Api
+    Request,
+    Api
 };
 
 // TODO: port should be obtained from command line parameter

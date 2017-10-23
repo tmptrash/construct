@@ -20,7 +20,9 @@ class Plugins {
         const parentPlugins = parent.plugins = {};
 
         for (let p in plugins) {
-            parentPlugins[p] = new plugins[p](parent);
+            if (plugins.hasOwnProperty(p)) {
+                parentPlugins[p] = new plugins[p](parent);
+            }
         }
 
         this.parent      = parent;

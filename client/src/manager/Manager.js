@@ -33,13 +33,13 @@ import OrganismGarmin    from './../organism/OrganismGarmin';
  * for switching between fitness and natural modes
  */
 const CLASS_MAP = {
-    OperatorsDos     : OperatorsDos,
-    OperatorsGarmin  : OperatorsGarmin,
-    Code2StringDos   : Code2StringDos,
-    Code2StringGarmin: Code2StringGarmin,
-    FitnessGarmin    : FitnessGarmin,
-    OrganismDos      : OrganismDos,
-    OrganismGarmin   : OrganismGarmin
+    OperatorsDos,
+    OperatorsGarmin,
+    Code2StringDos,
+    Code2StringGarmin,
+    FitnessGarmin,
+    OrganismDos,
+    OrganismGarmin
 };
 
 export default class Manager extends Observer {

@@ -31,31 +31,27 @@
  * @author flatline
  */
 const WebSocket   = require('./../../../node_modules/ws/index');
-const Connection  = require('./../../../common/src/net/Connection');
+const Connection  = require('./../../../common/src/net/Connection').Connection;
+const EVENTS      = require('./../../../common/src/net/Connection').EVENTS;
 const Config      = require('./../../../common/src/global/Config').Config;
 const TYPES       = require('./../../../common/src/global/Requests').TYPES;
 const Plugins     = require('./../../../common/src/global/Plugins');
 const Console     = require('./../global/Console');
 const Connections = require('./../server/Connections');
 
-const RUN      = 0;
-const STOP     = 1;
-const CONNECT  = 2;
-const MSG      = 3;
-const ERR      = 4;
-const CLOSE    = 5;
-const OVERFLOW = 6;
+const EVENTS_LEN  = Object.keys(EVENTS).length;
+const CONNECT     = EVENTS_LEN;
+const RUN         = EVENTS_LEN + 1;
+const STOP        = EVENTS_LEN + 2;
+const OVERFLOW    = EVENTS_LEN + 3;
 
-const EVENTS = {
-    RUN     : RUN,
-    STOP    : STOP,
-    CONNECT : CONNECT,
-    MSG     : MSG,
-    ERR     : ERR,
-    CLOSE   : CLOSE,
-    OVERFLOW: OVERFLOW
-};
-const EVENTS_LEN = Object.keys(EVENTS).length;
+const SERVER_EVENTS = Object.assign({
+    CONNECT,
+    RUN,
+    STOP,
+    OVERFLOW
+}, EVENTS);
+const SERVER_EVENTS_LEN = Object.keys(SERVER_EVENTS).length;
 
 class Server extends Connection {
     /**
@@ -65,14 +61,19 @@ class Server extends Connection {
      * @param {Object} plugins Map of plugins. key: name, val: Class
      */
     constructor(port, plugins) {
-        super(EVENTS_LEN);
-        this.EVENTS   = EVENTS;
-        this.conns    = new Connections(Config.serMaxConnections);
-        this.parent   = null;
-        
-        this._port    = port;
-        this._running = false;
-        this._plugins = new Plugins(this, plugins, false);
+        super(SERVER_EVENTS_LEN);
+        this.EVENTS        = SERVER_EVENTS;
+        this.conns         = new Connections(Config.serMaxConnections);
+
+        /**
+         * {Array} Array of four bool elements (four sides), which stores sockets
+         * of up, right, down and left near servers.
+         */
+        this._activeAround = [false, false, false, false];
+        this._server       = null;
+        this._port         = port;
+        this._running      = false;
+        this._plugins      = new Plugins(this, plugins, false);
     }
 
     /**
@@ -83,7 +84,7 @@ class Server extends Connection {
      * @returns {Boolean} Running state
      */
     run() {
-        if (this.parent !== null) {
+        if (this._server !== null) {
             Console.warn('Server has already ran on port ${this._port}');
             return false;
         }
@@ -94,9 +95,9 @@ class Server extends Connection {
         }
 
         Server.ports[this._port] = true;
-        this.parent = new WebSocket.Server({port: this._port}, () => {
+        this._server = new WebSocket.Server({port: this._port}, () => {
             this._running = true;
-            this.parent.on('connection', this.onConnect.bind(this));
+            this._server.on('connection', this.onConnect.bind(this));
             this.fire(RUN);
             Console.info('Server is ready');
         });
@@ -115,7 +116,7 @@ class Server extends Connection {
         //
         // Server wasn't ran before
         //
-        if (!me.parent) {return false}
+        if (!me._server) {return false}
         //
         // Server was ran, but not ready yet. stop() method
         // will be called later after RUN event fired
@@ -131,10 +132,10 @@ class Server extends Connection {
         //
         // Server is ready to close all clients and itself
         //
-        me.parent.close(() => {
+        me._server.close(() => {
             delete Server.ports[me._port];
             me._running = false;
-            this.parent.removeAllListeners('connection');
+            this._server.removeAllListeners('connection');
             me.fire(STOP);
             Console.info('Server has stopped. All clients have disconnected');
         });
@@ -152,6 +153,7 @@ class Server extends Connection {
 
     /**
      * @destructor
+     * @override
      */
     destroy() {
         super.destroy();
@@ -159,11 +161,11 @@ class Server extends Connection {
         const onDestroy = () => {
             this._plugins.onDestroy();
             me.conns.destroy();
-            me.parent = me.conns = me._port = me._plugins = null;
+            me._server = me.conns = me._port = me._plugins = null;
             me.clear();
         };
 
-        if (me.parent === null) {return onDestroy()}
+        if (me._server === null) {return onDestroy()}
         me.on(STOP, onDestroy);
         me.stop();
     }
@@ -179,7 +181,7 @@ class Server extends Connection {
         const clientId = Connections.toId(region);
         if (region === null) {
             sock.terminate();
-            this.fire(EVENTS.OVERFLOW, sock);
+            this.fire(SERVER_EVENTS.OVERFLOW, sock);
             Console.warn('This server is overloaded by clients. Try another server to connect.');
             return;
         }
@@ -188,22 +190,13 @@ class Server extends Connection {
         sock.on('error', this.onError.bind(this, clientId, sock));
         sock.on('close', this.onClose.bind(this, clientId, sock));
 
-        this.conns.setData(region, 'sock', sock);
-        this.request(sock, TYPES.REQ_GIVE_ID, clientId);
-        this.fire(EVENTS.CONNECT, sock);
+        this.fire(SERVER_EVENTS.CONNECT, sock);
         Console.info(`Client ${clientId} has connected`);
     }
 
-    onMessage(sock, event) {
-        super.onMessage(sock, event);
-        this.fire(EVENTS.MSG, sock, event.data);
-    }
-
-    onError(clientId, sock, err) {
-        super.onError(err);
-        this.fire(EVENTS.ERR, sock, clientId, err);
-    }
-
+    /**
+     * @override
+     */
     onClose(clientId, sock, event) {
         super.onClose(event);
         const region = Connections.toRegion(clientId);
@@ -211,7 +204,6 @@ class Server extends Connection {
         sock.removeAllListeners('message');
         sock.removeAllListeners('error');
         sock.removeAllListeners('close');
-        this.fire(EVENTS.CLOSE, sock, clientId, region);
         Console.warn(`Client ${clientId} has disconnected by reason: ${this.closeReason}`);
     }
 }
@@ -222,4 +214,4 @@ class Server extends Connection {
  */
 Server.ports = {};
 
-module.exports = {Server: Server, EVENTS: EVENTS};
+module.exports = {Server, EVENTS: SERVER_EVENTS};

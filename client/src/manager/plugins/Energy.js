@@ -26,25 +26,24 @@ export default class Energy {
     }
 
     _onIteration(counter) {
-        if (counter % this._checkPeriod === 0 && this._checkPeriod > 0) {
-            if (counter === 0) {
-                this._updateEnergy(Config.worldEnergyDots, Config.worldEnergyInDot);
-                return;
-            }
-            let   energy = 0;
-            const world  = this.manager.world;
-            const width  = Config.worldWidth;
-            const height = Config.worldHeight;
+        if (counter % this._checkPeriod !== 0 || this._checkPeriod === 0) {return}
+        if (counter === 0) {
+            this._updateEnergy(Config.worldEnergyDots, Config.worldEnergyInDot);
+            return;
+        }
+        let   energy = 0;
+        const world  = this.manager.world;
+        const width  = Config.worldWidth;
+        const height = Config.worldHeight;
 
-            for (let x = 0; x < width; x++) {
-                for (let y = 0; y < height; y++) {
-                    if (world.getDot(x, y) > 0) {energy++}
-                }
+        for (let x = 0; x < width; x++) {
+            for (let y = 0; y < height; y++) {
+                if (world.getDot(x, y) > 0) {energy++}
             }
+        }
 
-            if (energy * 100 / (width * height) <= Config.worldEnergyCheckPercent) {
-                this._updateEnergy(Config.worldEnergyDots, Config.worldEnergyInDot);
-            }
+        if (energy * 100 / (width * height) <= Config.worldEnergyCheckPercent) {
+            this._updateEnergy(Config.worldEnergyDots, Config.worldEnergyInDot);
         }
     }
 

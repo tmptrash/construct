@@ -6,9 +6,10 @@
  *
  * @author flatline
  */
-import {EVENTS}  from '../global/Events';
-import {Config}  from '../../../common/src/global/Config';
-import Helper    from '../../../common/src/global/Helper';
+import {EVENTS}  from './../global/Events';
+import {DIR}     from './../../../common/src/global/Directions';
+import {Config}  from './../../../common/src/global/Config';
+import Helper    from './../../../common/src/global/Helper';
 import Operators from './base/Operators';
 import Num       from './Num';
 
@@ -64,12 +65,12 @@ export default class OperatorsDos extends Operators {
          * {Array} Available conditions for if operator. Amount should be
          * the same like (1 << BITS_PER_VAR)
          */
-        this._CONDITIONS = [(a,b)=>a<b, (a,b)=>a>b, (a,b)=>a==b, (a,b)=>a!=b];
+        this._CONDITIONS = [(a,b)=>a<b, (a,b)=>a>b, (a,b)=>a===b, (a,b)=>a!==b];
         /**
          * {Array} Available operators for math calculations
          */
         this._OPERATORS = [
-            (a,b)=>a+b, (a,b)=>a-b, (a,b)=>a*b, (a,b)=>a/b, (a,b)=>a%b, (a,b)=>a&b, (a,b)=>a|b, (a,b)=>a^b, (a,b)=>a>>b, (a,b)=>a<<b, (a,b)=>a>>>b, (a,b)=>+(a<b), (a,b)=>+(a>b), (a,b)=>+(a==b), (a,b)=>+(a!=b), (a,b)=>+(a<=b)
+            (a,b)=>a+b, (a,b)=>a-b, (a,b)=>a*b, (a,b)=>a/b, (a,b)=>a%b, (a,b)=>a&b, (a,b)=>a|b, (a,b)=>a^b, (a,b)=>a>>b, (a,b)=>a<<b, (a,b)=>a>>>b, (a,b)=>+(a<b), (a,b)=>+(a>b), (a,b)=>+(a===b), (a,b)=>+(a!==b), (a,b)=>+(a<=b)
         ];
         //this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
         //
@@ -176,7 +177,8 @@ export default class OperatorsDos extends Operators {
         const vars = this.vars;
         let   x    = vars[VAR1(num)];
         let   y    = vars[VAR2(num)];
-        if (!IS_NUM(x) || !IS_NUM(y) || x < 0 || y < 0 || x >= Config.worldWidth || y >= Config.worldHeight) {
+
+        if (!IS_NUM(x) || !IS_NUM(y) || Helper.normalize(x, y)[2] !== DIR.NO) {
             vars[VAR0(num)] = 0;
             return line + 1;
         }

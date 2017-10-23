@@ -81,9 +81,9 @@ class Helper {
         //
         if (num < sum / 2) {
             sum = 0;
-            for (i = 0; i < len; i++)  {if (num <= (sum += probs[i])) break}
+            for (i = 0; i < len; i++)  {if (num <= (sum += probs[i])) {break}}
         } else {
-            for (i = len-1; i>-1; i--) {if (num >  (sum -= probs[i])) break}
+            for (i = len-1; i>-1; i--) {if (num >  (sum -= probs[i])) {break}}
         }
 
         return i;
