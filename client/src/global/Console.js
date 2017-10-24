@@ -9,7 +9,7 @@
  */
 import {Config} from './../../../common/src/global/Config';
 
-export default class Console {
+class Console {
     static error(...msg) {
         if (this._mode === Config.QUIET_NO) {return}
         console.log(`%c${msg.join('')}`, 'background: #fff; color: #aa0000');
@@ -24,3 +24,5 @@ export default class Console {
     }
     static mode (mode = Config.QUIET_IMPORTANT) {this._mode = mode}
 }
+
+module.exports = Console;

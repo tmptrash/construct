@@ -2,7 +2,7 @@
 describe("common/src/global/Observer", () => {
     let   Observer = require('./../../../common/src/global/Observer');
     let   Config   = require('./../../../common/src/global/Config').Config;
-    let   Console  = require('./../../../client/src/global/Console').default;
+    let   Console  = require('./../../../client/src/global/Console');
     const EVENT    = 0;
     const EVENT2   = 1;
     let   obs;

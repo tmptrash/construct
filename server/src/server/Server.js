@@ -134,7 +134,6 @@ class Server extends Connection {
         //
         try {
             me._server.close(() => {
-                console.log('n: ', STOP);
                 delete Server.ports[me._port];
                 me._running = false;
                 this._server.removeAllListeners('connection');
@@ -142,7 +141,7 @@ class Server extends Connection {
                 Console.info('Server has stopped. All clients have disconnected');
             });
         } catch(e) {
-            console.log(e);
+            Console.error('Server.stop() failed: ', e);
         }
 
         return true;

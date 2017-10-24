@@ -12,16 +12,6 @@ const QUIET_NO                = 2;
 const ORG_MAX_MUTATION_PERIOD = 10000;
 const ORG_FIRST_COLOR         = 1;
 const ORG_MAX_COLOR           = Number.MAX_SAFE_INTEGER;
-/**
- * {Number} Running modes
- */
-const MODE_BROWSER            = 0;
-const MODE_NODE               = 1;
-
-const Modes = {
-    MODE_BROWSER,
-    MODE_NODE
-};
 
 const Config = {
    /**
@@ -330,10 +320,10 @@ const Config = {
      */
     modeQuiet: QUIET_IMPORTANT,
     /**
-     * {String} Running mode. It's also possible to run jevo.js only on
-     * server side without browser
+     * {Boolean} Running mode. It's also possible to run jevo.js only on
+     * server side without browser. For this it should be set to true.
      */
-    modeType: MODE_BROWSER,
+    modeNodeJs: false,
     /**
      * {Number} Maximum amount of connections for current server. Should
      * be quadratic (x^2) e.g.: 4, 9, 16,... This value will be extended
@@ -356,7 +346,7 @@ const api = {
     get: (key)      => Config[key]
 };
 
-module.exports = {Config, api, Modes};
+module.exports = {Config, api};
 
 // /**
 //  * Global jevo.js configuration file. Affects only current jevo

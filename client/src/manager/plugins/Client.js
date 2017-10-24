@@ -14,7 +14,7 @@ const Modes      = require('./../../../../common/src/global/Config').Modes;
 const TYPES      = require('./../../../../common/src/global/Requests').TYPES;
 const Request    = require('./../../../../common/src/net/plugins/Request');
 const Api        = require('./Api');
-const Console    = require('./../../global/Console').default;
+const Console    = require('./../../global/Console');
 const Connection = require('./../../../../common/src/net/Connection').Connection;
 const EVENTS     = require('./../../../../common/src/net/Connection').EVENTS;
 const Plugins    = require('./../../../../common/src/global/Plugins');
@@ -23,7 +23,7 @@ const GEVENTS    = require('./../../global/Events').EVENTS;
 // In browser we use browser's native WS implementation. On node.js
 // we use implementation of 'ws' library
 //
-const WS         = Config.modeType === Modes.MODE_NODE ? require('ws') : window.WebSocket;
+const WS         = Config.modeNodeJs ? require('ws') : window.WebSocket;
 // TODO: should be moved to global config #
 const PLUGINS = {
     Request,
@@ -32,9 +32,11 @@ const PLUGINS = {
 
 const EVENTS_LEN  = Object.keys(EVENTS).length;
 const OPEN        = EVENTS_LEN;
+const GET_ID      = EVENTS_LEN + 1;
 
 const CLIENT_EVENTS = Object.assign({
-    OPEN
+    OPEN,
+    GET_ID
 }, EVENTS);
 const CLIENT_EVENTS_LEN = Object.keys(CLIENT_EVENTS).length;
 
@@ -44,14 +46,24 @@ class Client extends Connection {
         this.EVENTS          = CLIENT_EVENTS;
         this._manager        = manager;
         this._closed         = true;
-        this._client         = this._createWebSocket();
+        this.run();
         this._plugins        = new Plugins(this, PLUGINS);
         this._onStepOutCb    = this._onStepOut.bind(this);
+    }
 
+    run() {
+        if (!this._closed) {return}
+        this._client = this._createWebSocket();
         this._manager.on(GEVENTS.STEP_OUT, this._onStepOutCb);
         this._client.onerror = this.onError.bind(this);
         this._client.onclose = this.onClose.bind(this);
         this._client.onopen  = this.onOpen.bind(this);
+    }
+
+    stop() {
+        !this._closed && this._client[Config.modeNodeJs ? 'terminate' : 'close']();
+        this._closed = true;
+        this._manager.off(GEVENTS.STEP_OUT, this._onStepOutCb);
     }
 
     get manager() {return this._manager}
@@ -59,12 +71,10 @@ class Client extends Connection {
 
     destroy() {
         super.destroy();
-        this._client.close();
+        this.stop();
         this._client.onclose   = null;
         this._client.onmessage = null;
         this._client.onerror   = null;
-        this._client.onclose   = null;
-        this._manager.off(GEVENTS.STEP_OUT, this._onStepOutCb);
         this._manager          = null;
         this._plugins          = null;
         this._onStepOutCb      = null;
@@ -82,7 +92,7 @@ class Client extends Connection {
         // Client has no connection with server, so we have to start in
         // "separate instance" mode.
         //
-        if (this._closed) {this._manager.run()}
+        if (this._closed && this._manager.stopped) {this._manager.run()}
         this._closed = true;
         Console.warn(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
     }
@@ -106,6 +116,7 @@ class Client extends Connection {
             }
             this._manager.setClientId(clientId);
             this._manager.run();
+            this.fire(GET_ID, clientId);
             Console.info(`Client id "${clientId}" obtained from the server`);
         });
         this.fire(OPEN, event);

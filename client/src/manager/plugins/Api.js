@@ -8,7 +8,7 @@ const TYPES   = require('./../../../../common/src/global/Requests').TYPES;
 const BaseApi = require('./../../../../common/src/net/plugins/Api');
 const Helper  = require('./../../../../common/src/global/Helper');
 const EVENTS  = require('./../../global/Events').EVENTS;
-const Console = require('./../../../../client/src/global/Console').default;
+const Console = require('./../../../../client/src/global/Console');
 
 class Api extends BaseApi {
     constructor(client, manager) {

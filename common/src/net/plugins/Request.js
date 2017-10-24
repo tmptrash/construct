@@ -5,8 +5,10 @@
  *
  * @author flatline
  */
-const Helper = require('./../../global/Helper');
-const MASKS  = require('./../../global/Requests').MASKS;
+const Helper  = require('./../../global/Helper');
+const Config  = require('./../../global/Config').Config;
+const MASKS   = require('./../../global/Requests').MASKS;
+const Console = require(`./../../../../${Config.modeNodeJs ? 'server' : 'client'}/src/global/Console`);
 
 class Request {
     /**
@@ -24,6 +26,7 @@ class Request {
          */
         this._requests     = {};
         this._onRequestCb  = this._onRequest.bind(this);
+        this._onSendErrCb  = this._onSendErr.bind(this);
         this._onResponseCb = this._onResponse.bind(this);
         this._onMessageCb  = this._onMessage.bind(this);
 
@@ -39,6 +42,7 @@ class Request {
         Helper.unoverride(parent, 'request', this._onRequestCb);
         this._onMessageCb  = null;
         this._onResponseCb = null;
+        this._onSendErrCb  = null;
         this._onRequestCb  = null;
         this._requests     = null;
         this.parent        = null;
@@ -70,7 +74,7 @@ class Request {
         const reqId = Helper.getId();
 
         cb && (this._requests[reqId] = cb);
-        sock.send(JSON.stringify([type, (reqId | MASKS.REQ_MASK) >>> 0].concat(params)));
+        sock.send(JSON.stringify([type, (reqId | MASKS.REQ_MASK) >>> 0].concat(params)), this._onSendErrCb);
 
         return reqId;
     }
@@ -86,7 +90,18 @@ class Request {
      * @override
      */
     _onResponse(sock, type, reqId, ...params) {
-        sock.send(JSON.stringify([type, (reqId & MASKS.RES_MASK) >>> 0].concat(params)));
+        sock.send(JSON.stringify([type, (reqId & MASKS.RES_MASK) >>> 0].concat(params)), this._onSendErrCb);
+    }
+
+    /**
+     * Is called if send() method failed. It's possible of many reasons. For
+     * example on server closing event.
+     * @param {String} error Error message
+     */
+    _onSendErr(error) {
+        if (typeof error !== 'undefined') {
+            Console.error(`Request.send() error: ${error}`);
+        }
     }
 
     /**

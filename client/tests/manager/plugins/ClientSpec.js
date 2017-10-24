@@ -5,13 +5,12 @@ describe("client/src/manager/plugins/Client", () => {
     let Config       = require('./../../../../common/src/global/Config').Config;
     let EVENT_AMOUNT = require('./../../../../client/src/global/Events').EVENT_AMOUNT;
     let SEVENTS      = require('./../../../../server/src/server/Server').EVENTS;
-    let Modes        = require('./../../../../common/src/global/Config').Modes;
     let api          = require('./../../../../common/src/global/Config').api;
-    let Console      = require('./../../../../client/src/global/Console').default;
+    let Console      = require('./../../../../client/src/global/Console');
     let SConsole     = require('./../../../../server/src/global/Console');
     const Api        = require('./../../../../server/src/server/plugins/Api');
     const Request    = require('./../../../../common/src/net/plugins/Request');
-    let type;
+    let isNodeJs;
     let Client;
     let CEVENTS;
     let Server;
@@ -30,9 +29,9 @@ describe("client/src/manager/plugins/Client", () => {
 
     beforeAll(() => {
         //
-        // These two lines set MODE_NODE mode to set Node.js as running environment
+        // These two lines set modeNodeJs mode to Node.js as running environment
         //
-        type     = Config.modeType;api.set('modeType', Modes.MODE_NODE);
+        isNodeJs = Config.modeNodeJs;api.set('modeNodeJs', true);
         Client   = require('./../../../../client/src/manager/plugins/Client').Client;
         CEVENTS  = require('./../../../../client/src/manager/plugins/Client').EVENTS;
         Server   = require('./../../../../server/src/server/Server').Server;
@@ -54,7 +53,7 @@ describe("client/src/manager/plugins/Client", () => {
         SConsole.info  = () => {};
     });
     afterAll(() => {
-        api.set('modeType', type);
+        api.set('modeNodeJs', isNodeJs);
         SConsole.error = serror;
         SConsole.warn  = swarn;
         SConsole.info  = sinfo;
@@ -64,10 +63,17 @@ describe("client/src/manager/plugins/Client", () => {
         Console.info  = info;
     });
 
-    it("Checking client creation without server", (done) => {
-        const man    = new Observer(EVENT_AMOUNT);
-        let   run    = false;
-        man.run      = () => {run = true; done()};
+    it("Checking client creation without server", () => {
+        class Man0 extends Observer {
+            constructor() {
+                super(EVENT_AMOUNT);
+                this.activeAround = [false,false,false,false];
+                this.clientId = null;
+            }
+            run()           {}
+            setClientId(id) {this.clientId = id}
+        }
+        const man    = new Man0();
         const client = new Client(man);
 
         client.destroy();
@@ -133,11 +139,9 @@ describe("client/src/manager/plugins/Client", () => {
             const client1 = new Client(man1);
             const client2 = new Client(man2);
             THelper.waitFor(waitObj, () => { // waiting for Man1.run()
-                console.log(SEVENTS.STOP);
-                server.on(SEVENTS.STOP, () => {console.log('stop');waitObj.done = true});
+                server.on(SEVENTS.STOP, () => {waitObj.done = true});
                 server.destroy();
                 THelper.waitFor(waitObj, () => {
-                    console.log('dest')
                     client1.destroy();
                     client2.destroy();
                     man1.clear();

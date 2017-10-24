@@ -88,6 +88,7 @@ export default class Manager extends Observer {
     get canvas()       {return this._canvas}
     get clientId()     {return this._clientId}
     get activeAround() {return this._activeAround}
+    get stopped()      {return this._stopped}
     get CLASS_MAP()    {return CLASS_MAP}
 
     /**
