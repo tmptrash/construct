@@ -86,8 +86,8 @@ class Api extends BaseApi {
             return;
         }
         this.parent.conns.setData(region, 'sock', sock);
+		this._setActive(clientId, true);
         this.parent.response(sock, TYPES.RES_GET_ID_OK, reqId, clientId);
-        this._setActive(clientId, true);
     }
 
     /**
