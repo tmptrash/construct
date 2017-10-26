@@ -61,7 +61,7 @@ class Client extends Connection {
     }
 
     stop() {
-        !this._closed && this._client[Config.modeNodeJs ? 'terminate' : 'close']();
+        !this._closed && this._client.close();
         this._closed = true;
         this._manager.off(GEVENTS.STEP_OUT, this._onStepOutCb);
     }

@@ -26,7 +26,6 @@
  * If there are no sibling servers, then cells 0:0...3:0, 3:0...3:3, 3:3...0:3,
  * 0:3...0:0 will be set to null. Corner cells (0:0, 3:0, 3:3, 0:3) are always
  * null.
- * TODO: all clients should be notified if near client stay active
  *
  * @author flatline
  */
@@ -34,7 +33,6 @@ const WebSocket   = require('./../../../node_modules/ws/index');
 const Connection  = require('./../../../common/src/net/Connection').Connection;
 const EVENTS      = require('./../../../common/src/net/Connection').EVENTS;
 const Config      = require('./../../../common/src/global/Config').Config;
-const TYPES       = require('./../../../common/src/global/Requests').TYPES;
 const Plugins     = require('./../../../common/src/global/Plugins');
 const Console     = require('./../global/Console');
 const Connections = require('./../server/Connections');
@@ -44,7 +42,9 @@ const CONNECT     = EVENTS_LEN;
 const RUN         = EVENTS_LEN + 1;
 const STOP        = EVENTS_LEN + 2;
 const OVERFLOW    = EVENTS_LEN + 3;
-
+/**
+ * {Object} Extends common Connection events by related to server
+ */
 const SERVER_EVENTS = Object.assign({
     CONNECT,
     RUN,
@@ -63,8 +63,8 @@ class Server extends Connection {
     constructor(port, plugins) {
         super(SERVER_EVENTS_LEN);
         this.EVENTS        = SERVER_EVENTS;
+        // TODO: serMaxConnections should be obtained from cmd line param
         this.conns         = new Connections(Config.serMaxConnections);
-
         /**
          * {Array} Array of four bool elements (four sides), which stores sockets
          * of up, right, down and left near servers.
@@ -72,7 +72,9 @@ class Server extends Connection {
         this._activeAround = [false, false, false, false];
         this._server       = null;
         this._port         = port;
+        this._active       = false;
         this._running      = false;
+        this._stopping     = false;
         this._plugins      = new Plugins(this, plugins, false);
     }
 
@@ -84,6 +86,14 @@ class Server extends Connection {
      * @returns {Boolean} Running state
      */
     run() {
+        if (this._running) {
+            Console.warn(`Can not run server on port ${this._port}. It's already running.`);
+            return false;
+        }
+        if (this._stopping) {
+            Console.warn(`Can not run server on port ${this._port}. It's stopping right now.`);
+            return false;
+        }
         if (this._server !== null) {
             Console.warn('Server has already ran on port ${this._port}');
             return false;
@@ -94,11 +104,13 @@ class Server extends Connection {
             return false;
         }
 
+        this._running = true;
         Server.ports[this._port] = true;
         this._server = new WebSocket.Server({port: this._port}, () => {
-            this._running = true;
+            this._active = true;
             this._server.on('connection', this.onConnect.bind(this));
             this.fire(RUN);
+            this._running = false;
             Console.info('Server is ready');
         });
 
@@ -116,12 +128,12 @@ class Server extends Connection {
         //
         // Server wasn't ran before
         //
-        if (!me._server) {return false}
+        if (!me._server || this._stopping) {return false}
         //
         // Server was ran, but not ready yet. stop() method
         // will be called later after RUN event fired
         //
-        if (Server.ports[me._port] && me._running === false) {
+        if (Server.ports[me._port] && me._active === false) {
             const onRun = () => {
                 me.stop();
                 me.off(RUN, onRun);
@@ -133,10 +145,12 @@ class Server extends Connection {
         // Server is ready to close all clients and itself
         //
         try {
+            me._stopping = true;
             me._server.close(() => {
                 delete Server.ports[me._port];
-                me._running = false;
-                this._server.removeAllListeners('connection');
+                me._active  = false;
+                me._stopping = true;
+                me._server.removeAllListeners('connection');
                 me.fire(STOP);
                 Console.info('Server has stopped. All clients have disconnected');
             });
@@ -149,10 +163,10 @@ class Server extends Connection {
 
     /**
      * Returns running state. It's true only between run() and stop() calls
-     * @returns {Boolean}
+     * @returns {Boolean} Active status
      */
-    isRunning() {
-        return this._running;
+    isActive() {
+        return this._active;
     }
 
     /**
@@ -199,6 +213,10 @@ class Server extends Connection {
     }
 
     /**
+     * Handler of client's connection close
+     * @param {String} clientId Unique client id
+     * @param {WebSocket} sock Client WebSocket
+     * @param {Object} event Close event
      * @override
      */
     onClose(clientId, sock, event) {

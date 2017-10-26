@@ -59,6 +59,14 @@ describe("server/src/server/Server", () => {
 
         server.destroy();
     });
+    it("Checking many servers creation", () => {
+        let server;
+
+        for (let i = 0; i < 100; i++) {
+            server = new Server(8899, PLUGINS);
+            server.destroy();
+        }
+    });
     it("Checking two servers creation on different ports", () => {
         let server1 = new Server(8898, PLUGINS);
         let server2 = new Server(8899, PLUGINS);
@@ -111,6 +119,33 @@ describe("server/src/server/Server", () => {
         Helper.waitFor(waitObj, done);
     });
 
+    it("Checking stopping of created server", () => {
+        let server = new Server(8899, PLUGINS);
+        expect(server.stop()).toBe(false);
+        server.destroy();
+    });
+    it("Checking many times stopping of created server", () => {
+        let server = new Server(8899, PLUGINS);
+        for (let i = 0; i < 1000; i++) {
+            expect(server.stop()).toBe(false);
+        }
+        server.destroy();
+    });
+    it("Checking many times running/stopping of created server", () => {
+        let server = new Server(8899, PLUGINS);
+        for (let i = 0; i < 100; i++) {
+            server.run();
+            server.stop();
+        }
+        server.destroy();
+    });
+    it("Checking server running many times", () => {
+        let server = new Server(8899, PLUGINS);
+        for (let i = 0; i < 100; i++) {
+            server.run();
+        }
+        server.destroy();
+    });
     it("Checking server run", (done) => {
         let server  = new Server(8899, PLUGINS);
         let waitObj = {done: false};
@@ -238,7 +273,7 @@ describe("server/src/server/Server", () => {
         });
     });
 
-    it("Checking isRunning() method", (done) => {
+    it("Checking isActive() method", (done) => {
         let server  = new Server(8899, PLUGINS);
         let waitObj = {done: false};
 
@@ -246,11 +281,11 @@ describe("server/src/server/Server", () => {
         expect(server.run()).toEqual(true);
         const ws = new WebSocket('ws://127.0.0.1:8899');
         Helper.waitFor(waitObj, () => {
-            expect(server.isRunning()).toEqual(true);
+            expect(server.isActive()).toEqual(true);
             server.on(SEVENTS.STOP, () => waitObj.done = true);
             server.destroy();
             Helper.waitFor(waitObj, () => {
-                expect(server.isRunning()).toEqual(false);
+                expect(server.isActive()).toEqual(false);
                 done();
             });
         });
@@ -279,14 +314,16 @@ describe("server/src/server/Server", () => {
         Helper.waitFor(waitObj, () => {
             client.on(CEVENTS.CLOSE, () => waitObj.done = true);
             client.stop();
-            client.run();
             Helper.waitFor(waitObj, () => {
-                expect(oldId).toEqual(id);
-                server.on(SEVENTS.STOP, () => waitObj.done = true);
-                server.destroy();
+                client.run();
                 Helper.waitFor(waitObj, () => {
-                    Config.serMaxConnections = maxCon;
-                    done();
+                    expect(oldId).toEqual(id);
+                    server.on(SEVENTS.STOP, () => waitObj.done = true);
+                    server.destroy();
+                    Helper.waitFor(waitObj, () => {
+                        Config.serMaxConnections = maxCon;
+                        done();
+                    });
                 });
             });
         });
