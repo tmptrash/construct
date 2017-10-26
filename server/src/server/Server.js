@@ -107,10 +107,10 @@ class Server extends Connection {
         this._running = true;
         Server.ports[this._port] = true;
         this._server = new WebSocket.Server({port: this._port}, () => {
-            this._active = true;
             this._server.on('connection', this.onConnect.bind(this));
-            this.fire(RUN);
+            this._active  = true;
             this._running = false;
+            this.fire(RUN);
             Console.info('Server is ready');
         });
 
@@ -148,9 +148,10 @@ class Server extends Connection {
             me._stopping = true;
             me._server.close(() => {
                 delete Server.ports[me._port];
-                me._active  = false;
-                me._stopping = true;
                 me._server.removeAllListeners('connection');
+                me._active   = false;
+                me._stopping = false;
+                this._server = null;
                 me.fire(STOP);
                 Console.info('Server has stopped. All clients have disconnected');
             });

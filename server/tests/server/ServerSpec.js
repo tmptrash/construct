@@ -161,6 +161,28 @@ describe("server/src/server/Server", () => {
             });
         });
     });
+    it("Checking server run/stop/run/stop", (done) => {
+        let server  = new Server(8899, PLUGINS);
+        let waitObj = {done: false};
+
+        server.on(SEVENTS.RUN, () => waitObj.done = true);
+        expect(server.run()).toEqual(true);
+        Helper.waitFor(waitObj, () => {
+            server.on(SEVENTS.STOP, () => waitObj.done = true);
+            server.on(SEVENTS.RUN,  () => waitObj.done = true);
+            server.stop();
+            Helper.waitFor(waitObj, () => {
+                expect(server.run()).toEqual(true);
+                Helper.waitFor(waitObj, () => {
+                    server.stop();
+                    Helper.waitFor(waitObj, () => {
+                        server.destroy();
+                        done();
+                    });
+                });
+            });
+        });
+    });
 
     it("Checking server run + one client connection", (done) => {
         let server  = new Server(8899, PLUGINS);
