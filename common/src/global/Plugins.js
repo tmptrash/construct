@@ -2,7 +2,7 @@
  * Plugins manager. Adds plugins into specified instance and destroy
  * them on parent destroy. This class is also a plugin.
  *
- * @author slackline
+ * @author flatline
  */
 const Helper = require('./Helper');
 

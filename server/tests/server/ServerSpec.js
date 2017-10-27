@@ -55,7 +55,7 @@ describe("server/src/server/Server", () => {
     });
 
     it("Checking server creation", () => {
-        let server = new Server(8899, PLUGINS);
+        let server = new Server(Config.serPort, PLUGINS);
 
         server.destroy();
     });
@@ -63,34 +63,40 @@ describe("server/src/server/Server", () => {
         let server;
 
         for (let i = 0; i < 100; i++) {
-            server = new Server(8899, PLUGINS);
+            server = new Server(Config.serPort, PLUGINS);
             server.destroy();
         }
     });
     it("Checking two servers creation on different ports", () => {
-        let server1 = new Server(8898, PLUGINS);
-        let server2 = new Server(8899, PLUGINS);
+        let server1 = new Server(Config.serPort, PLUGINS);
+        let server2 = new Server(Config.serPort + 1, PLUGINS);
 
         server2.destroy();
         server1.destroy();
     });
     it("Checking two servers creation on the same port", () => {
-        let server1 = new Server(8899, PLUGINS);
-        let server2 = new Server(8899, PLUGINS);
+        let server1 = new Server(Config.serPort, PLUGINS);
+        let server2 = new Server(Config.serPort, PLUGINS);
 
         server2.destroy();
         server1.destroy();
     });
-    it("Checking two servers creation on different ports", () => {
-        let server1 = new Server(8898, PLUGINS);
-        let server2 = new Server(8899, PLUGINS);
-
-        server2.destroy();
-        server1.destroy();
+    it("Checking stopping of created server", () => {
+        let server = new Server(Config.serPort, PLUGINS);
+        expect(server.stop()).toBe(false);
+        server.destroy();
     });
+    it("Checking many times stopping of created server", () => {
+        let server = new Server(Config.serPort, PLUGINS);
+        for (let i = 0; i < 1000; i++) {
+            expect(server.stop()).toBe(false);
+        }
+        server.destroy();
+    });
+
     it("Checking two servers running on the same port", (done) => {
-        let server1 = new Server(8899, PLUGINS);
-        let server2 = new Server(8899, PLUGINS);
+        let server1 = new Server(Config.serPort, PLUGINS);
+        let server2 = new Server(Config.serPort, PLUGINS);
         let waitObj = {done: false};
 
         expect(server1.run()).toEqual(true);
@@ -103,8 +109,8 @@ describe("server/src/server/Server", () => {
         Helper.waitFor(waitObj, done);
     });
     it("Checking two servers running on different ports", (done) => {
-        let server1 = new Server(8898, PLUGINS);
-        let server2 = new Server(8899, PLUGINS);
+        let server1 = new Server(Config.serPort, PLUGINS);
+        let server2 = new Server(Config.serPort + 1, PLUGINS);
         let waitObj = {done: false};
         let times   = 0;
 
@@ -119,50 +125,42 @@ describe("server/src/server/Server", () => {
         Helper.waitFor(waitObj, done);
     });
 
-    it("Checking stopping of created server", () => {
-        let server = new Server(8899, PLUGINS);
-        expect(server.stop()).toBe(false);
-        server.destroy();
-    });
-    it("Checking many times stopping of created server", () => {
-        let server = new Server(8899, PLUGINS);
-        for (let i = 0; i < 1000; i++) {
-            expect(server.stop()).toBe(false);
-        }
-        server.destroy();
-    });
-    it("Checking many times running/stopping of created server", () => {
-        let server = new Server(8899, PLUGINS);
+    it("Checking many times running/stopping of created server", (done) => {
+        let server  = new Server(Config.serPort, PLUGINS);
+        let waitObj = {done: false};
+
         for (let i = 0; i < 100; i++) {
             server.run();
             server.stop();
         }
+        server.on(SEVENTS.DESTROY, () => waitObj.done = true);
         server.destroy();
+        Helper.waitFor(waitObj, done);
     });
-    it("Checking server running many times", () => {
-        let server = new Server(8899, PLUGINS);
-        for (let i = 0; i < 100; i++) {
-            server.run();
-        }
+    it("Checking server running many times", (done) => {
+        let server  = new Server(Config.serPort, PLUGINS);
+        let waitObj = {done: false};
+
+        for (let i = 0; i < 100; i++) {server.run()}
+        server.on(SEVENTS.DESTROY, () => waitObj.done = true);
         server.destroy();
+        if (waitObj.done) {done()}
+        else {Helper.waitFor(waitObj, done)}
     });
     it("Checking server run", (done) => {
-        let server  = new Server(8899, PLUGINS);
+        let server  = new Server(Config.serPort, PLUGINS);
         let waitObj = {done: false};
 
         server.on(SEVENTS.RUN, () => waitObj.done = true);
         expect(server.run()).toEqual(true);
         Helper.waitFor(waitObj, () => {
-            server.on(SEVENTS.STOP, () => waitObj.done = true);
-            server.stop();
-            Helper.waitFor(waitObj, () => {
-                server.destroy();
-                done();
-            });
+            server.on(SEVENTS.DESTROY, () => waitObj.done = true);
+            server.destroy(); // stop+destroy
+            Helper.waitFor(waitObj, done);
         });
     });
     it("Checking server run/stop/run/stop", (done) => {
-        let server  = new Server(8899, PLUGINS);
+        let server  = new Server(Config.serPort, PLUGINS);
         let waitObj = {done: false};
 
         server.on(SEVENTS.RUN, () => waitObj.done = true);
@@ -185,12 +183,12 @@ describe("server/src/server/Server", () => {
     });
 
     it("Checking server run + one client connection", (done) => {
-        let server  = new Server(8899, PLUGINS);
+        let server  = new Server(Config.serPort, PLUGINS);
         let waitObj = {done: false};
 
         server.on(SEVENTS.CONNECT, () => waitObj.done = true);
         expect(server.run()).toEqual(true);
-        const ws = new WebSocket('ws://127.0.0.1:8899');
+        const ws = new WebSocket(`ws://127.0.0.1:${Config.serPort}`);
         Helper.waitFor(waitObj, () => {
             server.on(SEVENTS.STOP, () => waitObj.done = true);
             server.stop();
@@ -201,14 +199,14 @@ describe("server/src/server/Server", () => {
         });
     });
     it("Checking server run + two clients connection", (done) => {
-        let server  = new Server(8899, PLUGINS);
+        let server  = new Server(Config.serPort, PLUGINS);
         let waitObj = {done: false};
         let cons    = 0;
 
         server.on(SEVENTS.CONNECT, () => {if (++cons === 2) {waitObj.done = true}});
         expect(server.run()).toEqual(true);
-        const ws1 = new WebSocket('ws://127.0.0.1:8899');
-        const ws2 = new WebSocket('ws://127.0.0.1:8899');
+        const ws1 = new WebSocket(`ws://127.0.0.1:${Config.serPort}`);
+        const ws2 = new WebSocket(`ws://127.0.0.1:${Config.serPort}`);
         Helper.waitFor(waitObj, () => {
             server.on(SEVENTS.STOP, () => waitObj.done = true);
             server.stop();
@@ -219,14 +217,14 @@ describe("server/src/server/Server", () => {
         });
     });
     it("Checking server run + two clients and one disconnected", (done) => {
-        let server  = new Server(8899, PLUGINS);
+        let server  = new Server(Config.serPort, PLUGINS);
         let waitObj = {done: false};
         let cons    = 0;
 
         server.on(SEVENTS.CONNECT, () => {if (++cons === 2) {waitObj.done = true}});
         expect(server.run()).toEqual(true);
-        const ws1 = new WebSocket('ws://127.0.0.1:8899');
-        const ws2 = new WebSocket('ws://127.0.0.1:8899');
+        const ws1 = new WebSocket(`ws://127.0.0.1:${Config.serPort}`);
+        const ws2 = new WebSocket(`ws://127.0.0.1:${Config.serPort}`);
         Helper.waitFor(waitObj, () => {
             server.on(SEVENTS.CLOSE, () => waitObj.done = true);
             ws2.close();
@@ -241,17 +239,17 @@ describe("server/src/server/Server", () => {
         });
     });
     it("Checking server run + one client connect/disconnect/connect", (done) => {
-        let server  = new Server(8899, PLUGINS);
+        let server  = new Server(Config.serPort, PLUGINS);
         let waitObj = {done: false};
 
         server.on(SEVENTS.CONNECT, () => waitObj.done = true);
         expect(server.run()).toEqual(true);
-        let ws = new WebSocket('ws://127.0.0.1:8899');
+        let ws = new WebSocket(`ws://127.0.0.1:${Config.serPort}`);
         Helper.waitFor(waitObj, () => {
             ws.close();
             server.on(SEVENTS.CLOSE, () => waitObj.done = true);
             Helper.waitFor(waitObj, () => {
-                ws = new WebSocket('ws://127.0.0.1:8899');
+                ws = new WebSocket(`ws://127.0.0.1:${Config.serPort}`);
                 Helper.waitFor(waitObj, () => {
                     server.on(SEVENTS.STOP, () => waitObj.done = true);
                     server.destroy();
@@ -295,19 +293,19 @@ describe("server/src/server/Server", () => {
         });
     });
 
-    it("Checking isActive() method", (done) => {
-        let server  = new Server(8899, PLUGINS);
+    it("Checking 'active' field", (done) => {
+        let server  = new Server(Config.serPort, PLUGINS);
         let waitObj = {done: false};
 
         server.on(SEVENTS.CONNECT, () => waitObj.done = true);
         expect(server.run()).toEqual(true);
-        const ws = new WebSocket('ws://127.0.0.1:8899');
+        const ws = new WebSocket(`ws://127.0.0.1:${Config.serPort}`);
         Helper.waitFor(waitObj, () => {
-            expect(server.isActive()).toEqual(true);
+            expect(server.active).toEqual(true);
             server.on(SEVENTS.STOP, () => waitObj.done = true);
             server.destroy();
             Helper.waitFor(waitObj, () => {
-                expect(server.isActive()).toEqual(false);
+                expect(server.active).toEqual(false);
                 done();
             });
         });
@@ -353,15 +351,15 @@ describe("server/src/server/Server", () => {
     // it("Checking that extra client should be disconnected", (done) => {
     //     let maxCon  = Config.serMaxConnections;
     //     Config.serMaxConnections = 1;
-    //     let server  = new Server(8899, PLUGINS);
+    //     let server  = new Server(Config.serPort, PLUGINS);
     //     let waitObj = {done: false};
     //
     //     let id;
     //     expect(server.run()).toEqual(true);
-    //     let ws = new WebSocket('ws://127.0.0.1:8899');
+    //     let ws = new WebSocket(`ws://127.0.0.1:${Config.serPort}`);
     //     ws.onmessage = () => waitObj.done = true;
     //     Helper.waitFor(waitObj, () => {
-    //         let ws1 = new WebSocket('ws://127.0.0.1:8899');
+    //         let ws1 = new WebSocket(`ws://127.0.0.1:${Config.serPort}`);
     //         server.on(SEVENTS.OVERFLOW, () => waitObj.done = true);
     //         Helper.waitFor(waitObj, () => {
     //             expect(ws1.readyState).toEqual(WebSocket.CLOSED);
@@ -376,12 +374,12 @@ describe("server/src/server/Server", () => {
     // });
     //
     // it("Checking sending message by client", (done) => {
-    //     let server  = new Server(8899, PLUGINS);
+    //     let server  = new Server(Config.serPort, PLUGINS);
     //     let waitObj = {done: false};
     //     let data;
     //
     //     expect(server.run()).toEqual(true);
-    //     const ws = new WebSocket('ws://127.0.0.1:8899');
+    //     const ws = new WebSocket(`ws://127.0.0.1:${Config.serPort}`);
     //     ws.on('message', function(e) {waitObj.done = true; data = JSON.parse(e)});
     //     Helper.waitFor(waitObj, () => {
     //         expect(data[0] === TYPES.REQ_GIVE_ID).toEqual(true);

@@ -36,8 +36,13 @@ const Config      = require('./../../../common/src/global/Config').Config;
 const Plugins     = require('./../../../common/src/global/Plugins');
 const Console     = require('./../global/Console');
 const Connections = require('./../server/Connections');
-
+/**
+ * {Number} Amount of base events. Is used to extend them by server related
+ */
 const EVENTS_LEN  = Object.keys(EVENTS).length;
+/**
+ * {Number} Server related events
+ */
 const CONNECT     = EVENTS_LEN;
 const RUN         = EVENTS_LEN + 1;
 const STOP        = EVENTS_LEN + 2;
@@ -67,7 +72,7 @@ class Server extends Connection {
         this.conns         = new Connections(Config.serMaxConnections);
         /**
          * {Array} Array of four bool elements (four sides), which stores sockets
-         * of up, right, down and left near servers.
+         * of up, right, down and left sibling servers.
          */
         this._activeAround = [false, false, false, false];
         this._server       = null;
@@ -166,21 +171,19 @@ class Server extends Connection {
      * Returns running state. It's true only between run() and stop() calls
      * @returns {Boolean} Active status
      */
-    isActive() {
-        return this._active;
-    }
+    get active() {return this._active}
 
     /**
      * @destructor
      * @override
      */
     destroy() {
-        super.destroy();
         const me        = this;
         const onDestroy = () => {
-            this._plugins.onDestroy();
+            me._plugins.onDestroy();
             me.conns.destroy();
             me._server = me.conns = me._port = me._plugins = null;
+            super.destroy(); // Connection.destroy()
             me.clear();
         };
 
@@ -200,7 +203,7 @@ class Server extends Connection {
         const clientId = Connections.toId(region);
         if (region === null) {
             sock.terminate();
-            this.fire(SERVER_EVENTS.OVERFLOW, sock);
+            this.fire(OVERFLOW, sock);
             Console.warn('This server is overloaded by clients. Try another server to connect.');
             return;
         }
@@ -209,7 +212,7 @@ class Server extends Connection {
         sock.on('error', this.onError.bind(this, clientId, sock));
         sock.on('close', this.onClose.bind(this, clientId, sock));
 
-        this.fire(SERVER_EVENTS.CONNECT, sock);
+        this.fire(CONNECT, sock);
         Console.info(`Client ${clientId} has connected`);
     }
 

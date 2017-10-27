@@ -1,18 +1,24 @@
 /**
  * Base class for Client and Server classes. Contains basic methods like
  * request(), response(), onMessage(), onClose(),... Client and Server should
- * override them in their classes.
+ * override them to have their basic logic.
  *
- * @author slackline
+ * @author flatline
  */
 const Observer = require('./../global/Observer');
+//
+// Basic events
+//
+const REQUEST  = 0;
+const RESPONSE = 1;
+const MSG      = 2;
+const ERR      = 3;
+const CLOSE    = 4;
+const DESTROY  = 5;
 
-const MSG     = 0;
-const ERR     = 1;
-const CLOSE   = 2;
-const DESTROY = 3;
-
-const EVENTS  = {
+const EVENTS   = {
+    REQUEST,
+    RESPONSE,
     MSG,
     ERR,
     CLOSE,
@@ -41,7 +47,7 @@ class Connection extends Observer {
      * @return {Number} Unique request id
      * @abstract
      */
-    request(sock, type, ...params) {}
+    request(sock, type, ...params) {this.fire(REQUEST, sock, type, ...params)}
 
     /**
      * Is user for answering on requests. May not be called if response
@@ -52,7 +58,7 @@ class Connection extends Observer {
      * @param {Array} params Custom parameters to send
      * @abstract
      */
-    response(sock, type, reqId, ...params) {}
+    response(sock, type, reqId, ...params) {this.fire(RESPONSE, sock, type, reqId, ...params)}
 
     /**
      * Is called every time if server/client sends us a request or response (response).

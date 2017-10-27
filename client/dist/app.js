@@ -9896,7 +9896,7 @@ module.exports = PerMessageDeflate;
 /**
  * Contains available directions, where organism may move to
  *
- * @author slackline
+ * @author flatline
  */
 const DIR = {
     UP   : 0,
@@ -13022,7 +13022,7 @@ class Organism extends __WEBPACK_IMPORTED_MODULE_1__common_src_global_Observer__
  * Plugins manager. Adds plugins into specified instance and destroy
  * them on parent destroy. This class is also a plugin.
  *
- * @author slackline
+ * @author flatline
  */
 const Helper = __webpack_require__(5);
 
@@ -24820,7 +24820,7 @@ module.exports = Queue;
  * request(), response(), onMessage(), onClose(),... Client and Server should
  * override them in their classes.
  *
- * @author slackline
+ * @author flatline
  */
 const Observer = __webpack_require__(17);
 

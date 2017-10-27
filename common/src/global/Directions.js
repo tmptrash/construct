@@ -1,7 +1,7 @@
 /**
  * Contains available directions, where organism may move to
  *
- * @author slackline
+ * @author flatline
  */
 const DIR = {
     UP   : 0,
