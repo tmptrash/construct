@@ -6,8 +6,8 @@ describe("server/src/server/Server", () => {
     const OLD_MODE     = Config.modeNodeJs;
     Config.modeNodeJs  = true;
     const Client       = require('./../../../client/src/manager/plugins/Client').Client;
-    const CEVENTS      = require('./../../../client/src/manager/plugins/Client').EVENTS;
     const SEVENTS      = require('./../../../server/src/server/Server').EVENTS;
+    const CEVENTS      = require('./../../../client/src/manager/plugins/Client').EVENTS;
     const EVENT_AMOUNT = require('./../../../client/src/global/Events').EVENT_AMOUNT;
     const SConsole     = require('./../../../server/src/global/Console');
     const Console      = require('./../../../client/src/global/Console');
@@ -20,6 +20,7 @@ describe("server/src/server/Server", () => {
         Request,
         Api
     };
+    const CLIENT_URL = `ws://127.0.0.1:${Config.serPort}`;
 
     let error;
     let warn;
@@ -188,7 +189,7 @@ describe("server/src/server/Server", () => {
 
         server.on(SEVENTS.CONNECT, () => waitObj.done = true);
         expect(server.run()).toEqual(true);
-        const ws = new WebSocket(`ws://127.0.0.1:${Config.serPort}`);
+        const ws = new WebSocket(CLIENT_URL);
         Helper.waitFor(waitObj, () => {
             server.on(SEVENTS.STOP, () => waitObj.done = true);
             server.stop();
@@ -205,8 +206,8 @@ describe("server/src/server/Server", () => {
 
         server.on(SEVENTS.CONNECT, () => {if (++cons === 2) {waitObj.done = true}});
         expect(server.run()).toEqual(true);
-        const ws1 = new WebSocket(`ws://127.0.0.1:${Config.serPort}`);
-        const ws2 = new WebSocket(`ws://127.0.0.1:${Config.serPort}`);
+        const ws1 = new WebSocket(CLIENT_URL);
+        const ws2 = new WebSocket(CLIENT_URL);
         Helper.waitFor(waitObj, () => {
             server.on(SEVENTS.STOP, () => waitObj.done = true);
             server.stop();
@@ -223,8 +224,8 @@ describe("server/src/server/Server", () => {
 
         server.on(SEVENTS.CONNECT, () => {if (++cons === 2) {waitObj.done = true}});
         expect(server.run()).toEqual(true);
-        const ws1 = new WebSocket(`ws://127.0.0.1:${Config.serPort}`);
-        const ws2 = new WebSocket(`ws://127.0.0.1:${Config.serPort}`);
+        const ws1 = new WebSocket(CLIENT_URL);
+        const ws2 = new WebSocket(CLIENT_URL);
         Helper.waitFor(waitObj, () => {
             server.on(SEVENTS.CLOSE, () => waitObj.done = true);
             ws2.close();
@@ -244,12 +245,12 @@ describe("server/src/server/Server", () => {
 
         server.on(SEVENTS.CONNECT, () => waitObj.done = true);
         expect(server.run()).toEqual(true);
-        let ws = new WebSocket(`ws://127.0.0.1:${Config.serPort}`);
+        let ws = new WebSocket(CLIENT_URL);
         Helper.waitFor(waitObj, () => {
             ws.close();
             server.on(SEVENTS.CLOSE, () => waitObj.done = true);
             Helper.waitFor(waitObj, () => {
-                ws = new WebSocket(`ws://127.0.0.1:${Config.serPort}`);
+                ws = new WebSocket(CLIENT_URL);
                 Helper.waitFor(waitObj, () => {
                     server.on(SEVENTS.STOP, () => waitObj.done = true);
                     server.destroy();
@@ -259,47 +260,14 @@ describe("server/src/server/Server", () => {
         });
     });
 
-    it("Checking unique id on client connect", (done) => {
-        let waitObj = {done: false};
-        class Man extends Observer {
-            constructor() {
-                super(EVENT_AMOUNT);
-                this.activeAround = [false,false,false,false];
-                this.clientId = null;
-            }
-            run()           {}
-            setClientId(id) {this.clientId = id}
-        }
-        let maxCon  = Config.serMaxConnections;
-        Config.serMaxConnections = 1;
-        let server  = new Server(Config.serPort, PLUGINS);
-        let id      = null;
-        const man   = new Man();
-
-        expect(server.run()).toEqual(true);
-        server.on(SEVENTS.RUN, () => waitObj.done = true);
-        Helper.waitFor(waitObj, () => {
-            const client = new Client(man);
-            client.on(CEVENTS.GET_ID, (uid) => {id = uid;waitObj.done = true});
-            Helper.waitFor(waitObj, () => {
-                expect(id !== null).toEqual(true);
-                server.on(SEVENTS.STOP, () => waitObj.done = true);
-                server.destroy();
-                Helper.waitFor(waitObj, () => {
-                    Config.serMaxConnections = maxCon;
-                    done();
-                });
-            });
-        });
-    });
-
     it("Checking 'active' field", (done) => {
         let server  = new Server(Config.serPort, PLUGINS);
         let waitObj = {done: false};
 
+        expect(server.active).toEqual(false);
         server.on(SEVENTS.CONNECT, () => waitObj.done = true);
         expect(server.run()).toEqual(true);
-        const ws = new WebSocket(`ws://127.0.0.1:${Config.serPort}`);
+        const ws = new WebSocket(CLIENT_URL);
         Helper.waitFor(waitObj, () => {
             expect(server.active).toEqual(true);
             server.on(SEVENTS.STOP, () => waitObj.done = true);
@@ -310,45 +278,19 @@ describe("server/src/server/Server", () => {
             });
         });
     });
-    it("Checking unique id on client connect/disconnect and connect again with the same id", (done) => {
-        let waitObj = {done: false};
-        class Man1 extends Observer {
-            constructor() {
-                super(EVENT_AMOUNT);
-                this.activeAround = [false,false,false,false];
-                this.clientId = null;
-            }
-            run()           {}
-            setClientId(id) {this.clientId = id}
-        }
-        let maxCon  = Config.serMaxConnections;
-        Config.serMaxConnections = 1;
-        let server  = new Server(Config.serPort, PLUGINS);
-        let man     = new Man1();
-        let oldId   = null;
-        let id      = null;
 
-        expect(server.run()).toEqual(true);
-        const client = new Client(man);
-        client.on(CEVENTS.GET_ID, (uid) => {oldId === null ? oldId = uid : id = uid;waitObj.done = true});
-        Helper.waitFor(waitObj, () => {
-            client.on(CEVENTS.CLOSE, () => waitObj.done = true);
-            client.stop();
-            Helper.waitFor(waitObj, () => {
-                client.run();
-                Helper.waitFor(waitObj, () => {
-                    expect(oldId).toEqual(id);
-                    server.on(SEVENTS.STOP, () => waitObj.done = true);
-                    server.destroy();
-                    Helper.waitFor(waitObj, () => {
-                        Config.serMaxConnections = maxCon;
-                        done();
-                    });
-                });
-            });
-        });
-    });
     // it("Checking that extra client should be disconnected", (done) => {
+    //     class Man extends Observer {
+    //         constructor() {
+    //             super(EVENT_AMOUNT);
+    //             this.activeAround = [false,false,false,false];
+    //             this.clientId = null;
+    //         }
+    //         run()           {}
+    //         setClientId(id) {this.clientId = id}
+    //     }
+    //     let man     = Man();
+    //     let man1    = Man();
     //     let maxCon  = Config.serMaxConnections;
     //     Config.serMaxConnections = 1;
     //     let server  = new Server(Config.serPort, PLUGINS);
@@ -356,10 +298,10 @@ describe("server/src/server/Server", () => {
     //
     //     let id;
     //     expect(server.run()).toEqual(true);
-    //     let ws = new WebSocket(`ws://127.0.0.1:${Config.serPort}`);
-    //     ws.onmessage = () => waitObj.done = true;
+    //     let client   = new Client(man);
+    //     client.on(CEVENTS.GET_ID, () => waitObj.done = true);
     //     Helper.waitFor(waitObj, () => {
-    //         let ws1 = new WebSocket(`ws://127.0.0.1:${Config.serPort}`);
+    //         let client1 = new Client(man1);
     //         server.on(SEVENTS.OVERFLOW, () => waitObj.done = true);
     //         Helper.waitFor(waitObj, () => {
     //             expect(ws1.readyState).toEqual(WebSocket.CLOSED);
@@ -379,7 +321,7 @@ describe("server/src/server/Server", () => {
     //     let data;
     //
     //     expect(server.run()).toEqual(true);
-    //     const ws = new WebSocket(`ws://127.0.0.1:${Config.serPort}`);
+    //     const ws = new WebSocket(CLIENT_URL);
     //     ws.on('message', function(e) {waitObj.done = true; data = JSON.parse(e)});
     //     Helper.waitFor(waitObj, () => {
     //         expect(data[0] === TYPES.REQ_GIVE_ID).toEqual(true);

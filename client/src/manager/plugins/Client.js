@@ -43,16 +43,15 @@ const CLIENT_EVENTS_LEN = Object.keys(CLIENT_EVENTS).length;
 class Client extends Connection {
     constructor(manager) {
         super(CLIENT_EVENTS_LEN);
-        this.EVENTS          = CLIENT_EVENTS;
-        this._manager        = manager;
-        this._closed         = true;
+        this.EVENTS       = CLIENT_EVENTS;
+        this._manager     = manager;
         this.run();
-        this._plugins        = new Plugins(this, PLUGINS);
-        this._onStepOutCb    = this._onStepOut.bind(this);
+        this._plugins     = new Plugins(this, PLUGINS);
+        this._onStepOutCb = this._onStepOut.bind(this);
     }
 
     run() {
-        if (!this._closed) {return}
+        if (this.active) {return}
         this._client = this._createWebSocket();
         this._manager.on(GEVENTS.STEP_OUT, this._onStepOutCb);
         this._client.onerror = this.onError.bind(this);
@@ -61,8 +60,7 @@ class Client extends Connection {
     }
 
     stop() {
-        !this._closed && this._client.close();
-        this._closed = true;
+        this.active && this._client.close();
         this._manager.off(GEVENTS.STEP_OUT, this._onStepOutCb);
     }
 
@@ -92,8 +90,8 @@ class Client extends Connection {
         // Client has no connection with server, so we have to start in
         // "separate instance" mode.
         //
-        if (this._closed && this._manager.stopped) {this._manager.run()}
-        this._closed = true;
+        if (!this.active && this._manager.stopped) {this._manager.run()}
+        this.onActive(false);
         Console.warn(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
     }
 
@@ -103,7 +101,7 @@ class Client extends Connection {
      * @override
      */
     onOpen(event) {
-        this._closed = false;
+        this.onActive();
         this._client.onmessage = this.onMessage.bind(this, this._client);
         //
         // First we send request to get unique clientId from server. It

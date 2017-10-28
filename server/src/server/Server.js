@@ -77,7 +77,6 @@ class Server extends Connection {
         this._activeAround = [false, false, false, false];
         this._server       = null;
         this._port         = port;
-        this._active       = false;
         this._running      = false;
         this._stopping     = false;
         this._plugins      = new Plugins(this, plugins, false);
@@ -113,7 +112,7 @@ class Server extends Connection {
         Server.ports[this._port] = true;
         this._server = new WebSocket.Server({port: this._port}, () => {
             this._server.on('connection', this.onConnect.bind(this));
-            this._active  = true;
+            this.onActive();
             this._running = false;
             this.fire(RUN);
             Console.info('Server is ready');
@@ -138,7 +137,7 @@ class Server extends Connection {
         // Server was ran, but not ready yet. stop() method
         // will be called later after RUN event fired
         //
-        if (Server.ports[me._port] && me._active === false) {
+        if (Server.ports[me._port] && me.active === false) {
             const onRun = () => {
                 me.stop();
                 me.off(RUN, onRun);
@@ -154,7 +153,7 @@ class Server extends Connection {
             me._server.close(() => {
                 delete Server.ports[me._port];
                 me._server.removeAllListeners('connection');
-                me._active   = false;
+                me.onActive(false);
                 me._stopping = false;
                 this._server = null;
                 me.fire(STOP);
@@ -166,12 +165,6 @@ class Server extends Connection {
 
         return true;
     }
-
-    /**
-     * Returns running state. It's true only between run() and stop() calls
-     * @returns {Boolean} Active status
-     */
-    get active() {return this._active}
 
     /**
      * @destructor

@@ -1,6 +1,8 @@
 /**
  * Plugin for Server class, which implement it's API. Is separated from Server to
- * have an ability to change API any time without changing server's code.
+ * have an ability to change API any time without changing server's code. @api
+ * annotation means that specified method is a part of Server API and available
+ * from clients requests.
  *
  * @author flatline
  */
