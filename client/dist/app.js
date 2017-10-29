@@ -1964,7 +1964,7 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 100,
+    orgCrossoverPeriod: 0,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
@@ -2117,7 +2117,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 30,
+    worldMaxOrgs: 50,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
