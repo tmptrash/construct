@@ -34,8 +34,9 @@ class Connection extends Observer {
          */
         this._closeReason = '';
         /**
-         * {Boolean} Means that current client is connected to the server.
-         * true - connected, false - disconnected.
+         * {Boolean} Means activeness of current Client/Server. Meaning of this
+         * field may differ between children classes. For server it's running or
+         * not. For client it's connected or not.
          */
         this._active      = false;
     }
