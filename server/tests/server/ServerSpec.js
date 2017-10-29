@@ -15,6 +15,7 @@ describe("server/src/server/Server", () => {
     const TYPES        = require('./../../../common/src/global/Requests').TYPES;
     const Api          = require('./../../src/server/plugins/Api');
     const Request      = require('./../../../common/src/net/plugins/Request');
+    const waitForEvent = Helper.waitForEvent;
 
     const PLUGINS = {
         Request,
@@ -242,19 +243,25 @@ describe("server/src/server/Server", () => {
     it("Checking server run + one client connect/disconnect/connect", (done) => {
         let server  = new Server(Config.serPort, PLUGINS);
         let waitObj = {done: false};
+        let ws;
 
-        server.on(SEVENTS.CONNECT, () => waitObj.done = true);
-        expect(server.run()).toEqual(true);
-        let ws = new WebSocket(CLIENT_URL);
-        Helper.waitFor(waitObj, () => {
-            ws.close();
-            server.on(SEVENTS.CLOSE, () => waitObj.done = true);
+        waitForEvent(server, SEVENTS.CONNECT, ()=> {
+            expect(server.run()).toEqual(true);
+            ws = new WebSocket(CLIENT_URL);
+            }, () => {
+            //server.on(SEVENTS.CONNECT, () => waitObj.done = true);
+            //expect(server.run()).toEqual(true);
+            //let ws = new WebSocket(CLIENT_URL);
             Helper.waitFor(waitObj, () => {
-                ws = new WebSocket(CLIENT_URL);
+                ws.close();
+                server.on(SEVENTS.CLOSE, () => waitObj.done = true);
                 Helper.waitFor(waitObj, () => {
-                    server.on(SEVENTS.STOP, () => waitObj.done = true);
-                    server.destroy();
-                    Helper.waitFor(waitObj, done);
+                    ws = new WebSocket(CLIENT_URL);
+                    Helper.waitFor(waitObj, () => {
+                        server.on(SEVENTS.STOP, () => waitObj.done = true);
+                        server.destroy();
+                        Helper.waitFor(waitObj, done);
+                    });
                 });
             });
         });
@@ -295,10 +302,10 @@ describe("server/src/server/Server", () => {
     //     Config.serMaxConnections = 1;
     //     let server  = new Server(Config.serPort, PLUGINS);
     //     let waitObj = {done: false};
-    //
     //     let id;
+    //
     //     expect(server.run()).toEqual(true);
-    //     let client   = new Client(man);
+    //     let client = new Client(man);
     //     client.on(CEVENTS.GET_ID, () => waitObj.done = true);
     //     Helper.waitFor(waitObj, () => {
     //         let client1 = new Client(man1);
@@ -314,7 +321,7 @@ describe("server/src/server/Server", () => {
     //         });
     //     });
     // });
-    //
+
     // it("Checking sending message by client", (done) => {
     //     let server  = new Server(Config.serPort, PLUGINS);
     //     let waitObj = {done: false};

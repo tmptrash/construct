@@ -35,6 +35,27 @@ class Helper {
             times++;
         }, 50);
     }
+
+    /**
+     * Similar to waitFor(), but waits for 'event' of object 'obj'. If event
+     * occurs, then calls 'cb' callback. In case of three parameters, preCb
+     * will be a callback (cb).
+     * @param {Object} obj Object, which fires 'event' event
+     * @param {Number} event Event id
+     * @param {Function} preCb Pre callback. Is called before waiting
+     * @param {Function} cb Callback, which is called on event occurs
+     */
+    static waitForEvent(obj, event, preCb, cb = null) {
+        const waitObj = {done: false};
+        const eventCb = () => waitObj.done = true;
+        const waitCb  = () => {obj.off(event, eventCb); cb()};
+
+        !cb && (cb = preCb) && (preCb = ()=>{});
+        obj.on(event, eventCb);
+        preCb();
+
+        waitObj.done && waitCb() || Helper.waitFor(waitObj, waitCb);
+    }
 }
 
 module.exports = Helper;
