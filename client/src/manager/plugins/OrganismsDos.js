@@ -193,14 +193,15 @@ export default class OrganismsDos extends Organisms {
 
     /**
      * Is called if organism step in from the server or other client (Manager/World).
-     * If step in position is not free, then organism die at the moment
+     * If step in position is not free or maximum organisms are in the world, then
+     * organism die at the moment.
      * @param {Number} x Current org X position
      * @param {Number} y Current org Y position
      * @param {String} orgJson Organism's serialized json
      * @private
      */
     _onStepIn(x, y, orgJson) {
-        if (this.manager.world.isFree(x, y) && this.createOrg({x, y})) {
+        if (this.manager.world.isFree(x, y) && this.organisms.size < Config.worldMaxOrgs && this.createOrg({x, y})) {
             this.organisms.last.val.unserialize(orgJson);
         }
     }

@@ -2117,7 +2117,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    worldMaxOrgs: 500,
+    worldMaxOrgs: 30,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
@@ -36023,14 +36023,15 @@ class OrganismsDos extends __WEBPACK_IMPORTED_MODULE_0__base_Organisms__["a" /* 
 
     /**
      * Is called if organism step in from the server or other client (Manager/World).
-     * If step in position is not free, then organism die at the moment
+     * If step in position is not free or maximum organisms are in the world, then
+     * organism die at the moment.
      * @param {Number} x Current org X position
      * @param {Number} y Current org Y position
      * @param {String} orgJson Organism's serialized json
      * @private
      */
     _onStepIn(x, y, orgJson) {
-        if (this.manager.world.isFree(x, y) && this.createOrg({x, y})) {
+        if (this.manager.world.isFree(x, y) && this.organisms.size < __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Config"].worldMaxOrgs && this.createOrg({x, y})) {
             this.organisms.last.val.unserialize(orgJson);
         }
     }
@@ -36333,12 +36334,11 @@ window.man = manager;
  */
 const TYPES   = __webpack_require__(27).TYPES;
 const BaseApi = __webpack_require__(189);
-const Helper  = __webpack_require__(4);
 const EVENTS  = __webpack_require__(3).EVENTS;
 const Console = __webpack_require__(14);
 
 class Api extends BaseApi {
-    constructor(client, manager) {
+    constructor(client) {
         super(client);
 
         this.api[TYPES.REQ_MOVE_ORG]        = this._moveOrg.bind(this);

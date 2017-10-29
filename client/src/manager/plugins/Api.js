@@ -6,12 +6,11 @@
  */
 const TYPES   = require('./../../../../common/src/global/Requests').TYPES;
 const BaseApi = require('./../../../../common/src/net/plugins/Api');
-const Helper  = require('./../../../../common/src/global/Helper');
 const EVENTS  = require('./../../global/Events').EVENTS;
 const Console = require('./../../../../client/src/global/Console');
 
 class Api extends BaseApi {
-    constructor(client, manager) {
+    constructor(client) {
         super(client);
 
         this.api[TYPES.REQ_MOVE_ORG]        = this._moveOrg.bind(this);
