@@ -10,7 +10,6 @@
  */
 const Helper     = require('./../../../../common/src/global/Helper');
 const Config     = require('./../../../../common/src/global/Config').Config;
-const Modes      = require('./../../../../common/src/global/Config').Modes;
 const TYPES      = require('./../../../../common/src/global/Requests').TYPES;
 const Request    = require('./../../../../common/src/net/plugins/Request');
 const Api        = require('./Api');
@@ -47,6 +46,10 @@ class Client extends Connection {
         this._manager     = manager;
         this._plugins     = new Plugins(this, PLUGINS);
         this._onStepOutCb = this._onStepOut.bind(this);
+        //
+        // Running client by default
+        //
+        this.run();
     }
 
     run() {

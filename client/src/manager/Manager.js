@@ -56,7 +56,7 @@ export default class Manager extends Observer {
         super(EVENT_AMOUNT);
         this._world        = new World(Config.worldWidth, Config.worldHeight);
         this._canvas       = new Canvas(Config.worldWidth, Config.worldHeight);
-        this._stopped      = false;
+        this._stopped      = true;
         this._visualized   = true;
         this._clientId     = null;
         /**
@@ -95,8 +95,10 @@ export default class Manager extends Observer {
      * Runs main infinite loop of application
      */
     run () {
+        if (!this._stopped) {return}
         Console.info('Manager has run');
         this._counter = 0;
+        this._stopped = false;
         this._onLoop();
     }
 

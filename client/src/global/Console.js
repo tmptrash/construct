@@ -7,7 +7,7 @@
  *
  * @author flatline
  */
-import {Config} from './../../../common/src/global/Config';
+const Config = require('./../../../common/src/global/Config').Config;
 
 class Console {
     static error(...msg) {
