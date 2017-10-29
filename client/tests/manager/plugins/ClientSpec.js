@@ -95,12 +95,12 @@ describe("client/src/manager/plugins/Client", () => {
 
         server.on(SEVENTS.RUN, () => waitObj.done = true);
         server.run();
-        THelper.waitFor(waitObj, () => {
+        THelper.wait(waitObj, () => {
             const client = new Client(man);
-            THelper.waitFor(waitObj, () => { // waiting for Man.run()
+            THelper.wait(waitObj, () => { // waiting for Man.run()
                 server.on(SEVENTS.STOP, () => waitObj.done = true);
                 server.destroy();
-                THelper.waitFor(waitObj, () => {
+                THelper.wait(waitObj, () => {
                     client.destroy();
                     man.clear();
                     done();
@@ -135,13 +135,13 @@ describe("client/src/manager/plugins/Client", () => {
 
         server.on(SEVENTS.RUN, () => waitObj.done = true);
         server.run();
-        THelper.waitFor(waitObj, () => {
+        THelper.wait(waitObj, () => {
             const client1 = new Client(man1);
             const client2 = new Client(man2);
-            THelper.waitFor(waitObj, () => { // waiting for Man1.run()
+            THelper.wait(waitObj, () => { // waiting for Man1.run()
                 server.on(SEVENTS.STOP, () => {waitObj.done = true});
                 server.destroy();
-                THelper.waitFor(waitObj, () => {
+                THelper.wait(waitObj, () => {
                     client1.destroy();
                     client2.destroy();
                     man1.clear();

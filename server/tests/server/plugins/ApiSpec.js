@@ -71,14 +71,14 @@ describe("server/src/server/plugins/Api", () => {
 
         expect(server.run()).toEqual(true);
         server.on(SEVENTS.RUN, () => waitObj.done = true);
-        Helper.waitFor(waitObj, () => {
+        Helper.wait(waitObj, () => {
             const client = new Client(man);
             client.on(CEVENTS.GET_ID, (uid) => {id = uid;waitObj.done = true});
-            Helper.waitFor(waitObj, () => {
+            Helper.wait(waitObj, () => {
                 expect(id !== null).toEqual(true);
                 server.on(SEVENTS.STOP, () => waitObj.done = true);
                 server.destroy();
-                Helper.waitFor(waitObj, () => {
+                Helper.wait(waitObj, () => {
                     Config.serMaxConnections = maxCon;
                     done();
                 });
@@ -106,16 +106,16 @@ describe("server/src/server/plugins/Api", () => {
         expect(server.run()).toEqual(true);
         const client = new Client(man);
         client.on(CEVENTS.GET_ID, (uid) => {oldId === null ? oldId = uid : id = uid;waitObj.done = true});
-        Helper.waitFor(waitObj, () => {
+        Helper.wait(waitObj, () => {
             client.on(CEVENTS.CLOSE, () => waitObj.done = true);
             client.stop();
-            Helper.waitFor(waitObj, () => {
+            Helper.wait(waitObj, () => {
                 client.run();
-                Helper.waitFor(waitObj, () => {
+                Helper.wait(waitObj, () => {
                     expect(oldId).toEqual(id);
                     server.on(SEVENTS.STOP, () => waitObj.done = true);
                     server.destroy();
-                    Helper.waitFor(waitObj, () => {
+                    Helper.wait(waitObj, () => {
                         Config.serMaxConnections = maxCon;
                         done();
                     });

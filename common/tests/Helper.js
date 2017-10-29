@@ -22,7 +22,7 @@ class Helper {
      * @param {Function} cb Finish callback
      * @param {Number} timeout Timeout in milliseconds
      */
-    static waitFor(obj, cb, timeout = 10000) {
+    static wait(obj, cb, timeout = 10000) {
         obj.done = false;
 
         let times = 0;
@@ -40,7 +40,7 @@ class Helper {
     }
 
     /**
-     * Similar to waitFor(), but waits for 'event' of object 'obj'. If event
+     * Similar to wait(), but waits for 'event' of object 'obj'. If event
      * occurs, then calls 'cb' callback. In case of three parameters, preCb
      * will be a callback (cb).
      * @param {Object} obj Object, which fires 'event' event
@@ -48,7 +48,7 @@ class Helper {
      * @param {Function} preCb Pre callback. Is called before waiting
      * @param {Function} cb Callback, which is called on event occurs
      */
-    static waitForEvent(obj, event, preCb, cb = null) {
+    static waitEvent(obj, event, preCb, cb = null) {
         const waitObj = {done: false};
         const eventCb = () => waitObj.done = true;
         const waitCb  = () => {obj.off(event, eventCb); cb(); return true};
@@ -57,7 +57,7 @@ class Helper {
         obj.on(event, eventCb);
         preCb();
 
-        waitObj.done && waitCb() || Helper.waitFor(waitObj, waitCb);
+        waitObj.done && waitCb() || Helper.wait(waitObj, waitCb);
     }
 }
 

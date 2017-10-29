@@ -15,7 +15,7 @@ describe("server/src/server/Server", () => {
     const TYPES        = require('./../../../common/src/global/Requests').TYPES;
     const Api          = require('./../../src/server/plugins/Api');
     const Request      = require('./../../../common/src/net/plugins/Request');
-    const waitForEvent = Helper.waitForEvent;
+    const waitEvent    = Helper.waitEvent;
 
     const PLUGINS = {
         Request,
@@ -108,7 +108,7 @@ describe("server/src/server/Server", () => {
         server1.destroy();
 
         server1.on(SEVENTS.STOP, () => waitObj.done = true);
-        Helper.waitFor(waitObj, done);
+        Helper.wait(waitObj, done);
     });
     it("Checking two servers running on different ports", (done) => {
         let server1 = new Server(Config.serPort, PLUGINS);
@@ -124,7 +124,7 @@ describe("server/src/server/Server", () => {
 
         server1.on(SEVENTS.STOP, () => {if (++times === 2) {waitObj.done = true}});
         server2.on(SEVENTS.STOP, () => {if (++times === 2) {waitObj.done = true}});
-        Helper.waitFor(waitObj, done);
+        Helper.wait(waitObj, done);
     });
 
     it("Checking many times running/stopping of created server", (done) => {
@@ -137,7 +137,7 @@ describe("server/src/server/Server", () => {
         }
         server.on(SEVENTS.DESTROY, () => waitObj.done = true);
         server.destroy();
-        Helper.waitFor(waitObj, done);
+        Helper.wait(waitObj, done);
     });
     it("Checking server running many times", (done) => {
         let server  = new Server(Config.serPort, PLUGINS);
@@ -147,7 +147,7 @@ describe("server/src/server/Server", () => {
         server.on(SEVENTS.DESTROY, () => waitObj.done = true);
         server.destroy();
         if (waitObj.done) {done()}
-        else {Helper.waitFor(waitObj, done)}
+        else {Helper.wait(waitObj, done)}
     });
     it("Checking server run", (done) => {
         let server  = new Server(Config.serPort, PLUGINS);
@@ -155,10 +155,10 @@ describe("server/src/server/Server", () => {
 
         server.on(SEVENTS.RUN, () => waitObj.done = true);
         expect(server.run()).toEqual(true);
-        Helper.waitFor(waitObj, () => {
+        Helper.wait(waitObj, () => {
             server.on(SEVENTS.DESTROY, () => waitObj.done = true);
             server.destroy(); // stop+destroy
-            Helper.waitFor(waitObj, done);
+            Helper.wait(waitObj, done);
         });
     });
     it("Checking server run/stop/run/stop", (done) => {
@@ -167,15 +167,15 @@ describe("server/src/server/Server", () => {
 
         server.on(SEVENTS.RUN, () => waitObj.done = true);
         expect(server.run()).toEqual(true);
-        Helper.waitFor(waitObj, () => {
+        Helper.wait(waitObj, () => {
             server.on(SEVENTS.STOP, () => waitObj.done = true);
             server.on(SEVENTS.RUN,  () => waitObj.done = true);
             server.stop();
-            Helper.waitFor(waitObj, () => {
+            Helper.wait(waitObj, () => {
                 expect(server.run()).toEqual(true);
-                Helper.waitFor(waitObj, () => {
+                Helper.wait(waitObj, () => {
                     server.stop();
-                    Helper.waitFor(waitObj, () => {
+                    Helper.wait(waitObj, () => {
                         server.destroy();
                         done();
                     });
@@ -191,10 +191,10 @@ describe("server/src/server/Server", () => {
         server.on(SEVENTS.CONNECT, () => waitObj.done = true);
         expect(server.run()).toEqual(true);
         const ws = new WebSocket(CLIENT_URL);
-        Helper.waitFor(waitObj, () => {
+        Helper.wait(waitObj, () => {
             server.on(SEVENTS.STOP, () => waitObj.done = true);
             server.stop();
-            Helper.waitFor(waitObj, () => {
+            Helper.wait(waitObj, () => {
                 server.destroy();
                 done();
             });
@@ -209,10 +209,10 @@ describe("server/src/server/Server", () => {
         expect(server.run()).toEqual(true);
         const ws1 = new WebSocket(CLIENT_URL);
         const ws2 = new WebSocket(CLIENT_URL);
-        Helper.waitFor(waitObj, () => {
+        Helper.wait(waitObj, () => {
             server.on(SEVENTS.STOP, () => waitObj.done = true);
             server.stop();
-            Helper.waitFor(waitObj, () => {
+            Helper.wait(waitObj, () => {
                 server.destroy();
                 done();
             });
@@ -227,13 +227,13 @@ describe("server/src/server/Server", () => {
         expect(server.run()).toEqual(true);
         const ws1 = new WebSocket(CLIENT_URL);
         const ws2 = new WebSocket(CLIENT_URL);
-        Helper.waitFor(waitObj, () => {
+        Helper.wait(waitObj, () => {
             server.on(SEVENTS.CLOSE, () => waitObj.done = true);
             ws2.close();
-            Helper.waitFor(waitObj, () => {
+            Helper.wait(waitObj, () => {
                 server.on(SEVENTS.STOP, () => waitObj.done = true);
                 server.stop();
-                Helper.waitFor(waitObj, () => {
+                Helper.wait(waitObj, () => {
                     server.destroy();
                     done();
                 });
@@ -242,12 +242,12 @@ describe("server/src/server/Server", () => {
     });
     it("Checking server run + one client connect/disconnect/connect", (done) => {
         let server = new Server(Config.serPort, PLUGINS);
-        let ws;
+        let client;
 
-        waitForEvent(server, CEVENTS.OPEN, () => {server.run(); ws = new WebSocket(CLIENT_URL)}, () => {
-            waitForEvent(server, SEVENTS.CLOSE, () => ws.close(), () => {
-                waitForEvent(server, CEVENTS.OPEN, () => ws = new WebSocket(CLIENT_URL), () => {
-                    waitForEvent(server, SEVENTS.DESTROY, () => server.destroy(), done);
+        waitEvent(server, CEVENTS.OPEN, () => {server.run(); client = new WebSocket(CLIENT_URL)}, () => {
+            waitEvent(server, SEVENTS.CLOSE, () => client.close(), () => {
+                waitEvent(server, CEVENTS.OPEN, () => client = new WebSocket(CLIENT_URL), () => {
+                    waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), done);
                 });
             });
         });
@@ -261,11 +261,11 @@ describe("server/src/server/Server", () => {
         server.on(SEVENTS.CONNECT, () => waitObj.done = true);
         expect(server.run()).toEqual(true);
         const ws = new WebSocket(CLIENT_URL);
-        Helper.waitFor(waitObj, () => {
+        Helper.wait(waitObj, () => {
             expect(server.active).toEqual(true);
             server.on(SEVENTS.STOP, () => waitObj.done = true);
             server.destroy();
-            Helper.waitFor(waitObj, () => {
+            Helper.wait(waitObj, () => {
                 expect(server.active).toEqual(false);
                 done();
             });
@@ -293,14 +293,14 @@ describe("server/src/server/Server", () => {
     //     expect(server.run()).toEqual(true);
     //     let client = new Client(man);
     //     client.on(CEVENTS.GET_ID, () => waitObj.done = true);
-    //     Helper.waitFor(waitObj, () => {
+    //     Helper.wait(waitObj, () => {
     //         let client1 = new Client(man1);
     //         server.on(SEVENTS.OVERFLOW, () => waitObj.done = true);
-    //         Helper.waitFor(waitObj, () => {
+    //         Helper.wait(waitObj, () => {
     //             expect(ws1.readyState).toEqual(WebSocket.CLOSED);
     //             server.on(SEVENTS.STOP, () => waitObj.done = true);
     //             server.destroy();
-    //             Helper.waitFor(waitObj, () => {
+    //             Helper.wait(waitObj, () => {
     //                 Config.serMaxConnections = maxCon;
     //                 done();
     //             });
@@ -316,11 +316,11 @@ describe("server/src/server/Server", () => {
     //     expect(server.run()).toEqual(true);
     //     const ws = new WebSocket(CLIENT_URL);
     //     ws.on('message', function(e) {waitObj.done = true; data = JSON.parse(e)});
-    //     Helper.waitFor(waitObj, () => {
+    //     Helper.wait(waitObj, () => {
     //         expect(data[0] === TYPES.REQ_GIVE_ID).toEqual(true);
     //         server.on(SEVENTS.STOP, () => waitObj.done = true);
     //         server.stop();
-    //         Helper.waitFor(waitObj, () => {
+    //         Helper.wait(waitObj, () => {
     //             server.destroy();
     //             done();
     //         });
