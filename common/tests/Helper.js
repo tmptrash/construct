@@ -27,7 +27,10 @@ class Helper {
 
         let times = 0;
         let id    = setInterval(() => {
-            if (times > timeout / 50) {throw 'Waiting time is over'}
+            if (times > timeout / 50) {
+                clearInterval(id);
+                throw 'Waiting time is over';
+            }
             if (obj.done) {
                 clearInterval(id);
                 cb();
@@ -48,7 +51,7 @@ class Helper {
     static waitForEvent(obj, event, preCb, cb = null) {
         const waitObj = {done: false};
         const eventCb = () => waitObj.done = true;
-        const waitCb  = () => {obj.off(event, eventCb); cb()};
+        const waitCb  = () => {obj.off(event, eventCb); cb(); return true};
 
         !cb && (cb = preCb) && (preCb = ()=>{});
         obj.on(event, eventCb);

@@ -241,27 +241,13 @@ describe("server/src/server/Server", () => {
         });
     });
     it("Checking server run + one client connect/disconnect/connect", (done) => {
-        let server  = new Server(Config.serPort, PLUGINS);
-        let waitObj = {done: false};
+        let server = new Server(Config.serPort, PLUGINS);
         let ws;
 
-        waitForEvent(server, SEVENTS.CONNECT, ()=> {
-            expect(server.run()).toEqual(true);
-            ws = new WebSocket(CLIENT_URL);
-            }, () => {
-            //server.on(SEVENTS.CONNECT, () => waitObj.done = true);
-            //expect(server.run()).toEqual(true);
-            //let ws = new WebSocket(CLIENT_URL);
-            Helper.waitFor(waitObj, () => {
-                ws.close();
-                server.on(SEVENTS.CLOSE, () => waitObj.done = true);
-                Helper.waitFor(waitObj, () => {
-                    ws = new WebSocket(CLIENT_URL);
-                    Helper.waitFor(waitObj, () => {
-                        server.on(SEVENTS.STOP, () => waitObj.done = true);
-                        server.destroy();
-                        Helper.waitFor(waitObj, done);
-                    });
+        waitForEvent(server, CEVENTS.OPEN, () => {server.run(); ws = new WebSocket(CLIENT_URL)}, () => {
+            waitForEvent(server, SEVENTS.CLOSE, () => ws.close(), () => {
+                waitForEvent(server, CEVENTS.OPEN, () => ws = new WebSocket(CLIENT_URL), () => {
+                    waitForEvent(server, SEVENTS.DESTROY, () => server.destroy(), done);
                 });
             });
         });
