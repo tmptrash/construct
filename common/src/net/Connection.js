@@ -42,7 +42,18 @@ class Connection extends Observer {
     }
 
     get closeReason() {return this._closeReason}
+
+    /**
+     * @returns {Boolean}
+     */
     get active()      {return this._active}
+    /**
+     * Means that current Client or Server is active. Active means, that
+     * it's ready to connect to server/Client. Should be called from parent
+     * class (Client/Server)
+     * @param {Boolean} active New active state
+     */
+    set active(active) {this._active = active}
 
     /**
      * Sends data to the client. First two parameters are required. All
@@ -127,16 +138,6 @@ class Connection extends Observer {
 
         this._closeReason = reason;
         this.fire(CLOSE, event);
-    }
-
-    /**
-     * Means that current Client or Server is active. Active means, that
-     * it's ready to connect to server/Client. Should be called from parent
-     * class (Client/Server)
-     * @param {Boolean} active
-     */
-    onActive(active = true) {
-        this._active = active;
     }
 
     /**

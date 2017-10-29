@@ -99,16 +99,10 @@ describe("server/src/server/Server", () => {
     it("Checking two servers running on the same port", (done) => {
         let server1 = new Server(Config.serPort, PLUGINS);
         let server2 = new Server(Config.serPort, PLUGINS);
-        let waitObj = {done: false};
 
-        expect(server1.run()).toEqual(true);
-        expect(server2.run()).toEqual(false);
-
-        server2.destroy();
-        server1.destroy();
-
-        server1.on(SEVENTS.STOP, () => waitObj.done = true);
-        Helper.wait(waitObj, done);
+        waitEvent(server1, SEVENTS.RUN, () => server1.run() && server2.run, () => {
+            waitEvent(server1, SEVENTS.DESTROY, () => {server2.destroy(); server1.destroy()}, done);
+        });
     });
     it("Checking two servers running on different ports", (done) => {
         let server1 = new Server(Config.serPort, PLUGINS);
@@ -118,13 +112,16 @@ describe("server/src/server/Server", () => {
 
         expect(server1.run()).toEqual(true);
         expect(server2.run()).toEqual(true);
-
-        server2.destroy();
-        server1.destroy();
-
-        server1.on(SEVENTS.STOP, () => {if (++times === 2) {waitObj.done = true}});
-        server2.on(SEVENTS.STOP, () => {if (++times === 2) {waitObj.done = true}});
-        Helper.wait(waitObj, done);
+        server1.on(SEVENTS.RUN, () => {if (++times === 2) {waitObj.done = true}});
+        server1.on(SEVENTS.RUN, () => {if (++times === 2) {waitObj.done = true}});
+        Helper.wait(waitObj, () => {
+            times = 0;
+            server2.destroy();
+            server1.destroy();
+            server1.on(SEVENTS.STOP, () => {if (++times === 2) {waitObj.done = true}});
+            server2.on(SEVENTS.STOP, () => {if (++times === 2) {waitObj.done = true}});
+            Helper.wait(waitObj, done);
+        });
     });
 
     it("Checking many times running/stopping of created server", (done) => {
@@ -272,58 +269,31 @@ describe("server/src/server/Server", () => {
         });
     });
 
-    // it("Checking that extra client should be disconnected", (done) => {
-    //     class Man extends Observer {
-    //         constructor() {
-    //             super(EVENT_AMOUNT);
-    //             this.activeAround = [false,false,false,false];
-    //             this.clientId = null;
-    //         }
-    //         run()           {}
-    //         setClientId(id) {this.clientId = id}
-    //     }
-    //     let man     = Man();
-    //     let man1    = Man();
-    //     let maxCon  = Config.serMaxConnections;
-    //     Config.serMaxConnections = 1;
-    //     let server  = new Server(Config.serPort, PLUGINS);
-    //     let waitObj = {done: false};
-    //     let id;
-    //
-    //     expect(server.run()).toEqual(true);
-    //     let client = new Client(man);
-    //     client.on(CEVENTS.GET_ID, () => waitObj.done = true);
-    //     Helper.wait(waitObj, () => {
-    //         let client1 = new Client(man1);
-    //         server.on(SEVENTS.OVERFLOW, () => waitObj.done = true);
-    //         Helper.wait(waitObj, () => {
-    //             expect(ws1.readyState).toEqual(WebSocket.CLOSED);
-    //             server.on(SEVENTS.STOP, () => waitObj.done = true);
-    //             server.destroy();
-    //             Helper.wait(waitObj, () => {
-    //                 Config.serMaxConnections = maxCon;
-    //                 done();
-    //             });
-    //         });
-    //     });
-    // });
+    it("Checking that extra client should be disconnected", (done) => {
+        class Man extends Observer {
+            constructor() {
+                super(EVENT_AMOUNT);
+                this.activeAround = [false,false,false,false];
+                this.clientId = null;
+            }
+            run()           {}
+            setClientId(id) {this.clientId = id}
+        }
+        let man     = new Man();
+        let man1    = new Man();
+        let maxCon  = Config.serMaxConnections;
+        Config.serMaxConnections = 1;
+        let server  = new Server(Config.serPort, PLUGINS);
+        let client  = new Client(man);
 
-    // it("Checking sending message by client", (done) => {
-    //     let server  = new Server(Config.serPort, PLUGINS);
-    //     let waitObj = {done: false};
-    //     let data;
-    //
-    //     expect(server.run()).toEqual(true);
-    //     const ws = new WebSocket(CLIENT_URL);
-    //     ws.on('message', function(e) {waitObj.done = true; data = JSON.parse(e)});
-    //     Helper.wait(waitObj, () => {
-    //         expect(data[0] === TYPES.REQ_GIVE_ID).toEqual(true);
-    //         server.on(SEVENTS.STOP, () => waitObj.done = true);
-    //         server.stop();
-    //         Helper.wait(waitObj, () => {
-    //             server.destroy();
-    //             done();
-    //         });
-    //     });
-    // });
+        waitEvent(client, CEVENTS.GET_ID, () => server.run(), () => {
+            let client1 = new Client(man1);
+            waitEvent(client1, CEVENTS.CLOSE, () => {
+                waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
+                    Config.serMaxConnections = maxCon;
+                    done();
+                });
+            });
+        });
+    });
 });

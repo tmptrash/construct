@@ -51,12 +51,14 @@ class Client extends Connection {
     }
 
     run() {
-        if (this.active) {return}
-        this._client = this._createWebSocket();
-        this._manager.on(GEVENTS.STEP_OUT, this._onStepOutCb);
+        if (this.active) {return false}
+        this._client         = this._createWebSocket();
         this._client.onerror = this.onError.bind(this);
         this._client.onclose = this.onClose.bind(this);
         this._client.onopen  = this.onOpen.bind(this);
+        this._manager.on(GEVENTS.STEP_OUT, this._onStepOutCb);
+
+        return true;
     }
 
     stop() {
@@ -91,7 +93,7 @@ class Client extends Connection {
         // "separate instance" mode.
         //
         if (!this.active && this._manager.stopped) {this._manager.run()}
-        this.onActive(false);
+        this.active = false;
         Console.warn(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
     }
 
@@ -101,7 +103,7 @@ class Client extends Connection {
      * @override
      */
     onOpen(event) {
-        this.onActive();
+        this.active = true;
         this._client.onmessage = this.onMessage.bind(this, this._client);
         //
         // First we send request to get unique clientId from server. It

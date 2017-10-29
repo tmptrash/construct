@@ -98,12 +98,7 @@ class Server extends Connection {
             Console.warn(`Can not run server on port ${this._port}. It's stopping right now.`);
             return false;
         }
-        if (this._server !== null) {
-            Console.warn('Server has already ran on port ${this._port}');
-            return false;
-        }
         if (Server.ports[this._port]) {
-            this.stop();
             Console.warn(`Port ${this._port} is already used`);
             return false;
         }
@@ -112,7 +107,7 @@ class Server extends Connection {
         Server.ports[this._port] = true;
         this._server = new WebSocket.Server({port: this._port}, () => {
             this._server.on('connection', this.onConnect.bind(this));
-            this.onActive();
+            this.active   = true;
             this._running = false;
             this.fire(RUN);
             Console.info('Server is ready');
@@ -129,21 +124,18 @@ class Server extends Connection {
      */
     stop() {
         const me = this;
-        //
-        // Server wasn't ran before
-        //
-        if (!me._server || this._stopping) {return false}
-        //
-        // Server was ran, but not ready yet. stop() method
-        // will be called later after RUN event fired
-        //
-        if (Server.ports[me._port] && me.active === false) {
+
+        if (!me._server || this._stopping) {
+            Console.warn(`Can't stop already stopped server.`);
+            return false;
+        }
+        if (me._running) {
             const onRun = () => {
-                me.stop();
                 me.off(RUN, onRun);
+                me.stop();
             };
             me.on(RUN, onRun);
-            return false;
+            return true;
         }
         //
         // Server is ready to close all clients and itself
@@ -153,7 +145,7 @@ class Server extends Connection {
             me._server.close(() => {
                 delete Server.ports[me._port];
                 me._server.removeAllListeners('connection');
-                me.onActive(false);
+                me.active    = false;
                 me._stopping = false;
                 this._server = null;
                 me.fire(STOP);
