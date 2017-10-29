@@ -291,6 +291,8 @@ describe("server/src/server/Server", () => {
             waitEvent(client1, CEVENTS.CLOSE, () => {
                 waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
                     Config.serMaxConnections = maxCon;
+                    man.clear();
+                    man1.clear();
                     done();
                 });
             });

@@ -10,6 +10,7 @@ describe("client/src/manager/plugins/Client", () => {
     let SConsole     = require('./../../../../server/src/global/Console');
     const Api        = require('./../../../../server/src/server/plugins/Api');
     const Request    = require('./../../../../common/src/net/plugins/Request');
+    const waitEvent  = THelper.waitEvent;
     let isNodeJs;
     let Client;
     let CEVENTS;
@@ -63,7 +64,7 @@ describe("client/src/manager/plugins/Client", () => {
         Console.info  = info;
     });
 
-    it("Checking client creation without server", () => {
+    it("Checking client creation without server", (done) => {
         class Man0 extends Observer {
             constructor() {
                 super(EVENT_AMOUNT);
@@ -76,8 +77,10 @@ describe("client/src/manager/plugins/Client", () => {
         const man    = new Man0();
         const client = new Client(man);
 
-        client.destroy();
-        man.clear();
+        waitEvent(client, CEVENTS.DESTROY, () => client.destroy(), () => {
+            man.clear();
+            done();
+        });
     });
     it("Checking client creation with a server", (done) => {
         const waitObj = {done: false};
