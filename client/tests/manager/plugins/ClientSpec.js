@@ -100,6 +100,7 @@ describe("client/src/manager/plugins/Client", () => {
         server.run();
         THelper.wait(waitObj, () => {
             const client = new Client(man);
+            client.run();
             THelper.wait(waitObj, () => { // waiting for Man.run()
                 server.on(SEVENTS.STOP, () => waitObj.done = true);
                 server.destroy();
@@ -141,6 +142,8 @@ describe("client/src/manager/plugins/Client", () => {
         THelper.wait(waitObj, () => {
             const client1 = new Client(man1);
             const client2 = new Client(man2);
+            client1.run();
+            client2.run();
             THelper.wait(waitObj, () => { // waiting for Man1.run()
                 server.on(SEVENTS.STOP, () => {waitObj.done = true});
                 server.destroy();

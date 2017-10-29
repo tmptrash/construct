@@ -286,8 +286,10 @@ describe("server/src/server/Server", () => {
         let server  = new Server(Config.serPort, PLUGINS);
         let client  = new Client(man);
 
+        client.run();
         waitEvent(client, CEVENTS.GET_ID, () => server.run(), () => {
             let client1 = new Client(man1);
+            client1.run();
             waitEvent(client1, CEVENTS.CLOSE, () => {
                 waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
                     Config.serMaxConnections = maxCon;

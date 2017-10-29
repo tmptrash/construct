@@ -45,7 +45,6 @@ class Client extends Connection {
         super(CLIENT_EVENTS_LEN);
         this.EVENTS       = CLIENT_EVENTS;
         this._manager     = manager;
-        this.run();
         this._plugins     = new Plugins(this, PLUGINS);
         this._onStepOutCb = this._onStepOut.bind(this);
     }
@@ -72,9 +71,11 @@ class Client extends Connection {
     destroy() {
         super.destroy();
         this.stop();
-        this._client.onclose   = null;
-        this._client.onmessage = null;
-        this._client.onerror   = null;
+        if (this._client) {
+            this._client.onclose = null;
+            this._client.onmessage = null;
+            this._client.onerror = null;
+        }
         this._manager          = null;
         this._plugins          = null;
         this._onStepOutCb      = null;

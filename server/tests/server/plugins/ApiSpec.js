@@ -74,6 +74,7 @@ describe("server/src/server/plugins/Api", () => {
         Helper.wait(waitObj, () => {
             const client = new Client(man);
             client.on(CEVENTS.GET_ID, (uid) => {id = uid;waitObj.done = true});
+            client.run();
             Helper.wait(waitObj, () => {
                 expect(id !== null).toEqual(true);
                 server.on(SEVENTS.STOP, () => waitObj.done = true);
@@ -105,6 +106,7 @@ describe("server/src/server/plugins/Api", () => {
 
         expect(server.run()).toEqual(true);
         const client = new Client(man);
+        client.run();
         client.on(CEVENTS.GET_ID, (uid) => {oldId === null ? oldId = uid : id = uid;waitObj.done = true});
         Helper.wait(waitObj, () => {
             client.on(CEVENTS.CLOSE, () => waitObj.done = true);
