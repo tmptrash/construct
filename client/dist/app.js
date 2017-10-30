@@ -24754,11 +24754,12 @@ class Plugins {
 
         for (let p in plugins) {
             if (plugins.hasOwnProperty(p)) {
-                parentPlugins[p] = new plugins[p](parent);
+                const plugin = plugins[p];
+                parentPlugins[p] = new (plugin.cls || plugin)(parent, plugin.cfg);
             }
         }
 
-        this.parent      = parent;
+        this.parent       = parent;
         this._onDestroyCb = this.onDestroy.bind(this);
         this._destroy     = destroy;
         this._destroyed   = false;
@@ -35454,16 +35455,14 @@ const CLIENT_EVENTS = Object.assign({
 const CLIENT_EVENTS_LEN = Object.keys(CLIENT_EVENTS).length;
 
 class Client extends Connection {
-    constructor(manager) {
+    constructor(manager, cfg = {}) {
         super(CLIENT_EVENTS_LEN);
         this.EVENTS       = CLIENT_EVENTS;
         this._manager     = manager;
         this._plugins     = new Plugins(this, PLUGINS);
         this._onStepOutCb = this._onStepOut.bind(this);
-        //
-        // Running client by default
-        //
-        this.run();
+
+        if (cfg.run) {this.run()}
     }
 
     run() {
@@ -35489,9 +35488,9 @@ class Client extends Connection {
         super.destroy();
         this.stop();
         if (this._client) {
-            this._client.onclose = null;
+            this._client.onclose   = null;
             this._client.onmessage = null;
-            this._client.onerror = null;
+            this._client.onerror   = null;
         }
         this._manager          = null;
         this._plugins          = null;
@@ -35554,6 +35553,14 @@ class Client extends Connection {
 
     _onStepOut(x, y, dir, org) {
         this.request(this._client, TYPES.REQ_MOVE_ORG, this._manager.clientId, x, y, dir, org.serialize());
+    }
+
+    /**
+     * Is called if Manager.run() method is called. Runs WebSocket client
+     * @private
+     */
+    _onRun() {
+        this.run();
     }
 }
 
@@ -36308,11 +36315,11 @@ const FITNESS_MODE = __WEBPACK_IMPORTED_MODULE_1__common_src_global_Config__["Co
  */
 const PLUGINS = {
     Organisms: FITNESS_MODE ? __WEBPACK_IMPORTED_MODULE_3__src_manager_plugins_OrganismsGarmin__["a" /* default */] : __WEBPACK_IMPORTED_MODULE_4__src_manager_plugins_OrganismsDos__["a" /* default */],
-    Config   : __WEBPACK_IMPORTED_MODULE_5__src_manager_plugins_Config__["a" /* default */],
+    Config: __WEBPACK_IMPORTED_MODULE_5__src_manager_plugins_Config__["a" /* default */],
+    Client: {cls: __WEBPACK_IMPORTED_MODULE_2__client_src_manager_plugins_Client__["Client"], cfg: {run: true}},
     Mutator: __WEBPACK_IMPORTED_MODULE_6__src_manager_plugins_Mutator__["a" /* default */],
     Energy: __WEBPACK_IMPORTED_MODULE_7__src_manager_plugins_Energy__["a" /* default */],
-    Status: __WEBPACK_IMPORTED_MODULE_8__src_manager_plugins_Status__["a" /* default */],
-    Client: __WEBPACK_IMPORTED_MODULE_2__client_src_manager_plugins_Client__["Client"]
+    Status: __WEBPACK_IMPORTED_MODULE_8__src_manager_plugins_Status__["a" /* default */]
 };
 const manager = new __WEBPACK_IMPORTED_MODULE_0__manager_Manager__["a" /* default */](PLUGINS);
 //

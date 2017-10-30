@@ -29,13 +29,14 @@
  *
  * @author flatline
  */
-const WebSocket   = require('./../../../node_modules/ws/index');
-const Connection  = require('./../../../common/src/net/Connection').Connection;
-const EVENTS      = require('./../../../common/src/net/Connection').EVENTS;
-const Config      = require('./../../../common/src/global/Config').Config;
-const Plugins     = require('./../../../common/src/global/Plugins');
-const Console     = require('./../global/Console');
-const Connections = require('./../server/Connections');
+const WebSocket        = require('./../../../node_modules/ws/index');
+const Connection       = require('./../../../common/src/net/Connection').Connection;
+const EVENTS           = require('./../../../common/src/net/Connection').EVENTS;
+const AroundConnectins = require('./../../../common/src/net/AroundConnections');
+const Config           = require('./../../../common/src/global/Config').Config;
+const Plugins          = require('./../../../common/src/global/Plugins');
+const Console          = require('./../global/Console');
+const Connections      = require('./../server/Connections');
 /**
  * {Number} Amount of base events. Is used to extend them by server related
  */
@@ -69,17 +70,18 @@ class Server extends Connection {
         super(SERVER_EVENTS_LEN);
         this.EVENTS        = SERVER_EVENTS;
         // TODO: serMaxConnections should be obtained from cmd line param
-        this.conns         = new Connections(Config.serMaxConnections);
-        /**
-         * {Array} Array of four bool elements (four sides), which stores sockets
-         * of up, right, down and left sibling servers.
-         */
-        this._activeAround = [false, false, false, false];
-        this._server       = null;
-        this._port         = port;
-        this._running      = false;
-        this._stopping     = false;
-        this._plugins      = new Plugins(this, plugins, false);
+        this.conns          = new Connections(Config.serMaxConnections);
+        this.aroundClients  = new AroundConnectins(this);
+        // TODO: This field should be used for connections with around servers.
+        // TODO: We have to connect with all available around servers on start
+        // TODO: and set them into aroundServers.setSocket()
+        this.aroundServers  = new AroundConnectins(this);
+
+        this._server        = null;
+        this._port          = port;
+        this._running       = false;
+        this._stopping      = false;
+        this._plugins       = new Plugins(this, plugins, false);
     }
 
     /**
@@ -167,6 +169,7 @@ class Server extends Connection {
         const onDestroy = () => {
             me._plugins.onDestroy();
             me.conns.destroy();
+            me.aroundClients.destroy();
             me._server = me.conns = me._port = me._plugins = null;
             super.destroy(); // Connection.destroy()
             me.clear();

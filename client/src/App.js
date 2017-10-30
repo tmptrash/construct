@@ -25,11 +25,11 @@ const FITNESS_MODE = Config.codeFitnessCls !== null;
  */
 const PLUGINS = {
     Organisms: FITNESS_MODE ? OrganismsGarmin : OrganismsDos,
-    Config   : ConfigPlugin,
+    Config: ConfigPlugin,
+    Client: {cls: Client, cfg: {run: true}},
     Mutator,
     Energy,
-    Status,
-    Client
+    Status
 };
 const manager = new Manager(PLUGINS);
 //

@@ -21,11 +21,12 @@ class Plugins {
 
         for (let p in plugins) {
             if (plugins.hasOwnProperty(p)) {
-                parentPlugins[p] = new plugins[p](parent);
+                const plugin = plugins[p];
+                parentPlugins[p] = new (plugin.cls || plugin)(parent, plugin.cfg);
             }
         }
 
-        this.parent      = parent;
+        this.parent       = parent;
         this._onDestroyCb = this.onDestroy.bind(this);
         this._destroy     = destroy;
         this._destroyed   = false;

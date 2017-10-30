@@ -40,16 +40,14 @@ const CLIENT_EVENTS = Object.assign({
 const CLIENT_EVENTS_LEN = Object.keys(CLIENT_EVENTS).length;
 
 class Client extends Connection {
-    constructor(manager) {
+    constructor(manager, cfg = {}) {
         super(CLIENT_EVENTS_LEN);
         this.EVENTS       = CLIENT_EVENTS;
         this._manager     = manager;
         this._plugins     = new Plugins(this, PLUGINS);
         this._onStepOutCb = this._onStepOut.bind(this);
-        //
-        // Running client by default
-        //
-        this.run();
+
+        if (cfg.run) {this.run()}
     }
 
     run() {
@@ -75,9 +73,9 @@ class Client extends Connection {
         super.destroy();
         this.stop();
         if (this._client) {
-            this._client.onclose = null;
+            this._client.onclose   = null;
             this._client.onmessage = null;
-            this._client.onerror = null;
+            this._client.onerror   = null;
         }
         this._manager          = null;
         this._plugins          = null;
@@ -140,6 +138,14 @@ class Client extends Connection {
 
     _onStepOut(x, y, dir, org) {
         this.request(this._client, TYPES.REQ_MOVE_ORG, this._manager.clientId, x, y, dir, org.serialize());
+    }
+
+    /**
+     * Is called if Manager.run() method is called. Runs WebSocket client
+     * @private
+     */
+    _onRun() {
+        this.run();
     }
 }
 
