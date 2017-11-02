@@ -2,10 +2,10 @@ describe("client/src/manager/plugins/Client", () => {
     let Helper       = require('./../../../../common/src/global/Helper');
     let THelper      = require('./../../../../common/tests/Helper');
     let Observer     = require('./../../../../common/src/global/Observer');
-    let Config       = require('./../../../../common/src/global/Config').Config;
+    let Config       = require('./../../../src/global/Config').Config;
     let EVENT_AMOUNT = require('./../../../../client/src/global/Events').EVENT_AMOUNT;
     let SEVENTS      = require('./../../../../server/src/server/Server').EVENTS;
-    let api          = require('./../../../../common/src/global/Config').api;
+    let api          = require('./../../../src/global/Config').api;
     let Console      = require('./../../../../client/src/global/Console');
     let SConsole     = require('./../../../../server/src/global/Console');
     const Api        = require('./../../../../server/src/server/plugins/Api');
@@ -94,7 +94,7 @@ describe("client/src/manager/plugins/Client", () => {
             setClientId(id) {this.clientId = id}
         }
         const man    = new Man();
-        const server = new Server(Config.serPort, PLUGINS);
+        const server = new Server(Config.port, PLUGINS);
 
         server.on(SEVENTS.RUN, () => waitObj.done = true);
         server.run();
@@ -135,7 +135,7 @@ describe("client/src/manager/plugins/Client", () => {
         }
         const man1    = new Man1();
         const man2    = new Man2();
-        const server  = new Server(Config.serPort, PLUGINS);
+        const server  = new Server(Config.port, PLUGINS);
 
         server.on(SEVENTS.RUN, () => waitObj.done = true);
         server.run();

@@ -13,7 +13,7 @@
  * TODO: by calling of destroy() method for every of them
  */
 import Observer          from './../../../common/src/global/Observer';
-import {Config}          from './../../../common/src/global/Config';
+import {Config}          from './../../../client/src/global/Config';
 import Plugins           from './../../../common/src/global/Plugins';
 import {EVENTS}          from './../global/Events';
 import {EVENT_AMOUNT}    from './../global/Events';

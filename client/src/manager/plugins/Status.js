@@ -4,7 +4,7 @@
  * @author flatline
  */
 import {EVENTS} from '../../global/Events';
-import {Config} from '../../../../common/src/global/Config';
+import {Config} from '../../global/Config';
 
 const GREEN  = 'color: #00aa00';
 const RED    = 'color: #aa0000';

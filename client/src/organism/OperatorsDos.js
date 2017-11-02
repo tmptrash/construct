@@ -8,7 +8,7 @@
  */
 import {EVENTS}  from './../global/Events';
 import {DIR}     from './../../../common/src/global/Directions';
-import {Config}  from './../../../common/src/global/Config';
+import {Config}  from '../global/Config';
 import Helper    from './../../../common/src/global/Helper';
 import Operators from './base/Operators';
 import Num       from './Num';

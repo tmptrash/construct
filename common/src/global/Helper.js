@@ -3,7 +3,7 @@
  *
  * @author flatline
  */
-const Config = require('./Config').Config;
+const Config = require('./../../../client/src/global/Config').Config;
 const DIR    = require('./Directions').DIR;
 
 class Helper {

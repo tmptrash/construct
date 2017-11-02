@@ -12,7 +12,7 @@
  * @author flatline
  */
 import Organisms from './base/Organisms';
-import {Config}  from './../../../../common/src/global/Config';
+import {Config}  from '../../global/Config';
 import {EVENTS}  from './../../global/Events';
 import Helper    from './../../../../common/src/global/Helper';
 import {DIR}     from './../../../../common/src/global/Directions';

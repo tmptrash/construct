@@ -1,5 +1,5 @@
 describe("server/src/server/plugins/Api", () => {
-    const Config       = require('./../../../../common/src/global/Config').Config;
+    const Config       = require('./../../../../client/src/global/Config').Config;
     const Observer     = require('./../../../../common/src/global/Observer');
     const Server       = require('./../../../../server/src/server/Server').Server;
     const OLD_MODE     = Config.modeNodeJs;
@@ -63,9 +63,9 @@ describe("server/src/server/plugins/Api", () => {
             run()           {}
             setClientId(id) {this.clientId = id}
         }
-        let maxCon  = Config.serMaxConnections;
-        Config.serMaxConnections = 1;
-        let server  = new Server(Config.serPort, PLUGINS);
+        let maxCon  = Config.maxConnections;
+        Config.maxConnections = 1;
+        let server  = new Server(Config.port, PLUGINS);
         let id      = null;
         const man   = new Man();
 
@@ -80,7 +80,7 @@ describe("server/src/server/plugins/Api", () => {
                 server.on(SEVENTS.STOP, () => waitObj.done = true);
                 server.destroy();
                 Helper.wait(waitObj, () => {
-                    Config.serMaxConnections = maxCon;
+                    Config.maxConnections = maxCon;
                     done();
                 });
             });
@@ -97,9 +97,9 @@ describe("server/src/server/plugins/Api", () => {
             run()           {}
             setClientId(id) {this.clientId = id}
         }
-        let maxCon  = Config.serMaxConnections;
-        Config.serMaxConnections = 1;
-        let server  = new Server(Config.serPort, PLUGINS);
+        let maxCon  = Config.maxConnections;
+        Config.maxConnections = 1;
+        let server  = new Server(Config.port, PLUGINS);
         let man     = new Man1();
         let oldId   = null;
         let id      = null;
@@ -118,7 +118,7 @@ describe("server/src/server/plugins/Api", () => {
                     server.on(SEVENTS.STOP, () => waitObj.done = true);
                     server.destroy();
                     Helper.wait(waitObj, () => {
-                        Config.serMaxConnections = maxCon;
+                        Config.maxConnections = maxCon;
                         done();
                     });
                 });

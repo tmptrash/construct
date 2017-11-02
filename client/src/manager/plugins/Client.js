@@ -8,16 +8,17 @@
  *
  * @author flatline
  */
-const Helper     = require('./../../../../common/src/global/Helper');
-const Config     = require('./../../../../common/src/global/Config').Config;
-const TYPES      = require('./../../../../common/src/global/Requests').TYPES;
-const Request    = require('./../../../../common/src/net/plugins/Request');
-const Api        = require('./Api');
-const Console    = require('./../../global/Console');
-const Connection = require('./../../../../common/src/net/Connection').Connection;
-const EVENTS     = require('./../../../../common/src/net/Connection').EVENTS;
-const Plugins    = require('./../../../../common/src/global/Plugins');
-const GEVENTS    = require('./../../global/Events').EVENTS;
+const Helper       = require('./../../../../common/src/global/Helper');
+const Config       = require('./../../global/Config').Config;
+const ServerConfig = require('./../../../../server/src/global/Config').Config;
+const TYPES        = require('./../../../../common/src/global/Requests').TYPES;
+const Request      = require('./../../../../common/src/net/plugins/Request');
+const Api          = require('./Api');
+const Console      = require('./../../global/Console');
+const Connection   = require('./../../../../common/src/net/Connection').Connection;
+const EVENTS       = require('./../../../../common/src/net/Connection').EVENTS;
+const Plugins      = require('./../../../../common/src/global/Plugins');
+const GEVENTS      = require('./../../global/Events').EVENTS;
 //
 // In browser we use browser's native WS implementation. On node.js
 // we use implementation of 'ws' library
@@ -128,7 +129,7 @@ class Client extends Connection {
     _createWebSocket() {
         let ws = null;
         try {
-            ws = new WS(`${Config.serHost}:${Config.serPort}`);
+            ws = new WS(`${ServerConfig.host}:${ServerConfig.port}`);
         } catch (e) {
             Console.error(e.message);
         }

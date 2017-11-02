@@ -5,12 +5,12 @@
  * TODO:   -
  * @author flatline
  */
-import {Config}       from '../../../../common/src/global/Config';
-import Observer       from '../../../../common/src/global/Observer';
-import {EVENTS}       from '../../global/Events';
-import {EVENT_AMOUNT} from '../../global/Events';
-import Helper         from '../../../../common/src/global/Helper';
-import JSVM           from '../JSVM';
+import {Config}       from './../../../src/global/Config';
+import Observer       from './../../../../common/src/global/Observer';
+import {EVENTS}       from './../../global/Events';
+import {EVENT_AMOUNT} from './../../global/Events';
+import Helper         from './../../../../common/src/global/Helper';
+import JSVM           from './../JSVM';
 
 const IS_NUM = Helper.isNumeric;
 

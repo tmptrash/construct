@@ -4,8 +4,8 @@ describe("client/src/organism/JSVM", () => {
     let Operators    = require('./../../../client/src/organism/base/Operators').default;
     let Observer     = require('./../../../common/src/global/Observer');
     let Helper       = require('./../../../common/src/global/Helper');
-    let Config       = require('./../../../common/src/global/Config').Config;
-    let api          = require('./../../../common/src/global/Config').api;
+    let Config       = require('./../../src/global/Config').Config;
+    let api          = require('./../../src/global/Config').api;
     let THelper      = require('./../../../common/tests/Helper');
     let cls          = null;
 

@@ -7,7 +7,7 @@
  *
  * @author flatline
  */
-const Config = require('./../../../common/src/global/Config').Config;
+const Config = require('./Config').Config;
 
 class Console {
     static error(...msg) {

@@ -1,7 +1,7 @@
 describe("common/src/global/Helper", () => {
     let   Helper = require('./../../../common/src/global/Helper');
-    let   Config = require('./../../../common/src/global/Config').Config;
-    let   api    = require('./../../../common/src/global/Config').api;
+    let   Config = require('./../../../client/src/global/Config').Config;
+    let   api    = require('./../../../client/src/global/Config').api;
     let   DIR    = require('./../../../common/src/global/Directions').DIR;
 
     it("Checking posId() method", () => {

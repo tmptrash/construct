@@ -1,14 +1,14 @@
 /**
  * Tiny server for jevo.js clients. Manages many browser clients. Main
  * goal of this server is to track/manage browser or phantom like based
- * clients as a distributed nodes. Server supports serMaxConnections
+ * clients as a distributed nodes. Server supports maxConnections
  * clients at the time. All connected clients/nodes create big virtual
  * map for digital organisms. So one client == one map. By map i mean a
  * planar area with specific width and height configured in global config
- * (see Config.js.worldWidth/worldHeight). If serMaxConnections + 1 client
+ * (see Config.js.worldWidth/worldHeight). If maxConnections + 1 client
  * try to connect, server deny the access. Every client in this system
  * has unique ID, which consists of X,Y coordinates of this client. Each
- * id is called region. So, for example, if we have serMaxConnections === 4,
+ * id is called region. So, for example, if we have maxConnections === 4,
  * we will have square of 16 cells (4 inside and 12 outside):
  *
  *     0:0  1:0  2:0  3:0
@@ -32,8 +32,8 @@
 const WebSocket        = require('./../../../node_modules/ws/index');
 const Connection       = require('./../../../common/src/net/Connection').Connection;
 const EVENTS           = require('./../../../common/src/net/Connection').EVENTS;
-const AroundConnectins = require('./../../../common/src/net/AroundConnections');
-const Config           = require('./../../../common/src/global/Config').Config;
+const AroundServers    = require('./AroundServers');
+const Config           = require('./../../../client/src/global/Config').Config;
 const Plugins          = require('./../../../common/src/global/Plugins');
 const Console          = require('./../global/Console');
 const Connections      = require('./../server/Connections');
@@ -68,14 +68,12 @@ class Server extends Connection {
      */
     constructor(port, plugins) {
         super(SERVER_EVENTS_LEN);
-        this.EVENTS        = SERVER_EVENTS;
-        // TODO: serMaxConnections should be obtained from cmd line param
-        this.conns          = new Connections(Config.serMaxConnections);
-        this.aroundClients  = new AroundConnectins(this);
+        this.EVENTS         = SERVER_EVENTS;
+        this.conns          = new Connections(Config.maxConnections);
         // TODO: This field should be used for connections with around servers.
         // TODO: We have to connect with all available around servers on start
         // TODO: and set them into aroundServers.setSocket()
-        this.aroundServers  = new AroundConnectins(this);
+        this.aroundServers  = new AroundServers(this);
 
         this._server        = null;
         this._port          = port;
@@ -169,7 +167,6 @@ class Server extends Connection {
         const onDestroy = () => {
             me._plugins.onDestroy();
             me.conns.destroy();
-            me.aroundClients.destroy();
             me._server = me.conns = me._port = me._plugins = null;
             super.destroy(); // Connection.destroy()
             me.clear();

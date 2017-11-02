@@ -131,8 +131,7 @@ class Api extends BaseApi {
         //
         this._activateAround(activeRegion);
         //
-        // We should also send current active client activation status of
-        // all nearest clients as well
+        // We should also send around active clients status to the current (sock)
         //
         server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.DOWN,  !!conns.getConnection(conns.downRegion(activeRegion)).sock);
         server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.LEFT,  !!conns.getConnection(conns.leftRegion(activeRegion)).sock);
@@ -146,14 +145,17 @@ class Api extends BaseApi {
      * @param {Boolean} activate Activation value
      */
     _activateAround(region, activate = true) {
-        const clients = this.parent.aroundClients;
-        const conns   = this.parent.conns;
+        const server    = this.parent;
+        const conns     = server.conns;
+        const upSock    = conns.getConnection(conns.upRegion(region)).sock;
+        const rightSock = conns.getConnection(conns.rightRegion(region)).sock;
+        const downSock  = conns.getConnection(conns.downRegion(region)).sock;
+        const leftSock  = conns.getConnection(conns.leftRegion(region)).sock;
 
-        clients.setSocket(conns.getConnection(conns.upRegion(region)).sock,    DIR.UP);
-        clients.setSocket(conns.getConnection(conns.rightRegion(region)).sock, DIR.RIGHT);
-        clients.setSocket(conns.getConnection(conns.downRegion(region)).sock,  DIR.DOWN);
-        clients.setSocket(conns.getConnection(conns.leftRegion(region)).sock,  DIR.LEFT);
-        clients.activate(activate);
+        upSock    && server.request(upSock,    TYPES.REQ_SET_NEAR_ACTIVE, DIR.DOWN,  activate);
+        rightSock && server.request(rightSock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.LEFT,  activate);
+        downSock  && server.request(downSock,  TYPES.REQ_SET_NEAR_ACTIVE, DIR.UP,    activate);
+        leftSock  && server.request(leftSock,  TYPES.REQ_SET_NEAR_ACTIVE, DIR.RIGHT, activate);
     }
 
     /**

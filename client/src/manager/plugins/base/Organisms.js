@@ -7,7 +7,7 @@
  * @author flatline
  */
 import Helper         from '../../../../../common/src/global/Helper';
-import {Config}       from '../../../../../common/src/global/Config';
+import {Config}       from '../../../global/Config';
 import Console        from '../../../global/Console';
 import {EVENTS}       from '../../../global/Events';
 import Queue          from '../../../../../common/src/global/Queue';

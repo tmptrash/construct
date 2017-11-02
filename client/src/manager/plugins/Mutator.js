@@ -10,7 +10,7 @@
  * @author flatline
  */
 import {EVENTS}  from '../../global/Events';
-import {Config}  from '../../../../common/src/global/Config';
+import {Config}  from '../../global/Config';
 import Helper    from '../../../../common/src/global/Helper';
 import Organism  from '../../organism/OrganismDos';
 import Num       from '../../organism/Num';

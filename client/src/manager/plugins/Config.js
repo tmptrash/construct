@@ -3,7 +3,7 @@
  *
  * @author flatline
  */
-import {api} from '../../../../common/src/global/Config';
+import {api} from '../../global/Config';
 
 export default class Config {
     constructor(manager) {

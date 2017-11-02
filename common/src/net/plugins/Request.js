@@ -6,7 +6,7 @@
  * @author flatline
  */
 const Helper  = require('./../../global/Helper');
-const Config  = require('./../../global/Config').Config;
+const Config  = require('./../../../../client/src/global/Config').Config;
 const MASKS   = require('./../../global/Requests').MASKS;
 const Console = require(`./../../../../${Config.modeNodeJs ? 'server' : 'client'}/src/global/Console`);
 

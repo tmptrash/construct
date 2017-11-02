@@ -1,6 +1,6 @@
 describe("server/src/server/Server", () => {
     const WebSocket    = require('ws');
-    const Config       = require('./../../../common/src/global/Config').Config;
+    const Config       = require('./../../../client/src/global/Config').Config;
     const Observer     = require('./../../../common/src/global/Observer');
     const Server       = require('./../../../server/src/server/Server').Server;
     const OLD_MODE     = Config.modeNodeJs;
@@ -21,7 +21,7 @@ describe("server/src/server/Server", () => {
         Request,
         Api
     };
-    const CLIENT_URL = `ws://127.0.0.1:${Config.serPort}`;
+    const CLIENT_URL = `ws://127.0.0.1:${Config.port}`;
 
     let error;
     let warn;
@@ -57,7 +57,7 @@ describe("server/src/server/Server", () => {
     });
 
     it("Checking server creation", () => {
-        let server = new Server(Config.serPort, PLUGINS);
+        let server = new Server(Config.port, PLUGINS);
 
         server.destroy();
     });
@@ -65,31 +65,31 @@ describe("server/src/server/Server", () => {
         let server;
 
         for (let i = 0; i < 100; i++) {
-            server = new Server(Config.serPort, PLUGINS);
+            server = new Server(Config.port, PLUGINS);
             server.destroy();
         }
     });
     it("Checking two servers creation on different ports", () => {
-        let server1 = new Server(Config.serPort, PLUGINS);
-        let server2 = new Server(Config.serPort + 1, PLUGINS);
+        let server1 = new Server(Config.port, PLUGINS);
+        let server2 = new Server(Config.port + 1, PLUGINS);
 
         server2.destroy();
         server1.destroy();
     });
     it("Checking two servers creation on the same port", () => {
-        let server1 = new Server(Config.serPort, PLUGINS);
-        let server2 = new Server(Config.serPort, PLUGINS);
+        let server1 = new Server(Config.port, PLUGINS);
+        let server2 = new Server(Config.port, PLUGINS);
 
         server2.destroy();
         server1.destroy();
     });
     it("Checking stopping of created server", () => {
-        let server = new Server(Config.serPort, PLUGINS);
+        let server = new Server(Config.port, PLUGINS);
         expect(server.stop()).toBe(false);
         server.destroy();
     });
     it("Checking many times stopping of created server", () => {
-        let server = new Server(Config.serPort, PLUGINS);
+        let server = new Server(Config.port, PLUGINS);
         for (let i = 0; i < 1000; i++) {
             expect(server.stop()).toBe(false);
         }
@@ -97,16 +97,16 @@ describe("server/src/server/Server", () => {
     });
 
     it("Checking two servers running on the same port", (done) => {
-        let server1 = new Server(Config.serPort, PLUGINS);
-        let server2 = new Server(Config.serPort, PLUGINS);
+        let server1 = new Server(Config.port, PLUGINS);
+        let server2 = new Server(Config.port, PLUGINS);
 
         waitEvent(server1, SEVENTS.RUN, () => server1.run() && server2.run, () => {
             waitEvent(server1, SEVENTS.DESTROY, () => {server2.destroy(); server1.destroy()}, done);
         });
     });
     it("Checking two servers running on different ports", (done) => {
-        let server1 = new Server(Config.serPort, PLUGINS);
-        let server2 = new Server(Config.serPort + 1, PLUGINS);
+        let server1 = new Server(Config.port, PLUGINS);
+        let server2 = new Server(Config.port + 1, PLUGINS);
         let waitObj = {done: false};
         let times   = 0;
 
@@ -125,7 +125,7 @@ describe("server/src/server/Server", () => {
     });
 
     it("Checking many times running/stopping of created server", (done) => {
-        let server  = new Server(Config.serPort, PLUGINS);
+        let server  = new Server(Config.port, PLUGINS);
         let waitObj = {done: false};
 
         for (let i = 0; i < 100; i++) {
@@ -137,7 +137,7 @@ describe("server/src/server/Server", () => {
         Helper.wait(waitObj, done);
     });
     it("Checking server running many times", (done) => {
-        let server  = new Server(Config.serPort, PLUGINS);
+        let server  = new Server(Config.port, PLUGINS);
         let waitObj = {done: false};
 
         for (let i = 0; i < 100; i++) {server.run()}
@@ -147,7 +147,7 @@ describe("server/src/server/Server", () => {
         else {Helper.wait(waitObj, done)}
     });
     it("Checking server run", (done) => {
-        let server  = new Server(Config.serPort, PLUGINS);
+        let server  = new Server(Config.port, PLUGINS);
         let waitObj = {done: false};
 
         server.on(SEVENTS.RUN, () => waitObj.done = true);
@@ -159,7 +159,7 @@ describe("server/src/server/Server", () => {
         });
     });
     it("Checking server run/stop/run/stop", (done) => {
-        let server  = new Server(Config.serPort, PLUGINS);
+        let server  = new Server(Config.port, PLUGINS);
         let waitObj = {done: false};
 
         server.on(SEVENTS.RUN, () => waitObj.done = true);
@@ -182,7 +182,7 @@ describe("server/src/server/Server", () => {
     });
 
     it("Checking server run + one client connection", (done) => {
-        let server  = new Server(Config.serPort, PLUGINS);
+        let server  = new Server(Config.port, PLUGINS);
         let waitObj = {done: false};
 
         server.on(SEVENTS.CONNECT, () => waitObj.done = true);
@@ -198,7 +198,7 @@ describe("server/src/server/Server", () => {
         });
     });
     it("Checking server run + two clients connection", (done) => {
-        let server  = new Server(Config.serPort, PLUGINS);
+        let server  = new Server(Config.port, PLUGINS);
         let waitObj = {done: false};
         let cons    = 0;
 
@@ -216,7 +216,7 @@ describe("server/src/server/Server", () => {
         });
     });
     it("Checking server run + two clients and one disconnected", (done) => {
-        let server  = new Server(Config.serPort, PLUGINS);
+        let server  = new Server(Config.port, PLUGINS);
         let waitObj = {done: false};
         let cons    = 0;
 
@@ -238,7 +238,7 @@ describe("server/src/server/Server", () => {
         });
     });
     it("Checking server run + one client connect/disconnect/connect", (done) => {
-        let server = new Server(Config.serPort, PLUGINS);
+        let server = new Server(Config.port, PLUGINS);
         let client;
 
         waitEvent(server, CEVENTS.OPEN, () => {server.run(); client = new WebSocket(CLIENT_URL)}, () => {
@@ -251,7 +251,7 @@ describe("server/src/server/Server", () => {
     });
 
     it("Checking 'active' field", (done) => {
-        let server  = new Server(Config.serPort, PLUGINS);
+        let server  = new Server(Config.port, PLUGINS);
         let waitObj = {done: false};
 
         expect(server.active).toEqual(false);
@@ -281,9 +281,9 @@ describe("server/src/server/Server", () => {
         }
         let man     = new Man();
         let man1    = new Man();
-        let maxCon  = Config.serMaxConnections;
-        Config.serMaxConnections = 1;
-        let server  = new Server(Config.serPort, PLUGINS);
+        let maxCon  = Config.maxConnections;
+        Config.maxConnections = 1;
+        let server  = new Server(Config.port, PLUGINS);
         let client  = new Client(man);
 
         client.run();
@@ -292,7 +292,7 @@ describe("server/src/server/Server", () => {
             client1.run();
             waitEvent(client1, CEVENTS.CLOSE, () => {
                 waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
-                    Config.serMaxConnections = maxCon;
+                    Config.maxConnections = maxCon;
                     man.clear();
                     man1.clear();
                     done();
