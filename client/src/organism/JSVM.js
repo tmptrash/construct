@@ -7,77 +7,91 @@
  * TODO: think about custom operators callbacks from outside. This is how
  * TODO: we may solve custom tasks
  */
-import {Config}       from '../global/Config';
-import Helper         from '../../../common/src/global/Helper';
-import Observer       from '../../../common/src/global/Observer'
-import {EVENTS}       from '../global/Events';
-import {EVENT_AMOUNT} from '../global/Events';
-import Num            from './Num';
-
+const Config       = require('./../global/Config').Config;
+const Helper       = require('./../../../common/src/global/Helper');
+const Observer     = require('./../../../common/src/global/Observer');
+const EVENTS       = require('./../global/Events').EVENTS;
+const EVENT_AMOUNT = require('./../global/Events').EVENT_AMOUNT;
+const Num          = require('./Num');
+const Operators    = require('CLIENT/' + Config.codeOperatorsCls + '.js');
 /**
  * {Number} Maximum stack size, which may be used for recursion or function parameters
  */
 const MAX_STACK_SIZE = 30000;
 
-export default class JSVM extends Observer {
+class JSVM extends Observer {
     /**
-     * Creates JSVM instance. codeEndCb will be called after last code line is run. classMap
-     * is a map of classes. We need only one - Operators class. We use this approach, because
-     * it's impossible to set class in a Config module. parent is used if JSVM instance is
-     * in a cloning mode and we have to create a copy of it.
+     * Creates JSVM instance. codeEndCb will be called after last code line is run.
+     * parent is used if JSVM instance is in a cloning mode and we have to create
+     * a copy of it.
      * @param {Function} codeEndCb
      * @param {Observer} obs Observer instance for Operators class
-     * @param {Array} classMap
      * @param {JSVM} parent Parent JSVM instance in case of cloning
      */
-    constructor(codeEndCb, obs, classMap, parent = null) {
+    constructor(codeEndCb, obs, parent = null) {
         super(EVENT_AMOUNT);
 
-        this._classMap    = classMap;
-        this._obs         = obs;
+        this._obs       = obs;
         /**
          * {Function} Callback, which is called on every organism
          * jsvm iteration. On it's end.
          */
-        this._onCodeEnd   = codeEndCb;
+        this._onCodeEnd = codeEndCb;
         /**
          * {Array} Array of two numbers. first - line number where we have
          * to return if first line appears. second - line number, where ends
          * closing block '}' of block operator (e.g. for, if,...).
          */
-        this._offsets     = [];
-        this._vars        = parent && parent.vars && parent.vars.slice() || this._getVars();
+        this._offsets   = [];
+        this._vars      = parent && parent.vars && parent.vars.slice() || this._getVars();
         /**
          * {Function} Class, which implement all supported operators
          */
-        this._operators   = new classMap[Config.codeOperatorsCls](this._offsets, this._vars, obs);
-        this._code        = parent && parent.code.slice() || [];
-        this._line        = 0;
+        this._operators = new Operators(this._offsets, this._vars, obs);
+        this._code      = parent && parent.code.slice() || [];
+        this._line      = 0;
     }
 
-    get code()      {return this._code}
-    get size()      {return this._code.length}
-    get operators() {return this._operators}
-    get vars()      {return this._vars}
-    get offsets()   {return this._offsets}
-    get line()      {return this._line}
+    get code() {
+        return this._code
+    }
+
+    get size() {
+        return this._code.length
+    }
+
+    get operators() {
+        return this._operators
+    }
+
+    get vars() {
+        return this._vars
+    }
+
+    get offsets() {
+        return this._offsets
+    }
+
+    get line() {
+        return this._line
+    }
 
     serialize() {
         return {
-            offsets         : this._offsets.slice(),
-            vars            : this._vars.slice(),
+            offsets: this._offsets.slice(),
+            vars: this._vars.slice(),
             // 'operators' field will be added after insertion
-            code            : this._code.slice(),
-            line            : this._line
+            code: this._code.slice(),
+            line: this._line
         };
     }
 
     unserialize(json) {
-        this._offsets   = json.offsets;
-        this._vars      = json.vars;
-        this._code      = json.code;
-        this._line      = json.line;
-        this._operators = new this._classMap[Config.codeOperatorsCls](this._offsets, this._vars, this._obs);
+        this._offsets = json.offsets;
+        this._vars    = json.vars;
+        this._code    = json.code;
+        this._line    = json.line;
+        this._operators = new Operators(this._offsets, this._vars, this._obs);
     }
 
     /**
@@ -146,20 +160,26 @@ export default class JSVM extends Observer {
      * @returns {Number} Amount of changes in current (this) jsvm
      */
     crossover(jsvm) {
-        const rand    = Helper.rand;
-        const len     = this._code.length;
-        const len1    = jsvm.code.length;
-        let   start   = rand(len);
-        let   end     = rand(len);
-        let   start1  = rand(len1);
-        let   end1    = rand(len1);
-        let   adds;
+        const rand = Helper.rand;
+        const len  = this._code.length;
+        const len1 = jsvm.code.length;
+        let start  = rand(len);
+        let end    = rand(len);
+        let start1 = rand(len1);
+        let end1   = rand(len1);
+        let adds;
 
-        if (start > end) {[start, end] = [end, start]}
-        if (start1 > end1) {[start1, end1] = [end1, start1]}
+        if (start > end) {
+            [start, end] = [end, start]
+        }
+        if (start1 > end1) {
+            [start1, end1] = [end1, start1]
+        }
 
         adds = Math.abs(end1 - start1 - end + start);
-        if (this._code.length + adds >= Config.codeMaxSize) {return 0}
+        if (this._code.length + adds >= Config.codeMaxSize) {
+            return 0
+        }
         this._code.splice.apply(this._code, [start, end - start + 1].concat(jsvm.code.slice(start1, end1 + 1)));
         this._reset();
 
@@ -221,7 +241,7 @@ export default class JSVM extends Observer {
 
     _reset() {
         this.fire(EVENTS.RESET_CODE);
-        this._line    = 0;
+        this._line = 0;
         this._operators.offsets = (this._offsets = []);
     }
 
@@ -232,10 +252,12 @@ export default class JSVM extends Observer {
      * @private
      */
     _getVars() {
-        if (this._vars && this._vars.length > 0) {return this._vars}
+        if (this._vars && this._vars.length > 0) {
+            return this._vars
+        }
 
         const len    = Math.pow(2, Config.codeBitsPerVar);
-        let   vars   = new Array(len);
+        let vars     = new Array(len);
         const range  = Config.codeVarInitRange;
         const range2 = range / 2;
         const rand   = Helper.rand;
@@ -247,3 +269,5 @@ export default class JSVM extends Observer {
         return (this._vars = vars);
     }
 }
+
+module.exports = JSVM;

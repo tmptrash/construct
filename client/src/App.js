@@ -7,15 +7,16 @@
  *
  * @author flatline
  */
-import Manager from './manager/Manager';
-import {Config}          from './global/Config';
-import {Client}          from './../../client/src/manager/plugins/Client';
-import OrganismsGarmin   from './../src/manager/plugins/OrganismsGarmin';
-import OrganismsDos      from './../src/manager/plugins/OrganismsDos';
-import ConfigPlugin      from './../src/manager/plugins/Config';
-import Mutator           from './../src/manager/plugins/Mutator';
-import Energy            from './../src/manager/plugins/Energy';
-import Status            from './../src/manager/plugins/Status';
+const Manager         = require('./manager/Manager');
+const Config          = require('./global/Config').Config;
+const Client          = require('./../../client/src/manager/plugins/Client').Client;
+const OrganismsGarmin = require('./../src/manager/plugins/OrganismsGarmin');
+const OrganismsDos    = require('./../src/manager/plugins/OrganismsDos');
+const ConfigPlugin    = require('./../src/manager/plugins/Config');
+const Mutator         = require('./../src/manager/plugins/Mutator');
+const Energy          = require('./../src/manager/plugins/Energy');
+const Status          = require('./../src/manager/plugins/Status');
+const Ips             = require('./../src/manager/plugins/Ips');
 /**
  * {Boolean} Specify fitness or nature simulation mode
  */
@@ -23,13 +24,15 @@ const FITNESS_MODE = Config.codeFitnessCls !== null;
 /**
  * {Array} Plugins for Manager
  */
+// TODO: this list should be obtained from Config
 const PLUGINS = {
     Organisms: FITNESS_MODE ? OrganismsGarmin : OrganismsDos,
     Config: ConfigPlugin,
     Client: {cls: Client, cfg: {run: true}},
     Mutator,
     Energy,
-    Status
+    Status,
+    Ips
 };
 const manager = new Manager(PLUGINS);
 //

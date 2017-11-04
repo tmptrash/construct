@@ -3,14 +3,14 @@
  *
  * @author flatline
  */
-import {EVENTS} from '../../global/Events';
-import {Config} from '../../global/Config';
+const EVENTS = require('./../../global/Events').EVENTS;
+const Config = require('./../../global/Config').Config;
 
 const GREEN  = 'color: #00aa00';
 const RED    = 'color: #aa0000';
 const PERIOD = 10000;
 
-export default class Status {
+class Status {
     constructor(manager) {
         this._manager     = manager;
         this.stamp        = 0;
@@ -95,3 +95,5 @@ export default class Status {
         this._fitness  += fitness;
     }
 }
+
+module.exports = Status;

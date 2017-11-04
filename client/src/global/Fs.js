@@ -2,6 +2,8 @@
  * @author flatline
  * TODO: take a look at: https://habrahabr.ru/post/112286/
  */
-export default class Fs {
+class Fs {
 
 }
+
+module.exports = Fs;

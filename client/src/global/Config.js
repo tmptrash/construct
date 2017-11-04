@@ -4,7 +4,6 @@
  * It shouldn't contain server relates configuration.
  *
  * @author flatline
- * TODO: find and remove unused configs
  */
 const Config = require('./../../../common/src/global/Config');
 
@@ -184,24 +183,24 @@ ClientConfig.init({
     codeIterationsPerOnce: 50,
     /**
      * {String|null} Fitness class or null if default behavior is used. Default
-     * behavior is a nature organisms simulator. See Manager.CLASS_MAP for additional
+     * behavior is a nature organisms simulator. See ClassMap.js for additional
      * details.
      */
-    codeFitnessCls: null,//'FitnessGarmin',
+    codeFitnessCls: null,//'src/organism/FitnessGarmin',
     /**
      * {String} Name of the organism class. All organisms in a world
      * will be creates as an instance of this class
      */
-    codeOrganismCls: 'OrganismDos',//OrganismGarmin
+    codeOrganismCls: 'src/organism/OrganismDos',//OrganismGarmin
     /**
      * {Function} Class with available operators. See default Operators
-     * class for details. See Manager.CLASS_MAP for additional details.
+     * class for details. See ClassMap.js for additional details.
      */
-    codeOperatorsCls: 'OperatorsDos',//'OperatorsGarmin',
+    codeOperatorsCls: 'src/organism/OperatorsDos',//'OperatorsGarmin',
     /**
      * {String} Name of the class for string representation of byte jsvm
      */
-    code2StringCls: 'Code2StringDos',//'Code2StringGarmin',
+    code2StringCls: 'src/organism/Code2StringDos',//'Code2StringGarmin',
     /**
      * {Number} World width
      */
@@ -211,7 +210,7 @@ ClientConfig.init({
      */
     worldHeight: 400,
     /**
-     * {Number} Turns on ciclic world mode. It means that organisms may go outside
+     * {Number} Turns on cyclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
      * size and the organism has 10x5 position in it, one step right will move
      * this organism at the position 1x5. The same scenario regarding Y
@@ -250,17 +249,6 @@ ClientConfig.init({
      */
     worldEnergyCheckPeriod: 5000,
     /**
-     * {Number} World scaling. Today monitors pixel are so small, so we have
-     * to zoom them with a coefficient.
-     */
-    worldZoom: 1,
-    /**
-     * {Number} Period of milliseconds, which is user for checking IPS value. It's
-     * possible to increase it to reduce amount of requests and additional
-     * jsvm in main loop
-     */
-    worldIpsPeriodMs: 10000,
-    /**
      * {Number} Period of making automatic backup of application. In iterations
      */
     backupPeriod: 1000,
@@ -280,7 +268,7 @@ ClientConfig.init({
      * {Number} Percent of energy, which will be minused from organism after
      * stepping from one instance to another.
      */
-    conStepEnergySpendPercent: 20,
+    conStepEnergySpendPercent: 0.0,
     /**
      * {Array} Array of included plugins
      */
@@ -289,34 +277,6 @@ ClientConfig.init({
      * {Array} Array of excluded plugins. Affects plugIncluded list
      */
     plugExcluded: [],
-    /**
-     * {Boolean} Debug mode. This mode means, that all debug messages
-     * will be posted to the terminal
-     */
-    modeDebug: false,
-    /**
-     * {Boolean} Testing mode. In this mode user may run jevo step by step
-     * and test it'sinternal parts. For example, during unit tests
-     */
-    modeTest: false,
-    /**
-     * {Boolean} Is used for profiling the application with ProfileView
-     * package. See run-profiling.sh for details
-     */
-    modeProfile: false,
-    /**
-     * {Number} Amount of iterations in profile mode after which ProfileView
-     * package will draw performance flame chart
-     */
-    modeProfilePeriod: 2000,
-    /**
-     * {Number} Amount of seconds for status showing in terminal
-     */
-    modeStatusPeriod: 10.0,
-    /**
-     * {Boolean} In this mode status report will be short or full
-     */
-    modeStatusFull: false,
     /**
      * {Number} Mode for showing/supressing of messages. Possible values:
      *   0 - all messages
@@ -514,13 +474,13 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //     codeIterationsPerOnce: 50,
 //     /**
 //      * {String|null} Fitness class or null if default behavior is used. Default
-//      * behavior is a nature organisms simulator. See Manager.CLASS_MAP for additional
+//      * behavior is a nature organisms simulator. See ClassMap.js for additional
 //      * details.
 //      */
 //     codeFitnessCls: null,//'FitnessGarmin',
 //     /**
 //      * {Function} Class with available operators. See default Operators
-//      * class for details. See Manager.CLASS_MAP for additional details.
+//      * class for details. See ClassMap.js for additional details.
 //      */
 //     codeOperatorsCls: 'OperatorsDos',//'OperatorsGarmin',
 //     /**
@@ -573,11 +533,6 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //      * you want to disable it
 //      */
 //     worldEnergyCheckPeriod: 500,
-//     /**
-//      * {Number} World scaling. Today monitors pixel are so small, so we have
-//      * to zoom them with a coefficient.
-//      */
-//     worldZoom: 1,
 //     /**
 //      * {Number} Quite mode. This mode affects on amount and
 //      * types of console messages. For example in QUIET_IMPORTANT
@@ -674,34 +629,6 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //      */
 //     plugExcluded: [],
 //     /**
-//      * {Boolean} Debug mode. This mode means, that all debug messages
-//      * will be posted to the terminal
-//      */
-//     modeDebug: false,
-//     /**
-//      * {Boolean} Testing mode. In this mode user may run jevo step by step
-//      * and test it'sinternal parts. For example, during unit tests
-//      */
-//     modeTest: false,
-//     /**
-//      * {Boolean} Is used for profiling the application with ProfileView
-//      * package. See run-profiling.sh for details
-//      */
-//     modeProfile: false,
-//     /**
-//      * {Number} Amount of iterations in profile mode after which ProfileView
-//      * package will draw performance flame chart
-//      */
-//     modeProfilePeriod: 2000,
-//     /**
-//      * {Number} Amount of seconds for status showing in terminal
-//      */
-//     modeStatusPeriod: 10.0,
-//     /**
-//      * {Boolean} In this mode status report will be short or full
-//      */
-//     modeStatusFull: false,
-//     /**
 //      * {Number} Mode for showing/supressing of messages. Possible values:
 //      *   0 - all messages
 //      *   1 - only important messages
@@ -709,8 +636,6 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //      */
 //     modeQuiet: 1
 // };
-//
-// export default Config;
 
 // /**
 //  * Global jevo.js configuration file. Affects only current jevo
@@ -887,13 +812,13 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //     codeIterationsPerOnce: 20,
 //     /**
 //      * {String|null} Fitness class or null if default behavior is used. Default
-//      * behavior is a nature organisms simulator. See Manager.CLASS_MAP for additional
+//      * behavior is a nature organisms simulator. See ClassMap.js for additional
 //      * details.
 //      */
 //     codeFitnessCls: 'FitnessGarmin',
 //     /**
 //      * {Function} Class with available operators. See default Operators
-//      * class for details. See Manager.CLASS_MAP for additional details.
+//      * class for details. See ClassMap.js for additional details.
 //      */
 //     codeOperatorsCls: 'OperatorsGarmin',
 //     /**
@@ -946,11 +871,6 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //      * you want to disable it
 //      */
 //     worldEnergyCheckPeriod: 0,
-//     /**
-//      * {Number} World scaling. Today monitors pixel are so small, so we have
-//      * to zoom them with a coefficient.
-//      */
-//     worldZoom: 1,
 //     /**
 //      * {Number} Quite mode. This mode affects on amount and
 //      * types of console messages. For example in QUIET_IMPORTANT
@@ -1047,34 +967,6 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //      */
 //     plugExcluded: [],
 //     /**
-//      * {Boolean} Debug mode. This mode means, that all debug messages
-//      * will be posted to the terminal
-//      */
-//     modeDebug: false,
-//     /**
-//      * {Boolean} Testing mode. In this mode user may run jevo step by step
-//      * and test it'sinternal parts. For example, during unit tests
-//      */
-//     modeTest: false,
-//     /**
-//      * {Boolean} Is used for profiling the application with ProfileView
-//      * package. See run-profiling.sh for details
-//      */
-//     modeProfile: false,
-//     /**
-//      * {Number} Amount of iterations in profile mode after which ProfileView
-//      * package will draw performance flame chart
-//      */
-//     modeProfilePeriod: 2000,
-//     /**
-//      * {Number} Amount of seconds for status showing in terminal
-//      */
-//     modeStatusPeriod: 10.0,
-//     /**
-//      * {Boolean} In this mode status report will be short or full
-//      */
-//     modeStatusFull: false,
-//     /**
 //      * {Number} Mode for showing/supressing of messages. Possible values:
 //      *   0 - all messages
 //      *   1 - only important messages
@@ -1082,5 +974,3 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //      */
 //     modeQuiet: 1
 // };
-//
-// export default Config;

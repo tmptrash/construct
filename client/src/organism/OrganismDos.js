@@ -4,10 +4,12 @@
  * TODO:   -
  * @author flatline
  */
-import Organism from './base/Organism';
+const Organism = require('./base/Organism');
 
-export default class OrganismDos extends Organism {
+class OrganismDos extends Organism {
     onRun() {
         this.jsvm.run(this);
     }
 }
+
+module.exports = OrganismDos;

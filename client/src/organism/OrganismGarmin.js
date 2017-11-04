@@ -4,11 +4,11 @@
  * TODO:   -
  * @author flatline
  */
-import Organism       from './base/Organism';
-import {Config}       from '../global/Config';
-import {EVENTS}       from '../global/Events';
+const Organism = require('./base/Organism');
+const Config   = require('./../global/Config').Config;
+const EVENTS   = require('./../global/Events').EVENTS;
 
-export default class OrganismGarmin extends Organism {
+class OrganismGarmin extends Organism {
     /**
      * Creates organism instance. If parent parameter is set, then
      * a clone of parent organism will be created.
@@ -56,3 +56,5 @@ export default class OrganismGarmin extends Organism {
         this._needRun = true;
     }
 }
+
+module.exports = OrganismGarmin;

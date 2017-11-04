@@ -4,8 +4,7 @@
  *
  * @author flatline
  */
-
-export default class Operators {
+class Operators {
     constructor(offs, vars, obs) {
         /**
          * {Array} Array of offsets for closing braces. For 'for', 'if'
@@ -40,3 +39,5 @@ export default class Operators {
      */
     set offsets(offs) {this.offs = offs}
 }
+
+module.exports = Operators;

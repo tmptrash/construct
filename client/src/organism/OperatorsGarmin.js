@@ -6,10 +6,10 @@
  *
  * @author flatline
  */
-import {Config}  from '../global/Config';
-import Helper    from '../../../common/src/global/Helper';
-import Operators from './base/Operators';
-import Num       from './Num';
+const Config    = require('./../global/Config').Config;
+const Helper    = require('./../../../common/src/global/Helper');
+const Operators = require('./base/Operators');
+const Num       = require('./Num');
 
 /**
  * {Function} Just a shortcuts
@@ -23,7 +23,7 @@ const IS_NUM                = Helper.isNumeric;
 const HALF_OF_VAR           = Num.MAX_VAR / 2;
 const CONDITION_BITS        = 2;
 
-export default class OperatorsGarmin extends  Operators {
+class OperatorsGarmin extends  Operators {
     constructor(offs, vars, obs) {
         super(offs, vars, obs);
         /**
@@ -159,3 +159,5 @@ export default class OperatorsGarmin extends  Operators {
         return line + 1;
     }
 }
+
+module.exports = OperatorsGarmin;

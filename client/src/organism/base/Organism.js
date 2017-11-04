@@ -5,16 +5,16 @@
  * TODO:   -
  * @author flatline
  */
-import {Config}       from './../../../src/global/Config';
-import Observer       from './../../../../common/src/global/Observer';
-import {EVENTS}       from './../../global/Events';
-import {EVENT_AMOUNT} from './../../global/Events';
-import Helper         from './../../../../common/src/global/Helper';
-import JSVM           from './../JSVM';
+const Config        = require('./../../../src/global/Config').Config;
+const Observer      = require('./../../../../common/src/global/Observer');
+const EVENTS        = require('./../../global/Events').EVENTS;
+const EVENT_AMOUNT  = require('./../../global/Events').EVENT_AMOUNT;
+const Helper        = require('./../../../../common/src/global/Helper');
+const JSVM          = require('./../JSVM');
 
 const IS_NUM = Helper.isNumeric;
 
-export default class Organism extends Observer {
+class Organism extends Observer {
     /**
      * Is called before every run. Should return true, if everything
      * is okay and we don't need to interrupt running. If true, then
@@ -40,15 +40,12 @@ export default class Organism extends Observer {
      * this organism is located
      * @param {Function} codeEndCb Callback, which is called at the
      * end of every code iteration.
-     * @param {Object} classMap Available classes map. Maps class names into
-     * classe functions
      * @param {Organism} parent Parent organism if cloning is needed
      */
-    constructor(id, x, y, alive, item, codeEndCb, classMap, parent = null) {
+    constructor(id, x, y, alive, item, codeEndCb, parent = null) {
         super(EVENT_AMOUNT);
 
         this._codeEndCb   = codeEndCb;
-        this._classMap    = classMap;
 
         if (parent === null) {this._create()}
         else {this._clone(parent)}
@@ -172,7 +169,6 @@ export default class Organism extends Observer {
     destroy() {
         this.fire(EVENTS.DESTROY, this);
         this._alive      = false;
-        this._classMap   = null;
         this._energy     = 0;
         this._item       = null;
         this._mem        = null;
@@ -189,7 +185,7 @@ export default class Organism extends Observer {
     }
 
     _create() {
-        this.jsvm                   = new JSVM(this._codeEndCb.bind(this, this), this, this._classMap);
+        this.jsvm                   = new JSVM(this._codeEndCb.bind(this, this), this);
         this._energy                = Config.orgStartEnergy;
         this._color                 = Config.orgStartColor;
         this._mutationProbs         = Config.orgMutationProbs.slice();
@@ -201,7 +197,7 @@ export default class Organism extends Observer {
     }
 
     _clone(parent) {
-        this.jsvm                   = new JSVM(this._codeEndCb.bind(this, this), this, this._classMap, parent.jsvm);
+        this.jsvm                   = new JSVM(this._codeEndCb.bind(this, this), this, parent.jsvm);
         this._energy                = parent.energy;
         this._color                 = parent.color;
         this._mutationProbs         = parent.mutationProbs.slice();
@@ -227,7 +223,7 @@ export default class Organism extends Observer {
     }
 
     /**
-     * This is how our system grabs an energy from organism if it's age is
+     * This is how our system grabs an energy= require(organism if it's age is
      * divided into Config.orgEnergySpendPeriod.
      * @return {Boolean} false means that organism was destroyed.
      * @private
@@ -245,3 +241,5 @@ export default class Organism extends Observer {
         return this.grabEnergy(grabSize);
     }
 }
+
+module.exports = Organism;

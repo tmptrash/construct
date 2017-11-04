@@ -9,17 +9,17 @@
  *
  * @author flatline
  */
-import {EVENTS}  from '../../global/Events';
-import {Config}  from '../../global/Config';
-import Helper    from '../../../../common/src/global/Helper';
-import Organism  from '../../organism/OrganismDos';
-import Num       from '../../organism/Num';
+const EVENTS   = require('./../../global/Events').EVENTS;
+const Config   = require('./../../global/Config').Config;
+const Helper   = require('./../../../../common/src/global/Helper');
+const Organism = require('./../../organism/OrganismDos');
+const Num      = require('./../../organism/Num');
 
 const VAR_BITS_OFFS = Num.VAR_BITS_OFFS - 1;
 const VARS          = Num.VARS;
 const MAX_VAR       = Num.MAX_VAR;
 
-export default class Mutator {
+class Mutator {
     constructor(manager) {
         this.manager = manager;
         this._MUTATION_TYPES = [
@@ -135,3 +135,5 @@ export default class Mutator {
         org.cloneEnergyPercent = Math.random();
     }
 }
+
+module.exports = Mutator;

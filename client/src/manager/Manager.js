@@ -4,7 +4,7 @@
  * method.
  *
  * Usage:
- *   import Manager from '.../Manager';
+ *   const Manager = require('.../Manager');
  *   const manager = new Manager();
  *   manager.run();
  *
@@ -12,37 +12,17 @@
  * TODO: what about destroy of manager instance? We have to destroy plugins
  * TODO: by calling of destroy() method for every of them
  */
-import Observer          from './../../../common/src/global/Observer';
-import {Config}          from './../../../client/src/global/Config';
-import Plugins           from './../../../common/src/global/Plugins';
-import {EVENTS}          from './../global/Events';
-import {EVENT_AMOUNT}    from './../global/Events';
-import Console           from './../global/Console';
-import World             from './../visual/World';
-import Canvas            from './../visual/Canvas';
+const Observer         = require('./../../../common/src/global/Observer');
+const Queue            = require('./../../../common/src/global/Queue');
+const Config           = require('./../../../client/src/global/Config').Config;
+const Plugins          = require('./../../../common/src/global/Plugins');
+const EVENTS           = require('./../global/Events').EVENTS;
+const EVENT_AMOUNT     = require('./../global/Events').EVENT_AMOUNT;
+const Console          = require('./../global/Console');
+const World            = require('./../visual/World');
+const Canvas           = require('./../visual/Canvas');
 
-import OperatorsDos      from './../organism/OperatorsDos';
-import OperatorsGarmin   from './../organism/OperatorsGarmin';
-import Code2StringDos    from './../organism/Code2StringDos';
-import Code2StringGarmin from './../organism/Code2StringGarmin';
-import FitnessGarmin     from './../organism/FitnessGarmin';
-import OrganismDos       from './../organism/OrganismDos';
-import OrganismGarmin    from './../organism/OrganismGarmin';
-/**
- * {Object} Mapping of class names and their functions. We use this map
- * for switching between fitness and natural modes
- */
-const CLASS_MAP = {
-    OperatorsDos,
-    OperatorsGarmin,
-    Code2StringDos,
-    Code2StringGarmin,
-    FitnessGarmin,
-    OrganismDos,
-    OrganismGarmin
-};
-
-export default class Manager extends Observer {
+class Manager extends Observer {
     /**
      * Is called on every iteration in main loop. May be overridden in plugins
      * @abstract
@@ -54,6 +34,18 @@ export default class Manager extends Observer {
      */
     constructor(plugins) {
         super(EVENT_AMOUNT);
+        /**
+         * {Queue} Queue of organisms in current Manager. Should be used by plugins.
+         * Organisms plugin walk through this queue and run organism's code all the
+         * time.
+         */
+        this.organisms     = new Queue();
+        /**
+         * {Number} Amount of organism's code runs. codeRuns++ will occur after last
+         * code line will done. May be changed in plugins.
+         */
+        this._codeRuns     = 0;
+
         this._world        = new World(Config.worldWidth, Config.worldHeight);
         this._canvas       = new Canvas(Config.worldWidth, Config.worldHeight);
         this._stopped      = true;
@@ -89,7 +81,9 @@ export default class Manager extends Observer {
     get clientId()     {return this._clientId}
     get activeAround() {return this._activeAround}
     get stopped()      {return this._stopped}
-    get CLASS_MAP()    {return CLASS_MAP}
+    get codeRuns()     {return this._codeRuns}
+
+    set codeRuns(cr)   {this._codeRuns = cr}
 
     /**
      * Runs main infinite loop of application
@@ -105,7 +99,7 @@ export default class Manager extends Observer {
     stop() {
         this._stopped = true;
         this._counter = 0;
-        Console.log('Manager has stopped');
+        Console.info('Manager has stopped');
     }
 
     setClientId(id) {
@@ -119,6 +113,9 @@ export default class Manager extends Observer {
     destroy() {
         this._world.destroy();
         this._canvas.destroy();
+        for (let org of this.organisms) {org.destroy()}
+        this.organisms.destroy();
+        this.organisms = null;
         this._onLoopCb = null;
         this._plugins  = null;
         this.api       = null;
@@ -196,3 +193,5 @@ export default class Manager extends Observer {
         this._canvas.dot(x, y, color);
     }
 }
+
+module.exports = Manager;

@@ -11,17 +11,17 @@
  *
  * @author flatline
  */
-import Organisms from './base/Organisms';
-import {Config}  from '../../global/Config';
-import {EVENTS}  from './../../global/Events';
-import Helper    from './../../../../common/src/global/Helper';
-import {DIR}     from './../../../../common/src/global/Directions';
+const Organisms = require('./base/Organisms');
+const Config    = require('./../../global/Config').Config;
+const EVENTS    = require('./../../global/Events').EVENTS;
+const Helper    = require('./../../../../common/src/global/Helper');
+const DIR       = require('./../../../../common/src/global/Directions').DIR;
 
 const EMPTY     = 0;
 const ENERGY    = 1;
 const ORGANISM  = 2;
 
-export default class OrganismsDos extends Organisms {
+class OrganismsDos extends Organisms {
     constructor(manager) {
         super(manager);
 
@@ -163,7 +163,7 @@ export default class OrganismsDos extends Organisms {
         // We have to pass him to the server to another
         // client (Manager). Changing x,y two times is needed
         // for serializing correct coordinates for destination
-        // world and correct removing from current world
+        // world and correct removing= require(current world
         //
         if (man.activeAround[dir]) {
             org.x = x2;
@@ -217,3 +217,5 @@ export default class OrganismsDos extends Organisms {
         }
     }
 }
+
+module.exports = OrganismsDos;

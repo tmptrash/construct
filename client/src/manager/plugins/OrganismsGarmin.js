@@ -10,18 +10,16 @@
  *
  * @author flatline
  */
-import {Config}       from '../../global/Config';
-import Console        from '../../global/Console';
-import {EVENTS}       from '../../global/Events';
-import Organism       from '../../organism/OrganismDos';
-import Organisms      from './base/Organisms';
+const Config    = require('./../../global/Config').Config;
+const Console   = require('./../../global/Console');
+const EVENTS    = require('./../../global/Events').EVENTS;
+const Organisms = require('./base/Organisms');
+const Fitness   = Config.codeFitnessCls && require('CLIENT/' + Config.codeFitnessCls + '.js') || Config.codeFitnessCls;
 
-export default class OrganismsGarmin extends Organisms {
+class OrganismsGarmin extends Organisms {
     constructor(manager) {
         super(manager);
-
-        this._maxChanges  = 0;
-        this._FITNESS_CLS = manager.CLASS_MAP[Config.codeFitnessCls];
+        this._maxChanges = 0;
     }
 
     /**
@@ -32,7 +30,7 @@ export default class OrganismsGarmin extends Organisms {
      * @override
      */
     compare(org1, org2) {
-        return this._FITNESS_CLS.compare(org1, org2, this._maxChanges);
+        return Fitness.compare(org1, org2, this._maxChanges);
     }
 
     onOrganism(org) {
@@ -65,3 +63,5 @@ export default class OrganismsGarmin extends Organisms {
         Console.warn(this.manager.api.formatCode(org.jsvm.code));
     }
 }
+
+module.exports = OrganismsGarmin;

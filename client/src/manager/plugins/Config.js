@@ -3,11 +3,13 @@
  *
  * @author flatline
  */
-import {api} from '../../global/Config';
+const api = require('./../../global/Config').api;
 
-export default class Config {
+class Config {
     constructor(manager) {
         manager.api.setConfig = api.set;
         manager.api.getConfig = api.get;
     }
 }
+
+module.exports = Config;

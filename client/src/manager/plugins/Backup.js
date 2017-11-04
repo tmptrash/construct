@@ -6,11 +6,11 @@
  *
  * @author flatline
  */
-import Helper   from '../../../../common/src/global/Helper';
-import {Config} from '../../global/Config';
-import Console  from '../../global/Console';
+const Helper  = require('./../../../../common/src/global/Helper');
+const Config  = require('./../../global/Config').Config;
+const Console = require('./../../global/Console');
 
-export default class Backup {
+class Backup {
     constructor(orgs, world, positions) {
         this.orgs      = orgs;
         this._world     = world;
@@ -86,3 +86,5 @@ export default class Backup {
 //        });
     }
 }
+
+module.exports = Backup;

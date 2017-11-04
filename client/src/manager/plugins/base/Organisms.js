@@ -6,17 +6,17 @@
  *
  * @author flatline
  */
-import Helper         from '../../../../../common/src/global/Helper';
-import {Config}       from '../../../global/Config';
-import Console        from '../../../global/Console';
-import {EVENTS}       from '../../../global/Events';
-import Queue          from '../../../../../common/src/global/Queue';
-import Organism       from '../../../organism/OrganismDos';
-import Backup         from '../Backup';
+const Helper       = require('./../../../../../common/src/global/Helper');
+const Config       = require('./../../../global/Config').Config;
+const Console      = require('./../../../global/Console');
+const EVENTS       = require('./../../../global/Events').EVENTS;
+const Backup       = require('./../Backup');
+const Code2String  = require('CLIENT/' + Config.code2StringCls + '.js');
+const CodeOrganism = require('CLIENT/' + Config.codeOrganismCls + '.js');
 
 const RAND_OFFS = 4;
 
-export default class Organisms {
+class Organisms {
     /**
      * Compares two organisms and returns more fit one
      * @param {Organism} org1
@@ -76,15 +76,11 @@ export default class Organisms {
     onAfterKillOrg(org) {}
 
     constructor(manager) {
-        this.organisms      = new Queue();
+        this.organisms      = manager.organisms;
         this.backup         = new Backup();
-        this.codeRuns       = 0;
-        this.stamp          = Date.now();
         this.manager        = manager;
-        this._CLASS_MAP     = this.manager.CLASS_MAP;
-        this.code2Str       = new this._CLASS_MAP[Config.code2StringCls];
+        this.code2Str       = new Code2String();
         this.randOrgItem    = this.organisms.first;
-        this._ORG_CLS       = this._CLASS_MAP[Config.codeOrganismCls];
         this._onIterationCb = this.onIteration.bind(this);
 
         this.reset();
@@ -95,13 +91,8 @@ export default class Organisms {
         manager.api.formatCode = (code) => this.code2Str.format(code);
     }
 
-    get orgs() {return this.organisms}
-
     destroy() {
         Helper.unoverride(this.manager, 'onIteration', this._onIterationCb);
-        for (let org of this.organisms) {org.destroy()}
-        this.organisms.destroy();
-        this.organisms      = null;
         this.manager        = null;
         this.code2Str.destroy();
         this.code2Str       = null;
@@ -128,7 +119,6 @@ export default class Organisms {
         this.updateClone(counter);
         this.updateCrossover(counter);
         this.updateCreate();
-        this.updateIps(stamp);
         this.updateBackup(counter);
     }
 
@@ -184,18 +174,6 @@ export default class Organisms {
         }
     }
 
-    updateIps(stamp) {
-        const ts   = stamp - this.stamp;
-        if (ts < Config.worldIpsPeriodMs) {return}
-        const man  = this.manager;
-        const orgs = this.organisms.size;
-        let   ips  = this.codeRuns / orgs / (ts / 1000);
-
-        man.fire(EVENTS.IPS, ips, this.organisms);
-        this.codeRuns = 0;
-        this.stamp = stamp;
-    }
-
     updateBackup(counter) {
         if (counter % Config.backupPeriod !== 0 || Config.backupPeriod === 0) {return}
         // TODO: done this
@@ -237,7 +215,7 @@ export default class Organisms {
         if (orgs.size >= Config.worldMaxOrgs || pos === false) {return false}
         orgs.add(null);
         let last = orgs.last;
-        let org  = new this._ORG_CLS(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), this._CLASS_MAP, parent);
+        let org  = new CodeOrganism(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), parent);
 
         last.val = org;
         this.addOrgHandlers(org);
@@ -295,7 +273,7 @@ export default class Organisms {
     }
 
     _onCodeEnd(org, lines) {
-        this.codeRuns++;
+        this.manager.codeRuns++;
         this.manager.fire(EVENTS.ORGANISM, org, lines);
     }
 
@@ -312,3 +290,5 @@ export default class Organisms {
         //Console.info(org.id, ' die');
     }
 }
+
+module.exports = Organisms;

@@ -6,12 +6,12 @@
  *
  * @author flatline
  */
-import {EVENTS}  from './../global/Events';
-import {DIR}     from './../../../common/src/global/Directions';
-import {Config}  from '../global/Config';
-import Helper    from './../../../common/src/global/Helper';
-import Operators from './base/Operators';
-import Num       from './Num';
+const EVENTS    = require('./../global/Events').EVENTS;
+const DIR       = require('./../../../common/src/global/Directions').DIR;
+const Config    = require('./../global/Config').Config;
+const Helper    = require('./../../../common/src/global/Helper');
+const Operators = require('./base/Operators');
+const Num       = require('./Num');
 
 /**
  * {Function} Just a shortcuts
@@ -27,7 +27,7 @@ const IS_NUM                = Helper.isNumeric;
 const HALF_OF_VAR           = Num.MAX_VAR / 2;
 const CONDITION_BITS        = 2;
 
-export default class OperatorsDos extends Operators {
+class OperatorsDos extends Operators {
     constructor(offs, vars, obs) {
         super(offs, vars, obs);
         /**
@@ -285,3 +285,5 @@ export default class OperatorsDos extends Operators {
         return offset;
     }
 }
+
+module.exports = OperatorsDos;

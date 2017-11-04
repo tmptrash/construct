@@ -48,4 +48,4 @@ const EVENTS = {
 
 const EVENT_AMOUNT = Object.keys(EVENTS).length;
 
-export {EVENTS, EVENT_AMOUNT};
+module.exports = {EVENTS, EVENT_AMOUNT};

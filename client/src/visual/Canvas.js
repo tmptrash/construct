@@ -3,7 +3,7 @@
  *
  * @author flatline
  */
-export default class Canvas {
+class Canvas {
     constructor(width, height) {
         const id     = 'world';
         const doc    = document;
@@ -106,3 +106,5 @@ export default class Canvas {
         htmlEl.style.margin = 0;
     }
 }
+
+module.exports = Canvas;

@@ -1,5 +1,5 @@
 describe("client/src/organism/OperatorsDos", () => {
-    let OperatorsDos = require('./../../../client/src/organism/OperatorsDos').default;
+    let OperatorsDos = require('./../../../client/src/organism/OperatorsDos');
     let Helper       = require('./../../../common/src/global/Helper');
     let Observer     = require('./../../../common/src/global/Observer');
     let EVENTS       = require('./../../../client/src/global/Events').EVENTS;

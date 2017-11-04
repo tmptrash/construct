@@ -1941,7 +1941,7 @@ const ERR_PERCENT = 0.1;
 const TOTAL       = ((arr)=>{let sum = 0; arr.forEach((el)=>sum+=el.length);return sum})(ACTIVITIES);
 const GOAL        = TOTAL - TOTAL * ERR_PERCENT;
 
-export default class FitnessGarmin {
+class FitnessGarmin {
     static run(org) {
         const len = ACTIVITIES.length;
 
@@ -1992,3 +1992,5 @@ export default class FitnessGarmin {
         return val;
     }
 }
+
+module.exports = FitnessGarmin;

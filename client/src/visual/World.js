@@ -7,7 +7,7 @@
  * presentation)
  *
  * Usage:
- *   import World from '.../World';
+ *   const World = require('.../World');
  *   let world = new World(100, 100);
  *   world.setDot(50, 50, 0xFF00AA);
  *   world.getDot(50, 50); // 0xFF00AA
@@ -17,18 +17,17 @@
  *
  * @author flatline
  */
-import Observer       from '../../../common/src/global/Observer';
-import Helper         from '../../../common/src/global/Helper';
-import {EVENTS}       from '../global/Events';
-import {EVENT_AMOUNT} from '../global/Events';
-
+const Observer     = require('./../../../common/src/global/Observer');
+const Helper       = require('./../../../common/src/global/Helper');
+const EVENTS       = require('./../global/Events').EVENTS;
+const EVENT_AMOUNT = require('./../global/Events').EVENT_AMOUNT;
 /**
  * {Number} Amount of attempts for finding free place in a world.
  * The same like this.getDot(x, y) === 0
  */
 const FREE_DOT_ATTEMPTS = 300;
 
-export default class World extends Observer {
+class World extends Observer {
     constructor (width, height) {
         super(EVENT_AMOUNT);
         this._data   = [];
@@ -111,3 +110,5 @@ export default class World extends Observer {
         return this.getDot(x, y) === 0;
     }
 }
+
+module.exports = World;

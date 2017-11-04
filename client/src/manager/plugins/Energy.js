@@ -3,11 +3,11 @@
  *
  * @author flatline
  */
-import Helper   from '../../../../common/src/global/Helper';
-import {Config} from '../../global/Config';
-import Console  from '../../global/Console';
+const Helper  = require('./../../../../common/src/global/Helper');
+const Config  = require('./../../global/Config').Config;
+const Console = require('./../../global/Console');
 
-export default class Energy {
+class Energy {
     constructor(manager) {
         this.manager        = manager;
         this._checkPeriod   = Config.worldEnergyCheckPeriod;
@@ -65,3 +65,5 @@ export default class Energy {
         }
     }
 }
+
+module.exports = Energy;

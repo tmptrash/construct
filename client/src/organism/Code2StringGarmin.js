@@ -5,7 +5,7 @@
  *
  * @author flatline
  */
-import Num    from './Num';
+const Num = require('./Num');
 
 /**
  * {Function} Just a shortcuts
@@ -16,7 +16,7 @@ const VAR2                  = (n) => Num.getVar(n, 2);
 const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
 const HALF_OF_VAR           = Num.MAX_VAR / 2;
 
-export default class Code2StringGarmin {
+class Code2StringGarmin {
     constructor() {
         /**
          * {Array} Array of offsets for closing braces. For 'for', 'if'
@@ -146,3 +146,5 @@ export default class Code2StringGarmin {
         return `v${VAR0(num)}=org.toMem(v${VAR1(num)})`;
     }
 }
+
+module.exports = Code2StringGarmin;
