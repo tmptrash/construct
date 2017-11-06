@@ -13,7 +13,7 @@
 const Config        = require('./../../../../global/Config').Config;
 const Console       = require('./../../../../global/Console');
 const EVENTS        = require('./../../../../global/Events').EVENTS;
-const BaseOrganisms = require('./../Organisms');
+const BaseOrganisms = require('./../base/Organisms');
 const Fitness       = Config.codeFitnessCls && require('CLIENT/' + Config.codeFitnessCls + '.js') || Config.codeFitnessCls;
 
 class Organisms extends BaseOrganisms {

@@ -135,7 +135,7 @@ ClientConfig.init({
      * {String} Name of the organism class. All organisms in a world
      * will be creates as an instance of this class
      */
-    orgOrganismCls: 'src/manager/plugins/organisms/dos/Organism',// src/manager/plugins/organisms/garmin/Organism
+    orgOrganismCls: 'src/manager/plugins/organisms/dos/Organism',
     /**
      * {Number} Maximum amount of arguments in custom functions. Minimum 1. Maximum
      * <= amount of default variables.
@@ -202,11 +202,11 @@ ClientConfig.init({
      * {Function} Class with available operators. See default Operators
      * class for details. See ClassMap.js for additional details.
      */
-    codeOperatorsCls: 'src/manager/plugins/organisms/dos/Operators',//'OperatorsGarmin',
+    codeOperatorsCls: 'src/manager/plugins/organisms/dos/organism/jsvm/Operators',
     /**
      * {String} Name of the class for string representation of byte jsvm
      */
-    code2StringCls: 'src/manager/plugins/organisms/garmin/Code2String',//'Code2StringGarmin',
+    code2StringCls: 'src/manager/plugins/organisms/dos/organisms/Code2String',
     /**
      * {Number} World width
      */

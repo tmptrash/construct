@@ -11,7 +11,7 @@
  *
  * @author flatline
  */
-const BaseOrganisms = require('./../Organisms');
+const BaseOrganisms = require('./../base/Organisms');
 const Config        = require('./../../../../global/Config').Config;
 const EVENTS        = require('./../../../../global/Events').EVENTS;
 const Helper        = require('./../../../../../../common/src/global/Helper');

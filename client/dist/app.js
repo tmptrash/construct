@@ -301,7 +301,7 @@ ClientConfig.init({
      * {String} Name of the organism class. All organisms in a world
      * will be creates as an instance of this class
      */
-    orgOrganismCls: 'src/manager/plugins/organisms/dos/Organism',// src/manager/plugins/organisms/garmin/Organism
+    orgOrganismCls: 'src/manager/plugins/organisms/dos/Organism',
     /**
      * {Number} Maximum amount of arguments in custom functions. Minimum 1. Maximum
      * <= amount of default variables.
@@ -368,11 +368,11 @@ ClientConfig.init({
      * {Function} Class with available operators. See default Operators
      * class for details. See ClassMap.js for additional details.
      */
-    codeOperatorsCls: 'src/manager/plugins/organisms/dos/Operators',//'OperatorsGarmin',
+    codeOperatorsCls: 'src/manager/plugins/organisms/dos/organism/jsvm/Operators',
     /**
      * {String} Name of the class for string representation of byte jsvm
      */
-    code2StringCls: 'src/manager/plugins/organisms/garmin/Code2String',//'Code2StringGarmin',
+    code2StringCls: 'src/manager/plugins/organisms/dos/organisms/Code2String',
     /**
      * {Number} World width
      */
@@ -9946,30 +9946,30 @@ var map = {
 	"./src/manager/plugins/Ips.js": 122,
 	"./src/manager/plugins/Mutator.js": 123,
 	"./src/manager/plugins/Status.js": 124,
-	"./src/manager/plugins/organisms/Organisms.js": 59,
-	"./src/manager/plugins/organisms/dos/Code2String.js": 248,
-	"./src/manager/plugins/organisms/dos/Config.js": 249,
-	"./src/manager/plugins/organisms/dos/Operators.js": 125,
+	"./src/manager/plugins/organisms/base/Organism.js": 61,
+	"./src/manager/plugins/organisms/base/Organisms.js": 59,
+	"./src/manager/plugins/organisms/base/organism/JSVM.js": 62,
+	"./src/manager/plugins/organisms/base/organism/jsvm/Operators.js": 41,
+	"./src/manager/plugins/organisms/base/organisms/code2string/Num.js": 13,
+	"./src/manager/plugins/organisms/dos/Config.js": 248,
 	"./src/manager/plugins/organisms/dos/Organism.js": 60,
-	"./src/manager/plugins/organisms/dos/Organisms.js": 126,
-	"./src/manager/plugins/organisms/garmin/Code2String.js": 250,
-	"./src/manager/plugins/organisms/garmin/Config.js": 251,
-	"./src/manager/plugins/organisms/garmin/Fitness.js": 252,
-	"./src/manager/plugins/organisms/garmin/Operators.js": 253,
-	"./src/manager/plugins/organisms/garmin/Organism.js": 254,
+	"./src/manager/plugins/organisms/dos/Organisms.js": 125,
+	"./src/manager/plugins/organisms/dos/organism/jsvm/Operators.js": 126,
+	"./src/manager/plugins/organisms/dos/organisms/Code2String.js": 249,
+	"./src/manager/plugins/organisms/garmin/Config.js": 250,
+	"./src/manager/plugins/organisms/garmin/Organism.js": 251,
 	"./src/manager/plugins/organisms/garmin/Organisms.js": 118,
-	"./src/manager/plugins/organisms/organism/JSVM.js": 62,
-	"./src/manager/plugins/organisms/organism/Num.js": 13,
-	"./src/manager/plugins/organisms/organism/Operators.js": 41,
-	"./src/manager/plugins/organisms/organism/Organism.js": 61,
+	"./src/manager/plugins/organisms/garmin/organism/jsvm/Operators.js": 252,
+	"./src/manager/plugins/organisms/garmin/organisms/Code2String.js": 253,
+	"./src/manager/plugins/organisms/garmin/organisms/Fitness.js": 254,
 	"./src/manager/visual/Canvas.js": 67,
 	"./src/manager/visual/World.js": 43,
 	"./tests/global/ConsoleSpec.js": 255,
 	"./tests/manager/plugins/ClientSpec.js": 256,
-	"./tests/organism/JSVMSpec.js": 259,
-	"./tests/organism/NumSpec.js": 260,
-	"./tests/organism/OperatorsDosSpec.js": 261,
-	"./tests/organism/OrganismDosSpec.js": 262,
+	"./tests/manager/plugins/organisms/dos/OperatorsSpec.js": 259,
+	"./tests/manager/plugins/organisms/dos/OrganismSpec.js": 260,
+	"./tests/manager/plugins/organisms/organism/JSVMSpec.js": 261,
+	"./tests/manager/plugins/organisms/organism/NumSpec.js": 262,
 	"./tests/visual/WorldSpec.js": 263
 };
 function webpackContext(req) {
@@ -13669,7 +13669,43 @@ module.exports = Helper;
 
 /**
  * This is an entry point of jevo.js application. Compiled version of
- * this file should be included into index.html
+ * this file should be included into index.html.
+ *
+ * Every plugin/module consists of many files and maybe folders inside. We
+ * have to create folder every time we have more then one plugin file. For
+ * example if we have "Plugin.js" and it's "Config.js". In more complicated
+ * case, when plugin consists of many file hre is a complex structure:
+ *
+ *   [plugin]          // plugin folder with name 'plugin'
+ *     [base]          // base classes for 'child' folder
+ *       File.js       // base class for 'child'
+ *     [child]         // concrete implementation of 'plugin' with name 'child'
+ *       File.js       // implementation of 'child'
+ *
+ * There are these rules in example above:
+ *   - One plugin should contain all stuff inside it's folder.
+ *   - [base] folder contains base classes for all folder of the same level
+ *     (in this example it's [child]). It's possible to have many folders
+ *     like [child] on the same level. In this case [base] folders should
+ *     contain many base classes.
+ *   - [base] folder may be located on all levels as well. See:
+ *   - [child] folder may contain [base] folder inside in case when it has
+ *     children classes. In this example it's 'child1':
+ *     [plugin]        // plugin folder with name 'plugin'
+ *       [base]        // base classes for 'child' folder
+ *         File.js     // base class for 'child'
+ *       [child]       // concrete implementation of 'plugin' with name 'child'
+ *         [base]      // folder of base classes for 'child1'
+ *           File.js   // base class for 'child1'
+ *         [child1]    // concrete implementation of 'child'
+ *           File.js   // implementation of 'child1'
+ *         File.js     // implementation of 'child'
+ *   - [child1] folder has the same structure like [child]
+ *   - Files inside folder with the same name like file means 'aggregated':
+ *     [plugin]        // plugin folder
+ *       [file]        // class File.js aggregated File1.js
+ *         File1.js    // Aggregated file of File.js
+ *       File.js       // Implementation of 'plugin'
  *
  * Usage:
  *   <script src="./app.js"></script>
@@ -13680,7 +13716,7 @@ const Manager         = __webpack_require__(65);
 const Config          = __webpack_require__(2).Config;
 const Client          = __webpack_require__(29).Client;
 const OrganismsGarmin = __webpack_require__(118);
-const OrganismsDos    = __webpack_require__(126);
+const OrganismsDos    = __webpack_require__(125);
 const ConfigPlugin    = __webpack_require__(120);
 const Mutator         = __webpack_require__(123);
 const Energy          = __webpack_require__(121);
@@ -21579,6 +21615,232 @@ module.exports = Status;
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
+ * Plugin for Manager module, which handles organisms population in
+ * nature simulation mode. It's related to DOS language.
+ *
+ * Events od Manager:
+ *   TODO:
+ *   ORGANISM(org) Fires after one organism has processed
+ *
+ * Depends on:
+ *   manager/Manager
+ *
+ * @author flatline
+ */
+const BaseOrganisms = __webpack_require__(59);
+const Config        = __webpack_require__(2).Config;
+const EVENTS        = __webpack_require__(4).EVENTS;
+const Helper        = __webpack_require__(5);
+const DIR           = __webpack_require__(18).DIR;
+
+const EMPTY         = 0;
+const ENERGY        = 1;
+const ORGANISM      = 2;
+
+class Organisms extends BaseOrganisms {
+    constructor(manager) {
+        super(manager);
+
+        this._positions  = {};
+        this._onStepInCb = this._onStepIn.bind(this);
+
+        this.manager.on(EVENTS.STEP_IN, this._onStepInCb);
+    }
+
+    destroy() {
+        super.destroy();
+        this.manager.off(EVENTS.STEP_IN, this._onStepInCb);
+        this._onStepInCb = null;
+        this._positions  = null;
+    }
+
+    /**
+     * Compares two organisms and returns more fit one
+     * @param {Organism} org1
+     * @param {Organism} org2
+     * @return {Organism}
+     * @override
+     */
+    compare(org1, org2) {
+        return org1.fitness() > org2.fitness();
+    }
+
+    /**
+     * Is called before cloning of organism
+     * @param {Organism} org
+     * @override
+     */
+    onBeforeClone(org) {
+        return org.energy > 0;
+    }
+
+    /**
+     * Is called after cloning of organism
+     * @param {Organism} org Parent organism
+     * @param {Organism} child Child organism
+     * @override
+     */
+    onClone(org, child) {
+        let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >>> 1; // analog of Math.round()
+        org.grabEnergy(energy);
+        child.grabEnergy(child.energy - energy);
+    }
+
+    addOrgHandlers(org) {
+        super.addOrgHandlers(org);
+        org.on(EVENTS.GET_ENERGY, this._onGetEnergy.bind(this));
+        org.on(EVENTS.EAT, this._onEat.bind(this));
+        org.on(EVENTS.STEP, this._onStep.bind(this));
+        org.on(EVENTS.CHECK_AT, this._onCheckAt.bind(this));
+    }
+
+    /**
+     * Is called after organism has created
+     * @param {Organism} org
+     * @override
+     */
+    onAfterCreateOrg(org) {
+        this._positions[org.posId] = org;
+    }
+
+    /**
+     * Is called after organism has killed
+     * @param {Organism} org Killed organism
+     * @override
+     */
+    onAfterKillOrg(org) {
+        delete this._positions[org.posId];
+    }
+
+    /**
+     * Is called after moving of organism is done. Updates this._positions
+     * map with a new position of organism
+     * @param {Number} x1 Start X position
+     * @param {Number} y1 Start Y position
+     * @param {Number} x2 End X position
+     * @param {Number} y2 End Y position
+     * @param {Organism} org Organism, which is moving
+     * @returns {Boolean}
+     * @override
+     */
+    onAfterMove(x1, y1, x2, y2, org) {
+        if (x1 !== x2 || y1 !== y2) {
+            delete this._positions[Helper.posId(x1, y1)];
+            this._positions[Helper.posId(x2, y2)] = org;
+        }
+
+        return true;
+    }
+
+    _onGetEnergy(org, x, y, ret) {
+        if (x < 0 || y < 0 || !Number.isInteger(x) || !Number.isInteger(y)) {return}
+        const posId = Helper.posId(x, y);
+
+        if (typeof(this._positions[posId]) === 'undefined') {
+            ret.ret = this.manager.world.getDot(x, y)
+        } else {
+            ret.ret = this._positions[posId].energy;
+        }
+    }
+
+    _onEat(org, x, y, ret) {
+        const world = this.manager.world;
+        const positions = this._positions;
+        let   dir;
+
+        [x, y, dir] = Helper.normalize(x, y);
+
+        const posId = Helper.posId(x, y);
+        if (typeof(positions[posId]) === 'undefined') {
+            ret.ret = world.grabDot(x, y, ret.ret);
+        } else {
+            ret.ret = ret.ret < 0 ? 0 : (ret.ret > positions[posId].energy ? positions[posId].energy : ret.ret);
+            positions[posId].grabEnergy(ret.ret);
+        }
+    }
+
+    _onStep(org, x1, y1, x2, y2, ret) {
+        if (org.alive === false) {return}
+        const man = this.manager;
+        let   dir;
+
+        [x2, y2, dir] = Helper.normalize(x2, y2);
+        //
+        // Organism has moved, but still is within the current world (client)
+        //
+        if (dir === DIR.NO) {
+            ret.x = x2;
+            ret.y = y2;
+            ret.ret = +this.move(x1, y1, x2, y2, org);
+            return;
+        }
+        //
+        // Current organism try to move out of the world.
+        // We have to pass him to the server to another
+        // client (Manager). Changing x,y two times is needed
+        // for serializing correct coordinates for destination
+        // world and correct removing= require(current world
+        //
+        if (man.activeAround[dir]) {
+            org.x = x2;
+            org.y = y2;
+            man.fire(EVENTS.STEP_OUT, x2, y2, dir, org);
+            org.x = x1;
+            org.y = y1;
+            org.destroy();
+            return;
+        }
+        //
+        // Organism try to go outside of the world, but there is no
+        // activated client on that side. So this is a border for him.
+        // In this case coordinates (x,y) should stay the same
+        //
+        if (man.hasOtherClients() || Config.worldCyclical === false) {
+            ret.x = x1;
+            ret.y = y1;
+            ret.ret = +this.move(x1, y1, x1, y1, org);
+            return;
+        }
+
+        ret.x = x2;
+        ret.y = y2;
+        ret.ret = +this.move(x1, y1, x2, y2, org);
+    }
+
+    /**
+     * Is called if organism step in from the server or other client (Manager/World).
+     * If step in position is not free or maximum organisms are in the world, then
+     * organism die at the moment.
+     * @param {Number} x Current org X position
+     * @param {Number} y Current org Y position
+     * @param {String} orgJson Organism's serialized json
+     * @private
+     */
+    _onStepIn(x, y, orgJson) {
+        if (this.manager.world.isFree(x, y) && this.organisms.size < Config.orgMaxOrgs && this.createOrg({x, y})) {
+            this.organisms.last.val.unserialize(orgJson);
+        }
+    }
+
+    _onCheckAt(x, y, ret) {
+        let dir;
+
+        [x, y, dir] = Helper.normalize(x, y);
+        if (typeof(this._positions[Helper.posId(x, y)]) === 'undefined') {
+            ret.ret = this.manager.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
+        } else {
+            ret.ret = ORGANISM;
+        }
+    }
+}
+
+module.exports = Organisms;
+
+/***/ }),
+/* 126 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
  * Digital Organisms Script - (DOS) is a simple language for JSVM.
  * This file contains all available operators implementation. For example:
  * for, if, variable declaration, steps, eating etc... User may override
@@ -21867,232 +22129,6 @@ class OperatorsDos extends Operators {
 }
 
 module.exports = OperatorsDos;
-
-/***/ }),
-/* 126 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Plugin for Manager module, which handles organisms population in
- * nature simulation mode. It's related to DOS language.
- *
- * Events od Manager:
- *   TODO:
- *   ORGANISM(org) Fires after one organism has processed
- *
- * Depends on:
- *   manager/Manager
- *
- * @author flatline
- */
-const BaseOrganisms = __webpack_require__(59);
-const Config        = __webpack_require__(2).Config;
-const EVENTS        = __webpack_require__(4).EVENTS;
-const Helper        = __webpack_require__(5);
-const DIR           = __webpack_require__(18).DIR;
-
-const EMPTY         = 0;
-const ENERGY        = 1;
-const ORGANISM      = 2;
-
-class Organisms extends BaseOrganisms {
-    constructor(manager) {
-        super(manager);
-
-        this._positions  = {};
-        this._onStepInCb = this._onStepIn.bind(this);
-
-        this.manager.on(EVENTS.STEP_IN, this._onStepInCb);
-    }
-
-    destroy() {
-        super.destroy();
-        this.manager.off(EVENTS.STEP_IN, this._onStepInCb);
-        this._onStepInCb = null;
-        this._positions  = null;
-    }
-
-    /**
-     * Compares two organisms and returns more fit one
-     * @param {Organism} org1
-     * @param {Organism} org2
-     * @return {Organism}
-     * @override
-     */
-    compare(org1, org2) {
-        return org1.fitness() > org2.fitness();
-    }
-
-    /**
-     * Is called before cloning of organism
-     * @param {Organism} org
-     * @override
-     */
-    onBeforeClone(org) {
-        return org.energy > 0;
-    }
-
-    /**
-     * Is called after cloning of organism
-     * @param {Organism} org Parent organism
-     * @param {Organism} child Child organism
-     * @override
-     */
-    onClone(org, child) {
-        let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >>> 1; // analog of Math.round()
-        org.grabEnergy(energy);
-        child.grabEnergy(child.energy - energy);
-    }
-
-    addOrgHandlers(org) {
-        super.addOrgHandlers(org);
-        org.on(EVENTS.GET_ENERGY, this._onGetEnergy.bind(this));
-        org.on(EVENTS.EAT, this._onEat.bind(this));
-        org.on(EVENTS.STEP, this._onStep.bind(this));
-        org.on(EVENTS.CHECK_AT, this._onCheckAt.bind(this));
-    }
-
-    /**
-     * Is called after organism has created
-     * @param {Organism} org
-     * @override
-     */
-    onAfterCreateOrg(org) {
-        this._positions[org.posId] = org;
-    }
-
-    /**
-     * Is called after organism has killed
-     * @param {Organism} org Killed organism
-     * @override
-     */
-    onAfterKillOrg(org) {
-        delete this._positions[org.posId];
-    }
-
-    /**
-     * Is called after moving of organism is done. Updates this._positions
-     * map with a new position of organism
-     * @param {Number} x1 Start X position
-     * @param {Number} y1 Start Y position
-     * @param {Number} x2 End X position
-     * @param {Number} y2 End Y position
-     * @param {Organism} org Organism, which is moving
-     * @returns {Boolean}
-     * @override
-     */
-    onAfterMove(x1, y1, x2, y2, org) {
-        if (x1 !== x2 || y1 !== y2) {
-            delete this._positions[Helper.posId(x1, y1)];
-            this._positions[Helper.posId(x2, y2)] = org;
-        }
-
-        return true;
-    }
-
-    _onGetEnergy(org, x, y, ret) {
-        if (x < 0 || y < 0 || !Number.isInteger(x) || !Number.isInteger(y)) {return}
-        const posId = Helper.posId(x, y);
-
-        if (typeof(this._positions[posId]) === 'undefined') {
-            ret.ret = this.manager.world.getDot(x, y)
-        } else {
-            ret.ret = this._positions[posId].energy;
-        }
-    }
-
-    _onEat(org, x, y, ret) {
-        const world = this.manager.world;
-        const positions = this._positions;
-        let   dir;
-
-        [x, y, dir] = Helper.normalize(x, y);
-
-        const posId = Helper.posId(x, y);
-        if (typeof(positions[posId]) === 'undefined') {
-            ret.ret = world.grabDot(x, y, ret.ret);
-        } else {
-            ret.ret = ret.ret < 0 ? 0 : (ret.ret > positions[posId].energy ? positions[posId].energy : ret.ret);
-            positions[posId].grabEnergy(ret.ret);
-        }
-    }
-
-    _onStep(org, x1, y1, x2, y2, ret) {
-        if (org.alive === false) {return}
-        const man = this.manager;
-        let   dir;
-
-        [x2, y2, dir] = Helper.normalize(x2, y2);
-        //
-        // Organism has moved, but still is within the current world (client)
-        //
-        if (dir === DIR.NO) {
-            ret.x = x2;
-            ret.y = y2;
-            ret.ret = +this.move(x1, y1, x2, y2, org);
-            return;
-        }
-        //
-        // Current organism try to move out of the world.
-        // We have to pass him to the server to another
-        // client (Manager). Changing x,y two times is needed
-        // for serializing correct coordinates for destination
-        // world and correct removing= require(current world
-        //
-        if (man.activeAround[dir]) {
-            org.x = x2;
-            org.y = y2;
-            man.fire(EVENTS.STEP_OUT, x2, y2, dir, org);
-            org.x = x1;
-            org.y = y1;
-            org.destroy();
-            return;
-        }
-        //
-        // Organism try to go outside of the world, but there is no
-        // activated client on that side. So this is a border for him.
-        // In this case coordinates (x,y) should stay the same
-        //
-        if (man.hasOtherClients() || Config.worldCyclical === false) {
-            ret.x = x1;
-            ret.y = y1;
-            ret.ret = +this.move(x1, y1, x1, y1, org);
-            return;
-        }
-
-        ret.x = x2;
-        ret.y = y2;
-        ret.ret = +this.move(x1, y1, x2, y2, org);
-    }
-
-    /**
-     * Is called if organism step in from the server or other client (Manager/World).
-     * If step in position is not free or maximum organisms are in the world, then
-     * organism die at the moment.
-     * @param {Number} x Current org X position
-     * @param {Number} y Current org Y position
-     * @param {String} orgJson Organism's serialized json
-     * @private
-     */
-    _onStepIn(x, y, orgJson) {
-        if (this.manager.world.isFree(x, y) && this.organisms.size < Config.orgMaxOrgs && this.createOrg({x, y})) {
-            this.organisms.last.val.unserialize(orgJson);
-        }
-    }
-
-    _onCheckAt(x, y, ret) {
-        let dir;
-
-        [x, y, dir] = Helper.normalize(x, y);
-        if (typeof(this._positions[Helper.posId(x, y)]) === 'undefined') {
-            ret.ret = this.manager.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
-        } else {
-            ret.ret = ORGANISM;
-        }
-    }
-}
-
-module.exports = Organisms;
 
 /***/ }),
 /* 127 */
@@ -41350,6 +41386,21 @@ module.exports = Configurable;
 
 /***/ }),
 /* 248 */
+/***/ (function(module, exports) {
+
+/**
+ * Configuration of DOS Organisms class
+ *
+ * @author flatline
+ */
+const Config = {
+
+};
+
+module.exports = Config;
+
+/***/ }),
+/* 249 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -41623,7 +41674,7 @@ class Code2StringDos {
 module.exports = Code2StringDos;
 
 /***/ }),
-/* 249 */
+/* 250 */
 /***/ (function(module, exports) {
 
 /**
@@ -41638,7 +41689,240 @@ const Config = {
 module.exports = Config;
 
 /***/ }),
-/* 250 */
+/* 251 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * TODO: add description:
+ * TODO:   - events
+ * TODO:   -
+ * @author flatline
+ */
+const Organism = __webpack_require__(61);
+const Config   = __webpack_require__(2).Config;
+const EVENTS   = __webpack_require__(4).EVENTS;
+
+class OrganismGarmin extends Organism {
+    /**
+     * Creates organism instance. If parent parameter is set, then
+     * a clone of parent organism will be created.
+     * @param {String} id Unique identifier of organism
+     * @param {Number} x Unique X coordinate
+     * @param {Number} y Unique Y coordinate
+     * @param {Boolean} alive true if organism is alive
+     * @param {Object} item Reference to the Queue item, where
+     * this organism is located
+     * @param {Function} codeEndCb Callback, which is called at the
+     * end of every code iteration.
+     * @param {Object} classMap Available classes map. Maps class names into
+     * classe functions
+     * @param {Organism} parent Parent organism if cloning is needed
+     */
+    constructor(id, x, y, alive, item, codeEndCb, classMap, parent = null) {
+        super(id, x, y, alive, item, codeEndCb, classMap, parent);
+
+        this._fitnessCls = classMap[Config.codeFitnessCls];
+        this._needRun    = true;
+
+        this.jsvm.on(EVENTS.RESET_CODE, this._onResetCode.bind(this));
+    }
+
+    onBeforeRun() {
+        return !this._needRun;
+    }
+
+    onRun() {
+        if (this._fitnessCls.run(this)) {this.fire(EVENTS.STOP, this)}
+        this._needRun = false;
+    }
+
+    destroy() {
+        super.destroy();
+        this._fitnessCls = null;
+    }
+
+    /**
+     * Is called when some modifications in code appeared and we have
+     * to re-execute it again
+     * @private
+     */
+    _onResetCode() {
+        this._needRun = true;
+    }
+}
+
+module.exports = OrganismGarmin;
+
+/***/ }),
+/* 252 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * This file contains all available operators implementation. For example:
+ * for, if, variable declaration, steps, eating etc... User may override
+ * this class for own needs and change operator list to custom. These
+ * operators are used to obtain type of training saved by Garmin watches.
+ *
+ * @author flatline
+ */
+const Config    = __webpack_require__(2).Config;
+const Helper    = __webpack_require__(5);
+const Operators = __webpack_require__(41);
+const Num       = __webpack_require__(13);
+
+/**
+ * {Function} Just a shortcuts
+ */
+const VAR0                  = Num.getVar;
+const VAR1                  = (n) => Num.getVar(n, 1);
+const VAR2                  = (n) => Num.getVar(n, 2);
+const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
+const BITS_OF_TWO_VARS      = Num.BITS_OF_TWO_VARS;
+const IS_NUM                = Helper.isNumeric;
+const HALF_OF_VAR           = Num.MAX_VAR / 2;
+const CONDITION_BITS        = 2;
+
+class OperatorsGarmin extends  Operators {
+    constructor(offs, vars, obs) {
+        super(offs, vars, obs);
+        /**
+         * {Object} These operator handlers should return string, which
+         * will be added to the final string script for evaluation.
+         */
+        this._OPERATORS_CB = [
+            this.onVar.bind(this),
+            this.onCondition.bind(this),
+            //this.onLoop.bind(this),
+            this.onOperator.bind(this),
+            this.onNot.bind(this),
+            //this.onPi.bind(this),
+            //this.onTrig.bind(this),
+            this.onFromMem.bind(this),
+            this.onToMem.bind(this)
+        ];
+        /**
+         * {Array} Available conditions for if operator. Amount should be
+         * the same like (1 << BITS_PER_VAR)
+         */
+        this._CONDITIONS = [(a,b)=>a<b, (a,b)=>a>b, (a,b)=>a===b, (a,b)=>a!==b];
+        /**
+         * {Array} Available operators for math calculations
+         */
+        this._OPERATORS = [
+            (a,b)=>a+b, (a,b)=>a-b, (a,b)=>a*b, (a,b)=>a/b, (a,b)=>a%b, (a,b)=>a&b, (a,b)=>a|b, (a,b)=>a^b, (a,b)=>a>>b, (a,b)=>a<<b, (a,b)=>a>>>b, (a,b)=>+(a<b), (a,b)=>+(a>b), (a,b)=>+(a===b), (a,b)=>+(a!==b), (a,b)=>+(a<=b)
+        ];
+        this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
+        //
+        // We have to set amount of available operators for correct
+        // working of mutations of operators.
+        //
+        Num.setOperatorAmount(this._OPERATORS_CB.length);
+    }
+
+    destroy() {
+        this._OPERATORS_CB = null;
+        this._CONDITIONS   = null;
+        this._OPERATORS    = null;
+        this._TRIGS        = null;
+    }
+
+    get operators() {return this._OPERATORS_CB}
+
+    /**
+     * Parses variable operator. Format: let = const|number. Num bits format:
+     *   BITS_PER_OPERATOR bits - operator id
+     *   BITS_PER_VAR bits  - destination var index
+     *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
+     *   BITS_PER_VAR bits  - variable index or all bits till the end for constant
+     *
+     * @param {Num} num Packed into number jsvm line
+     * @param {Number} line Current line in jsvm
+     * @return {Number} Parsed jsvm line string
+     */
+    onVar(num, line) {
+        const vars = this.vars;
+        const var1 = VAR1(num);
+        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS) : vars[var1];
+
+        return line + 1;
+    }
+
+    onCondition(num, line, org, lines) {
+        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
+        const offs = line + val3 < lines ? line + val3 + 1 : lines;
+        const cond = VAR2(num) >>> (Config.codeBitsPerVar - CONDITION_BITS);
+
+        if (this._CONDITIONS[cond](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
+            return line + 1;
+        }
+
+        return offs;
+    }
+
+//    onLoop(num, line, org, lines, ret) {
+//        const vars = this.vars;
+//        const var0 = VAR0(num);
+//        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
+//        const offs = line + val3 < lines ? line + val3 + 1 : lines;
+//
+//        if (ret) {
+//            if (++vars[var0] < vars[VAR2(num)]) {
+//                this.offs.push(line, offs);
+//                return line + 1;
+//            }
+//            return offs;
+//        }
+//
+//        vars[var0] = vars[VAR1(num)];
+//        if (vars[var0] < vars[VAR2(num)]) {
+//            this.offs.push(line, offs);
+//            return line + 1;
+//        }
+//
+//        return offs;
+//    }
+
+    onOperator(num, line) {
+        const vars = this.vars;
+        vars[VAR0(num)] = this._OPERATORS[Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS)](vars[VAR1(num)], vars[VAR2(num)]);
+        return line + 1;
+    }
+
+    onNot(num, line) {
+        this.vars[VAR0(num)] = +!this.vars[VAR1(num)];
+        return line + 1;
+    }
+
+//    onPi(num, line) {
+//        this.vars[VAR0(num)] = Math.PI;
+//        return line + 1;
+//    }
+//
+//    onTrig(num, line) {
+//        this.vars[VAR0(num)] = this._TRIGS[VAR2(num)](this.vars[VAR1(num)]);
+//        return line + 1;
+//    }
+
+    onFromMem(num, line, org) {this.vars[VAR0(num)] = org.mem.pop() || 0; return line + 1}
+
+    onToMem(num, line, org) {
+        const val = this.vars[VAR1(num)];
+
+        if (IS_NUM(val) && org.mem.length < Config.orgMemSize) {
+            org.mem.push(val);
+            this.vars[VAR0(num)] = val;
+        } else {
+            this.vars[VAR0(num)] = org.mem[org.mem.length - 1];
+        }
+
+        return line + 1;
+    }
+}
+
+module.exports = OperatorsGarmin;
+
+/***/ }),
+/* 253 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -41793,22 +42077,7 @@ class Code2StringGarmin {
 module.exports = Code2StringGarmin;
 
 /***/ }),
-/* 251 */
-/***/ (function(module, exports) {
-
-/**
- * Configuration of DOS Organisms class
- *
- * @author flatline
- */
-const Config = {
-
-};
-
-module.exports = Config;
-
-/***/ }),
-/* 252 */
+/* 254 */
 /***/ (function(module, exports) {
 
 /**
@@ -43809,239 +44078,6 @@ class FitnessGarmin {
 module.exports = FitnessGarmin;
 
 /***/ }),
-/* 253 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * This file contains all available operators implementation. For example:
- * for, if, variable declaration, steps, eating etc... User may override
- * this class for own needs and change operator list to custom. These
- * operators are used to obtain type of training saved by Garmin watches.
- *
- * @author flatline
- */
-const Config    = __webpack_require__(2).Config;
-const Helper    = __webpack_require__(5);
-const Operators = __webpack_require__(41);
-const Num       = __webpack_require__(13);
-
-/**
- * {Function} Just a shortcuts
- */
-const VAR0                  = Num.getVar;
-const VAR1                  = (n) => Num.getVar(n, 1);
-const VAR2                  = (n) => Num.getVar(n, 2);
-const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
-const BITS_OF_TWO_VARS      = Num.BITS_OF_TWO_VARS;
-const IS_NUM                = Helper.isNumeric;
-const HALF_OF_VAR           = Num.MAX_VAR / 2;
-const CONDITION_BITS        = 2;
-
-class OperatorsGarmin extends  Operators {
-    constructor(offs, vars, obs) {
-        super(offs, vars, obs);
-        /**
-         * {Object} These operator handlers should return string, which
-         * will be added to the final string script for evaluation.
-         */
-        this._OPERATORS_CB = [
-            this.onVar.bind(this),
-            this.onCondition.bind(this),
-            //this.onLoop.bind(this),
-            this.onOperator.bind(this),
-            this.onNot.bind(this),
-            //this.onPi.bind(this),
-            //this.onTrig.bind(this),
-            this.onFromMem.bind(this),
-            this.onToMem.bind(this)
-        ];
-        /**
-         * {Array} Available conditions for if operator. Amount should be
-         * the same like (1 << BITS_PER_VAR)
-         */
-        this._CONDITIONS = [(a,b)=>a<b, (a,b)=>a>b, (a,b)=>a===b, (a,b)=>a!==b];
-        /**
-         * {Array} Available operators for math calculations
-         */
-        this._OPERATORS = [
-            (a,b)=>a+b, (a,b)=>a-b, (a,b)=>a*b, (a,b)=>a/b, (a,b)=>a%b, (a,b)=>a&b, (a,b)=>a|b, (a,b)=>a^b, (a,b)=>a>>b, (a,b)=>a<<b, (a,b)=>a>>>b, (a,b)=>+(a<b), (a,b)=>+(a>b), (a,b)=>+(a===b), (a,b)=>+(a!==b), (a,b)=>+(a<=b)
-        ];
-        this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
-        //
-        // We have to set amount of available operators for correct
-        // working of mutations of operators.
-        //
-        Num.setOperatorAmount(this._OPERATORS_CB.length);
-    }
-
-    destroy() {
-        this._OPERATORS_CB = null;
-        this._CONDITIONS   = null;
-        this._OPERATORS    = null;
-        this._TRIGS        = null;
-    }
-
-    get operators() {return this._OPERATORS_CB}
-
-    /**
-     * Parses variable operator. Format: let = const|number. Num bits format:
-     *   BITS_PER_OPERATOR bits - operator id
-     *   BITS_PER_VAR bits  - destination var index
-     *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
-     *   BITS_PER_VAR bits  - variable index or all bits till the end for constant
-     *
-     * @param {Num} num Packed into number jsvm line
-     * @param {Number} line Current line in jsvm
-     * @return {Number} Parsed jsvm line string
-     */
-    onVar(num, line) {
-        const vars = this.vars;
-        const var1 = VAR1(num);
-        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS) : vars[var1];
-
-        return line + 1;
-    }
-
-    onCondition(num, line, org, lines) {
-        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
-        const offs = line + val3 < lines ? line + val3 + 1 : lines;
-        const cond = VAR2(num) >>> (Config.codeBitsPerVar - CONDITION_BITS);
-
-        if (this._CONDITIONS[cond](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
-            return line + 1;
-        }
-
-        return offs;
-    }
-
-//    onLoop(num, line, org, lines, ret) {
-//        const vars = this.vars;
-//        const var0 = VAR0(num);
-//        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
-//        const offs = line + val3 < lines ? line + val3 + 1 : lines;
-//
-//        if (ret) {
-//            if (++vars[var0] < vars[VAR2(num)]) {
-//                this.offs.push(line, offs);
-//                return line + 1;
-//            }
-//            return offs;
-//        }
-//
-//        vars[var0] = vars[VAR1(num)];
-//        if (vars[var0] < vars[VAR2(num)]) {
-//            this.offs.push(line, offs);
-//            return line + 1;
-//        }
-//
-//        return offs;
-//    }
-
-    onOperator(num, line) {
-        const vars = this.vars;
-        vars[VAR0(num)] = this._OPERATORS[Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS)](vars[VAR1(num)], vars[VAR2(num)]);
-        return line + 1;
-    }
-
-    onNot(num, line) {
-        this.vars[VAR0(num)] = +!this.vars[VAR1(num)];
-        return line + 1;
-    }
-
-//    onPi(num, line) {
-//        this.vars[VAR0(num)] = Math.PI;
-//        return line + 1;
-//    }
-//
-//    onTrig(num, line) {
-//        this.vars[VAR0(num)] = this._TRIGS[VAR2(num)](this.vars[VAR1(num)]);
-//        return line + 1;
-//    }
-
-    onFromMem(num, line, org) {this.vars[VAR0(num)] = org.mem.pop() || 0; return line + 1}
-
-    onToMem(num, line, org) {
-        const val = this.vars[VAR1(num)];
-
-        if (IS_NUM(val) && org.mem.length < Config.orgMemSize) {
-            org.mem.push(val);
-            this.vars[VAR0(num)] = val;
-        } else {
-            this.vars[VAR0(num)] = org.mem[org.mem.length - 1];
-        }
-
-        return line + 1;
-    }
-}
-
-module.exports = OperatorsGarmin;
-
-/***/ }),
-/* 254 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * TODO: add description:
- * TODO:   - events
- * TODO:   -
- * @author flatline
- */
-const Organism = __webpack_require__(61);
-const Config   = __webpack_require__(2).Config;
-const EVENTS   = __webpack_require__(4).EVENTS;
-
-class OrganismGarmin extends Organism {
-    /**
-     * Creates organism instance. If parent parameter is set, then
-     * a clone of parent organism will be created.
-     * @param {String} id Unique identifier of organism
-     * @param {Number} x Unique X coordinate
-     * @param {Number} y Unique Y coordinate
-     * @param {Boolean} alive true if organism is alive
-     * @param {Object} item Reference to the Queue item, where
-     * this organism is located
-     * @param {Function} codeEndCb Callback, which is called at the
-     * end of every code iteration.
-     * @param {Object} classMap Available classes map. Maps class names into
-     * classe functions
-     * @param {Organism} parent Parent organism if cloning is needed
-     */
-    constructor(id, x, y, alive, item, codeEndCb, classMap, parent = null) {
-        super(id, x, y, alive, item, codeEndCb, classMap, parent);
-
-        this._fitnessCls = classMap[Config.codeFitnessCls];
-        this._needRun    = true;
-
-        this.jsvm.on(EVENTS.RESET_CODE, this._onResetCode.bind(this));
-    }
-
-    onBeforeRun() {
-        return !this._needRun;
-    }
-
-    onRun() {
-        if (this._fitnessCls.run(this)) {this.fire(EVENTS.STOP, this)}
-        this._needRun = false;
-    }
-
-    destroy() {
-        super.destroy();
-        this._fitnessCls = null;
-    }
-
-    /**
-     * Is called when some modifications in code appeared and we have
-     * to re-execute it again
-     * @private
-     */
-    _onResetCode() {
-        this._needRun = true;
-    }
-}
-
-module.exports = OrganismGarmin;
-
-/***/ }),
 /* 255 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -44564,637 +44600,8 @@ module.exports = Api;
 /* 259 */
 /***/ (function(module, exports, __webpack_require__) {
 
-describe("client/src/organism/JSVM", () => {
-    let JSVM         = __webpack_require__(62);
-    let Num          = __webpack_require__(13);
-    let Operators    = __webpack_require__(41);
-    let Observer     = __webpack_require__(14);
-    let Helper       = __webpack_require__(5);
-    let Config       = __webpack_require__(2).Config;
-    let api          = __webpack_require__(2).api;
-    let THelper      = __webpack_require__(63);
-    let cls          = null;
-
-    beforeEach(() => {cls = Config.codeOperatorsCls;api.set('codeOperatorsCls', 'ops')});
-    afterEach(() => api.set('codeOperatorsCls', cls));
-
-    it("Checking jsvm creation", () => {
-        let   flag = false;
-        const obs  = new Observer(1);
-        const clss = {ops: () => {}};
-        const jsvm = new JSVM(() => flag = true, obs, clss);
-
-        jsvm.run();
-        expect(flag).toEqual(false);
-
-        jsvm.destroy();
-    });
-
-    it("Checking parent argument and 'cloning' mode", () => {
-        const clss   = {ops: () => {}};
-        const obs    = new Observer(1);
-        const parent = new JSVM(()=>{}, obs, clss);
-
-        parent.insertLine();
-        const jsvm   = new JSVM(()=>{}, obs, clss, parent);
-
-        expect(jsvm.code[0] === parent.code[0]).toEqual(true);
-        expect(jsvm.size === parent.size).toEqual(true);
-        expect(jsvm.vars[0] === parent.vars[0]).toEqual(true);
-
-        parent.destroy();
-        jsvm.destroy();
-    });
-
-    it("Checking 'vars' getter for non 'cloning' mode", () => {
-        const clss = {ops: () => {}};
-        const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, clss);
-
-        expect(jsvm.vars.length === Math.pow(2, Config.codeBitsPerVar)).toEqual(true);
-
-        jsvm.destroy();
-    });
-
-    it("Checking no code size", () => {
-        const clss = {ops: () => {}};
-        const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, clss);
-
-        expect(jsvm.size).toEqual(0);
-        jsvm.run();
-        expect(jsvm.size).toEqual(0);
-
-        jsvm.destroy();
-    });
-
-    it("Checking destroy", () => {
-        const clss = {ops: () => {}};
-        const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, clss);
-
-        jsvm.destroy();
-        expect(jsvm.code).toEqual(null);
-    });
-
-    it("Checking 'code' and 'size' properties", () => {
-        const clss = {ops: () => {}};
-        const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, clss);
-
-        expect(jsvm.code instanceof Array).toEqual(true);
-        expect(jsvm.size).toEqual(0);
-
-        jsvm.insertLine();
-        expect(jsvm.code instanceof Array).toEqual(true);
-        expect(jsvm.size).toEqual(1);
-
-        jsvm.insertLine();
-        expect(jsvm.size).toEqual(2);
-        jsvm.removeLine();
-        expect(jsvm.size).toEqual(1);
-        jsvm.removeLine();
-        expect(jsvm.size).toEqual(0);
-
-        jsvm.destroy();
-    });
-
-    it("Checking 'operators' property", () => {
-        function Ops() {}
-        const clss = {ops: Ops};
-        const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, clss);
-
-        expect(jsvm.operators instanceof Ops).toEqual(true);
-
-        jsvm.destroy();
-    });
-
-    it("Checking run method", () => {
-        let   flag = '';
-        class Ops extends Operators {
-            get operators() {return {1: (n,l)=>{flag=n+''+l;return l+1}}}
-            get size     () {return 1}
-        }
-        const clss = {ops: Ops};
-        const obs  = new Observer(1);
-        const jsvm = new JSVM(()=>{}, obs, clss);
-        const yp   = api.get('codeYieldPeriod');
-        const fc   = api.get('codeFitnessCls');
-        //
-        // Small hack. Use of private field for this test only
-        //
-        jsvm._code.push(0b1000000000000000000000000);
-        api.set('codeYieldPeriod', 1);
-        api.set('codeFitnessCls', null);
-        jsvm.run({alive: true});
-        expect(flag === '167772160').toEqual(true);
-        api.set('codeYieldPeriod', yp);
-        api.set('codeFitnessCls', fc);
-
-        jsvm.destroy();
-    });
-
-    it("Checking crossover with increasing child code", () => {
-        const clss  = {ops: () => {}};
-        const obs   = new Observer(1);
-        const jsvm1 = new JSVM(()=>{}, obs, clss);
-        const jsvm2 = new JSVM(()=>{}, obs, clss);
-        const rand  = Helper.rand;
-        let   i     = -1;
-
-        Helper.rand = () => {
-            i++;
-            if (i === 0) {return 1}
-            if (i === 1) {return 2}
-            if (i === 2) {return 1}
-            if (i === 3) {return 3}
-        };
-
-        jsvm1._code.push(16000000);
-        jsvm1._code.push(16000001);
-        jsvm1._code.push(16000002);
-        jsvm1._code.push(16000003);
-        jsvm1._code.push(16000004);
-
-        jsvm2._code.push(17000000);
-        jsvm2._code.push(17000001);
-        jsvm2._code.push(17000002);
-        jsvm2._code.push(17000003);
-        jsvm2._code.push(17000004);
-
-        jsvm1.crossover(jsvm2);
-        expect(THelper.compare(jsvm1.code, [
-            16000000,
-            17000001,
-            17000002,
-            17000003,
-            16000003,
-            16000004
-        ])).toEqual(true);
-
-        Helper.rand = rand;
-        jsvm1.destroy();
-        jsvm2.destroy();
-    });
-    it("Checking crossover with decreasing child code", () => {
-        const clss  = {ops: () => {}};
-        const obs   = new Observer(1);
-        const jsvm1 = new JSVM(()=>{}, obs, clss);
-        const jsvm2 = new JSVM(()=>{}, obs, clss);
-        const rand  = Helper.rand;
-        let   i     = -1;
-
-        Helper.rand = () => {
-            i++;
-            if (i === 0) {return 1}
-            if (i === 1) {return 2}
-            if (i === 2) {return 1}
-            if (i === 3) {return 1}
-        };
-
-        jsvm1._code.push(16000000);
-        jsvm1._code.push(16000001);
-        jsvm1._code.push(16000002);
-        jsvm1._code.push(16000003);
-        jsvm1._code.push(16000004);
-
-        jsvm2._code.push(17000000);
-        jsvm2._code.push(17000001);
-        jsvm2._code.push(17000002);
-        jsvm2._code.push(17000003);
-        jsvm2._code.push(17000004);
-
-        jsvm1.crossover(jsvm2);
-        expect(THelper.compare(jsvm1.code, [
-            16000000,
-            17000001,
-            16000003,
-            16000004
-        ])).toEqual(true);
-
-        Helper.rand = rand;
-        jsvm1.destroy();
-        jsvm2.destroy();
-    });
-    it("Checking crossover with the same child code size", () => {
-        const clss  = {ops: () => {}};
-        const obs   = new Observer(1);
-        const jsvm1 = new JSVM(()=>{}, obs, clss);
-        const jsvm2 = new JSVM(()=>{}, obs, clss);
-        const rand  = Helper.rand;
-        let   i     = -1;
-
-        Helper.rand = () => {
-            i++;
-            if (i === 0) {return 1}
-            if (i === 1) {return 3}
-            if (i === 2) {return 1}
-            if (i === 3) {return 3}
-        };
-
-        jsvm1._code.push(16000000);
-        jsvm1._code.push(16000001);
-        jsvm1._code.push(16000002);
-        jsvm1._code.push(16000003);
-        jsvm1._code.push(16000004);
-
-        jsvm2._code.push(17000000);
-        jsvm2._code.push(17000001);
-        jsvm2._code.push(17000002);
-        jsvm2._code.push(17000003);
-        jsvm2._code.push(17000004);
-
-        jsvm1.crossover(jsvm2);
-        expect(THelper.compare(jsvm1.code, [
-            16000000,
-            17000001,
-            17000002,
-            17000003,
-            16000004
-        ])).toEqual(true);
-
-        Helper.rand = rand;
-        jsvm1.destroy();
-        jsvm2.destroy();
-    });
-    it("Checking crossover with no code size in parents", () => {
-        const clss  = {ops: () => {}};
-        const obs   = new Observer(1);
-        const jsvm1 = new JSVM(()=>{}, obs, clss);
-        const jsvm2 = new JSVM(()=>{}, obs, clss);
-
-        jsvm1.crossover(jsvm2);
-        expect(jsvm1.size).toEqual(0);
-        expect(jsvm2.size).toEqual(0);
-
-        jsvm1.destroy();
-        jsvm2.destroy();
-    });
-    it("Checking crossover with no code size for one parent and twp lines of code for other", () => {
-        const clss  = {ops: () => {}};
-        const obs   = new Observer(1);
-        const jsvm1 = new JSVM(()=>{}, obs, clss);
-        const jsvm2 = new JSVM(()=>{}, obs, clss);
-        const rand  = Helper.rand;
-        let   i     = -1;
-
-        Helper.rand = () => {
-            i++;
-            if (i === 0) {return 0}
-            if (i === 1) {return 0}
-            if (i === 2) {return 1}
-            if (i === 3) {return 2}
-        };
-
-        jsvm2._code.push(17000000);
-        jsvm2._code.push(17000001);
-        jsvm2._code.push(17000002);
-        jsvm2._code.push(17000003);
-
-        jsvm1.crossover(jsvm2);
-        expect(THelper.compare(jsvm1.code, [
-            17000001,
-            17000002
-        ])).toEqual(true);
-
-        Helper.rand = rand;
-        jsvm1.destroy();
-        jsvm2.destroy();
-    });
-    it("Checking crossover with no code size for one parent and twp lines of code for other 2", () => {
-        const clss  = {ops: () => {}};
-        const obs   = new Observer(1);
-        const jsvm1 = new JSVM(()=>{}, obs, clss);
-        const jsvm2 = new JSVM(()=>{}, obs, clss);
-        const rand  = Helper.rand;
-        let   i     = -1;
-
-        Helper.rand = () => {
-            i++;
-            if (i === 0) {return 1}
-            if (i === 1) {return 2}
-            if (i === 2) {return 0}
-            if (i === 3) {return 0}
-        };
-
-        jsvm1._code.push(16000000);
-        jsvm1._code.push(16000001);
-        jsvm1._code.push(16000002);
-        jsvm1._code.push(16000003);
-
-        jsvm1.crossover(jsvm2);
-        expect(THelper.compare(jsvm1.code, [
-            16000000,
-            16000003,
-        ])).toEqual(true);
-        expect(jsvm2.size).toEqual(0);
-
-        Helper.rand = rand;
-        jsvm1.destroy();
-        jsvm2.destroy();
-    });
-
-    it('Checking insertLine() method', () => {
-        const clss = {ops: ()=>{}};
-        const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, clss);
-
-        expect(jsvm.size).toEqual(0);
-        jsvm.insertLine();
-        expect(jsvm.size).toEqual(1);
-        jsvm.insertLine();
-        expect(jsvm.size).toEqual(2);
-
-        jsvm.destroy();
-    });
-    it('Checking insertLine() method 2', () => {
-        const clss = {ops: ()=>{}};
-        const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, clss);
-        let   get  = Num.get;
-
-        Num.get = () => 0xabcdefff;
-        expect(jsvm.size).toEqual(0);
-        jsvm.insertLine();
-        expect(jsvm.size).toEqual(1);
-
-        expect(jsvm.code[0]).toEqual(0xabcdefff);
-
-        Num.get = get;
-        jsvm.destroy();
-    });
-
-    it('Checking copyLines() method', () => {
-        const clss = {ops: ()=>{}};
-        const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, clss);
-        let   rand = Helper.rand;
-        let   i    = -1;
-
-        jsvm.insertLine();
-        jsvm.insertLine();
-        jsvm.insertLine();
-        jsvm.insertLine();
-        Helper.rand = function (n) {
-            i++;
-            if (i === 0) {        // start
-                return 1;
-            } else if (i === 1) { // end
-                return 2;
-            } else if (i === 2) { // rand(2)
-                return 0;
-            } else if (i === 3) { // rand(start)
-                return 0;
-            }
-        };
-        expect(jsvm.size).toEqual(4);
-        jsvm.copyLines();
-        expect(jsvm.size).toEqual(6);
-        expect(jsvm.code[0]).toEqual(jsvm.code[3]);
-        expect(jsvm.code[1]).toEqual(jsvm.code[4]);
-
-        Helper.rand = rand;
-        jsvm.destroy();
-    });
-    it('Checking copyLines() method 2', () => {
-        const clss = {ops: ()=>{}};
-        const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, clss);
-        let   rand = Helper.rand;
-        let   i    = -1;
-
-        jsvm.insertLine();
-        jsvm.insertLine();
-        jsvm.insertLine();
-        jsvm.insertLine();
-        Helper.rand = function (n) {
-            i++;
-            if (i === 0) {        // start
-                return 1;
-            } else if (i === 1) { // end
-                return 2;
-            } else if (i === 2) { // rand(2)
-                return 1;
-            } else if (i === 3) { // rand(codeLen - end)
-                return 0;
-            }
-        };
-        expect(jsvm.size).toEqual(4);
-        jsvm.copyLines();
-        expect(jsvm.size).toEqual(6);
-        expect(jsvm.code[1]).toEqual(jsvm.code[3]);
-        expect(jsvm.code[2]).toEqual(jsvm.code[4]);
-
-        Helper.rand = rand;
-        jsvm.destroy();
-    });
-    it('Checking copyLines() method 3', () => {
-        const clss = {ops: ()=>{}};
-        const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, clss);
-        let   rand = Helper.rand;
-        let   i    = -1;
-
-        jsvm.insertLine();
-        jsvm.insertLine();
-        jsvm.insertLine();
-        jsvm.insertLine();
-        Helper.rand = function (n) {
-            i++;
-            if (i === 0) {        // start
-                return 1;
-            } else if (i === 1) { // end
-                return 2;
-            } else if (i === 2) { // rand(2)
-                return 1;
-            } else if (i === 3) { // rand(codeLen - end)
-                return 1;
-            }
-        };
-        expect(jsvm.size).toEqual(4);
-        jsvm.copyLines();
-        expect(jsvm.size).toEqual(6);
-        expect(jsvm.code[1]).toEqual(jsvm.code[4]);
-        expect(jsvm.code[2]).toEqual(jsvm.code[5]);
-
-        Helper.rand = rand;
-        jsvm.destroy();
-    });
-    it('Checking copyLines() method with no code', () => {
-        const clss = {ops: ()=>{}};
-        const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, clss);
-        let   rand = Helper.rand;
-
-        Helper.rand = () => 0;
-        expect(jsvm.size).toEqual(0);
-        jsvm.copyLines();
-        expect(jsvm.size).toEqual(0);
-
-        Helper.rand = rand;
-        jsvm.destroy();
-    });
-
-    it('Checking updateLine() method', () => {
-        const clss = {ops: ()=>{}};
-        const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, clss);
-        let   get  = Num.get;
-
-        Num.get = () => 0xabcdefff;
-        jsvm.insertLine();
-        expect(jsvm.code[0]).toEqual(0xabcdefff);
-
-        jsvm.updateLine(0, 0xffffffff);
-        expect(jsvm.code[0]).toEqual(0xffffffff);
-
-        jsvm.updateLine(0, 0x12345678);
-        expect(jsvm.code[0]).toEqual(0x12345678);
-
-        Num.get = get;
-        jsvm.destroy();
-    });
-
-    it('Checking removeLine() method', () => {
-        const clss = {ops: ()=>{}};
-        const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, clss);
-
-        jsvm.insertLine();
-        expect(jsvm.size).toEqual(1);
-        jsvm.removeLine();
-        expect(jsvm.size).toEqual(0);
-
-        jsvm.destroy();
-    });
-    it('Checking removeLine() for empty code', () => {
-        const clss = {ops: ()=>{}};
-        const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, clss);
-
-        expect(jsvm.size).toEqual(0);
-        jsvm.removeLine();
-        expect(jsvm.size).toEqual(0);
-        jsvm.removeLine();
-        expect(jsvm.size).toEqual(0);
-
-        jsvm.destroy();
-    });
-
-    it('Checking getLine()', () => {
-        const clss = {ops: ()=>{}};
-        const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, clss);
-        let get  = Num.get;
-
-        Num.get = () => 0xabcdefff;
-        expect(jsvm.size).toEqual(0);
-        expect(jsvm.getLine(0)).toEqual(undefined);
-        expect(jsvm.getLine(1)).toEqual(undefined);
-        jsvm.insertLine();
-        expect(jsvm.size).toEqual(1);
-        expect(jsvm.getLine(0)).toEqual(0xabcdefff);
-
-        jsvm.removeLine();
-        expect(jsvm.size).toEqual(0);
-        expect(jsvm.getLine(0)).toEqual(undefined);
-        expect(jsvm.getLine(1)).toEqual(undefined);
-        expect(jsvm.getLine(9)).toEqual(undefined);
-
-        Num.get = get;
-        jsvm.destroy();
-    });
-});
-
-/***/ }),
-/* 260 */
-/***/ (function(module, exports, __webpack_require__) {
-
-describe("client/src/organism/Num", () => {
-    let Num = __webpack_require__(13);
-
-    it("Checking getting random zero operator", () => {
-        Num.setOperatorAmount(0);
-        const n = Num.get() >>> 24;
-
-        expect(n).toEqual(0);
-    });
-    it("Checking getting random operator (0..1)", () => {
-        Num.setOperatorAmount(1);
-        const n = Num.get() >>> 24;
-
-        expect(n === 0 || n === 1).toEqual(true);
-    });
-    it("Checking getting random operator with probability", () => {
-        Num.setOperatorAmount(3);
-        let n;
-
-        for (let i = 0; i < 10000; i++) {
-            n = Num.get() >>> 24;
-            expect(n >= 0 && n <= 2).toEqual(true);
-        }
-    });
-
-    it('Checking getOperator() method', () => {
-        const n = 0xabffffff;
-
-        expect(Num.getOperator(n)).toEqual(0xab);
-    });
-
-    it('Checking setOperator() method', () => {
-        const n = 0xabffffff;
-
-        expect(Num.setOperator(n, 0xbd)).toEqual(0xbdffffff);
-        expect(Num.setOperator(n, 0x00)).toEqual(0x00ffffff);
-        expect(Num.setOperator(n, 0x01)).toEqual(0x01ffffff);
-        expect(Num.setOperator(n, 0xff)).toEqual(0xffffffff);
-    });
-
-    it('Checking getVar() method', () => {
-        let n = 0xabffffff;
-
-        expect(Num.getVar(n, 0)).toEqual(3);
-        expect(Num.getVar(n, 1)).toEqual(3);
-        expect(Num.getVar(n, 3)).toEqual(3);
-
-        n = 0xbcbfffff;
-        expect(Num.getVar(n, 0)).toEqual(2);
-        expect(Num.getVar(n, 1)).toEqual(3);
-
-        n = 0xbc9fffff;
-        expect(Num.getVar(n, 0)).toEqual(2);
-        expect(Num.getVar(n, 1)).toEqual(1);
-
-        n = 0xbc00ffff;
-        expect(Num.getVar(n, 0)).toEqual(0);
-        expect(Num.getVar(n, 1)).toEqual(0);
-    });
-
-    it('Checking setVar() method', () => {
-        expect(Num.setVar(0xabffffff, 0, 2)).toEqual(0xabbfffff);
-        expect(Num.setVar(0xabffffff, 0, 3)).toEqual(0xabffffff);
-        expect(Num.setVar(0xabffffff, 0, 0)).toEqual(0xab3fffff);
-        expect(Num.setVar(0xabffffff, 2, 0)).toEqual(0xabf3ffff);
-        expect(Num.setVar(0xabffffff, 2, 2)).toEqual(0xabfbffff);
-    });
-
-    it('Checking getBits() method', () => {
-        expect(Num.getBits(0xabffffff, 0, 8)).toEqual(0xab);
-        expect(Num.getBits(0xabffffff, 0, 4)).toEqual(0xa);
-        expect(Num.getBits(0xabffffff, 4, 4)).toEqual(0xb);
-        expect(Num.getBits(0xabfbffff, 12, 2)).toEqual(0x2);
-        expect(Num.getBits(0xabcdffff, 8, 8)).toEqual(0xcd);
-        expect(Num.getBits(0xabcdffff, 16, 8)).toEqual(0xff);
-    });
-});
-
-/***/ }),
-/* 261 */
-/***/ (function(module, exports, __webpack_require__) {
-
 describe("client/src/organism/OperatorsDos", () => {
-    let OperatorsDos = __webpack_require__(125);
+    let OperatorsDos = __webpack_require__(126);
     let Helper       = __webpack_require__(5);
     let Observer     = __webpack_require__(14);
     let EVENTS       = __webpack_require__(4).EVENTS;
@@ -46242,7 +45649,7 @@ describe("client/src/organism/OperatorsDos", () => {
 });
 
 /***/ }),
-/* 262 */
+/* 260 */
 /***/ (function(module, exports, __webpack_require__) {
 
 //
@@ -46452,6 +45859,635 @@ describe("client/src/organism/OrganismDos", () => {
         org.destroy();
         expect(org.alive).toEqual(false);
         expect(org.energy > 0).toEqual(false);
+    });
+});
+
+/***/ }),
+/* 261 */
+/***/ (function(module, exports, __webpack_require__) {
+
+describe("client/src/organism/JSVM", () => {
+    let JSVM         = __webpack_require__(62);
+    let Num          = __webpack_require__(13);
+    let Operators    = __webpack_require__(41);
+    let Observer     = __webpack_require__(14);
+    let Helper       = __webpack_require__(5);
+    let Config       = __webpack_require__(2).Config;
+    let api          = __webpack_require__(2).api;
+    let THelper      = __webpack_require__(63);
+    let cls          = null;
+
+    beforeEach(() => {cls = Config.codeOperatorsCls;api.set('codeOperatorsCls', 'ops')});
+    afterEach(() => api.set('codeOperatorsCls', cls));
+
+    it("Checking jsvm creation", () => {
+        let   flag = false;
+        const obs  = new Observer(1);
+        const clss = {ops: () => {}};
+        const jsvm = new JSVM(() => flag = true, obs, clss);
+
+        jsvm.run();
+        expect(flag).toEqual(false);
+
+        jsvm.destroy();
+    });
+
+    it("Checking parent argument and 'cloning' mode", () => {
+        const clss   = {ops: () => {}};
+        const obs    = new Observer(1);
+        const parent = new JSVM(()=>{}, obs, clss);
+
+        parent.insertLine();
+        const jsvm   = new JSVM(()=>{}, obs, clss, parent);
+
+        expect(jsvm.code[0] === parent.code[0]).toEqual(true);
+        expect(jsvm.size === parent.size).toEqual(true);
+        expect(jsvm.vars[0] === parent.vars[0]).toEqual(true);
+
+        parent.destroy();
+        jsvm.destroy();
+    });
+
+    it("Checking 'vars' getter for non 'cloning' mode", () => {
+        const clss = {ops: () => {}};
+        const obs  = new Observer(2);
+        const jsvm = new JSVM(()=>{}, obs, clss);
+
+        expect(jsvm.vars.length === Math.pow(2, Config.codeBitsPerVar)).toEqual(true);
+
+        jsvm.destroy();
+    });
+
+    it("Checking no code size", () => {
+        const clss = {ops: () => {}};
+        const obs  = new Observer(2);
+        const jsvm = new JSVM(()=>{}, obs, clss);
+
+        expect(jsvm.size).toEqual(0);
+        jsvm.run();
+        expect(jsvm.size).toEqual(0);
+
+        jsvm.destroy();
+    });
+
+    it("Checking destroy", () => {
+        const clss = {ops: () => {}};
+        const obs  = new Observer(2);
+        const jsvm = new JSVM(()=>{}, obs, clss);
+
+        jsvm.destroy();
+        expect(jsvm.code).toEqual(null);
+    });
+
+    it("Checking 'code' and 'size' properties", () => {
+        const clss = {ops: () => {}};
+        const obs  = new Observer(2);
+        const jsvm = new JSVM(()=>{}, obs, clss);
+
+        expect(jsvm.code instanceof Array).toEqual(true);
+        expect(jsvm.size).toEqual(0);
+
+        jsvm.insertLine();
+        expect(jsvm.code instanceof Array).toEqual(true);
+        expect(jsvm.size).toEqual(1);
+
+        jsvm.insertLine();
+        expect(jsvm.size).toEqual(2);
+        jsvm.removeLine();
+        expect(jsvm.size).toEqual(1);
+        jsvm.removeLine();
+        expect(jsvm.size).toEqual(0);
+
+        jsvm.destroy();
+    });
+
+    it("Checking 'operators' property", () => {
+        function Ops() {}
+        const clss = {ops: Ops};
+        const obs  = new Observer(2);
+        const jsvm = new JSVM(()=>{}, obs, clss);
+
+        expect(jsvm.operators instanceof Ops).toEqual(true);
+
+        jsvm.destroy();
+    });
+
+    it("Checking run method", () => {
+        let   flag = '';
+        class Ops extends Operators {
+            get operators() {return {1: (n,l)=>{flag=n+''+l;return l+1}}}
+            get size     () {return 1}
+        }
+        const clss = {ops: Ops};
+        const obs  = new Observer(1);
+        const jsvm = new JSVM(()=>{}, obs, clss);
+        const yp   = api.get('codeYieldPeriod');
+        const fc   = api.get('codeFitnessCls');
+        //
+        // Small hack. Use of private field for this test only
+        //
+        jsvm._code.push(0b1000000000000000000000000);
+        api.set('codeYieldPeriod', 1);
+        api.set('codeFitnessCls', null);
+        jsvm.run({alive: true});
+        expect(flag === '167772160').toEqual(true);
+        api.set('codeYieldPeriod', yp);
+        api.set('codeFitnessCls', fc);
+
+        jsvm.destroy();
+    });
+
+    it("Checking crossover with increasing child code", () => {
+        const clss  = {ops: () => {}};
+        const obs   = new Observer(1);
+        const jsvm1 = new JSVM(()=>{}, obs, clss);
+        const jsvm2 = new JSVM(()=>{}, obs, clss);
+        const rand  = Helper.rand;
+        let   i     = -1;
+
+        Helper.rand = () => {
+            i++;
+            if (i === 0) {return 1}
+            if (i === 1) {return 2}
+            if (i === 2) {return 1}
+            if (i === 3) {return 3}
+        };
+
+        jsvm1._code.push(16000000);
+        jsvm1._code.push(16000001);
+        jsvm1._code.push(16000002);
+        jsvm1._code.push(16000003);
+        jsvm1._code.push(16000004);
+
+        jsvm2._code.push(17000000);
+        jsvm2._code.push(17000001);
+        jsvm2._code.push(17000002);
+        jsvm2._code.push(17000003);
+        jsvm2._code.push(17000004);
+
+        jsvm1.crossover(jsvm2);
+        expect(THelper.compare(jsvm1.code, [
+            16000000,
+            17000001,
+            17000002,
+            17000003,
+            16000003,
+            16000004
+        ])).toEqual(true);
+
+        Helper.rand = rand;
+        jsvm1.destroy();
+        jsvm2.destroy();
+    });
+    it("Checking crossover with decreasing child code", () => {
+        const clss  = {ops: () => {}};
+        const obs   = new Observer(1);
+        const jsvm1 = new JSVM(()=>{}, obs, clss);
+        const jsvm2 = new JSVM(()=>{}, obs, clss);
+        const rand  = Helper.rand;
+        let   i     = -1;
+
+        Helper.rand = () => {
+            i++;
+            if (i === 0) {return 1}
+            if (i === 1) {return 2}
+            if (i === 2) {return 1}
+            if (i === 3) {return 1}
+        };
+
+        jsvm1._code.push(16000000);
+        jsvm1._code.push(16000001);
+        jsvm1._code.push(16000002);
+        jsvm1._code.push(16000003);
+        jsvm1._code.push(16000004);
+
+        jsvm2._code.push(17000000);
+        jsvm2._code.push(17000001);
+        jsvm2._code.push(17000002);
+        jsvm2._code.push(17000003);
+        jsvm2._code.push(17000004);
+
+        jsvm1.crossover(jsvm2);
+        expect(THelper.compare(jsvm1.code, [
+            16000000,
+            17000001,
+            16000003,
+            16000004
+        ])).toEqual(true);
+
+        Helper.rand = rand;
+        jsvm1.destroy();
+        jsvm2.destroy();
+    });
+    it("Checking crossover with the same child code size", () => {
+        const clss  = {ops: () => {}};
+        const obs   = new Observer(1);
+        const jsvm1 = new JSVM(()=>{}, obs, clss);
+        const jsvm2 = new JSVM(()=>{}, obs, clss);
+        const rand  = Helper.rand;
+        let   i     = -1;
+
+        Helper.rand = () => {
+            i++;
+            if (i === 0) {return 1}
+            if (i === 1) {return 3}
+            if (i === 2) {return 1}
+            if (i === 3) {return 3}
+        };
+
+        jsvm1._code.push(16000000);
+        jsvm1._code.push(16000001);
+        jsvm1._code.push(16000002);
+        jsvm1._code.push(16000003);
+        jsvm1._code.push(16000004);
+
+        jsvm2._code.push(17000000);
+        jsvm2._code.push(17000001);
+        jsvm2._code.push(17000002);
+        jsvm2._code.push(17000003);
+        jsvm2._code.push(17000004);
+
+        jsvm1.crossover(jsvm2);
+        expect(THelper.compare(jsvm1.code, [
+            16000000,
+            17000001,
+            17000002,
+            17000003,
+            16000004
+        ])).toEqual(true);
+
+        Helper.rand = rand;
+        jsvm1.destroy();
+        jsvm2.destroy();
+    });
+    it("Checking crossover with no code size in parents", () => {
+        const clss  = {ops: () => {}};
+        const obs   = new Observer(1);
+        const jsvm1 = new JSVM(()=>{}, obs, clss);
+        const jsvm2 = new JSVM(()=>{}, obs, clss);
+
+        jsvm1.crossover(jsvm2);
+        expect(jsvm1.size).toEqual(0);
+        expect(jsvm2.size).toEqual(0);
+
+        jsvm1.destroy();
+        jsvm2.destroy();
+    });
+    it("Checking crossover with no code size for one parent and twp lines of code for other", () => {
+        const clss  = {ops: () => {}};
+        const obs   = new Observer(1);
+        const jsvm1 = new JSVM(()=>{}, obs, clss);
+        const jsvm2 = new JSVM(()=>{}, obs, clss);
+        const rand  = Helper.rand;
+        let   i     = -1;
+
+        Helper.rand = () => {
+            i++;
+            if (i === 0) {return 0}
+            if (i === 1) {return 0}
+            if (i === 2) {return 1}
+            if (i === 3) {return 2}
+        };
+
+        jsvm2._code.push(17000000);
+        jsvm2._code.push(17000001);
+        jsvm2._code.push(17000002);
+        jsvm2._code.push(17000003);
+
+        jsvm1.crossover(jsvm2);
+        expect(THelper.compare(jsvm1.code, [
+            17000001,
+            17000002
+        ])).toEqual(true);
+
+        Helper.rand = rand;
+        jsvm1.destroy();
+        jsvm2.destroy();
+    });
+    it("Checking crossover with no code size for one parent and twp lines of code for other 2", () => {
+        const clss  = {ops: () => {}};
+        const obs   = new Observer(1);
+        const jsvm1 = new JSVM(()=>{}, obs, clss);
+        const jsvm2 = new JSVM(()=>{}, obs, clss);
+        const rand  = Helper.rand;
+        let   i     = -1;
+
+        Helper.rand = () => {
+            i++;
+            if (i === 0) {return 1}
+            if (i === 1) {return 2}
+            if (i === 2) {return 0}
+            if (i === 3) {return 0}
+        };
+
+        jsvm1._code.push(16000000);
+        jsvm1._code.push(16000001);
+        jsvm1._code.push(16000002);
+        jsvm1._code.push(16000003);
+
+        jsvm1.crossover(jsvm2);
+        expect(THelper.compare(jsvm1.code, [
+            16000000,
+            16000003,
+        ])).toEqual(true);
+        expect(jsvm2.size).toEqual(0);
+
+        Helper.rand = rand;
+        jsvm1.destroy();
+        jsvm2.destroy();
+    });
+
+    it('Checking insertLine() method', () => {
+        const clss = {ops: ()=>{}};
+        const obs  = new Observer(2);
+        const jsvm = new JSVM(()=>{}, obs, clss);
+
+        expect(jsvm.size).toEqual(0);
+        jsvm.insertLine();
+        expect(jsvm.size).toEqual(1);
+        jsvm.insertLine();
+        expect(jsvm.size).toEqual(2);
+
+        jsvm.destroy();
+    });
+    it('Checking insertLine() method 2', () => {
+        const clss = {ops: ()=>{}};
+        const obs  = new Observer(2);
+        const jsvm = new JSVM(()=>{}, obs, clss);
+        let   get  = Num.get;
+
+        Num.get = () => 0xabcdefff;
+        expect(jsvm.size).toEqual(0);
+        jsvm.insertLine();
+        expect(jsvm.size).toEqual(1);
+
+        expect(jsvm.code[0]).toEqual(0xabcdefff);
+
+        Num.get = get;
+        jsvm.destroy();
+    });
+
+    it('Checking copyLines() method', () => {
+        const clss = {ops: ()=>{}};
+        const obs  = new Observer(2);
+        const jsvm = new JSVM(()=>{}, obs, clss);
+        let   rand = Helper.rand;
+        let   i    = -1;
+
+        jsvm.insertLine();
+        jsvm.insertLine();
+        jsvm.insertLine();
+        jsvm.insertLine();
+        Helper.rand = function (n) {
+            i++;
+            if (i === 0) {        // start
+                return 1;
+            } else if (i === 1) { // end
+                return 2;
+            } else if (i === 2) { // rand(2)
+                return 0;
+            } else if (i === 3) { // rand(start)
+                return 0;
+            }
+        };
+        expect(jsvm.size).toEqual(4);
+        jsvm.copyLines();
+        expect(jsvm.size).toEqual(6);
+        expect(jsvm.code[0]).toEqual(jsvm.code[3]);
+        expect(jsvm.code[1]).toEqual(jsvm.code[4]);
+
+        Helper.rand = rand;
+        jsvm.destroy();
+    });
+    it('Checking copyLines() method 2', () => {
+        const clss = {ops: ()=>{}};
+        const obs  = new Observer(2);
+        const jsvm = new JSVM(()=>{}, obs, clss);
+        let   rand = Helper.rand;
+        let   i    = -1;
+
+        jsvm.insertLine();
+        jsvm.insertLine();
+        jsvm.insertLine();
+        jsvm.insertLine();
+        Helper.rand = function (n) {
+            i++;
+            if (i === 0) {        // start
+                return 1;
+            } else if (i === 1) { // end
+                return 2;
+            } else if (i === 2) { // rand(2)
+                return 1;
+            } else if (i === 3) { // rand(codeLen - end)
+                return 0;
+            }
+        };
+        expect(jsvm.size).toEqual(4);
+        jsvm.copyLines();
+        expect(jsvm.size).toEqual(6);
+        expect(jsvm.code[1]).toEqual(jsvm.code[3]);
+        expect(jsvm.code[2]).toEqual(jsvm.code[4]);
+
+        Helper.rand = rand;
+        jsvm.destroy();
+    });
+    it('Checking copyLines() method 3', () => {
+        const clss = {ops: ()=>{}};
+        const obs  = new Observer(2);
+        const jsvm = new JSVM(()=>{}, obs, clss);
+        let   rand = Helper.rand;
+        let   i    = -1;
+
+        jsvm.insertLine();
+        jsvm.insertLine();
+        jsvm.insertLine();
+        jsvm.insertLine();
+        Helper.rand = function (n) {
+            i++;
+            if (i === 0) {        // start
+                return 1;
+            } else if (i === 1) { // end
+                return 2;
+            } else if (i === 2) { // rand(2)
+                return 1;
+            } else if (i === 3) { // rand(codeLen - end)
+                return 1;
+            }
+        };
+        expect(jsvm.size).toEqual(4);
+        jsvm.copyLines();
+        expect(jsvm.size).toEqual(6);
+        expect(jsvm.code[1]).toEqual(jsvm.code[4]);
+        expect(jsvm.code[2]).toEqual(jsvm.code[5]);
+
+        Helper.rand = rand;
+        jsvm.destroy();
+    });
+    it('Checking copyLines() method with no code', () => {
+        const clss = {ops: ()=>{}};
+        const obs  = new Observer(2);
+        const jsvm = new JSVM(()=>{}, obs, clss);
+        let   rand = Helper.rand;
+
+        Helper.rand = () => 0;
+        expect(jsvm.size).toEqual(0);
+        jsvm.copyLines();
+        expect(jsvm.size).toEqual(0);
+
+        Helper.rand = rand;
+        jsvm.destroy();
+    });
+
+    it('Checking updateLine() method', () => {
+        const clss = {ops: ()=>{}};
+        const obs  = new Observer(2);
+        const jsvm = new JSVM(()=>{}, obs, clss);
+        let   get  = Num.get;
+
+        Num.get = () => 0xabcdefff;
+        jsvm.insertLine();
+        expect(jsvm.code[0]).toEqual(0xabcdefff);
+
+        jsvm.updateLine(0, 0xffffffff);
+        expect(jsvm.code[0]).toEqual(0xffffffff);
+
+        jsvm.updateLine(0, 0x12345678);
+        expect(jsvm.code[0]).toEqual(0x12345678);
+
+        Num.get = get;
+        jsvm.destroy();
+    });
+
+    it('Checking removeLine() method', () => {
+        const clss = {ops: ()=>{}};
+        const obs  = new Observer(2);
+        const jsvm = new JSVM(()=>{}, obs, clss);
+
+        jsvm.insertLine();
+        expect(jsvm.size).toEqual(1);
+        jsvm.removeLine();
+        expect(jsvm.size).toEqual(0);
+
+        jsvm.destroy();
+    });
+    it('Checking removeLine() for empty code', () => {
+        const clss = {ops: ()=>{}};
+        const obs  = new Observer(2);
+        const jsvm = new JSVM(()=>{}, obs, clss);
+
+        expect(jsvm.size).toEqual(0);
+        jsvm.removeLine();
+        expect(jsvm.size).toEqual(0);
+        jsvm.removeLine();
+        expect(jsvm.size).toEqual(0);
+
+        jsvm.destroy();
+    });
+
+    it('Checking getLine()', () => {
+        const clss = {ops: ()=>{}};
+        const obs  = new Observer(2);
+        const jsvm = new JSVM(()=>{}, obs, clss);
+        let get  = Num.get;
+
+        Num.get = () => 0xabcdefff;
+        expect(jsvm.size).toEqual(0);
+        expect(jsvm.getLine(0)).toEqual(undefined);
+        expect(jsvm.getLine(1)).toEqual(undefined);
+        jsvm.insertLine();
+        expect(jsvm.size).toEqual(1);
+        expect(jsvm.getLine(0)).toEqual(0xabcdefff);
+
+        jsvm.removeLine();
+        expect(jsvm.size).toEqual(0);
+        expect(jsvm.getLine(0)).toEqual(undefined);
+        expect(jsvm.getLine(1)).toEqual(undefined);
+        expect(jsvm.getLine(9)).toEqual(undefined);
+
+        Num.get = get;
+        jsvm.destroy();
+    });
+});
+
+/***/ }),
+/* 262 */
+/***/ (function(module, exports, __webpack_require__) {
+
+describe("client/src/organism/Num", () => {
+    let Num = __webpack_require__(13);
+
+    it("Checking getting random zero operator", () => {
+        Num.setOperatorAmount(0);
+        const n = Num.get() >>> 24;
+
+        expect(n).toEqual(0);
+    });
+    it("Checking getting random operator (0..1)", () => {
+        Num.setOperatorAmount(1);
+        const n = Num.get() >>> 24;
+
+        expect(n === 0 || n === 1).toEqual(true);
+    });
+    it("Checking getting random operator with probability", () => {
+        Num.setOperatorAmount(3);
+        let n;
+
+        for (let i = 0; i < 10000; i++) {
+            n = Num.get() >>> 24;
+            expect(n >= 0 && n <= 2).toEqual(true);
+        }
+    });
+
+    it('Checking getOperator() method', () => {
+        const n = 0xabffffff;
+
+        expect(Num.getOperator(n)).toEqual(0xab);
+    });
+
+    it('Checking setOperator() method', () => {
+        const n = 0xabffffff;
+
+        expect(Num.setOperator(n, 0xbd)).toEqual(0xbdffffff);
+        expect(Num.setOperator(n, 0x00)).toEqual(0x00ffffff);
+        expect(Num.setOperator(n, 0x01)).toEqual(0x01ffffff);
+        expect(Num.setOperator(n, 0xff)).toEqual(0xffffffff);
+    });
+
+    it('Checking getVar() method', () => {
+        let n = 0xabffffff;
+
+        expect(Num.getVar(n, 0)).toEqual(3);
+        expect(Num.getVar(n, 1)).toEqual(3);
+        expect(Num.getVar(n, 3)).toEqual(3);
+
+        n = 0xbcbfffff;
+        expect(Num.getVar(n, 0)).toEqual(2);
+        expect(Num.getVar(n, 1)).toEqual(3);
+
+        n = 0xbc9fffff;
+        expect(Num.getVar(n, 0)).toEqual(2);
+        expect(Num.getVar(n, 1)).toEqual(1);
+
+        n = 0xbc00ffff;
+        expect(Num.getVar(n, 0)).toEqual(0);
+        expect(Num.getVar(n, 1)).toEqual(0);
+    });
+
+    it('Checking setVar() method', () => {
+        expect(Num.setVar(0xabffffff, 0, 2)).toEqual(0xabbfffff);
+        expect(Num.setVar(0xabffffff, 0, 3)).toEqual(0xabffffff);
+        expect(Num.setVar(0xabffffff, 0, 0)).toEqual(0xab3fffff);
+        expect(Num.setVar(0xabffffff, 2, 0)).toEqual(0xabf3ffff);
+        expect(Num.setVar(0xabffffff, 2, 2)).toEqual(0xabfbffff);
+    });
+
+    it('Checking getBits() method', () => {
+        expect(Num.getBits(0xabffffff, 0, 8)).toEqual(0xab);
+        expect(Num.getBits(0xabffffff, 0, 4)).toEqual(0xa);
+        expect(Num.getBits(0xabffffff, 4, 4)).toEqual(0xb);
+        expect(Num.getBits(0xabfbffff, 12, 2)).toEqual(0x2);
+        expect(Num.getBits(0xabcdffff, 8, 8)).toEqual(0xcd);
+        expect(Num.getBits(0xabcdffff, 16, 8)).toEqual(0xff);
     });
 });
 

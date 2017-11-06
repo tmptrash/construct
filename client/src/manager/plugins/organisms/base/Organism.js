@@ -10,7 +10,7 @@ const Observer      = require('./../../../../../../common/src/global/Observer');
 const EVENTS        = require('./../../../../global/Events').EVENTS;
 const EVENT_AMOUNT  = require('./../../../../global/Events').EVENT_AMOUNT;
 const Helper        = require('./../../../../../../common/src/global/Helper');
-const JSVM          = require('./JSVM');
+const JSVM          = require('./organism/JSVM');
 
 const IS_NUM = Helper.isNumeric;
 

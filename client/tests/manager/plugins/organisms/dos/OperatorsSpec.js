@@ -1,5 +1,5 @@
 describe("client/src/organism/OperatorsDos", () => {
-    let OperatorsDos = require('./../../../../../src/manager/plugins/organisms/dos/Operators');
+    let OperatorsDos = require('./../../../../../src/manager/plugins/organisms/dos/organism/jsvm/Operators');
     let Helper       = require('./../../../../../../common/src/global/Helper');
     let Observer     = require('./../../../../../../common/src/global/Observer');
     let EVENTS       = require('./../../../../../src/global/Events').EVENTS;

@@ -7,12 +7,12 @@
  * TODO: think about custom operators callbacks from outside. This is how
  * TODO: we may solve custom tasks
  */
-const Config       = require('./../../../../global/Config').Config;
-const Helper       = require('./../../../../../../common/src/global/Helper');
-const Observer     = require('./../../../../../../common/src/global/Observer');
-const EVENTS       = require('./../../../../global/Events').EVENTS;
-const EVENT_AMOUNT = require('./../../../../global/Events').EVENT_AMOUNT;
-const Num          = require('./Num');
+const Config       = require('./../../../../../global/Config').Config;
+const Helper       = require('./../../../../../../../common/src/global/Helper');
+const Observer     = require('./../../../../../../../common/src/global/Observer');
+const EVENTS       = require('./../../../../../global/Events').EVENTS;
+const EVENT_AMOUNT = require('./../../../../../global/Events').EVENT_AMOUNT;
+const Num          = require('./../organisms/code2string/Num');
 const Operators    = require('CLIENT/' + Config.codeOperatorsCls + '.js');
 /**
  * {Number} Maximum stack size, which may be used for recursion or function parameters

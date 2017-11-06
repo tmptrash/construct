@@ -6,12 +6,12 @@
  *
  * @author flatline
  */
-const EVENTS    = require('./../../../../global/Events').EVENTS;
-const DIR       = require('./../../../../../../common/src/global/Directions').DIR;
-const Config    = require('./../../../../global/Config').Config;
-const Helper    = require('./../../../../../../common/src/global/Helper');
-const Operators = require('./../organism/Operators');
-const Num       = require('./../organism/Num');
+const EVENTS    = require('./../../../../../../global/Events').EVENTS;
+const DIR       = require('./../../../../../../../../common/src/global/Directions').DIR;
+const Config    = require('./../../../../../../global/Config').Config;
+const Helper    = require('./../../../../../../../../common/src/global/Helper');
+const Operators = require('./../../../base/organism/jsvm/Operators');
+const Num       = require('./../../../base/organisms/code2string/Num');
 
 /**
  * {Function} Just a shortcuts

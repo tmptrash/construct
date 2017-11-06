@@ -4,7 +4,7 @@
  * TODO:   -
  * @author flatline
  */
-const Organism = require('./../organism/Organism');
+const Organism = require('./../base/Organism');
 const Config   = require('./../../../../global/Config').Config;
 const EVENTS   = require('./../../../../global/Events').EVENTS;
 
