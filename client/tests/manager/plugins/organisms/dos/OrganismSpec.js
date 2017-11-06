@@ -2,10 +2,10 @@
 // This spec covers two classes "Organism" and "OrganismDos"
 //
 describe("client/src/organism/OrganismDos", () => {
-    let OrganismDos = require('./../../src/manager/plugins/organisms/dos/Organism');
-    let Config      = require('./../../src/global/Config').Config;
-    let api         = require('./../../src/global/Config').api;
-    let THelper     = require('./../../../common/tests/Helper');
+    let OrganismDos = require('./../../../../../src/manager/plugins/organisms/dos/Organism');
+    let Config      = require('./../../../../../src/global/Config').Config;
+    let api         = require('./../../../../../src/global/Config').api;
+    let THelper     = require('./../../../../../../common/tests/Helper');
     let cls;
 
     beforeEach(() => {cls = Config.codeOperatorsCls;api.set('codeOperatorsCls', 'ops')});
