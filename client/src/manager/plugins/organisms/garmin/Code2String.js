@@ -5,7 +5,7 @@
  *
  * @author flatline
  */
-const Num = require('./Num');
+const Num = require('./../organism/Num');
 
 /**
  * {Function} Just a shortcuts

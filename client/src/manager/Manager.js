@@ -19,8 +19,8 @@ const Plugins          = require('./../../../common/src/global/Plugins');
 const EVENTS           = require('./../global/Events').EVENTS;
 const EVENT_AMOUNT     = require('./../global/Events').EVENT_AMOUNT;
 const Console          = require('./../global/Console');
-const World            = require('./../visual/World');
-const Canvas           = require('./../visual/Canvas');
+const World            = require('./visual/World');
+const Canvas           = require('./visual/Canvas');
 
 class Manager extends Observer {
     /**

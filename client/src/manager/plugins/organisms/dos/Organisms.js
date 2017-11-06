@@ -11,17 +11,17 @@
  *
  * @author flatline
  */
-const Organisms = require('./base/Organisms');
-const Config    = require('./../../global/Config').Config;
-const EVENTS    = require('./../../global/Events').EVENTS;
-const Helper    = require('./../../../../common/src/global/Helper');
-const DIR       = require('./../../../../common/src/global/Directions').DIR;
+const BaseOrganisms = require('./../Organisms');
+const Config        = require('./../../../../global/Config').Config;
+const EVENTS        = require('./../../../../global/Events').EVENTS;
+const Helper        = require('./../../../../../../common/src/global/Helper');
+const DIR           = require('./../../../../../../common/src/global/Directions').DIR;
 
-const EMPTY     = 0;
-const ENERGY    = 1;
-const ORGANISM  = 2;
+const EMPTY         = 0;
+const ENERGY        = 1;
+const ORGANISM      = 2;
 
-class OrganismsDos extends Organisms {
+class Organisms extends BaseOrganisms {
     constructor(manager) {
         super(manager);
 
@@ -201,7 +201,7 @@ class OrganismsDos extends Organisms {
      * @private
      */
     _onStepIn(x, y, orgJson) {
-        if (this.manager.world.isFree(x, y) && this.organisms.size < Config.worldMaxOrgs && this.createOrg({x, y})) {
+        if (this.manager.world.isFree(x, y) && this.organisms.size < Config.orgMaxOrgs && this.createOrg({x, y})) {
             this.organisms.last.val.unserialize(orgJson);
         }
     }
@@ -218,4 +218,4 @@ class OrganismsDos extends Organisms {
     }
 }
 
-module.exports = OrganismsDos;
+module.exports = Organisms;

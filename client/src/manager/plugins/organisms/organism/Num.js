@@ -3,8 +3,8 @@
  *
  * @author flatline
  */
-const Helper = require('./../../../common/src/global/Helper');
-const Config = require('./../global/Config').Config;
+const Helper = require('./../../../../../../common/src/global/Helper');
+const Config = require('./../../../../global/Config').Config;
 
 const BITS_PER_VAR        = Config.codeBitsPerVar;
 const BITS_PER_OPERATOR   = Config.codeBitsPerOperator;

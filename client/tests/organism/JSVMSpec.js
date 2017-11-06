@@ -1,7 +1,7 @@
 describe("client/src/organism/JSVM", () => {
-    let JSVM         = require('./../../../client/src/organism/JSVM');
-    let Num          = require('./../../../client/src/organism/Num');
-    let Operators    = require('./../../../client/src/organism/base/Operators');
+    let JSVM         = require('./../../src/manager/plugins/organisms/organism/JSVM');
+    let Num          = require('./../../src/manager/plugins/organisms/organism/Num');
+    let Operators    = require('./../../src/manager/plugins/organisms/organism/Operators');
     let Observer     = require('./../../../common/src/global/Observer');
     let Helper       = require('./../../../common/src/global/Helper');
     let Config       = require('./../../src/global/Config').Config;

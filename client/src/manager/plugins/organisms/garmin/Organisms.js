@@ -10,13 +10,13 @@
  *
  * @author flatline
  */
-const Config    = require('./../../global/Config').Config;
-const Console   = require('./../../global/Console');
-const EVENTS    = require('./../../global/Events').EVENTS;
-const Organisms = require('./base/Organisms');
-const Fitness   = Config.codeFitnessCls && require('CLIENT/' + Config.codeFitnessCls + '.js') || Config.codeFitnessCls;
+const Config        = require('./../../../../global/Config').Config;
+const Console       = require('./../../../../global/Console');
+const EVENTS        = require('./../../../../global/Events').EVENTS;
+const BaseOrganisms = require('./../Organisms');
+const Fitness       = Config.codeFitnessCls && require('CLIENT/' + Config.codeFitnessCls + '.js') || Config.codeFitnessCls;
 
-class OrganismsGarmin extends Organisms {
+class Organisms extends BaseOrganisms {
     constructor(manager) {
         super(manager);
         this._maxChanges = 0;
@@ -64,4 +64,4 @@ class OrganismsGarmin extends Organisms {
     }
 }
 
-module.exports = OrganismsGarmin;
+module.exports = Organisms;

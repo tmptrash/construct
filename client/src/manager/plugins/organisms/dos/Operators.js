@@ -6,12 +6,12 @@
  *
  * @author flatline
  */
-const EVENTS    = require('./../global/Events').EVENTS;
-const DIR       = require('./../../../common/src/global/Directions').DIR;
-const Config    = require('./../global/Config').Config;
-const Helper    = require('./../../../common/src/global/Helper');
-const Operators = require('./base/Operators');
-const Num       = require('./Num');
+const EVENTS    = require('./../../../../global/Events').EVENTS;
+const DIR       = require('./../../../../../../common/src/global/Directions').DIR;
+const Config    = require('./../../../../global/Config').Config;
+const Helper    = require('./../../../../../../common/src/global/Helper');
+const Operators = require('./../organism/Operators');
+const Num       = require('./../organism/Num');
 
 /**
  * {Function} Just a shortcuts

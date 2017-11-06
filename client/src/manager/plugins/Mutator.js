@@ -12,8 +12,8 @@
 const EVENTS   = require('./../../global/Events').EVENTS;
 const Config   = require('./../../global/Config').Config;
 const Helper   = require('./../../../../common/src/global/Helper');
-const Organism = require('./../../organism/OrganismDos');
-const Num      = require('./../../organism/Num');
+const Organism = require('./organisms/dos/Organism');
+const Num      = require('./organisms/organism/Num');
 
 const VAR_BITS_OFFS = Num.VAR_BITS_OFFS - 1;
 const VARS          = Num.VARS;

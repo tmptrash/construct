@@ -126,6 +126,17 @@ ClientConfig.init({
      */
     orgCloneEnergyPercent: 0.5,
     /**
+     * {Number} Maximum amount of organisms in a world. If some organisms will
+     * try to clone itself, when entire amount of organisms are equal
+     * this value, then it(cloning) will not happen.
+     */
+    orgMaxOrgs: 50,
+    /**
+     * {String} Name of the organism class. All organisms in a world
+     * will be creates as an instance of this class
+     */
+    orgOrganismCls: 'src/manager/plugins/organisms/dos/Organism',// src/manager/plugins/organisms/garmin/Organism
+    /**
      * {Number} Maximum amount of arguments in custom functions. Minimum 1. Maximum
      * <= amount of default variables.
      */
@@ -186,21 +197,16 @@ ClientConfig.init({
      * behavior is a nature organisms simulator. See ClassMap.js for additional
      * details.
      */
-    codeFitnessCls: null,//'src/organism/FitnessGarmin',
-    /**
-     * {String} Name of the organism class. All organisms in a world
-     * will be creates as an instance of this class
-     */
-    codeOrganismCls: 'src/organism/OrganismDos',//OrganismGarmin
+    codeFitnessCls: null,//'src/manager/plugins/organisms/garmin/Fitness',
     /**
      * {Function} Class with available operators. See default Operators
      * class for details. See ClassMap.js for additional details.
      */
-    codeOperatorsCls: 'src/organism/OperatorsDos',//'OperatorsGarmin',
+    codeOperatorsCls: 'src/manager/plugins/organisms/dos/Operators',//'OperatorsGarmin',
     /**
      * {String} Name of the class for string representation of byte jsvm
      */
-    code2StringCls: 'src/organism/Code2StringDos',//'Code2StringGarmin',
+    code2StringCls: 'src/manager/plugins/organisms/garmin/Code2String',//'Code2StringGarmin',
     /**
      * {Number} World width
      */
@@ -218,12 +224,6 @@ ClientConfig.init({
      * calculations).
      */
     worldCyclical: false,
-    /**
-     * {Number} Maximum amount of organisms in a world. If some organisms will
-     * try to clone itself, when entire amount of organisms are equal
-     * this value, then it(cloning) will not happen.
-     */
-    worldMaxOrgs: 50,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
@@ -422,6 +422,12 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //      */
 //     orgEnergyIncreaseCoef: 3,
 //     /**
+//      * {Number} Maximum amount of organisms in a world. If some organisms will
+//      * try to clone itself, when entire amount of organisms are equal
+//      * this value, then it(cloning) will not happen.
+//      */
+//     orgMaxOrgs: 4,
+//     /**
 //      * {Number} Maximum amount of arguments in custom functions. Minimum 1. Maximum
 //      * <= amount of default variables.
 //      */
@@ -503,12 +509,6 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //      * coordinate (height).
 //      */
 //     worldCyclical: true,
-//     /**
-//      * {Number} Maximum amount of organisms in a world. If some organisms will
-//      * try to clone itself, when entire amount of organisms are equal
-//      * this value, then it(cloning) will not happen.
-//      */
-//     worldMaxOrgs: 4,
 //     /**
 //      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
 //      * random way...
@@ -760,6 +760,12 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //      */
 //     orgCloneEnergyPercent: 0.5,
 //     /**
+//      * {Number} Maximum amount of organisms in a world. If some organisms will
+//      * try to clone itself, when entire amount of organisms are equal
+//      * this value, then it(cloning) will not happen.
+//      */
+//     orgMaxOrgs: 500,
+//     /**
 //      * {Number} Maximum amount of arguments in custom functions. Minimum 1. Maximum
 //      * <= amount of default variables.
 //      */
@@ -841,12 +847,6 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //      * coordinate (height).
 //      */
 //     worldCyclical: true,
-//     /**
-//      * {Number} Maximum amount of organisms in a world. If some organisms will
-//      * try to clone itself, when entire amount of organisms are equal
-//      * this value, then it(cloning) will not happen.
-//      */
-//     worldMaxOrgs: 500,
 //     /**
 //      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
 //      * random way...

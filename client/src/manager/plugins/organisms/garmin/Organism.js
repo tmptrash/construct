@@ -4,9 +4,9 @@
  * TODO:   -
  * @author flatline
  */
-const Organism = require('./base/Organism');
-const Config   = require('./../global/Config').Config;
-const EVENTS   = require('./../global/Events').EVENTS;
+const Organism = require('./../organism/Organism');
+const Config   = require('./../../../../global/Config').Config;
+const EVENTS   = require('./../../../../global/Events').EVENTS;
 
 class OrganismGarmin extends Organism {
     /**

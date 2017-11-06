@@ -6,10 +6,10 @@
  *
  * @author flatline
  */
-const Config    = require('./../global/Config').Config;
-const Helper    = require('./../../../common/src/global/Helper');
-const Operators = require('./base/Operators');
-const Num       = require('./Num');
+const Config    = require('./../../../../global/Config').Config;
+const Helper    = require('./../../../../../../common/src/global/Helper');
+const Operators = require('./../organism/Operators');
+const Num       = require('./../organism/Num');
 
 /**
  * {Function} Just a shortcuts

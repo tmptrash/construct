@@ -2,7 +2,7 @@
  * Base class for OrganismsXXX plugins. Manages organisms. Makes
  * cloning, crossover, organisms comparison, killing and more...
  * Main function of this plugin is run organism's in an infinite
- * loop.
+ * loop. This class can't be created as separate instance.
  *
  * @author flatline
  */
@@ -12,7 +12,7 @@ const Console      = require('./../../../global/Console');
 const EVENTS       = require('./../../../global/Events').EVENTS;
 const Backup       = require('./../Backup');
 const Code2String  = require('CLIENT/' + Config.code2StringCls + '.js');
-const CodeOrganism = require('CLIENT/' + Config.codeOrganismCls + '.js');
+const CodeOrganism = require('CLIENT/' + Config.orgOrganismCls + '.js');
 
 const RAND_OFFS = 4;
 
@@ -144,7 +144,7 @@ class Organisms {
         let tmpOrg = this._tournament(org1, org2);
         if (tmpOrg === org2) {[org1, org2] = [org2, org1]}
 
-        if (orgAmount >= Config.worldMaxOrgs) {org2.destroy()}
+        if (orgAmount >= Config.orgMaxOrgs) {org2.destroy()}
         if (org1.alive) {this._clone(org1)}
 
         return true;
@@ -212,7 +212,7 @@ class Organisms {
 
     createOrg(pos, parent = null) {
         const orgs = this.organisms;
-        if (orgs.size >= Config.worldMaxOrgs || pos === false) {return false}
+        if (orgs.size >= Config.orgMaxOrgs || pos === false) {return false}
         orgs.add(null);
         let last = orgs.last;
         let org  = new CodeOrganism(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), parent);
@@ -258,7 +258,7 @@ class Organisms {
 
         if (child.alive && looser.alive) {
             child.changes += child.jsvm.crossover(looser.jsvm);
-            if (orgs.size >= Config.worldMaxOrgs) {looser.destroy()}
+            if (orgs.size >= Config.orgMaxOrgs) {looser.destroy()}
         }
     }
 

@@ -5,12 +5,12 @@
  * TODO:   -
  * @author flatline
  */
-const Config        = require('./../../../src/global/Config').Config;
-const Observer      = require('./../../../../common/src/global/Observer');
-const EVENTS        = require('./../../global/Events').EVENTS;
-const EVENT_AMOUNT  = require('./../../global/Events').EVENT_AMOUNT;
-const Helper        = require('./../../../../common/src/global/Helper');
-const JSVM          = require('./../JSVM');
+const Config        = require('./../../../../global/Config').Config;
+const Observer      = require('./../../../../../../common/src/global/Observer');
+const EVENTS        = require('./../../../../global/Events').EVENTS;
+const EVENT_AMOUNT  = require('./../../../../global/Events').EVENT_AMOUNT;
+const Helper        = require('./../../../../../../common/src/global/Helper');
+const JSVM          = require('./JSVM');
 
 const IS_NUM = Helper.isNumeric;
 

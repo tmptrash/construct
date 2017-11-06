@@ -292,6 +292,17 @@ ClientConfig.init({
      */
     orgCloneEnergyPercent: 0.5,
     /**
+     * {Number} Maximum amount of organisms in a world. If some organisms will
+     * try to clone itself, when entire amount of organisms are equal
+     * this value, then it(cloning) will not happen.
+     */
+    orgMaxOrgs: 50,
+    /**
+     * {String} Name of the organism class. All organisms in a world
+     * will be creates as an instance of this class
+     */
+    orgOrganismCls: 'src/manager/plugins/organisms/dos/Organism',// src/manager/plugins/organisms/garmin/Organism
+    /**
      * {Number} Maximum amount of arguments in custom functions. Minimum 1. Maximum
      * <= amount of default variables.
      */
@@ -352,21 +363,16 @@ ClientConfig.init({
      * behavior is a nature organisms simulator. See ClassMap.js for additional
      * details.
      */
-    codeFitnessCls: null,//'src/organism/FitnessGarmin',
-    /**
-     * {String} Name of the organism class. All organisms in a world
-     * will be creates as an instance of this class
-     */
-    codeOrganismCls: 'src/organism/OrganismDos',//OrganismGarmin
+    codeFitnessCls: null,//'src/manager/plugins/organisms/garmin/Fitness',
     /**
      * {Function} Class with available operators. See default Operators
      * class for details. See ClassMap.js for additional details.
      */
-    codeOperatorsCls: 'src/organism/OperatorsDos',//'OperatorsGarmin',
+    codeOperatorsCls: 'src/manager/plugins/organisms/dos/Operators',//'OperatorsGarmin',
     /**
      * {String} Name of the class for string representation of byte jsvm
      */
-    code2StringCls: 'src/organism/Code2StringDos',//'Code2StringGarmin',
+    code2StringCls: 'src/manager/plugins/organisms/garmin/Code2String',//'Code2StringGarmin',
     /**
      * {Number} World width
      */
@@ -384,12 +390,6 @@ ClientConfig.init({
      * calculations).
      */
     worldCyclical: false,
-    /**
-     * {Number} Maximum amount of organisms in a world. If some organisms will
-     * try to clone itself, when entire amount of organisms are equal
-     * this value, then it(cloning) will not happen.
-     */
-    worldMaxOrgs: 50,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
@@ -588,6 +588,12 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //      */
 //     orgEnergyIncreaseCoef: 3,
 //     /**
+//      * {Number} Maximum amount of organisms in a world. If some organisms will
+//      * try to clone itself, when entire amount of organisms are equal
+//      * this value, then it(cloning) will not happen.
+//      */
+//     orgMaxOrgs: 4,
+//     /**
 //      * {Number} Maximum amount of arguments in custom functions. Minimum 1. Maximum
 //      * <= amount of default variables.
 //      */
@@ -669,12 +675,6 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //      * coordinate (height).
 //      */
 //     worldCyclical: true,
-//     /**
-//      * {Number} Maximum amount of organisms in a world. If some organisms will
-//      * try to clone itself, when entire amount of organisms are equal
-//      * this value, then it(cloning) will not happen.
-//      */
-//     worldMaxOrgs: 4,
 //     /**
 //      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
 //      * random way...
@@ -926,6 +926,12 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //      */
 //     orgCloneEnergyPercent: 0.5,
 //     /**
+//      * {Number} Maximum amount of organisms in a world. If some organisms will
+//      * try to clone itself, when entire amount of organisms are equal
+//      * this value, then it(cloning) will not happen.
+//      */
+//     orgMaxOrgs: 500,
+//     /**
 //      * {Number} Maximum amount of arguments in custom functions. Minimum 1. Maximum
 //      * <= amount of default variables.
 //      */
@@ -1007,12 +1013,6 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //      * coordinate (height).
 //      */
 //     worldCyclical: true,
-//     /**
-//      * {Number} Maximum amount of organisms in a world. If some organisms will
-//      * try to clone itself, when entire amount of organisms are equal
-//      * this value, then it(cloning) will not happen.
-//      */
-//     worldMaxOrgs: 500,
 //     /**
 //      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
 //      * random way...
@@ -9945,30 +9945,32 @@ var map = {
 	"./src/manager/plugins/Energy.js": 121,
 	"./src/manager/plugins/Ips.js": 122,
 	"./src/manager/plugins/Mutator.js": 123,
-	"./src/manager/plugins/OrganismsDos.js": 124,
-	"./src/manager/plugins/OrganismsGarmin.js": 118,
-	"./src/manager/plugins/Status.js": 125,
-	"./src/manager/plugins/base/Organisms.js": 59,
-	"./src/organism/Code2StringDos.js": 248,
-	"./src/organism/Code2StringGarmin.js": 249,
-	"./src/organism/FitnessGarmin.js": 250,
-	"./src/organism/JSVM.js": 62,
-	"./src/organism/Num.js": 13,
-	"./src/organism/OperatorsDos.js": 126,
-	"./src/organism/OperatorsGarmin.js": 251,
-	"./src/organism/OrganismDos.js": 60,
-	"./src/organism/OrganismGarmin.js": 252,
-	"./src/organism/base/Operators.js": 41,
-	"./src/organism/base/Organism.js": 61,
-	"./src/visual/Canvas.js": 67,
-	"./src/visual/World.js": 43,
-	"./tests/global/ConsoleSpec.js": 253,
-	"./tests/manager/plugins/ClientSpec.js": 254,
-	"./tests/organism/JSVMSpec.js": 257,
-	"./tests/organism/NumSpec.js": 258,
-	"./tests/organism/OperatorsDosSpec.js": 259,
-	"./tests/organism/OrganismDosSpec.js": 260,
-	"./tests/visual/WorldSpec.js": 261
+	"./src/manager/plugins/Status.js": 124,
+	"./src/manager/plugins/organisms/Organisms.js": 59,
+	"./src/manager/plugins/organisms/dos/Code2String.js": 248,
+	"./src/manager/plugins/organisms/dos/Config.js": 249,
+	"./src/manager/plugins/organisms/dos/Operators.js": 125,
+	"./src/manager/plugins/organisms/dos/Organism.js": 60,
+	"./src/manager/plugins/organisms/dos/Organisms.js": 126,
+	"./src/manager/plugins/organisms/garmin/Code2String.js": 250,
+	"./src/manager/plugins/organisms/garmin/Config.js": 251,
+	"./src/manager/plugins/organisms/garmin/Fitness.js": 252,
+	"./src/manager/plugins/organisms/garmin/Operators.js": 253,
+	"./src/manager/plugins/organisms/garmin/Organism.js": 254,
+	"./src/manager/plugins/organisms/garmin/Organisms.js": 118,
+	"./src/manager/plugins/organisms/organism/JSVM.js": 62,
+	"./src/manager/plugins/organisms/organism/Num.js": 13,
+	"./src/manager/plugins/organisms/organism/Operators.js": 41,
+	"./src/manager/plugins/organisms/organism/Organism.js": 61,
+	"./src/manager/visual/Canvas.js": 67,
+	"./src/manager/visual/World.js": 43,
+	"./tests/global/ConsoleSpec.js": 255,
+	"./tests/manager/plugins/ClientSpec.js": 256,
+	"./tests/organism/JSVMSpec.js": 259,
+	"./tests/organism/NumSpec.js": 260,
+	"./tests/organism/OperatorsDosSpec.js": 261,
+	"./tests/organism/OrganismDosSpec.js": 262,
+	"./tests/visual/WorldSpec.js": 263
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -12753,7 +12755,7 @@ exports.NOOP = () => {};
  * Base class for OrganismsXXX plugins. Manages organisms. Makes
  * cloning, crossover, organisms comparison, killing and more...
  * Main function of this plugin is run organism's in an infinite
- * loop.
+ * loop. This class can't be created as separate instance.
  *
  * @author flatline
  */
@@ -12763,7 +12765,7 @@ const Console      = __webpack_require__(11);
 const EVENTS       = __webpack_require__(4).EVENTS;
 const Backup       = __webpack_require__(119);
 const Code2String  = __webpack_require__(40)("./" + Config.code2StringCls + '.js');
-const CodeOrganism = __webpack_require__(40)("./" + Config.codeOrganismCls + '.js');
+const CodeOrganism = __webpack_require__(40)("./" + Config.orgOrganismCls + '.js');
 
 const RAND_OFFS = 4;
 
@@ -12895,7 +12897,7 @@ class Organisms {
         let tmpOrg = this._tournament(org1, org2);
         if (tmpOrg === org2) {[org1, org2] = [org2, org1]}
 
-        if (orgAmount >= Config.worldMaxOrgs) {org2.destroy()}
+        if (orgAmount >= Config.orgMaxOrgs) {org2.destroy()}
         if (org1.alive) {this._clone(org1)}
 
         return true;
@@ -12963,7 +12965,7 @@ class Organisms {
 
     createOrg(pos, parent = null) {
         const orgs = this.organisms;
-        if (orgs.size >= Config.worldMaxOrgs || pos === false) {return false}
+        if (orgs.size >= Config.orgMaxOrgs || pos === false) {return false}
         orgs.add(null);
         let last = orgs.last;
         let org  = new CodeOrganism(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), parent);
@@ -13009,7 +13011,7 @@ class Organisms {
 
         if (child.alive && looser.alive) {
             child.changes += child.jsvm.crossover(looser.jsvm);
-            if (orgs.size >= Config.worldMaxOrgs) {looser.destroy()}
+            if (orgs.size >= Config.orgMaxOrgs) {looser.destroy()}
         }
     }
 
@@ -13351,7 +13353,7 @@ class JSVM extends Observer {
     constructor(codeEndCb, obs, parent = null) {
         super(EVENT_AMOUNT);
 
-        this._obs = obs;
+        this._obs       = obs;
         /**
          * {Function} Callback, which is called on every organism
          * jsvm iteration. On it's end.
@@ -13362,14 +13364,14 @@ class JSVM extends Observer {
          * to return if first line appears. second - line number, where ends
          * closing block '}' of block operator (e.g. for, if,...).
          */
-        this._offsets = [];
-        this._vars = parent && parent.vars && parent.vars.slice() || this._getVars();
+        this._offsets   = [];
+        this._vars      = parent && parent.vars && parent.vars.slice() || this._getVars();
         /**
          * {Function} Class, which implement all supported operators
          */
         this._operators = new Operators(this._offsets, this._vars, obs);
-        this._code = parent && parent.code.slice() || [];
-        this._line = 0;
+        this._code      = parent && parent.code.slice() || [];
+        this._line      = 0;
     }
 
     get code() {
@@ -13408,9 +13410,9 @@ class JSVM extends Observer {
 
     unserialize(json) {
         this._offsets = json.offsets;
-        this._vars = json.vars;
-        this._code = json.code;
-        this._line = json.line;
+        this._vars    = json.vars;
+        this._code    = json.code;
+        this._line    = json.line;
         this._operators = new Operators(this._offsets, this._vars, this._obs);
     }
 
@@ -13421,15 +13423,15 @@ class JSVM extends Observer {
      * @param {Organism} org Current organism
      */
     run(org) {
-        let line = this._line;
-        let code = this._code;
+        let line  = this._line;
+        let code  = this._code;
         let lines = code.length;
-        let len = lines === 0 ? 0 : Config.codeYieldPeriod || lines;
-        let len2 = len;
-        let ops = this._operators.operators;
+        let len   = lines === 0 ? 0 : Config.codeYieldPeriod || lines;
+        let len2  = len;
+        let ops   = this._operators.operators;
         let getOp = Num.getOperator;
-        let ret = false;
-        let offs = this._offsets;
+        let ret   = false;
+        let offs  = this._offsets;
 
         while (len-- > 0 && org.alive) {
             line = ops[getOp(code[line])](code[line], line, org, lines, ret);
@@ -13458,8 +13460,8 @@ class JSVM extends Observer {
     destroy() {
         this._operators.destroy && this._operators.destroy();
         this._operators = null;
-        this._vars = null;
-        this._code = null;
+        this._vars      = null;
+        this._code      = null;
         this._onCodeEnd = null;
         this.clear();
     }
@@ -13481,12 +13483,12 @@ class JSVM extends Observer {
      */
     crossover(jsvm) {
         const rand = Helper.rand;
-        const len = this._code.length;
+        const len  = this._code.length;
         const len1 = jsvm.code.length;
-        let start = rand(len);
-        let end = rand(len);
+        let start  = rand(len);
+        let end    = rand(len);
         let start1 = rand(len1);
-        let end1 = rand(len1);
+        let end1   = rand(len1);
         let adds;
 
         if (start > end) {
@@ -13511,11 +13513,11 @@ class JSVM extends Observer {
      * them before or after copied part. All positions are random
      */
     copyLines() {
-        const rand = Helper.rand;
-        const code = this._code;
+        const rand    = Helper.rand;
+        const code    = this._code;
         const codeLen = code.length;
-        const start = rand(codeLen);
-        const end = start + rand(codeLen - start);
+        const start   = rand(codeLen);
+        const end     = start + rand(codeLen - start);
         //
         // Because we use spread (...) operator stack size is important
         // for amount of parameters and we shouldn't exceed it
@@ -13576,11 +13578,11 @@ class JSVM extends Observer {
             return this._vars
         }
 
-        const len = Math.pow(2, Config.codeBitsPerVar);
-        let vars = new Array(len);
-        const range = Config.codeVarInitRange;
+        const len    = Math.pow(2, Config.codeBitsPerVar);
+        let vars     = new Array(len);
+        const range  = Config.codeVarInitRange;
         const range2 = range / 2;
-        const rand = Helper.rand;
+        const rand   = Helper.rand;
 
         for (let i = 0; i < len; i++) {
             vars[i] = rand(range) - range2;
@@ -13678,11 +13680,11 @@ const Manager         = __webpack_require__(65);
 const Config          = __webpack_require__(2).Config;
 const Client          = __webpack_require__(29).Client;
 const OrganismsGarmin = __webpack_require__(118);
-const OrganismsDos    = __webpack_require__(124);
+const OrganismsDos    = __webpack_require__(126);
 const ConfigPlugin    = __webpack_require__(120);
 const Mutator         = __webpack_require__(123);
 const Energy          = __webpack_require__(121);
-const Status          = __webpack_require__(125);
+const Status          = __webpack_require__(124);
 const Ips             = __webpack_require__(122);
 /**
  * {Boolean} Specify fitness or nature simulation mode
@@ -21025,13 +21027,13 @@ function viewToBuffer (view) {
  *
  * @author flatline
  */
-const Config    = __webpack_require__(2).Config;
-const Console   = __webpack_require__(11);
-const EVENTS    = __webpack_require__(4).EVENTS;
-const Organisms = __webpack_require__(59);
-const Fitness   = Config.codeFitnessCls && __webpack_require__(40)("./" + Config.codeFitnessCls + '.js') || Config.codeFitnessCls;
+const Config        = __webpack_require__(2).Config;
+const Console       = __webpack_require__(11);
+const EVENTS        = __webpack_require__(4).EVENTS;
+const BaseOrganisms = __webpack_require__(59);
+const Fitness       = Config.codeFitnessCls && __webpack_require__(40)("./" + Config.codeFitnessCls + '.js') || Config.codeFitnessCls;
 
-class OrganismsGarmin extends Organisms {
+class Organisms extends BaseOrganisms {
     constructor(manager) {
         super(manager);
         this._maxChanges = 0;
@@ -21079,7 +21081,7 @@ class OrganismsGarmin extends Organisms {
     }
 }
 
-module.exports = OrganismsGarmin;
+module.exports = Organisms;
 
 /***/ }),
 /* 119 */
@@ -21473,232 +21475,6 @@ module.exports = Mutator;
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
- * Plugin for Manager module, which handles organisms population in
- * nature simulation mode. It's related to DOS language.
- *
- * Events od Manager:
- *   TODO:
- *   ORGANISM(org) Fires after one organism has processed
- *
- * Depends on:
- *   manager/Manager
- *
- * @author flatline
- */
-const Organisms = __webpack_require__(59);
-const Config    = __webpack_require__(2).Config;
-const EVENTS    = __webpack_require__(4).EVENTS;
-const Helper    = __webpack_require__(5);
-const DIR       = __webpack_require__(18).DIR;
-
-const EMPTY     = 0;
-const ENERGY    = 1;
-const ORGANISM  = 2;
-
-class OrganismsDos extends Organisms {
-    constructor(manager) {
-        super(manager);
-
-        this._positions  = {};
-        this._onStepInCb = this._onStepIn.bind(this);
-
-        this.manager.on(EVENTS.STEP_IN, this._onStepInCb);
-    }
-
-    destroy() {
-        super.destroy();
-        this.manager.off(EVENTS.STEP_IN, this._onStepInCb);
-        this._onStepInCb = null;
-        this._positions  = null;
-    }
-
-    /**
-     * Compares two organisms and returns more fit one
-     * @param {Organism} org1
-     * @param {Organism} org2
-     * @return {Organism}
-     * @override
-     */
-    compare(org1, org2) {
-        return org1.fitness() > org2.fitness();
-    }
-
-    /**
-     * Is called before cloning of organism
-     * @param {Organism} org
-     * @override
-     */
-    onBeforeClone(org) {
-        return org.energy > 0;
-    }
-
-    /**
-     * Is called after cloning of organism
-     * @param {Organism} org Parent organism
-     * @param {Organism} child Child organism
-     * @override
-     */
-    onClone(org, child) {
-        let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >>> 1; // analog of Math.round()
-        org.grabEnergy(energy);
-        child.grabEnergy(child.energy - energy);
-    }
-
-    addOrgHandlers(org) {
-        super.addOrgHandlers(org);
-        org.on(EVENTS.GET_ENERGY, this._onGetEnergy.bind(this));
-        org.on(EVENTS.EAT, this._onEat.bind(this));
-        org.on(EVENTS.STEP, this._onStep.bind(this));
-        org.on(EVENTS.CHECK_AT, this._onCheckAt.bind(this));
-    }
-
-    /**
-     * Is called after organism has created
-     * @param {Organism} org
-     * @override
-     */
-    onAfterCreateOrg(org) {
-        this._positions[org.posId] = org;
-    }
-
-    /**
-     * Is called after organism has killed
-     * @param {Organism} org Killed organism
-     * @override
-     */
-    onAfterKillOrg(org) {
-        delete this._positions[org.posId];
-    }
-
-    /**
-     * Is called after moving of organism is done. Updates this._positions
-     * map with a new position of organism
-     * @param {Number} x1 Start X position
-     * @param {Number} y1 Start Y position
-     * @param {Number} x2 End X position
-     * @param {Number} y2 End Y position
-     * @param {Organism} org Organism, which is moving
-     * @returns {Boolean}
-     * @override
-     */
-    onAfterMove(x1, y1, x2, y2, org) {
-        if (x1 !== x2 || y1 !== y2) {
-            delete this._positions[Helper.posId(x1, y1)];
-            this._positions[Helper.posId(x2, y2)] = org;
-        }
-
-        return true;
-    }
-
-    _onGetEnergy(org, x, y, ret) {
-        if (x < 0 || y < 0 || !Number.isInteger(x) || !Number.isInteger(y)) {return}
-        const posId = Helper.posId(x, y);
-
-        if (typeof(this._positions[posId]) === 'undefined') {
-            ret.ret = this.manager.world.getDot(x, y)
-        } else {
-            ret.ret = this._positions[posId].energy;
-        }
-    }
-
-    _onEat(org, x, y, ret) {
-        const world = this.manager.world;
-        const positions = this._positions;
-        let   dir;
-
-        [x, y, dir] = Helper.normalize(x, y);
-
-        const posId = Helper.posId(x, y);
-        if (typeof(positions[posId]) === 'undefined') {
-            ret.ret = world.grabDot(x, y, ret.ret);
-        } else {
-            ret.ret = ret.ret < 0 ? 0 : (ret.ret > positions[posId].energy ? positions[posId].energy : ret.ret);
-            positions[posId].grabEnergy(ret.ret);
-        }
-    }
-
-    _onStep(org, x1, y1, x2, y2, ret) {
-        if (org.alive === false) {return}
-        const man = this.manager;
-        let   dir;
-
-        [x2, y2, dir] = Helper.normalize(x2, y2);
-        //
-        // Organism has moved, but still is within the current world (client)
-        //
-        if (dir === DIR.NO) {
-            ret.x = x2;
-            ret.y = y2;
-            ret.ret = +this.move(x1, y1, x2, y2, org);
-            return;
-        }
-        //
-        // Current organism try to move out of the world.
-        // We have to pass him to the server to another
-        // client (Manager). Changing x,y two times is needed
-        // for serializing correct coordinates for destination
-        // world and correct removing= require(current world
-        //
-        if (man.activeAround[dir]) {
-            org.x = x2;
-            org.y = y2;
-            man.fire(EVENTS.STEP_OUT, x2, y2, dir, org);
-            org.x = x1;
-            org.y = y1;
-            org.destroy();
-            return;
-        }
-        //
-        // Organism try to go outside of the world, but there is no
-        // activated client on that side. So this is a border for him.
-        // In this case coordinates (x,y) should stay the same
-        //
-        if (man.hasOtherClients() || Config.worldCyclical === false) {
-            ret.x = x1;
-            ret.y = y1;
-            ret.ret = +this.move(x1, y1, x1, y1, org);
-            return;
-        }
-
-        ret.x = x2;
-        ret.y = y2;
-        ret.ret = +this.move(x1, y1, x2, y2, org);
-    }
-
-    /**
-     * Is called if organism step in from the server or other client (Manager/World).
-     * If step in position is not free or maximum organisms are in the world, then
-     * organism die at the moment.
-     * @param {Number} x Current org X position
-     * @param {Number} y Current org Y position
-     * @param {String} orgJson Organism's serialized json
-     * @private
-     */
-    _onStepIn(x, y, orgJson) {
-        if (this.manager.world.isFree(x, y) && this.organisms.size < Config.worldMaxOrgs && this.createOrg({x, y})) {
-            this.organisms.last.val.unserialize(orgJson);
-        }
-    }
-
-    _onCheckAt(x, y, ret) {
-        let dir;
-
-        [x, y, dir] = Helper.normalize(x, y);
-        if (typeof(this._positions[Helper.posId(x, y)]) === 'undefined') {
-            ret.ret = this.manager.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
-        } else {
-            ret.ret = ORGANISM;
-        }
-    }
-}
-
-module.exports = OrganismsDos;
-
-/***/ }),
-/* 125 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
  * Shows console status of application
  *
  * @author flatline
@@ -21799,7 +21575,7 @@ class Status {
 module.exports = Status;
 
 /***/ }),
-/* 126 */
+/* 125 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -22093,6 +21869,232 @@ class OperatorsDos extends Operators {
 module.exports = OperatorsDos;
 
 /***/ }),
+/* 126 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Plugin for Manager module, which handles organisms population in
+ * nature simulation mode. It's related to DOS language.
+ *
+ * Events od Manager:
+ *   TODO:
+ *   ORGANISM(org) Fires after one organism has processed
+ *
+ * Depends on:
+ *   manager/Manager
+ *
+ * @author flatline
+ */
+const BaseOrganisms = __webpack_require__(59);
+const Config        = __webpack_require__(2).Config;
+const EVENTS        = __webpack_require__(4).EVENTS;
+const Helper        = __webpack_require__(5);
+const DIR           = __webpack_require__(18).DIR;
+
+const EMPTY         = 0;
+const ENERGY        = 1;
+const ORGANISM      = 2;
+
+class Organisms extends BaseOrganisms {
+    constructor(manager) {
+        super(manager);
+
+        this._positions  = {};
+        this._onStepInCb = this._onStepIn.bind(this);
+
+        this.manager.on(EVENTS.STEP_IN, this._onStepInCb);
+    }
+
+    destroy() {
+        super.destroy();
+        this.manager.off(EVENTS.STEP_IN, this._onStepInCb);
+        this._onStepInCb = null;
+        this._positions  = null;
+    }
+
+    /**
+     * Compares two organisms and returns more fit one
+     * @param {Organism} org1
+     * @param {Organism} org2
+     * @return {Organism}
+     * @override
+     */
+    compare(org1, org2) {
+        return org1.fitness() > org2.fitness();
+    }
+
+    /**
+     * Is called before cloning of organism
+     * @param {Organism} org
+     * @override
+     */
+    onBeforeClone(org) {
+        return org.energy > 0;
+    }
+
+    /**
+     * Is called after cloning of organism
+     * @param {Organism} org Parent organism
+     * @param {Organism} child Child organism
+     * @override
+     */
+    onClone(org, child) {
+        let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >>> 1; // analog of Math.round()
+        org.grabEnergy(energy);
+        child.grabEnergy(child.energy - energy);
+    }
+
+    addOrgHandlers(org) {
+        super.addOrgHandlers(org);
+        org.on(EVENTS.GET_ENERGY, this._onGetEnergy.bind(this));
+        org.on(EVENTS.EAT, this._onEat.bind(this));
+        org.on(EVENTS.STEP, this._onStep.bind(this));
+        org.on(EVENTS.CHECK_AT, this._onCheckAt.bind(this));
+    }
+
+    /**
+     * Is called after organism has created
+     * @param {Organism} org
+     * @override
+     */
+    onAfterCreateOrg(org) {
+        this._positions[org.posId] = org;
+    }
+
+    /**
+     * Is called after organism has killed
+     * @param {Organism} org Killed organism
+     * @override
+     */
+    onAfterKillOrg(org) {
+        delete this._positions[org.posId];
+    }
+
+    /**
+     * Is called after moving of organism is done. Updates this._positions
+     * map with a new position of organism
+     * @param {Number} x1 Start X position
+     * @param {Number} y1 Start Y position
+     * @param {Number} x2 End X position
+     * @param {Number} y2 End Y position
+     * @param {Organism} org Organism, which is moving
+     * @returns {Boolean}
+     * @override
+     */
+    onAfterMove(x1, y1, x2, y2, org) {
+        if (x1 !== x2 || y1 !== y2) {
+            delete this._positions[Helper.posId(x1, y1)];
+            this._positions[Helper.posId(x2, y2)] = org;
+        }
+
+        return true;
+    }
+
+    _onGetEnergy(org, x, y, ret) {
+        if (x < 0 || y < 0 || !Number.isInteger(x) || !Number.isInteger(y)) {return}
+        const posId = Helper.posId(x, y);
+
+        if (typeof(this._positions[posId]) === 'undefined') {
+            ret.ret = this.manager.world.getDot(x, y)
+        } else {
+            ret.ret = this._positions[posId].energy;
+        }
+    }
+
+    _onEat(org, x, y, ret) {
+        const world = this.manager.world;
+        const positions = this._positions;
+        let   dir;
+
+        [x, y, dir] = Helper.normalize(x, y);
+
+        const posId = Helper.posId(x, y);
+        if (typeof(positions[posId]) === 'undefined') {
+            ret.ret = world.grabDot(x, y, ret.ret);
+        } else {
+            ret.ret = ret.ret < 0 ? 0 : (ret.ret > positions[posId].energy ? positions[posId].energy : ret.ret);
+            positions[posId].grabEnergy(ret.ret);
+        }
+    }
+
+    _onStep(org, x1, y1, x2, y2, ret) {
+        if (org.alive === false) {return}
+        const man = this.manager;
+        let   dir;
+
+        [x2, y2, dir] = Helper.normalize(x2, y2);
+        //
+        // Organism has moved, but still is within the current world (client)
+        //
+        if (dir === DIR.NO) {
+            ret.x = x2;
+            ret.y = y2;
+            ret.ret = +this.move(x1, y1, x2, y2, org);
+            return;
+        }
+        //
+        // Current organism try to move out of the world.
+        // We have to pass him to the server to another
+        // client (Manager). Changing x,y two times is needed
+        // for serializing correct coordinates for destination
+        // world and correct removing= require(current world
+        //
+        if (man.activeAround[dir]) {
+            org.x = x2;
+            org.y = y2;
+            man.fire(EVENTS.STEP_OUT, x2, y2, dir, org);
+            org.x = x1;
+            org.y = y1;
+            org.destroy();
+            return;
+        }
+        //
+        // Organism try to go outside of the world, but there is no
+        // activated client on that side. So this is a border for him.
+        // In this case coordinates (x,y) should stay the same
+        //
+        if (man.hasOtherClients() || Config.worldCyclical === false) {
+            ret.x = x1;
+            ret.y = y1;
+            ret.ret = +this.move(x1, y1, x1, y1, org);
+            return;
+        }
+
+        ret.x = x2;
+        ret.y = y2;
+        ret.ret = +this.move(x1, y1, x2, y2, org);
+    }
+
+    /**
+     * Is called if organism step in from the server or other client (Manager/World).
+     * If step in position is not free or maximum organisms are in the world, then
+     * organism die at the moment.
+     * @param {Number} x Current org X position
+     * @param {Number} y Current org Y position
+     * @param {String} orgJson Organism's serialized json
+     * @private
+     */
+    _onStepIn(x, y, orgJson) {
+        if (this.manager.world.isFree(x, y) && this.organisms.size < Config.orgMaxOrgs && this.createOrg({x, y})) {
+            this.organisms.last.val.unserialize(orgJson);
+        }
+    }
+
+    _onCheckAt(x, y, ret) {
+        let dir;
+
+        [x, y, dir] = Helper.normalize(x, y);
+        if (typeof(this._positions[Helper.posId(x, y)]) === 'undefined') {
+            ret.ret = this.manager.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
+        } else {
+            ret.ret = ORGANISM;
+        }
+    }
+}
+
+module.exports = Organisms;
+
+/***/ }),
 /* 127 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -22130,7 +22132,7 @@ module.exports = OperatorsDos;
 const WebSocket        = __webpack_require__(71);
 const Connection       = __webpack_require__(31).Connection;
 const EVENTS           = __webpack_require__(31).EVENTS;
-const AroundServers    = __webpack_require__(255);
+const AroundServers    = __webpack_require__(257);
 const Config           = __webpack_require__(2).Config;
 const Plugins          = __webpack_require__(42);
 const Console          = __webpack_require__(30);
@@ -41622,6 +41624,21 @@ module.exports = Code2StringDos;
 
 /***/ }),
 /* 249 */
+/***/ (function(module, exports) {
+
+/**
+ * Configuration of DOS Organisms class
+ *
+ * @author flatline
+ */
+const Config = {
+
+};
+
+module.exports = Config;
+
+/***/ }),
+/* 250 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -41776,7 +41793,22 @@ class Code2StringGarmin {
 module.exports = Code2StringGarmin;
 
 /***/ }),
-/* 250 */
+/* 251 */
+/***/ (function(module, exports) {
+
+/**
+ * Configuration of DOS Organisms class
+ *
+ * @author flatline
+ */
+const Config = {
+
+};
+
+module.exports = Config;
+
+/***/ }),
+/* 252 */
 /***/ (function(module, exports) {
 
 /**
@@ -43777,7 +43809,7 @@ class FitnessGarmin {
 module.exports = FitnessGarmin;
 
 /***/ }),
-/* 251 */
+/* 253 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -43945,7 +43977,7 @@ class OperatorsGarmin extends  Operators {
 module.exports = OperatorsGarmin;
 
 /***/ }),
-/* 252 */
+/* 254 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -44010,7 +44042,7 @@ class OrganismGarmin extends Organism {
 module.exports = OrganismGarmin;
 
 /***/ }),
-/* 253 */
+/* 255 */
 /***/ (function(module, exports, __webpack_require__) {
 
 describe("client/src/global/Console", () => {
@@ -44128,7 +44160,7 @@ describe("client/src/global/Console", () => {
 });
 
 /***/ }),
-/* 254 */
+/* 256 */
 /***/ (function(module, exports, __webpack_require__) {
 
 describe("client/src/manager/plugins/Client", () => {
@@ -44141,7 +44173,7 @@ describe("client/src/manager/plugins/Client", () => {
     let api          = __webpack_require__(2).api;
     let Console      = __webpack_require__(11);
     let SConsole     = __webpack_require__(30);
-    const Api        = __webpack_require__(256);
+    const Api        = __webpack_require__(258);
     const Request    = __webpack_require__(68);
     const waitEvent  = THelper.waitEvent;
     let isNodeJs;
@@ -44293,7 +44325,7 @@ describe("client/src/manager/plugins/Client", () => {
 });
 
 /***/ }),
-/* 255 */
+/* 257 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -44352,7 +44384,7 @@ class AroundServers {
 module.exports = AroundServers;
 
 /***/ }),
-/* 256 */
+/* 258 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -44529,7 +44561,7 @@ class Api extends BaseApi {
 module.exports = Api;
 
 /***/ }),
-/* 257 */
+/* 259 */
 /***/ (function(module, exports, __webpack_require__) {
 
 describe("client/src/organism/JSVM", () => {
@@ -45076,7 +45108,7 @@ describe("client/src/organism/JSVM", () => {
 });
 
 /***/ }),
-/* 258 */
+/* 260 */
 /***/ (function(module, exports, __webpack_require__) {
 
 describe("client/src/organism/Num", () => {
@@ -45158,11 +45190,11 @@ describe("client/src/organism/Num", () => {
 });
 
 /***/ }),
-/* 259 */
+/* 261 */
 /***/ (function(module, exports, __webpack_require__) {
 
 describe("client/src/organism/OperatorsDos", () => {
-    let OperatorsDos = __webpack_require__(126);
+    let OperatorsDos = __webpack_require__(125);
     let Helper       = __webpack_require__(5);
     let Observer     = __webpack_require__(14);
     let EVENTS       = __webpack_require__(4).EVENTS;
@@ -46210,7 +46242,7 @@ describe("client/src/organism/OperatorsDos", () => {
 });
 
 /***/ }),
-/* 260 */
+/* 262 */
 /***/ (function(module, exports, __webpack_require__) {
 
 //
@@ -46424,7 +46456,7 @@ describe("client/src/organism/OrganismDos", () => {
 });
 
 /***/ }),
-/* 261 */
+/* 263 */
 /***/ (function(module, exports, __webpack_require__) {
 
 describe("client/src/visual/World", () => {
