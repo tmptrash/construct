@@ -6,7 +6,7 @@
  *
  * @author flatline
  */
-const Connections = require('./../Connections');
+const Connections = require('./../server/Connections');
 const Console     = require('./../../global/Console');
 const Helper      = require('./../../../../common/src/global/Helper');
 const TYPES       = require('./../../../../common/src/global/Requests').TYPES;

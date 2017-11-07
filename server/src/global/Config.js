@@ -14,6 +14,15 @@ class ServerConfig extends Config {}
 //
 ServerConfig.init({
     /**
+     * {Array} Array of server plugin paths. Pay attention, that path
+     * should be started from 'src' and not from 'client' or 'common'
+     * folders.
+     */
+    plugins: [
+        'src/net/plugins/Request',
+        'src/server/plugins/Api'
+    ],
+    /**
      * {Number} Maximum amount of connections for current server. Should
      * be quadratic (x^2) e.g.: 4, 9, 16,... This value will be extended
      * with additional "around" rows and columns for connecting with sibling

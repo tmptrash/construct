@@ -32,11 +32,11 @@
 const WebSocket        = require('./../../../node_modules/ws/index');
 const Connection       = require('./../../../common/src/net/Connection').Connection;
 const EVENTS           = require('./../../../common/src/net/Connection').EVENTS;
-const AroundServers    = require('./AroundServers');
-const Config           = require('./../../../client/src/global/Config').Config;
-const Plugins          = require('./../../../common/src/global/Plugins');
+const AroundServers    = require('./server/AroundServers');
+const Config           = require('./../global/Config').Config;
+const Plugins          = require('./../server/server/Plugins');
 const Console          = require('./../global/Console');
-const Connections      = require('./../server/Connections');
+const Connections      = require('./server/Connections');
 /**
  * {Number} Amount of base events. Is used to extend them by server related
  */
@@ -64,9 +64,8 @@ class Server extends Connection {
      * Creates an instance of the server. Also creates regions map
      * with initially null values.
      * @param {Number} port
-     * @param {Object} plugins Map of plugins. key: name, val: Class
      */
-    constructor(port, plugins) {
+    constructor(port) {
         super(SERVER_EVENTS_LEN);
         this.EVENTS         = SERVER_EVENTS;
         this.conns          = new Connections(Config.maxConnections);
@@ -79,7 +78,7 @@ class Server extends Connection {
         this._port          = port;
         this._running       = false;
         this._stopping      = false;
-        this._plugins       = new Plugins(this, plugins, false);
+        this._plugins       = new Plugins(this, Config.plugins, false);
     }
 
     /**
