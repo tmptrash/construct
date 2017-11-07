@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 65);
+/******/ 	return __webpack_require__(__webpack_require__.s = 66);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -103,7 +103,7 @@ if (typeof Object.create === 'function') {
  *
  * @author flatline
  */
-const Config = __webpack_require__(68);
+const Config = __webpack_require__(69);
 
 const QUIET_ALL               = 0;
 const QUIET_IMPORTANT         = 1;
@@ -1170,8 +1170,8 @@ SafeBuffer.allocUnsafeSlow = function (size) {
 
 
 
-var base64 = __webpack_require__(170)
-var ieee754 = __webpack_require__(171)
+var base64 = __webpack_require__(168)
+var ieee754 = __webpack_require__(169)
 var isArray = __webpack_require__(109)
 
 exports.Buffer = Buffer
@@ -3241,7 +3241,7 @@ module.exports = Helper;
 
   var Buffer;
   try {
-    Buffer = __webpack_require__(210).Buffer;
+    Buffer = __webpack_require__(208).Buffer;
   } catch (e) {
   }
 
@@ -6878,15 +6878,15 @@ process.umask = function() { return 0; };
 
 var elliptic = exports;
 
-elliptic.version = __webpack_require__(216).version;
-elliptic.utils = __webpack_require__(217);
+elliptic.version = __webpack_require__(214).version;
+elliptic.utils = __webpack_require__(215);
 elliptic.rand = __webpack_require__(131);
-elliptic.curve = __webpack_require__(76);
-elliptic.curves = __webpack_require__(222);
+elliptic.curve = __webpack_require__(77);
+elliptic.curves = __webpack_require__(220);
 
 // Protocols
-elliptic.ec = __webpack_require__(230);
-elliptic.eddsa = __webpack_require__(234);
+elliptic.ec = __webpack_require__(228);
+elliptic.eddsa = __webpack_require__(232);
 
 
 /***/ }),
@@ -7091,12 +7091,12 @@ assert.equal = function assertEqual(l, r, msg) {
  */
 const Helper       = __webpack_require__(5);
 const Config       = __webpack_require__(1).Config;
-const ServerConfig = __webpack_require__(81).Config;
+const ServerConfig = __webpack_require__(40).Config;
 const TYPES        = __webpack_require__(15).TYPES;
 const Console      = __webpack_require__(7);
-const Connection   = __webpack_require__(30).Connection;
-const EVENTS       = __webpack_require__(30).EVENTS;
-const Plugins      = __webpack_require__(31);
+const Connection   = __webpack_require__(29).Connection;
+const EVENTS       = __webpack_require__(29).EVENTS;
+const Plugins      = __webpack_require__(30);
 const GEVENTS      = __webpack_require__(4).EVENTS;
 //
 // In browser we use browser's native WS implementation. On node.js
@@ -7591,12 +7591,12 @@ module.exports = {DIR, NAMES};
  * @author flatline
  */
 const WebSocket        = __webpack_require__(85);
-const Connection       = __webpack_require__(30).Connection;
-const EVENTS           = __webpack_require__(30).EVENTS;
+const Connection       = __webpack_require__(29).Connection;
+const EVENTS           = __webpack_require__(29).EVENTS;
 const AroundServers    = __webpack_require__(101);
-const Config           = __webpack_require__(1).Config;
-const Plugins          = __webpack_require__(19);
-const Console          = __webpack_require__(23);
+const Config           = __webpack_require__(40).Config;
+const Plugins          = __webpack_require__(102);
+const Console          = __webpack_require__(22);
 const Connections      = __webpack_require__(64);
 /**
  * {Number} Amount of base events. Is used to extend them by server related
@@ -7625,9 +7625,8 @@ class Server extends Connection {
      * Creates an instance of the server. Also creates regions map
      * with initially null values.
      * @param {Number} port
-     * @param {Object} plugins Map of plugins. key: name, val: Class
      */
-    constructor(port, plugins) {
+    constructor(port) {
         super(SERVER_EVENTS_LEN);
         this.EVENTS         = SERVER_EVENTS;
         this.conns          = new Connections(Config.maxConnections);
@@ -7640,7 +7639,7 @@ class Server extends Connection {
         this._port          = port;
         this._running       = false;
         this._stopping      = false;
-        this._plugins       = new Plugins(this, plugins, false);
+        this._plugins       = new Plugins(this, Config.plugins, false);
     }
 
     /**
@@ -7790,85 +7789,6 @@ module.exports = {Server, EVENTS: SERVER_EVENTS};
 
 /***/ }),
 /* 19 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Plugins manager. Adds plugins into specified instance and destroy
- * them on parent destroy. This class is also a plugin.
- *
- * @author flatline
- */
-const Helper = __webpack_require__(5);
-
-class Plugins {
-    /**
-     * Creates plugin instances and adds them into target class instance
-     * (parent). For this 'plugins' property will be created in parent.
-     * @param {Object} parent Instance we inserting plugins to
-     * @param {Object} plugins Map of names and classes/functions of plugins.
-     * Like this: {Api: Api,...}
-     * @param {Boolean} destroy If true, then onDestroy() method will be
-     * called, when parent.destroy() is called.
-     */
-    constructor(parent, plugins, destroy = true) {
-        const parentPlugins = parent.plugins = [];
-
-        for (let p of plugins) {
-            const path   = p.path || p;
-            const name   = path.split('/').slice(-1)[0];
-            let   plugin = this.require(path);
-
-            plugin = plugin[name] || plugin;
-            parentPlugins.push(new plugin(parent, p.cfg || {}));
-        }
-
-        this.parent       = parent;
-        this._onDestroyCb = this.onDestroy.bind(this);
-        this._destroy     = destroy;
-        this._destroyed   = false;
-
-        Helper.override(parent, 'destroy', this._onDestroyCb);
-    }
-
-    /**
-     * Is used to fix webpack disability to load dynamic modules with require()
-     * @param {String} path Path to the module
-     * @return {Function|Object} imported module
-     */
-    require(path) {
-        return !(function webpackMissingModule() { var e = new Error("Cannot find module \".\""); e.code = 'MODULE_NOT_FOUND'; throw e; }());
-    }
-
-    /**
-     * Is called if parent instance calls destroy() method. Here we
-     * destroy all created plugins and the reference to this instance
-     * in parent instance. This method may be called by hands from
-     * parent instance also. It's impossible to call this method more
-     * then one time.
-     */
-    onDestroy() {
-        if (this._destroyed) {return}
-        //
-        // User doesn't want to automatic destroy of plugins.
-        // He will call this method manually, later.
-        //
-        if (this._destroy) {
-            const plugins = this.parent.plugins;
-            for (let p of plugins) {
-                p.destroy && p.destroy();
-            }
-        }
-        this.parent.plugins = null;
-        this._onDestroyCb   = null;
-        this.parent         = null;
-        this._destroyed     = true;
-    }
-}
-
-module.exports = Plugins;
-
-/***/ }),
-/* 20 */
 /***/ (function(module, exports) {
 
 /**
@@ -7916,7 +7836,7 @@ class Operators {
 module.exports = Operators;
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ (function(module, exports) {
 
 /**
@@ -7985,11 +7905,11 @@ class Helper {
 module.exports = Helper;
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Buffer = __webpack_require__(2).Buffer
-var Transform = __webpack_require__(72).Transform
+var Transform = __webpack_require__(73).Transform
 var StringDecoder = __webpack_require__(90).StringDecoder
 var inherits = __webpack_require__(0)
 
@@ -8090,7 +8010,7 @@ module.exports = CipherBase
 
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, exports) {
 
 /**
@@ -8107,7 +8027,7 @@ class Console {
 module.exports = Console;
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -8116,7 +8036,7 @@ module.exports = Console;
  * TODO:   -
  * @author flatline
  */
-const Organism = __webpack_require__(25);
+const Organism = __webpack_require__(24);
 
 class OrganismDos extends Organism {
     onRun() {
@@ -8127,7 +8047,7 @@ class OrganismDos extends Organism {
 module.exports = OrganismDos;
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -8142,7 +8062,7 @@ const Observer      = __webpack_require__(11);
 const EVENTS        = __webpack_require__(4).EVENTS;
 const EVENT_AMOUNT  = __webpack_require__(4).EVENT_AMOUNT;
 const Helper        = __webpack_require__(5);
-const JSVM          = __webpack_require__(26);
+const JSVM          = __webpack_require__(25);
 
 const IS_NUM = Helper.isNumeric;
 
@@ -8377,7 +8297,7 @@ class Organism extends Observer {
 module.exports = Organism;
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -8395,7 +8315,7 @@ const Observer     = __webpack_require__(11);
 const EVENTS       = __webpack_require__(4).EVENTS;
 const EVENT_AMOUNT = __webpack_require__(4).EVENT_AMOUNT;
 const Num          = __webpack_require__(12);
-const Operators    = __webpack_require__(70)("./" + Config.codeOperatorsCls + '.js');
+const Operators    = __webpack_require__(71)("./" + Config.codeOperatorsCls + '.js');
 /**
  * {Number} Maximum stack size, which may be used for recursion or function parameters
  */
@@ -8655,7 +8575,7 @@ class JSVM extends Observer {
 module.exports = JSVM;
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -8670,9 +8590,9 @@ const Helper       = __webpack_require__(5);
 const Config       = __webpack_require__(1).Config;
 const Console      = __webpack_require__(7);
 const EVENTS       = __webpack_require__(4).EVENTS;
-const Backup       = __webpack_require__(29);
-const Code2String  = __webpack_require__(70)("./" + Config.code2StringCls + '.js');
-const CodeOrganism = __webpack_require__(70)("./" + Config.orgOrganismCls + '.js');
+const Backup       = __webpack_require__(28);
+const Code2String  = __webpack_require__(71)("./" + Config.code2StringCls + '.js');
+const CodeOrganism = __webpack_require__(71)("./" + Config.orgOrganismCls + '.js');
 
 const RAND_OFFS = 4;
 
@@ -8954,7 +8874,7 @@ class Organisms {
 module.exports = Organisms;
 
 /***/ }),
-/* 28 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8988,7 +8908,7 @@ module.exports = Organisms;
 
 /*<replacement>*/
 
-var processNextTick = __webpack_require__(73);
+var processNextTick = __webpack_require__(74);
 /*</replacement>*/
 
 /*<replacement>*/
@@ -9003,7 +8923,7 @@ var objectKeys = Object.keys || function (obj) {
 module.exports = Duplex;
 
 /*<replacement>*/
-var util = __webpack_require__(59);
+var util = __webpack_require__(58);
 util.inherits = __webpack_require__(0);
 /*</replacement>*/
 
@@ -9084,7 +9004,7 @@ function forEach(xs, f) {
 }
 
 /***/ }),
-/* 29 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -9179,7 +9099,7 @@ class Backup {
 module.exports = Backup;
 
 /***/ }),
-/* 30 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -9337,7 +9257,7 @@ class Connection extends Observer {
 module.exports = {Connection, EVENTS};
 
 /***/ }),
-/* 31 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -9347,7 +9267,7 @@ module.exports = {Connection, EVENTS};
  *
  * @author flatline
  */
-const Plugins = __webpack_require__(19);
+const Plugins = __webpack_require__(35);
 
 class ClientPlugins extends Plugins {
     /**
@@ -9357,9 +9277,9 @@ class ClientPlugins extends Plugins {
      */
     require(path) {
         try {
-            return __webpack_require__(107)("./" + path);
+            return __webpack_require__(166)("./" + path);
         } catch (e) {
-            return __webpack_require__(154)("./" + path);
+            return __webpack_require__(158)("./" + path);
         }
     }
 }
@@ -9367,7 +9287,7 @@ class ClientPlugins extends Plugins {
 module.exports = ClientPlugins;
 
 /***/ }),
-/* 32 */
+/* 31 */
 /***/ (function(module, exports) {
 
 /**
@@ -9389,7 +9309,7 @@ const Config = {
 module.exports = Config;
 
 /***/ }),
-/* 33 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -9404,7 +9324,7 @@ const EVENTS    = __webpack_require__(4).EVENTS;
 const DIR       = __webpack_require__(17).DIR;
 const Config    = __webpack_require__(1).Config;
 const Helper    = __webpack_require__(5);
-const Operators = __webpack_require__(20);
+const Operators = __webpack_require__(19);
 const Num       = __webpack_require__(12);
 
 /**
@@ -9683,7 +9603,7 @@ class OperatorsDos extends Operators {
 module.exports = OperatorsDos;
 
 /***/ }),
-/* 34 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9729,7 +9649,7 @@ function randomBytes (size, cb) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8), __webpack_require__(9)))
 
 /***/ }),
-/* 35 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Buffer = __webpack_require__(2).Buffer
@@ -9816,319 +9736,86 @@ module.exports = Hash
 
 
 /***/ }),
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Plugins manager. Adds plugins into specified instance and destroy
+ * them on parent destroy. This class is also a plugin.
+ *
+ * @author flatline
+ */
+const Helper = __webpack_require__(5);
+
+class Plugins {
+    /**
+     * Creates plugin instances and adds them into target class instance
+     * (parent). For this 'plugins' property will be created in parent.
+     * @param {Object} parent Instance we inserting plugins to
+     * @param {Object} plugins Map of names and classes/functions of plugins.
+     * Like this: {Api: Api,...}
+     * @param {Boolean} destroy If true, then onDestroy() method will be
+     * called, when parent.destroy() is called.
+     */
+    constructor(parent, plugins, destroy = true) {
+        const parentPlugins = parent.plugins = [];
+
+        for (let p of plugins) {
+            const path   = p.path || p;
+            const name   = path.split('/').slice(-1)[0];
+            let   plugin = this.require(path);
+
+            plugin = plugin[name] || plugin;
+            parentPlugins.push(new plugin(parent, p.cfg || {}));
+        }
+
+        this.parent       = parent;
+        this._onDestroyCb = this.onDestroy.bind(this);
+        this._destroy     = destroy;
+        this._destroyed   = false;
+
+        Helper.override(parent, 'destroy', this._onDestroyCb);
+    }
+
+    /**
+     * Is used to fix webpack disability to load dynamic modules with require()
+     * @param {String} path Path to the module
+     * @return {Function|Object} imported module
+     */
+    require(path) {
+        return !(function webpackMissingModule() { var e = new Error("Cannot find module \".\""); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+    }
+
+    /**
+     * Is called if parent instance calls destroy() method. Here we
+     * destroy all created plugins and the reference to this instance
+     * in parent instance. This method may be called by hands from
+     * parent instance also. It's impossible to call this method more
+     * then one time.
+     */
+    onDestroy() {
+        if (this._destroyed) {return}
+        //
+        // User doesn't want to automatic destroy of plugins.
+        // He will call this method manually, later.
+        //
+        if (this._destroy) {
+            const plugins = this.parent.plugins;
+            for (let p of plugins) {
+                p.destroy && p.destroy();
+            }
+        }
+        this.parent.plugins = null;
+        this._onDestroyCb   = null;
+        this.parent         = null;
+        this._destroyed     = true;
+    }
+}
+
+module.exports = Plugins;
+
+/***/ }),
 /* 36 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Plugin for Server class, which implement it's API. Is separated from Server to
- * have an ability to change API any time without changing server's code. @api
- * annotation means that specified method is a part of Server API and available
- * from clients requests.
- *
- * @author flatline
- */
-const Connections = __webpack_require__(64);
-const Console     = __webpack_require__(23);
-const Helper      = __webpack_require__(5);
-const TYPES       = __webpack_require__(15).TYPES;
-const DIR         = __webpack_require__(17).DIR;
-const DIR_NAMES   = __webpack_require__(17).NAMES;
-const BaseApi     = __webpack_require__(44);
-
-class Api extends BaseApi {
-    constructor(parent) {
-        super(parent);
-        this.api[TYPES.REQ_MOVE_ORG] = this._moveOrg.bind(this);
-        this.api[TYPES.REQ_GET_ID]   = this._getId.bind(this);
-
-        this._onCloseCb = this._onClose.bind(this);
-
-        Helper.override(parent, 'onClose', this._onCloseCb);
-    }
-
-    destroy() {
-        super.destroy();
-
-        Helper.unoverride(this.parent, 'onClose', this._onCloseCb);
-        this._onCloseCb = null;
-    }
-
-    /**
-     * Moves organism from one client to another
-     * @param {Number} reqId Unique request id. Needed for response
-     * @param {String} clientId Unique client id
-     * @param {Number} x Current org X position
-     * @param {Number} y Current org Y position
-     * @param {Number} dir Moving direction
-     * @param {String} orgJson Organism's serialized json
-     * @api
-     */
-    _moveOrg(reqId, clientId, x, y, dir, orgJson) {
-        const region = Connections.toRegion(clientId);
-
-        if      (dir === DIR.UP)    {region[1]--}
-        else if (dir === DIR.RIGHT) {region[0]++}
-        else if (dir === DIR.DOWN)  {region[1]++}
-        else if (dir === DIR.LEFT)  {region[0]--}
-
-        const con = this.parent.conns.getConnection(region);
-        if (con.active) {
-            this.parent.request(con.sock, TYPES.REQ_MOVE_ORG, x, y, orgJson);
-        } else {
-            const org        = JSON.parse(orgJson);
-            const backRegion = Connections.toRegion(clientId);
-            const backCon    = this.parent.conns.getConnection(backRegion);
-            this.parent.request(backCon.sock, TYPES.RES_MOVE_ERR, x, y, dir, orgJson, `Region "${region}" on direction "${DIR_NAMES[dir]}" is not active`);
-            Console.error(`Destination region ${region} is not active. Organism "${org.id}" will be sent back.`);
-        }
-    }
-
-    /**
-     * Creates response with unique client id for just connected clients or servers
-     * @param {Number} reqId Unique request id. Needed for response
-     * @param {Boolean} isClient true for request from client, false for server
-     * @api
-     */
-    _getId(reqId, isClient = true) {
-        isClient && this._onGetClientId(reqId) || this._onGetServerId(reqId);
-    }
-
-    /**
-     * If it was a request from client, then we have to create unique clientId for him.
-     * @param {Number} reqId Unique request id
-     */
-    _onGetClientId(reqId) {
-        const sock     = this.sock;
-        const region   = this.parent.conns.getFreeRegion();
-        const clientId = Connections.toId(region);
-
-        if (region === null) {
-            sock.terminate();
-            this.parent.fire(this.parent.EVENTS.OVERFLOW, sock);
-            Console.warn('This server is overloaded by clients. Try another server to connect.');
-            return;
-        }
-        this.parent.conns.setData(region, 'sock', sock);
-		this._setActive(clientId, true);
-        this.parent.response(sock, TYPES.RES_GET_ID_OK, reqId, clientId);
-    }
-
-    /**
-     * If it was a server, then we have to update our "around" servers (this.parent.activeAround)
-     * @param {Number} reqId Unique request id
-     */
-    _onGetServerId(reqId) {
-        // TODO:
-    }
-
-    /**
-     * Sets client active. It means, that sibling active client may
-     * transfer it's organisms to this client
-     * @param {String} clientId
-     * @param {Boolean} active
-     */
-    _setActive(clientId, active) {
-        const region = Connections.toRegion(clientId);
-        this.parent.conns.setData(region, 'active', active);
-        this._activateAll(region);
-    }
-
-    /**
-     * This code passes active flag of current client to clients
-     * around and to active flags of around client to current.
-     * This is how our client knows, that client for example above
-     * is active and it may pass organism there, if he (organism)
-     * goes out of the world (borders). We have to update active
-     * state for current and nearest clients as well.
-     * @param {Array} activeRegion Region of activated client
-     */
-    _activateAll(activeRegion) {
-        const server = this.parent;
-        const conns  = server.conns;
-        const sock   = server.conns.getConnection(activeRegion).sock;
-        //
-        // We have to send activate message every nearest client to
-        // current lying on activeRegion
-        //
-        this._activateAround(activeRegion);
-        //
-        // We should also send around active clients status to the current (sock)
-        //
-        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.DOWN,  !!conns.getConnection(conns.downRegion(activeRegion)).sock);
-        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.LEFT,  !!conns.getConnection(conns.leftRegion(activeRegion)).sock);
-        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.UP,    !!conns.getConnection(conns.upRegion(activeRegion)).sock);
-        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.RIGHT, !!conns.getConnection(conns.rightRegion(activeRegion)).sock);
-    }
-
-    /**
-     * Sends activate flag to all four nearest clients/Managers (up, right, down, left)
-     * @param {Array} region Activated or deactivated region
-     * @param {Boolean} activate Activation value
-     */
-    _activateAround(region, activate = true) {
-        const server    = this.parent;
-        const conns     = server.conns;
-        const upSock    = conns.getConnection(conns.upRegion(region)).sock;
-        const rightSock = conns.getConnection(conns.rightRegion(region)).sock;
-        const downSock  = conns.getConnection(conns.downRegion(region)).sock;
-        const leftSock  = conns.getConnection(conns.leftRegion(region)).sock;
-
-        upSock    && server.request(upSock,    TYPES.REQ_SET_NEAR_ACTIVE, DIR.DOWN,  activate);
-        rightSock && server.request(rightSock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.LEFT,  activate);
-        downSock  && server.request(downSock,  TYPES.REQ_SET_NEAR_ACTIVE, DIR.UP,    activate);
-        leftSock  && server.request(leftSock,  TYPES.REQ_SET_NEAR_ACTIVE, DIR.RIGHT, activate);
-    }
-
-    /**
-     * On connection close with one of the client we have to update active
-     * state for nearest clients/Managers
-     * @param {String} clientId Deactivated client id
-     * @private
-     */
-    _onClose(clientId) {
-        this._activateAround(Connections.toRegion(clientId), false);
-    }
-}
-
-module.exports = Api;
-
-/***/ }),
-/* 37 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Plugin for Client/Server classes. Implements request/response logic.
- * Manager requests and associated to them responses by unique request
- * id (reqId). Calls callback on answer (response).
- *
- * @author flatline
- */
-const Helper  = __webpack_require__(5);
-const Config  = __webpack_require__(1).Config;
-const MASKS   = __webpack_require__(15).MASKS;
-const Console = __webpack_require__(284)(`./${Config.modeNodeJs ? 'server' : 'client'}/src/global/Console`);
-
-class Request {
-    /**
-     * Creates Request instance and overrides two required methods:
-     * send() and onMessage()
-     * @param {Object} parent Instance of custom class
-     */
-    constructor(parent) {
-        this.parent        = parent;
-        /**
-         * {Object} Contains requests map: key - request id, val -
-         * response callback
-         * TODO: we have to check if connection has closed with socket
-         * TODO: and we have to remove "broken" requests ids from _requests
-         */
-        this._requests     = {};
-        this._onRequestCb  = this._onRequest.bind(this);
-        this._onSendErrCb  = this._onSendErr.bind(this);
-        this._onResponseCb = this._onResponse.bind(this);
-        this._onMessageCb  = this._onMessage.bind(this);
-
-        Helper.override(parent, 'request', this._onRequestCb);
-        Helper.override(parent, 'response', this._onResponseCb);
-        Helper.override(parent, 'onMessage', this._onMessageCb);
-    }
-
-    destroy() {
-        const parent = this.parent;
-        Helper.unoverride(parent, 'onMessage', this._onMessageCb);
-        Helper.unoverride(parent, 'response', this._onResponseCb);
-        Helper.unoverride(parent, 'request', this._onRequestCb);
-        this._onMessageCb  = null;
-        this._onResponseCb = null;
-        this._onSendErrCb  = null;
-        this._onRequestCb  = null;
-        this._requests     = null;
-        this.parent        = null;
-    }
-
-    /**
-     * IMPORTANT: It's impossible to have more then one overrides of 'request'
-     * IMPORTANT: method, because return value of second overridden method
-     * IMPORTANT: will overlap first one.
-     *
-     * Sends data to the client or server. First two parameters are required.
-     * They are: 'socket' for sending params and 'type' for sending special
-     * request type (see Requests.TYPES constants for details). All other
-     * parameters depend of special request and will be send to the client
-     * as an array. Last parameter is optional callback, which is called after
-     * send is complete. If last parameter present, then we should wait for
-     * response. Otherwise it should be request only. Final parameters for
-     * sending will be: [type, reqId, ...params]
-     * 'params' will be without callback parameter at the end.
-     * @param {WebSocket} sock Socket where to send params
-     * @param {Number} type Type of the request
-     * @param {*} params Array of parameters to send
-     * @return {Number|null} Unique request id or null if no response needed
-     * @override
-     * TODO: add timer for tracking request timeout
-     */
-    _onRequest(sock, type, ...params) {
-        const cb    = Helper.isFunc(params[params.length - 1]) ? params.pop() : null;
-        const reqId = Helper.getId();
-
-        cb && (this._requests[reqId] = cb);
-        sock.send(JSON.stringify([type, (reqId | MASKS.REQ_MASK) >>> 0].concat(params)), this._onSendErrCb);
-
-        return reqId;
-    }
-
-    /**
-     * Is called on every response (response). Required unique request id
-     * (reqId) should be used as a parameter. Format of response data is:
-     * [type, reqId, ...params].
-     * @param {WebSocket} sock Socket where to send response
-     * @param {Number} type Type of the request
-     * @param {Number} reqId Unique request id, returned by send() method
-     * @param {*} params Array of parameters to send
-     * @override
-     */
-    _onResponse(sock, type, reqId, ...params) {
-        sock.send(JSON.stringify([type, (reqId & MASKS.RES_MASK) >>> 0].concat(params)), this._onSendErrCb);
-    }
-
-    /**
-     * Is called if send() method failed. It's possible of many reasons. For
-     * example on server closing event.
-     * @param {String} error Error message
-     */
-    _onSendErr(error) {
-        if (typeof error !== 'undefined') {
-            Console.error(`Request.send() error: ${error}`);
-        }
-    }
-
-    /**
-     * Is called on every input message is received. It may be a request
-     * from remote host or an response (response). In case of request we do
-     * nothing. In case of response (response) we have to call callback
-     * function, bind in send() method. event.data contains:
-     * [type, reqId|null, ...params].
-     * @param {WebSocket} sock Owner socket
-     * @param {Event} event Event object with received data
-     * @private
-     */
-    _onMessage(sock, event) {
-        const data  = JSON.parse(event.data || event);
-        const reqId = (data[1] & MASKS.RES_MASK) >>> 0;
-        const cb    = this._requests[reqId];
-        //
-        // data[0] is type
-        // data.slice(2) are params
-        //
-        cb && cb(data[0], ...data.slice(2));
-        delete this._requests[reqId];
-    }
-}
-
-module.exports = Request;
-
-/***/ }),
-/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -10148,7 +9835,7 @@ class Config {
 module.exports = Config;
 
 /***/ }),
-/* 39 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -10222,7 +9909,7 @@ class Energy {
 module.exports = Energy;
 
 /***/ }),
-/* 40 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -10239,7 +9926,7 @@ module.exports = Energy;
 const EVENTS   = __webpack_require__(4).EVENTS;
 const Config   = __webpack_require__(1).Config;
 const Helper   = __webpack_require__(5);
-const Organism = __webpack_require__(24);
+const Organism = __webpack_require__(23);
 const Num      = __webpack_require__(12);
 
 const VAR_BITS_OFFS = Num.VAR_BITS_OFFS - 1;
@@ -10366,7 +10053,7 @@ class Mutator {
 module.exports = Mutator;
 
 /***/ }),
-/* 41 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -10470,7 +10157,54 @@ class Status {
 module.exports = Status;
 
 /***/ }),
-/* 42 */
+/* 40 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Server related configuration module. Client's configuration should
+ * be stored in separate config class.
+ *
+ * @author flatline
+ */
+const Config = __webpack_require__(69);
+
+class ServerConfig extends Config {}
+//
+// TODO: remove command line related parameters from here
+// TODO: parameters, which should be obtained from Admin server
+// TODO: should be also removed from here
+//
+ServerConfig.init({
+    /**
+     * {Array} Array of server plugin paths. Pay attention, that path
+     * should be started from 'src' and not from 'client' or 'common'
+     * folders.
+     */
+    plugins: [
+        'src/net/plugins/Request',
+        'src/server/plugins/Api'
+    ],
+    /**
+     * {Number} Maximum amount of connections for current server. Should
+     * be quadratic (x^2) e.g.: 4, 9, 16,... This value will be extended
+     * with additional "around" rows and columns for connecting with sibling
+     * servers. So, result amount of cells will be e.g.: 16 + 2 rows + 2 cols.
+     */
+    maxConnections: 100,
+    /**
+     * {Number} Port number for connecting with server
+     */
+    port: 8099,
+    /**
+     * {String} Host for connecting with server
+     */
+    host: 'ws://localhost'
+});
+
+module.exports = {Config: ServerConfig.cfg(), api: ServerConfig};
+
+/***/ }),
+/* 41 */
 /***/ (function(module, exports) {
 
 /**
@@ -10484,7 +10218,7 @@ const Config = {
 module.exports = Config;
 
 /***/ }),
-/* 43 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -10494,7 +10228,7 @@ module.exports = Config;
  * @author flatline
  */
 const TYPES   = __webpack_require__(15).TYPES;
-const BaseApi = __webpack_require__(44);
+const BaseApi = __webpack_require__(43);
 const EVENTS  = __webpack_require__(4).EVENTS;
 const Console = __webpack_require__(7);
 
@@ -10546,7 +10280,7 @@ class Api extends BaseApi {
 module.exports = Api;
 
 /***/ }),
-/* 44 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -10632,7 +10366,7 @@ class Api {
 module.exports = Api;
 
 /***/ }),
-/* 45 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -10650,7 +10384,7 @@ module.exports = Api;
 const Configurable = __webpack_require__(82);
 const Helper       = __webpack_require__(5);
 const Config       = __webpack_require__(1).Config;
-const IpsConfig    = __webpack_require__(32);
+const IpsConfig    = __webpack_require__(31);
 const EVENTS       = __webpack_require__(4).EVENTS;
 
 class Ips extends Configurable {
@@ -10687,7 +10421,7 @@ class Ips extends Configurable {
 module.exports = Ips;
 
 /***/ }),
-/* 46 */
+/* 45 */
 /***/ (function(module, exports) {
 
 /**
@@ -10701,7 +10435,7 @@ const Config = {
 module.exports = Config;
 
 /***/ }),
-/* 47 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -10717,7 +10451,7 @@ module.exports = Config;
  *
  * @author flatline
  */
-const BaseOrganisms = __webpack_require__(27);
+const BaseOrganisms = __webpack_require__(26);
 const Config        = __webpack_require__(1).Config;
 const EVENTS        = __webpack_require__(4).EVENTS;
 const Helper        = __webpack_require__(5);
@@ -10927,7 +10661,7 @@ class Organisms extends BaseOrganisms {
 module.exports = Organisms;
 
 /***/ }),
-/* 48 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -11201,7 +10935,7 @@ class Code2StringDos {
 module.exports = Code2StringDos;
 
 /***/ }),
-/* 49 */
+/* 48 */
 /***/ (function(module, exports) {
 
 /**
@@ -11216,7 +10950,7 @@ const Config = {
 module.exports = Config;
 
 /***/ }),
-/* 50 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -11225,7 +10959,7 @@ module.exports = Config;
  * TODO:   -
  * @author flatline
  */
-const Organism = __webpack_require__(25);
+const Organism = __webpack_require__(24);
 const Config   = __webpack_require__(1).Config;
 const EVENTS   = __webpack_require__(4).EVENTS;
 
@@ -11281,7 +11015,7 @@ class OrganismGarmin extends Organism {
 module.exports = OrganismGarmin;
 
 /***/ }),
-/* 51 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -11299,8 +11033,8 @@ module.exports = OrganismGarmin;
 const Config        = __webpack_require__(1).Config;
 const Console       = __webpack_require__(7);
 const EVENTS        = __webpack_require__(4).EVENTS;
-const BaseOrganisms = __webpack_require__(27);
-const Fitness       = Config.codeFitnessCls && __webpack_require__(70)("./" + Config.codeFitnessCls + '.js') || Config.codeFitnessCls;
+const BaseOrganisms = __webpack_require__(26);
+const Fitness       = Config.codeFitnessCls && __webpack_require__(71)("./" + Config.codeFitnessCls + '.js') || Config.codeFitnessCls;
 
 class Organisms extends BaseOrganisms {
     constructor(manager) {
@@ -11353,7 +11087,7 @@ class Organisms extends BaseOrganisms {
 module.exports = Organisms;
 
 /***/ }),
-/* 52 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -11366,7 +11100,7 @@ module.exports = Organisms;
  */
 const Config    = __webpack_require__(1).Config;
 const Helper    = __webpack_require__(5);
-const Operators = __webpack_require__(20);
+const Operators = __webpack_require__(19);
 const Num       = __webpack_require__(12);
 
 /**
@@ -11521,7 +11255,7 @@ class OperatorsGarmin extends  Operators {
 module.exports = OperatorsGarmin;
 
 /***/ }),
-/* 53 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -11676,7 +11410,7 @@ class Code2StringGarmin {
 module.exports = Code2StringGarmin;
 
 /***/ }),
-/* 54 */
+/* 53 */
 /***/ (function(module, exports) {
 
 /**
@@ -13677,7 +13411,7 @@ class FitnessGarmin {
 module.exports = FitnessGarmin;
 
 /***/ }),
-/* 55 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -13796,7 +13530,7 @@ class World extends Observer {
 module.exports = World;
 
 /***/ }),
-/* 56 */
+/* 55 */
 /***/ (function(module, exports) {
 
 // Copyright Joyent, Inc. and other Node contributors.
@@ -14104,7 +13838,7 @@ function isUndefined(arg) {
 
 
 /***/ }),
-/* 57 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14114,7 +13848,7 @@ var md5 = __webpack_require__(87)
 var RIPEMD160 = __webpack_require__(88)
 var sha = __webpack_require__(91)
 
-var Base = __webpack_require__(22)
+var Base = __webpack_require__(21)
 
 function HashNoConstructor (hash) {
   Base.call(this, 'digest')
@@ -14164,20 +13898,20 @@ module.exports = function createHash (alg) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 58 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(110);
 exports.Stream = exports;
 exports.Readable = exports;
 exports.Writable = __webpack_require__(89);
-exports.Duplex = __webpack_require__(28);
+exports.Duplex = __webpack_require__(27);
 exports.Transform = __webpack_require__(113);
-exports.PassThrough = __webpack_require__(179);
+exports.PassThrough = __webpack_require__(177);
 
 
 /***/ }),
-/* 59 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {// Copyright Joyent, Inc. and other Node contributors.
@@ -14291,7 +14025,7 @@ function objectToString(o) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 60 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {module.exports = function xor (a, b) {
@@ -14308,7 +14042,7 @@ function objectToString(o) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 61 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14407,31 +14141,208 @@ BlockHash.prototype._pad = function pad() {
 
 
 /***/ }),
-/* 62 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var asn1 = exports;
 
 asn1.bignum = __webpack_require__(6);
 
-asn1.define = __webpack_require__(238).define;
-asn1.base = __webpack_require__(63);
+asn1.define = __webpack_require__(236).define;
+asn1.base = __webpack_require__(62);
 asn1.constants = __webpack_require__(137);
-asn1.decoders = __webpack_require__(244);
-asn1.encoders = __webpack_require__(246);
+asn1.decoders = __webpack_require__(242);
+asn1.encoders = __webpack_require__(244);
+
+
+/***/ }),
+/* 62 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var base = exports;
+
+base.Reporter = __webpack_require__(239).Reporter;
+base.DecoderBuffer = __webpack_require__(136).DecoderBuffer;
+base.EncoderBuffer = __webpack_require__(136).EncoderBuffer;
+base.Node = __webpack_require__(240);
 
 
 /***/ }),
 /* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var base = exports;
+/**
+ * Plugin for Server class, which implement it's API. Is separated from Server to
+ * have an ability to change API any time without changing server's code. @api
+ * annotation means that specified method is a part of Server API and available
+ * from clients requests.
+ *
+ * @author flatline
+ */
+const Connections = __webpack_require__(64);
+const Console     = __webpack_require__(22);
+const Helper      = __webpack_require__(5);
+const TYPES       = __webpack_require__(15).TYPES;
+const DIR         = __webpack_require__(17).DIR;
+const DIR_NAMES   = __webpack_require__(17).NAMES;
+const BaseApi     = __webpack_require__(43);
 
-base.Reporter = __webpack_require__(241).Reporter;
-base.DecoderBuffer = __webpack_require__(136).DecoderBuffer;
-base.EncoderBuffer = __webpack_require__(136).EncoderBuffer;
-base.Node = __webpack_require__(242);
+class Api extends BaseApi {
+    constructor(parent) {
+        super(parent);
+        this.api[TYPES.REQ_MOVE_ORG] = this._moveOrg.bind(this);
+        this.api[TYPES.REQ_GET_ID]   = this._getId.bind(this);
 
+        this._onCloseCb = this._onClose.bind(this);
+
+        Helper.override(parent, 'onClose', this._onCloseCb);
+    }
+
+    destroy() {
+        super.destroy();
+
+        Helper.unoverride(this.parent, 'onClose', this._onCloseCb);
+        this._onCloseCb = null;
+    }
+
+    /**
+     * Moves organism from one client to another
+     * @param {Number} reqId Unique request id. Needed for response
+     * @param {String} clientId Unique client id
+     * @param {Number} x Current org X position
+     * @param {Number} y Current org Y position
+     * @param {Number} dir Moving direction
+     * @param {String} orgJson Organism's serialized json
+     * @api
+     */
+    _moveOrg(reqId, clientId, x, y, dir, orgJson) {
+        const region = Connections.toRegion(clientId);
+
+        if      (dir === DIR.UP)    {region[1]--}
+        else if (dir === DIR.RIGHT) {region[0]++}
+        else if (dir === DIR.DOWN)  {region[1]++}
+        else if (dir === DIR.LEFT)  {region[0]--}
+
+        const con = this.parent.conns.getConnection(region);
+        if (con.active) {
+            this.parent.request(con.sock, TYPES.REQ_MOVE_ORG, x, y, orgJson);
+        } else {
+            const org        = JSON.parse(orgJson);
+            const backRegion = Connections.toRegion(clientId);
+            const backCon    = this.parent.conns.getConnection(backRegion);
+            this.parent.request(backCon.sock, TYPES.RES_MOVE_ERR, x, y, dir, orgJson, `Region "${region}" on direction "${DIR_NAMES[dir]}" is not active`);
+            Console.error(`Destination region ${region} is not active. Organism "${org.id}" will be sent back.`);
+        }
+    }
+
+    /**
+     * Creates response with unique client id for just connected clients or servers
+     * @param {Number} reqId Unique request id. Needed for response
+     * @param {Boolean} isClient true for request from client, false for server
+     * @api
+     */
+    _getId(reqId, isClient = true) {
+        isClient && this._onGetClientId(reqId) || this._onGetServerId(reqId);
+    }
+
+    /**
+     * If it was a request from client, then we have to create unique clientId for him.
+     * @param {Number} reqId Unique request id
+     */
+    _onGetClientId(reqId) {
+        const sock     = this.sock;
+        const region   = this.parent.conns.getFreeRegion();
+        const clientId = Connections.toId(region);
+
+        if (region === null) {
+            sock.terminate();
+            this.parent.fire(this.parent.EVENTS.OVERFLOW, sock);
+            Console.warn('This server is overloaded by clients. Try another server to connect.');
+            return;
+        }
+        this.parent.conns.setData(region, 'sock', sock);
+		this._setActive(clientId, true);
+        this.parent.response(sock, TYPES.RES_GET_ID_OK, reqId, clientId);
+    }
+
+    /**
+     * If it was a server, then we have to update our "around" servers (this.parent.activeAround)
+     * @param {Number} reqId Unique request id
+     */
+    _onGetServerId(reqId) {
+        // TODO:
+    }
+
+    /**
+     * Sets client active. It means, that sibling active client may
+     * transfer it's organisms to this client
+     * @param {String} clientId
+     * @param {Boolean} active
+     */
+    _setActive(clientId, active) {
+        const region = Connections.toRegion(clientId);
+        this.parent.conns.setData(region, 'active', active);
+        this._activateAll(region);
+    }
+
+    /**
+     * This code passes active flag of current client to clients
+     * around and to active flags of around client to current.
+     * This is how our client knows, that client for example above
+     * is active and it may pass organism there, if he (organism)
+     * goes out of the world (borders). We have to update active
+     * state for current and nearest clients as well.
+     * @param {Array} activeRegion Region of activated client
+     */
+    _activateAll(activeRegion) {
+        const server = this.parent;
+        const conns  = server.conns;
+        const sock   = server.conns.getConnection(activeRegion).sock;
+        //
+        // We have to send activate message every nearest client to
+        // current lying on activeRegion
+        //
+        this._activateAround(activeRegion);
+        //
+        // We should also send around active clients status to the current (sock)
+        //
+        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.DOWN,  !!conns.getConnection(conns.downRegion(activeRegion)).sock);
+        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.LEFT,  !!conns.getConnection(conns.leftRegion(activeRegion)).sock);
+        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.UP,    !!conns.getConnection(conns.upRegion(activeRegion)).sock);
+        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.RIGHT, !!conns.getConnection(conns.rightRegion(activeRegion)).sock);
+    }
+
+    /**
+     * Sends activate flag to all four nearest clients/Managers (up, right, down, left)
+     * @param {Array} region Activated or deactivated region
+     * @param {Boolean} activate Activation value
+     */
+    _activateAround(region, activate = true) {
+        const server    = this.parent;
+        const conns     = server.conns;
+        const upSock    = conns.getConnection(conns.upRegion(region)).sock;
+        const rightSock = conns.getConnection(conns.rightRegion(region)).sock;
+        const downSock  = conns.getConnection(conns.downRegion(region)).sock;
+        const leftSock  = conns.getConnection(conns.leftRegion(region)).sock;
+
+        upSock    && server.request(upSock,    TYPES.REQ_SET_NEAR_ACTIVE, DIR.DOWN,  activate);
+        rightSock && server.request(rightSock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.LEFT,  activate);
+        downSock  && server.request(downSock,  TYPES.REQ_SET_NEAR_ACTIVE, DIR.UP,    activate);
+        leftSock  && server.request(leftSock,  TYPES.REQ_SET_NEAR_ACTIVE, DIR.RIGHT, activate);
+    }
+
+    /**
+     * On connection close with one of the client we have to update active
+     * state for nearest clients/Managers
+     * @param {String} clientId Deactivated client id
+     * @private
+     */
+    _onClose(clientId) {
+        this._activateAround(Connections.toRegion(clientId), false);
+    }
+}
+
+module.exports = Api;
 
 /***/ }),
 /* 64 */
@@ -14590,6 +14501,141 @@ module.exports = Connections;
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
+ * Plugin for Client/Server classes. Implements request/response logic.
+ * Manager requests and associated to them responses by unique request
+ * id (reqId). Calls callback on answer (response).
+ *
+ * @author flatline
+ */
+const Helper  = __webpack_require__(5);
+const Config  = __webpack_require__(1).Config;
+const MASKS   = __webpack_require__(15).MASKS;
+const Console = __webpack_require__(283)(`./${Config.modeNodeJs ? 'server' : 'client'}/src/global/Console`);
+
+class Request {
+    /**
+     * Creates Request instance and overrides two required methods:
+     * send() and onMessage()
+     * @param {Object} parent Instance of custom class
+     */
+    constructor(parent) {
+        this.parent        = parent;
+        /**
+         * {Object} Contains requests map: key - request id, val -
+         * response callback
+         * TODO: we have to check if connection has closed with socket
+         * TODO: and we have to remove "broken" requests ids from _requests
+         */
+        this._requests     = {};
+        this._onRequestCb  = this._onRequest.bind(this);
+        this._onSendErrCb  = this._onSendErr.bind(this);
+        this._onResponseCb = this._onResponse.bind(this);
+        this._onMessageCb  = this._onMessage.bind(this);
+
+        Helper.override(parent, 'request', this._onRequestCb);
+        Helper.override(parent, 'response', this._onResponseCb);
+        Helper.override(parent, 'onMessage', this._onMessageCb);
+    }
+
+    destroy() {
+        const parent = this.parent;
+        Helper.unoverride(parent, 'onMessage', this._onMessageCb);
+        Helper.unoverride(parent, 'response', this._onResponseCb);
+        Helper.unoverride(parent, 'request', this._onRequestCb);
+        this._onMessageCb  = null;
+        this._onResponseCb = null;
+        this._onSendErrCb  = null;
+        this._onRequestCb  = null;
+        this._requests     = null;
+        this.parent        = null;
+    }
+
+    /**
+     * IMPORTANT: It's impossible to have more then one overrides of 'request'
+     * IMPORTANT: method, because return value of second overridden method
+     * IMPORTANT: will overlap first one.
+     *
+     * Sends data to the client or server. First two parameters are required.
+     * They are: 'socket' for sending params and 'type' for sending special
+     * request type (see Requests.TYPES constants for details). All other
+     * parameters depend of special request and will be send to the client
+     * as an array. Last parameter is optional callback, which is called after
+     * send is complete. If last parameter present, then we should wait for
+     * response. Otherwise it should be request only. Final parameters for
+     * sending will be: [type, reqId, ...params]
+     * 'params' will be without callback parameter at the end.
+     * @param {WebSocket} sock Socket where to send params
+     * @param {Number} type Type of the request
+     * @param {*} params Array of parameters to send
+     * @return {Number|null} Unique request id or null if no response needed
+     * @override
+     * TODO: add timer for tracking request timeout
+     */
+    _onRequest(sock, type, ...params) {
+        const cb    = Helper.isFunc(params[params.length - 1]) ? params.pop() : null;
+        const reqId = Helper.getId();
+
+        cb && (this._requests[reqId] = cb);
+        sock.send(JSON.stringify([type, (reqId | MASKS.REQ_MASK) >>> 0].concat(params)), this._onSendErrCb);
+
+        return reqId;
+    }
+
+    /**
+     * Is called on every response (response). Required unique request id
+     * (reqId) should be used as a parameter. Format of response data is:
+     * [type, reqId, ...params].
+     * @param {WebSocket} sock Socket where to send response
+     * @param {Number} type Type of the request
+     * @param {Number} reqId Unique request id, returned by send() method
+     * @param {*} params Array of parameters to send
+     * @override
+     */
+    _onResponse(sock, type, reqId, ...params) {
+        sock.send(JSON.stringify([type, (reqId & MASKS.RES_MASK) >>> 0].concat(params)), this._onSendErrCb);
+    }
+
+    /**
+     * Is called if send() method failed. It's possible of many reasons. For
+     * example on server closing event.
+     * @param {String} error Error message
+     */
+    _onSendErr(error) {
+        if (typeof error !== 'undefined') {
+            Console.error(`Request.send() error: ${error}`);
+        }
+    }
+
+    /**
+     * Is called on every input message is received. It may be a request
+     * from remote host or an response (response). In case of request we do
+     * nothing. In case of response (response) we have to call callback
+     * function, bind in send() method. event.data contains:
+     * [type, reqId|null, ...params].
+     * @param {WebSocket} sock Owner socket
+     * @param {Event} event Event object with received data
+     * @private
+     */
+    _onMessage(sock, event) {
+        const data  = JSON.parse(event.data || event);
+        const reqId = (data[1] & MASKS.RES_MASK) >>> 0;
+        const cb    = this._requests[reqId];
+        //
+        // data[0] is type
+        // data.slice(2) are params
+        //
+        cb && cb(data[0], ...data.slice(2));
+        delete this._requests[reqId];
+    }
+}
+
+module.exports = Request;
+
+/***/ }),
+/* 66 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
  * This is an entry point of jevo.js application. Compiled version of
  * this file should be included into index.html.
  *
@@ -14634,7 +14680,7 @@ module.exports = Connections;
  *
  * @author flatline
  */
-const Manager = __webpack_require__(66);
+const Manager = __webpack_require__(67);
 const manager = new Manager();
 //
 // manager.run() method will be called after attempt of connection
@@ -14644,7 +14690,7 @@ window.man = manager;
 
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -14662,14 +14708,14 @@ window.man = manager;
  * TODO: by calling of destroy() method for every of them
  */
 const Observer         = __webpack_require__(11);
-const Queue            = __webpack_require__(67);
+const Queue            = __webpack_require__(68);
 const Config           = __webpack_require__(1).Config;
-const Plugins          = __webpack_require__(69);
+const Plugins          = __webpack_require__(70);
 const EVENTS           = __webpack_require__(4).EVENTS;
 const EVENT_AMOUNT     = __webpack_require__(4).EVENT_AMOUNT;
 const Console          = __webpack_require__(7);
-const World            = __webpack_require__(55);
-const Canvas           = __webpack_require__(71);
+const World            = __webpack_require__(54);
+const Canvas           = __webpack_require__(72);
 
 class Manager extends Observer {
     /**
@@ -14843,7 +14889,7 @@ class Manager extends Observer {
 module.exports = Manager;
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, exports) {
 
 /**
@@ -14934,7 +14980,7 @@ class Queue {
 module.exports = Queue;
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ (function(module, exports) {
 
 /**
@@ -14966,7 +15012,7 @@ class Config {
 module.exports = Config;
 
 /***/ }),
-/* 69 */
+/* 70 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -14976,7 +15022,7 @@ module.exports = Config;
  *
  * @author flatline
  */
-const Plugins = __webpack_require__(19);
+const Plugins = __webpack_require__(35);
 
 class ManPlugins extends Plugins {
     /**
@@ -14985,60 +15031,60 @@ class ManPlugins extends Plugins {
      * @return {Function|Object} imported module
      */
     require(path) {
-        return __webpack_require__(168)("./" + path);
+        return __webpack_require__(165)("./" + path);
     }
 }
 
 module.exports = ManPlugins;
 
 /***/ }),
-/* 70 */
+/* 71 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
-	"./src/App.js": 65,
+	"./src/App.js": 66,
 	"./src/global/Config.js": 1,
 	"./src/global/Console.js": 7,
 	"./src/global/Events.js": 4,
-	"./src/global/Fs.js": 80,
-	"./src/manager/Manager.js": 66,
-	"./src/manager/manager/Plugins.js": 69,
-	"./src/manager/plugins/Backup.js": 29,
-	"./src/manager/plugins/Config.js": 38,
-	"./src/manager/plugins/Energy.js": 39,
-	"./src/manager/plugins/Mutator.js": 40,
-	"./src/manager/plugins/Status.js": 41,
+	"./src/global/Fs.js": 81,
+	"./src/manager/Manager.js": 67,
+	"./src/manager/manager/Plugins.js": 70,
+	"./src/manager/plugins/Backup.js": 28,
+	"./src/manager/plugins/Config.js": 36,
+	"./src/manager/plugins/Energy.js": 37,
+	"./src/manager/plugins/Mutator.js": 38,
+	"./src/manager/plugins/Status.js": 39,
 	"./src/manager/plugins/client/Client.js": 14,
-	"./src/manager/plugins/client/Config.js": 42,
-	"./src/manager/plugins/client/cilent/Plugins.js": 31,
-	"./src/manager/plugins/client/plugins/Api.js": 43,
-	"./src/manager/plugins/ips/Config.js": 32,
-	"./src/manager/plugins/ips/Ips.js": 45,
-	"./src/manager/plugins/organisms/base/Organism.js": 25,
-	"./src/manager/plugins/organisms/base/Organisms.js": 27,
-	"./src/manager/plugins/organisms/base/organism/JSVM.js": 26,
-	"./src/manager/plugins/organisms/base/organism/jsvm/Operators.js": 20,
+	"./src/manager/plugins/client/Config.js": 41,
+	"./src/manager/plugins/client/cilent/Plugins.js": 30,
+	"./src/manager/plugins/client/plugins/Api.js": 42,
+	"./src/manager/plugins/ips/Config.js": 31,
+	"./src/manager/plugins/ips/Ips.js": 44,
+	"./src/manager/plugins/organisms/base/Organism.js": 24,
+	"./src/manager/plugins/organisms/base/Organisms.js": 26,
+	"./src/manager/plugins/organisms/base/organism/JSVM.js": 25,
+	"./src/manager/plugins/organisms/base/organism/jsvm/Operators.js": 19,
 	"./src/manager/plugins/organisms/base/organisms/code2string/Num.js": 12,
-	"./src/manager/plugins/organisms/dos/Config.js": 46,
-	"./src/manager/plugins/organisms/dos/Organism.js": 24,
-	"./src/manager/plugins/organisms/dos/Organisms.js": 47,
-	"./src/manager/plugins/organisms/dos/organism/jsvm/Operators.js": 33,
-	"./src/manager/plugins/organisms/dos/organisms/Code2String.js": 48,
-	"./src/manager/plugins/organisms/garmin/Config.js": 49,
-	"./src/manager/plugins/organisms/garmin/Organism.js": 50,
-	"./src/manager/plugins/organisms/garmin/Organisms.js": 51,
-	"./src/manager/plugins/organisms/garmin/organism/jsvm/Operators.js": 52,
-	"./src/manager/plugins/organisms/garmin/organisms/Code2String.js": 53,
-	"./src/manager/plugins/organisms/garmin/organisms/Fitness.js": 54,
-	"./src/manager/visual/Canvas.js": 71,
-	"./src/manager/visual/World.js": 55,
+	"./src/manager/plugins/organisms/dos/Config.js": 45,
+	"./src/manager/plugins/organisms/dos/Organism.js": 23,
+	"./src/manager/plugins/organisms/dos/Organisms.js": 46,
+	"./src/manager/plugins/organisms/dos/organism/jsvm/Operators.js": 32,
+	"./src/manager/plugins/organisms/dos/organisms/Code2String.js": 47,
+	"./src/manager/plugins/organisms/garmin/Config.js": 48,
+	"./src/manager/plugins/organisms/garmin/Organism.js": 49,
+	"./src/manager/plugins/organisms/garmin/Organisms.js": 50,
+	"./src/manager/plugins/organisms/garmin/organism/jsvm/Operators.js": 51,
+	"./src/manager/plugins/organisms/garmin/organisms/Code2String.js": 52,
+	"./src/manager/plugins/organisms/garmin/organisms/Fitness.js": 53,
+	"./src/manager/visual/Canvas.js": 72,
+	"./src/manager/visual/World.js": 54,
 	"./tests/global/ConsoleSpec.js": 83,
 	"./tests/manager/plugins/ClientSpec.js": 84,
-	"./tests/manager/plugins/organisms/dos/OperatorsSpec.js": 102,
-	"./tests/manager/plugins/organisms/dos/OrganismSpec.js": 103,
-	"./tests/manager/plugins/organisms/organism/JSVMSpec.js": 104,
-	"./tests/manager/plugins/organisms/organism/NumSpec.js": 105,
-	"./tests/visual/WorldSpec.js": 106
+	"./tests/manager/plugins/organisms/dos/OperatorsSpec.js": 103,
+	"./tests/manager/plugins/organisms/dos/OrganismSpec.js": 104,
+	"./tests/manager/plugins/organisms/organism/JSVMSpec.js": 105,
+	"./tests/manager/plugins/organisms/organism/NumSpec.js": 106,
+	"./tests/visual/WorldSpec.js": 107
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -15054,10 +15100,10 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 70;
+webpackContext.id = 71;
 
 /***/ }),
-/* 71 */
+/* 72 */
 /***/ (function(module, exports) {
 
 /**
@@ -15172,7 +15218,7 @@ class Canvas {
 module.exports = Canvas;
 
 /***/ }),
-/* 72 */
+/* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Copyright Joyent, Inc. and other Node contributors.
@@ -15198,15 +15244,15 @@ module.exports = Canvas;
 
 module.exports = Stream;
 
-var EE = __webpack_require__(56).EventEmitter;
+var EE = __webpack_require__(55).EventEmitter;
 var inherits = __webpack_require__(0);
 
 inherits(Stream, EE);
-Stream.Readable = __webpack_require__(58);
-Stream.Writable = __webpack_require__(180);
-Stream.Duplex = __webpack_require__(181);
+Stream.Readable = __webpack_require__(57);
+Stream.Writable = __webpack_require__(178);
+Stream.Duplex = __webpack_require__(179);
 Stream.Transform = __webpack_require__(114);
-Stream.PassThrough = __webpack_require__(182);
+Stream.PassThrough = __webpack_require__(180);
 
 // Backwards-compat with node 0.4.x
 Stream.Stream = Stream;
@@ -15305,7 +15351,7 @@ Stream.prototype.pipe = function(dest, options) {
 
 
 /***/ }),
-/* 73 */
+/* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15356,11 +15402,11 @@ function nextTick(fn, arg1, arg2, arg3) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
 
 /***/ }),
-/* 74 */
+/* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Buffer = __webpack_require__(2).Buffer
-var MD5 = __webpack_require__(191)
+var MD5 = __webpack_require__(189)
 
 /* eslint-disable camelcase */
 function EVP_BytesToKey (password, salt, keyBits, ivLen) {
@@ -15407,7 +15453,7 @@ module.exports = EVP_BytesToKey
 
 
 /***/ }),
-/* 75 */
+/* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // based on the aes implimentation in triple sec
@@ -15641,7 +15687,7 @@ module.exports.AES = AES
 
 
 /***/ }),
-/* 76 */
+/* 77 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15649,19 +15695,19 @@ module.exports.AES = AES
 
 var curve = exports;
 
-curve.base = __webpack_require__(218);
-curve.short = __webpack_require__(219);
-curve.mont = __webpack_require__(220);
-curve.edwards = __webpack_require__(221);
+curve.base = __webpack_require__(216);
+curve.short = __webpack_require__(217);
+curve.mont = __webpack_require__(218);
+curve.edwards = __webpack_require__(219);
 
 
 /***/ }),
-/* 77 */
+/* 78 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(Buffer) {var asn1 = __webpack_require__(237)
-var aesid = __webpack_require__(249)
-var fixProc = __webpack_require__(250)
+/* WEBPACK VAR INJECTION */(function(Buffer) {var asn1 = __webpack_require__(235)
+var aesid = __webpack_require__(247)
+var fixProc = __webpack_require__(248)
 var ciphers = __webpack_require__(92)
 var compat = __webpack_require__(119)
 module.exports = parseKeys
@@ -15769,15 +15815,15 @@ function decrypt (data, password) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 78 */
+/* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(process) {
 
 const safeBuffer = __webpack_require__(2);
-const Limiter = __webpack_require__(268);
-const zlib = __webpack_require__(269);
+const Limiter = __webpack_require__(266);
+const zlib = __webpack_require__(267);
 
 const bufferUtil = __webpack_require__(99);
 
@@ -16265,7 +16311,7 @@ function inflateOnError (err) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
 
 /***/ }),
-/* 79 */
+/* 80 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16374,7 +16420,7 @@ exports.setTyped(TYPED_OK);
 
 
 /***/ }),
-/* 80 */
+/* 81 */
 /***/ (function(module, exports) {
 
 /**
@@ -16386,44 +16432,6 @@ class Fs {
 }
 
 module.exports = Fs;
-
-/***/ }),
-/* 81 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Server related configuration module. Client's configuration should
- * be stored in separate config class.
- *
- * @author flatline
- */
-const Config = __webpack_require__(68);
-
-class ServerConfig extends Config {}
-//
-// TODO: remove command line related parameters from here
-// TODO: parameters, which should be obtained from Admin server
-// TODO: should be also removed from here
-//
-ServerConfig.init({
-    /**
-     * {Number} Maximum amount of connections for current server. Should
-     * be quadratic (x^2) e.g.: 4, 9, 16,... This value will be extended
-     * with additional "around" rows and columns for connecting with sibling
-     * servers. So, result amount of cells will be e.g.: 16 + 2 rows + 2 cols.
-     */
-    maxConnections: 100,
-    /**
-     * {Number} Port number for connecting with server
-     */
-    port: 8099,
-    /**
-     * {String} Host for connecting with server
-     */
-    host: 'ws://localhost'
-});
-
-module.exports = {Config: ServerConfig.cfg(), api: ServerConfig};
 
 /***/ }),
 /* 82 */
@@ -16662,16 +16670,16 @@ describe("client/src/global/Console", () => {
 
 describe("client/src/manager/plugins/Client", () => {
     let Helper       = __webpack_require__(5);
-    let THelper      = __webpack_require__(21);
+    let THelper      = __webpack_require__(20);
     let Observer     = __webpack_require__(11);
     let Config       = __webpack_require__(1).Config;
     let EVENT_AMOUNT = __webpack_require__(4).EVENT_AMOUNT;
     let SEVENTS      = __webpack_require__(18).EVENTS;
     let api          = __webpack_require__(1).api;
     let Console      = __webpack_require__(7);
-    let SConsole     = __webpack_require__(23);
-    const Api        = __webpack_require__(36);
-    const Request    = __webpack_require__(37);
+    let SConsole     = __webpack_require__(22);
+    const Api        = __webpack_require__(63);
+    const Request    = __webpack_require__(65);
     const waitEvent  = THelper.waitEvent;
     let isNodeJs;
     let Client;
@@ -16836,7 +16844,7 @@ describe("client/src/manager/plugins/Client", () => {
 
 const WebSocket = __webpack_require__(108);
 
-WebSocket.Server = __webpack_require__(283);
+WebSocket.Server = __webpack_require__(281);
 WebSocket.Receiver = __webpack_require__(151);
 WebSocket.Sender = __webpack_require__(153);
 
@@ -16850,11 +16858,11 @@ module.exports = WebSocket;
 "use strict";
 
 
-exports.randomBytes = exports.rng = exports.pseudoRandomBytes = exports.prng = __webpack_require__(34)
-exports.createHash = exports.Hash = __webpack_require__(57)
+exports.randomBytes = exports.rng = exports.pseudoRandomBytes = exports.prng = __webpack_require__(33)
+exports.createHash = exports.Hash = __webpack_require__(56)
 exports.createHmac = exports.Hmac = __webpack_require__(117)
 
-var algos = __webpack_require__(188)
+var algos = __webpack_require__(186)
 var algoKeys = Object.keys(algos)
 var hashes = ['sha1', 'sha224', 'sha256', 'sha384', 'sha512', 'md5', 'rmd160'].concat(algoKeys)
 exports.getHashes = function () {
@@ -16865,7 +16873,7 @@ var p = __webpack_require__(119)
 exports.pbkdf2 = p.pbkdf2
 exports.pbkdf2Sync = p.pbkdf2Sync
 
-var aes = __webpack_require__(190)
+var aes = __webpack_require__(188)
 
 exports.Cipher = aes.Cipher
 exports.createCipher = aes.createCipher
@@ -16878,7 +16886,7 @@ exports.createDecipheriv = aes.createDecipheriv
 exports.getCiphers = aes.getCiphers
 exports.listCiphers = aes.listCiphers
 
-var dh = __webpack_require__(209)
+var dh = __webpack_require__(207)
 
 exports.DiffieHellmanGroup = dh.DiffieHellmanGroup
 exports.createDiffieHellmanGroup = dh.createDiffieHellmanGroup
@@ -16886,16 +16894,16 @@ exports.getDiffieHellman = dh.getDiffieHellman
 exports.createDiffieHellman = dh.createDiffieHellman
 exports.DiffieHellman = dh.DiffieHellman
 
-var sign = __webpack_require__(214)
+var sign = __webpack_require__(212)
 
 exports.createSign = sign.createSign
 exports.Sign = sign.Sign
 exports.createVerify = sign.createVerify
 exports.Verify = sign.Verify
 
-exports.createECDH = __webpack_require__(252)
+exports.createECDH = __webpack_require__(250)
 
-var publicEncrypt = __webpack_require__(253)
+var publicEncrypt = __webpack_require__(251)
 
 exports.publicEncrypt = publicEncrypt.publicEncrypt
 exports.privateEncrypt = publicEncrypt.privateEncrypt
@@ -16915,7 +16923,7 @@ exports.privateDecrypt = publicEncrypt.privateDecrypt
 //   }
 // })
 
-var rf = __webpack_require__(256)
+var rf = __webpack_require__(254)
 
 exports.randomFill = rf.randomFill
 exports.randomFillSync = rf.randomFillSync
@@ -16962,7 +16970,7 @@ exports.constants = {
  * See http://pajhome.org.uk/crypt/md5 for more info.
  */
 
-var makeHash = __webpack_require__(172)
+var makeHash = __webpack_require__(170)
 
 /*
  * Calculate the MD5 of an array of little-endian words, and a bit length
@@ -17112,7 +17120,7 @@ module.exports = function md5 (buf) {
 "use strict";
 /* WEBPACK VAR INJECTION */(function(Buffer) {
 var inherits = __webpack_require__(0)
-var HashBase = __webpack_require__(173)
+var HashBase = __webpack_require__(171)
 
 function RIPEMD160 () {
   HashBase.call(this, 64)
@@ -17438,7 +17446,7 @@ module.exports = RIPEMD160
 
 /*<replacement>*/
 
-var processNextTick = __webpack_require__(73);
+var processNextTick = __webpack_require__(74);
 /*</replacement>*/
 
 module.exports = Writable;
@@ -17475,13 +17483,13 @@ var Duplex;
 Writable.WritableState = WritableState;
 
 /*<replacement>*/
-var util = __webpack_require__(59);
+var util = __webpack_require__(58);
 util.inherits = __webpack_require__(0);
 /*</replacement>*/
 
 /*<replacement>*/
 var internalUtil = {
-  deprecate: __webpack_require__(178)
+  deprecate: __webpack_require__(176)
 };
 /*</replacement>*/
 
@@ -17507,7 +17515,7 @@ util.inherits(Writable, Stream);
 function nop() {}
 
 function WritableState(options, stream) {
-  Duplex = Duplex || __webpack_require__(28);
+  Duplex = Duplex || __webpack_require__(27);
 
   options = options || {};
 
@@ -17647,7 +17655,7 @@ if (typeof Symbol === 'function' && Symbol.hasInstance && typeof Function.protot
 }
 
 function Writable(options) {
-  Duplex = Duplex || __webpack_require__(28);
+  Duplex = Duplex || __webpack_require__(27);
 
   // Writable ctor is applied to Duplexes, too.
   // `realHasInstance` is necessary because using plain `instanceof`
@@ -18073,7 +18081,7 @@ Writable.prototype._destroy = function (err, cb) {
   this.end();
   cb(err);
 };
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(176).setImmediate, __webpack_require__(8)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(174).setImmediate, __webpack_require__(8)))
 
 /***/ }),
 /* 90 */
@@ -18315,11 +18323,11 @@ var exports = module.exports = function SHA (algorithm) {
   return new Algorithm()
 }
 
-exports.sha = __webpack_require__(183)
-exports.sha1 = __webpack_require__(184)
-exports.sha224 = __webpack_require__(185)
+exports.sha = __webpack_require__(181)
+exports.sha1 = __webpack_require__(182)
+exports.sha224 = __webpack_require__(183)
 exports.sha256 = __webpack_require__(115)
-exports.sha384 = __webpack_require__(186)
+exports.sha384 = __webpack_require__(184)
 exports.sha512 = __webpack_require__(116)
 
 
@@ -18327,8 +18335,8 @@ exports.sha512 = __webpack_require__(116)
 /* 92 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var ciphers = __webpack_require__(193)
-var deciphers = __webpack_require__(201)
+var ciphers = __webpack_require__(191)
+var deciphers = __webpack_require__(199)
 var modes = __webpack_require__(125)
 
 function getCiphers () {
@@ -18347,12 +18355,12 @@ exports.listCiphers = exports.getCiphers = getCiphers
 /***/ (function(module, exports, __webpack_require__) {
 
 var modeModules = {
-  ECB: __webpack_require__(194),
-  CBC: __webpack_require__(195),
-  CFB: __webpack_require__(196),
-  CFB8: __webpack_require__(197),
-  CFB1: __webpack_require__(198),
-  OFB: __webpack_require__(199),
+  ECB: __webpack_require__(192),
+  CBC: __webpack_require__(193),
+  CFB: __webpack_require__(194),
+  CFB8: __webpack_require__(195),
+  CFB1: __webpack_require__(196),
+  OFB: __webpack_require__(197),
   CTR: __webpack_require__(123),
   GCM: __webpack_require__(123)
 }
@@ -18373,11 +18381,11 @@ module.exports = modes
 "use strict";
 
 
-exports.utils = __webpack_require__(203);
-exports.Cipher = __webpack_require__(204);
-exports.DES = __webpack_require__(205);
-exports.CBC = __webpack_require__(206);
-exports.EDE = __webpack_require__(207);
+exports.utils = __webpack_require__(201);
+exports.Cipher = __webpack_require__(202);
+exports.DES = __webpack_require__(203);
+exports.CBC = __webpack_require__(204);
+exports.EDE = __webpack_require__(205);
 
 
 /***/ }),
@@ -18385,7 +18393,7 @@ exports.EDE = __webpack_require__(207);
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {var bn = __webpack_require__(6);
-var randomBytes = __webpack_require__(34);
+var randomBytes = __webpack_require__(33);
 module.exports = crt;
 function blind(priv) {
   var r = getr(priv);
@@ -18434,10 +18442,10 @@ function getr(priv) {
 var hash = exports;
 
 hash.utils = __webpack_require__(16);
-hash.common = __webpack_require__(61);
-hash.sha = __webpack_require__(223);
-hash.ripemd = __webpack_require__(227);
-hash.hmac = __webpack_require__(228);
+hash.common = __webpack_require__(60);
+hash.sha = __webpack_require__(221);
+hash.ripemd = __webpack_require__(225);
+hash.hmac = __webpack_require__(226);
 
 // Proxy hash functions to the main object
 hash.sha1 = hash.sha.sha1;
@@ -18452,9 +18460,9 @@ hash.ripemd160 = hash.ripemd.ripemd160;
 /* 97 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(global) {var ClientRequest = __webpack_require__(258)
-var extend = __webpack_require__(261)
-var statusCodes = __webpack_require__(262)
+/* WEBPACK VAR INJECTION */(function(global) {var ClientRequest = __webpack_require__(256)
+var extend = __webpack_require__(259)
+var statusCodes = __webpack_require__(260)
 var url = __webpack_require__(98)
 
 var http = exports
@@ -18561,8 +18569,8 @@ http.METHODS = [
 
 
 
-var punycode = __webpack_require__(263);
-var util = __webpack_require__(264);
+var punycode = __webpack_require__(261);
+var util = __webpack_require__(262);
 
 exports.parse = urlParse;
 exports.resolve = urlResolve;
@@ -18637,7 +18645,7 @@ var protocolPattern = /^([a-z0-9.+-]+:)/i,
       'gopher:': true,
       'file:': true
     },
-    querystring = __webpack_require__(265);
+    querystring = __webpack_require__(263);
 
 function urlParse(url, parseQueryString, slashesDenoteHost) {
   if (url && util.isObject(url) && url instanceof Url) return url;
@@ -19430,8 +19438,38 @@ module.exports = AroundServers;
 /* 102 */
 /***/ (function(module, exports, __webpack_require__) {
 
+/**
+ * Plugins manager for Server class. Because of webpack behavior,
+ * we have to set hard coded path in require() method. For this,
+ * we have to have plugins managers for every class, which need it.
+ *
+ * @author flatline
+ */
+const Plugins = __webpack_require__(35);
+
+class ServerPlugins extends Plugins {
+    /**
+     * Is used to fix webpack disability to load dynamic modules with require()
+     * @param {String} path Path to the module
+     * @return {Function|Object} imported module
+     */
+    require(path) {
+        try {
+            return __webpack_require__(282)("./" + path);
+        } catch (e) {
+            return __webpack_require__(158)("./" + path);
+        }
+    }
+}
+
+module.exports = ServerPlugins;
+
+/***/ }),
+/* 103 */
+/***/ (function(module, exports, __webpack_require__) {
+
 describe("client/src/organism/OperatorsDos", () => {
-    let OperatorsDos = __webpack_require__(33);
+    let OperatorsDos = __webpack_require__(32);
     let Helper       = __webpack_require__(5);
     let Observer     = __webpack_require__(11);
     let EVENTS       = __webpack_require__(4).EVENTS;
@@ -20479,17 +20517,17 @@ describe("client/src/organism/OperatorsDos", () => {
 });
 
 /***/ }),
-/* 103 */
+/* 104 */
 /***/ (function(module, exports, __webpack_require__) {
 
 //
 // This spec covers two classes "Organism" and "OrganismDos"
 //
 describe("client/src/organism/OrganismDos", () => {
-    let OrganismDos = __webpack_require__(24);
+    let OrganismDos = __webpack_require__(23);
     let Config      = __webpack_require__(1).Config;
     let api         = __webpack_require__(1).api;
-    let THelper     = __webpack_require__(21);
+    let THelper     = __webpack_require__(20);
     let cls;
 
     beforeEach(() => {cls = Config.codeOperatorsCls;api.set('codeOperatorsCls', 'ops')});
@@ -20693,18 +20731,18 @@ describe("client/src/organism/OrganismDos", () => {
 });
 
 /***/ }),
-/* 104 */
+/* 105 */
 /***/ (function(module, exports, __webpack_require__) {
 
 describe("client/src/organism/JSVM", () => {
-    let JSVM         = __webpack_require__(26);
+    let JSVM         = __webpack_require__(25);
     let Num          = __webpack_require__(12);
-    let Operators    = __webpack_require__(20);
+    let Operators    = __webpack_require__(19);
     let Observer     = __webpack_require__(11);
     let Helper       = __webpack_require__(5);
     let Config       = __webpack_require__(1).Config;
     let api          = __webpack_require__(1).api;
-    let THelper      = __webpack_require__(21);
+    let THelper      = __webpack_require__(20);
     let cls          = null;
 
     beforeEach(() => {cls = Config.codeOperatorsCls;api.set('codeOperatorsCls', 'ops')});
@@ -21240,7 +21278,7 @@ describe("client/src/organism/JSVM", () => {
 });
 
 /***/ }),
-/* 105 */
+/* 106 */
 /***/ (function(module, exports, __webpack_require__) {
 
 describe("client/src/organism/Num", () => {
@@ -21322,11 +21360,11 @@ describe("client/src/organism/Num", () => {
 });
 
 /***/ }),
-/* 106 */
+/* 107 */
 /***/ (function(module, exports, __webpack_require__) {
 
 describe("client/src/visual/World", () => {
-    let World  = __webpack_require__(55);
+    let World  = __webpack_require__(54);
     let EVENTS = __webpack_require__(4).EVENTS;
 
     it("Checking world creation", () => {
@@ -21542,115 +21580,6 @@ describe("client/src/visual/World", () => {
 });
 
 /***/ }),
-/* 107 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var map = {
-	"./dist/index.html": 169,
-	"./src/App": 65,
-	"./src/App.js": 65,
-	"./src/global/Config": 1,
-	"./src/global/Config.js": 1,
-	"./src/global/Console": 7,
-	"./src/global/Console.js": 7,
-	"./src/global/Events": 4,
-	"./src/global/Events.js": 4,
-	"./src/global/Fs": 80,
-	"./src/global/Fs.js": 80,
-	"./src/manager/Manager": 66,
-	"./src/manager/Manager.js": 66,
-	"./src/manager/manager/Plugins": 69,
-	"./src/manager/manager/Plugins.js": 69,
-	"./src/manager/plugins/Backup": 29,
-	"./src/manager/plugins/Backup.js": 29,
-	"./src/manager/plugins/Config": 38,
-	"./src/manager/plugins/Config.js": 38,
-	"./src/manager/plugins/Energy": 39,
-	"./src/manager/plugins/Energy.js": 39,
-	"./src/manager/plugins/Mutator": 40,
-	"./src/manager/plugins/Mutator.js": 40,
-	"./src/manager/plugins/Status": 41,
-	"./src/manager/plugins/Status.js": 41,
-	"./src/manager/plugins/client/Client": 14,
-	"./src/manager/plugins/client/Client.js": 14,
-	"./src/manager/plugins/client/Config": 42,
-	"./src/manager/plugins/client/Config.js": 42,
-	"./src/manager/plugins/client/cilent/Plugins": 31,
-	"./src/manager/plugins/client/cilent/Plugins.js": 31,
-	"./src/manager/plugins/client/plugins/Api": 43,
-	"./src/manager/plugins/client/plugins/Api.js": 43,
-	"./src/manager/plugins/ips/Config": 32,
-	"./src/manager/plugins/ips/Config.js": 32,
-	"./src/manager/plugins/ips/Ips": 45,
-	"./src/manager/plugins/ips/Ips.js": 45,
-	"./src/manager/plugins/organisms/base/Organism": 25,
-	"./src/manager/plugins/organisms/base/Organism.js": 25,
-	"./src/manager/plugins/organisms/base/Organisms": 27,
-	"./src/manager/plugins/organisms/base/Organisms.js": 27,
-	"./src/manager/plugins/organisms/base/organism/JSVM": 26,
-	"./src/manager/plugins/organisms/base/organism/JSVM.js": 26,
-	"./src/manager/plugins/organisms/base/organism/jsvm/Operators": 20,
-	"./src/manager/plugins/organisms/base/organism/jsvm/Operators.js": 20,
-	"./src/manager/plugins/organisms/base/organisms/code2string/Num": 12,
-	"./src/manager/plugins/organisms/base/organisms/code2string/Num.js": 12,
-	"./src/manager/plugins/organisms/dos/Config": 46,
-	"./src/manager/plugins/organisms/dos/Config.js": 46,
-	"./src/manager/plugins/organisms/dos/Organism": 24,
-	"./src/manager/plugins/organisms/dos/Organism.js": 24,
-	"./src/manager/plugins/organisms/dos/Organisms": 47,
-	"./src/manager/plugins/organisms/dos/Organisms.js": 47,
-	"./src/manager/plugins/organisms/dos/organism/jsvm/Operators": 33,
-	"./src/manager/plugins/organisms/dos/organism/jsvm/Operators.js": 33,
-	"./src/manager/plugins/organisms/dos/organisms/Code2String": 48,
-	"./src/manager/plugins/organisms/dos/organisms/Code2String.js": 48,
-	"./src/manager/plugins/organisms/garmin/Config": 49,
-	"./src/manager/plugins/organisms/garmin/Config.js": 49,
-	"./src/manager/plugins/organisms/garmin/Organism": 50,
-	"./src/manager/plugins/organisms/garmin/Organism.js": 50,
-	"./src/manager/plugins/organisms/garmin/Organisms": 51,
-	"./src/manager/plugins/organisms/garmin/Organisms.js": 51,
-	"./src/manager/plugins/organisms/garmin/organism/jsvm/Operators": 52,
-	"./src/manager/plugins/organisms/garmin/organism/jsvm/Operators.js": 52,
-	"./src/manager/plugins/organisms/garmin/organisms/Code2String": 53,
-	"./src/manager/plugins/organisms/garmin/organisms/Code2String.js": 53,
-	"./src/manager/plugins/organisms/garmin/organisms/Fitness": 54,
-	"./src/manager/plugins/organisms/garmin/organisms/Fitness.js": 54,
-	"./src/manager/visual/Canvas": 71,
-	"./src/manager/visual/Canvas.js": 71,
-	"./src/manager/visual/World": 55,
-	"./src/manager/visual/World.js": 55,
-	"./tests/global/ConsoleSpec": 83,
-	"./tests/global/ConsoleSpec.js": 83,
-	"./tests/manager/plugins/ClientSpec": 84,
-	"./tests/manager/plugins/ClientSpec.js": 84,
-	"./tests/manager/plugins/organisms/dos/OperatorsSpec": 102,
-	"./tests/manager/plugins/organisms/dos/OperatorsSpec.js": 102,
-	"./tests/manager/plugins/organisms/dos/OrganismSpec": 103,
-	"./tests/manager/plugins/organisms/dos/OrganismSpec.js": 103,
-	"./tests/manager/plugins/organisms/organism/JSVMSpec": 104,
-	"./tests/manager/plugins/organisms/organism/JSVMSpec.js": 104,
-	"./tests/manager/plugins/organisms/organism/NumSpec": 105,
-	"./tests/manager/plugins/organisms/organism/NumSpec.js": 105,
-	"./tests/visual/WorldSpec": 106,
-	"./tests/visual/WorldSpec.js": 106
-};
-function webpackContext(req) {
-	return __webpack_require__(webpackContextResolve(req));
-};
-function webpackContextResolve(req) {
-	var id = map[req];
-	if(!(id + 1)) // check for number or string
-		throw new Error("Cannot find module '" + req + "'.");
-	return id;
-};
-webpackContext.keys = function webpackContextKeys() {
-	return Object.keys(map);
-};
-webpackContext.resolve = webpackContextResolve;
-module.exports = webpackContext;
-webpackContext.id = 107;
-
-/***/ }),
 /* 108 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -21663,15 +21592,15 @@ webpackContext.id = 107;
 
 
 
-const EventEmitter = __webpack_require__(56);
+const EventEmitter = __webpack_require__(55);
 const crypto = __webpack_require__(86);
 const Ultron = __webpack_require__(144);
-const https = __webpack_require__(257);
+const https = __webpack_require__(255);
 const http = __webpack_require__(97);
 const url = __webpack_require__(98);
 
-const PerMessageDeflate = __webpack_require__(78);
-const EventTarget = __webpack_require__(281);
+const PerMessageDeflate = __webpack_require__(79);
+const EventTarget = __webpack_require__(279);
 const Extensions = __webpack_require__(150);
 const constants = __webpack_require__(100);
 const Receiver = __webpack_require__(151);
@@ -22409,7 +22338,7 @@ module.exports = Array.isArray || function (arr) {
 
 /*<replacement>*/
 
-var processNextTick = __webpack_require__(73);
+var processNextTick = __webpack_require__(74);
 /*</replacement>*/
 
 module.exports = Readable;
@@ -22425,7 +22354,7 @@ var Duplex;
 Readable.ReadableState = ReadableState;
 
 /*<replacement>*/
-var EE = __webpack_require__(56).EventEmitter;
+var EE = __webpack_require__(55).EventEmitter;
 
 var EElistenerCount = function (emitter, type) {
   return emitter.listeners(type).length;
@@ -22450,12 +22379,12 @@ function _isUint8Array(obj) {
 /*</replacement>*/
 
 /*<replacement>*/
-var util = __webpack_require__(59);
+var util = __webpack_require__(58);
 util.inherits = __webpack_require__(0);
 /*</replacement>*/
 
 /*<replacement>*/
-var debugUtil = __webpack_require__(174);
+var debugUtil = __webpack_require__(172);
 var debug = void 0;
 if (debugUtil && debugUtil.debuglog) {
   debug = debugUtil.debuglog('stream');
@@ -22464,7 +22393,7 @@ if (debugUtil && debugUtil.debuglog) {
 }
 /*</replacement>*/
 
-var BufferList = __webpack_require__(175);
+var BufferList = __webpack_require__(173);
 var destroyImpl = __webpack_require__(112);
 var StringDecoder;
 
@@ -22487,7 +22416,7 @@ function prependListener(emitter, event, fn) {
 }
 
 function ReadableState(options, stream) {
-  Duplex = Duplex || __webpack_require__(28);
+  Duplex = Duplex || __webpack_require__(27);
 
   options = options || {};
 
@@ -22555,7 +22484,7 @@ function ReadableState(options, stream) {
 }
 
 function Readable(options) {
-  Duplex = Duplex || __webpack_require__(28);
+  Duplex = Duplex || __webpack_require__(27);
 
   if (!(this instanceof Readable)) return new Readable(options);
 
@@ -23397,7 +23326,7 @@ function indexOf(xs, x) {
 /* 111 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(56).EventEmitter;
+module.exports = __webpack_require__(55).EventEmitter;
 
 
 /***/ }),
@@ -23409,7 +23338,7 @@ module.exports = __webpack_require__(56).EventEmitter;
 
 /*<replacement>*/
 
-var processNextTick = __webpack_require__(73);
+var processNextTick = __webpack_require__(74);
 /*</replacement>*/
 
 // undocumented cb() API, needed for core, not for public API
@@ -23550,10 +23479,10 @@ module.exports = {
 
 module.exports = Transform;
 
-var Duplex = __webpack_require__(28);
+var Duplex = __webpack_require__(27);
 
 /*<replacement>*/
-var util = __webpack_require__(59);
+var util = __webpack_require__(58);
 util.inherits = __webpack_require__(0);
 /*</replacement>*/
 
@@ -23702,7 +23631,7 @@ function done(stream, er, data) {
 /* 114 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(58).Transform
+module.exports = __webpack_require__(57).Transform
 
 
 /***/ }),
@@ -23718,7 +23647,7 @@ module.exports = __webpack_require__(58).Transform
  */
 
 var inherits = __webpack_require__(0)
-var Hash = __webpack_require__(35)
+var Hash = __webpack_require__(34)
 var Buffer = __webpack_require__(2).Buffer
 
 var K = [
@@ -23851,7 +23780,7 @@ module.exports = Sha256
 /***/ (function(module, exports, __webpack_require__) {
 
 var inherits = __webpack_require__(0)
-var Hash = __webpack_require__(35)
+var Hash = __webpack_require__(34)
 var Buffer = __webpack_require__(2).Buffer
 
 var K = [
@@ -24119,8 +24048,8 @@ module.exports = Sha512
 "use strict";
 
 var inherits = __webpack_require__(0)
-var Legacy = __webpack_require__(187)
-var Base = __webpack_require__(22)
+var Legacy = __webpack_require__(185)
+var Base = __webpack_require__(21)
 var Buffer = __webpack_require__(2).Buffer
 var md5 = __webpack_require__(87)
 var RIPEMD160 = __webpack_require__(88)
@@ -24192,7 +24121,7 @@ module.exports = {"sha224WithRSAEncryption":{"sign":"rsa","hash":"sha224","id":"
 /***/ (function(module, exports, __webpack_require__) {
 
 
-exports.pbkdf2 = __webpack_require__(189)
+exports.pbkdf2 = __webpack_require__(187)
 
 exports.pbkdf2Sync = __webpack_require__(122)
 
@@ -24349,7 +24278,7 @@ module.exports = pbkdf2
 /* 123 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var xor = __webpack_require__(60)
+var xor = __webpack_require__(59)
 var Buffer = __webpack_require__(2).Buffer
 var incr32 = __webpack_require__(124)
 
@@ -24412,12 +24341,12 @@ module.exports = {"aes-128-ecb":{"cipher":"AES","key":128,"iv":0,"mode":"ECB","t
 /* 126 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var aes = __webpack_require__(75)
+var aes = __webpack_require__(76)
 var Buffer = __webpack_require__(2).Buffer
-var Transform = __webpack_require__(22)
+var Transform = __webpack_require__(21)
 var inherits = __webpack_require__(0)
-var GHASH = __webpack_require__(200)
-var xor = __webpack_require__(60)
+var GHASH = __webpack_require__(198)
+var xor = __webpack_require__(59)
 var incr32 = __webpack_require__(124)
 
 function xorTest (a, b) {
@@ -24535,9 +24464,9 @@ module.exports = StreamCipher
 /* 127 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var aes = __webpack_require__(75)
+var aes = __webpack_require__(76)
 var Buffer = __webpack_require__(2).Buffer
-var Transform = __webpack_require__(22)
+var Transform = __webpack_require__(21)
 var inherits = __webpack_require__(0)
 
 function StreamCipher (mode, key, iv, decrypt) {
@@ -24568,7 +24497,7 @@ module.exports = StreamCipher
 /* 128 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var randomBytes = __webpack_require__(34);
+var randomBytes = __webpack_require__(33);
 module.exports = findPrime;
 findPrime.simpleSieve = simpleSieve;
 findPrime.fermatTest = fermatTest;
@@ -24883,7 +24812,7 @@ if (typeof self === 'object') {
 } else {
   // Node.js or Web worker with no crypto support
   try {
-    var crypto = __webpack_require__(211);
+    var crypto = __webpack_require__(209);
     if (typeof crypto.randomBytes !== 'function')
       throw new Error('Not supported');
 
@@ -25024,7 +24953,7 @@ exports.g1_256 = g1_256;
 
 
 var utils = __webpack_require__(16);
-var common = __webpack_require__(61);
+var common = __webpack_require__(60);
 var shaCommon = __webpack_require__(133);
 var assert = __webpack_require__(13);
 
@@ -25136,7 +25065,7 @@ SHA256.prototype._digest = function digest(enc) {
 
 
 var utils = __webpack_require__(16);
-var common = __webpack_require__(61);
+var common = __webpack_require__(60);
 var assert = __webpack_require__(13);
 
 var rotr64_hi = utils.rotr64_hi;
@@ -25470,7 +25399,7 @@ function g1_512_lo(xh, xl) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var inherits = __webpack_require__(0);
-var Reporter = __webpack_require__(63).Reporter;
+var Reporter = __webpack_require__(62).Reporter;
 var Buffer = __webpack_require__(3).Buffer;
 
 function DecoderBuffer(base, options) {
@@ -25609,7 +25538,7 @@ constants._reverse = function reverse(map) {
   return res;
 };
 
-constants.der = __webpack_require__(243);
+constants.der = __webpack_require__(241);
 
 
 /***/ }),
@@ -25618,7 +25547,7 @@ constants.der = __webpack_require__(243);
 
 var inherits = __webpack_require__(0);
 
-var asn1 = __webpack_require__(62);
+var asn1 = __webpack_require__(61);
 var base = asn1.base;
 var bignum = asn1.bignum;
 
@@ -25949,7 +25878,7 @@ function derDecodeLen(buf, primitive, fail) {
 var inherits = __webpack_require__(0);
 var Buffer = __webpack_require__(3).Buffer;
 
-var asn1 = __webpack_require__(62);
+var asn1 = __webpack_require__(61);
 var base = asn1.base;
 
 // Import DER constants
@@ -26253,7 +26182,7 @@ module.exports = {"1.3.132.0.10":"secp256k1","1.3.132.0.33":"p224","1.2.840.1004
 /* 141 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(Buffer) {var createHash = __webpack_require__(57);
+/* WEBPACK VAR INJECTION */(function(Buffer) {var createHash = __webpack_require__(56);
 module.exports = function (seed, len) {
   var t = new Buffer('');
   var  i = 0, c;
@@ -27157,7 +27086,7 @@ function isPrimitive(arg) {
 }
 exports.isPrimitive = isPrimitive;
 
-exports.isBuffer = __webpack_require__(278);
+exports.isBuffer = __webpack_require__(276);
 
 function objectToString(o) {
   return Object.prototype.toString.call(o);
@@ -27201,7 +27130,7 @@ exports.log = function() {
  *     prototype.
  * @param {function} superCtor Constructor function to inherit prototype from.
  */
-exports.inherits = __webpack_require__(279);
+exports.inherits = __webpack_require__(277);
 
 exports._extend = function(origin, add) {
   // Don't do anything if add isn't an object
@@ -27310,8 +27239,8 @@ module.exports = { format, parse };
 
 const safeBuffer = __webpack_require__(2);
 
-const PerMessageDeflate = __webpack_require__(78);
-const isValidUTF8 = __webpack_require__(282);
+const PerMessageDeflate = __webpack_require__(79);
+const isValidUTF8 = __webpack_require__(280);
 const bufferUtil = __webpack_require__(99);
 const ErrorCodes = __webpack_require__(152);
 const constants = __webpack_require__(100);
@@ -27906,7 +27835,7 @@ module.exports = {
 const safeBuffer = __webpack_require__(2);
 const crypto = __webpack_require__(86);
 
-const PerMessageDeflate = __webpack_require__(78);
+const PerMessageDeflate = __webpack_require__(79);
 const bufferUtil = __webpack_require__(99);
 const ErrorCodes = __webpack_require__(152);
 
@@ -28300,168 +28229,25 @@ function viewToBuffer (view) {
 /* 154 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var map = {
-	"./src/global/ClientPlugins": 155,
-	"./src/global/ClientPlugins.js": 155,
-	"./src/global/CommonPlugins": 156,
-	"./src/global/CommonPlugins.js": 156,
-	"./src/global/Config": 68,
-	"./src/global/Config.js": 68,
-	"./src/global/Configurable": 82,
-	"./src/global/Configurable.js": 82,
-	"./src/global/Directions": 17,
-	"./src/global/Directions.js": 17,
-	"./src/global/Helper": 5,
-	"./src/global/Helper.js": 5,
-	"./src/global/Observer": 11,
-	"./src/global/Observer.js": 11,
-	"./src/global/Plugins": 19,
-	"./src/global/Plugins.js": 19,
-	"./src/global/Queue": 67,
-	"./src/global/Queue.js": 67,
-	"./src/global/Requests": 15,
-	"./src/global/Requests.js": 15,
-	"./src/global/ServerPlugins": 157,
-	"./src/global/ServerPlugins.js": 157,
-	"./src/net/Connection": 30,
-	"./src/net/Connection.js": 30,
-	"./src/net/plugins/Api": 44,
-	"./src/net/plugins/Api.js": 44,
-	"./src/net/plugins/Request": 37,
-	"./src/net/plugins/Request.js": 37,
-	"./tests/Helper": 21,
-	"./tests/Helper.js": 21,
-	"./tests/global/ConfigSpec": 162,
-	"./tests/global/ConfigSpec.js": 162,
-	"./tests/global/HelperSpec": 163,
-	"./tests/global/HelperSpec.js": 163,
-	"./tests/global/ObserverSpec": 164,
-	"./tests/global/ObserverSpec.js": 164,
-	"./tests/global/QueueSpec": 165,
-	"./tests/global/QueueSpec.js": 165,
-	"./tests/net/plugins/ApiSpec": 166,
-	"./tests/net/plugins/ApiSpec.js": 166
-};
-function webpackContext(req) {
-	return __webpack_require__(webpackContextResolve(req));
-};
-function webpackContextResolve(req) {
-	var id = map[req];
-	if(!(id + 1)) // check for number or string
-		throw new Error("Cannot find module '" + req + "'.");
-	return id;
-};
-webpackContext.keys = function webpackContextKeys() {
-	return Object.keys(map);
-};
-webpackContext.resolve = webpackContextResolve;
-module.exports = webpackContext;
-webpackContext.id = 154;
-
-/***/ }),
-/* 155 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * The same like Plugins, but loads plugins from './client' folder and deeper
- *
- * @author flatline
- */
-const Plugins = __webpack_require__(19);
-
-class ClientPlugins extends Plugins {
-    /**
-     * Is used to fix webpack disability to load dynamic modules with require()
-     * @param {String} path Path to the module
-     * @return {Function|Object} imported module
-     */
-    require(path) {
-        return __webpack_require__(107)("./" + path);
-    }
-}
-
-module.exports = ClientPlugins;
-
-/***/ }),
-/* 156 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * The same like Plugins, but loads plugins from './common' folder and deeper
- *
- * @author flatline
- */
-const Plugins = __webpack_require__(19);
-
-class CommonPlugins extends Plugins {
-    /**
-     * Is used to fix webpack disability to load dynamic modules with require()
-     * @param {String} path Path to the module
-     * @return {Function|Object} imported module
-     */
-    require(path) {
-        return __webpack_require__(154)("./" + path);
-    }
-}
-
-module.exports = CommonPlugins;
-
-/***/ }),
-/* 157 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * The same like Plugins, but loads plugins from './server' folder and deeper
- *
- * @author flatline
- */
-const Plugins = __webpack_require__(19);
-
-class ServerPlugins extends Plugins {
-    /**
-     * Is used to fix webpack disability to load dynamic modules with require()
-     * @param {String} path Path to the module
-     * @return {Function|Object} imported module
-     */
-    require(path) {
-        return __webpack_require__(285)("./" + path);
-    }
-}
-
-module.exports = ServerPlugins;
-
-/***/ }),
-/* 158 */
-/***/ (function(module, exports, __webpack_require__) {
-
 /**
  * Server side application entry point. In fact, runs server and starts
  * listen for incoming connections from clients\Managers.
  *
  * @author flatline
  */
-const Server  = __webpack_require__(18).Server;
-const Api     = __webpack_require__(36);
-const Request = __webpack_require__(37);
+const Server = __webpack_require__(18).Server;
+const Config = __webpack_require__(40).Config;
 
-const PLUGINS = {
-    Request,
-    Api
-};
-
-// TODO: port should be obtained from command line parameter
-// TODO: max connections should be obtained from cmd line parameter
-// TODO: Or, maybe these parameter will be obtained from Admin server
-const server = new Server(8099, PLUGINS);
+const server = new Server(Config.port);
 server.run();
 
 /***/ }),
-/* 159 */
+/* 155 */
 /***/ (function(module, exports, __webpack_require__) {
 
 describe("server/src/server/Connections", () => {
     const Connections = __webpack_require__(64);
-    let THelper       = __webpack_require__(21);
+    let THelper       = __webpack_require__(20);
 
     it("Checking Connections instance creation", () => {
         let cons = new Connections(1);
@@ -28618,7 +28404,7 @@ describe("server/src/server/Connections", () => {
 
 
 /***/ }),
-/* 160 */
+/* 156 */
 /***/ (function(module, exports, __webpack_require__) {
 
 describe("server/src/server/Server", () => {
@@ -28632,12 +28418,12 @@ describe("server/src/server/Server", () => {
     const SEVENTS      = __webpack_require__(18).EVENTS;
     const CEVENTS      = __webpack_require__(14).EVENTS;
     const EVENT_AMOUNT = __webpack_require__(4).EVENT_AMOUNT;
-    const SConsole     = __webpack_require__(23);
+    const SConsole     = __webpack_require__(22);
     const Console      = __webpack_require__(7);
-    const Helper       = __webpack_require__(21);
+    const Helper       = __webpack_require__(20);
     const TYPES        = __webpack_require__(15).TYPES;
-    const Api          = __webpack_require__(36);
-    const Request      = __webpack_require__(37);
+    const Api          = __webpack_require__(63);
+    const Request      = __webpack_require__(65);
     const waitEvent    = Helper.waitEvent;
 
     const PLUGINS = {
@@ -28926,7 +28712,7 @@ describe("server/src/server/Server", () => {
 });
 
 /***/ }),
-/* 161 */
+/* 157 */
 /***/ (function(module, exports, __webpack_require__) {
 
 describe("server/src/server/plugins/Api", () => {
@@ -28939,11 +28725,11 @@ describe("server/src/server/plugins/Api", () => {
     const CEVENTS      = __webpack_require__(14).EVENTS;
     const SEVENTS      = __webpack_require__(18).EVENTS;
     const EVENT_AMOUNT = __webpack_require__(4).EVENT_AMOUNT;
-    const SConsole     = __webpack_require__(23);
+    const SConsole     = __webpack_require__(22);
     const Console      = __webpack_require__(7);
-    const Helper       = __webpack_require__(21);
-    const Api          = __webpack_require__(36);
-    const Request      = __webpack_require__(37);
+    const Helper       = __webpack_require__(20);
+    const Api          = __webpack_require__(63);
+    const Request      = __webpack_require__(65);
 
     const PLUGINS = {
         Request,
@@ -29059,7 +28845,63 @@ describe("server/src/server/plugins/Api", () => {
 });
 
 /***/ }),
-/* 162 */
+/* 158 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var map = {
+	"./src/global/Config": 69,
+	"./src/global/Config.js": 69,
+	"./src/global/Configurable": 82,
+	"./src/global/Configurable.js": 82,
+	"./src/global/Directions": 17,
+	"./src/global/Directions.js": 17,
+	"./src/global/Helper": 5,
+	"./src/global/Helper.js": 5,
+	"./src/global/Observer": 11,
+	"./src/global/Observer.js": 11,
+	"./src/global/Plugins": 35,
+	"./src/global/Plugins.js": 35,
+	"./src/global/Queue": 68,
+	"./src/global/Queue.js": 68,
+	"./src/global/Requests": 15,
+	"./src/global/Requests.js": 15,
+	"./src/net/Connection": 29,
+	"./src/net/Connection.js": 29,
+	"./src/net/plugins/Api": 43,
+	"./src/net/plugins/Api.js": 43,
+	"./src/net/plugins/Request": 65,
+	"./src/net/plugins/Request.js": 65,
+	"./tests/Helper": 20,
+	"./tests/Helper.js": 20,
+	"./tests/global/ConfigSpec": 159,
+	"./tests/global/ConfigSpec.js": 159,
+	"./tests/global/HelperSpec": 160,
+	"./tests/global/HelperSpec.js": 160,
+	"./tests/global/ObserverSpec": 161,
+	"./tests/global/ObserverSpec.js": 161,
+	"./tests/global/QueueSpec": 162,
+	"./tests/global/QueueSpec.js": 162,
+	"./tests/net/plugins/ApiSpec": 163,
+	"./tests/net/plugins/ApiSpec.js": 163
+};
+function webpackContext(req) {
+	return __webpack_require__(webpackContextResolve(req));
+};
+function webpackContextResolve(req) {
+	var id = map[req];
+	if(!(id + 1)) // check for number or string
+		throw new Error("Cannot find module '" + req + "'.");
+	return id;
+};
+webpackContext.keys = function webpackContextKeys() {
+	return Object.keys(map);
+};
+webpackContext.resolve = webpackContextResolve;
+module.exports = webpackContext;
+webpackContext.id = 158;
+
+/***/ }),
+/* 159 */
 /***/ (function(module, exports, __webpack_require__) {
 
 describe("common/src/global/Config", () => {
@@ -29090,7 +28932,7 @@ describe("common/src/global/Config", () => {
 });
 
 /***/ }),
-/* 163 */
+/* 160 */
 /***/ (function(module, exports, __webpack_require__) {
 
 describe("common/src/global/Helper", () => {
@@ -29243,7 +29085,7 @@ describe("common/src/global/Helper", () => {
 });
 
 /***/ }),
-/* 164 */
+/* 161 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // TODO: add two events test
@@ -29419,11 +29261,11 @@ describe("common/src/global/Observer", () => {
 });
 
 /***/ }),
-/* 165 */
+/* 162 */
 /***/ (function(module, exports, __webpack_require__) {
 
 describe('common/src/global/Queue', () => {
-    let Queue = __webpack_require__(67);
+    let Queue = __webpack_require__(68);
     let q;
 
     beforeEach(() => q = new Queue());
@@ -29565,11 +29407,11 @@ describe('common/src/global/Queue', () => {
 
 
 /***/ }),
-/* 166 */
+/* 163 */
 /***/ (function(module, exports, __webpack_require__) {
 
 describe("common/src/net/plugins/Api", () => {
-    const Api   = __webpack_require__(44);
+    const Api   = __webpack_require__(43);
     const MASKS = __webpack_require__(15).MASKS;
     let   val   = false;
 
@@ -29621,7 +29463,7 @@ describe("common/src/net/plugins/Api", () => {
 });
 
 /***/ }),
-/* 167 */
+/* 164 */
 /***/ (function(module, exports) {
 
 function webpackEmptyContext(req) {
@@ -29630,67 +29472,67 @@ function webpackEmptyContext(req) {
 webpackEmptyContext.keys = function() { return []; };
 webpackEmptyContext.resolve = webpackEmptyContext;
 module.exports = webpackEmptyContext;
-webpackEmptyContext.id = 167;
+webpackEmptyContext.id = 164;
 
 /***/ }),
-/* 168 */
+/* 165 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
-	"./Backup": 29,
-	"./Backup.js": 29,
-	"./Config": 38,
-	"./Config.js": 38,
-	"./Energy": 39,
-	"./Energy.js": 39,
-	"./Mutator": 40,
-	"./Mutator.js": 40,
-	"./Status": 41,
-	"./Status.js": 41,
+	"./Backup": 28,
+	"./Backup.js": 28,
+	"./Config": 36,
+	"./Config.js": 36,
+	"./Energy": 37,
+	"./Energy.js": 37,
+	"./Mutator": 38,
+	"./Mutator.js": 38,
+	"./Status": 39,
+	"./Status.js": 39,
 	"./client/Client": 14,
 	"./client/Client.js": 14,
-	"./client/Config": 42,
-	"./client/Config.js": 42,
-	"./client/cilent/Plugins": 31,
-	"./client/cilent/Plugins.js": 31,
-	"./client/plugins/Api": 43,
-	"./client/plugins/Api.js": 43,
-	"./ips/Config": 32,
-	"./ips/Config.js": 32,
-	"./ips/Ips": 45,
-	"./ips/Ips.js": 45,
-	"./organisms/base/Organism": 25,
-	"./organisms/base/Organism.js": 25,
-	"./organisms/base/Organisms": 27,
-	"./organisms/base/Organisms.js": 27,
-	"./organisms/base/organism/JSVM": 26,
-	"./organisms/base/organism/JSVM.js": 26,
-	"./organisms/base/organism/jsvm/Operators": 20,
-	"./organisms/base/organism/jsvm/Operators.js": 20,
+	"./client/Config": 41,
+	"./client/Config.js": 41,
+	"./client/cilent/Plugins": 30,
+	"./client/cilent/Plugins.js": 30,
+	"./client/plugins/Api": 42,
+	"./client/plugins/Api.js": 42,
+	"./ips/Config": 31,
+	"./ips/Config.js": 31,
+	"./ips/Ips": 44,
+	"./ips/Ips.js": 44,
+	"./organisms/base/Organism": 24,
+	"./organisms/base/Organism.js": 24,
+	"./organisms/base/Organisms": 26,
+	"./organisms/base/Organisms.js": 26,
+	"./organisms/base/organism/JSVM": 25,
+	"./organisms/base/organism/JSVM.js": 25,
+	"./organisms/base/organism/jsvm/Operators": 19,
+	"./organisms/base/organism/jsvm/Operators.js": 19,
 	"./organisms/base/organisms/code2string/Num": 12,
 	"./organisms/base/organisms/code2string/Num.js": 12,
-	"./organisms/dos/Config": 46,
-	"./organisms/dos/Config.js": 46,
-	"./organisms/dos/Organism": 24,
-	"./organisms/dos/Organism.js": 24,
-	"./organisms/dos/Organisms": 47,
-	"./organisms/dos/Organisms.js": 47,
-	"./organisms/dos/organism/jsvm/Operators": 33,
-	"./organisms/dos/organism/jsvm/Operators.js": 33,
-	"./organisms/dos/organisms/Code2String": 48,
-	"./organisms/dos/organisms/Code2String.js": 48,
-	"./organisms/garmin/Config": 49,
-	"./organisms/garmin/Config.js": 49,
-	"./organisms/garmin/Organism": 50,
-	"./organisms/garmin/Organism.js": 50,
-	"./organisms/garmin/Organisms": 51,
-	"./organisms/garmin/Organisms.js": 51,
-	"./organisms/garmin/organism/jsvm/Operators": 52,
-	"./organisms/garmin/organism/jsvm/Operators.js": 52,
-	"./organisms/garmin/organisms/Code2String": 53,
-	"./organisms/garmin/organisms/Code2String.js": 53,
-	"./organisms/garmin/organisms/Fitness": 54,
-	"./organisms/garmin/organisms/Fitness.js": 54
+	"./organisms/dos/Config": 45,
+	"./organisms/dos/Config.js": 45,
+	"./organisms/dos/Organism": 23,
+	"./organisms/dos/Organism.js": 23,
+	"./organisms/dos/Organisms": 46,
+	"./organisms/dos/Organisms.js": 46,
+	"./organisms/dos/organism/jsvm/Operators": 32,
+	"./organisms/dos/organism/jsvm/Operators.js": 32,
+	"./organisms/dos/organisms/Code2String": 47,
+	"./organisms/dos/organisms/Code2String.js": 47,
+	"./organisms/garmin/Config": 48,
+	"./organisms/garmin/Config.js": 48,
+	"./organisms/garmin/Organism": 49,
+	"./organisms/garmin/Organism.js": 49,
+	"./organisms/garmin/Organisms": 50,
+	"./organisms/garmin/Organisms.js": 50,
+	"./organisms/garmin/organism/jsvm/Operators": 51,
+	"./organisms/garmin/organism/jsvm/Operators.js": 51,
+	"./organisms/garmin/organisms/Code2String": 52,
+	"./organisms/garmin/organisms/Code2String.js": 52,
+	"./organisms/garmin/organisms/Fitness": 53,
+	"./organisms/garmin/organisms/Fitness.js": 53
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -29706,16 +29548,125 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 168;
+webpackContext.id = 165;
 
 /***/ }),
-/* 169 */
+/* 166 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var map = {
+	"./dist/index.html": 167,
+	"./src/App": 66,
+	"./src/App.js": 66,
+	"./src/global/Config": 1,
+	"./src/global/Config.js": 1,
+	"./src/global/Console": 7,
+	"./src/global/Console.js": 7,
+	"./src/global/Events": 4,
+	"./src/global/Events.js": 4,
+	"./src/global/Fs": 81,
+	"./src/global/Fs.js": 81,
+	"./src/manager/Manager": 67,
+	"./src/manager/Manager.js": 67,
+	"./src/manager/manager/Plugins": 70,
+	"./src/manager/manager/Plugins.js": 70,
+	"./src/manager/plugins/Backup": 28,
+	"./src/manager/plugins/Backup.js": 28,
+	"./src/manager/plugins/Config": 36,
+	"./src/manager/plugins/Config.js": 36,
+	"./src/manager/plugins/Energy": 37,
+	"./src/manager/plugins/Energy.js": 37,
+	"./src/manager/plugins/Mutator": 38,
+	"./src/manager/plugins/Mutator.js": 38,
+	"./src/manager/plugins/Status": 39,
+	"./src/manager/plugins/Status.js": 39,
+	"./src/manager/plugins/client/Client": 14,
+	"./src/manager/plugins/client/Client.js": 14,
+	"./src/manager/plugins/client/Config": 41,
+	"./src/manager/plugins/client/Config.js": 41,
+	"./src/manager/plugins/client/cilent/Plugins": 30,
+	"./src/manager/plugins/client/cilent/Plugins.js": 30,
+	"./src/manager/plugins/client/plugins/Api": 42,
+	"./src/manager/plugins/client/plugins/Api.js": 42,
+	"./src/manager/plugins/ips/Config": 31,
+	"./src/manager/plugins/ips/Config.js": 31,
+	"./src/manager/plugins/ips/Ips": 44,
+	"./src/manager/plugins/ips/Ips.js": 44,
+	"./src/manager/plugins/organisms/base/Organism": 24,
+	"./src/manager/plugins/organisms/base/Organism.js": 24,
+	"./src/manager/plugins/organisms/base/Organisms": 26,
+	"./src/manager/plugins/organisms/base/Organisms.js": 26,
+	"./src/manager/plugins/organisms/base/organism/JSVM": 25,
+	"./src/manager/plugins/organisms/base/organism/JSVM.js": 25,
+	"./src/manager/plugins/organisms/base/organism/jsvm/Operators": 19,
+	"./src/manager/plugins/organisms/base/organism/jsvm/Operators.js": 19,
+	"./src/manager/plugins/organisms/base/organisms/code2string/Num": 12,
+	"./src/manager/plugins/organisms/base/organisms/code2string/Num.js": 12,
+	"./src/manager/plugins/organisms/dos/Config": 45,
+	"./src/manager/plugins/organisms/dos/Config.js": 45,
+	"./src/manager/plugins/organisms/dos/Organism": 23,
+	"./src/manager/plugins/organisms/dos/Organism.js": 23,
+	"./src/manager/plugins/organisms/dos/Organisms": 46,
+	"./src/manager/plugins/organisms/dos/Organisms.js": 46,
+	"./src/manager/plugins/organisms/dos/organism/jsvm/Operators": 32,
+	"./src/manager/plugins/organisms/dos/organism/jsvm/Operators.js": 32,
+	"./src/manager/plugins/organisms/dos/organisms/Code2String": 47,
+	"./src/manager/plugins/organisms/dos/organisms/Code2String.js": 47,
+	"./src/manager/plugins/organisms/garmin/Config": 48,
+	"./src/manager/plugins/organisms/garmin/Config.js": 48,
+	"./src/manager/plugins/organisms/garmin/Organism": 49,
+	"./src/manager/plugins/organisms/garmin/Organism.js": 49,
+	"./src/manager/plugins/organisms/garmin/Organisms": 50,
+	"./src/manager/plugins/organisms/garmin/Organisms.js": 50,
+	"./src/manager/plugins/organisms/garmin/organism/jsvm/Operators": 51,
+	"./src/manager/plugins/organisms/garmin/organism/jsvm/Operators.js": 51,
+	"./src/manager/plugins/organisms/garmin/organisms/Code2String": 52,
+	"./src/manager/plugins/organisms/garmin/organisms/Code2String.js": 52,
+	"./src/manager/plugins/organisms/garmin/organisms/Fitness": 53,
+	"./src/manager/plugins/organisms/garmin/organisms/Fitness.js": 53,
+	"./src/manager/visual/Canvas": 72,
+	"./src/manager/visual/Canvas.js": 72,
+	"./src/manager/visual/World": 54,
+	"./src/manager/visual/World.js": 54,
+	"./tests/global/ConsoleSpec": 83,
+	"./tests/global/ConsoleSpec.js": 83,
+	"./tests/manager/plugins/ClientSpec": 84,
+	"./tests/manager/plugins/ClientSpec.js": 84,
+	"./tests/manager/plugins/organisms/dos/OperatorsSpec": 103,
+	"./tests/manager/plugins/organisms/dos/OperatorsSpec.js": 103,
+	"./tests/manager/plugins/organisms/dos/OrganismSpec": 104,
+	"./tests/manager/plugins/organisms/dos/OrganismSpec.js": 104,
+	"./tests/manager/plugins/organisms/organism/JSVMSpec": 105,
+	"./tests/manager/plugins/organisms/organism/JSVMSpec.js": 105,
+	"./tests/manager/plugins/organisms/organism/NumSpec": 106,
+	"./tests/manager/plugins/organisms/organism/NumSpec.js": 106,
+	"./tests/visual/WorldSpec": 107,
+	"./tests/visual/WorldSpec.js": 107
+};
+function webpackContext(req) {
+	return __webpack_require__(webpackContextResolve(req));
+};
+function webpackContextResolve(req) {
+	var id = map[req];
+	if(!(id + 1)) // check for number or string
+		throw new Error("Cannot find module '" + req + "'.");
+	return id;
+};
+webpackContext.keys = function webpackContextKeys() {
+	return Object.keys(map);
+};
+webpackContext.resolve = webpackContextResolve;
+module.exports = webpackContext;
+webpackContext.id = 166;
+
+/***/ }),
+/* 167 */
 /***/ (function(module, exports) {
 
 throw new Error("Module parse failed: Unexpected token (1:0)\nYou may need an appropriate loader to handle this file type.\n| <!doctype html>\n| <html lang=\"en\">\n| <head>");
 
 /***/ }),
-/* 170 */
+/* 168 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -29836,7 +29787,7 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 171 */
+/* 169 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -29926,7 +29877,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 172 */
+/* 170 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -29964,12 +29915,12 @@ module.exports = function hash (buf, fn) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 173 */
+/* 171 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(Buffer) {
-var Transform = __webpack_require__(72).Transform
+var Transform = __webpack_require__(73).Transform
 var inherits = __webpack_require__(0)
 
 function HashBase (blockSize) {
@@ -30055,13 +30006,13 @@ module.exports = HashBase
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 174 */
+/* 172 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 175 */
+/* 173 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -30141,7 +30092,7 @@ module.exports = function () {
 }();
 
 /***/ }),
-/* 176 */
+/* 174 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var apply = Function.prototype.apply;
@@ -30194,13 +30145,13 @@ exports._unrefActive = exports.active = function(item) {
 };
 
 // setimmediate attaches itself to the global object
-__webpack_require__(177);
+__webpack_require__(175);
 exports.setImmediate = setImmediate;
 exports.clearImmediate = clearImmediate;
 
 
 /***/ }),
-/* 177 */
+/* 175 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
@@ -30393,7 +30344,7 @@ exports.clearImmediate = clearImmediate;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8), __webpack_require__(9)))
 
 /***/ }),
-/* 178 */
+/* 176 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {
@@ -30467,7 +30418,7 @@ function config (name) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
 
 /***/ }),
-/* 179 */
+/* 177 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -30503,7 +30454,7 @@ module.exports = PassThrough;
 var Transform = __webpack_require__(113);
 
 /*<replacement>*/
-var util = __webpack_require__(59);
+var util = __webpack_require__(58);
 util.inherits = __webpack_require__(0);
 /*</replacement>*/
 
@@ -30520,28 +30471,28 @@ PassThrough.prototype._transform = function (chunk, encoding, cb) {
 };
 
 /***/ }),
-/* 180 */
+/* 178 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(89);
 
 
 /***/ }),
+/* 179 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(27);
+
+
+/***/ }),
+/* 180 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(57).PassThrough
+
+
+/***/ }),
 /* 181 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(28);
-
-
-/***/ }),
-/* 182 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(58).PassThrough
-
-
-/***/ }),
-/* 183 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -30553,7 +30504,7 @@ module.exports = __webpack_require__(58).PassThrough
  */
 
 var inherits = __webpack_require__(0)
-var Hash = __webpack_require__(35)
+var Hash = __webpack_require__(34)
 var Buffer = __webpack_require__(2).Buffer
 
 var K = [
@@ -30641,7 +30592,7 @@ module.exports = Sha
 
 
 /***/ }),
-/* 184 */
+/* 182 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -30654,7 +30605,7 @@ module.exports = Sha
  */
 
 var inherits = __webpack_require__(0)
-var Hash = __webpack_require__(35)
+var Hash = __webpack_require__(34)
 var Buffer = __webpack_require__(2).Buffer
 
 var K = [
@@ -30746,7 +30697,7 @@ module.exports = Sha1
 
 
 /***/ }),
-/* 185 */
+/* 183 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -30759,7 +30710,7 @@ module.exports = Sha1
 
 var inherits = __webpack_require__(0)
 var Sha256 = __webpack_require__(115)
-var Hash = __webpack_require__(35)
+var Hash = __webpack_require__(34)
 var Buffer = __webpack_require__(2).Buffer
 
 var W = new Array(64)
@@ -30805,12 +30756,12 @@ module.exports = Sha224
 
 
 /***/ }),
-/* 186 */
+/* 184 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var inherits = __webpack_require__(0)
 var SHA512 = __webpack_require__(116)
-var Hash = __webpack_require__(35)
+var Hash = __webpack_require__(34)
 var Buffer = __webpack_require__(2).Buffer
 
 var W = new Array(160)
@@ -30868,7 +30819,7 @@ module.exports = Sha384
 
 
 /***/ }),
-/* 187 */
+/* 185 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -30876,7 +30827,7 @@ module.exports = Sha384
 var inherits = __webpack_require__(0)
 var Buffer = __webpack_require__(2).Buffer
 
-var Base = __webpack_require__(22)
+var Base = __webpack_require__(21)
 
 var ZEROS = Buffer.alloc(128)
 var blocksize = 64
@@ -30921,14 +30872,14 @@ module.exports = Hmac
 
 
 /***/ }),
-/* 188 */
+/* 186 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(118)
 
 
 /***/ }),
-/* 189 */
+/* 187 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {var checkParameters = __webpack_require__(120)
@@ -31033,13 +30984,13 @@ module.exports = function (password, salt, iterations, keylen, digest, callback)
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8), __webpack_require__(9)))
 
 /***/ }),
-/* 190 */
+/* 188 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var ebtk = __webpack_require__(74)
+var ebtk = __webpack_require__(75)
 var aes = __webpack_require__(92)
-var DES = __webpack_require__(202)
-var desModes = __webpack_require__(208)
+var DES = __webpack_require__(200)
+var desModes = __webpack_require__(206)
 var aesModes = __webpack_require__(93)
 function createCipher (suite, password) {
   var keyLen, ivLen
@@ -31112,13 +31063,13 @@ exports.listCiphers = exports.getCiphers = getCiphers
 
 
 /***/ }),
-/* 191 */
+/* 189 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(Buffer) {
 var inherits = __webpack_require__(0)
-var HashBase = __webpack_require__(192)
+var HashBase = __webpack_require__(190)
 
 var ARRAY16 = new Array(16)
 
@@ -31265,13 +31216,13 @@ module.exports = MD5
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 192 */
+/* 190 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 var Buffer = __webpack_require__(2).Buffer
-var Transform = __webpack_require__(72).Transform
+var Transform = __webpack_require__(73).Transform
 var inherits = __webpack_require__(0)
 
 function throwIfNotStringOrBuffer (val, prefix) {
@@ -31367,16 +31318,16 @@ module.exports = HashBase
 
 
 /***/ }),
-/* 193 */
+/* 191 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var MODES = __webpack_require__(93)
 var AuthCipher = __webpack_require__(126)
 var Buffer = __webpack_require__(2).Buffer
 var StreamCipher = __webpack_require__(127)
-var Transform = __webpack_require__(22)
-var aes = __webpack_require__(75)
-var ebtk = __webpack_require__(74)
+var Transform = __webpack_require__(21)
+var aes = __webpack_require__(76)
+var ebtk = __webpack_require__(75)
 var inherits = __webpack_require__(0)
 
 function Cipher (mode, key, iv) {
@@ -31487,7 +31438,7 @@ exports.createCipher = createCipher
 
 
 /***/ }),
-/* 194 */
+/* 192 */
 /***/ (function(module, exports) {
 
 exports.encrypt = function (self, block) {
@@ -31500,10 +31451,10 @@ exports.decrypt = function (self, block) {
 
 
 /***/ }),
-/* 195 */
+/* 193 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var xor = __webpack_require__(60)
+var xor = __webpack_require__(59)
 
 exports.encrypt = function (self, block) {
   var data = xor(block, self._prev)
@@ -31523,11 +31474,11 @@ exports.decrypt = function (self, block) {
 
 
 /***/ }),
-/* 196 */
+/* 194 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Buffer = __webpack_require__(2).Buffer
-var xor = __webpack_require__(60)
+var xor = __webpack_require__(59)
 
 function encryptStart (self, data, decrypt) {
   var len = data.length
@@ -31562,7 +31513,7 @@ exports.encrypt = function (self, data, decrypt) {
 
 
 /***/ }),
-/* 197 */
+/* 195 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Buffer = __webpack_require__(2).Buffer
@@ -31593,7 +31544,7 @@ exports.encrypt = function (self, chunk, decrypt) {
 
 
 /***/ }),
-/* 198 */
+/* 196 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Buffer = __webpack_require__(2).Buffer
@@ -31641,10 +31592,10 @@ exports.encrypt = function (self, chunk, decrypt) {
 
 
 /***/ }),
-/* 199 */
+/* 197 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(Buffer) {var xor = __webpack_require__(60)
+/* WEBPACK VAR INJECTION */(function(Buffer) {var xor = __webpack_require__(59)
 
 function getBlock (self) {
   self._prev = self._cipher.encryptBlock(self._prev)
@@ -31664,7 +31615,7 @@ exports.encrypt = function (self, chunk) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 200 */
+/* 198 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Buffer = __webpack_require__(2).Buffer
@@ -31759,16 +31710,16 @@ module.exports = GHASH
 
 
 /***/ }),
-/* 201 */
+/* 199 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var AuthCipher = __webpack_require__(126)
 var Buffer = __webpack_require__(2).Buffer
 var MODES = __webpack_require__(93)
 var StreamCipher = __webpack_require__(127)
-var Transform = __webpack_require__(22)
-var aes = __webpack_require__(75)
-var ebtk = __webpack_require__(74)
+var Transform = __webpack_require__(21)
+var aes = __webpack_require__(76)
+var ebtk = __webpack_require__(75)
 var inherits = __webpack_require__(0)
 
 function Decipher (mode, key, iv) {
@@ -31886,10 +31837,10 @@ exports.createDecipheriv = createDecipheriv
 
 
 /***/ }),
-/* 202 */
+/* 200 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(Buffer) {var CipherBase = __webpack_require__(22)
+/* WEBPACK VAR INJECTION */(function(Buffer) {var CipherBase = __webpack_require__(21)
 var des = __webpack_require__(94)
 var inherits = __webpack_require__(0)
 
@@ -31936,7 +31887,7 @@ DES.prototype._final = function () {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 203 */
+/* 201 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32199,7 +32150,7 @@ exports.padSplit = function padSplit(num, size, group) {
 
 
 /***/ }),
-/* 204 */
+/* 202 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32347,7 +32298,7 @@ Cipher.prototype._finalDecrypt = function _finalDecrypt() {
 
 
 /***/ }),
-/* 205 */
+/* 203 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32497,7 +32448,7 @@ DES.prototype._decrypt = function _decrypt(state, lStart, rStart, out, off) {
 
 
 /***/ }),
-/* 206 */
+/* 204 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32569,7 +32520,7 @@ proto._update = function _update(inp, inOff, out, outOff) {
 
 
 /***/ }),
-/* 207 */
+/* 205 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32631,7 +32582,7 @@ EDE.prototype._unpad = DES.prototype._unpad;
 
 
 /***/ }),
-/* 208 */
+/* 206 */
 /***/ (function(module, exports) {
 
 exports['des-ecb'] = {
@@ -32661,13 +32612,13 @@ exports['des-ede'] = {
 
 
 /***/ }),
-/* 209 */
+/* 207 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {var generatePrime = __webpack_require__(128)
-var primes = __webpack_require__(212)
+var primes = __webpack_require__(210)
 
-var DH = __webpack_require__(213)
+var DH = __webpack_require__(211)
 
 function getDiffieHellman (mod) {
   var prime = new Buffer(primes[mod].prime, 'hex')
@@ -32710,25 +32661,25 @@ exports.createDiffieHellman = exports.DiffieHellman = createDiffieHellman
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
+/* 208 */
+/***/ (function(module, exports) {
+
+/* (ignored) */
+
+/***/ }),
+/* 209 */
+/***/ (function(module, exports) {
+
+/* (ignored) */
+
+/***/ }),
 /* 210 */
-/***/ (function(module, exports) {
-
-/* (ignored) */
-
-/***/ }),
-/* 211 */
-/***/ (function(module, exports) {
-
-/* (ignored) */
-
-/***/ }),
-/* 212 */
 /***/ (function(module, exports) {
 
 module.exports = {"modp1":{"gen":"02","prime":"ffffffffffffffffc90fdaa22168c234c4c6628b80dc1cd129024e088a67cc74020bbea63b139b22514a08798e3404ddef9519b3cd3a431b302b0a6df25f14374fe1356d6d51c245e485b576625e7ec6f44c42e9a63a3620ffffffffffffffff"},"modp2":{"gen":"02","prime":"ffffffffffffffffc90fdaa22168c234c4c6628b80dc1cd129024e088a67cc74020bbea63b139b22514a08798e3404ddef9519b3cd3a431b302b0a6df25f14374fe1356d6d51c245e485b576625e7ec6f44c42e9a637ed6b0bff5cb6f406b7edee386bfb5a899fa5ae9f24117c4b1fe649286651ece65381ffffffffffffffff"},"modp5":{"gen":"02","prime":"ffffffffffffffffc90fdaa22168c234c4c6628b80dc1cd129024e088a67cc74020bbea63b139b22514a08798e3404ddef9519b3cd3a431b302b0a6df25f14374fe1356d6d51c245e485b576625e7ec6f44c42e9a637ed6b0bff5cb6f406b7edee386bfb5a899fa5ae9f24117c4b1fe649286651ece45b3dc2007cb8a163bf0598da48361c55d39a69163fa8fd24cf5f83655d23dca3ad961c62f356208552bb9ed529077096966d670c354e4abc9804f1746c08ca237327ffffffffffffffff"},"modp14":{"gen":"02","prime":"ffffffffffffffffc90fdaa22168c234c4c6628b80dc1cd129024e088a67cc74020bbea63b139b22514a08798e3404ddef9519b3cd3a431b302b0a6df25f14374fe1356d6d51c245e485b576625e7ec6f44c42e9a637ed6b0bff5cb6f406b7edee386bfb5a899fa5ae9f24117c4b1fe649286651ece45b3dc2007cb8a163bf0598da48361c55d39a69163fa8fd24cf5f83655d23dca3ad961c62f356208552bb9ed529077096966d670c354e4abc9804f1746c08ca18217c32905e462e36ce3be39e772c180e86039b2783a2ec07a28fb5c55df06f4c52c9de2bcbf6955817183995497cea956ae515d2261898fa051015728e5a8aacaa68ffffffffffffffff"},"modp15":{"gen":"02","prime":"ffffffffffffffffc90fdaa22168c234c4c6628b80dc1cd129024e088a67cc74020bbea63b139b22514a08798e3404ddef9519b3cd3a431b302b0a6df25f14374fe1356d6d51c245e485b576625e7ec6f44c42e9a637ed6b0bff5cb6f406b7edee386bfb5a899fa5ae9f24117c4b1fe649286651ece45b3dc2007cb8a163bf0598da48361c55d39a69163fa8fd24cf5f83655d23dca3ad961c62f356208552bb9ed529077096966d670c354e4abc9804f1746c08ca18217c32905e462e36ce3be39e772c180e86039b2783a2ec07a28fb5c55df06f4c52c9de2bcbf6955817183995497cea956ae515d2261898fa051015728e5a8aaac42dad33170d04507a33a85521abdf1cba64ecfb850458dbef0a8aea71575d060c7db3970f85a6e1e4c7abf5ae8cdb0933d71e8c94e04a25619dcee3d2261ad2ee6bf12ffa06d98a0864d87602733ec86a64521f2b18177b200cbbe117577a615d6c770988c0bad946e208e24fa074e5ab3143db5bfce0fd108e4b82d120a93ad2caffffffffffffffff"},"modp16":{"gen":"02","prime":"ffffffffffffffffc90fdaa22168c234c4c6628b80dc1cd129024e088a67cc74020bbea63b139b22514a08798e3404ddef9519b3cd3a431b302b0a6df25f14374fe1356d6d51c245e485b576625e7ec6f44c42e9a637ed6b0bff5cb6f406b7edee386bfb5a899fa5ae9f24117c4b1fe649286651ece45b3dc2007cb8a163bf0598da48361c55d39a69163fa8fd24cf5f83655d23dca3ad961c62f356208552bb9ed529077096966d670c354e4abc9804f1746c08ca18217c32905e462e36ce3be39e772c180e86039b2783a2ec07a28fb5c55df06f4c52c9de2bcbf6955817183995497cea956ae515d2261898fa051015728e5a8aaac42dad33170d04507a33a85521abdf1cba64ecfb850458dbef0a8aea71575d060c7db3970f85a6e1e4c7abf5ae8cdb0933d71e8c94e04a25619dcee3d2261ad2ee6bf12ffa06d98a0864d87602733ec86a64521f2b18177b200cbbe117577a615d6c770988c0bad946e208e24fa074e5ab3143db5bfce0fd108e4b82d120a92108011a723c12a787e6d788719a10bdba5b2699c327186af4e23c1a946834b6150bda2583e9ca2ad44ce8dbbbc2db04de8ef92e8efc141fbecaa6287c59474e6bc05d99b2964fa090c3a2233ba186515be7ed1f612970cee2d7afb81bdd762170481cd0069127d5b05aa993b4ea988d8fddc186ffb7dc90a6c08f4df435c934063199ffffffffffffffff"},"modp17":{"gen":"02","prime":"ffffffffffffffffc90fdaa22168c234c4c6628b80dc1cd129024e088a67cc74020bbea63b139b22514a08798e3404ddef9519b3cd3a431b302b0a6df25f14374fe1356d6d51c245e485b576625e7ec6f44c42e9a637ed6b0bff5cb6f406b7edee386bfb5a899fa5ae9f24117c4b1fe649286651ece45b3dc2007cb8a163bf0598da48361c55d39a69163fa8fd24cf5f83655d23dca3ad961c62f356208552bb9ed529077096966d670c354e4abc9804f1746c08ca18217c32905e462e36ce3be39e772c180e86039b2783a2ec07a28fb5c55df06f4c52c9de2bcbf6955817183995497cea956ae515d2261898fa051015728e5a8aaac42dad33170d04507a33a85521abdf1cba64ecfb850458dbef0a8aea71575d060c7db3970f85a6e1e4c7abf5ae8cdb0933d71e8c94e04a25619dcee3d2261ad2ee6bf12ffa06d98a0864d87602733ec86a64521f2b18177b200cbbe117577a615d6c770988c0bad946e208e24fa074e5ab3143db5bfce0fd108e4b82d120a92108011a723c12a787e6d788719a10bdba5b2699c327186af4e23c1a946834b6150bda2583e9ca2ad44ce8dbbbc2db04de8ef92e8efc141fbecaa6287c59474e6bc05d99b2964fa090c3a2233ba186515be7ed1f612970cee2d7afb81bdd762170481cd0069127d5b05aa993b4ea988d8fddc186ffb7dc90a6c08f4df435c93402849236c3fab4d27c7026c1d4dcb2602646dec9751e763dba37bdf8ff9406ad9e530ee5db382f413001aeb06a53ed9027d831179727b0865a8918da3edbebcf9b14ed44ce6cbaced4bb1bdb7f1447e6cc254b332051512bd7af426fb8f401378cd2bf5983ca01c64b92ecf032ea15d1721d03f482d7ce6e74fef6d55e702f46980c82b5a84031900b1c9e59e7c97fbec7e8f323a97a7e36cc88be0f1d45b7ff585ac54bd407b22b4154aacc8f6d7ebf48e1d814cc5ed20f8037e0a79715eef29be32806a1d58bb7c5da76f550aa3d8a1fbff0eb19ccb1a313d55cda56c9ec2ef29632387fe8d76e3c0468043e8f663f4860ee12bf2d5b0b7474d6e694f91e6dcc4024ffffffffffffffff"},"modp18":{"gen":"02","prime":"ffffffffffffffffc90fdaa22168c234c4c6628b80dc1cd129024e088a67cc74020bbea63b139b22514a08798e3404ddef9519b3cd3a431b302b0a6df25f14374fe1356d6d51c245e485b576625e7ec6f44c42e9a637ed6b0bff5cb6f406b7edee386bfb5a899fa5ae9f24117c4b1fe649286651ece45b3dc2007cb8a163bf0598da48361c55d39a69163fa8fd24cf5f83655d23dca3ad961c62f356208552bb9ed529077096966d670c354e4abc9804f1746c08ca18217c32905e462e36ce3be39e772c180e86039b2783a2ec07a28fb5c55df06f4c52c9de2bcbf6955817183995497cea956ae515d2261898fa051015728e5a8aaac42dad33170d04507a33a85521abdf1cba64ecfb850458dbef0a8aea71575d060c7db3970f85a6e1e4c7abf5ae8cdb0933d71e8c94e04a25619dcee3d2261ad2ee6bf12ffa06d98a0864d87602733ec86a64521f2b18177b200cbbe117577a615d6c770988c0bad946e208e24fa074e5ab3143db5bfce0fd108e4b82d120a92108011a723c12a787e6d788719a10bdba5b2699c327186af4e23c1a946834b6150bda2583e9ca2ad44ce8dbbbc2db04de8ef92e8efc141fbecaa6287c59474e6bc05d99b2964fa090c3a2233ba186515be7ed1f612970cee2d7afb81bdd762170481cd0069127d5b05aa993b4ea988d8fddc186ffb7dc90a6c08f4df435c93402849236c3fab4d27c7026c1d4dcb2602646dec9751e763dba37bdf8ff9406ad9e530ee5db382f413001aeb06a53ed9027d831179727b0865a8918da3edbebcf9b14ed44ce6cbaced4bb1bdb7f1447e6cc254b332051512bd7af426fb8f401378cd2bf5983ca01c64b92ecf032ea15d1721d03f482d7ce6e74fef6d55e702f46980c82b5a84031900b1c9e59e7c97fbec7e8f323a97a7e36cc88be0f1d45b7ff585ac54bd407b22b4154aacc8f6d7ebf48e1d814cc5ed20f8037e0a79715eef29be32806a1d58bb7c5da76f550aa3d8a1fbff0eb19ccb1a313d55cda56c9ec2ef29632387fe8d76e3c0468043e8f663f4860ee12bf2d5b0b7474d6e694f91e6dbe115974a3926f12fee5e438777cb6a932df8cd8bec4d073b931ba3bc832b68d9dd300741fa7bf8afc47ed2576f6936ba424663aab639c5ae4f5683423b4742bf1c978238f16cbe39d652de3fdb8befc848ad922222e04a4037c0713eb57a81a23f0c73473fc646cea306b4bcbc8862f8385ddfa9d4b7fa2c087e879683303ed5bdd3a062b3cf5b3a278a66d2a13f83f44f82ddf310ee074ab6a364597e899a0255dc164f31cc50846851df9ab48195ded7ea1b1d510bd7ee74d73faf36bc31ecfa268359046f4eb879f924009438b481c6cd7889a002ed5ee382bc9190da6fc026e479558e4475677e9aa9e3050e2765694dfc81f56e880b96e7160c980dd98edd3dfffffffffffffffff"}}
 
 /***/ }),
-/* 213 */
+/* 211 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {var BN = __webpack_require__(6);
@@ -32740,7 +32691,7 @@ var TEN = new BN(10);
 var THREE = new BN(3);
 var SEVEN = new BN(7);
 var primes = __webpack_require__(128);
-var randomBytes = __webpack_require__(34);
+var randomBytes = __webpack_require__(33);
 module.exports = DH;
 
 function setPublicKey(pub, enc) {
@@ -32899,14 +32850,14 @@ function formatReturnValue(bn, enc) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 214 */
+/* 212 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(Buffer) {var createHash = __webpack_require__(57)
-var stream = __webpack_require__(72)
+/* WEBPACK VAR INJECTION */(function(Buffer) {var createHash = __webpack_require__(56)
+var stream = __webpack_require__(73)
 var inherits = __webpack_require__(0)
-var sign = __webpack_require__(215)
-var verify = __webpack_require__(251)
+var sign = __webpack_require__(213)
+var verify = __webpack_require__(249)
 
 var algorithms = __webpack_require__(118)
 Object.keys(algorithms).forEach(function (key) {
@@ -32997,7 +32948,7 @@ module.exports = {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 215 */
+/* 213 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {// much of this based on https://github.com/indutny/self-signed/blob/gh-pages/lib/rsa.js
@@ -33005,7 +32956,7 @@ var createHmac = __webpack_require__(117)
 var crt = __webpack_require__(95)
 var EC = __webpack_require__(10).ec
 var BN = __webpack_require__(6)
-var parseKeys = __webpack_require__(77)
+var parseKeys = __webpack_require__(78)
 var curves = __webpack_require__(140)
 
 function sign (hash, key, hashType, signType, tag) {
@@ -33149,13 +33100,13 @@ module.exports.makeKey = makeKey
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 216 */
+/* 214 */
 /***/ (function(module, exports) {
 
 module.exports = {"_args":[[{"raw":"elliptic@^6.0.0","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.0.0","spec":">=6.0.0 <7.0.0","type":"range"},"C:\\db\\projects\\jevo.js\\node_modules\\browserify-sign"]],"_from":"elliptic@>=6.0.0 <7.0.0","_id":"elliptic@6.4.0","_inCache":true,"_location":"/elliptic","_nodeVersion":"7.0.0","_npmOperationalInternal":{"host":"packages-18-east.internal.npmjs.com","tmp":"tmp/elliptic-6.4.0.tgz_1487798866428_0.30510620190761983"},"_npmUser":{"name":"indutny","email":"fedor@indutny.com"},"_npmVersion":"3.10.8","_phantomChildren":{},"_requested":{"raw":"elliptic@^6.0.0","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.0.0","spec":">=6.0.0 <7.0.0","type":"range"},"_requiredBy":["/browserify-sign","/create-ecdh"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.0.tgz","_shasum":"cac9af8762c85836187003c8dfe193e5e2eae5df","_shrinkwrap":null,"_spec":"elliptic@^6.0.0","_where":"C:\\db\\projects\\jevo.js\\node_modules\\browserify-sign","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"directories":{},"dist":{"shasum":"cac9af8762c85836187003c8dfe193e5e2eae5df","tarball":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.0.tgz"},"files":["lib"],"gitHead":"6b0d2b76caae91471649c8e21f0b1d3ba0f96090","homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","maintainers":[{"name":"indutny","email":"fedor@indutny.com"}],"name":"elliptic","optionalDependencies":{},"readme":"ERROR: No README data found!","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.0"}
 
 /***/ }),
-/* 217 */
+/* 215 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -33282,7 +33233,7 @@ utils.intFromLE = intFromLE;
 
 
 /***/ }),
-/* 218 */
+/* 216 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -33664,13 +33615,13 @@ BasePoint.prototype.dblp = function dblp(k) {
 
 
 /***/ }),
-/* 219 */
+/* 217 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var curve = __webpack_require__(76);
+var curve = __webpack_require__(77);
 var elliptic = __webpack_require__(10);
 var BN = __webpack_require__(6);
 var inherits = __webpack_require__(0);
@@ -34609,13 +34560,13 @@ JPoint.prototype.isInfinity = function isInfinity() {
 
 
 /***/ }),
-/* 220 */
+/* 218 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var curve = __webpack_require__(76);
+var curve = __webpack_require__(77);
 var BN = __webpack_require__(6);
 var inherits = __webpack_require__(0);
 var Base = curve.base;
@@ -34796,13 +34747,13 @@ Point.prototype.getX = function getX() {
 
 
 /***/ }),
-/* 221 */
+/* 219 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var curve = __webpack_require__(76);
+var curve = __webpack_require__(77);
 var elliptic = __webpack_require__(10);
 var BN = __webpack_require__(6);
 var inherits = __webpack_require__(0);
@@ -35236,7 +35187,7 @@ Point.prototype.mixedAdd = Point.prototype.add;
 
 
 /***/ }),
-/* 222 */
+/* 220 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35409,7 +35360,7 @@ defineCurve('ed25519', {
 
 var pre;
 try {
-  pre = __webpack_require__(229);
+  pre = __webpack_require__(227);
 } catch (e) {
   pre = undefined;
 }
@@ -35448,28 +35399,28 @@ defineCurve('secp256k1', {
 
 
 /***/ }),
-/* 223 */
+/* 221 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-exports.sha1 = __webpack_require__(224);
-exports.sha224 = __webpack_require__(225);
+exports.sha1 = __webpack_require__(222);
+exports.sha224 = __webpack_require__(223);
 exports.sha256 = __webpack_require__(134);
-exports.sha384 = __webpack_require__(226);
+exports.sha384 = __webpack_require__(224);
 exports.sha512 = __webpack_require__(135);
 
 
 /***/ }),
-/* 224 */
+/* 222 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var utils = __webpack_require__(16);
-var common = __webpack_require__(61);
+var common = __webpack_require__(60);
 var shaCommon = __webpack_require__(133);
 
 var rotl32 = utils.rotl32;
@@ -35543,7 +35494,7 @@ SHA1.prototype._digest = function digest(enc) {
 
 
 /***/ }),
-/* 225 */
+/* 223 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35580,7 +35531,7 @@ SHA224.prototype._digest = function digest(enc) {
 
 
 /***/ }),
-/* 226 */
+/* 224 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35622,14 +35573,14 @@ SHA384.prototype._digest = function digest(enc) {
 
 
 /***/ }),
-/* 227 */
+/* 225 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var utils = __webpack_require__(16);
-var common = __webpack_require__(61);
+var common = __webpack_require__(60);
 
 var rotl32 = utils.rotl32;
 var sum32 = utils.sum32;
@@ -35775,7 +35726,7 @@ var sh = [
 
 
 /***/ }),
-/* 228 */
+/* 226 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35829,7 +35780,7 @@ Hmac.prototype.digest = function digest(enc) {
 
 
 /***/ }),
-/* 229 */
+/* 227 */
 /***/ (function(module, exports) {
 
 module.exports = {
@@ -36615,20 +36566,20 @@ module.exports = {
 
 
 /***/ }),
-/* 230 */
+/* 228 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var BN = __webpack_require__(6);
-var HmacDRBG = __webpack_require__(231);
+var HmacDRBG = __webpack_require__(229);
 var elliptic = __webpack_require__(10);
 var utils = elliptic.utils;
 var assert = utils.assert;
 
-var KeyPair = __webpack_require__(232);
-var Signature = __webpack_require__(233);
+var KeyPair = __webpack_require__(230);
+var Signature = __webpack_require__(231);
 
 function EC(options) {
   if (!(this instanceof EC))
@@ -36862,7 +36813,7 @@ EC.prototype.getKeyRecoveryParam = function(e, signature, Q, enc) {
 
 
 /***/ }),
-/* 231 */
+/* 229 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -36982,7 +36933,7 @@ HmacDRBG.prototype.generate = function generate(len, enc, add, addEnc) {
 
 
 /***/ }),
-/* 232 */
+/* 230 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -37108,7 +37059,7 @@ KeyPair.prototype.inspect = function inspect() {
 
 
 /***/ }),
-/* 233 */
+/* 231 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -37250,7 +37201,7 @@ Signature.prototype.toDER = function toDER(enc) {
 
 
 /***/ }),
-/* 234 */
+/* 232 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -37261,8 +37212,8 @@ var elliptic = __webpack_require__(10);
 var utils = elliptic.utils;
 var assert = utils.assert;
 var parseBytes = utils.parseBytes;
-var KeyPair = __webpack_require__(235);
-var Signature = __webpack_require__(236);
+var KeyPair = __webpack_require__(233);
+var Signature = __webpack_require__(234);
 
 function EDDSA(curve) {
   assert(curve === 'ed25519', 'only tested with ed25519 so far');
@@ -37375,7 +37326,7 @@ EDDSA.prototype.isPoint = function isPoint(val) {
 
 
 /***/ }),
-/* 235 */
+/* 233 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -37478,7 +37429,7 @@ module.exports = KeyPair;
 
 
 /***/ }),
-/* 236 */
+/* 234 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -37551,7 +37502,7 @@ module.exports = Signature;
 
 
 /***/ }),
-/* 237 */
+/* 235 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -37559,9 +37510,9 @@ module.exports = Signature;
 // Fedor, you are amazing.
 
 
-var asn1 = __webpack_require__(62)
+var asn1 = __webpack_require__(61)
 
-exports.certificate = __webpack_require__(248)
+exports.certificate = __webpack_require__(246)
 
 var RSAPrivateKey = asn1.define('RSAPrivateKey', function () {
   this.seq().obj(
@@ -37680,10 +37631,10 @@ exports.signature = asn1.define('signature', function () {
 
 
 /***/ }),
-/* 238 */
+/* 236 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var asn1 = __webpack_require__(62);
+var asn1 = __webpack_require__(61);
 var inherits = __webpack_require__(0);
 
 var api = exports;
@@ -37703,7 +37654,7 @@ function Entity(name, body) {
 Entity.prototype._createNamed = function createNamed(base) {
   var named;
   try {
-    named = __webpack_require__(239).runInThisContext(
+    named = __webpack_require__(237).runInThisContext(
       '(function ' + this.name + '(entity) {\n' +
       '  this._initNamed(entity);\n' +
       '})'
@@ -37747,10 +37698,10 @@ Entity.prototype.encode = function encode(data, enc, /* internal */ reporter) {
 
 
 /***/ }),
-/* 239 */
+/* 237 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var indexOf = __webpack_require__(240);
+var indexOf = __webpack_require__(238);
 
 var Object_keys = function (obj) {
     if (Object.keys) return Object.keys(obj)
@@ -37891,7 +37842,7 @@ exports.createContext = Script.createContext = function (context) {
 
 
 /***/ }),
-/* 240 */
+/* 238 */
 /***/ (function(module, exports) {
 
 
@@ -37906,7 +37857,7 @@ module.exports = function(arr, obj){
 };
 
 /***/ }),
-/* 241 */
+/* 239 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var inherits = __webpack_require__(0);
@@ -38033,12 +37984,12 @@ ReporterError.prototype.rethrow = function rethrow(msg) {
 
 
 /***/ }),
-/* 242 */
+/* 240 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Reporter = __webpack_require__(63).Reporter;
-var EncoderBuffer = __webpack_require__(63).EncoderBuffer;
-var DecoderBuffer = __webpack_require__(63).DecoderBuffer;
+var Reporter = __webpack_require__(62).Reporter;
+var EncoderBuffer = __webpack_require__(62).EncoderBuffer;
+var DecoderBuffer = __webpack_require__(62).DecoderBuffer;
 var assert = __webpack_require__(13);
 
 // Supported tags
@@ -38673,7 +38624,7 @@ Node.prototype._isPrintstr = function isPrintstr(str) {
 
 
 /***/ }),
-/* 243 */
+/* 241 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var constants = __webpack_require__(137);
@@ -38721,17 +38672,17 @@ exports.tagByName = constants._reverse(exports.tag);
 
 
 /***/ }),
-/* 244 */
+/* 242 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var decoders = exports;
 
 decoders.der = __webpack_require__(138);
-decoders.pem = __webpack_require__(245);
+decoders.pem = __webpack_require__(243);
 
 
 /***/ }),
-/* 245 */
+/* 243 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var inherits = __webpack_require__(0);
@@ -38786,17 +38737,17 @@ PEMDecoder.prototype.decode = function decode(data, options) {
 
 
 /***/ }),
-/* 246 */
+/* 244 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var encoders = exports;
 
 encoders.der = __webpack_require__(139);
-encoders.pem = __webpack_require__(247);
+encoders.pem = __webpack_require__(245);
 
 
 /***/ }),
-/* 247 */
+/* 245 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var inherits = __webpack_require__(0);
@@ -38823,7 +38774,7 @@ PEMEncoder.prototype.encode = function encode(data, options) {
 
 
 /***/ }),
-/* 248 */
+/* 246 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -38832,7 +38783,7 @@ PEMEncoder.prototype.encode = function encode(data, options) {
 
 
 
-var asn = __webpack_require__(62)
+var asn = __webpack_require__(61)
 
 var Time = asn.define('Time', function () {
   this.choice({
@@ -38918,20 +38869,20 @@ module.exports = X509Certificate
 
 
 /***/ }),
-/* 249 */
+/* 247 */
 /***/ (function(module, exports) {
 
 module.exports = {"2.16.840.1.101.3.4.1.1":"aes-128-ecb","2.16.840.1.101.3.4.1.2":"aes-128-cbc","2.16.840.1.101.3.4.1.3":"aes-128-ofb","2.16.840.1.101.3.4.1.4":"aes-128-cfb","2.16.840.1.101.3.4.1.21":"aes-192-ecb","2.16.840.1.101.3.4.1.22":"aes-192-cbc","2.16.840.1.101.3.4.1.23":"aes-192-ofb","2.16.840.1.101.3.4.1.24":"aes-192-cfb","2.16.840.1.101.3.4.1.41":"aes-256-ecb","2.16.840.1.101.3.4.1.42":"aes-256-cbc","2.16.840.1.101.3.4.1.43":"aes-256-ofb","2.16.840.1.101.3.4.1.44":"aes-256-cfb"}
 
 /***/ }),
-/* 250 */
+/* 248 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {// adapted from https://github.com/apatil/pemstrip
 var findProc = /Proc-Type: 4,ENCRYPTED\n\r?DEK-Info: AES-((?:128)|(?:192)|(?:256))-CBC,([0-9A-H]+)\n\r?\n\r?([0-9A-z\n\r\+\/\=]+)\n\r?/m
 var startRegex = /^-----BEGIN ((?:.* KEY)|CERTIFICATE)-----\n/m
 var fullRegex = /^-----BEGIN ((?:.* KEY)|CERTIFICATE)-----\n\r?([0-9A-z\n\r\+\/\=]+)\n\r?-----END \1-----$/m
-var evp = __webpack_require__(74)
+var evp = __webpack_require__(75)
 var ciphers = __webpack_require__(92)
 module.exports = function (okey, password) {
   var key = okey.toString()
@@ -38961,13 +38912,13 @@ module.exports = function (okey, password) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 251 */
+/* 249 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {// much of this based on https://github.com/indutny/self-signed/blob/gh-pages/lib/rsa.js
 var BN = __webpack_require__(6)
 var EC = __webpack_require__(10).ec
-var parseKeys = __webpack_require__(77)
+var parseKeys = __webpack_require__(78)
 var curves = __webpack_require__(140)
 
 function verify (sig, hash, key, signType, tag) {
@@ -39051,7 +39002,7 @@ module.exports = verify
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 252 */
+/* 250 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {var elliptic = __webpack_require__(10);
@@ -39180,11 +39131,11 @@ function formatReturnValue(bn, enc, len) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 253 */
+/* 251 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports.publicEncrypt = __webpack_require__(254);
-exports.privateDecrypt = __webpack_require__(255);
+exports.publicEncrypt = __webpack_require__(252);
+exports.privateDecrypt = __webpack_require__(253);
 
 exports.privateEncrypt = function privateEncrypt(key, buf) {
   return exports.publicEncrypt(key, buf, true);
@@ -39195,12 +39146,12 @@ exports.publicDecrypt = function publicDecrypt(key, buf) {
 };
 
 /***/ }),
-/* 254 */
+/* 252 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(Buffer) {var parseKeys = __webpack_require__(77);
-var randomBytes = __webpack_require__(34);
-var createHash = __webpack_require__(57);
+/* WEBPACK VAR INJECTION */(function(Buffer) {var parseKeys = __webpack_require__(78);
+var randomBytes = __webpack_require__(33);
+var createHash = __webpack_require__(56);
 var mgf = __webpack_require__(141);
 var xor = __webpack_require__(142);
 var bn = __webpack_require__(6);
@@ -39296,15 +39247,15 @@ function nonZero(len, crypto) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 255 */
+/* 253 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(Buffer) {var parseKeys = __webpack_require__(77);
+/* WEBPACK VAR INJECTION */(function(Buffer) {var parseKeys = __webpack_require__(78);
 var mgf = __webpack_require__(141);
 var xor = __webpack_require__(142);
 var bn = __webpack_require__(6);
 var crt = __webpack_require__(95);
-var createHash = __webpack_require__(57);
+var createHash = __webpack_require__(56);
 var withPublic = __webpack_require__(143);
 module.exports = function privateDecrypt(private_key, enc, reverse) {
   var padding;
@@ -39410,7 +39361,7 @@ function compare(a, b){
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 256 */
+/* 254 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -39420,7 +39371,7 @@ function oldBrowser () {
   throw new Error('secure random number generation not supported by this browser\nuse chrome, FireFox or Internet Explorer 11')
 }
 var safeBuffer = __webpack_require__(2)
-var randombytes = __webpack_require__(34)
+var randombytes = __webpack_require__(33)
 var Buffer = safeBuffer.Buffer
 var kBufferMaxLength = safeBuffer.kMaxLength
 var crypto = global.crypto || global.msCrypto
@@ -39526,7 +39477,7 @@ function randomFillSync (buf, offset, size) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8), __webpack_require__(9)))
 
 /***/ }),
-/* 257 */
+/* 255 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var http = __webpack_require__(97);
@@ -39546,14 +39497,14 @@ https.request = function (params, cb) {
 
 
 /***/ }),
-/* 258 */
+/* 256 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer, global, process) {var capability = __webpack_require__(145)
 var inherits = __webpack_require__(0)
-var response = __webpack_require__(259)
-var stream = __webpack_require__(58)
-var toArrayBuffer = __webpack_require__(260)
+var response = __webpack_require__(257)
+var stream = __webpack_require__(57)
+var toArrayBuffer = __webpack_require__(258)
 
 var IncomingMessage = response.IncomingMessage
 var rStates = response.readyStates
@@ -39859,12 +39810,12 @@ var unsafeHeaders = [
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer, __webpack_require__(8), __webpack_require__(9)))
 
 /***/ }),
-/* 259 */
+/* 257 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process, Buffer, global) {var capability = __webpack_require__(145)
 var inherits = __webpack_require__(0)
-var stream = __webpack_require__(58)
+var stream = __webpack_require__(57)
 
 var rStates = exports.readyStates = {
 	UNSENT: 0,
@@ -40048,7 +39999,7 @@ IncomingMessage.prototype._onXHRProgress = function () {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(3).Buffer, __webpack_require__(8)))
 
 /***/ }),
-/* 260 */
+/* 258 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Buffer = __webpack_require__(3).Buffer
@@ -40081,7 +40032,7 @@ module.exports = function (buf) {
 
 
 /***/ }),
-/* 261 */
+/* 259 */
 /***/ (function(module, exports) {
 
 module.exports = extend
@@ -40106,7 +40057,7 @@ function extend() {
 
 
 /***/ }),
-/* 262 */
+/* 260 */
 /***/ (function(module, exports) {
 
 module.exports = {
@@ -40176,7 +40127,7 @@ module.exports = {
 
 
 /***/ }),
-/* 263 */
+/* 261 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module, global) {var __WEBPACK_AMD_DEFINE_RESULT__;/*! https://mths.be/punycode v1.4.1 by @mathias */
@@ -40715,7 +40666,7 @@ module.exports = {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(129)(module), __webpack_require__(8)))
 
 /***/ }),
-/* 264 */
+/* 262 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -40738,18 +40689,18 @@ module.exports = {
 
 
 /***/ }),
-/* 265 */
+/* 263 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-exports.decode = exports.parse = __webpack_require__(266);
-exports.encode = exports.stringify = __webpack_require__(267);
+exports.decode = exports.parse = __webpack_require__(264);
+exports.encode = exports.stringify = __webpack_require__(265);
 
 
 /***/ }),
-/* 266 */
+/* 264 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -40840,7 +40791,7 @@ var isArray = Array.isArray || function (xs) {
 
 
 /***/ }),
-/* 267 */
+/* 265 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -40932,7 +40883,7 @@ var objectKeys = Object.keys || function (obj) {
 
 
 /***/ }),
-/* 268 */
+/* 266 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41007,7 +40958,7 @@ module.exports = Queue;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
 
 /***/ }),
-/* 269 */
+/* 267 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer, process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -41033,9 +40984,9 @@ module.exports = Queue;
 
 var Transform = __webpack_require__(114);
 
-var binding = __webpack_require__(270);
+var binding = __webpack_require__(268);
 var util = __webpack_require__(149);
-var assert = __webpack_require__(280).ok;
+var assert = __webpack_require__(278).ok;
 
 // zlib doesn't provide these, so kludge them in following the same
 // const naming scheme zlib uses.
@@ -41624,14 +41575,14 @@ util.inherits(Unzip, Zlib);
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer, __webpack_require__(9)))
 
 /***/ }),
-/* 270 */
+/* 268 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process, Buffer) {var msg = __webpack_require__(146);
-var zstream = __webpack_require__(271);
-var zlib_deflate = __webpack_require__(272);
-var zlib_inflate = __webpack_require__(274);
-var constants = __webpack_require__(277);
+var zstream = __webpack_require__(269);
+var zlib_deflate = __webpack_require__(270);
+var zlib_inflate = __webpack_require__(272);
+var constants = __webpack_require__(275);
 
 for (var key in constants) {
   exports[key] = constants[key];
@@ -41867,7 +41818,7 @@ exports.Zlib = Zlib;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 271 */
+/* 269 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41903,14 +41854,14 @@ module.exports = ZStream;
 
 
 /***/ }),
-/* 272 */
+/* 270 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var utils   = __webpack_require__(79);
-var trees   = __webpack_require__(273);
+var utils   = __webpack_require__(80);
+var trees   = __webpack_require__(271);
 var adler32 = __webpack_require__(147);
 var crc32   = __webpack_require__(148);
 var msg     = __webpack_require__(146);
@@ -43765,14 +43716,14 @@ exports.deflateTune = deflateTune;
 
 
 /***/ }),
-/* 273 */
+/* 271 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 
-var utils = __webpack_require__(79);
+var utils = __webpack_require__(80);
 
 /* Public constants ==========================================================*/
 /* ===========================================================================*/
@@ -44974,18 +44925,18 @@ exports._tr_align = _tr_align;
 
 
 /***/ }),
-/* 274 */
+/* 272 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 
-var utils         = __webpack_require__(79);
+var utils         = __webpack_require__(80);
 var adler32       = __webpack_require__(147);
 var crc32         = __webpack_require__(148);
-var inflate_fast  = __webpack_require__(275);
-var inflate_table = __webpack_require__(276);
+var inflate_fast  = __webpack_require__(273);
+var inflate_table = __webpack_require__(274);
 
 var CODES = 0;
 var LENS = 1;
@@ -46519,7 +46470,7 @@ exports.inflateUndermine = inflateUndermine;
 
 
 /***/ }),
-/* 275 */
+/* 273 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46852,14 +46803,14 @@ module.exports = function inflate_fast(strm, start) {
 
 
 /***/ }),
-/* 276 */
+/* 274 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 
-var utils = __webpack_require__(79);
+var utils = __webpack_require__(80);
 
 var MAXBITS = 15;
 var ENOUGH_LENS = 852;
@@ -47186,7 +47137,7 @@ module.exports = function inflate_table(type, lens, lens_index, codes, table, ta
 
 
 /***/ }),
-/* 277 */
+/* 275 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47243,7 +47194,7 @@ module.exports = {
 
 
 /***/ }),
-/* 278 */
+/* 276 */
 /***/ (function(module, exports) {
 
 module.exports = function isBuffer(arg) {
@@ -47254,7 +47205,7 @@ module.exports = function isBuffer(arg) {
 }
 
 /***/ }),
-/* 279 */
+/* 277 */
 /***/ (function(module, exports) {
 
 if (typeof Object.create === 'function') {
@@ -47283,7 +47234,7 @@ if (typeof Object.create === 'function') {
 
 
 /***/ }),
-/* 280 */
+/* 278 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47781,7 +47732,7 @@ var objectKeys = Object.keys || function (obj) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
 
 /***/ }),
-/* 281 */
+/* 279 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47939,7 +47890,7 @@ module.exports = EventTarget;
 
 
 /***/ }),
-/* 282 */
+/* 280 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47963,7 +47914,7 @@ try {
 
 
 /***/ }),
-/* 283 */
+/* 281 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47976,13 +47927,13 @@ try {
 
 
 const safeBuffer = __webpack_require__(2);
-const EventEmitter = __webpack_require__(56);
+const EventEmitter = __webpack_require__(55);
 const crypto = __webpack_require__(86);
 const Ultron = __webpack_require__(144);
 const http = __webpack_require__(97);
 const url = __webpack_require__(98);
 
-const PerMessageDeflate = __webpack_require__(78);
+const PerMessageDeflate = __webpack_require__(79);
 const Extensions = __webpack_require__(150);
 const constants = __webpack_require__(100);
 const WebSocket = __webpack_require__(108);
@@ -48304,12 +48255,56 @@ function abortConnection (socket, code, message) {
 
 
 /***/ }),
-/* 284 */
+/* 282 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var map = {
+	"./src/App": 154,
+	"./src/App.js": 154,
+	"./src/global/Config": 40,
+	"./src/global/Config.js": 40,
+	"./src/global/Console": 22,
+	"./src/global/Console.js": 22,
+	"./src/server/Server": 18,
+	"./src/server/Server.js": 18,
+	"./src/server/plugins/Api": 63,
+	"./src/server/plugins/Api.js": 63,
+	"./src/server/server/AroundServers": 101,
+	"./src/server/server/AroundServers.js": 101,
+	"./src/server/server/Connections": 64,
+	"./src/server/server/Connections.js": 64,
+	"./src/server/server/Plugins": 102,
+	"./src/server/server/Plugins.js": 102,
+	"./tests/server/ConnectionsSpec": 155,
+	"./tests/server/ConnectionsSpec.js": 155,
+	"./tests/server/ServerSpec": 156,
+	"./tests/server/ServerSpec.js": 156,
+	"./tests/server/plugins/ApiSpec": 157,
+	"./tests/server/plugins/ApiSpec.js": 157
+};
+function webpackContext(req) {
+	return __webpack_require__(webpackContextResolve(req));
+};
+function webpackContextResolve(req) {
+	var id = map[req];
+	if(!(id + 1)) // check for number or string
+		throw new Error("Cannot find module '" + req + "'.");
+	return id;
+};
+webpackContext.keys = function webpackContextKeys() {
+	return Object.keys(map);
+};
+webpackContext.resolve = webpackContextResolve;
+module.exports = webpackContext;
+webpackContext.id = 282;
+
+/***/ }),
+/* 283 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
 	"./client/src/global/Console": 7,
-	"./server/src/global/Console": 23
+	"./server/src/global/Console": 22
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -48325,49 +48320,7 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 284;
-
-/***/ }),
-/* 285 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var map = {
-	"./src/App": 158,
-	"./src/App.js": 158,
-	"./src/global/Config": 81,
-	"./src/global/Config.js": 81,
-	"./src/global/Console": 23,
-	"./src/global/Console.js": 23,
-	"./src/server/AroundServers": 101,
-	"./src/server/AroundServers.js": 101,
-	"./src/server/Connections": 64,
-	"./src/server/Connections.js": 64,
-	"./src/server/Server": 18,
-	"./src/server/Server.js": 18,
-	"./src/server/plugins/Api": 36,
-	"./src/server/plugins/Api.js": 36,
-	"./tests/server/ConnectionsSpec": 159,
-	"./tests/server/ConnectionsSpec.js": 159,
-	"./tests/server/ServerSpec": 160,
-	"./tests/server/ServerSpec.js": 160,
-	"./tests/server/plugins/ApiSpec": 161,
-	"./tests/server/plugins/ApiSpec.js": 161
-};
-function webpackContext(req) {
-	return __webpack_require__(webpackContextResolve(req));
-};
-function webpackContextResolve(req) {
-	var id = map[req];
-	if(!(id + 1)) // check for number or string
-		throw new Error("Cannot find module '" + req + "'.");
-	return id;
-};
-webpackContext.keys = function webpackContextKeys() {
-	return Object.keys(map);
-};
-webpackContext.resolve = webpackContextResolve;
-module.exports = webpackContext;
-webpackContext.id = 285;
+webpackContext.id = 283;
 
 /***/ })
 /******/ ]);
