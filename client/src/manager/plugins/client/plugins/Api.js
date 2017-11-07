@@ -4,10 +4,10 @@
  *
  * @author flatline
  */
-const TYPES   = require('./../../../../common/src/global/Requests').TYPES;
-const BaseApi = require('./../../../../common/src/net/plugins/Api');
-const EVENTS  = require('./../../global/Events').EVENTS;
-const Console = require('./../../../../client/src/global/Console');
+const TYPES   = require('./../../../../../../common/src/global/Requests').TYPES;
+const BaseApi = require('./../../../../../../common/src/net/plugins/Api');
+const EVENTS  = require('./../../../../global/Events').EVENTS;
+const Console = require('./../../../../global/Console');
 
 class Api extends BaseApi {
     constructor(client) {

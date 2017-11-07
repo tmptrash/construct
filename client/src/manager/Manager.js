@@ -15,7 +15,7 @@
 const Observer         = require('./../../../common/src/global/Observer');
 const Queue            = require('./../../../common/src/global/Queue');
 const Config           = require('./../../../client/src/global/Config').Config;
-const Plugins          = require('./../../../common/src/global/Plugins');
+const Plugins          = require('./../../../client/src/manager/manager/Plugins');
 const EVENTS           = require('./../global/Events').EVENTS;
 const EVENT_AMOUNT     = require('./../global/Events').EVENT_AMOUNT;
 const Console          = require('./../global/Console');
@@ -29,10 +29,7 @@ class Manager extends Observer {
      */
     onIteration() {}
 
-    /**
-     * @param {Object} plugins Manager's plugins
-     */
-    constructor(plugins) {
+    constructor() {
         super(EVENT_AMOUNT);
         /**
          * {Queue} Queue of organisms in current Manager. Should be used by plugins.
@@ -74,7 +71,7 @@ class Manager extends Observer {
         // Plugins creation should be at the end of initialization to
         // have an ability access Manager's API from them
         //
-        this._plugins    = new Plugins(this, plugins);
+        this._plugins    = new Plugins(this, Config.plugins);
     }
     get world()        {return this._world}
     get canvas()       {return this._canvas}

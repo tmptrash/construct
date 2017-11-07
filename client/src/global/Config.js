@@ -31,6 +31,19 @@ ClientConfig.init({
     ORG_FIRST_COLOR,
     ORG_MAX_COLOR,
     /**
+     * {Array} Array of paths to Manager's plugins. Root folder for plugins
+     * should be './client/src/manager/plugins/'.
+     */
+    plugins: [
+        'organisms/dos/Organisms',
+        'Config',
+        {path: 'client/Client', cfg: {run: true}},
+        'Mutator',
+        'Energy',
+        'Status',
+        'ips/Ips'
+    ],
+    /**
      * {Array} Probabilities with which mutator decides what to do:
      * add, change, delete character of the jsvm; change amount of
      * mutations or change mutations period... Depending on these

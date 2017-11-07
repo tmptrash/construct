@@ -10,14 +10,15 @@
  *
  * @author flatline
  */
-const Configurable = require('./../../../../common/src/global/Configurable');
-const Helper       = require('./../../../../common/src/global/Helper');
-const Config       = require('./../../global/Config').Config;
-const EVENTS       = require('./../../global/Events').EVENTS;
+const Configurable = require('./../../../../../common/src/global/Configurable');
+const Helper       = require('./../../../../../common/src/global/Helper');
+const Config       = require('./../../../global/Config').Config;
+const IpsConfig    = require('./Config');
+const EVENTS       = require('./../../../global/Events').EVENTS;
 
 class Ips extends Configurable {
     constructor(manager) {
-        super(manager, {Config, cfg: {show: true, periodMs: 1000}}, {show: ['_show', 'Shows IPS of the world']});
+        super(manager, {Config, cfg: IpsConfig}, {show: ['_show', 'Shows IPS of the world']});
         this._stamp         = Date.now();
         this._onIterationCb = this._onIteration.bind(this);
 

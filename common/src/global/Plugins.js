@@ -17,13 +17,15 @@ class Plugins {
      * called, when parent.destroy() is called.
      */
     constructor(parent, plugins, destroy = true) {
-        const parentPlugins = parent.plugins = {};
+        const parentPlugins = parent.plugins = [];
 
-        for (let p in plugins) {
-            if (plugins.hasOwnProperty(p)) {
-                const plugin = plugins[p];
-                parentPlugins[p] = new (plugin.cls || plugin)(parent, plugin.cfg);
-            }
+        for (let p of plugins) {
+            const path   = p.path || p;
+            const name   = path.split('/').slice(-1)[0];
+            let   plugin = this.require(path);
+
+            plugin = plugin[name] || plugin;
+            parentPlugins.push(new plugin(parent, p.cfg || {}));
         }
 
         this.parent       = parent;
@@ -32,6 +34,15 @@ class Plugins {
         this._destroyed   = false;
 
         Helper.override(parent, 'destroy', this._onDestroyCb);
+    }
+
+    /**
+     * Is used to fix webpack disability to load dynamic modules with require()
+     * @param {String} path Path to the module
+     * @return {Function|Object} imported module
+     */
+    require(path) {
+        return require(path);
     }
 
     /**
@@ -49,8 +60,8 @@ class Plugins {
         //
         if (this._destroy) {
             const plugins = this.parent.plugins;
-            for (let p in plugins) {
-                plugins.hasOwnProperty(p) && plugins[p].destroy && plugins[p].destroy();
+            for (let p of plugins) {
+                p.destroy && p.destroy();
             }
         }
         this.parent.plugins = null;

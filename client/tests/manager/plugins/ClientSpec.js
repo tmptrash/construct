@@ -33,8 +33,8 @@ describe("client/src/manager/plugins/Client", () => {
         // These two lines set modeNodeJs mode to Node.js as running environment
         //
         isNodeJs = Config.modeNodeJs;api.set('modeNodeJs', true);
-        Client   = require('./../../../../client/src/manager/plugins/Client').Client;
-        CEVENTS  = require('./../../../../client/src/manager/plugins/Client').EVENTS;
+        Client   = require('./../../../src/manager/plugins/client/Client').Client;
+        CEVENTS  = require('./../../../src/manager/plugins/client/Client').EVENTS;
         Server   = require('./../../../../server/src/server/Server').Server;
         //
         // These lines prevents classes put messages to the console

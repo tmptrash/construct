@@ -1,5 +1,5 @@
 /**
- * Configuration of DOS Organisms class
+ * Configuration of Client plugin
  *
  * @author flatline
  */
