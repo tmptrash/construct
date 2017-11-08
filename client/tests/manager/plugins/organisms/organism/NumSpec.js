@@ -1,5 +1,5 @@
 describe("client/src/organism/Num", () => {
-    let Num = require('./../../../../../src/manager/plugins/organisms/base/organisms/code2string/Num');
+    let Num = require('./../../../../../src/jsvm/Num');
 
     it("Checking getting random zero operator", () => {
         Num.setOperatorAmount(0);

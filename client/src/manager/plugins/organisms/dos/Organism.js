@@ -4,7 +4,7 @@
  * TODO:   -
  * @author flatline
  */
-const Organism = require('./../base/Organism');
+const Organism = require('./../../../../../src/organism/Organism');
 
 class OrganismDos extends Organism {
     onRun() {

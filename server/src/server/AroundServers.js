@@ -5,8 +5,8 @@
  *
  * @author flatline
  */
-const DIR   = require('./../../../../common/src/global/Directions').DIR;
-const TYPES = require('./../../../../common/src/global/Requests').TYPES;
+const DIR   = require('./../../../common/src/Directions').DIR;
+const TYPES = require('./../../../common/src/net/Requests').TYPES;
 
 class AroundServers {
     constructor(parent) {

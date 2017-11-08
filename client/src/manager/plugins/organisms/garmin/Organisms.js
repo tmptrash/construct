@@ -10,10 +10,10 @@
  *
  * @author flatline
  */
-const Config        = require('./../../../../global/Config').Config;
-const Console       = require('./../../../../global/Console');
-const EVENTS        = require('./../../../../global/Events').EVENTS;
-const BaseOrganisms = require('./../base/Organisms');
+const Config        = require('./../../../../share/Config').Config;
+const Console       = require('./../../../../share/Console');
+const EVENTS        = require('./../../../../share/Events').EVENTS;
+const BaseOrganisms = require('./../Organisms');
 const Fitness       = Config.codeFitnessCls && require('CLIENT/' + Config.codeFitnessCls + '.js') || Config.codeFitnessCls;
 
 class Organisms extends BaseOrganisms {

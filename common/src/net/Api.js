@@ -18,9 +18,9 @@
  *
  * @author flatline
  */
-const Helper = require('./../../../../common/src/global/Helper');
-const TYPES  = require('./../../../../common/src/global/Requests').TYPES;
-const MASKS  = require('./../../../../common/src/global/Requests').MASKS;
+const Helper = require('./../../src/Helper');
+const TYPES  = require('./../../src/net/Requests').TYPES;
+const MASKS  = require('./../../src/net/Requests').MASKS;
 
 class Api {
     constructor(parent) {

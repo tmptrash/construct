@@ -1,20 +1,20 @@
 describe("server/src/server/Server", () => {
     const WebSocket    = require('ws');
-    const Config       = require('./../../../client/src/global/Config').Config;
-    const Observer     = require('./../../../common/src/global/Observer');
+    const Config       = require('./../../../client/src/share/Config').Config;
+    const Observer     = require('./../../../common/src/Observer');
     const Server       = require('./../../../server/src/server/Server').Server;
     const OLD_MODE     = Config.modeNodeJs;
     Config.modeNodeJs  = true;
     const Client       = require('./../../../client/src/manager/plugins/client/Client').Client;
     const SEVENTS      = require('./../../../server/src/server/Server').EVENTS;
     const CEVENTS      = require('./../../../client/src/manager/plugins/client/Client').EVENTS;
-    const EVENT_AMOUNT = require('./../../../client/src/global/Events').EVENT_AMOUNT;
-    const SConsole     = require('./../../../server/src/global/Console');
-    const Console      = require('./../../../client/src/global/Console');
+    const EVENT_AMOUNT = require('./../../../client/src/share/Events').EVENT_AMOUNT;
+    const SConsole     = require('./../../src/share/Console');
+    const Console      = require('./../../../client/src/share/Console');
     const Helper       = require('./../../../common/tests/Helper');
-    const TYPES        = require('./../../../common/src/global/Requests').TYPES;
+    const TYPES        = require('./../../../common/src/net/Requests').TYPES;
     const Api          = require('./../../src/server/plugins/Api');
-    const Request      = require('./../../../common/src/net/plugins/Request');
+    const Request      = require('./../../../common/src/net/Request');
     const waitEvent    = Helper.waitEvent;
 
     const PLUGINS = {

@@ -4,11 +4,10 @@
  *
  * @author flatline
  */
-const Config = require('./../../../common/src/global/Config');
+const Config = require('./../../../common/src/Config');
 
 class ServerConfig extends Config {}
 //
-// TODO: remove command line related parameters from here
 // TODO: parameters, which should be obtained from Admin server
 // TODO: should be also removed from here
 //
@@ -19,7 +18,7 @@ ServerConfig.init({
      * folders.
      */
     plugins: [
-        'src/net/plugins/Request',
+        'src/net/Request',
         'src/server/plugins/Api'
     ],
     /**

@@ -6,10 +6,10 @@
  *
  * @author flatline
  */
-const Config    = require('./../../../../../../global/Config').Config;
-const Helper    = require('./../../../../../../../../common/src/global/Helper');
-const Operators = require('./../../../base/organism/jsvm/Operators');
-const Num       = require('./../../../base/organisms/code2string/Num');
+const Helper    = require('./../../../../../../common/src/Helper');
+const Operators = require('./../../../../../../client/src/jsvm/Operators');
+const Num       = require('./../../../../../../client/src/jsvm/Num');
+const Config    = require('./../../../../share/Config').Config;
 
 /**
  * {Function} Just a shortcuts

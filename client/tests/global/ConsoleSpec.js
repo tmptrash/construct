@@ -1,6 +1,6 @@
-describe("client/src/global/Console", () => {
-    let Console = require('./../../../client/src/global/Console');
-    let Config  = require('./../../src/global/Config').Config;
+describe("client/src/share/Console", () => {
+    let Console = require('./../../src/share/Console');
+    let Config  = require('./../../src/share/Config').Config;
     let log;
     let inc = 0;
     let arg;

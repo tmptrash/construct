@@ -1,15 +1,15 @@
 describe("client/src/manager/plugins/Client", () => {
-    let Helper       = require('./../../../../common/src/global/Helper');
+    let Helper       = require('./../../../../common/src/Helper');
     let THelper      = require('./../../../../common/tests/Helper');
-    let Observer     = require('./../../../../common/src/global/Observer');
-    let Config       = require('./../../../src/global/Config').Config;
-    let EVENT_AMOUNT = require('./../../../../client/src/global/Events').EVENT_AMOUNT;
+    let Observer     = require('./../../../../common/src/Observer');
+    let Config       = require('./../../../src/share/Config').Config;
+    let EVENT_AMOUNT = require('./../../../src/share/Events').EVENT_AMOUNT;
     let SEVENTS      = require('./../../../../server/src/server/Server').EVENTS;
-    let api          = require('./../../../src/global/Config').api;
-    let Console      = require('./../../../../client/src/global/Console');
-    let SConsole     = require('./../../../../server/src/global/Console');
+    let api          = require('./../../../src/share/Config').api;
+    let Console      = require('./../../../src/share/Console');
+    let SConsole     = require('./../../../../server/src/share/Console');
     const Api        = require('./../../../../server/src/server/plugins/Api');
-    const Request    = require('./../../../../common/src/net/plugins/Request');
+    const Request    = require('./../../../../common/src/net/Request');
     const waitEvent  = THelper.waitEvent;
     let isNodeJs;
     let Client;

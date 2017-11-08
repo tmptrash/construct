@@ -5,7 +5,8 @@
  *
  * @author flatline
  */
-const Config = require('./../../../common/src/global/Config');
+// TODO: this config should be refactored/moved to manager folder as it's part
+const Config = require('./../../../common/src/Config');
 
 const QUIET_ALL               = 0;
 const QUIET_IMPORTANT         = 1;
@@ -215,11 +216,11 @@ ClientConfig.init({
      * {Function} Class with available operators. See default Operators
      * class for details. See ClassMap.js for additional details.
      */
-    codeOperatorsCls: 'src/manager/plugins/organisms/dos/organism/jsvm/Operators',
+    codeOperatorsCls: 'src/manager/plugins/organisms/dos/Operators',
     /**
      * {String} Name of the class for string representation of byte jsvm
      */
-    code2StringCls: 'src/manager/plugins/organisms/dos/organisms/Code2String',
+    code2StringCls: 'src/manager/plugins/organisms/dos/Code2String',
     /**
      * {Number} World width
      */
@@ -334,28 +335,6 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //     ORG_MAX_MUTATION_PERIOD: ORG_MAX_MUTATION_PERIOD,
 //     ORG_FIRST_COLOR        : ORG_FIRST_COLOR,
 //     ORG_MAX_COLOR          : ORG_MAX_COLOR,
-//     /**
-//      * {Array} Probabilities with which mutator decides what to do:
-//      * add, change, delete character of the jsvm; change amount of
-//      * mutations or change mutations period... Depending on these
-//      * values, organism may have different strategies of living.
-//      * For example: if add value is bigger then del and change,
-//      * then jsvm size will be grow up all the time. If del value is
-//      * bigger then other, then it will be decreased to zero lines
-//      * of jsvm and will die.
-//      * Format: [
-//      *     add          - Probability of adding of new character to the jsvm
-//      *     change       - Probability of changing existing character in a jsvm
-//      *     delete       - Probability of deleting of a character in a jsvm
-//      *     small-change - Probability of "small change" - change of expression part
-//      *     clone        - Probability for amount of mutations on clone
-//      *     period       - Probability of period of organism mutations
-//      *     amount       - Probability of amount of mutations per period
-//      *     probs        - Probability of change one of probability coefficient
-//      *     clonePeriod  - Probability of change clone energy percent value
-//      * ]
-//      */
-//     orgMutationProbs: [50,80,20,100,1,1,1,1,1],
 //     /**
 //      * {Number} Max value, which we may use in orgMutationProbs array.
 //      */
@@ -678,28 +657,6 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //     ORG_MAX_MUTATION_PERIOD: ORG_MAX_MUTATION_PERIOD,
 //     ORG_FIRST_COLOR        : ORG_FIRST_COLOR,
 //     ORG_MAX_COLOR          : ORG_MAX_COLOR,
-//     /**
-//      * {Array} Probabilities with which mutator decides what to do:
-//      * add, change, delete character of the jsvm; change amount of
-//      * mutations or change mutations period... Depending on these
-//      * values, organism may have different strategies of living.
-//      * For example: if add value is bigger then del and change,
-//      * then jsvm size will be grow up all the time. If del value is
-//      * bigger then other, then it will be decreased to zero lines
-//      * of jsvm and will die.
-//      * Format: [
-//      *     add          - Probability of adding of new character to the jsvm
-//      *     change       - Probability of changing existing character in a jsvm
-//      *     delete       - Probability of deleting of a character in a jsvm
-//      *     small-change - Probability of "small change" - change of expression part
-//      *     clone        - Probability for amount of mutations on clone
-//      *     period       - Probability of period of organism mutations
-//      *     amount       - Probability of amount of mutations per period
-//      *     probs        - Probability of change one of probability coefficient
-//      *     clonePeriod  - Probability of change clone energy percent value
-//      * ]
-//      */
-//     orgMutationProbs: [50,80,20,100,1,1,1,1,1],
 //     /**
 //      * {Number} Max value, which we may use in orgMutationProbs array.
 //      */

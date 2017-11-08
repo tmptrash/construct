@@ -5,7 +5,7 @@
  *
  * @author flatline
  */
-const Plugins = require('./../../../../common/src/global/Plugins');
+const Plugins = require('./../../../common/src/Plugins');
 
 class ServerPlugins extends Plugins {
     /**
@@ -15,9 +15,9 @@ class ServerPlugins extends Plugins {
      */
     require(path) {
         try {
-            return require('./../../../../server/' + path);
+            return require('./../../../server/' + path);
         } catch (e) {
-            return require('./../../../../common/' + path);
+            return require('./../../../common/' + path);
         }
     }
 }

@@ -1,12 +1,12 @@
 describe("client/src/organism/JSVM", () => {
-    let JSVM         = require('./../../../../../src/manager/plugins/organisms/base/organism/JSVM');
-    let Num          = require('./../../../../../src/manager/plugins/organisms/base/organisms/code2string/Num');
-    let Operators    = require('./../../../../../src/manager/plugins/organisms/base/organism/jsvm/Operators');
-    let Observer     = require('./../../../../../../common/src/global/Observer');
-    let Helper       = require('./../../../../../../common/src/global/Helper');
-    let Config       = require('./../../../../../src/global/Config').Config;
-    let api          = require('./../../../../../src/global/Config').api;
+    let Observer     = require('./../../../../../../common/src/Observer');
+    let Helper       = require('./../../../../../../common/src/Helper');
     let THelper      = require('./../../../../../../common/tests/Helper');
+    let Config       = require('./../../../../../src/share/Config').Config;
+    let api          = require('./../../../../../src/share/Config').api;
+    let JSVM         = require('./../../../../../src/jsvm/JSVM');
+    let Num          = require('./../../../../../src/jsvm/Num');
+    let Operators    = require('./../../../../../src/jsvm/Operators');
     let cls          = null;
 
     beforeEach(() => {cls = Config.codeOperatorsCls;api.set('codeOperatorsCls', 'ops')});

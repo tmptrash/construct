@@ -1,14 +1,14 @@
 /**
  * Base class for other classes, which want to have their own config.
  * For example plugin "Ips.js" has configuration "show", which will be
- * added as a part of global configuration in Config.js under key "Ips".
- * It also has an API method 'show()', which will be added into global
+ * added as a part of share configuration in Config.js under key "Ips".
+ * It also has an API method 'show()', which will be added into share
  * API as:
  *   man.api.Ips.show().
  * See Ips plugin for details regarding API and configurations formats.
  *
  * Usage:
- *   import Config from './../Config'; // Client or Server global config
+ *   import Config from './../Config'; // Client or Server share config
  *
  *   class Plugin extends Configurable {
  *     constructor(parent) {
@@ -50,10 +50,10 @@ class Configurable {
     }
 
     /**
-     * Adds parent class related configuration into global configuration. cfg
+     * Adds parent class related configuration into share configuration. cfg
      * parameter refers to the object in format:
      * {
-     *   Config: Object, // Reference to the global configuration object
+     *   Config: Object, // Reference to the share configuration object
      *   cfg   : Object  // Reference to the parent class related configuration
      * }
      * @param {Object} cfg {Config: Object, cfg: Object}
@@ -70,7 +70,7 @@ class Configurable {
     }
 
     /**
-     * Adds class related API functions to global API. apiCfg May be in two
+     * Adds class related API functions to share API. apiCfg May be in two
      * formats: String and Array. For example: '_show' or ['_show', 'description']
      * '_show' value means name of the method, which will be called if user call it
      * using api like this: man.api.<className>.show(). 'description' will be shown

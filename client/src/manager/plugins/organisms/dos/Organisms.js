@@ -11,11 +11,11 @@
  *
  * @author flatline
  */
-const BaseOrganisms = require('./../base/Organisms');
-const Config        = require('./../../../../global/Config').Config;
-const EVENTS        = require('./../../../../global/Events').EVENTS;
-const Helper        = require('./../../../../../../common/src/global/Helper');
-const DIR           = require('./../../../../../../common/src/global/Directions').DIR;
+const BaseOrganisms = require('./../Organisms');
+const Config        = require('./../../../../share/Config').Config;
+const EVENTS        = require('./../../../../share/Events').EVENTS;
+const Helper        = require('./../../../../../../common/src/Helper');
+const DIR           = require('./../../../../../../common/src/Directions').DIR;
 
 const EMPTY         = 0;
 const ENERGY        = 1;

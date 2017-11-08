@@ -1,6 +1,6 @@
 describe("common/src/net/plugins/Api", () => {
-    const Api   = require('./../../../src/net/plugins/Api');
-    const MASKS = require('./../../../src/global/Requests').MASKS;
+    const Api   = require('./../../../src/net/Api');
+    const MASKS = require('./../../../src/net/Requests').MASKS;
     let   val   = false;
 
     it("Checking Api class extending and specified request type handling", () => {

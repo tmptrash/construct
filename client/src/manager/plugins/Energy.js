@@ -3,9 +3,9 @@
  *
  * @author flatline
  */
-const Helper  = require('./../../../../common/src/global/Helper');
-const Config  = require('./../../global/Config').Config;
-const Console = require('./../../global/Console');
+const Helper  = require('./../../../../common/src/Helper');
+const Config  = require('./../../share/Config').Config;
+const Console = require('./../../share/Console');
 
 class Energy {
     constructor(manager) {

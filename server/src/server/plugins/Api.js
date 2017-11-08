@@ -6,13 +6,13 @@
  *
  * @author flatline
  */
-const Connections = require('./../server/Connections');
-const Console     = require('./../../global/Console');
-const Helper      = require('./../../../../common/src/global/Helper');
-const TYPES       = require('./../../../../common/src/global/Requests').TYPES;
-const DIR         = require('./../../../../common/src/global/Directions').DIR;
-const DIR_NAMES   = require('./../../../../common/src/global/Directions').NAMES;
-const BaseApi     = require('./../../../../common/src/net/plugins/Api');
+const Helper      = require('./../../../../common/src/Helper');
+const TYPES       = require('./../../../../common/src/net/Requests').TYPES;
+const DIR         = require('./../../../../common/src/Directions').DIR;
+const DIR_NAMES   = require('./../../../../common/src/Directions').NAMES;
+const BaseApi     = require('./../../../../common/src/net/Api');
+const Console     = require('./../../share/Console');
+const Connections = require('./../Connections');
 
 class Api extends BaseApi {
     constructor(parent) {

@@ -9,11 +9,11 @@
  *
  * @author flatline
  */
-const EVENTS   = require('./../../global/Events').EVENTS;
-const Config   = require('./../../global/Config').Config;
-const Helper   = require('./../../../../common/src/global/Helper');
+const EVENTS   = require('./../../share/Events').EVENTS;
+const Config   = require('./../../share/Config').Config;
+const Helper   = require('./../../../../common/src/Helper');
 const Organism = require('./organisms/dos/Organism');
-const Num      = require('./organisms/base/organisms/code2string/Num');
+const Num      = require('./../../jsvm/Num');
 
 const VAR_BITS_OFFS = Num.VAR_BITS_OFFS - 1;
 const VARS          = Num.VARS;

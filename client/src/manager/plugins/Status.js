@@ -3,8 +3,8 @@
  *
  * @author flatline
  */
-const EVENTS = require('./../../global/Events').EVENTS;
-const Config = require('./../../global/Config').Config;
+const EVENTS = require('./../../share/Events').EVENTS;
+const Config = require('./../../share/Config').Config;
 
 const GREEN  = 'color: #00aa00';
 const RED    = 'color: #aa0000';

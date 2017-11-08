@@ -5,10 +5,10 @@
  *
  * @author flatline
  */
-const Helper  = require('./../../global/Helper');
-const Config  = require('./../../../../client/src/global/Config').Config;
-const MASKS   = require('./../../global/Requests').MASKS;
-const Console = require(`./../../../../${Config.modeNodeJs ? 'server' : 'client'}/src/global/Console`);
+const Helper  = require('./../../src/Helper');
+const Config  = require('./../../../client/src/share/Config').Config;
+const MASKS   = require('./../../src/net/Requests').MASKS;
+const Console = require(`./../../../${Config.modeNodeJs ? 'server' : 'client'}/src/share/Console`);
 
 class Request {
     /**

@@ -32,11 +32,11 @@
 const WebSocket        = require('./../../../node_modules/ws/index');
 const Connection       = require('./../../../common/src/net/Connection').Connection;
 const EVENTS           = require('./../../../common/src/net/Connection').EVENTS;
-const AroundServers    = require('./server/AroundServers');
-const Config           = require('./../global/Config').Config;
-const Plugins          = require('./../server/server/Plugins');
-const Console          = require('./../global/Console');
-const Connections      = require('./server/Connections');
+const AroundServers    = require('./AroundServers');
+const Config           = require('./../share/Config').Config;
+const Plugins          = require('./Plugins');
+const Console          = require('./../share/Console');
+const Connections      = require('./Connections');
 /**
  * {Number} Amount of base events. Is used to extend them by server related
  */

@@ -12,15 +12,15 @@
  * TODO: what about destroy of manager instance? We have to destroy plugins
  * TODO: by calling of destroy() method for every of them
  */
-const Observer         = require('./../../../common/src/global/Observer');
-const Queue            = require('./../../../common/src/global/Queue');
-const Config           = require('./../../../client/src/global/Config').Config;
-const Plugins          = require('./../../../client/src/manager/manager/Plugins');
-const EVENTS           = require('./../global/Events').EVENTS;
-const EVENT_AMOUNT     = require('./../global/Events').EVENT_AMOUNT;
-const Console          = require('./../global/Console');
-const World            = require('./visual/World');
-const Canvas           = require('./visual/Canvas');
+const Observer         = require('./../../../common/src/Observer');
+const Queue            = require('./../../../common/src/Queue');
+const Config           = require('./../share/Config').Config;
+const Plugins          = require('./Plugins');
+const EVENTS           = require('./../share/Events').EVENTS;
+const EVENT_AMOUNT     = require('./../share/Events').EVENT_AMOUNT;
+const Console          = require('./../share/Console');
+const World            = require('./../view/World');
+const Canvas           = require('./../view/Canvas');
 
 class Manager extends Observer {
     /**

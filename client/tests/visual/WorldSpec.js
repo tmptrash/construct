@@ -1,6 +1,6 @@
-describe("client/src/visual/World", () => {
-    let World  = require('./../../src/manager/visual/World');
-    let EVENTS = require('./../../../client/src/global/Events').EVENTS;
+describe("client/src/view/World", () => {
+    let World  = require('./../../src/view/World');
+    let EVENTS = require('./../../src/share/Events').EVENTS;
 
     it("Checking world creation", () => {
         let world = new World(10, 10);

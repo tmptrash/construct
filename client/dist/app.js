@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 66);
+/******/ 	return __webpack_require__(__webpack_require__.s = 67);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -96,6 +96,74 @@ if (typeof Object.create === 'function') {
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
+/* eslint-disable node/no-deprecated-api */
+var buffer = __webpack_require__(3)
+var Buffer = buffer.Buffer
+
+// alternative to using Object.keys for old browsers
+function copyProps (src, dst) {
+  for (var key in src) {
+    dst[key] = src[key]
+  }
+}
+if (Buffer.from && Buffer.alloc && Buffer.allocUnsafe && Buffer.allocUnsafeSlow) {
+  module.exports = buffer
+} else {
+  // Copy properties from require('buffer')
+  copyProps(buffer, exports)
+  exports.Buffer = SafeBuffer
+}
+
+function SafeBuffer (arg, encodingOrOffset, length) {
+  return Buffer(arg, encodingOrOffset, length)
+}
+
+// Copy static methods from Buffer
+copyProps(Buffer, SafeBuffer)
+
+SafeBuffer.from = function (arg, encodingOrOffset, length) {
+  if (typeof arg === 'number') {
+    throw new TypeError('Argument must not be a number')
+  }
+  return Buffer(arg, encodingOrOffset, length)
+}
+
+SafeBuffer.alloc = function (size, fill, encoding) {
+  if (typeof size !== 'number') {
+    throw new TypeError('Argument must be a number')
+  }
+  var buf = Buffer(size)
+  if (fill !== undefined) {
+    if (typeof encoding === 'string') {
+      buf.fill(fill, encoding)
+    } else {
+      buf.fill(fill)
+    }
+  } else {
+    buf.fill(0)
+  }
+  return buf
+}
+
+SafeBuffer.allocUnsafe = function (size) {
+  if (typeof size !== 'number') {
+    throw new TypeError('Argument must be a number')
+  }
+  return Buffer(size)
+}
+
+SafeBuffer.allocUnsafeSlow = function (size) {
+  if (typeof size !== 'number') {
+    throw new TypeError('Argument must be a number')
+  }
+  return buffer.SlowBuffer(size)
+}
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
 /**
  * Global client's jevo.js configuration file. Affects only current jevo.js
  * instance. Other instances(clients) may have different configuration values.
@@ -103,7 +171,8 @@ if (typeof Object.create === 'function') {
  *
  * @author flatline
  */
-const Config = __webpack_require__(69);
+// TODO: this config should be refactored/moved to manager folder as it's part
+const Config = __webpack_require__(26);
 
 const QUIET_ALL               = 0;
 const QUIET_IMPORTANT         = 1;
@@ -313,11 +382,11 @@ ClientConfig.init({
      * {Function} Class with available operators. See default Operators
      * class for details. See ClassMap.js for additional details.
      */
-    codeOperatorsCls: 'src/manager/plugins/organisms/dos/organism/jsvm/Operators',
+    codeOperatorsCls: 'src/manager/plugins/organisms/dos/Operators',
     /**
      * {String} Name of the class for string representation of byte jsvm
      */
-    code2StringCls: 'src/manager/plugins/organisms/dos/organisms/Code2String',
+    code2StringCls: 'src/manager/plugins/organisms/dos/Code2String',
     /**
      * {Number} World width
      */
@@ -432,28 +501,6 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //     ORG_MAX_MUTATION_PERIOD: ORG_MAX_MUTATION_PERIOD,
 //     ORG_FIRST_COLOR        : ORG_FIRST_COLOR,
 //     ORG_MAX_COLOR          : ORG_MAX_COLOR,
-//     /**
-//      * {Array} Probabilities with which mutator decides what to do:
-//      * add, change, delete character of the jsvm; change amount of
-//      * mutations or change mutations period... Depending on these
-//      * values, organism may have different strategies of living.
-//      * For example: if add value is bigger then del and change,
-//      * then jsvm size will be grow up all the time. If del value is
-//      * bigger then other, then it will be decreased to zero lines
-//      * of jsvm and will die.
-//      * Format: [
-//      *     add          - Probability of adding of new character to the jsvm
-//      *     change       - Probability of changing existing character in a jsvm
-//      *     delete       - Probability of deleting of a character in a jsvm
-//      *     small-change - Probability of "small change" - change of expression part
-//      *     clone        - Probability for amount of mutations on clone
-//      *     period       - Probability of period of organism mutations
-//      *     amount       - Probability of amount of mutations per period
-//      *     probs        - Probability of change one of probability coefficient
-//      *     clonePeriod  - Probability of change clone energy percent value
-//      * ]
-//      */
-//     orgMutationProbs: [50,80,20,100,1,1,1,1,1],
 //     /**
 //      * {Number} Max value, which we may use in orgMutationProbs array.
 //      */
@@ -777,28 +824,6 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //     ORG_FIRST_COLOR        : ORG_FIRST_COLOR,
 //     ORG_MAX_COLOR          : ORG_MAX_COLOR,
 //     /**
-//      * {Array} Probabilities with which mutator decides what to do:
-//      * add, change, delete character of the jsvm; change amount of
-//      * mutations or change mutations period... Depending on these
-//      * values, organism may have different strategies of living.
-//      * For example: if add value is bigger then del and change,
-//      * then jsvm size will be grow up all the time. If del value is
-//      * bigger then other, then it will be decreased to zero lines
-//      * of jsvm and will die.
-//      * Format: [
-//      *     add          - Probability of adding of new character to the jsvm
-//      *     change       - Probability of changing existing character in a jsvm
-//      *     delete       - Probability of deleting of a character in a jsvm
-//      *     small-change - Probability of "small change" - change of expression part
-//      *     clone        - Probability for amount of mutations on clone
-//      *     period       - Probability of period of organism mutations
-//      *     amount       - Probability of amount of mutations per period
-//      *     probs        - Probability of change one of probability coefficient
-//      *     clonePeriod  - Probability of change clone energy percent value
-//      * ]
-//      */
-//     orgMutationProbs: [50,80,20,100,1,1,1,1,1],
-//     /**
 //      * {Number} Max value, which we may use in orgMutationProbs array.
 //      */
 //     orgMutationProbsMaxValue: 100,
@@ -1085,74 +1110,6 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //      */
 //     modeQuiet: 1
 // };
-
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* eslint-disable node/no-deprecated-api */
-var buffer = __webpack_require__(3)
-var Buffer = buffer.Buffer
-
-// alternative to using Object.keys for old browsers
-function copyProps (src, dst) {
-  for (var key in src) {
-    dst[key] = src[key]
-  }
-}
-if (Buffer.from && Buffer.alloc && Buffer.allocUnsafe && Buffer.allocUnsafeSlow) {
-  module.exports = buffer
-} else {
-  // Copy properties from require('buffer')
-  copyProps(buffer, exports)
-  exports.Buffer = SafeBuffer
-}
-
-function SafeBuffer (arg, encodingOrOffset, length) {
-  return Buffer(arg, encodingOrOffset, length)
-}
-
-// Copy static methods from Buffer
-copyProps(Buffer, SafeBuffer)
-
-SafeBuffer.from = function (arg, encodingOrOffset, length) {
-  if (typeof arg === 'number') {
-    throw new TypeError('Argument must not be a number')
-  }
-  return Buffer(arg, encodingOrOffset, length)
-}
-
-SafeBuffer.alloc = function (size, fill, encoding) {
-  if (typeof size !== 'number') {
-    throw new TypeError('Argument must be a number')
-  }
-  var buf = Buffer(size)
-  if (fill !== undefined) {
-    if (typeof encoding === 'string') {
-      buf.fill(fill, encoding)
-    } else {
-      buf.fill(fill)
-    }
-  } else {
-    buf.fill(0)
-  }
-  return buf
-}
-
-SafeBuffer.allocUnsafe = function (size) {
-  if (typeof size !== 'number') {
-    throw new TypeError('Argument must be a number')
-  }
-  return Buffer(size)
-}
-
-SafeBuffer.allocUnsafeSlow = function (size) {
-  if (typeof size !== 'number') {
-    throw new TypeError('Argument must be a number')
-  }
-  return buffer.SlowBuffer(size)
-}
 
 
 /***/ }),
@@ -3017,7 +2974,7 @@ module.exports = {EVENTS, EVENT_AMOUNT};
  *
  * @author flatline
  */
-const Config = __webpack_require__(1).Config;
+const Config = __webpack_require__(2).Config;
 const DIR    = __webpack_require__(17).DIR;
 
 class Helper {
@@ -6632,7 +6589,7 @@ module.exports = Helper;
  *
  * @author flatline
  */
-const Config = __webpack_require__(1).Config;
+const Config = __webpack_require__(2).Config;
 
 class Console {
     static error(...msg) {
@@ -6968,6 +6925,23 @@ module.exports = Observer;
 
 /***/ }),
 /* 12 */
+/***/ (function(module, exports) {
+
+module.exports = assert;
+
+function assert(val, msg) {
+  if (!val)
+    throw new Error(msg || 'Assertion failed');
+}
+
+assert.equal = function assertEqual(l, r, msg) {
+  if (l != r)
+    throw new Error(msg || ('Assertion failed: ' + l + ' != ' + r));
+};
+
+
+/***/ }),
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -6976,7 +6950,7 @@ module.exports = Observer;
  * @author flatline
  */
 const Helper = __webpack_require__(5);
-const Config = __webpack_require__(1).Config;
+const Config = __webpack_require__(2).Config;
 
 const BITS_PER_VAR        = Config.codeBitsPerVar;
 const BITS_PER_OPERATOR   = Config.codeBitsPerOperator;
@@ -7059,23 +7033,6 @@ class Num {
 module.exports = Num;
 
 /***/ }),
-/* 13 */
-/***/ (function(module, exports) {
-
-module.exports = assert;
-
-function assert(val, msg) {
-  if (!val)
-    throw new Error(msg || 'Assertion failed');
-}
-
-assert.equal = function assertEqual(l, r, msg) {
-  if (l != r)
-    throw new Error(msg || ('Assertion failed: ' + l + ' != ' + r));
-};
-
-
-/***/ }),
 /* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -7090,8 +7047,8 @@ assert.equal = function assertEqual(l, r, msg) {
  * @author flatline
  */
 const Helper       = __webpack_require__(5);
-const Config       = __webpack_require__(1).Config;
-const ServerConfig = __webpack_require__(40).Config;
+const Config       = __webpack_require__(2).Config;
+const ServerConfig = __webpack_require__(28).Config;
 const TYPES        = __webpack_require__(15).TYPES;
 const Console      = __webpack_require__(7);
 const Connection   = __webpack_require__(29).Connection;
@@ -7105,7 +7062,7 @@ const GEVENTS      = __webpack_require__(4).EVENTS;
 const WS         = Config.modeNodeJs ? __webpack_require__(85) : window.WebSocket;
 // TODO: should be moved to local config
 const PLUGINS = [
-    'src/net/plugins/Request',
+    'src/net/Request',
     'src/manager/plugins/client/plugins/Api'
 ];
 
@@ -7275,7 +7232,7 @@ module.exports = {TYPES, MASKS};
 "use strict";
 
 
-var assert = __webpack_require__(13);
+var assert = __webpack_require__(12);
 var inherits = __webpack_require__(0);
 
 exports.inherits = inherits;
@@ -7594,9 +7551,9 @@ const WebSocket        = __webpack_require__(85);
 const Connection       = __webpack_require__(29).Connection;
 const EVENTS           = __webpack_require__(29).EVENTS;
 const AroundServers    = __webpack_require__(101);
-const Config           = __webpack_require__(40).Config;
+const Config           = __webpack_require__(28).Config;
 const Plugins          = __webpack_require__(102);
-const Console          = __webpack_require__(22);
+const Console          = __webpack_require__(21);
 const Connections      = __webpack_require__(64);
 /**
  * {Number} Amount of base events. Is used to extend them by server related
@@ -7792,54 +7749,6 @@ module.exports = {Server, EVENTS: SERVER_EVENTS};
 /***/ (function(module, exports) {
 
 /**
- * This file contains interface for available operators for some special
- * task. You have to inherit your operators class from this one.
- *
- * @author flatline
- */
-class Operators {
-    constructor(offs, vars, obs) {
-        /**
-         * {Array} Array of offsets for closing braces. For 'for', 'if'
-         * and other operators.
-         */
-        this.offs = offs;
-        /**
-         * {Array} Available variables
-         */
-        this.vars = vars;
-        /**
-         * {Observer} Observer for sending events outside
-         */
-        this.obs = obs;
-    }
-
-    destroy() {
-        this.offs = null;
-        this.vars = null;
-        this.obs  = null;
-    }
-
-    /**
-     * Returns operators array. Should be overridden in child class
-     * @abstract
-     */
-    get operators() {return []}
-
-    /**
-     * Sets offsets array from outside
-     * @param {Array} offs New offsets array
-     */
-    set offsets(offs) {this.offs = offs}
-}
-
-module.exports = Operators;
-
-/***/ }),
-/* 20 */
-/***/ (function(module, exports) {
-
-/**
  * Helper for tests
  *
  * @author flatline
@@ -7905,10 +7814,10 @@ class Helper {
 module.exports = Helper;
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Buffer = __webpack_require__(2).Buffer
+var Buffer = __webpack_require__(1).Buffer
 var Transform = __webpack_require__(73).Transform
 var StringDecoder = __webpack_require__(90).StringDecoder
 var inherits = __webpack_require__(0)
@@ -8010,7 +7919,7 @@ module.exports = CipherBase
 
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(module, exports) {
 
 /**
@@ -8027,7 +7936,7 @@ class Console {
 module.exports = Console;
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -8036,7 +7945,7 @@ module.exports = Console;
  * TODO:   -
  * @author flatline
  */
-const Organism = __webpack_require__(24);
+const Organism = __webpack_require__(38);
 
 class OrganismDos extends Organism {
     onRun() {
@@ -8047,535 +7956,55 @@ class OrganismDos extends Organism {
 module.exports = OrganismDos;
 
 /***/ }),
-/* 24 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 23 */
+/***/ (function(module, exports) {
 
 /**
- * Base class for organism
- * TODO: add description:
- * TODO:   - events
- * TODO:   -
- * @author flatline
- */
-const Config        = __webpack_require__(1).Config;
-const Observer      = __webpack_require__(11);
-const EVENTS        = __webpack_require__(4).EVENTS;
-const EVENT_AMOUNT  = __webpack_require__(4).EVENT_AMOUNT;
-const Helper        = __webpack_require__(5);
-const JSVM          = __webpack_require__(25);
-
-const IS_NUM = Helper.isNumeric;
-
-class Organism extends Observer {
-    /**
-     * Is called before every run. Should return true, if everything
-     * is okay and we don't need to interrupt running. If true, then
-     * onRun() method will be called as well
-     * @abstract
-     */
-    onBeforeRun() {}
-
-    /**
-     * Is called as a running body (main) method
-     * @abstract
-     */
-    onRun() {}
-
-    /**
-     * Creates organism instance. If parent parameter is set, then
-     * a clone of parent organism will be created.
-     * @param {String} id Unique identifier of organism
-     * @param {Number} x Unique X coordinate
-     * @param {Number} y Unique Y coordinate
-     * @param {Boolean} alive true if organism is alive
-     * @param {Object} item Reference to the Queue item, where
-     * this organism is located
-     * @param {Function} codeEndCb Callback, which is called at the
-     * end of every code iteration.
-     * @param {Organism} parent Parent organism if cloning is needed
-     */
-    constructor(id, x, y, alive, item, codeEndCb, parent = null) {
-        super(EVENT_AMOUNT);
-
-        this._codeEndCb   = codeEndCb;
-
-        if (parent === null) {this._create()}
-        else {this._clone(parent)}
-
-        this._id          = id;
-        this._x           = x;
-        this._y           = y;
-        this._changes     = 1;
-        this._alive       = alive;
-        this._item        = item;
-        this._iterations  = 0;
-        this._fnId        = 0;
-    }
-
-    get id()                    {return this._id}
-    get x()                     {return this._x}
-    get y()                     {return this._y}
-    get alive()                 {return this._alive}
-    get item()                  {return this._item}
-    get iterations()            {return this._iterations}
-    get changes()               {return this._changes}
-    get mutationProbs()         {return this._mutationProbs}
-    get mutationPeriod()        {return this._mutationPeriod}
-    get mutationPercent()       {return this._mutationPercent}
-    get cloneMutationPercent()  {return this._cloneMutationPercent}
-    get energy()                {return this._energy}
-    get color()                 {return this._color}
-    get mem()                   {return this._mem}
-    get cloneEnergyPercent()    {return this._cloneEnergyPercent}
-    get posId()                 {return Helper.posId(this._x, this._y)}
-
-    set x(newX)                 {this._x = newX}
-    set y(newY)                 {this._y = newY}
-    set cloneMutationPercent(m) {this._cloneMutationPercent = m}
-    set mutationPeriod(m)       {this._mutationPeriod = m}
-    set mutationPercent(p)      {this._mutationPercent = p}
-    set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p}
-    set energy(e)               {this._energy = e}
-    set changes(c) {
-        this._changes = c;
-        this._updateColor(c);
-    }
-
-    /**
-     * Runs one code iteration and returns
-     * @return {Boolean} false means that organism was destroyed
-     */
-    run() {
-        this._iterations++;
-        if (this.onBeforeRun() === false) {return true}
-        this.onRun();
-        return this.alive && this._updateDestroy() && this._updateEnergy();
-    }
-
-    /**
-     * Serializes an organism into the JSON string
-     * @return {String} JSON string
-     */
-    serialize() {
-        let   json = {
-            id                  : this._id,
-            x                   : this._x,
-            y                   : this._y,
-            changes             : this._changes,
-            alive               : this._alive,
-            // 'item' will be added after insertion
-            iterations          : this._iterations,
-            fnId                : this._fnId,
-            jsvm                : this.jsvm.serialize(),
-            energy              : this._energy,
-            color               : this._color,
-            mutationProbs       : this._mutationProbs,
-            cloneMutationPercent: this._cloneMutationPercent,
-            mutationPeriod      : this._mutationPeriod,
-            mutationPercent     : this._mutationPercent,
-            cloneEnergyPercent  : this._cloneEnergyPercent,
-            mem                 : this.mem.slice()
-        };
-
-        return JSON.stringify(json);
-    }
-
-    /**
-     * Opposite to serialize(). Parses provided JSON string and fill
-     * current instance by passed values.
-     * @param {String} str JSON string
-     */
-    unserialize(str) {
-        const json = JSON.parse(str);
-
-        // 'id' will be added after insertion
-        this._x                    = json.x;
-        this._y                    = json.y;
-        this._changes              = json.changes;
-        this._alive                = json.alive;
-        // 'item' will be added after insertion
-        this._iterations           = json.iterations;
-        this._fnId                 = json.fnId;
-        this.jsvm.unserialize(json.jsvm);
-        this._energy               = json.energy;
-        this._color                = json.color;
-        this._mutationProbs        = json.mutationProbs;
-        this._cloneMutationPercent = json.cloneMutationPercent;
-        this._mutationPeriod       = json.mutationPeriod;
-        this._mutationPercent      = json.mutationPercent;
-        this._cloneEnergyPercent   = json.cloneEnergyPercent;
-        this._mem                  = json.mem.slice();
-    }
-
-    grabEnergy(amount) {
-        if (!IS_NUM(amount)) {return true}
-        const noEnergy = (this._energy -= amount) < 1;
-        noEnergy && this.destroy();
-        return !noEnergy;
-    }
-
-    fitness() {
-        return this._energy * this._changes;
-    }
-
-    destroy() {
-        this.fire(EVENTS.DESTROY, this);
-        this._alive      = false;
-        this._energy     = 0;
-        this._item       = null;
-        this._mem        = null;
-        this.jsvm && this.jsvm.destroy();
-        this.jsvm        = null;
-        this._codeEndCb  = null;
-        this.clear();
-    }
-
-    _updateColor(changes) {
-        if ((this._color += changes) > Config.ORG_MAX_COLOR) {
-            this._color = Config.ORG_FIRST_COLOR;
-        }
-    }
-
-    _create() {
-        this.jsvm                   = new JSVM(this._codeEndCb.bind(this, this), this);
-        this._energy                = Config.orgStartEnergy;
-        this._color                 = Config.orgStartColor;
-        this._mutationProbs         = Config.orgMutationProbs.slice();
-        this._cloneMutationPercent  = Config.orgCloneMutationPercent;
-        this._mutationPeriod        = Config.orgRainMutationPeriod;
-        this._mutationPercent       = Config.orgRainMutationPercent;
-        this._cloneEnergyPercent    = Config.orgCloneEnergyPercent;
-        this._mem                   = [];
-    }
-
-    _clone(parent) {
-        this.jsvm                   = new JSVM(this._codeEndCb.bind(this, this), this, parent.jsvm);
-        this._energy                = parent.energy;
-        this._color                 = parent.color;
-        this._mutationProbs         = parent.mutationProbs.slice();
-        this._cloneMutationPercent  = parent.cloneMutationPercent;
-        this._mutationPeriod        = parent.mutationPeriod;
-        this._mutationPercent       = parent.mutationPercent;
-        this._cloneEnergyPercent    = parent.cloneEnergyPercent;
-        this._mem                   = parent.mem.slice();
-    }
-
-    /**
-     * Checks if organism need to be killed/destroyed, because of age or zero energy
-     * @return {Boolean} false means that organism was destroyed.
-     * @private
-     */
-    _updateDestroy() {
-        const alivePeriod = Config.orgAlivePeriod;
-        const needDestroy = (this._energy < 1 || this._iterations >= alivePeriod) && alivePeriod > 0;
-
-        needDestroy && this.destroy();
-
-        return !needDestroy;
-    }
-
-    /**
-     * This is how our system grabs an energy= require(organism if it's age is
-     * divided into Config.orgEnergySpendPeriod.
-     * @return {Boolean} false means that organism was destroyed.
-     * @private
-     */
-    _updateEnergy() {
-        if (this._iterations % Config.orgEnergySpendPeriod !== 0 || Config.orgEnergySpendPeriod === 0) {return true}
-        const codeSize = this.jsvm.size;
-        let   grabSize = Math.floor(codeSize / Config.orgGarbagePeriod);
-
-        if (codeSize > Config.codeMaxSize) {grabSize = codeSize * Config.codeSizeCoef}
-        if (grabSize < 1) {grabSize = 1}
-        grabSize = Math.min(this._energy, grabSize);
-        this.fire(EVENTS.GRAB_ENERGY, grabSize);
-
-        return this.grabEnergy(grabSize);
-    }
-}
-
-module.exports = Organism;
-
-/***/ }),
-/* 25 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Implements organism's code logic.
- * TODO: explain here code one number format,...
+ * This file contains interface for available operators for some special
+ * task. You have to inherit your operators class from this one.
  *
  * @author flatline
- * TODO: may be this module is redundant
- * TODO: think about custom operators callbacks from outside. This is how
- * TODO: we may solve custom tasks
  */
-const Config       = __webpack_require__(1).Config;
-const Helper       = __webpack_require__(5);
-const Observer     = __webpack_require__(11);
-const EVENTS       = __webpack_require__(4).EVENTS;
-const EVENT_AMOUNT = __webpack_require__(4).EVENT_AMOUNT;
-const Num          = __webpack_require__(12);
-const Operators    = __webpack_require__(71)("./" + Config.codeOperatorsCls + '.js');
-/**
- * {Number} Maximum stack size, which may be used for recursion or function parameters
- */
-const MAX_STACK_SIZE = 30000;
-
-class JSVM extends Observer {
-    /**
-     * Creates JSVM instance. codeEndCb will be called after last code line is run.
-     * parent is used if JSVM instance is in a cloning mode and we have to create
-     * a copy of it.
-     * @param {Function} codeEndCb
-     * @param {Observer} obs Observer instance for Operators class
-     * @param {JSVM} parent Parent JSVM instance in case of cloning
-     */
-    constructor(codeEndCb, obs, parent = null) {
-        super(EVENT_AMOUNT);
-
-        this._obs       = obs;
+class Operators {
+    constructor(offs, vars, obs) {
         /**
-         * {Function} Callback, which is called on every organism
-         * jsvm iteration. On it's end.
+         * {Array} Array of offsets for closing braces. For 'for', 'if'
+         * and other operators.
          */
-        this._onCodeEnd = codeEndCb;
+        this.offs = offs;
         /**
-         * {Array} Array of two numbers. first - line number where we have
-         * to return if first line appears. second - line number, where ends
-         * closing block '}' of block operator (e.g. for, if,...).
+         * {Array} Available variables
          */
-        this._offsets   = [];
-        this._vars      = parent && parent.vars && parent.vars.slice() || this._getVars();
+        this.vars = vars;
         /**
-         * {Function} Class, which implement all supported operators
+         * {Observer} Observer for sending events outside
          */
-        this._operators = new Operators(this._offsets, this._vars, obs);
-        this._code      = parent && parent.code.slice() || [];
-        this._line      = 0;
-    }
-
-    get code() {
-        return this._code
-    }
-
-    get size() {
-        return this._code.length
-    }
-
-    get operators() {
-        return this._operators
-    }
-
-    get vars() {
-        return this._vars
-    }
-
-    get offsets() {
-        return this._offsets
-    }
-
-    get line() {
-        return this._line
-    }
-
-    serialize() {
-        return {
-            offsets: this._offsets.slice(),
-            vars: this._vars.slice(),
-            // 'operators' field will be added after insertion
-            code: this._code.slice(),
-            line: this._line
-        };
-    }
-
-    unserialize(json) {
-        this._offsets = json.offsets;
-        this._vars    = json.vars;
-        this._code    = json.code;
-        this._line    = json.line;
-        this._operators = new Operators(this._offsets, this._vars, this._obs);
-    }
-
-    /**
-     * Walks through code lines (32bit numbers) one by one and runs associated
-     * with line type callback. These callbacks interpret one line of code like:
-     * condition, loop, function call etc...
-     * @param {Organism} org Current organism
-     */
-    run(org) {
-        let line  = this._line;
-        let code  = this._code;
-        let lines = code.length;
-        let len   = lines === 0 ? 0 : Config.codeYieldPeriod || lines;
-        let len2  = len;
-        let ops   = this._operators.operators;
-        let getOp = Num.getOperator;
-        let ret   = false;
-        let offs  = this._offsets;
-
-        while (len-- > 0 && org.alive) {
-            line = ops[getOp(code[line])](code[line], line, org, lines, ret);
-            //
-            // We found closing bracket '}' of some loop and have to return
-            // to the beginning of operator (e.g.: for)
-            //
-            if ((ret = (offs.length > 0 && line === offs[offs.length - 1]))) {
-                offs.pop();
-                line = offs.pop();
-                continue;
-            }
-            if (line >= lines) {
-                line = 0;
-                org.alive && (this._operators.offsets = (this._offsets = []));
-                if (this._onCodeEnd) {
-                    this._onCodeEnd(len2 - len);
-                }
-                break;
-            }
-        }
-
-        this._line = line;
+        this.obs = obs;
     }
 
     destroy() {
-        this._operators.destroy && this._operators.destroy();
-        this._operators = null;
-        this._vars      = null;
-        this._code      = null;
-        this._onCodeEnd = null;
-        this.clear();
+        this.offs = null;
+        this.vars = null;
+        this.obs  = null;
     }
 
     /**
-     * Does crossover between two parent byte codes. Takes second jsvm's code part
-     * (from start1 to end1 offset) and inserts it instead first jsvm code part (start...end).
-     * For example:
-     *   code1 : [1,2,3]
-     *   code2 : [4,5,6]
-     *   start : 1
-     *   end   : 2
-     *   start1: 0
-     *   end1  : 2
-     *   jsvm1.crossover(jsvm2) // [4,5,6] instead [2,3] ->, jsvm1 === [1,4,5,6]
-     *
-     * @param {JSVM} jsvm JSVM instance, from where we have to cut code part
-     * @returns {Number} Amount of changes in current (this) jsvm
+     * Returns operators array. Should be overridden in child class
+     * @abstract
      */
-    crossover(jsvm) {
-        const rand = Helper.rand;
-        const len  = this._code.length;
-        const len1 = jsvm.code.length;
-        let start  = rand(len);
-        let end    = rand(len);
-        let start1 = rand(len1);
-        let end1   = rand(len1);
-        let adds;
-
-        if (start > end) {
-            [start, end] = [end, start]
-        }
-        if (start1 > end1) {
-            [start1, end1] = [end1, start1]
-        }
-
-        adds = Math.abs(end1 - start1 - end + start);
-        if (this._code.length + adds >= Config.codeMaxSize) {
-            return 0
-        }
-        this._code.splice.apply(this._code, [start, end - start + 1].concat(jsvm.code.slice(start1, end1 + 1)));
-        this._reset();
-
-        return adds;
-    }
+    get operators() {return []}
 
     /**
-     * Takes few lines from itself and makes a copy of them. After that inserts
-     * them before or after copied part. All positions are random
+     * Sets offsets array from outside
+     * @param {Array} offs New offsets array
      */
-    copyLines() {
-        const rand    = Helper.rand;
-        const code    = this._code;
-        const codeLen = code.length;
-        const start   = rand(codeLen);
-        const end     = start + rand(codeLen - start);
-        //
-        // Because we use spread (...) operator stack size is important
-        // for amount of parameters and we shouldn't exceed it
-        //
-        if (end - start > MAX_STACK_SIZE) {
-            return;
-        }
-        //
-        // We may insert copied piece before "start" (0) or after "end" (1)
-        //
-        if (rand(2) === 0) {
-            code.splice(rand(start), 0, ...code.slice(start, end));
-            return;
-        }
-
-        code.splice(end + rand(codeLen - end + 1), 0, ...code.slice(start, end));
-    }
-
-    /**
-     * Inserts random generated number into the byte code at random position
-     */
-    insertLine() {
-        this._code.splice(Helper.rand(this._code.length), 0, Num.get());
-        this._reset();
-    }
-
-    updateLine(index, number) {
-        this._code[index] = number;
-        this._reset();
-    }
-
-    /**
-     * Removes random generated number into byte jsvm at random position
-     */
-    removeLine() {
-        this._code.splice(Helper.rand(this._code.length), 1);
-        this._reset();
-    }
-
-    getLine(index) {
-        return this._code[index];
-    }
-
-    _reset() {
-        this.fire(EVENTS.RESET_CODE);
-        this._line = 0;
-        this._operators.offsets = (this._offsets = []);
-    }
-
-    /**
-     * Generates default variables jsvm. It should be in ES5 version, because
-     * speed is important. Amount of vars depends on Config.codeBitsPerVar config.
-     * @returns {Array} vars jsvm
-     * @private
-     */
-    _getVars() {
-        if (this._vars && this._vars.length > 0) {
-            return this._vars
-        }
-
-        const len    = Math.pow(2, Config.codeBitsPerVar);
-        let vars     = new Array(len);
-        const range  = Config.codeVarInitRange;
-        const range2 = range / 2;
-        const rand   = Helper.rand;
-
-        for (let i = 0; i < len; i++) {
-            vars[i] = rand(range) - range2;
-        }
-
-        return (this._vars = vars);
-    }
+    set offsets(offs) {this.offs = offs}
 }
 
-module.exports = JSVM;
+module.exports = Operators;
 
 /***/ }),
-/* 26 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -8587,10 +8016,10 @@ module.exports = JSVM;
  * @author flatline
  */
 const Helper       = __webpack_require__(5);
-const Config       = __webpack_require__(1).Config;
+const Config       = __webpack_require__(2).Config;
 const Console      = __webpack_require__(7);
 const EVENTS       = __webpack_require__(4).EVENTS;
-const Backup       = __webpack_require__(28);
+const Backup       = __webpack_require__(27);
 const Code2String  = __webpack_require__(71)("./" + Config.code2StringCls + '.js');
 const CodeOrganism = __webpack_require__(71)("./" + Config.orgOrganismCls + '.js');
 
@@ -8874,7 +8303,7 @@ class Organisms {
 module.exports = Organisms;
 
 /***/ }),
-/* 27 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8923,7 +8352,7 @@ var objectKeys = Object.keys || function (obj) {
 module.exports = Duplex;
 
 /*<replacement>*/
-var util = __webpack_require__(58);
+var util = __webpack_require__(59);
 util.inherits = __webpack_require__(0);
 /*</replacement>*/
 
@@ -9004,7 +8433,39 @@ function forEach(xs, f) {
 }
 
 /***/ }),
-/* 28 */
+/* 26 */
+/***/ (function(module, exports) {
+
+/**
+ * Configuration class implementation. Stores custom configuration
+ * inside and has an ability to change options of config in real time
+ * using set() and get() methods. init() method should be called first.
+ *
+ * @author flatline
+ */
+class Config {
+    static init(cfg) {
+        this._cfg = cfg;
+    }
+
+    static set(key, val) {
+        this._cfg[key] = val;
+        return this;
+    }
+
+    static get(key) {
+        return this._cfg[key];
+    }
+
+    static cfg() {
+        return this._cfg;
+    }
+}
+
+module.exports = Config;
+
+/***/ }),
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -9016,7 +8477,7 @@ function forEach(xs, f) {
  * @author flatline
  */
 const Helper  = __webpack_require__(5);
-const Config  = __webpack_require__(1).Config;
+const Config  = __webpack_require__(2).Config;
 const Console = __webpack_require__(7);
 
 class Backup {
@@ -9097,6 +8558,52 @@ class Backup {
 }
 
 module.exports = Backup;
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Server related configuration module. Client's configuration should
+ * be stored in separate config class.
+ *
+ * @author flatline
+ */
+const Config = __webpack_require__(26);
+
+class ServerConfig extends Config {}
+//
+// TODO: parameters, which should be obtained from Admin server
+// TODO: should be also removed from here
+//
+ServerConfig.init({
+    /**
+     * {Array} Array of server plugin paths. Pay attention, that path
+     * should be started from 'src' and not from 'client' or 'common'
+     * folders.
+     */
+    plugins: [
+        'src/net/Request',
+        'src/server/plugins/Api'
+    ],
+    /**
+     * {Number} Maximum amount of connections for current server. Should
+     * be quadratic (x^2) e.g.: 4, 9, 16,... This value will be extended
+     * with additional "around" rows and columns for connecting with sibling
+     * servers. So, result amount of cells will be e.g.: 16 + 2 rows + 2 cols.
+     */
+    maxConnections: 100,
+    /**
+     * {Number} Port number for connecting with server
+     */
+    port: 8099,
+    /**
+     * {String} Host for connecting with server
+     */
+    host: 'ws://localhost'
+});
+
+module.exports = {Config: ServerConfig.cfg(), api: ServerConfig};
 
 /***/ }),
 /* 29 */
@@ -9267,7 +8774,7 @@ module.exports = {Connection, EVENTS};
  *
  * @author flatline
  */
-const Plugins = __webpack_require__(35);
+const Plugins = __webpack_require__(34);
 
 class ClientPlugins extends Plugins {
     /**
@@ -9312,6 +8819,1593 @@ module.exports = Config;
 /* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
+"use strict";
+/* WEBPACK VAR INJECTION */(function(global, process) {
+
+function oldBrowser () {
+  throw new Error('secure random number generation not supported by this browser\nuse chrome, FireFox or Internet Explorer 11')
+}
+
+var Buffer = __webpack_require__(1).Buffer
+var crypto = global.crypto || global.msCrypto
+
+if (crypto && crypto.getRandomValues) {
+  module.exports = randomBytes
+} else {
+  module.exports = oldBrowser
+}
+
+function randomBytes (size, cb) {
+  // phantomjs needs to throw
+  if (size > 65536) throw new Error('requested too many random bytes')
+  // in case browserify  isn't using the Uint8Array version
+  var rawBytes = new global.Uint8Array(size)
+
+  // This will not work in older browsers.
+  // See https://developer.mozilla.org/en-US/docs/Web/API/window.crypto.getRandomValues
+  if (size > 0) {  // getRandomValues fails on IE if size == 0
+    crypto.getRandomValues(rawBytes)
+  }
+
+  // XXX: phantomjs doesn't like a buffer being passed here
+  var bytes = Buffer.from(rawBytes.buffer)
+
+  if (typeof cb === 'function') {
+    return process.nextTick(function () {
+      cb(null, bytes)
+    })
+  }
+
+  return bytes
+}
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8), __webpack_require__(9)))
+
+/***/ }),
+/* 33 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Buffer = __webpack_require__(1).Buffer
+
+// prototype class for hash functions
+function Hash (blockSize, finalSize) {
+  this._block = Buffer.alloc(blockSize)
+  this._finalSize = finalSize
+  this._blockSize = blockSize
+  this._len = 0
+}
+
+Hash.prototype.update = function (data, enc) {
+  if (typeof data === 'string') {
+    enc = enc || 'utf8'
+    data = Buffer.from(data, enc)
+  }
+
+  var block = this._block
+  var blockSize = this._blockSize
+  var length = data.length
+  var accum = this._len
+
+  for (var offset = 0; offset < length;) {
+    var assigned = accum % blockSize
+    var remainder = Math.min(length - offset, blockSize - assigned)
+
+    for (var i = 0; i < remainder; i++) {
+      block[assigned + i] = data[offset + i]
+    }
+
+    accum += remainder
+    offset += remainder
+
+    if ((accum % blockSize) === 0) {
+      this._update(block)
+    }
+  }
+
+  this._len += length
+  return this
+}
+
+Hash.prototype.digest = function (enc) {
+  var rem = this._len % this._blockSize
+
+  this._block[rem] = 0x80
+
+  // zero (rem + 1) trailing bits, where (rem + 1) is the smallest
+  // non-negative solution to the equation (length + 1 + (rem + 1)) === finalSize mod blockSize
+  this._block.fill(0, rem + 1)
+
+  if (rem >= this._finalSize) {
+    this._update(this._block)
+    this._block.fill(0)
+  }
+
+  var bits = this._len * 8
+
+  // uint32
+  if (bits <= 0xffffffff) {
+    this._block.writeUInt32BE(bits, this._blockSize - 4)
+
+  // uint64
+  } else {
+    var lowBits = bits & 0xffffffff
+    var highBits = (bits - lowBits) / 0x100000000
+
+    this._block.writeUInt32BE(highBits, this._blockSize - 8)
+    this._block.writeUInt32BE(lowBits, this._blockSize - 4)
+  }
+
+  this._update(this._block)
+  var hash = this._hash()
+
+  return enc ? hash.toString(enc) : hash
+}
+
+Hash.prototype._update = function () {
+  throw new Error('_update must be implemented by subclass')
+}
+
+module.exports = Hash
+
+
+/***/ }),
+/* 34 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Plugins manager. Adds plugins into specified instance and destroy
+ * them on parent destroy. This class is also a plugin.
+ *
+ * @author flatline
+ */
+const Helper = __webpack_require__(5);
+
+class Plugins {
+    /**
+     * Creates plugin instances and adds them into target class instance
+     * (parent). For this 'plugins' property will be created in parent.
+     * @param {Object} parent Instance we inserting plugins to
+     * @param {Object} plugins Map of names and classes/functions of plugins.
+     * Like this: {Api: Api,...}
+     * @param {Boolean} destroy If true, then onDestroy() method will be
+     * called, when parent.destroy() is called.
+     */
+    constructor(parent, plugins, destroy = true) {
+        const parentPlugins = parent.plugins = [];
+
+        for (let p of plugins) {
+            const path   = p.path || p;
+            const name   = path.split('/').slice(-1)[0];
+            let   plugin = this.require(path);
+
+            plugin = plugin[name] || plugin;
+            parentPlugins.push(new plugin(parent, p.cfg || {}));
+        }
+
+        this.parent       = parent;
+        this._onDestroyCb = this.onDestroy.bind(this);
+        this._destroy     = destroy;
+        this._destroyed   = false;
+
+        Helper.override(parent, 'destroy', this._onDestroyCb);
+    }
+
+    /**
+     * Is used to fix webpack disability to load dynamic modules with require()
+     * @param {String} path Path to the module
+     * @return {Function|Object} imported module
+     */
+    require(path) {
+        return !(function webpackMissingModule() { var e = new Error("Cannot find module \".\""); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+    }
+
+    /**
+     * Is called if parent instance calls destroy() method. Here we
+     * destroy all created plugins and the reference to this instance
+     * in parent instance. This method may be called by hands from
+     * parent instance also. It's impossible to call this method more
+     * then one time.
+     */
+    onDestroy() {
+        if (this._destroyed) {return}
+        //
+        // User doesn't want to automatic destroy of plugins.
+        // He will call this method manually, later.
+        //
+        if (this._destroy) {
+            const plugins = this.parent.plugins;
+            for (let p of plugins) {
+                p.destroy && p.destroy();
+            }
+        }
+        this.parent.plugins = null;
+        this._onDestroyCb   = null;
+        this.parent         = null;
+        this._destroyed     = true;
+    }
+}
+
+module.exports = Plugins;
+
+/***/ }),
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Plugin for adding getter and setter to Manager's API
+ *
+ * @author flatline
+ */
+const Api = __webpack_require__(26);
+
+class Config {
+    constructor(manager) {
+        manager.api.setConfig = Api.set;
+        manager.api.getConfig = Api.get;
+    }
+}
+
+module.exports = Config;
+
+/***/ }),
+/* 36 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Manager's plugin, which tracks amount of energy in a world and updates it.
+ *
+ * @author flatline
+ */
+const Helper  = __webpack_require__(5);
+const Config  = __webpack_require__(2).Config;
+const Console = __webpack_require__(7);
+
+class Energy {
+    constructor(manager) {
+        this.manager        = manager;
+        this._checkPeriod   = Config.worldEnergyCheckPeriod;
+        this._onIterationCb = this._onIteration.bind(this);
+        //
+        // We have to update energy only in nature simulation mode
+        //
+        if (Config.codeFitnessCls !== null) {return}
+        Helper.override(manager, 'onIteration', this._onIterationCb);
+    }
+
+    destroy() {
+        Helper.unoverride(this.manager, 'onIteration', this._onIterationCb);
+        this.manager        = null;
+        this._onIterationCb = null;
+    }
+
+    _onIteration(counter) {
+        if (counter % this._checkPeriod !== 0 || this._checkPeriod === 0) {return}
+        if (counter === 0) {
+            this._updateEnergy(Config.worldEnergyDots, Config.worldEnergyInDot);
+            return;
+        }
+        let   energy = 0;
+        const world  = this.manager.world;
+        const width  = Config.worldWidth;
+        const height = Config.worldHeight;
+
+        for (let x = 0; x < width; x++) {
+            for (let y = 0; y < height; y++) {
+                if (world.getDot(x, y) > 0) {energy++}
+            }
+        }
+
+        if (energy * 100 / (width * height) <= Config.worldEnergyCheckPercent) {
+            this._updateEnergy(Config.worldEnergyDots, Config.worldEnergyInDot);
+        }
+    }
+
+    _updateEnergy(dotAmount, energyInDot) {
+        const world  = this.manager.world;
+        const width  = Config.worldWidth;
+        const height = Config.worldHeight;
+        const rand   = Helper.rand;
+        let   x;
+        let   y;
+
+        Console.info('Creating random energy');
+        for (let dot = 0; dot < dotAmount; dot++) {
+            x = rand(width);
+            y = rand(height);
+            if (world.getDot(x, y) < 1) {
+                world.setDot(x, y, energyInDot);
+            }
+        }
+    }
+}
+
+module.exports = Energy;
+
+/***/ }),
+/* 37 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Plugin for Manager class, which is tracks when and how many mutations
+ * should be added to special organism's code at special moment of it's
+ * life.
+ *
+ * Depends on:
+ *   manager/Manager
+ *   manager/plugins/Organisms
+ *
+ * @author flatline
+ */
+const EVENTS   = __webpack_require__(4).EVENTS;
+const Config   = __webpack_require__(2).Config;
+const Helper   = __webpack_require__(5);
+const Organism = __webpack_require__(22);
+const Num      = __webpack_require__(13);
+
+const VAR_BITS_OFFS = Num.VAR_BITS_OFFS - 1;
+const VARS          = Num.VARS;
+const MAX_VAR       = Num.MAX_VAR;
+
+class Mutator {
+    constructor(manager) {
+        this.manager = manager;
+        this._MUTATION_TYPES = [
+            this._onAdd,
+            this._onChange,
+            this._onDel,
+            this._onSmallChange,
+            this._onClone,
+            this._onCopy,
+            this._onPeriod,
+            this._onAmount,
+            this._onProbs,
+            this._onCloneEnergyPercent
+        ];
+        
+        manager.on(EVENTS.ORGANISM, this._onOrganism.bind(this));
+        manager.on(EVENTS.CLONE, this._onCloneOrg.bind(this));
+    }
+
+    destroy() {
+        this.manager         = null;
+        this._MUTATION_TYPES = null;
+    }
+
+    _onOrganism(org) {
+        if (org.iterations % org.mutationPeriod === 0 && Config.orgRainMutationPeriod > 0 && org.mutationPeriod > 0 && org.alive) {
+            this._mutate(org, false);
+        }
+    }
+
+    _onCloneOrg(parent, child) {
+        if (child.energy > 0 && Config.orgCloneMutationPercent > 0) {this._mutate(child)}
+    }
+
+    _mutate(org, clone = true) {
+        const jsvm      = org.jsvm;
+        const probIndex = Helper.probIndex;
+        const mTypes    = this._MUTATION_TYPES;
+        const maxSize   = Config.codeMaxSize;
+        let   mutations = Math.round(jsvm.size * (clone ? org.cloneMutationPercent : org.mutationPercent)) || 1;
+        let   type;
+
+        for (let i = 0; i < mutations; i++) {
+            if (jsvm.size > maxSize) {
+                mutations = i;
+                break;
+            }
+            type = jsvm.size < 1 ? 0 : probIndex(org.mutationProbs);
+            mTypes[type](org);
+        }
+        org.changes += mutations;
+        this.manager.fire(EVENTS.MUTATIONS, org, mutations, clone);
+
+        return mutations;
+    }
+
+    _onAdd(org) {
+        if (Config.codeFitnessCls !== null && org.jsvm.size >= Config.codeMaxSize) {return}
+        org.jsvm.insertLine();
+    }
+
+    _onChange(org) {
+        const jsvm = org.jsvm;
+        jsvm.updateLine(Helper.rand(jsvm.size), Num.get());
+    }
+
+    _onDel(org) {
+        org.jsvm.removeLine();
+    }
+
+    /**
+     * Operator type or one variable may mutate
+     * @param {Organism} org
+     * @private
+     */
+    _onSmallChange(org) {
+        const rand  = Helper.rand;
+        const jsvm  = org.jsvm;
+        const index = rand(jsvm.size);
+        const rnd   = rand(3);
+
+        if (rnd === 0) {
+            jsvm.updateLine(index, Num.setOperator(jsvm.getLine(index), rand(jsvm.operators.operators.length)));
+        } else if (rnd === 1) {
+            jsvm.updateLine(index, Num.setVar(jsvm.getLine(index), rand(VARS), rand(MAX_VAR)));
+        } else {
+            // toggle specified bit
+            jsvm.updateLine(index, jsvm.getLine(index) ^ (1 << rand(VAR_BITS_OFFS)));
+        }
+    }
+
+    _onClone(org) {
+        org.cloneMutationPercent = Math.random();
+    }
+
+    _onCopy(org) {
+        org.jsvm.copyLines();
+    }
+
+    _onPeriod(org) {
+        org.mutationPeriod = Helper.rand(Config.ORG_MAX_MUTATION_PERIOD);
+    }
+
+    _onAmount(org) {
+        org.mutationPercent = Math.random();
+    }
+
+    _onProbs(org) {
+        org.mutationProbs[Helper.rand(org.mutationProbs.length)] = Helper.rand(Config.orgMutationProbsMaxValue) || 1;
+    }
+
+    _onCloneEnergyPercent(org) {
+        org.cloneEnergyPercent = Math.random();
+    }
+}
+
+module.exports = Mutator;
+
+/***/ }),
+/* 38 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Base class for organism
+ * TODO: add description:
+ * TODO:   - events
+ * TODO:   -
+ * @author flatline
+ */
+const Observer      = __webpack_require__(11);
+const Helper        = __webpack_require__(5);
+const Config        = __webpack_require__(2).Config;
+const EVENTS        = __webpack_require__(4).EVENTS;
+const EVENT_AMOUNT  = __webpack_require__(4).EVENT_AMOUNT;
+const JSVM          = __webpack_require__(39);
+
+const IS_NUM = Helper.isNumeric;
+
+class Organism extends Observer {
+    /**
+     * Is called before every run. Should return true, if everything
+     * is okay and we don't need to interrupt running. If true, then
+     * onRun() method will be called as well
+     * @abstract
+     */
+    onBeforeRun() {}
+
+    /**
+     * Is called as a running body (main) method
+     * @abstract
+     */
+    onRun() {}
+
+    /**
+     * Creates organism instance. If parent parameter is set, then
+     * a clone of parent organism will be created.
+     * @param {String} id Unique identifier of organism
+     * @param {Number} x Unique X coordinate
+     * @param {Number} y Unique Y coordinate
+     * @param {Boolean} alive true if organism is alive
+     * @param {Object} item Reference to the Queue item, where
+     * this organism is located
+     * @param {Function} codeEndCb Callback, which is called at the
+     * end of every code iteration.
+     * @param {Organism} parent Parent organism if cloning is needed
+     */
+    constructor(id, x, y, alive, item, codeEndCb, parent = null) {
+        super(EVENT_AMOUNT);
+
+        this._codeEndCb   = codeEndCb;
+
+        if (parent === null) {this._create()}
+        else {this._clone(parent)}
+
+        this._id          = id;
+        this._x           = x;
+        this._y           = y;
+        this._changes     = 1;
+        this._alive       = alive;
+        this._item        = item;
+        this._iterations  = 0;
+        this._fnId        = 0;
+    }
+
+    get id()                    {return this._id}
+    get x()                     {return this._x}
+    get y()                     {return this._y}
+    get alive()                 {return this._alive}
+    get item()                  {return this._item}
+    get iterations()            {return this._iterations}
+    get changes()               {return this._changes}
+    get mutationProbs()         {return this._mutationProbs}
+    get mutationPeriod()        {return this._mutationPeriod}
+    get mutationPercent()       {return this._mutationPercent}
+    get cloneMutationPercent()  {return this._cloneMutationPercent}
+    get energy()                {return this._energy}
+    get color()                 {return this._color}
+    get mem()                   {return this._mem}
+    get cloneEnergyPercent()    {return this._cloneEnergyPercent}
+    get posId()                 {return Helper.posId(this._x, this._y)}
+
+    set x(newX)                 {this._x = newX}
+    set y(newY)                 {this._y = newY}
+    set cloneMutationPercent(m) {this._cloneMutationPercent = m}
+    set mutationPeriod(m)       {this._mutationPeriod = m}
+    set mutationPercent(p)      {this._mutationPercent = p}
+    set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p}
+    set energy(e)               {this._energy = e}
+    set changes(c) {
+        this._changes = c;
+        this._updateColor(c);
+    }
+
+    /**
+     * Runs one code iteration and returns
+     * @return {Boolean} false means that organism was destroyed
+     */
+    run() {
+        this._iterations++;
+        if (this.onBeforeRun() === false) {return true}
+        this.onRun();
+        return this.alive && this._updateDestroy() && this._updateEnergy();
+    }
+
+    /**
+     * Serializes an organism into the JSON string
+     * @return {String} JSON string
+     */
+    serialize() {
+        let   json = {
+            id                  : this._id,
+            x                   : this._x,
+            y                   : this._y,
+            changes             : this._changes,
+            alive               : this._alive,
+            // 'item' will be added after insertion
+            iterations          : this._iterations,
+            fnId                : this._fnId,
+            jsvm                : this.jsvm.serialize(),
+            energy              : this._energy,
+            color               : this._color,
+            mutationProbs       : this._mutationProbs,
+            cloneMutationPercent: this._cloneMutationPercent,
+            mutationPeriod      : this._mutationPeriod,
+            mutationPercent     : this._mutationPercent,
+            cloneEnergyPercent  : this._cloneEnergyPercent,
+            mem                 : this.mem.slice()
+        };
+
+        return JSON.stringify(json);
+    }
+
+    /**
+     * Opposite to serialize(). Parses provided JSON string and fill
+     * current instance by passed values.
+     * @param {String} str JSON string
+     */
+    unserialize(str) {
+        const json = JSON.parse(str);
+
+        // 'id' will be added after insertion
+        this._x                    = json.x;
+        this._y                    = json.y;
+        this._changes              = json.changes;
+        this._alive                = json.alive;
+        // 'item' will be added after insertion
+        this._iterations           = json.iterations;
+        this._fnId                 = json.fnId;
+        this.jsvm.unserialize(json.jsvm);
+        this._energy               = json.energy;
+        this._color                = json.color;
+        this._mutationProbs        = json.mutationProbs;
+        this._cloneMutationPercent = json.cloneMutationPercent;
+        this._mutationPeriod       = json.mutationPeriod;
+        this._mutationPercent      = json.mutationPercent;
+        this._cloneEnergyPercent   = json.cloneEnergyPercent;
+        this._mem                  = json.mem.slice();
+    }
+
+    grabEnergy(amount) {
+        if (!IS_NUM(amount)) {return true}
+        const noEnergy = (this._energy -= amount) < 1;
+        noEnergy && this.destroy();
+        return !noEnergy;
+    }
+
+    fitness() {
+        return this._energy * this._changes;
+    }
+
+    destroy() {
+        this.fire(EVENTS.DESTROY, this);
+        this._alive      = false;
+        this._energy     = 0;
+        this._item       = null;
+        this._mem        = null;
+        this.jsvm && this.jsvm.destroy();
+        this.jsvm        = null;
+        this._codeEndCb  = null;
+        this.clear();
+    }
+
+    _updateColor(changes) {
+        if ((this._color += changes) > Config.ORG_MAX_COLOR) {
+            this._color = Config.ORG_FIRST_COLOR;
+        }
+    }
+
+    _create() {
+        this.jsvm                   = new JSVM(this._codeEndCb.bind(this, this), this);
+        this._energy                = Config.orgStartEnergy;
+        this._color                 = Config.orgStartColor;
+        this._mutationProbs         = Config.orgMutationProbs.slice();
+        this._cloneMutationPercent  = Config.orgCloneMutationPercent;
+        this._mutationPeriod        = Config.orgRainMutationPeriod;
+        this._mutationPercent       = Config.orgRainMutationPercent;
+        this._cloneEnergyPercent    = Config.orgCloneEnergyPercent;
+        this._mem                   = [];
+    }
+
+    _clone(parent) {
+        this.jsvm                   = new JSVM(this._codeEndCb.bind(this, this), this, parent.jsvm);
+        this._energy                = parent.energy;
+        this._color                 = parent.color;
+        this._mutationProbs         = parent.mutationProbs.slice();
+        this._cloneMutationPercent  = parent.cloneMutationPercent;
+        this._mutationPeriod        = parent.mutationPeriod;
+        this._mutationPercent       = parent.mutationPercent;
+        this._cloneEnergyPercent    = parent.cloneEnergyPercent;
+        this._mem                   = parent.mem.slice();
+    }
+
+    /**
+     * Checks if organism need to be killed/destroyed, because of age or zero energy
+     * @return {Boolean} false means that organism was destroyed.
+     * @private
+     */
+    _updateDestroy() {
+        const alivePeriod = Config.orgAlivePeriod;
+        const needDestroy = (this._energy < 1 || this._iterations >= alivePeriod) && alivePeriod > 0;
+
+        needDestroy && this.destroy();
+
+        return !needDestroy;
+    }
+
+    /**
+     * This is how our system grabs an energy= require(organism if it's age is
+     * divided into Config.orgEnergySpendPeriod.
+     * @return {Boolean} false means that organism was destroyed.
+     * @private
+     */
+    _updateEnergy() {
+        if (this._iterations % Config.orgEnergySpendPeriod !== 0 || Config.orgEnergySpendPeriod === 0) {return true}
+        const codeSize = this.jsvm.size;
+        let   grabSize = Math.floor(codeSize / Config.orgGarbagePeriod);
+
+        if (codeSize > Config.codeMaxSize) {grabSize = codeSize * Config.codeSizeCoef}
+        if (grabSize < 1) {grabSize = 1}
+        grabSize = Math.min(this._energy, grabSize);
+        this.fire(EVENTS.GRAB_ENERGY, grabSize);
+
+        return this.grabEnergy(grabSize);
+    }
+}
+
+module.exports = Organism;
+
+/***/ }),
+/* 39 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Implements organism's code logic.
+ * TODO: explain here code one number format,...
+ *
+ * @author flatline
+ * TODO: may be this module is redundant
+ * TODO: think about custom operators callbacks from outside. This is how
+ * TODO: we may solve custom tasks
+ */
+const Helper       = __webpack_require__(5);
+const Observer     = __webpack_require__(11);
+const Config       = __webpack_require__(2).Config;
+const EVENTS       = __webpack_require__(4).EVENTS;
+const EVENT_AMOUNT = __webpack_require__(4).EVENT_AMOUNT;
+const Num          = __webpack_require__(13);
+const Operators    = __webpack_require__(71)("./" + Config.codeOperatorsCls + '.js');
+/**
+ * {Number} Maximum stack size, which may be used for recursion or function parameters
+ */
+const MAX_STACK_SIZE = 30000;
+
+class JSVM extends Observer {
+    /**
+     * Creates JSVM instance. codeEndCb will be called after last code line is run.
+     * parent is used if JSVM instance is in a cloning mode and we have to create
+     * a copy of it.
+     * @param {Function} codeEndCb
+     * @param {Observer} obs Observer instance for Operators class
+     * @param {JSVM} parent Parent JSVM instance in case of cloning
+     */
+    constructor(codeEndCb, obs, parent = null) {
+        super(EVENT_AMOUNT);
+
+        this._obs       = obs;
+        /**
+         * {Function} Callback, which is called on every organism
+         * jsvm iteration. On it's end.
+         */
+        this._onCodeEnd = codeEndCb;
+        /**
+         * {Array} Array of two numbers. first - line number where we have
+         * to return if first line appears. second - line number, where ends
+         * closing block '}' of block operator (e.g. for, if,...).
+         */
+        this._offsets   = [];
+        this._vars      = parent && parent.vars && parent.vars.slice() || this._getVars();
+        /**
+         * {Function} Class, which implement all supported operators
+         */
+        this._operators = new Operators(this._offsets, this._vars, obs);
+        this._code      = parent && parent.code.slice() || [];
+        this._line      = 0;
+    }
+
+    get code() {
+        return this._code
+    }
+
+    get size() {
+        return this._code.length
+    }
+
+    get operators() {
+        return this._operators
+    }
+
+    get vars() {
+        return this._vars
+    }
+
+    get offsets() {
+        return this._offsets
+    }
+
+    get line() {
+        return this._line
+    }
+
+    serialize() {
+        return {
+            offsets: this._offsets.slice(),
+            vars: this._vars.slice(),
+            // 'operators' field will be added after insertion
+            code: this._code.slice(),
+            line: this._line
+        };
+    }
+
+    unserialize(json) {
+        this._offsets = json.offsets;
+        this._vars    = json.vars;
+        this._code    = json.code;
+        this._line    = json.line;
+        this._operators = new Operators(this._offsets, this._vars, this._obs);
+    }
+
+    /**
+     * Walks through code lines (32bit numbers) one by one and runs associated
+     * with line type callback. These callbacks interpret one line of code like:
+     * condition, loop, function call etc...
+     * @param {Organism} org Current organism
+     */
+    run(org) {
+        let line  = this._line;
+        let code  = this._code;
+        let lines = code.length;
+        let len   = lines === 0 ? 0 : Config.codeYieldPeriod || lines;
+        let len2  = len;
+        let ops   = this._operators.operators;
+        let getOp = Num.getOperator;
+        let ret   = false;
+        let offs  = this._offsets;
+
+        while (len-- > 0 && org.alive) {
+            line = ops[getOp(code[line])](code[line], line, org, lines, ret);
+            //
+            // We found closing bracket '}' of some loop and have to return
+            // to the beginning of operator (e.g.: for)
+            //
+            if ((ret = (offs.length > 0 && line === offs[offs.length - 1]))) {
+                offs.pop();
+                line = offs.pop();
+                continue;
+            }
+            if (line >= lines) {
+                line = 0;
+                org.alive && (this._operators.offsets = (this._offsets = []));
+                if (this._onCodeEnd) {
+                    this._onCodeEnd(len2 - len);
+                }
+                break;
+            }
+        }
+
+        this._line = line;
+    }
+
+    destroy() {
+        this._operators.destroy && this._operators.destroy();
+        this._operators = null;
+        this._vars      = null;
+        this._code      = null;
+        this._onCodeEnd = null;
+        this.clear();
+    }
+
+    /**
+     * Does crossover between two parent byte codes. Takes second jsvm's code part
+     * (from start1 to end1 offset) and inserts it instead first jsvm code part (start...end).
+     * For example:
+     *   code1 : [1,2,3]
+     *   code2 : [4,5,6]
+     *   start : 1
+     *   end   : 2
+     *   start1: 0
+     *   end1  : 2
+     *   jsvm1.crossover(jsvm2) // [4,5,6] instead [2,3] ->, jsvm1 === [1,4,5,6]
+     *
+     * @param {JSVM} jsvm JSVM instance, from where we have to cut code part
+     * @returns {Number} Amount of changes in current (this) jsvm
+     */
+    crossover(jsvm) {
+        const rand = Helper.rand;
+        const len  = this._code.length;
+        const len1 = jsvm.code.length;
+        let start  = rand(len);
+        let end    = rand(len);
+        let start1 = rand(len1);
+        let end1   = rand(len1);
+        let adds;
+
+        if (start > end) {
+            [start, end] = [end, start]
+        }
+        if (start1 > end1) {
+            [start1, end1] = [end1, start1]
+        }
+
+        adds = Math.abs(end1 - start1 - end + start);
+        if (this._code.length + adds >= Config.codeMaxSize) {
+            return 0
+        }
+        this._code.splice.apply(this._code, [start, end - start + 1].concat(jsvm.code.slice(start1, end1 + 1)));
+        this._reset();
+
+        return adds;
+    }
+
+    /**
+     * Takes few lines from itself and makes a copy of them. After that inserts
+     * them before or after copied part. All positions are random
+     */
+    copyLines() {
+        const rand    = Helper.rand;
+        const code    = this._code;
+        const codeLen = code.length;
+        const start   = rand(codeLen);
+        const end     = start + rand(codeLen - start);
+        //
+        // Because we use spread (...) operator stack size is important
+        // for amount of parameters and we shouldn't exceed it
+        //
+        if (end - start > MAX_STACK_SIZE) {
+            return;
+        }
+        //
+        // We may insert copied piece before "start" (0) or after "end" (1)
+        //
+        if (rand(2) === 0) {
+            code.splice(rand(start), 0, ...code.slice(start, end));
+            return;
+        }
+
+        code.splice(end + rand(codeLen - end + 1), 0, ...code.slice(start, end));
+    }
+
+    /**
+     * Inserts random generated number into the byte code at random position
+     */
+    insertLine() {
+        this._code.splice(Helper.rand(this._code.length), 0, Num.get());
+        this._reset();
+    }
+
+    updateLine(index, number) {
+        this._code[index] = number;
+        this._reset();
+    }
+
+    /**
+     * Removes random generated number into byte jsvm at random position
+     */
+    removeLine() {
+        this._code.splice(Helper.rand(this._code.length), 1);
+        this._reset();
+    }
+
+    getLine(index) {
+        return this._code[index];
+    }
+
+    _reset() {
+        this.fire(EVENTS.RESET_CODE);
+        this._line = 0;
+        this._operators.offsets = (this._offsets = []);
+    }
+
+    /**
+     * Generates default variables jsvm. It should be in ES5 version, because
+     * speed is important. Amount of vars depends on Config.codeBitsPerVar config.
+     * @returns {Array} vars jsvm
+     * @private
+     */
+    _getVars() {
+        if (this._vars && this._vars.length > 0) {
+            return this._vars
+        }
+
+        const len    = Math.pow(2, Config.codeBitsPerVar);
+        let vars     = new Array(len);
+        const range  = Config.codeVarInitRange;
+        const range2 = range / 2;
+        const rand   = Helper.rand;
+
+        for (let i = 0; i < len; i++) {
+            vars[i] = rand(range) - range2;
+        }
+
+        return (this._vars = vars);
+    }
+}
+
+module.exports = JSVM;
+
+/***/ }),
+/* 40 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Shows console status of application
+ *
+ * @author flatline
+ */
+const EVENTS = __webpack_require__(4).EVENTS;
+const Config = __webpack_require__(2).Config;
+
+const GREEN  = 'color: #00aa00';
+const RED    = 'color: #aa0000';
+const PERIOD = 10000;
+
+class Status {
+    constructor(manager) {
+        this._manager     = manager;
+        this.stamp        = 0;
+        this._ips         = 0;
+        this._ipsAmount   = 0;
+        this._orgs        = 0;
+        this._energy      = 0;
+        this._codeSize    = 0;
+        this._runLines    = 0;
+        this._changes     = 0;
+        this._fitness     = 0;
+
+        manager.on(EVENTS.IPS, this._onIps.bind(this));
+        manager.on(EVENTS.ORGANISM, this._onOrganism.bind(this));
+    }
+
+    _onIps(ips, orgs) {
+        const stamp     = Date.now();
+
+        this._onBeforeIps(ips, orgs);
+        if (stamp - this.stamp < PERIOD) {return}
+
+        const amount    = this._ipsAmount || 1;
+        const orgAmount = (this._orgs / amount) || 1;
+        const sips      = ('ips:' + (this._ips      / amount).toFixed(this._ips  / amount < 10 ? 2 : 0)).padEnd(9);
+        const slps      = ('lps:' + (this._runLines / amount).toFixed()).padEnd(14);
+        const sorgs     = ('org:' + (orgAmount).toFixed()).padEnd(10);
+        const senergy   = ('nrg:' + ((((this._energy   / amount) / orgAmount) / this._runLines) * 1000).toFixed(3)).padEnd(14);
+        const schanges  = ('che:' + ((((this._changes  / amount) / orgAmount) / this._runLines) * 100000).toFixed(3)).padEnd(12);
+        const sfit      = ('fit:' + ((((this._fitness  / amount) / orgAmount) / this._runLines) * 1000).toFixed(3)).padEnd(13);
+        const scode     = ('cod:' + ((this._codeSize / amount) / orgAmount).toFixed(1)).padEnd(12);
+
+        console.log(`%c${sips}${slps}${sorgs}%c${senergy}${schanges}${sfit}${scode}`, GREEN, RED);
+        this._manager.canvas.text(5, 15, sips);
+        this._onAfterIps(stamp);
+    }
+
+    _onOrganism(org, lines) {
+        this._runLines += lines;
+    }
+
+    _onBeforeIps(ips, orgs) {
+        this._ips  += ips;
+        this._orgs += orgs.size;
+
+        this._ipsAmount++;
+        this._iterateOrganisms(orgs);
+    }
+
+    _onAfterIps(stamp) {
+        this._ips       = 0;
+        this._ipsAmount = 0;
+        this._orgs      = 0;
+        this._energy    = 0;
+        this._codeSize  = 0;
+        this.stamp     = stamp;
+        this._runLines  = 0;
+        this._changes   = 0;
+        this._fitness   = 0;
+    }
+
+    _iterateOrganisms(orgs) {
+        let item     = orgs.first;
+        let energy   = 0;
+        let codeSize = 0;
+        let changes  = 0;
+        let fitness  = 0;
+        let org;
+
+        while(item) {
+            org = item.val;
+            energy   += org.energy;
+            codeSize += org.jsvm.size;
+            changes  += org.changes;
+            fitness  += org.fitness();
+            item = item.next;
+        }
+
+        this._energy   += energy;
+        this._codeSize += codeSize;
+        this._changes  += changes;
+        this._fitness  += fitness;
+    }
+}
+
+module.exports = Status;
+
+/***/ }),
+/* 41 */
+/***/ (function(module, exports) {
+
+/**
+ * Configuration of Client plugin
+ *
+ * @author flatline
+ */
+const Config = {
+};
+
+module.exports = Config;
+
+/***/ }),
+/* 42 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Plugin for a Client class, which provides API of client for the server. The
+ * same like Api class plugin for the Server class (see server/src/server/plugins/Api).
+ *
+ * @author flatline
+ */
+const TYPES   = __webpack_require__(15).TYPES;
+const BaseApi = __webpack_require__(43);
+const EVENTS  = __webpack_require__(4).EVENTS;
+const Console = __webpack_require__(7);
+
+class Api extends BaseApi {
+    constructor(client) {
+        super(client);
+
+        this.api[TYPES.REQ_MOVE_ORG]        = this._moveOrg.bind(this);
+        this.api[TYPES.RES_MOVE_ERR]        = this._moveOrg.bind(this);
+        this.api[TYPES.REQ_SET_NEAR_ACTIVE] = this._setActive.bind(this);
+    }
+
+    destroy() {
+        super.destroy();
+    }
+
+    /**
+     * Is called if organism is move in from other Manager (world)
+     * @param {String} reqId Unique request id
+     * @param {Number} x Current org X position
+     * @param {Number} y Current org Y position
+     * @param {String} orgJson Organism's serialized json
+     * @param {String|null} errMsg Error message
+     * @api
+     */
+    _moveOrg(reqId, x, y, orgJson, errMsg = null) {
+        this.parent.manager.fire(EVENTS.STEP_IN, x, y, orgJson);
+        errMsg && Console.warn(errMsg);
+    }
+
+    /**
+     * Is called to set active flag of nearest manager/client. After
+     * setting it to true, nearest client/Manager may pass it's organisms
+     * to the current client/Manager
+     * @param {String} reqId Unique request id
+     * @param {Number} dir Direction of nearest client/Manager
+     * @param {Boolean} active Active state of nearest client/Manager
+     * @api
+     */
+    _setActive(reqId, dir, active) {
+        this.parent.manager.activeAround[dir] = active;
+    }
+
+    _request(type, ...params) {
+        return this.parent.request(this.parent.socket, type, this.parent.manager.clientId, ...params);
+    }
+}
+
+module.exports = Api;
+
+/***/ }),
+/* 43 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Base class of plugin for Client or Server classes, which implement their API. It separated
+ * from Client/Server to have an ability to change API any time without changing server's/client's
+ * code. You have to inherit your class from this one to have special API for client/ or server.
+ * Also, you have to set API map (see this.api map) to bind request types and their handlers
+ * together. For example:
+ *
+ *     class ServerApi extends Api {
+ *         constructor() {
+ *             super();
+ *             this.api[TYPES.XXX] = this._setXXX;
+ *             ...
+ *         }
+ *         _setXXX() {
+ *             ...
+ *         }
+ *     }
+ *
+ * @author flatline
+ */
+const Helper = __webpack_require__(5);
+const TYPES  = __webpack_require__(15).TYPES;
+const MASKS  = __webpack_require__(15).MASKS;
+
+class Api {
+    constructor(parent) {
+        /**
+         * {Object} Mapping of API functions to associated id's. This map
+         * is a map, which is used when client/server/server sends message
+         * to server/client.
+         */
+        this.api          = {};
+        this.parent       = parent;
+
+        /**
+         * {WebSocket} Currently active socket. It's available only during
+         * message is received
+         */
+        this._sock        = null;
+        this._onMessageCb = this._onMessage.bind(this);
+
+        Helper.override(parent, 'onMessage', this._onMessageCb);
+    }
+
+    get sock() {return this._sock}
+
+    destroy() {
+        Helper.unoverride(this.parent, 'onMessage', this._onMessageCb);
+        this._onMessageCb = null;
+        this.parent       = null;
+        this.api          = null;
+    }
+
+    /**
+     * Is called on every message obtained from any client/server.
+     * Calls API method to handle the message. data[0] is always request
+     * type. data[1] - requestId. data[2], data[3],... are request related
+     * parameters. Handlers are called only for requests and skipped for
+     * answers.
+     * @param {WebSocket} sock Communication socket
+     * @param {Event} event Event with parameters obtained from the client
+     * @private
+     */
+    _onMessage(sock, event) {
+        const data  = JSON.parse(event.data || event);
+        const reqId = data[1];
+        const type  = data[0];
+
+        this._sock = sock;
+        if (((reqId & MASKS.REQ_MASK) >>> 0) > 0) {
+            if (this.api[type]) {
+                this.api[type](...[reqId].concat(data.slice(2)));
+            } else {
+                this.parent.response(sock, TYPES.RES_INVALID_TYPE, reqId, `Invalid request type ${type}`);
+            }
+        }
+        this._sock = null;
+    }
+}
+
+module.exports = Api;
+
+/***/ }),
+/* 44 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Shows and updates IPS value at the left top screen corner. I mean in
+ * a word's canvas.
+ *
+ * Configuration:
+ *   {Boolean} show Shows/Hides IPS value at the top-left corner
+ *   {Number}  periodMs Period of milliseconds, which is user for checking
+ *             IPS value. It's possible to increase it to reduce amount of
+ *             requests and additional jsvm in main loop
+ *
+ * @author flatline
+ */
+const Configurable = __webpack_require__(81);
+const Helper       = __webpack_require__(5);
+const Config       = __webpack_require__(2).Config;
+const EVENTS       = __webpack_require__(4).EVENTS;
+const IpsConfig    = __webpack_require__(31);
+
+class Ips extends Configurable {
+    constructor(manager) {
+        super(manager, {Config, cfg: IpsConfig}, {show: ['_show', 'Shows IPS of the world']});
+        this._stamp         = Date.now();
+        this._onIterationCb = this._onIteration.bind(this);
+
+        Helper.override(manager, 'onIteration', this._onIterationCb);
+    }
+
+    destroy() {
+        Helper.unoverride(this.parent, 'onIteration', this._onIterationCb);
+        this._onIterationCb = null;
+    }
+
+    _onIteration(counter, stamp) {
+        if (!this.cfg.show) {return}
+        const ts   = stamp - this._stamp;
+        if (ts < this.cfg.periodMs) {return}
+        const man  = this.parent;
+        let   ips  = man.codeRuns / man.organisms.size / (ts / 1000);
+
+        man.fire(EVENTS.IPS, ips, man.organisms);
+        man.codeRuns = 0;
+        this._stamp  = stamp;
+    }
+
+    _show(show = true) {
+        this.cfg.show = show;
+    }
+}
+
+module.exports = Ips;
+
+/***/ }),
+/* 45 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * This class is used only for code visualization in readable human like form.
+ * It converts numeric based byte code into JS string. This class must be
+ * synchronized with 'Operators' one.
+ *
+ * @author flatline
+ */
+const Num = __webpack_require__(13);
+
+/**
+ * {Function} Just a shortcuts
+ */
+const VAR0                  = Num.getVar;
+const VAR1                  = (n) => Num.getVar(n, 1);
+const VAR2                  = (n) => Num.getVar(n, 2);
+const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
+const BITS_FOR_NUMBER       = 16;
+const HALF_OF_VAR           = Num.MAX_VAR / 2;
+
+class Code2StringDos {
+    constructor() {
+        /**
+         * {Object} These operator handlers should return string representation
+         * of numeric based byte jsvm.
+         */
+        this._OPERATORS_CB = {
+            0 : this._onVar.bind(this),
+            //1: this._onFunc.bind(this),
+            1 : this._onCondition.bind(this),
+            2 : this._onLoop.bind(this),
+            3 : this._onOperator.bind(this),
+            4 : this._onNot.bind(this),
+            //5 : this._onPi.bind(this),
+            //6 : this._onTrig.bind(this),
+            5 : this._onLookAt.bind(this),
+            6 : this._onEatLeft.bind(this),
+            7 : this._onEatRight.bind(this),
+            8 : this._onEatUp.bind(this),
+            9 : this._onEatDown.bind(this),
+            10: this._onStepLeft.bind(this),
+            11: this._onStepRight.bind(this),
+            12: this._onStepUp.bind(this),
+            13: this._onStepDown.bind(this),
+            14: this._onFromMem.bind(this),
+            15: this._onToMem.bind(this),
+            16: this._onMyX.bind(this),
+            17: this._onMyY.bind(this),
+            18: this._onCheckLeft.bind(this),
+            19: this._onCheckRight.bind(this),
+            20: this._onCheckUp.bind(this),
+            21: this._onCheckDown.bind(this)
+        };
+        this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
+        /**
+         * {Array} Available conditions for if operator. Amount should be
+         * the same like (1 << BITS_PER_VAR)
+         */
+        this._CONDITIONS = ['<', '>', '==', '!='];
+        /**
+         * {Array} Available operators for math calculations
+         */
+        this._OPERATORS = [
+            '+', '-', '*', '/', '%', '&', '|', '^', '>>', '<<', '>>>', '<', '>', '==', '!=', '<='
+        ];
+        //this._TRIGS = ['sin', 'cos', 'tan', 'abs'];
+        /**
+         * {Array} Contains closing bracket offset for "if", "loop",... operators
+         */
+        this._offsets = [];
+
+        Num.setOperatorAmount(this._OPERATORS_CB_LEN);
+    }
+
+    destroy() {
+        this._OPERATORS_CB = null;
+        this._CONDITIONS   = null;
+        this._OPERATORS    = null;
+    }
+
+    format(code, separator = '\n') {
+        const len       = code.length;
+        const operators = this._OPERATORS_CB;
+        const offs      = this._offsets;
+        let   lines     = new Array(len);
+        let   needClose = 0;
+
+        for (let line = 0; line < len; line++) {
+            //
+            // We found closing bracket '}' of some loop and have to add
+            // it to output code array
+            //
+            if (line === offs[offs.length - 1]) {
+                while (offs.length > 0 && offs[offs.length - 1] === line) {
+                    offs.pop();
+                    needClose++;
+                }
+            }
+            lines[line] = operators[Num.getOperator(code[line])](code[line], line, len);
+            if (needClose > 0) {
+                for (let i = 0; i < needClose; i++) {
+                    lines[line] = '}' + lines[line];
+                }
+                needClose = 0;
+            }
+        }
+        //
+        // All closing brackets st the end of JS script
+        //
+        const length = lines.length - 1;
+        for (let i = 0; i < offs.length; i++) {
+            lines[length] += '}';
+        }
+        offs.length = 0;
+
+        return js_beautify(lines.join(separator), {indent_size: 4});
+    }
+
+    /**
+     * Parses variable operator. Format: let = const|number. Num bits format:
+     *   BITS_PER_OPERATOR bits - operator id
+     *   BITS_PER_VAR bits  - destination var index
+     *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
+     *   BITS_PER_VAR bits  - variable index or all bits till the end for constant
+     *
+     * @param {Num} num Packed into number jsvm line
+     * @return {String} Parsed jsvm line string
+     */
+    _onVar(num) {
+        const var1    = VAR1(num);
+        const isConst = VAR2(num) >= HALF_OF_VAR;
+
+        return `v${VAR0(num)}=${isConst ? Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_FOR_NUMBER) : ('v' + var1)}`;
+    }
+
+    _onFunc(num) {
+        return '';
+    }
+
+    _onCondition(num, line, lines) {
+        const val3    = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
+        this._offsets.push(this._getOffs(line, lines, val3));
+        return `if(v${VAR0(num)}${this._CONDITIONS[VAR2(num)]}v${VAR1(num)}){`;
+    }
+
+    _onLoop(num, line, lines) {
+        const var0    = VAR0(num);
+        const val3    = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
+        this._offsets.push(this._getOffs(line, lines, val3));
+        return `for(v${var0}=v${VAR1(num)};v${var0}<v${VAR2(num)};v${var0}++){`;
+    }
+
+    _onOperator(num) {
+        return `v${VAR0(num)}=v${VAR1(num)}${this._OPERATORS[Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS)]}v${VAR2(num)}`;
+    }
+
+    _onNot(num) {
+        return `v${VAR0(num)}=+!v${VAR1(num)}`;
+    }
+
+    //_onPi(num) {
+    //    return `v${VAR0(num)}=Math.PI`;
+    //}
+
+    //_onTrig(num) {
+    //    return `v${VAR0(num)}=Math.${this._TRIGS[VAR2(num)]}(v${VAR1(num)})`;
+    //}
+
+    _onLookAt(num) {
+        return `v${VAR0(num)}=lookAt(v${VAR1(num)},v${VAR2(num)})`;
+    }
+
+    _onEatLeft(num) {
+        return `v${VAR0(num)}=eatLeft(v${VAR1(num)})`;
+    }
+
+    _onEatRight(num) {
+        return `v${VAR0(num)}=eatRight(v${VAR1(num)})`;
+    }
+
+    _onEatUp(num) {
+        return `v${VAR0(num)}=eatUp(v${VAR1(num)})`;
+    }
+
+    _onEatDown(num) {
+        return `v${VAR0(num)}=eatDown(v${VAR1(num)})`;
+    }
+
+    _onStepLeft(num) {
+        return `v${VAR0(num)}=stepLeft()`;
+    }
+
+    _onStepRight(num) {
+        return `v${VAR0(num)}=stepRight()`;
+    }
+
+    _onStepUp(num) {
+        return `v${VAR0(num)}=stepUp()`;
+    }
+
+    _onStepDown(num) {
+        return `v${VAR0(num)}=stepDown()`;
+    }
+
+    _onFromMem(num) {
+        return `v${VAR0(num)}=fromMem()`;
+    }
+
+    _onToMem(num) {
+        return `v${VAR0(num)}=toMem(v${VAR1(num)})`;
+    }
+
+    _onMyX(num) {
+        return `v${VAR0(num)}=myX()`;
+    }
+
+    _onMyY(num) {
+        return `v${VAR0(num)}=myY()`;
+    }
+
+    _onCheckLeft(num) {
+        return `v${VAR0(num)}=checkLeft()`;
+    }
+
+    _onCheckRight(num) {
+        return `v${VAR0(num)}=checkRight()`;
+    }
+
+    _onCheckUp(num) {
+        return `v${VAR0(num)}=checkUp()`;
+    }
+
+    _onCheckDown(num) {
+        return `v${VAR0(num)}=checkDown()`;
+    }
+
+    /**
+     * Returns offset for closing bracket of blocked operators like
+     * "if", "for" and so on. These operators shouldn't overlap each
+     * other. for example:
+     *
+     *     for (...) {     // 0
+     *         if (...) {  // 1
+     *             ...     // 2
+     *         }           // 3
+     *     }               // 4
+     *
+     * Closing bracket in line 3 shouldn't be after bracket in line 4.
+     * So it's possible to set it to one of  1...3. So we change it in
+     * real time to fix the overlap problem.
+     * @param {Number} line Current line index
+     * @param {Number} lines Amount of lines
+     * @param {Number} offs Local offset of closing bracket we want to set
+     * @returns {Number}
+     * @private
+     */
+    _getOffs(line, lines, offs) {
+        let   offset  = line + offs < lines ? line + offs + 1 : lines;
+        const offsets = this._offsets;
+        const length  = offsets.length;
+
+        if (length > 0 && offset >= offsets[length - 1]) {
+            return offsets[length - 1];
+        }
+
+        return offset;
+    }
+}
+
+module.exports = Code2StringDos;
+
+/***/ }),
+/* 46 */
+/***/ (function(module, exports) {
+
+/**
+ * Configuration of DOS Organisms class
+ *
+ * @author flatline
+ */
+const Config = {
+};
+
+module.exports = Config;
+
+/***/ }),
+/* 47 */
+/***/ (function(module, exports, __webpack_require__) {
+
 /**
  * Digital Organisms Script - (DOS) is a simple language for JSVM.
  * This file contains all available operators implementation. For example:
@@ -9320,12 +10414,12 @@ module.exports = Config;
  *
  * @author flatline
  */
-const EVENTS    = __webpack_require__(4).EVENTS;
 const DIR       = __webpack_require__(17).DIR;
-const Config    = __webpack_require__(1).Config;
 const Helper    = __webpack_require__(5);
-const Operators = __webpack_require__(19);
-const Num       = __webpack_require__(12);
+const EVENTS    = __webpack_require__(4).EVENTS;
+const Config    = __webpack_require__(2).Config;
+const Operators = __webpack_require__(23);
+const Num       = __webpack_require__(13);
 
 /**
  * {Function} Just a shortcuts
@@ -9603,839 +10697,7 @@ class OperatorsDos extends Operators {
 module.exports = OperatorsDos;
 
 /***/ }),
-/* 33 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(global, process) {
-
-function oldBrowser () {
-  throw new Error('secure random number generation not supported by this browser\nuse chrome, FireFox or Internet Explorer 11')
-}
-
-var Buffer = __webpack_require__(2).Buffer
-var crypto = global.crypto || global.msCrypto
-
-if (crypto && crypto.getRandomValues) {
-  module.exports = randomBytes
-} else {
-  module.exports = oldBrowser
-}
-
-function randomBytes (size, cb) {
-  // phantomjs needs to throw
-  if (size > 65536) throw new Error('requested too many random bytes')
-  // in case browserify  isn't using the Uint8Array version
-  var rawBytes = new global.Uint8Array(size)
-
-  // This will not work in older browsers.
-  // See https://developer.mozilla.org/en-US/docs/Web/API/window.crypto.getRandomValues
-  if (size > 0) {  // getRandomValues fails on IE if size == 0
-    crypto.getRandomValues(rawBytes)
-  }
-
-  // XXX: phantomjs doesn't like a buffer being passed here
-  var bytes = Buffer.from(rawBytes.buffer)
-
-  if (typeof cb === 'function') {
-    return process.nextTick(function () {
-      cb(null, bytes)
-    })
-  }
-
-  return bytes
-}
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8), __webpack_require__(9)))
-
-/***/ }),
-/* 34 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var Buffer = __webpack_require__(2).Buffer
-
-// prototype class for hash functions
-function Hash (blockSize, finalSize) {
-  this._block = Buffer.alloc(blockSize)
-  this._finalSize = finalSize
-  this._blockSize = blockSize
-  this._len = 0
-}
-
-Hash.prototype.update = function (data, enc) {
-  if (typeof data === 'string') {
-    enc = enc || 'utf8'
-    data = Buffer.from(data, enc)
-  }
-
-  var block = this._block
-  var blockSize = this._blockSize
-  var length = data.length
-  var accum = this._len
-
-  for (var offset = 0; offset < length;) {
-    var assigned = accum % blockSize
-    var remainder = Math.min(length - offset, blockSize - assigned)
-
-    for (var i = 0; i < remainder; i++) {
-      block[assigned + i] = data[offset + i]
-    }
-
-    accum += remainder
-    offset += remainder
-
-    if ((accum % blockSize) === 0) {
-      this._update(block)
-    }
-  }
-
-  this._len += length
-  return this
-}
-
-Hash.prototype.digest = function (enc) {
-  var rem = this._len % this._blockSize
-
-  this._block[rem] = 0x80
-
-  // zero (rem + 1) trailing bits, where (rem + 1) is the smallest
-  // non-negative solution to the equation (length + 1 + (rem + 1)) === finalSize mod blockSize
-  this._block.fill(0, rem + 1)
-
-  if (rem >= this._finalSize) {
-    this._update(this._block)
-    this._block.fill(0)
-  }
-
-  var bits = this._len * 8
-
-  // uint32
-  if (bits <= 0xffffffff) {
-    this._block.writeUInt32BE(bits, this._blockSize - 4)
-
-  // uint64
-  } else {
-    var lowBits = bits & 0xffffffff
-    var highBits = (bits - lowBits) / 0x100000000
-
-    this._block.writeUInt32BE(highBits, this._blockSize - 8)
-    this._block.writeUInt32BE(lowBits, this._blockSize - 4)
-  }
-
-  this._update(this._block)
-  var hash = this._hash()
-
-  return enc ? hash.toString(enc) : hash
-}
-
-Hash.prototype._update = function () {
-  throw new Error('_update must be implemented by subclass')
-}
-
-module.exports = Hash
-
-
-/***/ }),
-/* 35 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Plugins manager. Adds plugins into specified instance and destroy
- * them on parent destroy. This class is also a plugin.
- *
- * @author flatline
- */
-const Helper = __webpack_require__(5);
-
-class Plugins {
-    /**
-     * Creates plugin instances and adds them into target class instance
-     * (parent). For this 'plugins' property will be created in parent.
-     * @param {Object} parent Instance we inserting plugins to
-     * @param {Object} plugins Map of names and classes/functions of plugins.
-     * Like this: {Api: Api,...}
-     * @param {Boolean} destroy If true, then onDestroy() method will be
-     * called, when parent.destroy() is called.
-     */
-    constructor(parent, plugins, destroy = true) {
-        const parentPlugins = parent.plugins = [];
-
-        for (let p of plugins) {
-            const path   = p.path || p;
-            const name   = path.split('/').slice(-1)[0];
-            let   plugin = this.require(path);
-
-            plugin = plugin[name] || plugin;
-            parentPlugins.push(new plugin(parent, p.cfg || {}));
-        }
-
-        this.parent       = parent;
-        this._onDestroyCb = this.onDestroy.bind(this);
-        this._destroy     = destroy;
-        this._destroyed   = false;
-
-        Helper.override(parent, 'destroy', this._onDestroyCb);
-    }
-
-    /**
-     * Is used to fix webpack disability to load dynamic modules with require()
-     * @param {String} path Path to the module
-     * @return {Function|Object} imported module
-     */
-    require(path) {
-        return !(function webpackMissingModule() { var e = new Error("Cannot find module \".\""); e.code = 'MODULE_NOT_FOUND'; throw e; }());
-    }
-
-    /**
-     * Is called if parent instance calls destroy() method. Here we
-     * destroy all created plugins and the reference to this instance
-     * in parent instance. This method may be called by hands from
-     * parent instance also. It's impossible to call this method more
-     * then one time.
-     */
-    onDestroy() {
-        if (this._destroyed) {return}
-        //
-        // User doesn't want to automatic destroy of plugins.
-        // He will call this method manually, later.
-        //
-        if (this._destroy) {
-            const plugins = this.parent.plugins;
-            for (let p of plugins) {
-                p.destroy && p.destroy();
-            }
-        }
-        this.parent.plugins = null;
-        this._onDestroyCb   = null;
-        this.parent         = null;
-        this._destroyed     = true;
-    }
-}
-
-module.exports = Plugins;
-
-/***/ }),
-/* 36 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Plugin for adding getter and setter to Manager's API
- *
- * @author flatline
- */
-const api = __webpack_require__(1).api;
-
-class Config {
-    constructor(manager) {
-        manager.api.setConfig = api.set;
-        manager.api.getConfig = api.get;
-    }
-}
-
-module.exports = Config;
-
-/***/ }),
-/* 37 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Manager's plugin, which tracks amount of energy in a world and updates it.
- *
- * @author flatline
- */
-const Helper  = __webpack_require__(5);
-const Config  = __webpack_require__(1).Config;
-const Console = __webpack_require__(7);
-
-class Energy {
-    constructor(manager) {
-        this.manager        = manager;
-        this._checkPeriod   = Config.worldEnergyCheckPeriod;
-        this._onIterationCb = this._onIteration.bind(this);
-        //
-        // We have to update energy only in nature simulation mode
-        //
-        if (Config.codeFitnessCls !== null) {return}
-        Helper.override(manager, 'onIteration', this._onIterationCb);
-    }
-
-    destroy() {
-        Helper.unoverride(this.manager, 'onIteration', this._onIterationCb);
-        this.manager        = null;
-        this._onIterationCb = null;
-    }
-
-    _onIteration(counter) {
-        if (counter % this._checkPeriod !== 0 || this._checkPeriod === 0) {return}
-        if (counter === 0) {
-            this._updateEnergy(Config.worldEnergyDots, Config.worldEnergyInDot);
-            return;
-        }
-        let   energy = 0;
-        const world  = this.manager.world;
-        const width  = Config.worldWidth;
-        const height = Config.worldHeight;
-
-        for (let x = 0; x < width; x++) {
-            for (let y = 0; y < height; y++) {
-                if (world.getDot(x, y) > 0) {energy++}
-            }
-        }
-
-        if (energy * 100 / (width * height) <= Config.worldEnergyCheckPercent) {
-            this._updateEnergy(Config.worldEnergyDots, Config.worldEnergyInDot);
-        }
-    }
-
-    _updateEnergy(dotAmount, energyInDot) {
-        const world  = this.manager.world;
-        const width  = Config.worldWidth;
-        const height = Config.worldHeight;
-        const rand   = Helper.rand;
-        let   x;
-        let   y;
-
-        Console.info('Creating random energy');
-        for (let dot = 0; dot < dotAmount; dot++) {
-            x = rand(width);
-            y = rand(height);
-            if (world.getDot(x, y) < 1) {
-                world.setDot(x, y, energyInDot);
-            }
-        }
-    }
-}
-
-module.exports = Energy;
-
-/***/ }),
-/* 38 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Plugin for Manager class, which is tracks when and how many mutations
- * should be added to special organism's code at special moment of it's
- * life.
- *
- * Depends on:
- *   manager/Manager
- *   manager/plugins/Organisms
- *
- * @author flatline
- */
-const EVENTS   = __webpack_require__(4).EVENTS;
-const Config   = __webpack_require__(1).Config;
-const Helper   = __webpack_require__(5);
-const Organism = __webpack_require__(23);
-const Num      = __webpack_require__(12);
-
-const VAR_BITS_OFFS = Num.VAR_BITS_OFFS - 1;
-const VARS          = Num.VARS;
-const MAX_VAR       = Num.MAX_VAR;
-
-class Mutator {
-    constructor(manager) {
-        this.manager = manager;
-        this._MUTATION_TYPES = [
-            this._onAdd,
-            this._onChange,
-            this._onDel,
-            this._onSmallChange,
-            this._onClone,
-            this._onCopy,
-            this._onPeriod,
-            this._onAmount,
-            this._onProbs,
-            this._onCloneEnergyPercent
-        ];
-        
-        manager.on(EVENTS.ORGANISM, this._onOrganism.bind(this));
-        manager.on(EVENTS.CLONE, this._onCloneOrg.bind(this));
-    }
-
-    destroy() {
-        this.manager         = null;
-        this._MUTATION_TYPES = null;
-    }
-
-    _onOrganism(org) {
-        if (org.iterations % org.mutationPeriod === 0 && Config.orgRainMutationPeriod > 0 && org.mutationPeriod > 0 && org.alive) {
-            this._mutate(org, false);
-        }
-    }
-
-    _onCloneOrg(parent, child) {
-        if (child.energy > 0 && Config.orgCloneMutationPercent > 0) {this._mutate(child)}
-    }
-
-    _mutate(org, clone = true) {
-        const jsvm      = org.jsvm;
-        const probIndex = Helper.probIndex;
-        const mTypes    = this._MUTATION_TYPES;
-        const maxSize   = Config.codeMaxSize;
-        let   mutations = Math.round(jsvm.size * (clone ? org.cloneMutationPercent : org.mutationPercent)) || 1;
-        let   type;
-
-        for (let i = 0; i < mutations; i++) {
-            if (jsvm.size > maxSize) {
-                mutations = i;
-                break;
-            }
-            type = jsvm.size < 1 ? 0 : probIndex(org.mutationProbs);
-            mTypes[type](org);
-        }
-        org.changes += mutations;
-        this.manager.fire(EVENTS.MUTATIONS, org, mutations, clone);
-
-        return mutations;
-    }
-
-    _onAdd(org) {
-        if (Config.codeFitnessCls !== null && org.jsvm.size >= Config.codeMaxSize) {return}
-        org.jsvm.insertLine();
-    }
-
-    _onChange(org) {
-        const jsvm = org.jsvm;
-        jsvm.updateLine(Helper.rand(jsvm.size), Num.get());
-    }
-
-    _onDel(org) {
-        org.jsvm.removeLine();
-    }
-
-    /**
-     * Operator type or one variable may mutate
-     * @param {Organism} org
-     * @private
-     */
-    _onSmallChange(org) {
-        const rand  = Helper.rand;
-        const jsvm  = org.jsvm;
-        const index = rand(jsvm.size);
-        const rnd   = rand(3);
-
-        if (rnd === 0) {
-            jsvm.updateLine(index, Num.setOperator(jsvm.getLine(index), rand(jsvm.operators.operators.length)));
-        } else if (rnd === 1) {
-            jsvm.updateLine(index, Num.setVar(jsvm.getLine(index), rand(VARS), rand(MAX_VAR)));
-        } else {
-            // toggle specified bit
-            jsvm.updateLine(index, jsvm.getLine(index) ^ (1 << rand(VAR_BITS_OFFS)));
-        }
-    }
-
-    _onClone(org) {
-        org.cloneMutationPercent = Math.random();
-    }
-
-    _onCopy(org) {
-        org.jsvm.copyLines();
-    }
-
-    _onPeriod(org) {
-        org.mutationPeriod = Helper.rand(Config.ORG_MAX_MUTATION_PERIOD);
-    }
-
-    _onAmount(org) {
-        org.mutationPercent = Math.random();
-    }
-
-    _onProbs(org) {
-        org.mutationProbs[Helper.rand(org.mutationProbs.length)] = Helper.rand(Config.orgMutationProbsMaxValue) || 1;
-    }
-
-    _onCloneEnergyPercent(org) {
-        org.cloneEnergyPercent = Math.random();
-    }
-}
-
-module.exports = Mutator;
-
-/***/ }),
-/* 39 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Shows console status of application
- *
- * @author flatline
- */
-const EVENTS = __webpack_require__(4).EVENTS;
-const Config = __webpack_require__(1).Config;
-
-const GREEN  = 'color: #00aa00';
-const RED    = 'color: #aa0000';
-const PERIOD = 10000;
-
-class Status {
-    constructor(manager) {
-        this._manager     = manager;
-        this.stamp        = 0;
-        this._ips         = 0;
-        this._ipsAmount   = 0;
-        this._orgs        = 0;
-        this._energy      = 0;
-        this._codeSize    = 0;
-        this._runLines    = 0;
-        this._changes     = 0;
-        this._fitness     = 0;
-
-        manager.on(EVENTS.IPS, this._onIps.bind(this));
-        manager.on(EVENTS.ORGANISM, this._onOrganism.bind(this));
-    }
-
-    _onIps(ips, orgs) {
-        const stamp     = Date.now();
-
-        this._onBeforeIps(ips, orgs);
-        if (stamp - this.stamp < PERIOD) {return}
-
-        const amount    = this._ipsAmount || 1;
-        const orgAmount = (this._orgs / amount) || 1;
-        const sips      = ('ips:' + (this._ips      / amount).toFixed(this._ips  / amount < 10 ? 2 : 0)).padEnd(9);
-        const slps      = ('lps:' + (this._runLines / amount).toFixed()).padEnd(14);
-        const sorgs     = ('org:' + (orgAmount).toFixed()).padEnd(10);
-        const senergy   = ('nrg:' + ((((this._energy   / amount) / orgAmount) / this._runLines) * 1000).toFixed(3)).padEnd(14);
-        const schanges  = ('che:' + ((((this._changes  / amount) / orgAmount) / this._runLines) * 100000).toFixed(3)).padEnd(12);
-        const sfit      = ('fit:' + ((((this._fitness  / amount) / orgAmount) / this._runLines) * 1000).toFixed(3)).padEnd(13);
-        const scode     = ('cod:' + ((this._codeSize / amount) / orgAmount).toFixed(1)).padEnd(12);
-
-        console.log(`%c${sips}${slps}${sorgs}%c${senergy}${schanges}${sfit}${scode}`, GREEN, RED);
-        this._manager.canvas.text(5, 15, sips);
-        this._onAfterIps(stamp);
-    }
-
-    _onOrganism(org, lines) {
-        this._runLines += lines;
-    }
-
-    _onBeforeIps(ips, orgs) {
-        this._ips  += ips;
-        this._orgs += orgs.size;
-
-        this._ipsAmount++;
-        this._iterateOrganisms(orgs);
-    }
-
-    _onAfterIps(stamp) {
-        this._ips       = 0;
-        this._ipsAmount = 0;
-        this._orgs      = 0;
-        this._energy    = 0;
-        this._codeSize  = 0;
-        this.stamp     = stamp;
-        this._runLines  = 0;
-        this._changes   = 0;
-        this._fitness   = 0;
-    }
-
-    _iterateOrganisms(orgs) {
-        let item     = orgs.first;
-        let energy   = 0;
-        let codeSize = 0;
-        let changes  = 0;
-        let fitness  = 0;
-        let org;
-
-        while(item) {
-            org = item.val;
-            energy   += org.energy;
-            codeSize += org.jsvm.size;
-            changes  += org.changes;
-            fitness  += org.fitness();
-            item = item.next;
-        }
-
-        this._energy   += energy;
-        this._codeSize += codeSize;
-        this._changes  += changes;
-        this._fitness  += fitness;
-    }
-}
-
-module.exports = Status;
-
-/***/ }),
-/* 40 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Server related configuration module. Client's configuration should
- * be stored in separate config class.
- *
- * @author flatline
- */
-const Config = __webpack_require__(69);
-
-class ServerConfig extends Config {}
-//
-// TODO: remove command line related parameters from here
-// TODO: parameters, which should be obtained from Admin server
-// TODO: should be also removed from here
-//
-ServerConfig.init({
-    /**
-     * {Array} Array of server plugin paths. Pay attention, that path
-     * should be started from 'src' and not from 'client' or 'common'
-     * folders.
-     */
-    plugins: [
-        'src/net/plugins/Request',
-        'src/server/plugins/Api'
-    ],
-    /**
-     * {Number} Maximum amount of connections for current server. Should
-     * be quadratic (x^2) e.g.: 4, 9, 16,... This value will be extended
-     * with additional "around" rows and columns for connecting with sibling
-     * servers. So, result amount of cells will be e.g.: 16 + 2 rows + 2 cols.
-     */
-    maxConnections: 100,
-    /**
-     * {Number} Port number for connecting with server
-     */
-    port: 8099,
-    /**
-     * {String} Host for connecting with server
-     */
-    host: 'ws://localhost'
-});
-
-module.exports = {Config: ServerConfig.cfg(), api: ServerConfig};
-
-/***/ }),
-/* 41 */
-/***/ (function(module, exports) {
-
-/**
- * Configuration of Client plugin
- *
- * @author flatline
- */
-const Config = {
-};
-
-module.exports = Config;
-
-/***/ }),
-/* 42 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Plugin for a Client class, which provides API of client for the server. The
- * same like Api class plugin for the Server class (see server/src/server/plugins/Api).
- *
- * @author flatline
- */
-const TYPES   = __webpack_require__(15).TYPES;
-const BaseApi = __webpack_require__(43);
-const EVENTS  = __webpack_require__(4).EVENTS;
-const Console = __webpack_require__(7);
-
-class Api extends BaseApi {
-    constructor(client) {
-        super(client);
-
-        this.api[TYPES.REQ_MOVE_ORG]        = this._moveOrg.bind(this);
-        this.api[TYPES.RES_MOVE_ERR]        = this._moveOrg.bind(this);
-        this.api[TYPES.REQ_SET_NEAR_ACTIVE] = this._setActive.bind(this);
-    }
-
-    destroy() {
-        super.destroy();
-    }
-
-    /**
-     * Is called if organism is move in from other Manager (world)
-     * @param {String} reqId Unique request id
-     * @param {Number} x Current org X position
-     * @param {Number} y Current org Y position
-     * @param {String} orgJson Organism's serialized json
-     * @param {String|null} errMsg Error message
-     * @api
-     */
-    _moveOrg(reqId, x, y, orgJson, errMsg = null) {
-        this.parent.manager.fire(EVENTS.STEP_IN, x, y, orgJson);
-        errMsg && Console.warn(errMsg);
-    }
-
-    /**
-     * Is called to set active flag of nearest manager/client. After
-     * setting it to true, nearest client/Manager may pass it's organisms
-     * to the current client/Manager
-     * @param {String} reqId Unique request id
-     * @param {Number} dir Direction of nearest client/Manager
-     * @param {Boolean} active Active state of nearest client/Manager
-     * @api
-     */
-    _setActive(reqId, dir, active) {
-        this.parent.manager.activeAround[dir] = active;
-    }
-
-    _request(type, ...params) {
-        return this.parent.request(this.parent.socket, type, this.parent.manager.clientId, ...params);
-    }
-}
-
-module.exports = Api;
-
-/***/ }),
-/* 43 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Base class of plugin for Client or Server classes, which implement their API. It separated
- * from Client/Server to have an ability to change API any time without changing server's/client's
- * code. You have to inherit your class from this one to have special API for client/ or server.
- * Also, you have to set API map (see this.api map) to bind request types and their handlers
- * together. For example:
- *
- *     class ServerApi extends Api {
- *         constructor() {
- *             super();
- *             this.api[TYPES.XXX] = this._setXXX;
- *             ...
- *         }
- *         _setXXX() {
- *             ...
- *         }
- *     }
- *
- * @author flatline
- */
-const Helper = __webpack_require__(5);
-const TYPES  = __webpack_require__(15).TYPES;
-const MASKS  = __webpack_require__(15).MASKS;
-
-class Api {
-    constructor(parent) {
-        /**
-         * {Object} Mapping of API functions to associated id's. This map
-         * is a map, which is used when client/server/server sends message
-         * to server/client.
-         */
-        this.api          = {};
-        this.parent       = parent;
-
-        /**
-         * {WebSocket} Currently active socket. It's available only during
-         * message is received
-         */
-        this._sock        = null;
-        this._onMessageCb = this._onMessage.bind(this);
-
-        Helper.override(parent, 'onMessage', this._onMessageCb);
-    }
-
-    get sock() {return this._sock}
-
-    destroy() {
-        Helper.unoverride(this.parent, 'onMessage', this._onMessageCb);
-        this._onMessageCb = null;
-        this.parent       = null;
-        this.api          = null;
-    }
-
-    /**
-     * Is called on every message obtained from any client/server.
-     * Calls API method to handle the message. data[0] is always request
-     * type. data[1] - requestId. data[2], data[3],... are request related
-     * parameters. Handlers are called only for requests and skipped for
-     * answers.
-     * @param {WebSocket} sock Communication socket
-     * @param {Event} event Event with parameters obtained from the client
-     * @private
-     */
-    _onMessage(sock, event) {
-        const data  = JSON.parse(event.data || event);
-        const reqId = data[1];
-        const type  = data[0];
-
-        this._sock = sock;
-        if (((reqId & MASKS.REQ_MASK) >>> 0) > 0) {
-            if (this.api[type]) {
-                this.api[type](...[reqId].concat(data.slice(2)));
-            } else {
-                this.parent.response(sock, TYPES.RES_INVALID_TYPE, reqId, `Invalid request type ${type}`);
-            }
-        }
-        this._sock = null;
-    }
-}
-
-module.exports = Api;
-
-/***/ }),
-/* 44 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Shows and updates IPS value at the left top screen corner. I mean in
- * a word's canvas.
- *
- * Configuration:
- *   {Boolean} show Shows/Hides IPS value at the top-left corner
- *   {Number}  periodMs Period of milliseconds, which is user for checking
- *             IPS value. It's possible to increase it to reduce amount of
- *             requests and additional jsvm in main loop
- *
- * @author flatline
- */
-const Configurable = __webpack_require__(82);
-const Helper       = __webpack_require__(5);
-const Config       = __webpack_require__(1).Config;
-const IpsConfig    = __webpack_require__(31);
-const EVENTS       = __webpack_require__(4).EVENTS;
-
-class Ips extends Configurable {
-    constructor(manager) {
-        super(manager, {Config, cfg: IpsConfig}, {show: ['_show', 'Shows IPS of the world']});
-        this._stamp         = Date.now();
-        this._onIterationCb = this._onIteration.bind(this);
-
-        Helper.override(manager, 'onIteration', this._onIterationCb);
-    }
-
-    destroy() {
-        Helper.unoverride(this.parent, 'onIteration', this._onIterationCb);
-        this._onIterationCb = null;
-    }
-
-    _onIteration(counter, stamp) {
-        if (!this.cfg.show) {return}
-        const ts   = stamp - this._stamp;
-        if (ts < this.cfg.periodMs) {return}
-        const man  = this.parent;
-        let   ips  = man.codeRuns / man.organisms.size / (ts / 1000);
-
-        man.fire(EVENTS.IPS, ips, man.organisms);
-        man.codeRuns = 0;
-        this._stamp  = stamp;
-    }
-
-    _show(show = true) {
-        this.cfg.show = show;
-    }
-}
-
-module.exports = Ips;
-
-/***/ }),
-/* 45 */
-/***/ (function(module, exports) {
-
-/**
- * Configuration of DOS Organisms class
- *
- * @author flatline
- */
-const Config = {
-};
-
-module.exports = Config;
-
-/***/ }),
-/* 46 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -10451,8 +10713,8 @@ module.exports = Config;
  *
  * @author flatline
  */
-const BaseOrganisms = __webpack_require__(26);
-const Config        = __webpack_require__(1).Config;
+const BaseOrganisms = __webpack_require__(24);
+const Config        = __webpack_require__(2).Config;
 const EVENTS        = __webpack_require__(4).EVENTS;
 const Helper        = __webpack_require__(5);
 const DIR           = __webpack_require__(17).DIR;
@@ -10661,611 +10923,17 @@ class Organisms extends BaseOrganisms {
 module.exports = Organisms;
 
 /***/ }),
-/* 47 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * This class is used only for code visualization in readable human like form.
- * It converts numeric based byte code into JS string. This class must be
- * synchronized with 'Operators' one.
- *
- * @author flatline
- */
-const Num = __webpack_require__(12);
-
-/**
- * {Function} Just a shortcuts
- */
-const VAR0                  = Num.getVar;
-const VAR1                  = (n) => Num.getVar(n, 1);
-const VAR2                  = (n) => Num.getVar(n, 2);
-const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
-const BITS_FOR_NUMBER       = 16;
-const HALF_OF_VAR           = Num.MAX_VAR / 2;
-
-class Code2StringDos {
-    constructor() {
-        /**
-         * {Object} These operator handlers should return string representation
-         * of numeric based byte jsvm.
-         */
-        this._OPERATORS_CB = {
-            0 : this._onVar.bind(this),
-            //1: this._onFunc.bind(this),
-            1 : this._onCondition.bind(this),
-            2 : this._onLoop.bind(this),
-            3 : this._onOperator.bind(this),
-            4 : this._onNot.bind(this),
-            //5 : this._onPi.bind(this),
-            //6 : this._onTrig.bind(this),
-            5 : this._onLookAt.bind(this),
-            6 : this._onEatLeft.bind(this),
-            7 : this._onEatRight.bind(this),
-            8 : this._onEatUp.bind(this),
-            9 : this._onEatDown.bind(this),
-            10: this._onStepLeft.bind(this),
-            11: this._onStepRight.bind(this),
-            12: this._onStepUp.bind(this),
-            13: this._onStepDown.bind(this),
-            14: this._onFromMem.bind(this),
-            15: this._onToMem.bind(this),
-            16: this._onMyX.bind(this),
-            17: this._onMyY.bind(this),
-            18: this._onCheckLeft.bind(this),
-            19: this._onCheckRight.bind(this),
-            20: this._onCheckUp.bind(this),
-            21: this._onCheckDown.bind(this)
-        };
-        this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
-        /**
-         * {Array} Available conditions for if operator. Amount should be
-         * the same like (1 << BITS_PER_VAR)
-         */
-        this._CONDITIONS = ['<', '>', '==', '!='];
-        /**
-         * {Array} Available operators for math calculations
-         */
-        this._OPERATORS = [
-            '+', '-', '*', '/', '%', '&', '|', '^', '>>', '<<', '>>>', '<', '>', '==', '!=', '<='
-        ];
-        //this._TRIGS = ['sin', 'cos', 'tan', 'abs'];
-        /**
-         * {Array} Contains closing bracket offset for "if", "loop",... operators
-         */
-        this._offsets = [];
-
-        Num.setOperatorAmount(this._OPERATORS_CB_LEN);
-    }
-
-    destroy() {
-        this._OPERATORS_CB = null;
-        this._CONDITIONS   = null;
-        this._OPERATORS    = null;
-    }
-
-    format(code, separator = '\n') {
-        const len       = code.length;
-        const operators = this._OPERATORS_CB;
-        const offs      = this._offsets;
-        let   lines     = new Array(len);
-        let   needClose = 0;
-
-        for (let line = 0; line < len; line++) {
-            //
-            // We found closing bracket '}' of some loop and have to add
-            // it to output code array
-            //
-            if (line === offs[offs.length - 1]) {
-                while (offs.length > 0 && offs[offs.length - 1] === line) {
-                    offs.pop();
-                    needClose++;
-                }
-            }
-            lines[line] = operators[Num.getOperator(code[line])](code[line], line, len);
-            if (needClose > 0) {
-                for (let i = 0; i < needClose; i++) {
-                    lines[line] = '}' + lines[line];
-                }
-                needClose = 0;
-            }
-        }
-        //
-        // All closing brackets st the end of JS script
-        //
-        const length = lines.length - 1;
-        for (let i = 0; i < offs.length; i++) {
-            lines[length] += '}';
-        }
-        offs.length = 0;
-
-        return js_beautify(lines.join(separator), {indent_size: 4});
-    }
-
-    /**
-     * Parses variable operator. Format: let = const|number. Num bits format:
-     *   BITS_PER_OPERATOR bits - operator id
-     *   BITS_PER_VAR bits  - destination var index
-     *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
-     *   BITS_PER_VAR bits  - variable index or all bits till the end for constant
-     *
-     * @param {Num} num Packed into number jsvm line
-     * @return {String} Parsed jsvm line string
-     */
-    _onVar(num) {
-        const var1    = VAR1(num);
-        const isConst = VAR2(num) >= HALF_OF_VAR;
-
-        return `v${VAR0(num)}=${isConst ? Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_FOR_NUMBER) : ('v' + var1)}`;
-    }
-
-    _onFunc(num) {
-        return '';
-    }
-
-    _onCondition(num, line, lines) {
-        const val3    = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
-        this._offsets.push(this._getOffs(line, lines, val3));
-        return `if(v${VAR0(num)}${this._CONDITIONS[VAR2(num)]}v${VAR1(num)}){`;
-    }
-
-    _onLoop(num, line, lines) {
-        const var0    = VAR0(num);
-        const val3    = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
-        this._offsets.push(this._getOffs(line, lines, val3));
-        return `for(v${var0}=v${VAR1(num)};v${var0}<v${VAR2(num)};v${var0}++){`;
-    }
-
-    _onOperator(num) {
-        return `v${VAR0(num)}=v${VAR1(num)}${this._OPERATORS[Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS)]}v${VAR2(num)}`;
-    }
-
-    _onNot(num) {
-        return `v${VAR0(num)}=+!v${VAR1(num)}`;
-    }
-
-    //_onPi(num) {
-    //    return `v${VAR0(num)}=Math.PI`;
-    //}
-
-    //_onTrig(num) {
-    //    return `v${VAR0(num)}=Math.${this._TRIGS[VAR2(num)]}(v${VAR1(num)})`;
-    //}
-
-    _onLookAt(num) {
-        return `v${VAR0(num)}=lookAt(v${VAR1(num)},v${VAR2(num)})`;
-    }
-
-    _onEatLeft(num) {
-        return `v${VAR0(num)}=eatLeft(v${VAR1(num)})`;
-    }
-
-    _onEatRight(num) {
-        return `v${VAR0(num)}=eatRight(v${VAR1(num)})`;
-    }
-
-    _onEatUp(num) {
-        return `v${VAR0(num)}=eatUp(v${VAR1(num)})`;
-    }
-
-    _onEatDown(num) {
-        return `v${VAR0(num)}=eatDown(v${VAR1(num)})`;
-    }
-
-    _onStepLeft(num) {
-        return `v${VAR0(num)}=stepLeft()`;
-    }
-
-    _onStepRight(num) {
-        return `v${VAR0(num)}=stepRight()`;
-    }
-
-    _onStepUp(num) {
-        return `v${VAR0(num)}=stepUp()`;
-    }
-
-    _onStepDown(num) {
-        return `v${VAR0(num)}=stepDown()`;
-    }
-
-    _onFromMem(num) {
-        return `v${VAR0(num)}=fromMem()`;
-    }
-
-    _onToMem(num) {
-        return `v${VAR0(num)}=toMem(v${VAR1(num)})`;
-    }
-
-    _onMyX(num) {
-        return `v${VAR0(num)}=myX()`;
-    }
-
-    _onMyY(num) {
-        return `v${VAR0(num)}=myY()`;
-    }
-
-    _onCheckLeft(num) {
-        return `v${VAR0(num)}=checkLeft()`;
-    }
-
-    _onCheckRight(num) {
-        return `v${VAR0(num)}=checkRight()`;
-    }
-
-    _onCheckUp(num) {
-        return `v${VAR0(num)}=checkUp()`;
-    }
-
-    _onCheckDown(num) {
-        return `v${VAR0(num)}=checkDown()`;
-    }
-
-    /**
-     * Returns offset for closing bracket of blocked operators like
-     * "if", "for" and so on. These operators shouldn't overlap each
-     * other. for example:
-     *
-     *     for (...) {     // 0
-     *         if (...) {  // 1
-     *             ...     // 2
-     *         }           // 3
-     *     }               // 4
-     *
-     * Closing bracket in line 3 shouldn't be after bracket in line 4.
-     * So it's possible to set it to one of  1...3. So we change it in
-     * real time to fix the overlap problem.
-     * @param {Number} line Current line index
-     * @param {Number} lines Amount of lines
-     * @param {Number} offs Local offset of closing bracket we want to set
-     * @returns {Number}
-     * @private
-     */
-    _getOffs(line, lines, offs) {
-        let   offset  = line + offs < lines ? line + offs + 1 : lines;
-        const offsets = this._offsets;
-        const length  = offsets.length;
-
-        if (length > 0 && offset >= offsets[length - 1]) {
-            return offsets[length - 1];
-        }
-
-        return offset;
-    }
-}
-
-module.exports = Code2StringDos;
-
-/***/ }),
-/* 48 */
-/***/ (function(module, exports) {
-
-/**
- * Configuration of DOS Organisms class
- *
- * @author flatline
- */
-const Config = {
-
-};
-
-module.exports = Config;
-
-/***/ }),
 /* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
- * TODO: add description:
- * TODO:   - events
- * TODO:   -
- * @author flatline
- */
-const Organism = __webpack_require__(24);
-const Config   = __webpack_require__(1).Config;
-const EVENTS   = __webpack_require__(4).EVENTS;
-
-class OrganismGarmin extends Organism {
-    /**
-     * Creates organism instance. If parent parameter is set, then
-     * a clone of parent organism will be created.
-     * @param {String} id Unique identifier of organism
-     * @param {Number} x Unique X coordinate
-     * @param {Number} y Unique Y coordinate
-     * @param {Boolean} alive true if organism is alive
-     * @param {Object} item Reference to the Queue item, where
-     * this organism is located
-     * @param {Function} codeEndCb Callback, which is called at the
-     * end of every code iteration.
-     * @param {Object} classMap Available classes map. Maps class names into
-     * classe functions
-     * @param {Organism} parent Parent organism if cloning is needed
-     */
-    constructor(id, x, y, alive, item, codeEndCb, classMap, parent = null) {
-        super(id, x, y, alive, item, codeEndCb, classMap, parent);
-
-        this._fitnessCls = classMap[Config.codeFitnessCls];
-        this._needRun    = true;
-
-        this.jsvm.on(EVENTS.RESET_CODE, this._onResetCode.bind(this));
-    }
-
-    onBeforeRun() {
-        return !this._needRun;
-    }
-
-    onRun() {
-        if (this._fitnessCls.run(this)) {this.fire(EVENTS.STOP, this)}
-        this._needRun = false;
-    }
-
-    destroy() {
-        super.destroy();
-        this._fitnessCls = null;
-    }
-
-    /**
-     * Is called when some modifications in code appeared and we have
-     * to re-execute it again
-     * @private
-     */
-    _onResetCode() {
-        this._needRun = true;
-    }
-}
-
-module.exports = OrganismGarmin;
-
-/***/ }),
-/* 50 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Plugin for Manager module, which handles organisms population
- * in fitness mode.
- *
- * Events od Manager:
- *   ORGANISM(org) Fires after one organism has processed
- *
- * Depends on:
- *   manager/Manager
- *
- * @author flatline
- */
-const Config        = __webpack_require__(1).Config;
-const Console       = __webpack_require__(7);
-const EVENTS        = __webpack_require__(4).EVENTS;
-const BaseOrganisms = __webpack_require__(26);
-const Fitness       = Config.codeFitnessCls && __webpack_require__(71)("./" + Config.codeFitnessCls + '.js') || Config.codeFitnessCls;
-
-class Organisms extends BaseOrganisms {
-    constructor(manager) {
-        super(manager);
-        this._maxChanges = 0;
-    }
-
-    /**
-     * Compares two organisms and returns fittest one
-     * @param {Organism} org1
-     * @param {Organism} org2
-     * @return {Organism}
-     * @override
-     */
-    compare(org1, org2) {
-        return Fitness.compare(org1, org2, this._maxChanges);
-    }
-
-    onOrganism(org) {
-        if (org.energy > this._maxEnergy) {
-            this._maxEnergy = org.energy;
-            Console.warn('--------------------------------------------------');
-            Console.warn('Max energy: ', org.energy, ', org Id: ', org.id);
-            Console.warn('[' + org.jsvm.code + ']');
-            Console.warn(this.manager.api.formatCode(org.jsvm.code));
-        }
-
-        if (org.changes > this._maxChanges) {this._maxChanges = org.changes}
-    }
-
-    addOrgHandlers(org) {
-        super.addOrgHandlers(org);
-        org.on(EVENTS.STOP, this._onStop.bind(this));
-    }
-
-    reset() {
-        super.reset();
-        this._maxChanges = 0;
-    }
-
-    _onStop(org) {
-        this.manager.stop();
-        Console.warn('--------------------------------------------------');
-        Console.warn('org id: ', org.id, ', energy: ', org.energy);
-        Console.warn('[' + org.jsvm.code + ']');
-        Console.warn(this.manager.api.formatCode(org.jsvm.code));
-    }
-}
-
-module.exports = Organisms;
-
-/***/ }),
-/* 51 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * This file contains all available operators implementation. For example:
- * for, if, variable declaration, steps, eating etc... User may override
- * this class for own needs and change operator list to custom. These
- * operators are used to obtain type of training saved by Garmin watches.
- *
- * @author flatline
- */
-const Config    = __webpack_require__(1).Config;
-const Helper    = __webpack_require__(5);
-const Operators = __webpack_require__(19);
-const Num       = __webpack_require__(12);
-
-/**
- * {Function} Just a shortcuts
- */
-const VAR0                  = Num.getVar;
-const VAR1                  = (n) => Num.getVar(n, 1);
-const VAR2                  = (n) => Num.getVar(n, 2);
-const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
-const BITS_OF_TWO_VARS      = Num.BITS_OF_TWO_VARS;
-const IS_NUM                = Helper.isNumeric;
-const HALF_OF_VAR           = Num.MAX_VAR / 2;
-const CONDITION_BITS        = 2;
-
-class OperatorsGarmin extends  Operators {
-    constructor(offs, vars, obs) {
-        super(offs, vars, obs);
-        /**
-         * {Object} These operator handlers should return string, which
-         * will be added to the final string script for evaluation.
-         */
-        this._OPERATORS_CB = [
-            this.onVar.bind(this),
-            this.onCondition.bind(this),
-            //this.onLoop.bind(this),
-            this.onOperator.bind(this),
-            this.onNot.bind(this),
-            //this.onPi.bind(this),
-            //this.onTrig.bind(this),
-            this.onFromMem.bind(this),
-            this.onToMem.bind(this)
-        ];
-        /**
-         * {Array} Available conditions for if operator. Amount should be
-         * the same like (1 << BITS_PER_VAR)
-         */
-        this._CONDITIONS = [(a,b)=>a<b, (a,b)=>a>b, (a,b)=>a===b, (a,b)=>a!==b];
-        /**
-         * {Array} Available operators for math calculations
-         */
-        this._OPERATORS = [
-            (a,b)=>a+b, (a,b)=>a-b, (a,b)=>a*b, (a,b)=>a/b, (a,b)=>a%b, (a,b)=>a&b, (a,b)=>a|b, (a,b)=>a^b, (a,b)=>a>>b, (a,b)=>a<<b, (a,b)=>a>>>b, (a,b)=>+(a<b), (a,b)=>+(a>b), (a,b)=>+(a===b), (a,b)=>+(a!==b), (a,b)=>+(a<=b)
-        ];
-        this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
-        //
-        // We have to set amount of available operators for correct
-        // working of mutations of operators.
-        //
-        Num.setOperatorAmount(this._OPERATORS_CB.length);
-    }
-
-    destroy() {
-        this._OPERATORS_CB = null;
-        this._CONDITIONS   = null;
-        this._OPERATORS    = null;
-        this._TRIGS        = null;
-    }
-
-    get operators() {return this._OPERATORS_CB}
-
-    /**
-     * Parses variable operator. Format: let = const|number. Num bits format:
-     *   BITS_PER_OPERATOR bits - operator id
-     *   BITS_PER_VAR bits  - destination var index
-     *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
-     *   BITS_PER_VAR bits  - variable index or all bits till the end for constant
-     *
-     * @param {Num} num Packed into number jsvm line
-     * @param {Number} line Current line in jsvm
-     * @return {Number} Parsed jsvm line string
-     */
-    onVar(num, line) {
-        const vars = this.vars;
-        const var1 = VAR1(num);
-        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS) : vars[var1];
-
-        return line + 1;
-    }
-
-    onCondition(num, line, org, lines) {
-        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
-        const offs = line + val3 < lines ? line + val3 + 1 : lines;
-        const cond = VAR2(num) >>> (Config.codeBitsPerVar - CONDITION_BITS);
-
-        if (this._CONDITIONS[cond](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
-            return line + 1;
-        }
-
-        return offs;
-    }
-
-//    onLoop(num, line, org, lines, ret) {
-//        const vars = this.vars;
-//        const var0 = VAR0(num);
-//        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
-//        const offs = line + val3 < lines ? line + val3 + 1 : lines;
-//
-//        if (ret) {
-//            if (++vars[var0] < vars[VAR2(num)]) {
-//                this.offs.push(line, offs);
-//                return line + 1;
-//            }
-//            return offs;
-//        }
-//
-//        vars[var0] = vars[VAR1(num)];
-//        if (vars[var0] < vars[VAR2(num)]) {
-//            this.offs.push(line, offs);
-//            return line + 1;
-//        }
-//
-//        return offs;
-//    }
-
-    onOperator(num, line) {
-        const vars = this.vars;
-        vars[VAR0(num)] = this._OPERATORS[Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS)](vars[VAR1(num)], vars[VAR2(num)]);
-        return line + 1;
-    }
-
-    onNot(num, line) {
-        this.vars[VAR0(num)] = +!this.vars[VAR1(num)];
-        return line + 1;
-    }
-
-//    onPi(num, line) {
-//        this.vars[VAR0(num)] = Math.PI;
-//        return line + 1;
-//    }
-//
-//    onTrig(num, line) {
-//        this.vars[VAR0(num)] = this._TRIGS[VAR2(num)](this.vars[VAR1(num)]);
-//        return line + 1;
-//    }
-
-    onFromMem(num, line, org) {this.vars[VAR0(num)] = org.mem.pop() || 0; return line + 1}
-
-    onToMem(num, line, org) {
-        const val = this.vars[VAR1(num)];
-
-        if (IS_NUM(val) && org.mem.length < Config.orgMemSize) {
-            org.mem.push(val);
-            this.vars[VAR0(num)] = val;
-        } else {
-            this.vars[VAR0(num)] = org.mem[org.mem.length - 1];
-        }
-
-        return line + 1;
-    }
-}
-
-module.exports = OperatorsGarmin;
-
-/***/ }),
-/* 52 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
  * This class is used only for code visualization in readable human like form.
  * It converts numeric based byte code into JS string. This class must be
  * synchronized with 'Operators' one.
  *
  * @author flatline
  */
-const Num = __webpack_require__(12);
+const Num = __webpack_require__(13);
 
 /**
  * {Function} Just a shortcuts
@@ -11410,7 +11078,22 @@ class Code2StringGarmin {
 module.exports = Code2StringGarmin;
 
 /***/ }),
-/* 53 */
+/* 50 */
+/***/ (function(module, exports) {
+
+/**
+ * Configuration of DOS Organisms class
+ *
+ * @author flatline
+ */
+const Config = {
+
+};
+
+module.exports = Config;
+
+/***/ }),
+/* 51 */
 /***/ (function(module, exports) {
 
 /**
@@ -13411,7 +13094,312 @@ class FitnessGarmin {
 module.exports = FitnessGarmin;
 
 /***/ }),
+/* 52 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * This file contains all available operators implementation. For example:
+ * for, if, variable declaration, steps, eating etc... User may override
+ * this class for own needs and change operator list to custom. These
+ * operators are used to obtain type of training saved by Garmin watches.
+ *
+ * @author flatline
+ */
+const Helper    = __webpack_require__(5);
+const Operators = __webpack_require__(23);
+const Num       = __webpack_require__(13);
+const Config    = __webpack_require__(2).Config;
+
+/**
+ * {Function} Just a shortcuts
+ */
+const VAR0                  = Num.getVar;
+const VAR1                  = (n) => Num.getVar(n, 1);
+const VAR2                  = (n) => Num.getVar(n, 2);
+const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
+const BITS_OF_TWO_VARS      = Num.BITS_OF_TWO_VARS;
+const IS_NUM                = Helper.isNumeric;
+const HALF_OF_VAR           = Num.MAX_VAR / 2;
+const CONDITION_BITS        = 2;
+
+class OperatorsGarmin extends  Operators {
+    constructor(offs, vars, obs) {
+        super(offs, vars, obs);
+        /**
+         * {Object} These operator handlers should return string, which
+         * will be added to the final string script for evaluation.
+         */
+        this._OPERATORS_CB = [
+            this.onVar.bind(this),
+            this.onCondition.bind(this),
+            //this.onLoop.bind(this),
+            this.onOperator.bind(this),
+            this.onNot.bind(this),
+            //this.onPi.bind(this),
+            //this.onTrig.bind(this),
+            this.onFromMem.bind(this),
+            this.onToMem.bind(this)
+        ];
+        /**
+         * {Array} Available conditions for if operator. Amount should be
+         * the same like (1 << BITS_PER_VAR)
+         */
+        this._CONDITIONS = [(a,b)=>a<b, (a,b)=>a>b, (a,b)=>a===b, (a,b)=>a!==b];
+        /**
+         * {Array} Available operators for math calculations
+         */
+        this._OPERATORS = [
+            (a,b)=>a+b, (a,b)=>a-b, (a,b)=>a*b, (a,b)=>a/b, (a,b)=>a%b, (a,b)=>a&b, (a,b)=>a|b, (a,b)=>a^b, (a,b)=>a>>b, (a,b)=>a<<b, (a,b)=>a>>>b, (a,b)=>+(a<b), (a,b)=>+(a>b), (a,b)=>+(a===b), (a,b)=>+(a!==b), (a,b)=>+(a<=b)
+        ];
+        this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
+        //
+        // We have to set amount of available operators for correct
+        // working of mutations of operators.
+        //
+        Num.setOperatorAmount(this._OPERATORS_CB.length);
+    }
+
+    destroy() {
+        this._OPERATORS_CB = null;
+        this._CONDITIONS   = null;
+        this._OPERATORS    = null;
+        this._TRIGS        = null;
+    }
+
+    get operators() {return this._OPERATORS_CB}
+
+    /**
+     * Parses variable operator. Format: let = const|number. Num bits format:
+     *   BITS_PER_OPERATOR bits - operator id
+     *   BITS_PER_VAR bits  - destination var index
+     *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
+     *   BITS_PER_VAR bits  - variable index or all bits till the end for constant
+     *
+     * @param {Num} num Packed into number jsvm line
+     * @param {Number} line Current line in jsvm
+     * @return {Number} Parsed jsvm line string
+     */
+    onVar(num, line) {
+        const vars = this.vars;
+        const var1 = VAR1(num);
+        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS) : vars[var1];
+
+        return line + 1;
+    }
+
+    onCondition(num, line, org, lines) {
+        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
+        const offs = line + val3 < lines ? line + val3 + 1 : lines;
+        const cond = VAR2(num) >>> (Config.codeBitsPerVar - CONDITION_BITS);
+
+        if (this._CONDITIONS[cond](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
+            return line + 1;
+        }
+
+        return offs;
+    }
+
+//    onLoop(num, line, org, lines, ret) {
+//        const vars = this.vars;
+//        const var0 = VAR0(num);
+//        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
+//        const offs = line + val3 < lines ? line + val3 + 1 : lines;
+//
+//        if (ret) {
+//            if (++vars[var0] < vars[VAR2(num)]) {
+//                this.offs.push(line, offs);
+//                return line + 1;
+//            }
+//            return offs;
+//        }
+//
+//        vars[var0] = vars[VAR1(num)];
+//        if (vars[var0] < vars[VAR2(num)]) {
+//            this.offs.push(line, offs);
+//            return line + 1;
+//        }
+//
+//        return offs;
+//    }
+
+    onOperator(num, line) {
+        const vars = this.vars;
+        vars[VAR0(num)] = this._OPERATORS[Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS)](vars[VAR1(num)], vars[VAR2(num)]);
+        return line + 1;
+    }
+
+    onNot(num, line) {
+        this.vars[VAR0(num)] = +!this.vars[VAR1(num)];
+        return line + 1;
+    }
+
+//    onPi(num, line) {
+//        this.vars[VAR0(num)] = Math.PI;
+//        return line + 1;
+//    }
+//
+//    onTrig(num, line) {
+//        this.vars[VAR0(num)] = this._TRIGS[VAR2(num)](this.vars[VAR1(num)]);
+//        return line + 1;
+//    }
+
+    onFromMem(num, line, org) {this.vars[VAR0(num)] = org.mem.pop() || 0; return line + 1}
+
+    onToMem(num, line, org) {
+        const val = this.vars[VAR1(num)];
+
+        if (IS_NUM(val) && org.mem.length < Config.orgMemSize) {
+            org.mem.push(val);
+            this.vars[VAR0(num)] = val;
+        } else {
+            this.vars[VAR0(num)] = org.mem[org.mem.length - 1];
+        }
+
+        return line + 1;
+    }
+}
+
+module.exports = OperatorsGarmin;
+
+/***/ }),
+/* 53 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * TODO: add description:
+ * TODO:   - events
+ * TODO:   -
+ * @author flatline
+ */
+const Organism = __webpack_require__(38);
+const Config   = __webpack_require__(2).Config;
+const EVENTS   = __webpack_require__(4).EVENTS;
+
+class OrganismGarmin extends Organism {
+    /**
+     * Creates organism instance. If parent parameter is set, then
+     * a clone of parent organism will be created.
+     * @param {String} id Unique identifier of organism
+     * @param {Number} x Unique X coordinate
+     * @param {Number} y Unique Y coordinate
+     * @param {Boolean} alive true if organism is alive
+     * @param {Object} item Reference to the Queue item, where
+     * this organism is located
+     * @param {Function} codeEndCb Callback, which is called at the
+     * end of every code iteration.
+     * @param {Object} classMap Available classes map. Maps class names into
+     * classe functions
+     * @param {Organism} parent Parent organism if cloning is needed
+     */
+    constructor(id, x, y, alive, item, codeEndCb, classMap, parent = null) {
+        super(id, x, y, alive, item, codeEndCb, classMap, parent);
+
+        this._fitnessCls = classMap[Config.codeFitnessCls];
+        this._needRun    = true;
+
+        this.jsvm.on(EVENTS.RESET_CODE, this._onResetCode.bind(this));
+    }
+
+    onBeforeRun() {
+        return !this._needRun;
+    }
+
+    onRun() {
+        if (this._fitnessCls.run(this)) {this.fire(EVENTS.STOP, this)}
+        this._needRun = false;
+    }
+
+    destroy() {
+        super.destroy();
+        this._fitnessCls = null;
+    }
+
+    /**
+     * Is called when some modifications in code appeared and we have
+     * to re-execute it again
+     * @private
+     */
+    _onResetCode() {
+        this._needRun = true;
+    }
+}
+
+module.exports = OrganismGarmin;
+
+/***/ }),
 /* 54 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Plugin for Manager module, which handles organisms population
+ * in fitness mode.
+ *
+ * Events od Manager:
+ *   ORGANISM(org) Fires after one organism has processed
+ *
+ * Depends on:
+ *   manager/Manager
+ *
+ * @author flatline
+ */
+const Config        = __webpack_require__(2).Config;
+const Console       = __webpack_require__(7);
+const EVENTS        = __webpack_require__(4).EVENTS;
+const BaseOrganisms = __webpack_require__(24);
+const Fitness       = Config.codeFitnessCls && __webpack_require__(71)("./" + Config.codeFitnessCls + '.js') || Config.codeFitnessCls;
+
+class Organisms extends BaseOrganisms {
+    constructor(manager) {
+        super(manager);
+        this._maxChanges = 0;
+    }
+
+    /**
+     * Compares two organisms and returns fittest one
+     * @param {Organism} org1
+     * @param {Organism} org2
+     * @return {Organism}
+     * @override
+     */
+    compare(org1, org2) {
+        return Fitness.compare(org1, org2, this._maxChanges);
+    }
+
+    onOrganism(org) {
+        if (org.energy > this._maxEnergy) {
+            this._maxEnergy = org.energy;
+            Console.warn('--------------------------------------------------');
+            Console.warn('Max energy: ', org.energy, ', org Id: ', org.id);
+            Console.warn('[' + org.jsvm.code + ']');
+            Console.warn(this.manager.api.formatCode(org.jsvm.code));
+        }
+
+        if (org.changes > this._maxChanges) {this._maxChanges = org.changes}
+    }
+
+    addOrgHandlers(org) {
+        super.addOrgHandlers(org);
+        org.on(EVENTS.STOP, this._onStop.bind(this));
+    }
+
+    reset() {
+        super.reset();
+        this._maxChanges = 0;
+    }
+
+    _onStop(org) {
+        this.manager.stop();
+        Console.warn('--------------------------------------------------');
+        Console.warn('org id: ', org.id, ', energy: ', org.energy);
+        Console.warn('[' + org.jsvm.code + ']');
+        Console.warn(this.manager.api.formatCode(org.jsvm.code));
+    }
+}
+
+module.exports = Organisms;
+
+/***/ }),
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -13530,7 +13518,7 @@ class World extends Observer {
 module.exports = World;
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, exports) {
 
 // Copyright Joyent, Inc. and other Node contributors.
@@ -13838,7 +13826,7 @@ function isUndefined(arg) {
 
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13848,7 +13836,7 @@ var md5 = __webpack_require__(87)
 var RIPEMD160 = __webpack_require__(88)
 var sha = __webpack_require__(91)
 
-var Base = __webpack_require__(21)
+var Base = __webpack_require__(20)
 
 function HashNoConstructor (hash) {
   Base.call(this, 'digest')
@@ -13898,20 +13886,20 @@ module.exports = function createHash (alg) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 57 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(110);
 exports.Stream = exports;
 exports.Readable = exports;
 exports.Writable = __webpack_require__(89);
-exports.Duplex = __webpack_require__(27);
+exports.Duplex = __webpack_require__(25);
 exports.Transform = __webpack_require__(113);
 exports.PassThrough = __webpack_require__(177);
 
 
 /***/ }),
-/* 58 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {// Copyright Joyent, Inc. and other Node contributors.
@@ -14025,7 +14013,7 @@ function objectToString(o) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 59 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {module.exports = function xor (a, b) {
@@ -14042,14 +14030,14 @@ function objectToString(o) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 60 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var utils = __webpack_require__(16);
-var assert = __webpack_require__(13);
+var assert = __webpack_require__(12);
 
 function BlockHash() {
   this.pending = null;
@@ -14141,7 +14129,7 @@ BlockHash.prototype._pad = function pad() {
 
 
 /***/ }),
-/* 61 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var asn1 = exports;
@@ -14149,14 +14137,14 @@ var asn1 = exports;
 asn1.bignum = __webpack_require__(6);
 
 asn1.define = __webpack_require__(236).define;
-asn1.base = __webpack_require__(62);
+asn1.base = __webpack_require__(63);
 asn1.constants = __webpack_require__(137);
 asn1.decoders = __webpack_require__(242);
 asn1.encoders = __webpack_require__(244);
 
 
 /***/ }),
-/* 62 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var base = exports;
@@ -14168,7 +14156,159 @@ base.Node = __webpack_require__(240);
 
 
 /***/ }),
-/* 63 */
+/* 64 */
+/***/ (function(module, exports) {
+
+/**
+ * Tracks connected clients/servers at the moment. Is used on server side.
+ * Consists of 2D squared array, which stores information about connections,
+ * active states of clients and so on...
+ * Every cell of this 2D array is an object with at least one required field:
+ * 'sock'. These cells are called regions. Regions has a coordinates X and Y.
+ * Region may be converted to unique ID and vise versa.
+ *
+ * @author flatline
+ */
+/**
+ * {String} Separator string, which separates id parts. Like
+ * 'X' + ID_SEPARATOR + 'X'
+ */
+const ID_SEPARATOR = '-';
+
+class Connections {
+    /**
+     * Converts region to unique id
+     * @param {Array} region Array of X and Y coordinates
+     * @returns {Boolean|String}
+     */
+    static toId(region) {
+        return region !== null && region.join(ID_SEPARATOR);
+    }
+
+    /**
+     * Converts client's id into client's region. Elements of
+     * the array(region) will have type Number.
+     * @param {String} id Unique id of the client
+     * @returns {Array} Array of numbers (region)
+     */
+    static toRegion(id) {
+        return id.split(ID_SEPARATOR).map(Number);
+    }
+
+    constructor(amount) {
+        /**
+         * {Number} amount Maximum amount of connections for current server. Should
+         * be quadratic (x^2) e.g.: 4, 9, 16,... This value will be extended
+         * with additional "around" rows and columns for connecting with sibling
+         * servers. So, result amount will be e.g.: 100 + 2 rows + 2 columns.
+         */
+        this._amount = amount;
+        /**
+         * {Number} Size of one side of MAX_CONNECTIONS qub. Contains additional
+         * "around" rows and columns. For qub == 16, it's 4.
+         */
+        this.conns   = new Array(amount);
+        /**
+         * {Number} Size of one full side of the connections squire
+         */
+        this._side   = Math.sqrt(amount) + 2;
+
+        for (let col = 0, conns = this.conns; col < this._side; col++) {
+            conns[col] = (new Array(this._side)).fill(null);
+            conns[col].forEach((v, i, a) => a[i] = {sock: null});
+        }
+    }
+
+    destroy() {
+        this.conns = null;
+    }
+
+    /**
+     * Returns region above specified
+     * @param {Array} region Region object
+     * @returns {Array|null}
+     */
+    upRegion(region) {
+        region = region.slice();
+        return --region[1] < 0 ? null : region;
+    }
+
+    /**
+     * Returns region at the right side of specified
+     * @param {Array} region Region object
+     * @returns {Array|null}
+     */
+    rightRegion(region) {
+        region = region.slice();
+        return ++region[0] > this._amount + 1 ? null : region;
+    }
+
+    /**
+     * Returns region below specified
+     * @param {Array} region Region object
+     * @returns {Array|null}
+     */
+    downRegion(region) {
+        region = region.slice();
+        return ++region[1] > this._amount + 1 ? null : region;
+    }
+
+    /**
+     * Returns region at the left side of specified
+     * @param {Array} region Region object
+     * @returns {Array|null}
+     */
+    leftRegion(region) {
+        region = region.slice();
+        return --region[0] < 0 ? null : region;
+    }
+
+    /**
+     * Returns connection object by region
+     * @param {Array} region Region to get
+     * @returns {Object|null}
+     */
+    getConnection(region) {
+        return region && this.conns[region[0]][region[1]];
+    }
+
+    /**
+     * Sets value by field into region. e.g.: if region == [1,1] and
+     * field == 'test' and value == 123, then region related object
+     * will be extend with an object: {test: 123}
+     * @param {Array} region Region we are set to
+     * @param {String} field Name of the field in region structure
+     * @param {*} val Value
+     */
+    setData(region, field, val) {
+        this.conns[region[0]][region[1]][field] = val;
+    }
+
+    clearData(region) {
+        this.conns[region[0]][region[1]] = {sock: null};
+    }
+
+    getFreeRegion() {
+        const conns = this.conns;
+        const side  = this._side - 1;
+
+        for (let col = 1; col < side; col++) {
+            for (let row = 1; row < side; row++) {
+                if (conns[col][row].sock === null) {
+                    return [col, row];
+                }
+            }
+        }
+
+        return null;
+    }
+}
+
+
+module.exports = Connections;
+
+/***/ }),
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -14179,13 +14319,13 @@ base.Node = __webpack_require__(240);
  *
  * @author flatline
  */
-const Connections = __webpack_require__(64);
-const Console     = __webpack_require__(22);
 const Helper      = __webpack_require__(5);
 const TYPES       = __webpack_require__(15).TYPES;
 const DIR         = __webpack_require__(17).DIR;
 const DIR_NAMES   = __webpack_require__(17).NAMES;
 const BaseApi     = __webpack_require__(43);
+const Console     = __webpack_require__(21);
+const Connections = __webpack_require__(64);
 
 class Api extends BaseApi {
     constructor(parent) {
@@ -14345,159 +14485,7 @@ class Api extends BaseApi {
 module.exports = Api;
 
 /***/ }),
-/* 64 */
-/***/ (function(module, exports) {
-
-/**
- * Tracks connected clients/servers at the moment. Is used on server side.
- * Consists of 2D squared array, which stores information about connections,
- * active states of clients and so on...
- * Every cell of this 2D array is an object with at least one required field:
- * 'sock'. These cells are called regions. Regions has a coordinates X and Y.
- * Region may be converted to unique ID and vise versa.
- *
- * @author flatline
- */
-/**
- * {String} Separator string, which separates id parts. Like
- * 'X' + ID_SEPARATOR + 'X'
- */
-const ID_SEPARATOR = '-';
-
-class Connections {
-    /**
-     * Converts region to unique id
-     * @param {Array} region Array of X and Y coordinates
-     * @returns {Boolean|String}
-     */
-    static toId(region) {
-        return region !== null && region.join(ID_SEPARATOR);
-    }
-
-    /**
-     * Converts client's id into client's region. Elements of
-     * the array(region) will have type Number.
-     * @param {String} id Unique id of the client
-     * @returns {Array} Array of numbers (region)
-     */
-    static toRegion(id) {
-        return id.split(ID_SEPARATOR).map(Number);
-    }
-
-    constructor(amount) {
-        /**
-         * {Number} amount Maximum amount of connections for current server. Should
-         * be quadratic (x^2) e.g.: 4, 9, 16,... This value will be extended
-         * with additional "around" rows and columns for connecting with sibling
-         * servers. So, result amount will be e.g.: 100 + 2 rows + 2 columns.
-         */
-        this._amount = amount;
-        /**
-         * {Number} Size of one side of MAX_CONNECTIONS qub. Contains additional
-         * "around" rows and columns. For qub == 16, it's 4.
-         */
-        this.conns   = new Array(amount);
-        /**
-         * {Number} Size of one full side of the connections squire
-         */
-        this._side   = Math.sqrt(amount) + 2;
-
-        for (let col = 0, conns = this.conns; col < this._side; col++) {
-            conns[col] = (new Array(this._side)).fill(null);
-            conns[col].forEach((v, i, a) => a[i] = {sock: null});
-        }
-    }
-
-    destroy() {
-        this.conns = null;
-    }
-
-    /**
-     * Returns region above specified
-     * @param {Array} region Region object
-     * @returns {Array|null}
-     */
-    upRegion(region) {
-        region = region.slice();
-        return --region[1] < 0 ? null : region;
-    }
-
-    /**
-     * Returns region at the right side of specified
-     * @param {Array} region Region object
-     * @returns {Array|null}
-     */
-    rightRegion(region) {
-        region = region.slice();
-        return ++region[0] > this._amount + 1 ? null : region;
-    }
-
-    /**
-     * Returns region below specified
-     * @param {Array} region Region object
-     * @returns {Array|null}
-     */
-    downRegion(region) {
-        region = region.slice();
-        return ++region[1] > this._amount + 1 ? null : region;
-    }
-
-    /**
-     * Returns region at the left side of specified
-     * @param {Array} region Region object
-     * @returns {Array|null}
-     */
-    leftRegion(region) {
-        region = region.slice();
-        return --region[0] < 0 ? null : region;
-    }
-
-    /**
-     * Returns connection object by region
-     * @param {Array} region Region to get
-     * @returns {Object|null}
-     */
-    getConnection(region) {
-        return region && this.conns[region[0]][region[1]];
-    }
-
-    /**
-     * Sets value by field into region. e.g.: if region == [1,1] and
-     * field == 'test' and value == 123, then region related object
-     * will be extend with an object: {test: 123}
-     * @param {Array} region Region we are set to
-     * @param {String} field Name of the field in region structure
-     * @param {*} val Value
-     */
-    setData(region, field, val) {
-        this.conns[region[0]][region[1]][field] = val;
-    }
-
-    clearData(region) {
-        this.conns[region[0]][region[1]] = {sock: null};
-    }
-
-    getFreeRegion() {
-        const conns = this.conns;
-        const side  = this._side - 1;
-
-        for (let col = 1; col < side; col++) {
-            for (let row = 1; row < side; row++) {
-                if (conns[col][row].sock === null) {
-                    return [col, row];
-                }
-            }
-        }
-
-        return null;
-    }
-}
-
-
-module.exports = Connections;
-
-/***/ }),
-/* 65 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -14508,9 +14496,9 @@ module.exports = Connections;
  * @author flatline
  */
 const Helper  = __webpack_require__(5);
-const Config  = __webpack_require__(1).Config;
+const Config  = __webpack_require__(2).Config;
 const MASKS   = __webpack_require__(15).MASKS;
-const Console = __webpack_require__(283)(`./${Config.modeNodeJs ? 'server' : 'client'}/src/global/Console`);
+const Console = __webpack_require__(283)(`./${Config.modeNodeJs ? 'server' : 'client'}/src/share/Console`);
 
 class Request {
     /**
@@ -14632,55 +14620,35 @@ class Request {
 module.exports = Request;
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
  * This is an entry point of jevo.js application. Compiled version of
  * this file should be included into index.html.
  *
- * Every plugin/module consists of many files and maybe folders inside. We
- * have to create folder every time we have more then one plugin file. For
- * example if we have "Plugin.js" and it's "Config.js". In more complicated
- * case, when plugin consists of many file hre is a complex structure:
+ * File structure:
+ * Every file or folder in 'src' folder is a module. Files inside module
+ * are the part of this module and not separate modules. Folders inside
+ * module folder are another modules with the same structure. Module should
+ * contain only it's files. Aggregated files shouldn't be a part of the
+ * module. For example classes World and Canvas may be moved to separate
+ * module - 'visual' or 'view'. For example:
  *
- *   [plugin]          // plugin folder with name 'plugin'
- *     [base]          // base classes for 'child' folder
- *       File.js       // base class for 'child'
- *     [child]         // concrete implementation of 'plugin' with name 'child'
- *       File.js       // implementation of 'child'
- *
- * There are these rules in example above:
- *   - One plugin should contain all stuff inside it's folder.
- *   - [base] folder contains base classes for all folder of the same level
- *     (in this example it's [child]). It's possible to have many folders
- *     like [child] on the same level. In this case [base] folders should
- *     contain many base classes.
- *   - [base] folder may be located on all levels as well. See:
- *   - [child] folder may contain [base] folder inside in case when it has
- *     children classes. In this example it's 'child1':
- *     [plugin]        // plugin folder with name 'plugin'
- *       [base]        // base classes for 'child' folder
- *         File.js     // base class for 'child'
- *       [child]       // concrete implementation of 'plugin' with name 'child'
- *         [base]      // folder of base classes for 'child1'
- *           File.js   // base class for 'child1'
- *         [child1]    // concrete implementation of 'child'
- *           File.js   // implementation of 'child1'
- *         File.js     // implementation of 'child'
- *   - [child1] folder has the same structure like [child]
- *   - Files inside folder with the same name like file means 'aggregated':
- *     [plugin]        // plugin folder
- *       [file]        // class File.js aggregated File1.js
- *         File1.js    // Aggregated file of File.js
- *       File.js       // Implementation of 'plugin'
+ *   src               // root folder
+ *     manager         // 'manager' module
+ *       plugins       // special folder for plugins (other modules)
+ *         organisms   // plugin/module 'organisms'
+ *           ...
+ *         Ips.js      // simple module - 'Ips'
+ *       Manager.js    // part of 'manager' module
  *
  * Usage:
  *   <script src="./app.js"></script>
  *
  * @author flatline
  */
-const Manager = __webpack_require__(67);
+const Manager = __webpack_require__(68);
 const manager = new Manager();
 //
 // manager.run() method will be called after attempt of connection
@@ -14690,7 +14658,7 @@ window.man = manager;
 
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -14708,13 +14676,13 @@ window.man = manager;
  * TODO: by calling of destroy() method for every of them
  */
 const Observer         = __webpack_require__(11);
-const Queue            = __webpack_require__(68);
-const Config           = __webpack_require__(1).Config;
+const Queue            = __webpack_require__(69);
+const Config           = __webpack_require__(2).Config;
 const Plugins          = __webpack_require__(70);
 const EVENTS           = __webpack_require__(4).EVENTS;
 const EVENT_AMOUNT     = __webpack_require__(4).EVENT_AMOUNT;
 const Console          = __webpack_require__(7);
-const World            = __webpack_require__(54);
+const World            = __webpack_require__(55);
 const Canvas           = __webpack_require__(72);
 
 class Manager extends Observer {
@@ -14889,7 +14857,7 @@ class Manager extends Observer {
 module.exports = Manager;
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ (function(module, exports) {
 
 /**
@@ -14980,38 +14948,6 @@ class Queue {
 module.exports = Queue;
 
 /***/ }),
-/* 69 */
-/***/ (function(module, exports) {
-
-/**
- * Configuration class implementation. Stores custom configuration
- * inside and has an ability to change options of config in real time
- * using set() and get() methods. init() method should be called first.
- *
- * @author flatline
- */
-class Config {
-    static init(cfg) {
-        this._cfg = cfg;
-    }
-
-    static set(key, val) {
-        this._cfg[key] = val;
-        return this;
-    }
-
-    static get(key) {
-        return this._cfg[key];
-    }
-
-    static cfg() {
-        return this._cfg;
-    }
-}
-
-module.exports = Config;
-
-/***/ }),
 /* 70 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -15022,7 +14958,7 @@ module.exports = Config;
  *
  * @author flatline
  */
-const Plugins = __webpack_require__(35);
+const Plugins = __webpack_require__(34);
 
 class ManPlugins extends Plugins {
     /**
@@ -15042,42 +14978,42 @@ module.exports = ManPlugins;
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
-	"./src/App.js": 66,
-	"./src/global/Config.js": 1,
-	"./src/global/Console.js": 7,
-	"./src/global/Events.js": 4,
-	"./src/global/Fs.js": 81,
-	"./src/manager/Manager.js": 67,
-	"./src/manager/manager/Plugins.js": 70,
-	"./src/manager/plugins/Backup.js": 28,
-	"./src/manager/plugins/Config.js": 36,
-	"./src/manager/plugins/Energy.js": 37,
-	"./src/manager/plugins/Mutator.js": 38,
-	"./src/manager/plugins/Status.js": 39,
+	"./src/App.js": 67,
+	"./src/jsvm/JSVM.js": 39,
+	"./src/jsvm/Num.js": 13,
+	"./src/jsvm/Operators.js": 23,
+	"./src/manager/Manager.js": 68,
+	"./src/manager/Plugins.js": 70,
+	"./src/manager/plugins/Backup.js": 27,
+	"./src/manager/plugins/Config.js": 35,
+	"./src/manager/plugins/Energy.js": 36,
+	"./src/manager/plugins/Mutator.js": 37,
+	"./src/manager/plugins/Status.js": 40,
 	"./src/manager/plugins/client/Client.js": 14,
 	"./src/manager/plugins/client/Config.js": 41,
-	"./src/manager/plugins/client/cilent/Plugins.js": 30,
+	"./src/manager/plugins/client/Plugins.js": 30,
 	"./src/manager/plugins/client/plugins/Api.js": 42,
 	"./src/manager/plugins/ips/Config.js": 31,
 	"./src/manager/plugins/ips/Ips.js": 44,
-	"./src/manager/plugins/organisms/base/Organism.js": 24,
-	"./src/manager/plugins/organisms/base/Organisms.js": 26,
-	"./src/manager/plugins/organisms/base/organism/JSVM.js": 25,
-	"./src/manager/plugins/organisms/base/organism/jsvm/Operators.js": 19,
-	"./src/manager/plugins/organisms/base/organisms/code2string/Num.js": 12,
-	"./src/manager/plugins/organisms/dos/Config.js": 45,
-	"./src/manager/plugins/organisms/dos/Organism.js": 23,
-	"./src/manager/plugins/organisms/dos/Organisms.js": 46,
-	"./src/manager/plugins/organisms/dos/organism/jsvm/Operators.js": 32,
-	"./src/manager/plugins/organisms/dos/organisms/Code2String.js": 47,
-	"./src/manager/plugins/organisms/garmin/Config.js": 48,
-	"./src/manager/plugins/organisms/garmin/Organism.js": 49,
-	"./src/manager/plugins/organisms/garmin/Organisms.js": 50,
-	"./src/manager/plugins/organisms/garmin/organism/jsvm/Operators.js": 51,
-	"./src/manager/plugins/organisms/garmin/organisms/Code2String.js": 52,
-	"./src/manager/plugins/organisms/garmin/organisms/Fitness.js": 53,
-	"./src/manager/visual/Canvas.js": 72,
-	"./src/manager/visual/World.js": 54,
+	"./src/manager/plugins/organisms/Organisms.js": 24,
+	"./src/manager/plugins/organisms/dos/Code2String.js": 45,
+	"./src/manager/plugins/organisms/dos/Config.js": 46,
+	"./src/manager/plugins/organisms/dos/Operators.js": 47,
+	"./src/manager/plugins/organisms/dos/Organism.js": 22,
+	"./src/manager/plugins/organisms/dos/Organisms.js": 48,
+	"./src/manager/plugins/organisms/garmin/Code2String.js": 49,
+	"./src/manager/plugins/organisms/garmin/Config.js": 50,
+	"./src/manager/plugins/organisms/garmin/Fitness.js": 51,
+	"./src/manager/plugins/organisms/garmin/Operators.js": 52,
+	"./src/manager/plugins/organisms/garmin/Organism.js": 53,
+	"./src/manager/plugins/organisms/garmin/Organisms.js": 54,
+	"./src/organism/Organism.js": 38,
+	"./src/share/Config.js": 2,
+	"./src/share/Console.js": 7,
+	"./src/share/Events.js": 4,
+	"./src/share/Fs.js": 82,
+	"./src/view/Canvas.js": 72,
+	"./src/view/World.js": 55,
 	"./tests/global/ConsoleSpec.js": 83,
 	"./tests/manager/plugins/ClientSpec.js": 84,
 	"./tests/manager/plugins/organisms/dos/OperatorsSpec.js": 103,
@@ -15244,11 +15180,11 @@ module.exports = Canvas;
 
 module.exports = Stream;
 
-var EE = __webpack_require__(55).EventEmitter;
+var EE = __webpack_require__(56).EventEmitter;
 var inherits = __webpack_require__(0);
 
 inherits(Stream, EE);
-Stream.Readable = __webpack_require__(57);
+Stream.Readable = __webpack_require__(58);
 Stream.Writable = __webpack_require__(178);
 Stream.Duplex = __webpack_require__(179);
 Stream.Transform = __webpack_require__(114);
@@ -15405,7 +15341,7 @@ function nextTick(fn, arg1, arg2, arg3) {
 /* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Buffer = __webpack_require__(2).Buffer
+var Buffer = __webpack_require__(1).Buffer
 var MD5 = __webpack_require__(189)
 
 /* eslint-disable camelcase */
@@ -15461,7 +15397,7 @@ module.exports = EVP_BytesToKey
 // which is in turn based on the one from crypto-js
 // https://code.google.com/p/crypto-js/
 
-var Buffer = __webpack_require__(2).Buffer
+var Buffer = __webpack_require__(1).Buffer
 
 function asUInt32Array (buf) {
   if (!Buffer.isBuffer(buf)) buf = Buffer.from(buf)
@@ -15821,7 +15757,7 @@ function decrypt (data, password) {
 "use strict";
 /* WEBPACK VAR INJECTION */(function(process) {
 
-const safeBuffer = __webpack_require__(2);
+const safeBuffer = __webpack_require__(1);
 const Limiter = __webpack_require__(266);
 const zlib = __webpack_require__(267);
 
@@ -16424,30 +16360,16 @@ exports.setTyped(TYPED_OK);
 /***/ (function(module, exports) {
 
 /**
- * @author flatline
- * TODO: take a look at: https://habrahabr.ru/post/112286/
- */
-class Fs {
-
-}
-
-module.exports = Fs;
-
-/***/ }),
-/* 82 */
-/***/ (function(module, exports) {
-
-/**
  * Base class for other classes, which want to have their own config.
  * For example plugin "Ips.js" has configuration "show", which will be
- * added as a part of global configuration in Config.js under key "Ips".
- * It also has an API method 'show()', which will be added into global
+ * added as a part of share configuration in Config.js under key "Ips".
+ * It also has an API method 'show()', which will be added into share
  * API as:
  *   man.api.Ips.show().
  * See Ips plugin for details regarding API and configurations formats.
  *
  * Usage:
- *   import Config from './../Config'; // Client or Server global config
+ *   import Config from './../Config'; // Client or Server share config
  *
  *   class Plugin extends Configurable {
  *     constructor(parent) {
@@ -16489,10 +16411,10 @@ class Configurable {
     }
 
     /**
-     * Adds parent class related configuration into global configuration. cfg
+     * Adds parent class related configuration into share configuration. cfg
      * parameter refers to the object in format:
      * {
-     *   Config: Object, // Reference to the global configuration object
+     *   Config: Object, // Reference to the share configuration object
      *   cfg   : Object  // Reference to the parent class related configuration
      * }
      * @param {Object} cfg {Config: Object, cfg: Object}
@@ -16509,7 +16431,7 @@ class Configurable {
     }
 
     /**
-     * Adds class related API functions to global API. apiCfg May be in two
+     * Adds class related API functions to share API. apiCfg May be in two
      * formats: String and Array. For example: '_show' or ['_show', 'description']
      * '_show' value means name of the method, which will be called if user call it
      * using api like this: man.api.<className>.show(). 'description' will be shown
@@ -16547,12 +16469,26 @@ class Configurable {
 module.exports = Configurable;
 
 /***/ }),
+/* 82 */
+/***/ (function(module, exports) {
+
+/**
+ * @author flatline
+ * TODO: take a look at: https://habrahabr.ru/post/112286/
+ */
+class Fs {
+
+}
+
+module.exports = Fs;
+
+/***/ }),
 /* 83 */
 /***/ (function(module, exports, __webpack_require__) {
 
-describe("client/src/global/Console", () => {
+describe("client/src/share/Console", () => {
     let Console = __webpack_require__(7);
-    let Config  = __webpack_require__(1).Config;
+    let Config  = __webpack_require__(2).Config;
     let log;
     let inc = 0;
     let arg;
@@ -16670,16 +16606,16 @@ describe("client/src/global/Console", () => {
 
 describe("client/src/manager/plugins/Client", () => {
     let Helper       = __webpack_require__(5);
-    let THelper      = __webpack_require__(20);
+    let THelper      = __webpack_require__(19);
     let Observer     = __webpack_require__(11);
-    let Config       = __webpack_require__(1).Config;
+    let Config       = __webpack_require__(2).Config;
     let EVENT_AMOUNT = __webpack_require__(4).EVENT_AMOUNT;
     let SEVENTS      = __webpack_require__(18).EVENTS;
-    let api          = __webpack_require__(1).api;
+    let api          = __webpack_require__(2).api;
     let Console      = __webpack_require__(7);
-    let SConsole     = __webpack_require__(22);
-    const Api        = __webpack_require__(63);
-    const Request    = __webpack_require__(65);
+    let SConsole     = __webpack_require__(21);
+    const Api        = __webpack_require__(65);
+    const Request    = __webpack_require__(66);
     const waitEvent  = THelper.waitEvent;
     let isNodeJs;
     let Client;
@@ -16858,8 +16794,8 @@ module.exports = WebSocket;
 "use strict";
 
 
-exports.randomBytes = exports.rng = exports.pseudoRandomBytes = exports.prng = __webpack_require__(33)
-exports.createHash = exports.Hash = __webpack_require__(56)
+exports.randomBytes = exports.rng = exports.pseudoRandomBytes = exports.prng = __webpack_require__(32)
+exports.createHash = exports.Hash = __webpack_require__(57)
 exports.createHmac = exports.Hmac = __webpack_require__(117)
 
 var algos = __webpack_require__(186)
@@ -17483,7 +17419,7 @@ var Duplex;
 Writable.WritableState = WritableState;
 
 /*<replacement>*/
-var util = __webpack_require__(58);
+var util = __webpack_require__(59);
 util.inherits = __webpack_require__(0);
 /*</replacement>*/
 
@@ -17498,7 +17434,7 @@ var Stream = __webpack_require__(111);
 /*</replacement>*/
 
 /*<replacement>*/
-var Buffer = __webpack_require__(2).Buffer;
+var Buffer = __webpack_require__(1).Buffer;
 var OurUint8Array = global.Uint8Array || function () {};
 function _uint8ArrayToBuffer(chunk) {
   return Buffer.from(chunk);
@@ -17515,7 +17451,7 @@ util.inherits(Writable, Stream);
 function nop() {}
 
 function WritableState(options, stream) {
-  Duplex = Duplex || __webpack_require__(27);
+  Duplex = Duplex || __webpack_require__(25);
 
   options = options || {};
 
@@ -17655,7 +17591,7 @@ if (typeof Symbol === 'function' && Symbol.hasInstance && typeof Function.protot
 }
 
 function Writable(options) {
-  Duplex = Duplex || __webpack_require__(27);
+  Duplex = Duplex || __webpack_require__(25);
 
   // Writable ctor is applied to Duplexes, too.
   // `realHasInstance` is necessary because using plain `instanceof`
@@ -18393,7 +18329,7 @@ exports.EDE = __webpack_require__(205);
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {var bn = __webpack_require__(6);
-var randomBytes = __webpack_require__(33);
+var randomBytes = __webpack_require__(32);
 module.exports = crt;
 function blind(priv) {
   var r = getr(priv);
@@ -18442,7 +18378,7 @@ function getr(priv) {
 var hash = exports;
 
 hash.utils = __webpack_require__(16);
-hash.common = __webpack_require__(60);
+hash.common = __webpack_require__(61);
 hash.sha = __webpack_require__(221);
 hash.ripemd = __webpack_require__(225);
 hash.hmac = __webpack_require__(226);
@@ -19293,7 +19229,7 @@ Url.prototype.parseHost = function() {
 
 
 
-const safeBuffer = __webpack_require__(2);
+const safeBuffer = __webpack_require__(1);
 
 const Buffer = safeBuffer.Buffer;
 
@@ -19365,7 +19301,7 @@ try {
 "use strict";
 
 
-const safeBuffer = __webpack_require__(2);
+const safeBuffer = __webpack_require__(1);
 
 const Buffer = safeBuffer.Buffer;
 
@@ -19445,7 +19381,7 @@ module.exports = AroundServers;
  *
  * @author flatline
  */
-const Plugins = __webpack_require__(35);
+const Plugins = __webpack_require__(34);
 
 class ServerPlugins extends Plugins {
     /**
@@ -19469,13 +19405,13 @@ module.exports = ServerPlugins;
 /***/ (function(module, exports, __webpack_require__) {
 
 describe("client/src/organism/OperatorsDos", () => {
-    let OperatorsDos = __webpack_require__(32);
+    let OperatorsDos = __webpack_require__(23);
     let Helper       = __webpack_require__(5);
     let Observer     = __webpack_require__(11);
     let EVENTS       = __webpack_require__(4).EVENTS;
     let EVENT_AMOUNT = __webpack_require__(4).EVENT_AMOUNT;
-    let Config       = __webpack_require__(1).Config;
-    let api          = __webpack_require__(1).api;
+    let Config       = __webpack_require__(2).Config;
+    let api          = __webpack_require__(2).api;
     let cbpv         = null;
 
     beforeEach(() => {cbpv = Config.codeBitsPerVar;api.set('codeBitsPerVar', 2)});
@@ -20524,10 +20460,10 @@ describe("client/src/organism/OperatorsDos", () => {
 // This spec covers two classes "Organism" and "OrganismDos"
 //
 describe("client/src/organism/OrganismDos", () => {
-    let OrganismDos = __webpack_require__(23);
-    let Config      = __webpack_require__(1).Config;
-    let api         = __webpack_require__(1).api;
-    let THelper     = __webpack_require__(20);
+    let OrganismDos = __webpack_require__(22);
+    let Config      = __webpack_require__(2).Config;
+    let api         = __webpack_require__(2).api;
+    let THelper     = __webpack_require__(19);
     let cls;
 
     beforeEach(() => {cls = Config.codeOperatorsCls;api.set('codeOperatorsCls', 'ops')});
@@ -20735,14 +20671,14 @@ describe("client/src/organism/OrganismDos", () => {
 /***/ (function(module, exports, __webpack_require__) {
 
 describe("client/src/organism/JSVM", () => {
-    let JSVM         = __webpack_require__(25);
-    let Num          = __webpack_require__(12);
-    let Operators    = __webpack_require__(19);
     let Observer     = __webpack_require__(11);
     let Helper       = __webpack_require__(5);
-    let Config       = __webpack_require__(1).Config;
-    let api          = __webpack_require__(1).api;
-    let THelper      = __webpack_require__(20);
+    let THelper      = __webpack_require__(19);
+    let Config       = __webpack_require__(2).Config;
+    let api          = __webpack_require__(2).api;
+    let JSVM         = __webpack_require__(39);
+    let Num          = __webpack_require__(13);
+    let Operators    = __webpack_require__(23);
     let cls          = null;
 
     beforeEach(() => {cls = Config.codeOperatorsCls;api.set('codeOperatorsCls', 'ops')});
@@ -21282,7 +21218,7 @@ describe("client/src/organism/JSVM", () => {
 /***/ (function(module, exports, __webpack_require__) {
 
 describe("client/src/organism/Num", () => {
-    let Num = __webpack_require__(12);
+    let Num = __webpack_require__(13);
 
     it("Checking getting random zero operator", () => {
         Num.setOperatorAmount(0);
@@ -21363,8 +21299,8 @@ describe("client/src/organism/Num", () => {
 /* 107 */
 /***/ (function(module, exports, __webpack_require__) {
 
-describe("client/src/visual/World", () => {
-    let World  = __webpack_require__(54);
+describe("client/src/view/World", () => {
+    let World  = __webpack_require__(55);
     let EVENTS = __webpack_require__(4).EVENTS;
 
     it("Checking world creation", () => {
@@ -21592,7 +21528,7 @@ describe("client/src/visual/World", () => {
 
 
 
-const EventEmitter = __webpack_require__(55);
+const EventEmitter = __webpack_require__(56);
 const crypto = __webpack_require__(86);
 const Ultron = __webpack_require__(144);
 const https = __webpack_require__(255);
@@ -22354,7 +22290,7 @@ var Duplex;
 Readable.ReadableState = ReadableState;
 
 /*<replacement>*/
-var EE = __webpack_require__(55).EventEmitter;
+var EE = __webpack_require__(56).EventEmitter;
 
 var EElistenerCount = function (emitter, type) {
   return emitter.listeners(type).length;
@@ -22368,7 +22304,7 @@ var Stream = __webpack_require__(111);
 // TODO(bmeurer): Change this back to const once hole checks are
 // properly optimized away early in Ignition+TurboFan.
 /*<replacement>*/
-var Buffer = __webpack_require__(2).Buffer;
+var Buffer = __webpack_require__(1).Buffer;
 var OurUint8Array = global.Uint8Array || function () {};
 function _uint8ArrayToBuffer(chunk) {
   return Buffer.from(chunk);
@@ -22379,7 +22315,7 @@ function _isUint8Array(obj) {
 /*</replacement>*/
 
 /*<replacement>*/
-var util = __webpack_require__(58);
+var util = __webpack_require__(59);
 util.inherits = __webpack_require__(0);
 /*</replacement>*/
 
@@ -22416,7 +22352,7 @@ function prependListener(emitter, event, fn) {
 }
 
 function ReadableState(options, stream) {
-  Duplex = Duplex || __webpack_require__(27);
+  Duplex = Duplex || __webpack_require__(25);
 
   options = options || {};
 
@@ -22484,7 +22420,7 @@ function ReadableState(options, stream) {
 }
 
 function Readable(options) {
-  Duplex = Duplex || __webpack_require__(27);
+  Duplex = Duplex || __webpack_require__(25);
 
   if (!(this instanceof Readable)) return new Readable(options);
 
@@ -23326,7 +23262,7 @@ function indexOf(xs, x) {
 /* 111 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(55).EventEmitter;
+module.exports = __webpack_require__(56).EventEmitter;
 
 
 /***/ }),
@@ -23479,10 +23415,10 @@ module.exports = {
 
 module.exports = Transform;
 
-var Duplex = __webpack_require__(27);
+var Duplex = __webpack_require__(25);
 
 /*<replacement>*/
-var util = __webpack_require__(58);
+var util = __webpack_require__(59);
 util.inherits = __webpack_require__(0);
 /*</replacement>*/
 
@@ -23631,7 +23567,7 @@ function done(stream, er, data) {
 /* 114 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(57).Transform
+module.exports = __webpack_require__(58).Transform
 
 
 /***/ }),
@@ -23647,8 +23583,8 @@ module.exports = __webpack_require__(57).Transform
  */
 
 var inherits = __webpack_require__(0)
-var Hash = __webpack_require__(34)
-var Buffer = __webpack_require__(2).Buffer
+var Hash = __webpack_require__(33)
+var Buffer = __webpack_require__(1).Buffer
 
 var K = [
   0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
@@ -23780,8 +23716,8 @@ module.exports = Sha256
 /***/ (function(module, exports, __webpack_require__) {
 
 var inherits = __webpack_require__(0)
-var Hash = __webpack_require__(34)
-var Buffer = __webpack_require__(2).Buffer
+var Hash = __webpack_require__(33)
+var Buffer = __webpack_require__(1).Buffer
 
 var K = [
   0x428a2f98, 0xd728ae22, 0x71374491, 0x23ef65cd,
@@ -24049,8 +23985,8 @@ module.exports = Sha512
 
 var inherits = __webpack_require__(0)
 var Legacy = __webpack_require__(185)
-var Base = __webpack_require__(21)
-var Buffer = __webpack_require__(2).Buffer
+var Base = __webpack_require__(20)
+var Buffer = __webpack_require__(1).Buffer
 var md5 = __webpack_require__(87)
 var RIPEMD160 = __webpack_require__(88)
 
@@ -24177,7 +24113,7 @@ var sha = __webpack_require__(91)
 
 var checkParameters = __webpack_require__(120)
 var defaultEncoding = __webpack_require__(121)
-var Buffer = __webpack_require__(2).Buffer
+var Buffer = __webpack_require__(1).Buffer
 var ZEROS = Buffer.alloc(128)
 var sizes = {
   md5: 16,
@@ -24278,8 +24214,8 @@ module.exports = pbkdf2
 /* 123 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var xor = __webpack_require__(59)
-var Buffer = __webpack_require__(2).Buffer
+var xor = __webpack_require__(60)
+var Buffer = __webpack_require__(1).Buffer
 var incr32 = __webpack_require__(124)
 
 function getBlock (self) {
@@ -24342,11 +24278,11 @@ module.exports = {"aes-128-ecb":{"cipher":"AES","key":128,"iv":0,"mode":"ECB","t
 /***/ (function(module, exports, __webpack_require__) {
 
 var aes = __webpack_require__(76)
-var Buffer = __webpack_require__(2).Buffer
-var Transform = __webpack_require__(21)
+var Buffer = __webpack_require__(1).Buffer
+var Transform = __webpack_require__(20)
 var inherits = __webpack_require__(0)
 var GHASH = __webpack_require__(198)
-var xor = __webpack_require__(59)
+var xor = __webpack_require__(60)
 var incr32 = __webpack_require__(124)
 
 function xorTest (a, b) {
@@ -24465,8 +24401,8 @@ module.exports = StreamCipher
 /***/ (function(module, exports, __webpack_require__) {
 
 var aes = __webpack_require__(76)
-var Buffer = __webpack_require__(2).Buffer
-var Transform = __webpack_require__(21)
+var Buffer = __webpack_require__(1).Buffer
+var Transform = __webpack_require__(20)
 var inherits = __webpack_require__(0)
 
 function StreamCipher (mode, key, iv, decrypt) {
@@ -24497,7 +24433,7 @@ module.exports = StreamCipher
 /* 128 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var randomBytes = __webpack_require__(33);
+var randomBytes = __webpack_require__(32);
 module.exports = findPrime;
 findPrime.simpleSieve = simpleSieve;
 findPrime.fermatTest = fermatTest;
@@ -24953,9 +24889,9 @@ exports.g1_256 = g1_256;
 
 
 var utils = __webpack_require__(16);
-var common = __webpack_require__(60);
+var common = __webpack_require__(61);
 var shaCommon = __webpack_require__(133);
-var assert = __webpack_require__(13);
+var assert = __webpack_require__(12);
 
 var sum32 = utils.sum32;
 var sum32_4 = utils.sum32_4;
@@ -25065,8 +25001,8 @@ SHA256.prototype._digest = function digest(enc) {
 
 
 var utils = __webpack_require__(16);
-var common = __webpack_require__(60);
-var assert = __webpack_require__(13);
+var common = __webpack_require__(61);
+var assert = __webpack_require__(12);
 
 var rotr64_hi = utils.rotr64_hi;
 var rotr64_lo = utils.rotr64_lo;
@@ -25399,7 +25335,7 @@ function g1_512_lo(xh, xl) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var inherits = __webpack_require__(0);
-var Reporter = __webpack_require__(62).Reporter;
+var Reporter = __webpack_require__(63).Reporter;
 var Buffer = __webpack_require__(3).Buffer;
 
 function DecoderBuffer(base, options) {
@@ -25547,7 +25483,7 @@ constants.der = __webpack_require__(241);
 
 var inherits = __webpack_require__(0);
 
-var asn1 = __webpack_require__(61);
+var asn1 = __webpack_require__(62);
 var base = asn1.base;
 var bignum = asn1.bignum;
 
@@ -25878,7 +25814,7 @@ function derDecodeLen(buf, primitive, fail) {
 var inherits = __webpack_require__(0);
 var Buffer = __webpack_require__(3).Buffer;
 
-var asn1 = __webpack_require__(61);
+var asn1 = __webpack_require__(62);
 var base = asn1.base;
 
 // Import DER constants
@@ -26182,7 +26118,7 @@ module.exports = {"1.3.132.0.10":"secp256k1","1.3.132.0.33":"p224","1.2.840.1004
 /* 141 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(Buffer) {var createHash = __webpack_require__(56);
+/* WEBPACK VAR INJECTION */(function(Buffer) {var createHash = __webpack_require__(57);
 module.exports = function (seed, len) {
   var t = new Buffer('');
   var  i = 0, c;
@@ -27237,7 +27173,7 @@ module.exports = { format, parse };
 
 
 
-const safeBuffer = __webpack_require__(2);
+const safeBuffer = __webpack_require__(1);
 
 const PerMessageDeflate = __webpack_require__(79);
 const isValidUTF8 = __webpack_require__(280);
@@ -27832,7 +27768,7 @@ module.exports = {
 
 
 
-const safeBuffer = __webpack_require__(2);
+const safeBuffer = __webpack_require__(1);
 const crypto = __webpack_require__(86);
 
 const PerMessageDeflate = __webpack_require__(79);
@@ -28236,7 +28172,7 @@ function viewToBuffer (view) {
  * @author flatline
  */
 const Server = __webpack_require__(18).Server;
-const Config = __webpack_require__(40).Config;
+const Config = __webpack_require__(28).Config;
 
 const server = new Server(Config.port);
 server.run();
@@ -28247,7 +28183,7 @@ server.run();
 
 describe("server/src/server/Connections", () => {
     const Connections = __webpack_require__(64);
-    let THelper       = __webpack_require__(20);
+    let THelper       = __webpack_require__(19);
 
     it("Checking Connections instance creation", () => {
         let cons = new Connections(1);
@@ -28409,7 +28345,7 @@ describe("server/src/server/Connections", () => {
 
 describe("server/src/server/Server", () => {
     const WebSocket    = __webpack_require__(85);
-    const Config       = __webpack_require__(1).Config;
+    const Config       = __webpack_require__(2).Config;
     const Observer     = __webpack_require__(11);
     const Server       = __webpack_require__(18).Server;
     const OLD_MODE     = Config.modeNodeJs;
@@ -28418,12 +28354,12 @@ describe("server/src/server/Server", () => {
     const SEVENTS      = __webpack_require__(18).EVENTS;
     const CEVENTS      = __webpack_require__(14).EVENTS;
     const EVENT_AMOUNT = __webpack_require__(4).EVENT_AMOUNT;
-    const SConsole     = __webpack_require__(22);
+    const SConsole     = __webpack_require__(21);
     const Console      = __webpack_require__(7);
-    const Helper       = __webpack_require__(20);
+    const Helper       = __webpack_require__(19);
     const TYPES        = __webpack_require__(15).TYPES;
-    const Api          = __webpack_require__(63);
-    const Request      = __webpack_require__(65);
+    const Api          = __webpack_require__(65);
+    const Request      = __webpack_require__(66);
     const waitEvent    = Helper.waitEvent;
 
     const PLUGINS = {
@@ -28716,20 +28652,20 @@ describe("server/src/server/Server", () => {
 /***/ (function(module, exports, __webpack_require__) {
 
 describe("server/src/server/plugins/Api", () => {
-    const Config       = __webpack_require__(1).Config;
+    const Config       = __webpack_require__(28).Config;
     const Observer     = __webpack_require__(11);
     const Server       = __webpack_require__(18).Server;
+    const SEVENTS      = __webpack_require__(18).EVENTS;
     const OLD_MODE     = Config.modeNodeJs;
     Config.modeNodeJs  = true;
     const Client       = __webpack_require__(14).Client;
     const CEVENTS      = __webpack_require__(14).EVENTS;
-    const SEVENTS      = __webpack_require__(18).EVENTS;
     const EVENT_AMOUNT = __webpack_require__(4).EVENT_AMOUNT;
-    const SConsole     = __webpack_require__(22);
     const Console      = __webpack_require__(7);
-    const Helper       = __webpack_require__(20);
-    const Api          = __webpack_require__(63);
-    const Request      = __webpack_require__(65);
+    const SConsole     = __webpack_require__(21);
+    const Helper       = __webpack_require__(19);
+    const Request      = __webpack_require__(66);
+    const Api          = __webpack_require__(65);
 
     const PLUGINS = {
         Request,
@@ -28849,30 +28785,30 @@ describe("server/src/server/plugins/Api", () => {
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
-	"./src/global/Config": 69,
-	"./src/global/Config.js": 69,
-	"./src/global/Configurable": 82,
-	"./src/global/Configurable.js": 82,
-	"./src/global/Directions": 17,
-	"./src/global/Directions.js": 17,
-	"./src/global/Helper": 5,
-	"./src/global/Helper.js": 5,
-	"./src/global/Observer": 11,
-	"./src/global/Observer.js": 11,
-	"./src/global/Plugins": 35,
-	"./src/global/Plugins.js": 35,
-	"./src/global/Queue": 68,
-	"./src/global/Queue.js": 68,
-	"./src/global/Requests": 15,
-	"./src/global/Requests.js": 15,
+	"./src/Config": 26,
+	"./src/Config.js": 26,
+	"./src/Configurable": 81,
+	"./src/Configurable.js": 81,
+	"./src/Directions": 17,
+	"./src/Directions.js": 17,
+	"./src/Helper": 5,
+	"./src/Helper.js": 5,
+	"./src/Observer": 11,
+	"./src/Observer.js": 11,
+	"./src/Plugins": 34,
+	"./src/Plugins.js": 34,
+	"./src/Queue": 69,
+	"./src/Queue.js": 69,
+	"./src/net/Api": 43,
+	"./src/net/Api.js": 43,
 	"./src/net/Connection": 29,
 	"./src/net/Connection.js": 29,
-	"./src/net/plugins/Api": 43,
-	"./src/net/plugins/Api.js": 43,
-	"./src/net/plugins/Request": 65,
-	"./src/net/plugins/Request.js": 65,
-	"./tests/Helper": 20,
-	"./tests/Helper.js": 20,
+	"./src/net/Request": 66,
+	"./src/net/Request.js": 66,
+	"./src/net/Requests": 15,
+	"./src/net/Requests.js": 15,
+	"./tests/Helper": 19,
+	"./tests/Helper.js": 19,
 	"./tests/global/ConfigSpec": 159,
 	"./tests/global/ConfigSpec.js": 159,
 	"./tests/global/HelperSpec": 160,
@@ -28902,43 +28838,44 @@ webpackContext.id = 158;
 
 /***/ }),
 /* 159 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-describe("common/src/global/Config", () => {
-    let Config  = __webpack_require__(1).Config;
-    let api     = __webpack_require__(1).api;
-    let cfg;
-
-    beforeEach(() => {
-        cfg = JSON.parse(JSON.stringify(Config));
-    });
-    afterEach(() => {
-       for (let c in cfg) {
-           if (cfg.hasOwnProperty(c)) {
-               Config[c] = cfg[c];
-           }
-       }
-    });
-
-    it("Checking set()/get() method", () => {
-        api.set('worldWidth', 123);
-        expect(api.get('worldWidth')).toEqual(123);
-        expect(Config.worldWidth).toEqual(123);
-
-        api.set('worldWidth', 124);
-        expect(api.get('worldWidth')).toEqual(124);
-        expect(Config.worldWidth).toEqual(124);
-    });
+describe("common/src/share/Config", () => {
+    // TODO: base Config class should be tested and not a client one
+    // let Config  = require('./../../../ Config').Config;
+    // let api     = require('./../../../Config').api;
+    // let cfg;
+    //
+    // beforeEach(() => {
+    //     cfg = JSON.parse(JSON.stringify(Config));
+    // });
+    // afterEach(() => {
+    //    for (let c in cfg) {
+    //        if (cfg.hasOwnProperty(c)) {
+    //            Config[c] = cfg[c];
+    //        }
+    //    }
+    // });
+    //
+    // it("Checking set()/get() method", () => {
+    //     api.set('worldWidth', 123);
+    //     expect(api.get('worldWidth')).toEqual(123);
+    //     expect(Config.worldWidth).toEqual(123);
+    //
+    //     api.set('worldWidth', 124);
+    //     expect(api.get('worldWidth')).toEqual(124);
+    //     expect(Config.worldWidth).toEqual(124);
+    // });
 });
 
 /***/ }),
 /* 160 */
 /***/ (function(module, exports, __webpack_require__) {
 
-describe("common/src/global/Helper", () => {
+describe("common/src/share/Helper", () => {
     let   Helper = __webpack_require__(5);
-    let   Config = __webpack_require__(1).Config;
-    let   api    = __webpack_require__(1).api;
+    let   Config = __webpack_require__(2).Config;
+    let   api    = __webpack_require__(2).api;
     let   DIR    = __webpack_require__(17).DIR;
 
     it("Checking posId() method", () => {
@@ -29089,9 +29026,9 @@ describe("common/src/global/Helper", () => {
 /***/ (function(module, exports, __webpack_require__) {
 
 // TODO: add two events test
-describe("common/src/global/Observer", () => {
+describe("common/src/share/Observer", () => {
     let   Observer = __webpack_require__(11);
-    let   Config   = __webpack_require__(1).Config;
+    let   Config   = __webpack_require__(26).Config;
     let   Console  = __webpack_require__(7);
     const EVENT    = 0;
     const EVENT2   = 1;
@@ -29264,8 +29201,8 @@ describe("common/src/global/Observer", () => {
 /* 162 */
 /***/ (function(module, exports, __webpack_require__) {
 
-describe('common/src/global/Queue', () => {
-    let Queue = __webpack_require__(68);
+describe('common/src/share/Queue', () => {
+    let Queue = __webpack_require__(69);
     let q;
 
     beforeEach(() => q = new Queue());
@@ -29479,60 +29416,52 @@ webpackEmptyContext.id = 164;
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
-	"./Backup": 28,
-	"./Backup.js": 28,
-	"./Config": 36,
-	"./Config.js": 36,
-	"./Energy": 37,
-	"./Energy.js": 37,
-	"./Mutator": 38,
-	"./Mutator.js": 38,
-	"./Status": 39,
-	"./Status.js": 39,
+	"./Backup": 27,
+	"./Backup.js": 27,
+	"./Config": 35,
+	"./Config.js": 35,
+	"./Energy": 36,
+	"./Energy.js": 36,
+	"./Mutator": 37,
+	"./Mutator.js": 37,
+	"./Status": 40,
+	"./Status.js": 40,
 	"./client/Client": 14,
 	"./client/Client.js": 14,
 	"./client/Config": 41,
 	"./client/Config.js": 41,
-	"./client/cilent/Plugins": 30,
-	"./client/cilent/Plugins.js": 30,
+	"./client/Plugins": 30,
+	"./client/Plugins.js": 30,
 	"./client/plugins/Api": 42,
 	"./client/plugins/Api.js": 42,
 	"./ips/Config": 31,
 	"./ips/Config.js": 31,
 	"./ips/Ips": 44,
 	"./ips/Ips.js": 44,
-	"./organisms/base/Organism": 24,
-	"./organisms/base/Organism.js": 24,
-	"./organisms/base/Organisms": 26,
-	"./organisms/base/Organisms.js": 26,
-	"./organisms/base/organism/JSVM": 25,
-	"./organisms/base/organism/JSVM.js": 25,
-	"./organisms/base/organism/jsvm/Operators": 19,
-	"./organisms/base/organism/jsvm/Operators.js": 19,
-	"./organisms/base/organisms/code2string/Num": 12,
-	"./organisms/base/organisms/code2string/Num.js": 12,
-	"./organisms/dos/Config": 45,
-	"./organisms/dos/Config.js": 45,
-	"./organisms/dos/Organism": 23,
-	"./organisms/dos/Organism.js": 23,
-	"./organisms/dos/Organisms": 46,
-	"./organisms/dos/Organisms.js": 46,
-	"./organisms/dos/organism/jsvm/Operators": 32,
-	"./organisms/dos/organism/jsvm/Operators.js": 32,
-	"./organisms/dos/organisms/Code2String": 47,
-	"./organisms/dos/organisms/Code2String.js": 47,
-	"./organisms/garmin/Config": 48,
-	"./organisms/garmin/Config.js": 48,
-	"./organisms/garmin/Organism": 49,
-	"./organisms/garmin/Organism.js": 49,
-	"./organisms/garmin/Organisms": 50,
-	"./organisms/garmin/Organisms.js": 50,
-	"./organisms/garmin/organism/jsvm/Operators": 51,
-	"./organisms/garmin/organism/jsvm/Operators.js": 51,
-	"./organisms/garmin/organisms/Code2String": 52,
-	"./organisms/garmin/organisms/Code2String.js": 52,
-	"./organisms/garmin/organisms/Fitness": 53,
-	"./organisms/garmin/organisms/Fitness.js": 53
+	"./organisms/Organisms": 24,
+	"./organisms/Organisms.js": 24,
+	"./organisms/dos/Code2String": 45,
+	"./organisms/dos/Code2String.js": 45,
+	"./organisms/dos/Config": 46,
+	"./organisms/dos/Config.js": 46,
+	"./organisms/dos/Operators": 47,
+	"./organisms/dos/Operators.js": 47,
+	"./organisms/dos/Organism": 22,
+	"./organisms/dos/Organism.js": 22,
+	"./organisms/dos/Organisms": 48,
+	"./organisms/dos/Organisms.js": 48,
+	"./organisms/garmin/Code2String": 49,
+	"./organisms/garmin/Code2String.js": 49,
+	"./organisms/garmin/Config": 50,
+	"./organisms/garmin/Config.js": 50,
+	"./organisms/garmin/Fitness": 51,
+	"./organisms/garmin/Fitness.js": 51,
+	"./organisms/garmin/Operators": 52,
+	"./organisms/garmin/Operators.js": 52,
+	"./organisms/garmin/Organism": 53,
+	"./organisms/garmin/Organism.js": 53,
+	"./organisms/garmin/Organisms": 54,
+	"./organisms/garmin/Organisms.js": 54
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -29556,78 +29485,78 @@ webpackContext.id = 165;
 
 var map = {
 	"./dist/index.html": 167,
-	"./src/App": 66,
-	"./src/App.js": 66,
-	"./src/global/Config": 1,
-	"./src/global/Config.js": 1,
-	"./src/global/Console": 7,
-	"./src/global/Console.js": 7,
-	"./src/global/Events": 4,
-	"./src/global/Events.js": 4,
-	"./src/global/Fs": 81,
-	"./src/global/Fs.js": 81,
-	"./src/manager/Manager": 67,
-	"./src/manager/Manager.js": 67,
-	"./src/manager/manager/Plugins": 70,
-	"./src/manager/manager/Plugins.js": 70,
-	"./src/manager/plugins/Backup": 28,
-	"./src/manager/plugins/Backup.js": 28,
-	"./src/manager/plugins/Config": 36,
-	"./src/manager/plugins/Config.js": 36,
-	"./src/manager/plugins/Energy": 37,
-	"./src/manager/plugins/Energy.js": 37,
-	"./src/manager/plugins/Mutator": 38,
-	"./src/manager/plugins/Mutator.js": 38,
-	"./src/manager/plugins/Status": 39,
-	"./src/manager/plugins/Status.js": 39,
+	"./src/App": 67,
+	"./src/App.js": 67,
+	"./src/jsvm/JSVM": 39,
+	"./src/jsvm/JSVM.js": 39,
+	"./src/jsvm/Num": 13,
+	"./src/jsvm/Num.js": 13,
+	"./src/jsvm/Operators": 23,
+	"./src/jsvm/Operators.js": 23,
+	"./src/manager/Manager": 68,
+	"./src/manager/Manager.js": 68,
+	"./src/manager/Plugins": 70,
+	"./src/manager/Plugins.js": 70,
+	"./src/manager/plugins/Backup": 27,
+	"./src/manager/plugins/Backup.js": 27,
+	"./src/manager/plugins/Config": 35,
+	"./src/manager/plugins/Config.js": 35,
+	"./src/manager/plugins/Energy": 36,
+	"./src/manager/plugins/Energy.js": 36,
+	"./src/manager/plugins/Mutator": 37,
+	"./src/manager/plugins/Mutator.js": 37,
+	"./src/manager/plugins/Status": 40,
+	"./src/manager/plugins/Status.js": 40,
 	"./src/manager/plugins/client/Client": 14,
 	"./src/manager/plugins/client/Client.js": 14,
 	"./src/manager/plugins/client/Config": 41,
 	"./src/manager/plugins/client/Config.js": 41,
-	"./src/manager/plugins/client/cilent/Plugins": 30,
-	"./src/manager/plugins/client/cilent/Plugins.js": 30,
+	"./src/manager/plugins/client/Plugins": 30,
+	"./src/manager/plugins/client/Plugins.js": 30,
 	"./src/manager/plugins/client/plugins/Api": 42,
 	"./src/manager/plugins/client/plugins/Api.js": 42,
 	"./src/manager/plugins/ips/Config": 31,
 	"./src/manager/plugins/ips/Config.js": 31,
 	"./src/manager/plugins/ips/Ips": 44,
 	"./src/manager/plugins/ips/Ips.js": 44,
-	"./src/manager/plugins/organisms/base/Organism": 24,
-	"./src/manager/plugins/organisms/base/Organism.js": 24,
-	"./src/manager/plugins/organisms/base/Organisms": 26,
-	"./src/manager/plugins/organisms/base/Organisms.js": 26,
-	"./src/manager/plugins/organisms/base/organism/JSVM": 25,
-	"./src/manager/plugins/organisms/base/organism/JSVM.js": 25,
-	"./src/manager/plugins/organisms/base/organism/jsvm/Operators": 19,
-	"./src/manager/plugins/organisms/base/organism/jsvm/Operators.js": 19,
-	"./src/manager/plugins/organisms/base/organisms/code2string/Num": 12,
-	"./src/manager/plugins/organisms/base/organisms/code2string/Num.js": 12,
-	"./src/manager/plugins/organisms/dos/Config": 45,
-	"./src/manager/plugins/organisms/dos/Config.js": 45,
-	"./src/manager/plugins/organisms/dos/Organism": 23,
-	"./src/manager/plugins/organisms/dos/Organism.js": 23,
-	"./src/manager/plugins/organisms/dos/Organisms": 46,
-	"./src/manager/plugins/organisms/dos/Organisms.js": 46,
-	"./src/manager/plugins/organisms/dos/organism/jsvm/Operators": 32,
-	"./src/manager/plugins/organisms/dos/organism/jsvm/Operators.js": 32,
-	"./src/manager/plugins/organisms/dos/organisms/Code2String": 47,
-	"./src/manager/plugins/organisms/dos/organisms/Code2String.js": 47,
-	"./src/manager/plugins/organisms/garmin/Config": 48,
-	"./src/manager/plugins/organisms/garmin/Config.js": 48,
-	"./src/manager/plugins/organisms/garmin/Organism": 49,
-	"./src/manager/plugins/organisms/garmin/Organism.js": 49,
-	"./src/manager/plugins/organisms/garmin/Organisms": 50,
-	"./src/manager/plugins/organisms/garmin/Organisms.js": 50,
-	"./src/manager/plugins/organisms/garmin/organism/jsvm/Operators": 51,
-	"./src/manager/plugins/organisms/garmin/organism/jsvm/Operators.js": 51,
-	"./src/manager/plugins/organisms/garmin/organisms/Code2String": 52,
-	"./src/manager/plugins/organisms/garmin/organisms/Code2String.js": 52,
-	"./src/manager/plugins/organisms/garmin/organisms/Fitness": 53,
-	"./src/manager/plugins/organisms/garmin/organisms/Fitness.js": 53,
-	"./src/manager/visual/Canvas": 72,
-	"./src/manager/visual/Canvas.js": 72,
-	"./src/manager/visual/World": 54,
-	"./src/manager/visual/World.js": 54,
+	"./src/manager/plugins/organisms/Organisms": 24,
+	"./src/manager/plugins/organisms/Organisms.js": 24,
+	"./src/manager/plugins/organisms/dos/Code2String": 45,
+	"./src/manager/plugins/organisms/dos/Code2String.js": 45,
+	"./src/manager/plugins/organisms/dos/Config": 46,
+	"./src/manager/plugins/organisms/dos/Config.js": 46,
+	"./src/manager/plugins/organisms/dos/Operators": 47,
+	"./src/manager/plugins/organisms/dos/Operators.js": 47,
+	"./src/manager/plugins/organisms/dos/Organism": 22,
+	"./src/manager/plugins/organisms/dos/Organism.js": 22,
+	"./src/manager/plugins/organisms/dos/Organisms": 48,
+	"./src/manager/plugins/organisms/dos/Organisms.js": 48,
+	"./src/manager/plugins/organisms/garmin/Code2String": 49,
+	"./src/manager/plugins/organisms/garmin/Code2String.js": 49,
+	"./src/manager/plugins/organisms/garmin/Config": 50,
+	"./src/manager/plugins/organisms/garmin/Config.js": 50,
+	"./src/manager/plugins/organisms/garmin/Fitness": 51,
+	"./src/manager/plugins/organisms/garmin/Fitness.js": 51,
+	"./src/manager/plugins/organisms/garmin/Operators": 52,
+	"./src/manager/plugins/organisms/garmin/Operators.js": 52,
+	"./src/manager/plugins/organisms/garmin/Organism": 53,
+	"./src/manager/plugins/organisms/garmin/Organism.js": 53,
+	"./src/manager/plugins/organisms/garmin/Organisms": 54,
+	"./src/manager/plugins/organisms/garmin/Organisms.js": 54,
+	"./src/organism/Organism": 38,
+	"./src/organism/Organism.js": 38,
+	"./src/share/Config": 2,
+	"./src/share/Config.js": 2,
+	"./src/share/Console": 7,
+	"./src/share/Console.js": 7,
+	"./src/share/Events": 4,
+	"./src/share/Events.js": 4,
+	"./src/share/Fs": 82,
+	"./src/share/Fs.js": 82,
+	"./src/view/Canvas": 72,
+	"./src/view/Canvas.js": 72,
+	"./src/view/World": 55,
+	"./src/view/World.js": 55,
 	"./tests/global/ConsoleSpec": 83,
 	"./tests/global/ConsoleSpec.js": 83,
 	"./tests/manager/plugins/ClientSpec": 84,
@@ -30022,7 +29951,7 @@ module.exports = HashBase
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Buffer = __webpack_require__(2).Buffer;
+var Buffer = __webpack_require__(1).Buffer;
 /*</replacement>*/
 
 function copyBuffer(src, target, offset) {
@@ -30454,7 +30383,7 @@ module.exports = PassThrough;
 var Transform = __webpack_require__(113);
 
 /*<replacement>*/
-var util = __webpack_require__(58);
+var util = __webpack_require__(59);
 util.inherits = __webpack_require__(0);
 /*</replacement>*/
 
@@ -30481,14 +30410,14 @@ module.exports = __webpack_require__(89);
 /* 179 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(27);
+module.exports = __webpack_require__(25);
 
 
 /***/ }),
 /* 180 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(57).PassThrough
+module.exports = __webpack_require__(58).PassThrough
 
 
 /***/ }),
@@ -30504,8 +30433,8 @@ module.exports = __webpack_require__(57).PassThrough
  */
 
 var inherits = __webpack_require__(0)
-var Hash = __webpack_require__(34)
-var Buffer = __webpack_require__(2).Buffer
+var Hash = __webpack_require__(33)
+var Buffer = __webpack_require__(1).Buffer
 
 var K = [
   0x5a827999, 0x6ed9eba1, 0x8f1bbcdc | 0, 0xca62c1d6 | 0
@@ -30605,8 +30534,8 @@ module.exports = Sha
  */
 
 var inherits = __webpack_require__(0)
-var Hash = __webpack_require__(34)
-var Buffer = __webpack_require__(2).Buffer
+var Hash = __webpack_require__(33)
+var Buffer = __webpack_require__(1).Buffer
 
 var K = [
   0x5a827999, 0x6ed9eba1, 0x8f1bbcdc | 0, 0xca62c1d6 | 0
@@ -30710,8 +30639,8 @@ module.exports = Sha1
 
 var inherits = __webpack_require__(0)
 var Sha256 = __webpack_require__(115)
-var Hash = __webpack_require__(34)
-var Buffer = __webpack_require__(2).Buffer
+var Hash = __webpack_require__(33)
+var Buffer = __webpack_require__(1).Buffer
 
 var W = new Array(64)
 
@@ -30761,8 +30690,8 @@ module.exports = Sha224
 
 var inherits = __webpack_require__(0)
 var SHA512 = __webpack_require__(116)
-var Hash = __webpack_require__(34)
-var Buffer = __webpack_require__(2).Buffer
+var Hash = __webpack_require__(33)
+var Buffer = __webpack_require__(1).Buffer
 
 var W = new Array(160)
 
@@ -30825,9 +30754,9 @@ module.exports = Sha384
 "use strict";
 
 var inherits = __webpack_require__(0)
-var Buffer = __webpack_require__(2).Buffer
+var Buffer = __webpack_require__(1).Buffer
 
-var Base = __webpack_require__(21)
+var Base = __webpack_require__(20)
 
 var ZEROS = Buffer.alloc(128)
 var blocksize = 64
@@ -30885,7 +30814,7 @@ module.exports = __webpack_require__(118)
 /* WEBPACK VAR INJECTION */(function(global, process) {var checkParameters = __webpack_require__(120)
 var defaultEncoding = __webpack_require__(121)
 var sync = __webpack_require__(122)
-var Buffer = __webpack_require__(2).Buffer
+var Buffer = __webpack_require__(1).Buffer
 
 var ZERO_BUF
 var subtle = global.crypto && global.crypto.subtle
@@ -31221,7 +31150,7 @@ module.exports = MD5
 
 "use strict";
 
-var Buffer = __webpack_require__(2).Buffer
+var Buffer = __webpack_require__(1).Buffer
 var Transform = __webpack_require__(73).Transform
 var inherits = __webpack_require__(0)
 
@@ -31323,9 +31252,9 @@ module.exports = HashBase
 
 var MODES = __webpack_require__(93)
 var AuthCipher = __webpack_require__(126)
-var Buffer = __webpack_require__(2).Buffer
+var Buffer = __webpack_require__(1).Buffer
 var StreamCipher = __webpack_require__(127)
-var Transform = __webpack_require__(21)
+var Transform = __webpack_require__(20)
 var aes = __webpack_require__(76)
 var ebtk = __webpack_require__(75)
 var inherits = __webpack_require__(0)
@@ -31454,7 +31383,7 @@ exports.decrypt = function (self, block) {
 /* 193 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var xor = __webpack_require__(59)
+var xor = __webpack_require__(60)
 
 exports.encrypt = function (self, block) {
   var data = xor(block, self._prev)
@@ -31477,8 +31406,8 @@ exports.decrypt = function (self, block) {
 /* 194 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Buffer = __webpack_require__(2).Buffer
-var xor = __webpack_require__(59)
+var Buffer = __webpack_require__(1).Buffer
+var xor = __webpack_require__(60)
 
 function encryptStart (self, data, decrypt) {
   var len = data.length
@@ -31516,7 +31445,7 @@ exports.encrypt = function (self, data, decrypt) {
 /* 195 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Buffer = __webpack_require__(2).Buffer
+var Buffer = __webpack_require__(1).Buffer
 
 function encryptByte (self, byteParam, decrypt) {
   var pad = self._cipher.encryptBlock(self._prev)
@@ -31547,7 +31476,7 @@ exports.encrypt = function (self, chunk, decrypt) {
 /* 196 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Buffer = __webpack_require__(2).Buffer
+var Buffer = __webpack_require__(1).Buffer
 
 function encryptByte (self, byteParam, decrypt) {
   var pad
@@ -31595,7 +31524,7 @@ exports.encrypt = function (self, chunk, decrypt) {
 /* 197 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(Buffer) {var xor = __webpack_require__(59)
+/* WEBPACK VAR INJECTION */(function(Buffer) {var xor = __webpack_require__(60)
 
 function getBlock (self) {
   self._prev = self._cipher.encryptBlock(self._prev)
@@ -31618,7 +31547,7 @@ exports.encrypt = function (self, chunk) {
 /* 198 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Buffer = __webpack_require__(2).Buffer
+var Buffer = __webpack_require__(1).Buffer
 var ZEROES = Buffer.alloc(16, 0)
 
 function toArray (buf) {
@@ -31714,10 +31643,10 @@ module.exports = GHASH
 /***/ (function(module, exports, __webpack_require__) {
 
 var AuthCipher = __webpack_require__(126)
-var Buffer = __webpack_require__(2).Buffer
+var Buffer = __webpack_require__(1).Buffer
 var MODES = __webpack_require__(93)
 var StreamCipher = __webpack_require__(127)
-var Transform = __webpack_require__(21)
+var Transform = __webpack_require__(20)
 var aes = __webpack_require__(76)
 var ebtk = __webpack_require__(75)
 var inherits = __webpack_require__(0)
@@ -31840,7 +31769,7 @@ exports.createDecipheriv = createDecipheriv
 /* 200 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(Buffer) {var CipherBase = __webpack_require__(21)
+/* WEBPACK VAR INJECTION */(function(Buffer) {var CipherBase = __webpack_require__(20)
 var des = __webpack_require__(94)
 var inherits = __webpack_require__(0)
 
@@ -32156,7 +32085,7 @@ exports.padSplit = function padSplit(num, size, group) {
 "use strict";
 
 
-var assert = __webpack_require__(13);
+var assert = __webpack_require__(12);
 
 function Cipher(options) {
   this.options = options;
@@ -32304,7 +32233,7 @@ Cipher.prototype._finalDecrypt = function _finalDecrypt() {
 "use strict";
 
 
-var assert = __webpack_require__(13);
+var assert = __webpack_require__(12);
 var inherits = __webpack_require__(0);
 
 var des = __webpack_require__(94);
@@ -32454,7 +32383,7 @@ DES.prototype._decrypt = function _decrypt(state, lStart, rStart, out, off) {
 "use strict";
 
 
-var assert = __webpack_require__(13);
+var assert = __webpack_require__(12);
 var inherits = __webpack_require__(0);
 
 var proto = {};
@@ -32526,7 +32455,7 @@ proto._update = function _update(inp, inOff, out, outOff) {
 "use strict";
 
 
-var assert = __webpack_require__(13);
+var assert = __webpack_require__(12);
 var inherits = __webpack_require__(0);
 
 var des = __webpack_require__(94);
@@ -32691,7 +32620,7 @@ var TEN = new BN(10);
 var THREE = new BN(3);
 var SEVEN = new BN(7);
 var primes = __webpack_require__(128);
-var randomBytes = __webpack_require__(33);
+var randomBytes = __webpack_require__(32);
 module.exports = DH;
 
 function setPublicKey(pub, enc) {
@@ -32853,7 +32782,7 @@ function formatReturnValue(bn, enc) {
 /* 212 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(Buffer) {var createHash = __webpack_require__(56)
+/* WEBPACK VAR INJECTION */(function(Buffer) {var createHash = __webpack_require__(57)
 var stream = __webpack_require__(73)
 var inherits = __webpack_require__(0)
 var sign = __webpack_require__(213)
@@ -33114,7 +33043,7 @@ module.exports = {"_args":[[{"raw":"elliptic@^6.0.0","scope":null,"escapedName":
 
 var utils = exports;
 var BN = __webpack_require__(6);
-var minAssert = __webpack_require__(13);
+var minAssert = __webpack_require__(12);
 var minUtils = __webpack_require__(132);
 
 utils.assert = minAssert;
@@ -35420,7 +35349,7 @@ exports.sha512 = __webpack_require__(135);
 
 
 var utils = __webpack_require__(16);
-var common = __webpack_require__(60);
+var common = __webpack_require__(61);
 var shaCommon = __webpack_require__(133);
 
 var rotl32 = utils.rotl32;
@@ -35580,7 +35509,7 @@ SHA384.prototype._digest = function digest(enc) {
 
 
 var utils = __webpack_require__(16);
-var common = __webpack_require__(60);
+var common = __webpack_require__(61);
 
 var rotl32 = utils.rotl32;
 var sum32 = utils.sum32;
@@ -35733,7 +35662,7 @@ var sh = [
 
 
 var utils = __webpack_require__(16);
-var assert = __webpack_require__(13);
+var assert = __webpack_require__(12);
 
 function Hmac(hash, key, enc) {
   if (!(this instanceof Hmac))
@@ -36821,7 +36750,7 @@ EC.prototype.getKeyRecoveryParam = function(e, signature, Q, enc) {
 
 var hash = __webpack_require__(96);
 var utils = __webpack_require__(132);
-var assert = __webpack_require__(13);
+var assert = __webpack_require__(12);
 
 function HmacDRBG(options) {
   if (!(this instanceof HmacDRBG))
@@ -37510,7 +37439,7 @@ module.exports = Signature;
 // Fedor, you are amazing.
 
 
-var asn1 = __webpack_require__(61)
+var asn1 = __webpack_require__(62)
 
 exports.certificate = __webpack_require__(246)
 
@@ -37634,7 +37563,7 @@ exports.signature = asn1.define('signature', function () {
 /* 236 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var asn1 = __webpack_require__(61);
+var asn1 = __webpack_require__(62);
 var inherits = __webpack_require__(0);
 
 var api = exports;
@@ -37987,10 +37916,10 @@ ReporterError.prototype.rethrow = function rethrow(msg) {
 /* 240 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Reporter = __webpack_require__(62).Reporter;
-var EncoderBuffer = __webpack_require__(62).EncoderBuffer;
-var DecoderBuffer = __webpack_require__(62).DecoderBuffer;
-var assert = __webpack_require__(13);
+var Reporter = __webpack_require__(63).Reporter;
+var EncoderBuffer = __webpack_require__(63).EncoderBuffer;
+var DecoderBuffer = __webpack_require__(63).DecoderBuffer;
+var assert = __webpack_require__(12);
 
 // Supported tags
 var tags = [
@@ -38783,7 +38712,7 @@ PEMEncoder.prototype.encode = function encode(data, options) {
 
 
 
-var asn = __webpack_require__(61)
+var asn = __webpack_require__(62)
 
 var Time = asn.define('Time', function () {
   this.choice({
@@ -39150,8 +39079,8 @@ exports.publicDecrypt = function publicDecrypt(key, buf) {
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {var parseKeys = __webpack_require__(78);
-var randomBytes = __webpack_require__(33);
-var createHash = __webpack_require__(56);
+var randomBytes = __webpack_require__(32);
+var createHash = __webpack_require__(57);
 var mgf = __webpack_require__(141);
 var xor = __webpack_require__(142);
 var bn = __webpack_require__(6);
@@ -39255,7 +39184,7 @@ var mgf = __webpack_require__(141);
 var xor = __webpack_require__(142);
 var bn = __webpack_require__(6);
 var crt = __webpack_require__(95);
-var createHash = __webpack_require__(56);
+var createHash = __webpack_require__(57);
 var withPublic = __webpack_require__(143);
 module.exports = function privateDecrypt(private_key, enc, reverse) {
   var padding;
@@ -39370,8 +39299,8 @@ function compare(a, b){
 function oldBrowser () {
   throw new Error('secure random number generation not supported by this browser\nuse chrome, FireFox or Internet Explorer 11')
 }
-var safeBuffer = __webpack_require__(2)
-var randombytes = __webpack_require__(33)
+var safeBuffer = __webpack_require__(1)
+var randombytes = __webpack_require__(32)
 var Buffer = safeBuffer.Buffer
 var kBufferMaxLength = safeBuffer.kMaxLength
 var crypto = global.crypto || global.msCrypto
@@ -39503,7 +39432,7 @@ https.request = function (params, cb) {
 /* WEBPACK VAR INJECTION */(function(Buffer, global, process) {var capability = __webpack_require__(145)
 var inherits = __webpack_require__(0)
 var response = __webpack_require__(257)
-var stream = __webpack_require__(57)
+var stream = __webpack_require__(58)
 var toArrayBuffer = __webpack_require__(258)
 
 var IncomingMessage = response.IncomingMessage
@@ -39815,7 +39744,7 @@ var unsafeHeaders = [
 
 /* WEBPACK VAR INJECTION */(function(process, Buffer, global) {var capability = __webpack_require__(145)
 var inherits = __webpack_require__(0)
-var stream = __webpack_require__(57)
+var stream = __webpack_require__(58)
 
 var rStates = exports.readyStates = {
 	UNSENT: 0,
@@ -47926,8 +47855,8 @@ try {
 
 
 
-const safeBuffer = __webpack_require__(2);
-const EventEmitter = __webpack_require__(55);
+const safeBuffer = __webpack_require__(1);
+const EventEmitter = __webpack_require__(56);
 const crypto = __webpack_require__(86);
 const Ultron = __webpack_require__(144);
 const http = __webpack_require__(97);
@@ -48261,20 +48190,20 @@ function abortConnection (socket, code, message) {
 var map = {
 	"./src/App": 154,
 	"./src/App.js": 154,
-	"./src/global/Config": 40,
-	"./src/global/Config.js": 40,
-	"./src/global/Console": 22,
-	"./src/global/Console.js": 22,
+	"./src/server/AroundServers": 101,
+	"./src/server/AroundServers.js": 101,
+	"./src/server/Connections": 64,
+	"./src/server/Connections.js": 64,
+	"./src/server/Plugins": 102,
+	"./src/server/Plugins.js": 102,
 	"./src/server/Server": 18,
 	"./src/server/Server.js": 18,
-	"./src/server/plugins/Api": 63,
-	"./src/server/plugins/Api.js": 63,
-	"./src/server/server/AroundServers": 101,
-	"./src/server/server/AroundServers.js": 101,
-	"./src/server/server/Connections": 64,
-	"./src/server/server/Connections.js": 64,
-	"./src/server/server/Plugins": 102,
-	"./src/server/server/Plugins.js": 102,
+	"./src/server/plugins/Api": 65,
+	"./src/server/plugins/Api.js": 65,
+	"./src/share/Config": 28,
+	"./src/share/Config.js": 28,
+	"./src/share/Console": 21,
+	"./src/share/Console.js": 21,
 	"./tests/server/ConnectionsSpec": 155,
 	"./tests/server/ConnectionsSpec.js": 155,
 	"./tests/server/ServerSpec": 156,
@@ -48303,8 +48232,8 @@ webpackContext.id = 282;
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
-	"./client/src/global/Console": 7,
-	"./server/src/global/Console": 22
+	"./client/src/share/Console": 7,
+	"./server/src/share/Console": 21
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));

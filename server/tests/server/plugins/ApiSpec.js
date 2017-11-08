@@ -1,18 +1,18 @@
 describe("server/src/server/plugins/Api", () => {
-    const Config       = require('./../../../../client/src/global/Config').Config;
-    const Observer     = require('./../../../../common/src/global/Observer');
+    const Config       = require('./../../../src/share/Config').Config;
+    const Observer     = require('./../../../../common/src/Observer');
     const Server       = require('./../../../../server/src/server/Server').Server;
+    const SEVENTS      = require('./../../../../server/src/server/Server').EVENTS;
     const OLD_MODE     = Config.modeNodeJs;
     Config.modeNodeJs  = true;
     const Client       = require('./../../../../client/src/manager/plugins/client/Client').Client;
     const CEVENTS      = require('./../../../../client/src/manager/plugins/client/Client').EVENTS;
-    const SEVENTS      = require('./../../../../server/src/server/Server').EVENTS;
-    const EVENT_AMOUNT = require('./../../../../client/src/global/Events').EVENT_AMOUNT;
-    const SConsole     = require('./../../../../server/src/global/Console');
-    const Console      = require('./../../../../client/src/global/Console');
+    const EVENT_AMOUNT = require('./../../../../client/src/share/Events').EVENT_AMOUNT;
+    const Console      = require('./../../../../client/src/share/Console');
+    const SConsole     = require('./../../../src/share/Console');
     const Helper       = require('./../../../../common/tests/Helper');
+    const Request      = require('./../../../../common/src/net/Request');
     const Api          = require('./../../../src/server/plugins/Api');
-    const Request      = require('./../../../../common/src/net/plugins/Request');
 
     const PLUGINS = {
         Request,

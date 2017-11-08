@@ -5,7 +5,7 @@
  *
  * @author flatline
  */
-const Observer = require('./../global/Observer');
+const Observer = require('./../Observer');
 //
 // Basic events
 //

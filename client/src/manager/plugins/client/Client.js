@@ -8,15 +8,15 @@
  *
  * @author flatline
  */
-const Helper       = require('./../../../../../common/src/global/Helper');
-const Config       = require('./../../../global/Config').Config;
-const ServerConfig = require('./../../../../../server/src/global/Config').Config;
-const TYPES        = require('./../../../../../common/src/global/Requests').TYPES;
-const Console      = require('./../../../global/Console');
+const Helper       = require('./../../../../../common/src/Helper');
+const Config       = require('./../../../share/Config').Config;
+const ServerConfig = require('./../../../../../server/src/share/Config').Config;
+const TYPES        = require('./../../../../../common/src/net/Requests').TYPES;
+const Console      = require('./../../../share/Console');
 const Connection   = require('./../../../../../common/src/net/Connection').Connection;
 const EVENTS       = require('./../../../../../common/src/net/Connection').EVENTS;
-const Plugins      = require('./cilent/Plugins');
-const GEVENTS      = require('./../../../global/Events').EVENTS;
+const Plugins      = require('./Plugins');
+const GEVENTS      = require('./../../../share/Events').EVENTS;
 //
 // In browser we use browser's native WS implementation. On node.js
 // we use implementation of 'ws' library
@@ -24,7 +24,7 @@ const GEVENTS      = require('./../../../global/Events').EVENTS;
 const WS         = Config.modeNodeJs ? require('ws') : window.WebSocket;
 // TODO: should be moved to local config
 const PLUGINS = [
-    'src/net/plugins/Request',
+    'src/net/Request',
     'src/manager/plugins/client/plugins/Api'
 ];
 

@@ -10,11 +10,11 @@
  *
  * @author flatline
  */
-const Configurable = require('./../../../../../common/src/global/Configurable');
-const Helper       = require('./../../../../../common/src/global/Helper');
-const Config       = require('./../../../global/Config').Config;
+const Configurable = require('./../../../../../common/src/Configurable');
+const Helper       = require('./../../../../../common/src/Helper');
+const Config       = require('./../../../share/Config').Config;
+const EVENTS       = require('./../../../share/Events').EVENTS;
 const IpsConfig    = require('./Config');
-const EVENTS       = require('./../../../global/Events').EVENTS;
 
 class Ips extends Configurable {
     constructor(manager) {

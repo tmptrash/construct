@@ -17,10 +17,10 @@
  *
  * @author flatline
  */
-const Observer     = require('./../../../../common/src/global/Observer');
-const Helper       = require('./../../../../common/src/global/Helper');
-const EVENTS       = require('./../../global/Events').EVENTS;
-const EVENT_AMOUNT = require('./../../global/Events').EVENT_AMOUNT;
+const Observer     = require('./../../../common/src/Observer');
+const Helper       = require('./../../../common/src/Helper');
+const EVENTS       = require('./../../src/share/Events').EVENTS;
+const EVENT_AMOUNT = require('./../../src/share/Events').EVENT_AMOUNT;
 /**
  * {Number} Amount of attempts for finding free place in a world.
  * The same like this.getDot(x, y) === 0

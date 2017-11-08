@@ -5,7 +5,7 @@
  *
  * @author flatline
  */
-const Num = require('./../../base/organisms/code2string/Num');
+const Num = require('./../../../../jsvm/Num');
 
 /**
  * {Function} Just a shortcuts

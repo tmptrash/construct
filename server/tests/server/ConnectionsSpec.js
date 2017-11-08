@@ -1,5 +1,5 @@
 describe("server/src/server/Connections", () => {
-    const Connections = require('./../../src/server/server/Connections');
+    const Connections = require('./../../src/server/Connections');
     let THelper       = require('./../../../common/tests/Helper');
 
     it("Checking Connections instance creation", () => {
