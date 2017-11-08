@@ -13,7 +13,7 @@ const Config       = require('./../../src/share/Config').Config;
 const EVENTS       = require('./../../src/share/Events').EVENTS;
 const EVENT_AMOUNT = require('./../../src/share/Events').EVENT_AMOUNT;
 const Num          = require('./Num');
-const Operators    = require('CLIENT/' + Config.codeOperatorsCls + '.js');
+const Operators    = require('./../../../client/' + Config.codeOperatorsCls + '.js');
 /**
  * {Number} Maximum stack size, which may be used for recursion or function parameters
  */

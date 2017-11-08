@@ -1,6 +1,6 @@
 describe("client/src/share/Console", () => {
-    let Console = require('./../../src/share/Console');
-    let Config  = require('./../../src/share/Config').Config;
+    let Console = require('./Console');
+    let Config  = require('./Config').Config;
     let log;
     let inc = 0;
     let arg;

@@ -1,9 +1,9 @@
 {
   "spec_dir": "./",
   "spec_files": [
-    "client/tests/**/*[sS]pec.js",
-    "server/tests/**/*[sS]pec.js",
-    "common/tests/**/*[sS]pec.js"
+    "client/src/**/*[sS]pec.js",
+    "common/src/**/*[sS]pec.js",
+    "server/src/**/*[sS]pec.js"
   ],
   "stopSpecOnExpectationFailure": false,
   "random": false

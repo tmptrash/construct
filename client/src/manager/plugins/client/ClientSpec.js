@@ -1,25 +1,21 @@
 describe("client/src/manager/plugins/Client", () => {
-    let Helper       = require('./../../../../common/src/Helper');
-    let THelper      = require('./../../../../common/tests/Helper');
-    let Observer     = require('./../../../../common/src/Observer');
-    let Config       = require('./../../../src/share/Config').Config;
-    let EVENT_AMOUNT = require('./../../../src/share/Events').EVENT_AMOUNT;
-    let SEVENTS      = require('./../../../../server/src/server/Server').EVENTS;
-    let api          = require('./../../../src/share/Config').api;
-    let Console      = require('./../../../src/share/Console');
-    let SConsole     = require('./../../../../server/src/share/Console');
-    const Api        = require('./../../../../server/src/server/plugins/Api');
-    const Request    = require('./../../../../common/src/net/Request');
+    let Helper       = require('./../../../../../common/src/Helper');
+    let THelper      = require('./../../../../../common/tests/Helper');
+    let Observer     = require('./../../../../../common/src/Observer');
+    let Config       = require('./../../../share/Config').Config;
+    let SConfig      = require('./../../../../../server/src/share/Config').Config;
+    let EVENT_AMOUNT = require('./../../../share/Events').EVENT_AMOUNT;
+    let SEVENTS      = require('./../../../../../server/src/server/Server').EVENTS;
+    let api          = require('./../../../share/Config').api;
+    let Console      = require('./../../../share/Console');
+    let SConsole     = require('./../../../../../server/src/share/Console');
+    const Api        = require('./../../../../../server/src/server/plugins/Api');
+    const Request    = require('./../../../../../common/src/net/Request');
     const waitEvent  = THelper.waitEvent;
     let isNodeJs;
     let Client;
     let CEVENTS;
     let Server;
-
-    const PLUGINS = {
-        Request,
-        Api
-    };
 
     let error;
     let warn;
@@ -33,9 +29,9 @@ describe("client/src/manager/plugins/Client", () => {
         // These two lines set modeNodeJs mode to Node.js as running environment
         //
         isNodeJs = Config.modeNodeJs;api.set('modeNodeJs', true);
-        Client   = require('./../../../src/manager/plugins/client/Client').Client;
-        CEVENTS  = require('./../../../src/manager/plugins/client/Client').EVENTS;
-        Server   = require('./../../../../server/src/server/Server').Server;
+        Client   = require('./Client').Client;
+        CEVENTS  = require('./Client').EVENTS;
+        Server   = require('./../../../../../server/src/server/Server').Server;
         //
         // These lines prevents classes put messages to the console
         //
@@ -94,7 +90,7 @@ describe("client/src/manager/plugins/Client", () => {
             setClientId(id) {this.clientId = id}
         }
         const man    = new Man();
-        const server = new Server(Config.port, PLUGINS);
+        const server = new Server(SConfig.port);
 
         server.on(SEVENTS.RUN, () => waitObj.done = true);
         server.run();
@@ -135,7 +131,7 @@ describe("client/src/manager/plugins/Client", () => {
         }
         const man1    = new Man1();
         const man2    = new Man2();
-        const server  = new Server(Config.port, PLUGINS);
+        const server  = new Server(SConfig.port);
 
         server.on(SEVENTS.RUN, () => waitObj.done = true);
         server.run();

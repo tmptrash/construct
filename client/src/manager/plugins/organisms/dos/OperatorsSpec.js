@@ -1,11 +1,11 @@
 describe("client/src/organism/OperatorsDos", () => {
-    let OperatorsDos = require('./../../../../../../client/src/jsvm/Operators');
+    let OperatorsDos = require('./Operators');
     let Helper       = require('./../../../../../../common/src/Helper');
     let Observer     = require('./../../../../../../common/src/Observer');
-    let EVENTS       = require('./../../../../../src/share/Events').EVENTS;
-    let EVENT_AMOUNT = require('./../../../../../src/share/Events').EVENT_AMOUNT;
-    let Config       = require('./../../../../../src/share/Config').Config;
-    let api          = require('./../../../../../src/share/Config').api;
+    let EVENTS       = require('./../../../../share/Events').EVENTS;
+    let EVENT_AMOUNT = require('./../../../../share/Events').EVENT_AMOUNT;
+    let Config       = require('./../../../../share/Config').Config;
+    let api          = require('./../../../../share/Config').api;
     let cbpv         = null;
 
     beforeEach(() => {cbpv = Config.codeBitsPerVar;api.set('codeBitsPerVar', 2)});
