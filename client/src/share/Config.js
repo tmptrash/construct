@@ -146,11 +146,6 @@ ClientConfig.init({
      */
     orgMaxOrgs: 50,
     /**
-     * {String} Name of the organism class. All organisms in a world
-     * will be creates as an instance of this class
-     */
-    orgOrganismCls: 'src/manager/plugins/organisms/dos/Organism',
-    /**
      * {Number} Maximum amount of arguments in custom functions. Minimum 1. Maximum
      * <= amount of default variables.
      */

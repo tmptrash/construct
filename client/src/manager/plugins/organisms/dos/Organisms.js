@@ -12,6 +12,7 @@
  * @author flatline
  */
 const BaseOrganisms = require('./../Organisms');
+const Organism      = require('./Organism');
 const Config        = require('./../../../../share/Config').Config;
 const EVENTS        = require('./../../../../share/Events').EVENTS;
 const Helper        = require('./../../../../../../common/src/Helper');
@@ -74,6 +75,16 @@ class Organisms extends BaseOrganisms {
         org.on(EVENTS.EAT, this._onEat.bind(this));
         org.on(EVENTS.STEP, this._onStep.bind(this));
         org.on(EVENTS.CHECK_AT, this._onCheckAt.bind(this));
+    }
+
+    /**
+     * Creates instance of an organism
+     * @param {Array} args Custom organism arguments
+     * @return {Organism} Organism instance
+     * @override
+     */
+    createEmptyOrg(...args) {
+        return new Organism(...args);
     }
 
     /**

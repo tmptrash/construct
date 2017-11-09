@@ -6,13 +6,12 @@
  *
  * @author flatline
  */
-const Helper       = require('./../../../../../common/src/Helper');
-const Config       = require('./../../../../src/share/Config').Config;
-const Console      = require('./../../../../src/share/Console');
-const EVENTS       = require('./../../../../src/share/Events').EVENTS;
-const Backup       = require('./../Backup');
-const Mutator      = require('./Mutator');
-const CodeOrganism = require('CLIENT/' + Config.orgOrganismCls + '.js');
+const Helper  = require('./../../../../../common/src/Helper');
+const Config  = require('./../../../../src/share/Config').Config;
+const Console = require('./../../../../src/share/Console');
+const EVENTS  = require('./../../../../src/share/Events').EVENTS;
+const Backup  = require('./../Backup');
+const Mutator = require('./Mutator');
 
 const RAND_OFFS = 4;
 
@@ -74,6 +73,15 @@ class Organisms {
      * @abstract
      */
     onAfterKillOrg(org) {}
+
+    /**
+     * Creates one instance of organism. You have to override this
+     * method in your child class
+     * @param {Array} args Custom organism arguments
+     * @return {Organism} Organism instance
+     * @abstract
+     */
+    createEmptyOrg(...args) {}
 
     constructor(manager) {
         this.organisms      = manager.organisms;
@@ -203,7 +211,7 @@ class Organisms {
         if (orgs.size >= Config.orgMaxOrgs || pos === false) {return false}
         orgs.add(null);
         let last = orgs.last;
-        let org  = new CodeOrganism(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), parent);
+        let org  = this.createEmptyOrg(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), parent);
 
         last.val = org;
         this.addOrgHandlers(org);

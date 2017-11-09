@@ -11,6 +11,7 @@
  * @author flatline
  */
 const Config        = require('./../../../../share/Config').Config;
+const Organism      = require('./Organism');
 const Console       = require('./../../../../share/Console');
 const EVENTS        = require('./../../../../share/Events').EVENTS;
 const BaseOrganisms = require('./../Organisms');
@@ -53,6 +54,16 @@ class Organisms extends BaseOrganisms {
     reset() {
         super.reset();
         this._maxChanges = 0;
+    }
+
+    /**
+     * Creates instance of an organism
+     * @param {Array} args Custom organism arguments
+     * @return {Organism} Organism instance
+     * @override
+     */
+    createEmptyOrg(...args) {
+        return new Organism(...args);
     }
 
     _onStop(org) {
