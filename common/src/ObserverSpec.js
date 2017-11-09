@@ -1,8 +1,8 @@
 // TODO: add two events test
 describe("common/src/share/Observer", () => {
-    let   Observer = require('./../../src/Observer');
-    let   Config   = require('./../../../common/src/Config').Config;
-    let   Console  = require('./../../../client/src/share/Console');
+    let   Observer = require('./Observer');
+    let   Config   = require('./../../client/src/share/Config').Config;
+    let   Console  = require('./../../client/src/share/Console');
     const EVENT    = 0;
     const EVENT2   = 1;
     let   obs;

@@ -1,8 +1,8 @@
 describe("common/src/share/Helper", () => {
-    let   Helper = require('./../../src/Helper');
-    let   Config = require('./../../../client/src/share/Config').Config;
-    let   api    = require('./../../../client/src/share/Config').api;
-    let   DIR    = require('./../../src/Directions').DIR;
+    let   Helper = require('./Helper');
+    let   Config = require('./../../client/src/share/Config').Config;
+    let   api    = require('./../../client/src/share/Config').api;
+    let   DIR    = require('./Directions').DIR;
 
     it("Checking posId() method", () => {
         expect(Helper.posId(0,0)).toEqual(0);

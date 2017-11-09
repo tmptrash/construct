@@ -1,5 +1,5 @@
 describe('common/src/share/Queue', () => {
-    let Queue = require('./../../src/Queue');
+    let Queue = require('./Queue');
     let q;
 
     beforeEach(() => q = new Queue());
