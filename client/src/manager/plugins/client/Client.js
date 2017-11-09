@@ -8,7 +8,6 @@
  *
  * @author flatline
  */
-const Helper       = require('./../../../../../common/src/Helper');
 const Config       = require('./../../../share/Config').Config;
 const ServerConfig = require('./../../../../../server/src/share/Config').Config;
 const TYPES        = require('./../../../../../common/src/net/Requests').TYPES;

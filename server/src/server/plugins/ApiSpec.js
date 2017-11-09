@@ -1,23 +1,19 @@
 describe("server/src/server/plugins/Api", () => {
-    const Config       = require('./../../../src/share/Config').Config;
+    const Config       = require('./../../../../client/src/share/Config').Config;
+    const SConfig      = require('./../../share/Config').Config;
     const Observer     = require('./../../../../common/src/Observer');
-    const Server       = require('./../../../../server/src/server/Server').Server;
-    const SEVENTS      = require('./../../../../server/src/server/Server').EVENTS;
+    const Server       = require('./../Server').Server;
+    const SEVENTS      = require('./../Server').EVENTS;
     const OLD_MODE     = Config.modeNodeJs;
     Config.modeNodeJs  = true;
     const Client       = require('./../../../../client/src/manager/plugins/client/Client').Client;
     const CEVENTS      = require('./../../../../client/src/manager/plugins/client/Client').EVENTS;
     const EVENT_AMOUNT = require('./../../../../client/src/share/Events').EVENT_AMOUNT;
     const Console      = require('./../../../../client/src/share/Console');
-    const SConsole     = require('./../../../src/share/Console');
+    const SConsole     = require('./../../share/Console');
     const Helper       = require('./../../../../common/tests/Helper');
     const Request      = require('./../../../../common/src/net/Request');
-    const Api          = require('./../../../src/server/plugins/Api');
-
-    const PLUGINS = {
-        Request,
-        Api
-    };
+    const Api          = require('./Api');
 
     let error;
     let warn;
@@ -63,9 +59,9 @@ describe("server/src/server/plugins/Api", () => {
             run()           {}
             setClientId(id) {this.clientId = id}
         }
-        let maxCon  = Config.maxConnections;
-        Config.maxConnections = 1;
-        let server  = new Server(Config.port, PLUGINS);
+        let maxCon  = SConfig.maxConnections;
+        SConfig.maxConnections = 1;
+        let server  = new Server(SConfig.port);
         let id      = null;
         const man   = new Man();
 
@@ -80,7 +76,7 @@ describe("server/src/server/plugins/Api", () => {
                 server.on(SEVENTS.STOP, () => waitObj.done = true);
                 server.destroy();
                 Helper.wait(waitObj, () => {
-                    Config.maxConnections = maxCon;
+                    SConfig.maxConnections = maxCon;
                     done();
                 });
             });
@@ -97,9 +93,9 @@ describe("server/src/server/plugins/Api", () => {
             run()           {}
             setClientId(id) {this.clientId = id}
         }
-        let maxCon  = Config.maxConnections;
-        Config.maxConnections = 1;
-        let server  = new Server(Config.port, PLUGINS);
+        let maxCon  = SConfig.maxConnections;
+        SConfig.maxConnections = 1;
+        let server  = new Server(SConfig.port);
         let man     = new Man1();
         let oldId   = null;
         let id      = null;
@@ -118,7 +114,7 @@ describe("server/src/server/plugins/Api", () => {
                     server.on(SEVENTS.STOP, () => waitObj.done = true);
                     server.destroy();
                     Helper.wait(waitObj, () => {
-                        Config.maxConnections = maxCon;
+                        SConfig.maxConnections = maxCon;
                         done();
                     });
                 });
