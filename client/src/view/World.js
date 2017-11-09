@@ -7,7 +7,7 @@
  * presentation)
  *
  * Usage:
- *   const World = require('.../World');
+ *   const World = require('.../World').World;
  *   let world = new World(100, 100);
  *   world.setDot(50, 50, 0xFF00AA);
  *   world.getDot(50, 50); // 0xFF00AA
@@ -21,6 +21,11 @@ const Observer     = require('./../../../common/src/Observer');
 const Helper       = require('./../../../common/src/Helper');
 const EVENTS       = require('./../../src/share/Events').EVENTS;
 const EVENT_AMOUNT = require('./../../src/share/Events').EVENT_AMOUNT;
+
+const DOT     = 0;
+const WEVENTS = {
+    DOT
+};
 /**
  * {Number} Amount of attempts for finding free place in a world.
  * The same like this.getDot(x, y) === 0
@@ -51,7 +56,7 @@ class World extends Observer {
     setDot(x, y, color) {
         if (x < 0 || x >= this._width || y < 0 || y >= this._height) {return false}
         this._data[x][y] = color;
-        this.fire(EVENTS.DOT, x, y, color);
+        this.fire(DOT, x, y, color);
 
         return true;
     }
@@ -65,7 +70,7 @@ class World extends Observer {
         let dot = Math.min(this.getDot(x, y), amount);
 
         if (dot > 0) {
-            this.fire(EVENTS.DOT, x, y, (this._data[x][y] -= dot));
+            this.fire(DOT, x, y, (this._data[x][y] -= dot));
         }
 
         return dot;
@@ -111,4 +116,4 @@ class World extends Observer {
     }
 }
 
-module.exports = World;
+module.exports = {World, EVENTS: WEVENTS};

@@ -38,6 +38,7 @@ class Backup {
 
     backup() {
         this._toLocalStorage(this._toJson(this.orgs, this._world));
+        this._manager.fire(EVENTS.BACKUP);
         Console.info('Backup has created');
     }
 

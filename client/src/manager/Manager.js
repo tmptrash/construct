@@ -19,16 +19,11 @@ const Plugins          = require('./Plugins');
 const EVENTS           = require('./../share/Events').EVENTS;
 const EVENT_AMOUNT     = require('./../share/Events').EVENT_AMOUNT;
 const Console          = require('./../share/Console');
-const World            = require('./../view/World');
+const World            = require('./../view/World').World;
+const WEVENTS          = require('./../view/World').EVENTS;
 const Canvas           = require('./../view/Canvas');
 
 class Manager extends Observer {
-    /**
-     * Is called on every iteration in main loop. May be overridden in plugins
-     * @abstract
-     */
-    onIteration() {}
-
     constructor() {
         super(EVENT_AMOUNT);
         /**
@@ -108,6 +103,15 @@ class Manager extends Observer {
         this._clientId = id;
     }
 
+    /**
+     * Is called on every iteration in main loop. May be overridden in plugins
+     * @param {Number} counter Global counter as an analog of time
+     * @param {Number} stamp UNIX time stamp
+     */
+    onIteration(counter, stamp) {
+        this.fire(EVENTS.ITERATION);
+    }
+
     hasOtherClients() {
         return this._activeAround.indexOf(true) !== -1;
     }
@@ -184,7 +188,7 @@ class Manager extends Observer {
         this.zeroTimeout(this._onLoopCb);
     }
     _addHandlers() {
-        this._world.on(EVENTS.DOT, this._onDot.bind(this));
+        this._world.on(WEVENTS.DOT, this._onDot.bind(this));
     }
 
     _visualize(visualized = true) {
