@@ -213,11 +213,6 @@ ClientConfig.init({
      */
     codeFitnessCls: null,//'src/manager/plugins/organisms/garmin/Fitness',
     /**
-     * {Function} Class with available operators. See default Operators
-     * class for details. See ClassMap.js for additional details.
-     */
-    codeOperatorsCls: 'src/manager/plugins/organisms/dos/Operators',
-    /**
      * {Number} World width
      */
     worldWidth: 400,
@@ -472,11 +467,6 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //      * details.
 //      */
 //     codeFitnessCls: null,//'FitnessGarmin',
-//     /**
-//      * {Function} Class with available operators. See default Operators
-//      * class for details. See ClassMap.js for additional details.
-//      */
-//     codeOperatorsCls: 'OperatorsDos',//'OperatorsGarmin',
 //     /**
 //      * {String} Name of the class for string representation of byte jsvm
 //      */
@@ -788,11 +778,6 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //      * details.
 //      */
 //     codeFitnessCls: 'FitnessGarmin',
-//     /**
-//      * {Function} Class with available operators. See default Operators
-//      * class for details. See ClassMap.js for additional details.
-//      */
-//     codeOperatorsCls: 'OperatorsGarmin',
 //     /**
 //      * {String} Name of the class for string representation of byte jsvm
 //      */

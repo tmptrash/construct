@@ -40,12 +40,14 @@ class Organism extends Observer {
      * this organism is located
      * @param {Function} codeEndCb Callback, which is called at the
      * end of every code iteration.
+     * @param {Function} operatorCls Class of operators
      * @param {Organism} parent Parent organism if cloning is needed
      */
-    constructor(id, x, y, alive, item, codeEndCb, parent = null) {
+    constructor(id, x, y, alive, item, codeEndCb, operatorCls, parent = null) {
         super(EVENT_AMOUNT);
 
         this._codeEndCb   = codeEndCb;
+        this._operatorCls = operatorCls;
 
         if (parent === null) {this._create()}
         else {this._clone(parent)}
@@ -185,7 +187,7 @@ class Organism extends Observer {
     }
 
     _create() {
-        this.jsvm                   = new JSVM(this._codeEndCb.bind(this, this), this);
+        this.jsvm                   = new JSVM(this._codeEndCb.bind(this, this), this, this._operatorCls);
         this._energy                = Config.orgStartEnergy;
         this._color                 = Config.orgStartColor;
         this._mutationProbs         = Config.orgMutationProbs.slice();
@@ -197,7 +199,7 @@ class Organism extends Observer {
     }
 
     _clone(parent) {
-        this.jsvm                   = new JSVM(this._codeEndCb.bind(this, this), this, parent.jsvm);
+        this.jsvm                   = new JSVM(this._codeEndCb.bind(this, this), this, this._operatorCls, parent.jsvm);
         this._energy                = parent.energy;
         this._color                 = parent.color;
         this._mutationProbs         = parent.mutationProbs.slice();

@@ -13,7 +13,6 @@ const Config       = require('./../../src/share/Config').Config;
 const EVENTS       = require('./../../src/share/Events').EVENTS;
 const EVENT_AMOUNT = require('./../../src/share/Events').EVENT_AMOUNT;
 const Num          = require('./Num');
-const Operators    = require('./../../../client/' + Config.codeOperatorsCls + '.js');
 /**
  * {Number} Maximum stack size, which may be used for recursion or function parameters
  */
@@ -26,9 +25,10 @@ class JSVM extends Observer {
      * a copy of it.
      * @param {Function} codeEndCb
      * @param {Observer} obs Observer instance for Operators class
+     * @param {Function} operatorCls Class of operators
      * @param {JSVM} parent Parent JSVM instance in case of cloning
      */
-    constructor(codeEndCb, obs, parent = null) {
+    constructor(codeEndCb, obs, operatorCls, parent = null) {
         super(EVENT_AMOUNT);
 
         this._obs       = obs;
@@ -47,7 +47,7 @@ class JSVM extends Observer {
         /**
          * {Function} Class, which implement all supported operators
          */
-        this._operators = new Operators(this._offsets, this._vars, obs);
+        this._operators = new operatorCls(this._offsets, this._vars, obs);
         this._code      = parent && parent.code.slice() || [];
         this._line      = 0;
     }

@@ -4,9 +4,11 @@
  * TODO:   -
  * @author flatline
  */
-const Organism = require('./../Organism');
-const Config   = require('./../../../../share/Config').Config;
-const EVENTS   = require('./../../../../share/Events').EVENTS;
+const Organism  = require('./../Organism');
+const Operators = require('./Operators');
+const Config    = require('./../../../../share/Config').Config;
+const EVENTS    = require('./../../../../share/Events').EVENTS;
+const Fitness   = require('./Fitness');
 
 class OrganismGarmin extends Organism {
     /**
@@ -20,15 +22,12 @@ class OrganismGarmin extends Organism {
      * this organism is located
      * @param {Function} codeEndCb Callback, which is called at the
      * end of every code iteration.
-     * @param {Object} classMap Available classes map. Maps class names into
-     * classe functions
      * @param {Organism} parent Parent organism if cloning is needed
      */
-    constructor(id, x, y, alive, item, codeEndCb, classMap, parent = null) {
-        super(id, x, y, alive, item, codeEndCb, classMap, parent);
+    constructor(id, x, y, alive, item, codeEndCb, parent = null) {
+        super(id, x, y, alive, item, codeEndCb, Operators, parent);
 
-        this._fitnessCls = classMap[Config.codeFitnessCls];
-        this._needRun    = true;
+        this._needRun = true;
 
         this.jsvm.on(EVENTS.RESET_CODE, this._onResetCode.bind(this));
     }
@@ -38,13 +37,12 @@ class OrganismGarmin extends Organism {
     }
 
     onRun() {
-        if (this._fitnessCls.run(this)) {this.fire(EVENTS.STOP, this)}
+        if (Fitness.run(this)) {this.fire(EVENTS.STOP, this)}
         this._needRun = false;
     }
 
     destroy() {
         super.destroy();
-        this._fitnessCls = null;
     }
 
     /**
