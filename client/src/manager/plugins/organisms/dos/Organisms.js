@@ -25,7 +25,6 @@ class Organisms extends BaseOrganisms {
     constructor(manager) {
         super(manager);
 
-        this._positions  = {};
         this._onStepInCb = this._onStepIn.bind(this);
 
         this.manager.on(EVENTS.STEP_IN, this._onStepInCb);
@@ -35,7 +34,6 @@ class Organisms extends BaseOrganisms {
         super.destroy();
         this.manager.off(EVENTS.STEP_IN, this._onStepInCb);
         this._onStepInCb = null;
-        this._positions  = null;
     }
 
     /**
@@ -84,7 +82,7 @@ class Organisms extends BaseOrganisms {
      * @override
      */
     onAfterCreateOrg(org) {
-        this._positions[org.posId] = org;
+        this.manager.positions[org.posId] = org;
     }
 
     /**
@@ -93,11 +91,11 @@ class Organisms extends BaseOrganisms {
      * @override
      */
     onAfterKillOrg(org) {
-        delete this._positions[org.posId];
+        delete this.manager.positions[org.posId];
     }
 
     /**
-     * Is called after moving of organism is done. Updates this._positions
+     * Is called after moving of organism is done. Updates this.manager.positions
      * map with a new position of organism
      * @param {Number} x1 Start X position
      * @param {Number} y1 Start Y position
@@ -109,8 +107,8 @@ class Organisms extends BaseOrganisms {
      */
     onAfterMove(x1, y1, x2, y2, org) {
         if (x1 !== x2 || y1 !== y2) {
-            delete this._positions[Helper.posId(x1, y1)];
-            this._positions[Helper.posId(x2, y2)] = org;
+            delete this.manager.positions[Helper.posId(x1, y1)];
+            this.manager.positions[Helper.posId(x2, y2)] = org;
         }
 
         return true;
@@ -120,16 +118,16 @@ class Organisms extends BaseOrganisms {
         if (x < 0 || y < 0 || !Number.isInteger(x) || !Number.isInteger(y)) {return}
         const posId = Helper.posId(x, y);
 
-        if (typeof(this._positions[posId]) === 'undefined') {
+        if (typeof(this.manager.positions[posId]) === 'undefined') {
             ret.ret = this.manager.world.getDot(x, y)
         } else {
-            ret.ret = this._positions[posId].energy;
+            ret.ret = this.manager.positions[posId].energy;
         }
     }
 
     _onEat(org, x, y, ret) {
         const world = this.manager.world;
-        const positions = this._positions;
+        const positions = this.manager.positions;
         let   dir;
 
         [x, y, dir] = Helper.normalize(x, y);
@@ -210,7 +208,7 @@ class Organisms extends BaseOrganisms {
         let dir;
 
         [x, y, dir] = Helper.normalize(x, y);
-        if (typeof(this._positions[Helper.posId(x, y)]) === 'undefined') {
+        if (typeof(this.manager.positions[Helper.posId(x, y)]) === 'undefined') {
             ret.ret = this.manager.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
         } else {
             ret.ret = ORGANISM;

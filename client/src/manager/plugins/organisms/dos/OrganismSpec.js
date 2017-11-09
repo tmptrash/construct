@@ -8,9 +8,6 @@ describe("client/src/organism/OrganismDos", () => {
     let THelper     = require('./../../../../../../common/tests/Helper');
     let cls;
 
-    beforeEach(() => {cls = Config.codeOperatorsCls;api.set('codeOperatorsCls', 'ops')});
-    afterEach(() => api.set('codeOperatorsCls', cls));
-
     it("Checking organism creation", () => {
         let   org  = new OrganismDos(0, 1, 2, true, null, ()=>{});
 

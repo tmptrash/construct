@@ -98,6 +98,7 @@ describe("client/src/manager/plugins/Client", () => {
             const client = new Client(man);
             client.run();
             THelper.wait(waitObj, () => { // waiting for Man.run()
+                //console.log('1');
                 server.on(SEVENTS.STOP, () => waitObj.done = true);
                 server.destroy();
                 THelper.wait(waitObj, () => {

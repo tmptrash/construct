@@ -11,16 +11,28 @@ const Config  = require('./../../share/Config').Config;
 const Console = require('./../../share/Console');
 
 class Backup {
-    constructor(orgs, world, positions) {
-        this.orgs      = orgs;
-        this._world     = world;
-        this._positions = positions;
+    constructor(manager) {
+        this.orgs           = manager.organisms;
+        this._world         = manager.world;
+        this._positions     = manager.positions;
+        this._manager       = manager;
+        this._onIterationCb = this.onIteration.bind(this);
+
+        Helper.override(manager, 'onIteration', this._onIterationCb);
     }
 
     destroy() {
-        this.orgs       = null;
-        this._world     = null;
-        this._positions = null;
+        Helper.unoverride(this._manager, 'onIteration', this._onIterationCb);
+        this._onIterationCb = null;
+        this.orgs           = null;
+        this._world         = null;
+        this._positions     = null;
+    }
+
+    onIteration(counter) {
+        if (counter % Config.backupPeriod !== 0 || Config.backupPeriod === 0) {return}
+        // TODO: done this
+        //this.backup(this.orgs);
     }
 
     backup() {

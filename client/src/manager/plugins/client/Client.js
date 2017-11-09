@@ -110,6 +110,7 @@ class Client extends Connection {
         // also means that this client is active and ready to run
         //
         this.request(this._client, TYPES.REQ_GET_ID, (type, clientId) => {
+            //console.log('clientId');
             if (type !== TYPES.RES_GET_ID_OK) {
                 Console.error(`Unable to get unique client id from server. Response type: ${type}`);
                 return;
@@ -136,14 +137,6 @@ class Client extends Connection {
 
     _onStepOut(x, y, dir, org) {
         this.request(this._client, TYPES.REQ_MOVE_ORG, this._manager.clientId, x, y, dir, org.serialize());
-    }
-
-    /**
-     * Is called if Manager.run() method is called. Runs WebSocket client
-     * @private
-     */
-    _onRun() {
-        this.run();
     }
 }
 

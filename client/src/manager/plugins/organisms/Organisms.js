@@ -34,7 +34,7 @@ class Organisms {
     onOrganism(org) {}
 
     /**
-     * Is called after moving of organism is done. Updates this._positions
+     * Is called after moving of organism is done. Updates Manager.positions
      * map with a new position of organism
      * @param {Number} x1 Start X position
      * @param {Number} y1 Start Y position
@@ -77,7 +77,6 @@ class Organisms {
 
     constructor(manager) {
         this.organisms      = manager.organisms;
-        this.backup         = new Backup();
         this.manager        = manager;
         this.randOrgItem    = this.organisms.first;
         this._mutator       = new Mutator(manager);
@@ -115,7 +114,6 @@ class Organisms {
         this.updateClone(counter);
         this.updateCrossover(counter);
         this.updateCreate();
-        this.updateBackup(counter);
     }
 
     addOrgHandlers(org) {
@@ -168,12 +166,6 @@ class Organisms {
         if (this.organisms.size < 1) {
             this._createPopulation();
         }
-    }
-
-    updateBackup(counter) {
-        if (counter % Config.backupPeriod !== 0 || Config.backupPeriod === 0) {return}
-        // TODO: done this
-        //this.backup.backup(this.organisms);
     }
 
     getRandOrg() {

@@ -38,6 +38,11 @@ class Manager extends Observer {
          */
         this.organisms     = new Queue();
         /**
+         * {Object} positions of organisms in a world. Is used to prevent collisions
+         * and track all world objects
+         */
+        this.positions     = {};
+        /**
          * {Number} Amount of organism's code runs. codeRuns++ will occur after last
          * code line will done. May be changed in plugins.
          */
@@ -113,6 +118,7 @@ class Manager extends Observer {
         for (let org of this.organisms) {org.destroy()}
         this.organisms.destroy();
         this.organisms = null;
+        this.positions = null;
         this._onLoopCb = null;
         this._plugins  = null;
         this.api       = null;
