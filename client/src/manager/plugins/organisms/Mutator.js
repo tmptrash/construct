@@ -9,11 +9,11 @@
  *
  * @author flatline
  */
-const EVENTS   = require('./../../share/Events').EVENTS;
-const Config   = require('./../../share/Config').Config;
-const Helper   = require('./../../../../common/src/Helper');
-const Organism = require('./organisms/dos/Organism');
-const Num      = require('./../../jsvm/Num');
+const EVENTS   = require('./../../../share/Events').EVENTS;
+const Config   = require('./../../../share/Config').Config;
+const Helper   = require('./../../../../../common/src/Helper');
+const Organism = require('./dos/Organism');
+const Num      = require('./../../../jsvm/Num');
 
 const VAR_BITS_OFFS = Num.VAR_BITS_OFFS - 1;
 const VARS          = Num.VARS;
@@ -21,7 +21,7 @@ const MAX_VAR       = Num.MAX_VAR;
 
 class Mutator {
     constructor(manager) {
-        this.manager = manager;
+        this._manager = manager;
         this._MUTATION_TYPES = [
             this._onAdd,
             this._onChange,
@@ -40,7 +40,7 @@ class Mutator {
     }
 
     destroy() {
-        this.manager         = null;
+        this._manager        = null;
         this._MUTATION_TYPES = null;
     }
 
@@ -71,7 +71,7 @@ class Mutator {
             mTypes[type](org);
         }
         org.changes += mutations;
-        this.manager.fire(EVENTS.MUTATIONS, org, mutations, clone);
+        this._manager.fire(EVENTS.MUTATIONS, org, mutations, clone);
 
         return mutations;
     }

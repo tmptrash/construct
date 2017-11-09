@@ -11,6 +11,7 @@ const Config       = require('./../../../../src/share/Config').Config;
 const Console      = require('./../../../../src/share/Console');
 const EVENTS       = require('./../../../../src/share/Events').EVENTS;
 const Backup       = require('./../Backup');
+const Mutator      = require('./Mutator');
 const CodeOrganism = require('CLIENT/' + Config.orgOrganismCls + '.js');
 
 const RAND_OFFS = 4;
@@ -79,6 +80,7 @@ class Organisms {
         this.backup         = new Backup();
         this.manager        = manager;
         this.randOrgItem    = this.organisms.first;
+        this._mutator       = new Mutator(manager);
         this._onIterationCb = this.onIteration.bind(this);
 
         this.reset();
@@ -87,6 +89,8 @@ class Organisms {
 
     destroy() {
         Helper.unoverride(this.manager, 'onIteration', this._onIterationCb);
+        this._mutator.destroy();
+        this._mutator       = null;
         this.manager        = null;
         this._onIterationCb = null;
     }

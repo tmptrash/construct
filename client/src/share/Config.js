@@ -40,7 +40,6 @@ ClientConfig.init({
         'organisms/dos/Code2String',
         'Config',
         {path: 'client/Client', cfg: {run: true}},
-        'Mutator',
         'Energy',
         'Status',
         'ips/Ips'
