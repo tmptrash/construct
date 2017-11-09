@@ -211,7 +211,9 @@ class Organisms extends BaseOrganisms {
      */
     _onStepIn(x, y, orgJson) {
         if (this.manager.world.isFree(x, y) && this.organisms.size < Config.orgMaxOrgs && this.createOrg({x, y})) {
-            this.organisms.last.val.unserialize(orgJson);
+            const org = this.organisms.last.val;
+            org.unserialize(orgJson);
+            org.grabEnergy(Config.orgStepEnergySpendPercent);
         }
     }
 

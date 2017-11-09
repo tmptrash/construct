@@ -78,7 +78,7 @@ class Server extends Connection {
         this._port          = port;
         this._running       = false;
         this._stopping      = false;
-        this._plugins       = new Plugins(this, Config.plugins, false);
+        this._plugins       = new Plugins(this, Config.plugIncluded, false);
     }
 
     /**

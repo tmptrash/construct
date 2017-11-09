@@ -76,7 +76,7 @@ class Manager extends Observer {
         // Plugins creation should be at the end of initialization to
         // have an ability access Manager's API from them
         //
-        this._plugins    = new Plugins(this, Config.plugins);
+        this._plugins    = new Plugins(this, Config.plugIncluded);
     }
     get world()        {return this._world}
     get canvas()       {return this._canvas}

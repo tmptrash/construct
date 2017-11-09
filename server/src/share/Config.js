@@ -17,10 +17,14 @@ ServerConfig.init({
      * should be started from 'src' and not from 'client' or 'common'
      * folders.
      */
-    plugins: [
+    plugIncluded: [
         'src/net/Request',
         'src/server/plugins/Api'
     ],
+    /**
+     * TODO:
+     */
+    plugExcluded: [],
     /**
      * {Number} Maximum amount of connections for current server. Should
      * be quadratic (x^2) e.g.: 4, 9, 16,... This value will be extended

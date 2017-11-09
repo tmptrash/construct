@@ -35,7 +35,7 @@ ClientConfig.init({
      * {Array} Array of paths to Manager's plugins. Root folder for plugins
      * should be './client/src/manager/plugins/'.
      */
-    plugins: [
+    plugIncluded: [
         'organisms/dos/Organisms',
         'organisms/dos/Code2String',
         'Config',
@@ -45,6 +45,11 @@ ClientConfig.init({
         'ips/Ips',
         'backup/Backup'
     ],
+    /**
+     * {Array} Array of excluded plugins. Affects plugIncluded list
+     * TODO:
+     */
+    plugExcluded: [],
     /**
      * {Array} Probabilities with which mutator decides what to do:
      * add, change, delete character of the jsvm; change amount of
@@ -140,6 +145,11 @@ ClientConfig.init({
      * {Number} Percent of energy, which will be given to the child
      */
     orgCloneEnergyPercent: 0.5,
+    /**
+     * {Number} Percent of energy, which will be minused from organism after
+     * stepping from one instance to another.
+     */
+    orgStepEnergySpendPercent: 0.0,
     /**
      * {Number} Maximum amount of organisms in a world. If some organisms will
      * try to clone itself, when entire amount of organisms are equal
@@ -249,27 +259,6 @@ ClientConfig.init({
      * you want to disable it
      */
     worldEnergyCheckPeriod: 5000,
-    /**
-     * {Number} The period of time between yield() calls in "stand by" mode.
-     * In this mode manager waits for data in sockets and new connections.
-     * In this mode yield() is called only once in a period, because
-     * it eats CPU cicles. In case of data in sockets or new connections
-     * yield() will be called more often.
-     */
-    conYieldPeriod: 0.01,
-    /**
-     * {Number} Percent of energy, which will be minused from organism after
-     * stepping from one instance to another.
-     */
-    conStepEnergySpendPercent: 0.0,
-    /**
-     * {Array} Array of included plugins
-     */
-    plugIncluded: [],
-    /**
-     * {Array} Array of excluded plugins. Affects plugIncluded list
-     */
-    plugExcluded: [],
     /**
      * {Number} Mode for showing/supressing of messages. Possible values:
      *   0 - all messages
@@ -511,14 +500,6 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //      * jsvm in main loop
 //      */
 //     worldIpsPeriodMs: 10000,
-//     /**
-//      * {Number} The period of time between yield() calls in "stand by" mode.
-//      * In this mode manager waits for data in sockets and new connections.
-//      * In this mode yield() is called only once in a period, because
-//      * it eats CPU cicles. In case of data in sockets or new connections
-//      * yield() will be called more often.
-//      */
-//     conYieldPeriod: 0.01,
 //     /**
 //      * {Number} Percent of energy, which will be minused from organism after
 //      * stepping from one instance to another.
@@ -814,14 +795,6 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //      * jsvm in main loop
 //      */
 //     worldIpsPeriodMs: 10000,
-//     /**
-//      * {Number} The period of time between yield() calls in "stand by" mode.
-//      * In this mode manager waits for data in sockets and new connections.
-//      * In this mode yield() is called only once in a period, because
-//      * it eats CPU cicles. In case of data in sockets or new connections
-//      * yield() will be called more often.
-//      */
-//     conYieldPeriod: 0.01,
 //     /**
 //      * {Number} Percent of energy, which will be minused from organism after
 //      * stepping from one instance to another.
