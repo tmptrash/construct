@@ -42,7 +42,8 @@ ClientConfig.init({
         {path: 'client/Client', cfg: {run: true}},
         'Energy',
         'Status',
-        'ips/Ips'
+        'ips/Ips',
+        'backup/Backup'
     ],
     /**
      * {Array} Probabilities with which mutator decides what to do:
@@ -248,14 +249,6 @@ ClientConfig.init({
      * you want to disable it
      */
     worldEnergyCheckPeriod: 5000,
-    /**
-     * {Number} Period of making automatic backup of application. In iterations
-     */
-    backupPeriod: 1000,
-    /**
-     * {Number} Amount of backup files stored on HDD. Old files will be removed
-     */
-    backupAmount: 10,
     /**
      * {Number} The period of time between yield() calls in "stand by" mode.
      * In this mode manager waits for data in sockets and new connections.
@@ -518,14 +511,6 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //      * jsvm in main loop
 //      */
 //     worldIpsPeriodMs: 10000,
-//     /**
-//      * {Number} Period of making automatic backup of application. In iterations
-//      */
-//     backupPeriod: 1000,
-//     /**
-//      * {Number} Amount of backup files stored on HDD. Old files will be removed
-//      */
-//     backupAmount: 10,
 //     /**
 //      * {Number} The period of time between yield() calls in "stand by" mode.
 //      * In this mode manager waits for data in sockets and new connections.
@@ -829,14 +814,6 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //      * jsvm in main loop
 //      */
 //     worldIpsPeriodMs: 10000,
-//     /**
-//      * {Number} Period of making automatic backup of application. In iterations
-//      */
-//     backupPeriod: 100,
-//     /**
-//      * {Number} Amount of backup files stored on HDD. Old files will be removed
-//      */
-//     backupAmount: 10,
 //     /**
 //      * {Number} The period of time between yield() calls in "stand by" mode.
 //      * In this mode manager waits for data in sockets and new connections.

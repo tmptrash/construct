@@ -6,9 +6,10 @@
  *
  * @author flatline
  */
-const Helper  = require('./../../../../common/src/Helper');
-const Config  = require('./../../share/Config').Config;
-const Console = require('./../../share/Console');
+const Helper  = require('./../../../../../common/src/Helper');
+const Config  = require('./../../../share/Config').Config;
+const Console = require('./../../../share/Console');
+const BConfig = require('./Config');
 
 class Backup {
     constructor(manager) {
@@ -30,7 +31,7 @@ class Backup {
     }
 
     onIteration(counter) {
-        if (counter % Config.backupPeriod !== 0 || Config.backupPeriod === 0) {return}
+        if (counter % BConfig.period !== 0 || BConfig.period === 0) {return}
         // TODO: done this
         //this.backup(this.orgs);
     }

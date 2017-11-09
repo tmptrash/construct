@@ -10,7 +10,7 @@ const Helper  = require('./../../../../../common/src/Helper');
 const Config  = require('./../../../../src/share/Config').Config;
 const Console = require('./../../../../src/share/Console');
 const EVENTS  = require('./../../../../src/share/Events').EVENTS;
-const Backup  = require('./../Backup');
+const Backup  = require('./../backup/Backup');
 const Mutator = require('./Mutator');
 
 const RAND_OFFS = 4;
