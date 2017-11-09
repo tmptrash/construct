@@ -37,6 +37,7 @@ ClientConfig.init({
      */
     plugins: [
         'organisms/dos/Organisms',
+        'organisms/dos/Code2String',
         'Config',
         {path: 'client/Client', cfg: {run: true}},
         'Mutator',
@@ -217,10 +218,6 @@ ClientConfig.init({
      * class for details. See ClassMap.js for additional details.
      */
     codeOperatorsCls: 'src/manager/plugins/organisms/dos/Operators',
-    /**
-     * {String} Name of the class for string representation of byte jsvm
-     */
-    code2StringCls: 'src/manager/plugins/organisms/dos/Code2String',
     /**
      * {Number} World width
      */
@@ -484,7 +481,7 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //     /**
 //      * {String} Name of the class for string representation of byte jsvm
 //      */
-//     code2StringCls: 'Code2StringDos',//'Code2StringGarmin',
+//     code2StringCls: 'Code2String',//'Code2String',
 //     /**
 //      * {Number} World width
 //      */
@@ -800,7 +797,7 @@ module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
 //     /**
 //      * {String} Name of the class for string representation of byte jsvm
 //      */
-//     code2StringCls: 'Code2StringGarmin',
+//     code2StringCls: 'Code2String',
 //     /**
 //      * {Number} World width
 //      */

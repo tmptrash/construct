@@ -17,8 +17,9 @@ const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
 const BITS_FOR_NUMBER       = 16;
 const HALF_OF_VAR           = Num.MAX_VAR / 2;
 
-class Code2StringDos {
-    constructor() {
+class Code2String {
+    constructor(manager) {
+        this._manager = manager;
         /**
          * {Object} These operator handlers should return string representation
          * of numeric based byte jsvm.
@@ -69,6 +70,10 @@ class Code2StringDos {
         this._offsets = [];
 
         Num.setOperatorAmount(this._OPERATORS_CB_LEN);
+        //
+        // API of the Manager for accessing outside. (e.g. from Console)
+        //
+        manager.api.formatCode = (code) => this.format(code);
     }
 
     destroy() {
@@ -266,4 +271,4 @@ class Code2StringDos {
     }
 }
 
-module.exports = Code2StringDos;
+module.exports = Code2String;

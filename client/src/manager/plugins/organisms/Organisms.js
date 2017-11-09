@@ -11,7 +11,6 @@ const Config       = require('./../../../../src/share/Config').Config;
 const Console      = require('./../../../../src/share/Console');
 const EVENTS       = require('./../../../../src/share/Events').EVENTS;
 const Backup       = require('./../Backup');
-const Code2String  = require('CLIENT/' + Config.code2StringCls + '.js');
 const CodeOrganism = require('CLIENT/' + Config.orgOrganismCls + '.js');
 
 const RAND_OFFS = 4;
@@ -79,23 +78,16 @@ class Organisms {
         this.organisms      = manager.organisms;
         this.backup         = new Backup();
         this.manager        = manager;
-        this.code2Str       = new Code2String();
         this.randOrgItem    = this.organisms.first;
         this._onIterationCb = this.onIteration.bind(this);
 
         this.reset();
         Helper.override(manager, 'onIteration', this._onIterationCb);
-        //
-        // API of the Manager for accessing outside. (e.g. from Console)
-        //
-        manager.api.formatCode = (code) => this.code2Str.format(code);
     }
 
     destroy() {
         Helper.unoverride(this.manager, 'onIteration', this._onIterationCb);
         this.manager        = null;
-        this.code2Str.destroy();
-        this.code2Str       = null;
         this._onIterationCb = null;
     }
 

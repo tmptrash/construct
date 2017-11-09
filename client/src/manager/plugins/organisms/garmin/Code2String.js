@@ -16,8 +16,9 @@ const VAR2                  = (n) => Num.getVar(n, 2);
 const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
 const HALF_OF_VAR           = Num.MAX_VAR / 2;
 
-class Code2StringGarmin {
-    constructor() {
+class Code2String {
+    constructor(manager) {
+        this._manager = manager;
         /**
          * {Array} Array of offsets for closing braces. For 'for', 'if'
          * and all block operators.
@@ -53,6 +54,10 @@ class Code2StringGarmin {
         this._TRIGS = ['sin', 'cos', 'tan', 'abs'];
 
         Num.setOperatorAmount(this._OPERATORS_CB_LEN);
+        //
+        // API of the Manager for accessing outside. (e.g. from Console)
+        //
+        manager.api.formatCode = (code) => this.format(code);
     }
 
     destroy() {
@@ -147,4 +152,4 @@ class Code2StringGarmin {
     }
 }
 
-module.exports = Code2StringGarmin;
+module.exports = Code2String;
