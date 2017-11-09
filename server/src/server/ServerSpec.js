@@ -1,27 +1,24 @@
 describe("server/src/server/Server", () => {
     const WebSocket    = require('ws');
     const Config       = require('./../../../client/src/share/Config').Config;
+    const SConfig      = require('./../../../server/src/share/Config').Config;
     const Observer     = require('./../../../common/src/Observer');
-    const Server       = require('./../../../server/src/server/Server').Server;
+    const Server       = require('./Server').Server;
     const OLD_MODE     = Config.modeNodeJs;
     Config.modeNodeJs  = true;
     const Client       = require('./../../../client/src/manager/plugins/client/Client').Client;
-    const SEVENTS      = require('./../../../server/src/server/Server').EVENTS;
+    const SEVENTS      = require('./Server').EVENTS;
     const CEVENTS      = require('./../../../client/src/manager/plugins/client/Client').EVENTS;
     const EVENT_AMOUNT = require('./../../../client/src/share/Events').EVENT_AMOUNT;
-    const SConsole     = require('./../../src/share/Console');
+    const SConsole     = require('./../share/Console');
     const Console      = require('./../../../client/src/share/Console');
     const Helper       = require('./../../../common/tests/Helper');
     const TYPES        = require('./../../../common/src/net/Requests').TYPES;
-    const Api          = require('./../../src/server/plugins/Api');
+    const Api          = require('./plugins/Api');
     const Request      = require('./../../../common/src/net/Request');
     const waitEvent    = Helper.waitEvent;
 
-    const PLUGINS = {
-        Request,
-        Api
-    };
-    const CLIENT_URL = `ws://127.0.0.1:${Config.port}`;
+    const CLIENT_URL = `ws://127.0.0.1:${SConfig.port}`;
 
     let error;
     let warn;
@@ -57,7 +54,7 @@ describe("server/src/server/Server", () => {
     });
 
     it("Checking server creation", () => {
-        let server = new Server(Config.port, PLUGINS);
+        let server = new Server(SConfig.port);
 
         server.destroy();
     });
@@ -65,31 +62,31 @@ describe("server/src/server/Server", () => {
         let server;
 
         for (let i = 0; i < 100; i++) {
-            server = new Server(Config.port, PLUGINS);
+            server = new Server(SConfig.port);
             server.destroy();
         }
     });
     it("Checking two servers creation on different ports", () => {
-        let server1 = new Server(Config.port, PLUGINS);
-        let server2 = new Server(Config.port + 1, PLUGINS);
+        let server1 = new Server(SConfig.port);
+        let server2 = new Server(SConfig.port + 1);
 
         server2.destroy();
         server1.destroy();
     });
     it("Checking two servers creation on the same port", () => {
-        let server1 = new Server(Config.port, PLUGINS);
-        let server2 = new Server(Config.port, PLUGINS);
+        let server1 = new Server(SConfig.port);
+        let server2 = new Server(SConfig.port);
 
         server2.destroy();
         server1.destroy();
     });
     it("Checking stopping of created server", () => {
-        let server = new Server(Config.port, PLUGINS);
+        let server = new Server(SConfig.port);
         expect(server.stop()).toBe(false);
         server.destroy();
     });
     it("Checking many times stopping of created server", () => {
-        let server = new Server(Config.port, PLUGINS);
+        let server = new Server(SConfig.port);
         for (let i = 0; i < 1000; i++) {
             expect(server.stop()).toBe(false);
         }
@@ -97,16 +94,16 @@ describe("server/src/server/Server", () => {
     });
 
     it("Checking two servers running on the same port", (done) => {
-        let server1 = new Server(Config.port, PLUGINS);
-        let server2 = new Server(Config.port, PLUGINS);
+        let server1 = new Server(SConfig.port);
+        let server2 = new Server(SConfig.port);
 
         waitEvent(server1, SEVENTS.RUN, () => server1.run() && server2.run, () => {
             waitEvent(server1, SEVENTS.DESTROY, () => {server2.destroy(); server1.destroy()}, done);
         });
     });
     it("Checking two servers running on different ports", (done) => {
-        let server1 = new Server(Config.port, PLUGINS);
-        let server2 = new Server(Config.port + 1, PLUGINS);
+        let server1 = new Server(SConfig.port);
+        let server2 = new Server(SConfig.port + 1);
         let waitObj = {done: false};
         let times   = 0;
 
@@ -125,7 +122,7 @@ describe("server/src/server/Server", () => {
     });
 
     it("Checking many times running/stopping of created server", (done) => {
-        let server  = new Server(Config.port, PLUGINS);
+        let server  = new Server(SConfig.port);
         let waitObj = {done: false};
 
         for (let i = 0; i < 100; i++) {
@@ -137,7 +134,7 @@ describe("server/src/server/Server", () => {
         Helper.wait(waitObj, done);
     });
     it("Checking server running many times", (done) => {
-        let server  = new Server(Config.port, PLUGINS);
+        let server  = new Server(SConfig.port);
         let waitObj = {done: false};
 
         for (let i = 0; i < 100; i++) {server.run()}
@@ -147,7 +144,7 @@ describe("server/src/server/Server", () => {
         else {Helper.wait(waitObj, done)}
     });
     it("Checking server run", (done) => {
-        let server  = new Server(Config.port, PLUGINS);
+        let server  = new Server(SConfig.port);
         let waitObj = {done: false};
 
         server.on(SEVENTS.RUN, () => waitObj.done = true);
@@ -159,7 +156,7 @@ describe("server/src/server/Server", () => {
         });
     });
     it("Checking server run/stop/run/stop", (done) => {
-        let server  = new Server(Config.port, PLUGINS);
+        let server  = new Server(SConfig.port);
         let waitObj = {done: false};
 
         server.on(SEVENTS.RUN, () => waitObj.done = true);
@@ -182,7 +179,7 @@ describe("server/src/server/Server", () => {
     });
 
     it("Checking server run + one client connection", (done) => {
-        let server  = new Server(Config.port, PLUGINS);
+        let server  = new Server(SConfig.port);
         let waitObj = {done: false};
 
         server.on(SEVENTS.CONNECT, () => waitObj.done = true);
@@ -198,7 +195,7 @@ describe("server/src/server/Server", () => {
         });
     });
     it("Checking server run + two clients connection", (done) => {
-        let server  = new Server(Config.port, PLUGINS);
+        let server  = new Server(SConfig.port);
         let waitObj = {done: false};
         let cons    = 0;
 
@@ -216,7 +213,7 @@ describe("server/src/server/Server", () => {
         });
     });
     it("Checking server run + two clients and one disconnected", (done) => {
-        let server  = new Server(Config.port, PLUGINS);
+        let server  = new Server(SConfig.port);
         let waitObj = {done: false};
         let cons    = 0;
 
@@ -238,7 +235,7 @@ describe("server/src/server/Server", () => {
         });
     });
     it("Checking server run + one client connect/disconnect/connect", (done) => {
-        let server = new Server(Config.port, PLUGINS);
+        let server = new Server(SConfig.port);
         let client;
 
         waitEvent(server, CEVENTS.OPEN, () => {server.run(); client = new WebSocket(CLIENT_URL)}, () => {
@@ -251,7 +248,7 @@ describe("server/src/server/Server", () => {
     });
 
     it("Checking 'active' field", (done) => {
-        let server  = new Server(Config.port, PLUGINS);
+        let server  = new Server(SConfig.port);
         let waitObj = {done: false};
 
         expect(server.active).toEqual(false);
@@ -281,9 +278,9 @@ describe("server/src/server/Server", () => {
         }
         let man     = new Man();
         let man1    = new Man();
-        let maxCon  = Config.maxConnections;
-        Config.maxConnections = 1;
-        let server  = new Server(Config.port, PLUGINS);
+        let maxCon  = SConfig.maxConnections;
+        SConfig.maxConnections = 1;
+        let server  = new Server(SConfig.port);
         let client  = new Client(man);
 
         client.run();
@@ -292,7 +289,7 @@ describe("server/src/server/Server", () => {
             client1.run();
             waitEvent(client1, CEVENTS.CLOSE, () => {
                 waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
-                    Config.maxConnections = maxCon;
+                    SConfig.maxConnections = maxCon;
                     man.clear();
                     man1.clear();
                     done();
