@@ -10,6 +10,7 @@ const Helper  = require('./../../../../../common/src/Helper');
 const Config  = require('./../../../share/Config').Config;
 const Console = require('./../../../share/Console');
 const BConfig = require('./Config');
+const EVENTS  = require('./../../../share/Events').EVENTS;
 
 class Backup {
     constructor(manager) {

@@ -31,25 +31,30 @@ class JSVM extends Observer {
     constructor(codeEndCb, obs, operatorCls, parent = null) {
         super(EVENT_AMOUNT);
 
-        this._obs       = obs;
+        this._obs         = obs;
+        /**
+         * {Function} Class of operators, with implementation of all available
+         * script parts for current JSVM instance
+         */
+        this._operatorCls = operatorCls;
         /**
          * {Function} Callback, which is called on every organism
          * jsvm iteration. On it's end.
          */
-        this._onCodeEnd = codeEndCb;
+        this._onCodeEnd   = codeEndCb;
         /**
          * {Array} Array of two numbers. first - line number where we have
          * to return if first line appears. second - line number, where ends
          * closing block '}' of block operator (e.g. for, if,...).
          */
-        this._offsets   = [];
-        this._vars      = parent && parent.vars && parent.vars.slice() || this._getVars();
+        this._offsets     = [];
+        this._vars        = parent && parent.vars && parent.vars.slice() || this._getVars();
         /**
          * {Function} Class, which implement all supported operators
          */
-        this._operators = new operatorCls(this._offsets, this._vars, obs);
-        this._code      = parent && parent.code.slice() || [];
-        this._line      = 0;
+        this._operators   = new operatorCls(this._offsets, this._vars, obs);
+        this._code        = parent && parent.code.slice() || [];
+        this._line        = 0;
     }
 
     get code() {
@@ -91,7 +96,7 @@ class JSVM extends Observer {
         this._vars    = json.vars;
         this._code    = json.code;
         this._line    = json.line;
-        this._operators = new Operators(this._offsets, this._vars, this._obs);
+        this._operators = new this._operatorCls(this._offsets, this._vars, this._obs);
     }
 
     /**
