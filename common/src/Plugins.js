@@ -33,7 +33,7 @@ class Plugins {
         this._destroy     = destroy;
         this._destroyed   = false;
 
-        Helper.override(parent, 'destroy', this._onDestroyCb);
+        Helper.override2(parent, 'destroy', this._onDestroyCb);
     }
 
     /**
@@ -46,6 +46,8 @@ class Plugins {
     }
 
     /**
+     * TIP: This method must be public, because it's used in Server's
+     * TIP: destructor.
      * Is called if parent instance calls destroy() method. Here we
      * destroy all created plugins and the reference to this instance
      * in parent instance. This method may be called by hands from
@@ -60,11 +62,10 @@ class Plugins {
         //
         if (this._destroy) {
             const plugins = this.parent.plugins;
-            for (let p of plugins) {
-                p.destroy && p.destroy();
-            }
+            for (let p of plugins) {p.destroy && p.destroy()}
         }
         this.parent.plugins = null;
+        Helper.unoverride(this.parent, 'destroy', this._onDestroyCb);
         this._onDestroyCb   = null;
         this.parent         = null;
         this._destroyed     = true;

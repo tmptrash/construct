@@ -28,6 +28,7 @@ class Ips extends Configurable {
     destroy() {
         Helper.unoverride(this.parent, 'onIteration', this._onIterationCb);
         this._onIterationCb = null;
+        super.destroy();
     }
 
     _onIteration(counter, stamp) {

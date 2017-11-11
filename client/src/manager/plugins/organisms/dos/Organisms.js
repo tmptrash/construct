@@ -25,16 +25,14 @@ const ORGANISM      = 2;
 class Organisms extends BaseOrganisms {
     constructor(manager) {
         super(manager);
-
         this._onStepInCb = this._onStepIn.bind(this);
-
         this.manager.on(EVENTS.STEP_IN, this._onStepInCb);
     }
 
     destroy() {
-        super.destroy();
         this.manager.off(EVENTS.STEP_IN, this._onStepInCb);
         this._onStepInCb = null;
+        super.destroy();
     }
 
     /**

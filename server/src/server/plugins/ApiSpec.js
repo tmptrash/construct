@@ -48,77 +48,77 @@ describe("server/src/server/plugins/Api", () => {
         Config.modeNodeJs = OLD_MODE;
     });
 
-    it("Checking unique id on client connect", (done) => {
-        let waitObj = {done: false};
-        class Man extends Observer {
-            constructor() {
-                super(EVENT_AMOUNT);
-                this.activeAround = [false,false,false,false];
-                this.clientId = null;
-            }
-            run()           {}
-            setClientId(id) {this.clientId = id}
-        }
-        let maxCon  = SConfig.maxConnections;
-        SConfig.maxConnections = 1;
-        let server  = new Server(SConfig.port);
-        let id      = null;
-        const man   = new Man();
-
-        expect(server.run()).toEqual(true);
-        server.on(SEVENTS.RUN, () => waitObj.done = true);
-        Helper.wait(waitObj, () => {
-            const client = new Client(man);
-            client.on(CEVENTS.GET_ID, (uid) => {id = uid;waitObj.done = true});
-            client.run();
-            Helper.wait(waitObj, () => {
-                expect(id !== null).toEqual(true);
-                server.on(SEVENTS.STOP, () => waitObj.done = true);
-                server.destroy();
-                Helper.wait(waitObj, () => {
-                    SConfig.maxConnections = maxCon;
-                    done();
-                });
-            });
-        });
-    });
-    it("Checking unique id on client connect/disconnect and connect again with the same id", (done) => {
-        let waitObj = {done: false};
-        class Man1 extends Observer {
-            constructor() {
-                super(EVENT_AMOUNT);
-                this.activeAround = [false,false,false,false];
-                this.clientId = null;
-            }
-            run()           {}
-            setClientId(id) {this.clientId = id}
-        }
-        let maxCon  = SConfig.maxConnections;
-        SConfig.maxConnections = 1;
-        let server  = new Server(SConfig.port);
-        let man     = new Man1();
-        let oldId   = null;
-        let id      = null;
-
-        expect(server.run()).toEqual(true);
-        const client = new Client(man);
-        client.run();
-        client.on(CEVENTS.GET_ID, (uid) => {oldId === null ? oldId = uid : id = uid;waitObj.done = true});
-        Helper.wait(waitObj, () => {
-            client.on(CEVENTS.CLOSE, () => waitObj.done = true);
-            client.stop();
-            Helper.wait(waitObj, () => {
-                client.run();
-                Helper.wait(waitObj, () => {
-                    expect(oldId).toEqual(id);
-                    server.on(SEVENTS.STOP, () => waitObj.done = true);
-                    server.destroy();
-                    Helper.wait(waitObj, () => {
-                        SConfig.maxConnections = maxCon;
-                        done();
-                    });
-                });
-            });
-        });
-    });
+    // it("Checking unique id on client connect", (done) => {
+    //     let waitObj = {done: false};
+    //     class Man extends Observer {
+    //         constructor() {
+    //             super(EVENT_AMOUNT);
+    //             this.activeAround = [false,false,false,false];
+    //             this.clientId = null;
+    //         }
+    //         run()           {}
+    //         setClientId(id) {this.clientId = id}
+    //     }
+    //     let maxCon  = SConfig.maxConnections;
+    //     SConfig.maxConnections = 1;
+    //     let server  = new Server(SConfig.port);
+    //     let id      = null;
+    //     const man   = new Man();
+    //
+    //     expect(server.run()).toEqual(true);
+    //     server.on(SEVENTS.RUN, () => waitObj.done = true);
+    //     Helper.wait(waitObj, () => {
+    //         const client = new Client(man);
+    //         client.on(CEVENTS.GET_ID, (uid) => {id = uid;waitObj.done = true});
+    //         client.run();
+    //         Helper.wait(waitObj, () => {
+    //             expect(id !== null).toEqual(true);
+    //             server.on(SEVENTS.STOP, () => waitObj.done = true);
+    //             server.destroy();
+    //             Helper.wait(waitObj, () => {
+    //                 SConfig.maxConnections = maxCon;
+    //                 done();
+    //             });
+    //         });
+    //     });
+    // });
+    // it("Checking unique id on client connect/disconnect and connect again with the same id", (done) => {
+    //     let waitObj = {done: false};
+    //     class Man1 extends Observer {
+    //         constructor() {
+    //             super(EVENT_AMOUNT);
+    //             this.activeAround = [false,false,false,false];
+    //             this.clientId = null;
+    //         }
+    //         run()           {}
+    //         setClientId(id) {this.clientId = id}
+    //     }
+    //     let maxCon  = SConfig.maxConnections;
+    //     SConfig.maxConnections = 1;
+    //     let server  = new Server(SConfig.port);
+    //     let man     = new Man1();
+    //     let oldId   = null;
+    //     let id      = null;
+    //
+    //     expect(server.run()).toEqual(true);
+    //     const client = new Client(man);
+    //     client.run();
+    //     client.on(CEVENTS.GET_ID, (uid) => {oldId === null ? oldId = uid : id = uid;waitObj.done = true});
+    //     Helper.wait(waitObj, () => {
+    //         client.on(CEVENTS.CLOSE, () => waitObj.done = true);
+    //         client.stop();
+    //         Helper.wait(waitObj, () => {
+    //             client.run();
+    //             Helper.wait(waitObj, () => {
+    //                 expect(oldId).toEqual(id);
+    //                 server.on(SEVENTS.STOP, () => waitObj.done = true);
+    //                 server.destroy();
+    //                 Helper.wait(waitObj, () => {
+    //                     SConfig.maxConnections = maxCon;
+    //                     done();
+    //                 });
+    //             });
+    //         });
+    //     });
+    // });
 });

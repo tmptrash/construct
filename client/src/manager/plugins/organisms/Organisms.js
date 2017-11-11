@@ -95,6 +95,10 @@ class Organisms {
     }
 
     destroy() {
+        let item = this.organisms.first;
+        let org;
+        while (item && (org = item.val)) {org.destroy(); item = item.next}
+
         Helper.unoverride(this.manager, 'onIteration', this._onIterationCb);
         this._mutator.destroy();
         this._mutator       = null;

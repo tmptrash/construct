@@ -6,7 +6,7 @@ module.exports = {
     devtool: 'source-map',
     resolve: {
         alias: {
-            CLIENT: path.resolve(__dirname, './client/')
+            CLIENT: path.resolve(__dirname, './client')
         }
     },
     output : {

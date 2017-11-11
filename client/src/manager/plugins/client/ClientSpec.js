@@ -71,7 +71,7 @@ describe("client/src/manager/plugins/Client", () => {
             setClientId(id) {this.clientId = id}
         }
         const man    = new Man0();
-        const client = new Client(man);
+        const client = new Client(man, {run: false});
 
         waitEvent(client, CEVENTS.DESTROY, () => client.destroy(), () => {
             man.clear();
@@ -79,29 +79,22 @@ describe("client/src/manager/plugins/Client", () => {
         });
     });
     it("Checking client creation with a server", (done) => {
-        const waitObj = {done: false};
         class Man extends Observer {
             constructor() {
                 super(EVENT_AMOUNT);
-                this.activeAround = [false,false,false,false];
+                this.activeAround = [false, false, false, false];
                 this.clientId = null;
             }
-            run()           {waitObj.done = true}
+            run() {}
             setClientId(id) {this.clientId = id}
         }
-        const man    = new Man();
+        const man = new Man();
         const server = new Server(SConfig.port);
 
-        server.on(SEVENTS.RUN, () => waitObj.done = true);
-        server.run();
-        THelper.wait(waitObj, () => {
+        waitEvent(server, SEVENTS.RUN, () => server.run(), () => {
             const client = new Client(man);
-            client.run();
-            THelper.wait(waitObj, () => { // waiting for Man.run()
-                //console.log('1');
-                server.on(SEVENTS.STOP, () => waitObj.done = true);
-                server.destroy();
-                THelper.wait(waitObj, () => {
+            waitEvent(client, CEVENTS.GET_ID, () => client.run(), () => {
+                waitEvent(client, CEVENTS.CLOSE, () => server.destroy(), () => {
                     client.destroy();
                     man.clear();
                     done();
@@ -134,15 +127,15 @@ describe("client/src/manager/plugins/Client", () => {
         const man2    = new Man2();
         const server  = new Server(SConfig.port);
 
-        server.on(SEVENTS.RUN, () => waitObj.done = true);
-        server.run();
-        THelper.wait(waitObj, () => {
-            const client1 = new Client(man1);
-            const client2 = new Client(man2);
+        waitEvent(server, SEVENTS.RUN, () => server.run(), () => {
+            const client1 = new Client(man1, {run: true});
+            const client2 = new Client(man2, {run: true});
             client1.run();
             client2.run();
             THelper.wait(waitObj, () => { // waiting for Man1.run()
-                server.on(SEVENTS.STOP, () => {waitObj.done = true});
+                count = 0;
+                client1.on(CEVENTS.CLOSE, () => ++count === 2 && (waitObj.done = true));
+                client2.on(CEVENTS.CLOSE, () => ++count === 2 && (waitObj.done = true));
                 server.destroy();
                 THelper.wait(waitObj, () => {
                     client1.destroy();

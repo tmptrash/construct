@@ -68,7 +68,6 @@ class Client extends Connection {
     get socket()  {return this._client}
 
     destroy() {
-        super.destroy();
         this.stop();
         if (this._client) {
             this._client.onclose   = null;
@@ -78,6 +77,7 @@ class Client extends Connection {
         this._manager          = null;
         this._plugins          = null;
         this._onStepOutCb      = null;
+        super.destroy();
     }
 
     /**
@@ -110,7 +110,6 @@ class Client extends Connection {
         // also means that this client is active and ready to run
         //
         this.request(this._client, TYPES.REQ_GET_ID, (type, clientId) => {
-            //console.log('clientId');
             if (type !== TYPES.RES_GET_ID_OK) {
                 Console.error(`Unable to get unique client id from server. Response type: ${type}`);
                 return;

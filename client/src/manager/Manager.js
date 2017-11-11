@@ -24,7 +24,12 @@ const WEVENTS          = require('./../view/World').EVENTS;
 const Canvas           = require('./../view/Canvas');
 
 class Manager extends Observer {
-    constructor() {
+    /**
+     * Creates manager instance. May or may not contain view(canvas). If there
+     * is no view, then everything will be done in a memory only
+     * @param {Boolean} hasView Means that this manager contains view(canvas)
+     */
+    constructor(hasView = true) {
         super(EVENT_AMOUNT);
         /**
          * {Queue} Queue of organisms in current Manager. Should be used by plugins.
@@ -38,13 +43,18 @@ class Manager extends Observer {
          */
         this.positions     = {};
         /**
+         * {Boolean} Means that this manager instance doesn't contain view(canvas).
+         * All calculations will be done only in memory.
+         */
+        this._hasView      = hasView;
+        /**
          * {Number} Amount of organism's code runs. codeRuns++ will occur after last
          * code line will done. May be changed in plugins.
          */
         this._codeRuns     = 0;
 
         this._world        = new World(Config.worldWidth, Config.worldHeight);
-        this._canvas       = new Canvas(Config.worldWidth, Config.worldHeight);
+        this._canvas       = hasView && new Canvas(Config.worldWidth, Config.worldHeight) || null;
         this._stopped      = true;
         this._visualized   = true;
         this._clientId     = null;
@@ -60,10 +70,10 @@ class Manager extends Observer {
          * It may be used in a user console by the Operator of jevo.js. Plugins
          * may add their methods to this map also.
          */
-        this.api         = {
-            visualize: this._visualize.bind(this),
-            version  : () => '2.0'
+        this.api            = {
+            version: () => '2.0'
         };
+        hasView && (this.api.visualize = this._visualize.bind(this));
 
         this._initLoop();
         this._addHandlers();
@@ -118,14 +128,18 @@ class Manager extends Observer {
 
     destroy() {
         this._world.destroy();
-        this._canvas.destroy();
-        for (let org of this.organisms) {org.destroy()}
+        this._hasView && this._canvas.destroy();
         this.organisms.destroy();
-        this.organisms = null;
-        this.positions = null;
-        this._onLoopCb = null;
-        this._plugins  = null;
-        this.api       = null;
+        this._activeAround = null;
+        this.organisms     = null;
+        this.positions     = null;
+        this._onLoopCb     = null;
+        this._stopped      = true;
+        //
+        // Plugins is destroyed itself. We don't need to call this._plugins.destroy()
+        //
+        this._plugins      = null;
+        this.api           = null;
         this.clear();
     }
 
@@ -142,7 +156,13 @@ class Manager extends Observer {
         // else in a closure.
         //
         (() => {
-            let   callback;
+            let callback;
+
+            if (!this._hasView) {
+                this.zeroTimeout = (fn) => setTimeout(callback = fn);
+                return;
+            }
+
             const msgName = 'm';
 
             window.addEventListener('message', (event) => {
@@ -155,7 +175,7 @@ class Manager extends Observer {
             //
             // Like setTimeout, but only takes a function argument. There's
             // no time argument (always zero) and no arguments (you have to
-            // use a closure).
+            // use a closure)
             //
             this.zeroTimeout = (fn) => {
                 callback = fn;
@@ -187,8 +207,9 @@ class Manager extends Observer {
         this._counter = counter;
         this.zeroTimeout(this._onLoopCb);
     }
+
     _addHandlers() {
-        this._world.on(WEVENTS.DOT, this._onDot.bind(this));
+        this._hasView && this._world.on(WEVENTS.DOT, this._onDot.bind(this));
     }
 
     _visualize(visualized = true) {

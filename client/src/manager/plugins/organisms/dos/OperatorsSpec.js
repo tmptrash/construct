@@ -44,7 +44,6 @@ describe("client/src/organism/OperatorsDos", () => {
     //     expect(ops.vars[2] === 2).toEqual(true);
     //     expect(ops.vars[3] === 3).toEqual(true);
     //     expect(ops.onVar(0x000fffff, 0)).toEqual(1);
-    //     console.log(ops.vars);
     //     expect(ops.vars[0] === 3).toEqual(true);
     //     expect(ops.vars[1] === 1).toEqual(true);
     //     expect(ops.vars[2] === 2).toEqual(true);

@@ -140,10 +140,6 @@ class Connection extends Observer {
         this.fire(CLOSE, event);
     }
 
-    /**
-     * @destructor
-     * @abstract
-     */
     destroy() {
         this.fire(DESTROY);
         this._active = false;

@@ -14,7 +14,7 @@ class ManPlugins extends Plugins {
      * @return {Function|Object} imported module
      */
     require(path) {
-        return require('CLIENT/src/manager/plugins/' + path);
+        return require('./plugins/' + path);
     }
 }
 

@@ -66,6 +66,13 @@ class Organisms extends BaseOrganisms {
         return new Organism(...args);
     }
 
+    destroy() {
+        //
+        // super.destroy() call should be last line in this method
+        //
+        super.destroy();
+    }
+
     _onStop(org) {
         this.manager.stop();
         Console.warn('--------------------------------------------------');

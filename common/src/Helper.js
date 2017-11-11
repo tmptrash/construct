@@ -26,7 +26,7 @@ class Helper {
      * @param {String} fnName Function name
      * @param {Function} fn Destination function
      * @param {Boolean} hard true - erase old function, false - call
-     * new function and aol after that.
+     * old function and new after that.
      */
     static override(obj, fnName, fn, hard = false) {
         fn.fn = obj[fnName];
@@ -34,6 +34,31 @@ class Helper {
             obj[fnName] = (...args) => {
                 fn.fn.apply(obj, args);
                 return fn(...args);
+            };
+            return;
+        }
+        obj[fnName] = fn;
+    }
+
+    /**
+     * The same like override(), but calls wrapped function fn() first (vise-versa)
+     * @param {Object} obj Destination object, we want to override
+     * @param {String} fnName Function name
+     * @param {Function} fn Destination function
+     * @param {Boolean} hard true - erase old function, false - call
+     * new function and old after that.
+     */
+    static override2(obj, fnName, fn, hard = false) {
+        //
+        // We need oldFn exactly in `override2()`, because `fn(..args)` call removes
+        // reference to fn.fn and this code crashes on line `fn.fn.apply(obj, args)`
+        //
+        const oldFn = fn.fn = obj[fnName];
+        if (!hard) {
+            obj[fnName] = (...args) => {
+                const ret = fn(...args);
+                oldFn.apply(obj, args);
+                return ret;
             };
             return;
         }

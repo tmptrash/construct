@@ -19,6 +19,7 @@ class Api extends BaseApi {
     }
 
     destroy() {
+        // super.destroy() should be a last line in this method
         super.destroy();
     }
 
