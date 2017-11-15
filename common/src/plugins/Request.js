@@ -5,9 +5,9 @@
  *
  * @author flatline
  */
-const Helper  = require('./../../src/Helper');
+const Helper  = require('./../Helper');
 const Config  = require('./../../../client/src/share/Config').Config;
-const MASKS   = require('./../../src/net/Requests').MASKS;
+const MASKS   = require('./../net/Requests').MASKS;
 const Console = require(`./../../../${Config.modeNodeJs ? 'server' : 'client'}/src/share/Console`);
 
 class Request {

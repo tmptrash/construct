@@ -177,7 +177,8 @@ class Organism extends Observer {
         this.jsvm && this.jsvm.destroy();
         this.jsvm        = null;
         this._codeEndCb  = null;
-        this.clear();
+
+        super.destroy();
     }
 
     _updateColor(changes) {

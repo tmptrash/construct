@@ -39,7 +39,7 @@ ClientConfig.init({
         'organisms/dos/Organisms',
         'organisms/dos/Code2String',
         'Config',
-        {path: 'client/Client', cfg: {run: true}},
+        'client/Client',
         'Energy',
         'Status',
         'ips/Ips',

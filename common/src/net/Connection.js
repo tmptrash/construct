@@ -143,6 +143,7 @@ class Connection extends Observer {
     destroy() {
         this.fire(DESTROY);
         this._active = false;
+        super.destroy();
     }
 }
 

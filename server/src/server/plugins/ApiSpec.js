@@ -12,7 +12,7 @@ describe("server/src/server/plugins/Api", () => {
     const Console      = require('./../../../../client/src/share/Console');
     const SConsole     = require('./../../share/Console');
     const Helper       = require('./../../../../common/tests/Helper');
-    const Request      = require('./../../../../common/src/net/Request');
+    const Request      = require('./../../../../common/src/plugins/Request');
     const Api          = require('./Api');
 
     let error;

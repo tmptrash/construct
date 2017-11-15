@@ -1947,7 +1947,7 @@ class FitnessGarmin {
 
         org.energy = 0;
         for (let i = 0; i < len; i++) {
-            this._run(org, ACTIVITIES[i], i);
+            this._running(org, ACTIVITIES[i], i);
         }
         //
         // true means that result is found

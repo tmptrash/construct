@@ -62,6 +62,10 @@ class Observer {
         this._resetEvents();
     }
 
+    destroy() {
+        this.clear();
+    }
+
     _resetEvents() {
         const len      = this._maxIndex;
         const handlers = this._handlers = new Array(len);

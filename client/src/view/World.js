@@ -45,10 +45,11 @@ class World extends Observer {
     }
 
     destroy() {
-        this.clear();
         this._data   = null;
         this._width  = 0;
         this._height = 0;
+
+        super.destroy();
     }
 
     get data() {return this._data}

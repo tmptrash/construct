@@ -15,7 +15,7 @@ describe("server/src/server/Server", () => {
     const Helper       = require('./../../../common/tests/Helper');
     const TYPES        = require('./../../../common/src/net/Requests').TYPES;
     const Api          = require('./plugins/Api');
-    const Request      = require('./../../../common/src/net/Request');
+    const Request      = require('./../../../common/src/plugins/Request');
     const waitEvent    = Helper.waitEvent;
 
     const CLIENT_URL = `ws://127.0.0.1:${SConfig.port}`;

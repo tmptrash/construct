@@ -5,7 +5,7 @@
  *
  * @author flatline
  */
-const Plugins = require('./../../../common/src/Plugins');
+const Plugins = require('./../../../common/src/plugins/Plugins');
 
 class ManPlugins extends Plugins {
     /**

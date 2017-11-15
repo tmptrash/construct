@@ -10,7 +10,7 @@ describe("client/src/manager/plugins/Client", () => {
     let Console      = require('./../../../share/Console');
     let SConsole     = require('./../../../../../server/src/share/Console');
     const Api        = require('./../../../../../server/src/server/plugins/Api');
-    const Request    = require('./../../../../../common/src/net/Request');
+    const Request    = require('./../../../../../common/src/plugins/Request');
     const waitEvent  = THelper.waitEvent;
     let isNodeJs;
     let Client;

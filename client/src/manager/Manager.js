@@ -55,9 +55,14 @@ class Manager extends Observer {
 
         this._world        = new World(Config.worldWidth, Config.worldHeight);
         this._canvas       = hasView && new Canvas(Config.worldWidth, Config.worldHeight) || null;
-        this._stopped      = true;
         this._visualized   = true;
+        this._running      = false;
+        this._active       = false;
+        this._stopping     = false;
+        this._destroying   = false;
         this._clientId     = null;
+        this._runCb        = () => {};
+        this._stopCb       = () => {};
         /**
          * {Array} Array of four bool elements (four sides), which stores activeness
          * of up, right, down and left near Managers (maps). If side is active, then
@@ -70,7 +75,7 @@ class Manager extends Observer {
          * It may be used in a user console by the Operator of jevo.js. Plugins
          * may add their methods to this map also.
          */
-        this.api            = {
+        this.api           = {
             version: () => '2.0'
         };
         hasView && (this.api.visualize = this._visualize.bind(this));
@@ -81,13 +86,17 @@ class Manager extends Observer {
         // Plugins creation should be at the end of initialization to
         // have an ability access Manager's API from them
         //
-        this._plugins    = new Plugins(this, Config.plugIncluded);
+        this._plugins      = new Plugins(this, {
+            plugins: Config.plugIncluded,
+            async  : true,
+            onRun  : this._onDone.bind(this)
+        });
     }
     get world()        {return this._world}
     get canvas()       {return this._canvas}
     get clientId()     {return this._clientId}
     get activeAround() {return this._activeAround}
-    get stopped()      {return this._stopped}
+    get active()       {return this._active}
     get codeRuns()     {return this._codeRuns}
 
     set codeRuns(cr)   {this._codeRuns = cr}
@@ -95,18 +104,25 @@ class Manager extends Observer {
     /**
      * Runs main infinite loop of application
      */
-    run () {
-        if (!this._stopped) {return}
-        Console.info('Manager has run');
-        this._counter = 0;
-        this._stopped = false;
-        this._onLoop();
+    run (done = () => {}) {
+        if (this._active || this._running) {return}
+        if (this._stopping) {
+            throw `Impossible to run Manager. It's still stopping.`;
+        }
+        this._running = true;
+        this._runCb   = done;
+        Console.info('Manager is running...');
     }
 
-    stop() {
-        this._stopped = true;
-        this._counter = 0;
-        Console.info('Manager has stopped');
+    stop(done = () => {}) {
+        if (!this._active || this._stopping) {return}
+        if (this._running) {
+            throw `Impossible to stop Manager. It's still running.`;
+        }
+        this._active   = false;
+        this._stopping = true;
+        this._stopCb   = done;
+        Console.info('Manager is stopping...');
     }
 
     setClientId(id) {
@@ -127,6 +143,11 @@ class Manager extends Observer {
     }
 
     destroy() {
+        if (this._active) {
+            this.stop();
+            this._destroying = true;
+            return;
+        }
         this._world.destroy();
         this._hasView && this._canvas.destroy();
         this.organisms.destroy();
@@ -134,13 +155,17 @@ class Manager extends Observer {
         this.organisms     = null;
         this.positions     = null;
         this._onLoopCb     = null;
-        this._stopped      = true;
+        this._active       = false;
+        this._running      = false;
+        this._stopping     = false;
+        this._destroying   = false;
         //
         // Plugins is destroyed itself. We don't need to call this._plugins.destroy()
         //
         this._plugins      = null;
         this.api           = null;
-        this.clear();
+
+        super.destroy();
     }
 
     /**
@@ -168,7 +193,7 @@ class Manager extends Observer {
             window.addEventListener('message', (event) => {
                 if (event.data === msgName) {
                     event.stopPropagation();
-                    if (this._stopped) {return}
+                    if (!this._active) {return}
                     callback();
                 }
             }, true);
@@ -219,6 +244,28 @@ class Manager extends Observer {
 
     _onDot(x, y, color) {
         this._canvas.dot(x, y, color);
+    }
+
+    /**
+     * The real run entry point is in this method. It means, that all nested
+     * components like plugins have run and Manager itself may run it's loop
+     * @param {Boolean} run true - Run, false - stop
+     */
+    _onDone(run) {
+        if (run) {
+            Console.info('Manager has run');
+            this._counter = 0;
+            this._running = false;
+            this._active  = true;
+            this._runCb();
+            this._onLoop();
+            return;
+        }
+
+        Console.info('Manager has stopped');
+        this._stopping = false;
+        this._stopCb();
+        this._destroying && this.destroy();
     }
 }
 

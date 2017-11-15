@@ -44,9 +44,8 @@ describe("client/src/manager/Manager", () => {
         Config.modeNodeJs = OLD_MODE;
     });
 
-    // TODO: looks like this doesn't work well. Something wrong with Client/Server disconnection on destroy
-    // it("Checking manager creation", () => {
-    //     const man = new Manager(false);
-    //     man.destroy();
-    // });
+    it("Checking manager creation", () => {
+        const man = new Manager(false);
+        man.destroy();
+    });
 });

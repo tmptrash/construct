@@ -22,9 +22,10 @@ const EVENTS = {
     BORN_ORGANISM  : 13,
     GET_ENERGY     : 14,
     DESTROY        : 15,
-    STOP           : 16,
-    RESET_CODE     : 17,
-    CHECK_AT       : 18
+    RUN            : 16,
+    STOP           : 17,
+    RESET_CODE     : 18,
+    CHECK_AT       : 19
 };
 
 const EVENT_AMOUNT = Object.keys(EVENTS).length;

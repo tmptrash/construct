@@ -78,7 +78,8 @@ class Server extends Connection {
         this._port          = port;
         this._running       = false;
         this._stopping      = false;
-        this._plugins       = new Plugins(this, Config.plugIncluded, false);
+        this._destroying    = false;
+        this._plugins       = new Plugins(this, {plugins: Config.plugIncluded});
     }
 
     /**
@@ -149,6 +150,7 @@ class Server extends Connection {
                 this._server = null;
                 me.fire(STOP);
                 Console.info('Server has stopped. All clients have disconnected');
+                if (me._destroying) {me.destroy()}
             });
         } catch(e) {
             Console.error('Server.stop() failed: ', e);
@@ -162,18 +164,20 @@ class Server extends Connection {
      * @override
      */
     destroy() {
-        const me        = this;
-        const onDestroy = () => {
-            me._plugins.onDestroy();
-            me.conns.destroy();
-            me._server = me.conns = me._port = me._plugins = null;
-            super.destroy(); // Connection.destroy()
-            me.clear();
-        };
+        if (this._server !== null) {
+            this.stop();
+            this._destroying = true;
+            return;
+        }
+        this._plugins.destroy();
+        this.conns.destroy();
+        this._server     = null;
+        this.conns       = null;
+        this._port       = null;
+        this._plugins    = null;
+        this._destroying = false;
 
-        if (me._server === null) {return onDestroy()}
-        me.on(STOP, onDestroy);
-        me.stop();
+        super.destroy();
     }
 
     /**

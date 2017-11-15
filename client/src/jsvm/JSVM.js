@@ -146,7 +146,8 @@ class JSVM extends Observer {
         this._vars      = null;
         this._code      = null;
         this._onCodeEnd = null;
-        this.clear();
+
+        super.destroy();
     }
 
     /**

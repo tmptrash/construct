@@ -9,6 +9,7 @@
  * @author flatline
  */
 const Config       = require('./../../../share/Config').Config;
+const Helper       = require('./../../../../../common/src/Helper');
 const ServerConfig = require('./../../../../../server/src/share/Config').Config;
 const TYPES        = require('./../../../../../common/src/net/Requests').TYPES;
 const Console      = require('./../../../share/Console');
@@ -23,8 +24,9 @@ const GEVENTS      = require('./../../../share/Events').EVENTS;
 const WS         = Config.modeNodeJs ? require('ws') : window.WebSocket;
 // TODO: should be moved to local config
 const PLUGINS = [
-    'src/net/Request',
-    'src/manager/plugins/client/plugins/Api'
+    'src/plugins/Request',
+    'src/manager/plugins/client/plugins/Api',
+    'src/manager/plugins/client/plugins/Async'
 ];
 
 const EVENTS_LEN  = Object.keys(EVENTS).length;
@@ -38,25 +40,28 @@ const CLIENT_EVENTS = Object.assign({
 const CLIENT_EVENTS_LEN = Object.keys(CLIENT_EVENTS).length;
 
 class Client extends Connection {
-    constructor(manager, cfg = {}) {
+    constructor(manager) {
         super(CLIENT_EVENTS_LEN);
         this.EVENTS       = CLIENT_EVENTS;
-        this._manager     = manager;
-        this._plugins     = new Plugins(this, PLUGINS);
-        this._onStepOutCb = this._onStepOut.bind(this);
 
-        if (cfg.run) {this.run()}
+        this._manager     = manager;
+        this._onStepOutCb = this._onStepOut.bind(this);
+        this._runCb       = this.run.bind(this);
+        this._stopCb      = this.stop.bind(this);
+
+        Helper.override(manager, 'run', this._runCb);
+        Helper.override(manager, 'stop', this._stopCb);
+
+        this._plugins     = new Plugins(this, {plugins: PLUGINS});
     }
 
     run() {
-        if (this.active) {return false}
+        if (this.active) {return}
         this._client         = this._createWebSocket();
         this._client.onerror = this.onError.bind(this);
         this._client.onclose = this.onClose.bind(this);
         this._client.onopen  = this.onOpen.bind(this);
         this._manager.on(GEVENTS.STEP_OUT, this._onStepOutCb);
-
-        return true;
     }
 
     stop() {
@@ -74,9 +79,14 @@ class Client extends Connection {
             this._client.onmessage = null;
             this._client.onerror   = null;
         }
-        this._manager          = null;
-        this._plugins          = null;
-        this._onStepOutCb      = null;
+        Helper.unoverride(this._manager, 'run', this._runCb);
+        Helper.unoverride(this._manager, 'stop', this._stopCb);
+        this._runCb        = null;
+        this._stopCb       = null;
+        this._onStepOutCbs = null;
+        this._manager      = null;
+        this._plugins      = null;
+
         super.destroy();
     }
 
@@ -88,11 +98,6 @@ class Client extends Connection {
      */
     onClose(event) {
         super.onClose(event);
-        //
-        // Client has no connection with server, so we have to start in
-        // "separate instance" mode.
-        //
-        if (!this.active && this._manager.stopped) {this._manager.run()}
         this.active = false;
         Console.warn(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
     }
@@ -115,7 +120,6 @@ class Client extends Connection {
                 return;
             }
             this._manager.setClientId(clientId);
-            this._manager.run();
             this.fire(GET_ID, clientId);
             Console.info(`Client id "${clientId}" obtained from the server`);
         });
