@@ -31,14 +31,12 @@ class AsyncParent {
          * is an unique id of interval, which check it's ready state.
          */
         this._waitMap    = {};
-
-        cfg.run && this.run();
     }
 
-    run()  {this._runWaiting(true)}
-    stop() {this._runWaiting(false)}
+    run(done = () => {})  {this._runWaiting(true, done)}
+    stop(done = () => {}) {this._runWaiting(false, done)}
 
-    destroy(done) {
+    destroy(done = () => {}) {
         this._done = done || (() => {});
         if (this._hasWaiters()) {
             this._destroying = true;
@@ -46,14 +44,13 @@ class AsyncParent {
         }
         this._waitMap    = {};
         this._parent     = null;
-        this._cfg        = null;
         this._plugins    = null;
         this._destroying = false;
         this._done();
         this._done       = null;
     }
 
-    _runWaiting(run) {
+    _runWaiting(run, done) {
         if (this._hasWaiters()) {
             throw `You are trying to ${run ? 'run' : 'stop'} ${this._parent.constructor.name}, but it still running or stopping`;
         }
@@ -63,19 +60,17 @@ class AsyncParent {
         for (let p of plugins) {
             if (p.isAsync) {
                 const id    = Date.now();
-                waitMap[id] = setInterval(this._onInterval.bind(this, id, p, run), CHECK_INTERVAL_MS);
+                waitMap[id] = setInterval(this._onInterval.bind(this, id, p, run, done), CHECK_INTERVAL_MS);
             }
         }
-        if (!this._hasWaiters()) {this._onDone(run)}
+        if (!this._hasWaiters()) {this._onDone(run, done)}
     }
 
-    _onInterval(id, plugin, run) {
-        console.log('interval');
+    _onInterval(id, plugin, run, done) {
         if (plugin.isFailed() || plugin.isActive() === run) {this._clearWaiter(id)}
-        if (!this._hasWaiters()) {console.log('done');return this._onDone(run)}
+        if (!this._hasWaiters()) {return this._onDone(run, done)}
         if (Date.now() - id > WAIT_TIMEOUT_MS) {
             this._clearWaiter(id);
-            console.log('error');
             throw `Async waiting timeout. Plugin: ${plugin.constructor.name}`;
         }
     }
@@ -89,8 +84,9 @@ class AsyncParent {
         return Object.keys(this._waitMap).length > 0;
     }
 
-    _onDone(run) {
-        this._cfg.onRun && this._cfg.onRun(run);
+    _onDone(run, done) {
+        this._cfg.run && this._cfg.run(run);
+        done();
         this._destroying && this.destroy();
     }
 }

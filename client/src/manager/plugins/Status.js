@@ -80,8 +80,7 @@ class Status {
         let fitness  = 0;
         let org;
 
-        while(item) {
-            org = item.val;
+        while(item && (org = item.val)) {
             energy   += org.energy;
             codeSize += org.jsvm.size;
             changes  += org.changes;

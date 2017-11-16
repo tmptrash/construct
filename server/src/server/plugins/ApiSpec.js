@@ -56,8 +56,8 @@ describe("server/src/server/plugins/Api", () => {
     //             this.activeAround = [false,false,false,false];
     //             this.clientId = null;
     //         }
-    //         run()           {}
-    //         setClientId(id) {this.clientId = id}
+    //         run()            {}
+    //         set clientId(id) {this.clientId = id}
     //     }
     //     let maxCon  = SConfig.maxConnections;
     //     SConfig.maxConnections = 1;
@@ -90,8 +90,8 @@ describe("server/src/server/plugins/Api", () => {
     //             this.activeAround = [false,false,false,false];
     //             this.clientId = null;
     //         }
-    //         run()           {}
-    //         setClientId(id) {this.clientId = id}
+    //         run()        {}
+    //         set clientId(id) {this.clientId = id}
     //     }
     //     let maxCon  = SConfig.maxConnections;
     //     SConfig.maxConnections = 1;

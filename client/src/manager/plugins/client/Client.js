@@ -51,7 +51,10 @@ class Client extends Connection {
 
         Helper.override(manager, 'run', this._runCb);
         Helper.override(manager, 'stop', this._stopCb);
-
+        //
+        // Plugins should be created at the end of constructor to
+        // have an ability to access this class public fields
+        //
         this._plugins     = new Plugins(this, {plugins: PLUGINS});
     }
 
@@ -119,7 +122,7 @@ class Client extends Connection {
                 Console.error(`Unable to get unique client id from server. Response type: ${type}`);
                 return;
             }
-            this._manager.setClientId(clientId);
+            this._manager.clientId = clientId;
             this.fire(GET_ID, clientId);
             Console.info(`Client id "${clientId}" obtained from the server`);
         });

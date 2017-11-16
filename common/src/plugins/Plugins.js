@@ -15,25 +15,22 @@ class Plugins {
      * Like this: {Api: Api,...}
      * @param {Object} cfg Plugin configuration
      *            {Boolean} async true if we have to wait async plugins
-     *            {Function} onRun Callback, which is called if run/stop is complete
+     *            {Function} run Callback, which is called if run/stop is complete
      *            {Object} plugins Map of names and classes/functions of plugins.
      */
     constructor(parent, cfg = {}) {
-        const parentPlugins = parent.plugins = [];
-
-        for (let p of cfg.plugins) {
-            const path      = p.path || p;
-            const name      = path.split('/').slice(-1)[0];
-            let   pluginCls = this.require(path);
-
-            parentPlugins.push(new (pluginCls[name] || pluginCls)(parent, p.cfg || {}));
-        }
-
+        this._createPlugins(parent, cfg);
         this.parent       = parent;
         this._onDestroyCb = this._onDestroy.bind(this);
-        this._async       = cfg.async && new AsyncParent(parent, {run: true, onRun: cfg.onRun});
+        this._onRunCb  = this._onRun.bind(this);
+        this._onStopCb = this._onStop.bind(this);
 
-        Helper.override2(parent, 'destroy', this._onDestroyCb);
+        Helper.override(parent, 'destroy', this._onDestroyCb);
+        if (cfg.async) {
+            Helper.override(parent, 'run', this._onRunCb);
+            Helper.override(parent, 'stop', this._onStopCb);
+            this._async = new AsyncParent(parent, {run: cfg.run});
+        }
     }
 
     /**
@@ -45,37 +42,55 @@ class Plugins {
         return require(path);
     }
 
+    _onRun(done = () => {})  {this._async.run(done)}
+    _onStop(done = () => {}) {this._async.stop(done)}
+
+    _createPlugins(parent, cfg) {
+        const parentPlugins = parent.plugins = [];
+
+        for (let p of cfg.plugins) {
+            const path      = p.path || p;
+            const name      = path.split('/').slice(-1)[0];
+            let   pluginCls = this.require(path);
+
+            parentPlugins.push(new (pluginCls[name] || pluginCls)(parent, p.cfg || {}));
+        }
+    }
+
     /**
      * Is called if parent instance calls destroy() method. Here we
      * destroy all created plugins and the reference to this instance
      * in parent instance. It's important to remove all the plugins
      * ina reverse order to prevent infinite methods unoverride issue
      */
-    _onDestroy() {
+    _onDestroy(done = () => {}) {
         const me        = this;
         const parent    = this.parent;
         const plugins   = parent && parent.plugins.slice().reverse();
         const onDestroy = () => {
             parent && (parent.plugins = null);
-            Helper.unoverride(me.parent, 'destroy', me._onDestroyCb);
-            me._async         = null;
+            Helper.unoverride(parent, 'destroy', me._onDestroyCb);
             me._onDestroyCb   = null;
+            if (me._async) {
+                Helper.unoverride(parent, 'stop', this._onStopCb);
+                Helper.unoverride(parent, 'run', this._onRunCb);
+                me._async.destroy();
+                me._async = null;
+            }
+            me._onRunCb       = null;
+            me._onStopCb      = null;
             me.parent         = null;
+            done();
         };
         //
-        // stop() hsould be called in destroy() methods
+        // stop() should be called in destroy() methods
         //
         for (let p of plugins) {p.destroy && p.destroy()}
         //
         // Stop listening of asynchronous plugins. They destroy will
         // be later after success stopping
         //
-        if (me._async) {
-            me._async.stop();
-            me._async.destroy(onDestroy);
-        } else {
-            onDestroy();
-        }
+        me._async ? me._async.stop(onDestroy) : onDestroy();
     }
 }
 

@@ -67,8 +67,8 @@ describe("client/src/manager/plugins/Client", () => {
                 this.activeAround = [false,false,false,false];
                 this.clientId = null;
             }
-            run()           {}
-            setClientId(id) {this.clientId = id}
+            run()            {}
+            set clientId(id) {this.clientId = id}
         }
         const man    = new Man0();
         const client = new Client(man, {run: false});
@@ -86,7 +86,7 @@ describe("client/src/manager/plugins/Client", () => {
                 this.clientId = null;
             }
             run() {}
-            setClientId(id) {this.clientId = id}
+            set clientId(id) {this.clientId = id}
         }
         const man = new Man();
         const server = new Server(SConfig.port);
@@ -111,8 +111,8 @@ describe("client/src/manager/plugins/Client", () => {
                 this.activeAround = [false,false,false,false];
                 this.clientId = null;
             }
-            run()           {++count === 2 && (waitObj.done = true)}
-            setClientId(id) {this.clientId = id}
+            run()            {++count === 2 && (waitObj.done = true)}
+            set clientId(id) {this.clientId = id}
         }
         class Man2 extends Observer {
             constructor() {
@@ -120,8 +120,8 @@ describe("client/src/manager/plugins/Client", () => {
                 this.activeAround = [false,false,false,false];
                 this.clientId = null;
             }
-            run()           {++count === 2 && (waitObj.done = true)}
-            setClientId(id) {this.clientId = id}
+            run()            {++count === 2 && (waitObj.done = true)}
+            set clientId(id) {this.clientId = id}
         }
         const man1    = new Man1();
         const man2    = new Man2();

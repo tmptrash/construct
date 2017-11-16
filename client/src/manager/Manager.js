@@ -52,24 +52,6 @@ class Manager extends Observer {
          * code line will done. May be changed in plugins.
          */
         this._codeRuns     = 0;
-
-        this._world        = new World(Config.worldWidth, Config.worldHeight);
-        this._canvas       = hasView && new Canvas(Config.worldWidth, Config.worldHeight) || null;
-        this._visualized   = true;
-        this._running      = false;
-        this._active       = false;
-        this._stopping     = false;
-        this._destroying   = false;
-        this._clientId     = null;
-        this._runCb        = () => {};
-        this._stopCb       = () => {};
-        /**
-         * {Array} Array of four bool elements (four sides), which stores activeness
-         * of up, right, down and left near Managers (maps). If side is active, then
-         * organisms may go there out of borders.
-         */
-        this._activeAround = [false, false, false, false];
-        this._onLoopCb     = this._onLoop.bind(this);
         /**
          * {Object} This field is used as a container for public API of the Manager.
          * It may be used in a user console by the Operator of jevo.js. Plugins
@@ -80,6 +62,23 @@ class Manager extends Observer {
         };
         hasView && (this.api.visualize = this._visualize.bind(this));
 
+
+        this._world        = new World(Config.worldWidth, Config.worldHeight);
+        this._canvas       = hasView && new Canvas(Config.worldWidth, Config.worldHeight) || null;
+        this._visualized   = true;
+        this._running      = false;
+        this._active       = false;
+        this._stopping     = false;
+        this._destroying   = false;
+        this._clientId     = null;
+        this._onLoopCb     = this._onLoop.bind(this);
+        /**
+         * {Array} Array of four bool elements (four sides), which stores activeness
+         * of up, right, down and left near Managers (maps). If side is active, then
+         * organisms may go there out of borders.
+         */
+        this._activeAround = [false, false, false, false];
+
         this._initLoop();
         this._addHandlers();
         //
@@ -89,7 +88,7 @@ class Manager extends Observer {
         this._plugins      = new Plugins(this, {
             plugins: Config.plugIncluded,
             async  : true,
-            onRun  : this._onDone.bind(this)
+            run    : this._onDone.bind(this)
         });
     }
     get world()        {return this._world}
@@ -100,9 +99,11 @@ class Manager extends Observer {
     get codeRuns()     {return this._codeRuns}
 
     set codeRuns(cr)   {this._codeRuns = cr}
+    set clientId(id)   {this._clientId = id}
 
     /**
-     * Runs main infinite loop of application
+     * Runs main infinite loop of application. It also runs all the plugins
+     * @param {Function} done Done callback
      */
     run (done = () => {}) {
         if (this._active || this._running) {return}
@@ -110,10 +111,13 @@ class Manager extends Observer {
             throw `Impossible to run Manager. It's still stopping.`;
         }
         this._running = true;
-        this._runCb   = done;
         Console.info('Manager is running...');
     }
 
+    /**
+     * Stops infinite loop of application. It also stops all the plugins
+     * @param {Function} done Done callback
+     */
     stop(done = () => {}) {
         if (!this._active || this._stopping) {return}
         if (this._running) {
@@ -121,12 +125,7 @@ class Manager extends Observer {
         }
         this._active   = false;
         this._stopping = true;
-        this._stopCb   = done;
         Console.info('Manager is stopping...');
-    }
-
-    setClientId(id) {
-        this._clientId = id;
     }
 
     /**
@@ -142,28 +141,31 @@ class Manager extends Observer {
         return this._activeAround.indexOf(true) !== -1;
     }
 
-    destroy() {
-        if (this._active) {
-            this.stop();
+    destroy(done = () => {}) {
+        if (this._active || this._stopping)  {
             this._destroying = true;
             return;
         }
-        this._world.destroy();
-        this._hasView && this._canvas.destroy();
-        this.organisms.destroy();
-        this._activeAround = null;
-        this.organisms     = null;
-        this.positions     = null;
-        this._onLoopCb     = null;
-        this._active       = false;
-        this._running      = false;
-        this._stopping     = false;
-        this._destroying   = false;
         //
         // Plugins is destroyed itself. We don't need to call this._plugins.destroy()
         //
         this._plugins      = null;
+        this._activeAround = null;
+        this._onLoopCb     = null;
+        this._clientId     = null;
+        this._destroying   = false;
+        this._stopping     = false;
+        this._active       = false;
+        this._running      = false;
+        this._hasView && this._canvas.destroy();
+        this._canvas       = null;
+        this._world.destroy();
+        this._world        = null;
         this.api           = null;
+        this._codeRuns     = 0;
+        this.positions     = null;
+        this.organisms.destroy();
+        this.organisms     = null;
 
         super.destroy();
     }
@@ -257,14 +259,12 @@ class Manager extends Observer {
             this._counter = 0;
             this._running = false;
             this._active  = true;
-            this._runCb();
             this._onLoop();
             return;
         }
 
         Console.info('Manager has stopped');
         this._stopping = false;
-        this._stopCb();
         this._destroying && this.destroy();
     }
 }

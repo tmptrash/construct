@@ -17,6 +17,7 @@ class Helper {
     static posId(x, y) {
         return y * Config.worldWidth + x;
     }
+
     /**
      * Overrides specified function in two ways: softly - by
      * calling new function and after that original; hardly - by
@@ -29,28 +30,8 @@ class Helper {
      * old function and new after that.
      */
     static override(obj, fnName, fn, hard = false) {
-        fn.fn = obj[fnName];
-        if (!hard) {
-            obj[fnName] = (...args) => {
-                fn.fn.apply(obj, args);
-                return fn(...args);
-            };
-            return;
-        }
-        obj[fnName] = fn;
-    }
-
-    /**
-     * The same like override(), but calls wrapped function fn() first (vise-versa)
-     * @param {Object} obj Destination object, we want to override
-     * @param {String} fnName Function name
-     * @param {Function} fn Destination function
-     * @param {Boolean} hard true - erase old function, false - call
-     * new function and old after that.
-     */
-    static override2(obj, fnName, fn, hard = false) {
         //
-        // We need oldFn exactly in `override2()`, because `fn(..args)` call removes
+        // We need oldFn exactly in `override()`, because `fn(..args)` call removes
         // reference to fn.fn and this code crashes on line `fn.fn.apply(obj, args)`
         //
         const oldFn = fn.fn = obj[fnName];
