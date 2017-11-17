@@ -111,8 +111,7 @@ describe("client/src/manager/plugins/Client", () => {
                 this.activeAround = [false,false,false,false];
                 this._clientId = null;
             }
-            run()            {++count === 2 && (waitObj.done = true)}
-            set clientId(id) {this._clientId = id}
+            set clientId(id) {this._clientId = id; ++count === 2 && (waitObj.done = true)}
         }
         class Man2 extends Observer {
             constructor() {
@@ -120,8 +119,7 @@ describe("client/src/manager/plugins/Client", () => {
                 this.activeAround = [false,false,false,false];
                 this._clientId = null;
             }
-            run()            {++count === 2 && (waitObj.done = true)}
-            set clientId(id) {this._clientId = id}
+            set clientId(id) {this._clientId = id; ++count === 2 && (waitObj.done = true)}
         }
         const man1    = new Man1();
         const man2    = new Man2();

@@ -271,10 +271,9 @@ describe("server/src/server/Server", () => {
             constructor() {
                 super(EVENT_AMOUNT);
                 this.activeAround = [false,false,false,false];
-                this.clientId = null;
+                this._clientId = null;
             }
-            run()       {}
-            set clientId(id) {this.clientId = id}
+            set clientId(id) {this._clientId = id}
         }
         let man     = new Man();
         let man1    = new Man();

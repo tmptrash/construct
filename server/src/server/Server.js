@@ -79,7 +79,7 @@ class Server extends Connection {
         this._running       = false;
         this._stopping      = false;
         this._destroying    = false;
-        this._plugins       = new Plugins(this, {plugins: Config.plugIncluded});
+        this._plugins       = new Plugins(this, {plugins: Config.plugIncluded, noDestroy: true});
     }
 
     /**
@@ -169,11 +169,12 @@ class Server extends Connection {
             this._destroying = true;
             return;
         }
+        this._plugins.onDestroy();
+        this._plugins    = null;
         this.conns.destroy();
         this._server     = null;
         this.conns       = null;
         this._port       = null;
-        this._plugins    = null;
         this._destroying = false;
 
         super.destroy();
@@ -200,7 +201,7 @@ class Server extends Connection {
         sock.on('close', this.onClose.bind(this, clientId, sock));
 
         this.fire(CONNECT, sock);
-        Console.info(`Client ${clientId} has connected`);
+        Console.info(`Client has connected`);
     }
 
     /**

@@ -22,7 +22,7 @@ class Helper {
      * @param {Function} cb Finish callback
      * @param {Number} timeout Timeout in milliseconds
      */
-    static wait(obj, cb, timeout = 10000) {
+    static wait(obj, cb, timeout = 5000) {
         obj.done = false;
 
         let times = 0;

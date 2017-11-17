@@ -16,16 +16,18 @@ class Plugins {
      * @param {Object} cfg Plugin configuration
      *            {Boolean} async true if we have to wait async plugins
      *            {Function} run Callback, which is called if run/stop is complete
-     *            {Object} plugins Map of names and classes/functions of plugins.
+     *            {Object} plugins Map of names and classes/functions of plugins
+     *            {Boolean} noDestroy Flag to auto destroy plugins on parent destroy
      */
     constructor(parent, cfg = {}) {
         this._createPlugins(parent, cfg);
         this.parent       = parent;
-        this._onDestroyCb = this._onDestroy.bind(this);
+        this._cfg         = cfg;
+        this._onDestroyCb = this.onDestroy.bind(this);
         this._onRunCb  = this._onRun.bind(this);
         this._onStopCb = this._onStop.bind(this);
 
-        Helper.override(parent, 'destroy', this._onDestroyCb);
+        !cfg.noDestroy && Helper.override(parent, 'destroy', this._onDestroyCb);
         if (cfg.async) {
             Helper.override(parent, 'run', this._onRunCb);
             Helper.override(parent, 'stop', this._onStopCb);
@@ -63,13 +65,13 @@ class Plugins {
      * in parent instance. It's important to remove all the plugins
      * ina reverse order to prevent infinite methods unoverride issue
      */
-    _onDestroy(done = () => {}) {
+    onDestroy(done = () => {}) {
         const me        = this;
         const parent    = this.parent;
         const plugins   = parent && parent.plugins.slice().reverse();
-        const onDestroy = () => {
+        const onAfterDestroy = () => {
             parent && (parent.plugins = null);
-            Helper.unoverride(parent, 'destroy', me._onDestroyCb);
+            !me._cfg.noDestroy && Helper.unoverride(parent, 'destroy', me._onDestroyCb);
             me._onDestroyCb   = null;
             if (me._async) {
                 Helper.unoverride(parent, 'stop', this._onStopCb);
@@ -90,7 +92,7 @@ class Plugins {
         // Stop listening of asynchronous plugins. They destroy will
         // be later after success stopping
         //
-        me._async ? me._async.stop(onDestroy) : onDestroy();
+        me._async ? me._async.stop(onAfterDestroy) : onAfterDestroy();
     }
 }
 
