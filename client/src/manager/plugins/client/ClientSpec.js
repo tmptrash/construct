@@ -65,13 +65,13 @@ describe("client/src/manager/plugins/Client", () => {
             constructor() {
                 super(EVENT_AMOUNT);
                 this.activeAround = [false,false,false,false];
-                this.clientId = null;
+                this._clientId = null;
             }
             run()            {}
-            set clientId(id) {this.clientId = id}
+            set clientId(id) {this._clientId = id}
         }
         const man    = new Man0();
-        const client = new Client(man, {run: false});
+        const client = new Client(man);
 
         waitEvent(client, CEVENTS.DESTROY, () => client.destroy(), () => {
             man.clear();
@@ -83,10 +83,10 @@ describe("client/src/manager/plugins/Client", () => {
             constructor() {
                 super(EVENT_AMOUNT);
                 this.activeAround = [false, false, false, false];
-                this.clientId = null;
+                this._clientId = null;
             }
             run() {}
-            set clientId(id) {this.clientId = id}
+            set clientId(id) {this._clientId = id}
         }
         const man = new Man();
         const server = new Server(SConfig.port);
@@ -109,27 +109,27 @@ describe("client/src/manager/plugins/Client", () => {
             constructor() {
                 super(EVENT_AMOUNT);
                 this.activeAround = [false,false,false,false];
-                this.clientId = null;
+                this._clientId = null;
             }
             run()            {++count === 2 && (waitObj.done = true)}
-            set clientId(id) {this.clientId = id}
+            set clientId(id) {this._clientId = id}
         }
         class Man2 extends Observer {
             constructor() {
                 super(EVENT_AMOUNT);
                 this.activeAround = [false,false,false,false];
-                this.clientId = null;
+                this._clientId = null;
             }
             run()            {++count === 2 && (waitObj.done = true)}
-            set clientId(id) {this.clientId = id}
+            set clientId(id) {this._clientId = id}
         }
         const man1    = new Man1();
         const man2    = new Man2();
         const server  = new Server(SConfig.port);
 
         waitEvent(server, SEVENTS.RUN, () => server.run(), () => {
-            const client1 = new Client(man1, {run: true});
-            const client2 = new Client(man2, {run: true});
+            const client1 = new Client(man1);
+            const client2 = new Client(man2);
             client1.run();
             client2.run();
             THelper.wait(waitObj, () => { // waiting for Man1.run()

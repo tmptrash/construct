@@ -169,7 +169,6 @@ class Server extends Connection {
             this._destroying = true;
             return;
         }
-        this._plugins.destroy();
         this.conns.destroy();
         this._server     = null;
         this.conns       = null;

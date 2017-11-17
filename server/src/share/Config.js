@@ -18,7 +18,7 @@ ServerConfig.init({
      * folders.
      */
     plugIncluded: [
-        'src/net/Request',
+        'src/plugins/Request',
         'src/server/plugins/Api'
     ],
     /**

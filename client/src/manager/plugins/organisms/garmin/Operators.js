@@ -65,6 +65,8 @@ class OperatorsGarmin extends  Operators {
         this._CONDITIONS   = null;
         this._OPERATORS    = null;
         this._TRIGS        = null;
+
+        super.destroy();
     }
 
     get operators() {return this._OPERATORS_CB}

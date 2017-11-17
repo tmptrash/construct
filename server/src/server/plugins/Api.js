@@ -26,10 +26,10 @@ class Api extends BaseApi {
     }
 
     destroy() {
-        super.destroy();
-
         Helper.unoverride(this.parent, 'onClose', this._onCloseCb);
         this._onCloseCb = null;
+
+        super.destroy();
     }
 
     /**
