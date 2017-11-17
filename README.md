@@ -17,4 +17,10 @@ jevo.js is a native JavaScript/ES6 based, digital organisms evolution simulator.
 
 P.S. You may run tests using `npm run test` command
 
-enjoy out team!
+
+#### We are looking for:
+- ES6 js developers
+- Canvas 2D developers 
+- Node.js developers
+
+enjoy out team! d:-)
