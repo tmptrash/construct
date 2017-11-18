@@ -97,6 +97,7 @@ class Manager extends Observer {
     get activeAround() {return this._activeAround}
     get active()       {return this._active}
     get codeRuns()     {return this._codeRuns}
+    get hasView()      {return this._hasView}
 
     set codeRuns(cr)   {this._codeRuns = cr}
     set clientId(id)   {this._clientId = id}

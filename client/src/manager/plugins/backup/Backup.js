@@ -11,7 +11,7 @@ const Config  = require('./../../../share/Config').Config;
 const Console = require('./../../../share/Console');
 const BConfig = require('./Config');
 const EVENTS  = require('./../../../share/Events').EVENTS;
-
+// TODO: should be inherited from Configurable class
 class Backup {
     constructor(manager) {
         this.orgs           = manager.organisms;

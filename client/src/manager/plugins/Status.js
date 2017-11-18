@@ -44,7 +44,7 @@ class Status {
         const scode     = ('cod:' + ((this._codeSize / amount) / orgAmount).toFixed(1)).padEnd(12);
 
         console.log(`%c${sips}${slps}${sorgs}%c${senergy}${schanges}${sfit}${scode}`, GREEN, RED);
-        this._manager.canvas.text(5, 15, sips);
+        this._manager.hasView && this._manager.canvas.text(5, 15, sips);
         this._onAfterIps(stamp);
     }
 

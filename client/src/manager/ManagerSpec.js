@@ -3,6 +3,7 @@ describe("client/src/manager/Manager", () => {
     const SConfig      = require('./../share/Config').Config;
     const OLD_MODE     = Config.modeNodeJs;
     Config.modeNodeJs  = true;
+    const EVENTS       = require('./../../../client/src/share/Events').EVENTS;
     const CEVENTS      = require('./../../../client/src/manager/plugins/client/Client').EVENTS;
     const SEVENTS      = require('./../../../server/src/server/Server').EVENTS;
     const EVENT_AMOUNT = require('./../../../client/src/share/Events').EVENT_AMOUNT;
@@ -21,6 +22,7 @@ describe("client/src/manager/Manager", () => {
 
     beforeEach(() => delete Config.Ips);
     beforeAll(() => {
+        Config.plugIncluded.splice(Config.plugIncluded.indexOf('ips/Ips'));
         error = Console.error;
         warn  = Console.warn;
         info  = Console.info;
@@ -44,6 +46,7 @@ describe("client/src/manager/Manager", () => {
         Console.warn  = warn;
         Console.info  = info;
         Config.modeNodeJs = OLD_MODE;
+        Config.plugIncluded.push('ips/Ips');
     });
 
     it("Checking manager creation", (done) => {
@@ -60,6 +63,16 @@ describe("client/src/manager/Manager", () => {
         expect(man.api.visualize).toBe(undefined);
         expect(man.active).toBe(false);
         expect(man.clientId).toBe(null);
+        expect(man.isDistributed()).toBe(false);
         man.destroy(done);
+    });
+    it("Checking running manager", (done) => {
+        const man = new Manager(false);
+        man.run(() => {
+            man.on(EVENTS.ITERATION, () => {
+                man.destroy(done);
+            });
+        });
+
     });
 });
