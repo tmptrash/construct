@@ -186,7 +186,7 @@ class Organisms extends BaseOrganisms {
         // activated client on that side. So this is a border for him.
         // In this case coordinates (x,y) should stay the same
         //
-        if (man.hasOtherClients() || Config.worldCyclical === false) {
+        if (man.isDistributed() || Config.worldCyclical === false) {
             ret.x = x1;
             ret.y = y1;
             ret.ret = +this.move(x1, y1, x1, y1, org);

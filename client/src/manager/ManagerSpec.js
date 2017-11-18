@@ -18,6 +18,8 @@ describe("client/src/manager/Manager", () => {
     let swarn;
     let sinfo;
 
+
+    beforeEach(() => delete Config.Ips);
     beforeAll(() => {
         error = Console.error;
         warn  = Console.warn;
@@ -44,8 +46,20 @@ describe("client/src/manager/Manager", () => {
         Config.modeNodeJs = OLD_MODE;
     });
 
-    it("Checking manager creation", () => {
+    it("Checking manager creation", (done) => {
         const man = new Manager(false);
-        man.destroy();
+        expect(man.canvas).toBe(null);
+        man.destroy(done);
+    });
+    it("Checking manager creation and it's properties", (done) => {
+        const man = new Manager(false);
+        expect(man.organisms.size).toBe(0);
+        expect(Object.keys(man.positions).length).toBe(0);
+        expect(man.codeRuns).toBe(0);
+        expect(!!man.api.version).toBe(true);
+        expect(man.api.visualize).toBe(undefined);
+        expect(man.active).toBe(false);
+        expect(man.clientId).toBe(null);
+        man.destroy(done);
     });
 });

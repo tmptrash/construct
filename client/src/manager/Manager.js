@@ -137,7 +137,12 @@ class Manager extends Observer {
         this.fire(EVENTS.ITERATION);
     }
 
-    hasOtherClients() {
+    /**
+     * Returns true if at least one other Manager/client is around and is connected
+     * to the current
+     * @returns {Boolean}
+     */
+    isDistributed() {
         return this._activeAround.indexOf(true) !== -1;
     }
 
