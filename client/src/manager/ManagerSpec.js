@@ -1,16 +1,19 @@
 describe("client/src/manager/Manager", () => {
     const Config       = require('./../../../client/src/share/Config').Config;
-    const SConfig      = require('./../share/Config').Config;
+    const SConfig      = require('./../../../server/src/share/Config').Config;
     const OLD_MODE     = Config.modeNodeJs;
     Config.modeNodeJs  = true;
+    const Server       = require('./../../../server/src/server/Server').Server;
     const EVENTS       = require('./../../../client/src/share/Events').EVENTS;
     const CEVENTS      = require('./../../../client/src/manager/plugins/client/Client').EVENTS;
     const SEVENTS      = require('./../../../server/src/server/Server').EVENTS;
     const EVENT_AMOUNT = require('./../../../client/src/share/Events').EVENT_AMOUNT;
     const Console      = require('./../../../client/src/share/Console');
-    const SConsole     = require('./../share/Console');
+    const SConsole     = require('./../../../server/src/share/Console');
+    const THelper      = require('./../../../common/tests/Helper');
     const Manager      = require('./Manager');
     const emptyFn      = () => {};
+    const waitEvent    = THelper.waitEvent;
 
     let error;
     let warn;
@@ -64,15 +67,26 @@ describe("client/src/manager/Manager", () => {
         expect(man.active).toBe(false);
         expect(man.clientId).toBe(null);
         expect(man.isDistributed()).toBe(false);
+        expect(man.hasView).toBe(false);
         man.destroy(done);
     });
     it("Checking running manager", (done) => {
         const man = new Manager(false);
+        man.run(() => man.on(EVENTS.ITERATION, () => man.destroy(done)));
+    });
+
+    it("Checking running of manager with a server", (done) => {
+        const server = new Server(SConfig.port);
+        const man    = new Manager(false);
+
+        expect(man.clientId).toBe(null);
+        server.run();
         man.run(() => {
-            man.on(EVENTS.ITERATION, () => {
-                man.destroy(done);
+            expect(man.active).toBe(true);
+            expect(man.clientId !== null).toBe(true);
+            man.destroy(() => {
+                waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), done);
             });
         });
-
     });
 });

@@ -29,7 +29,8 @@ describe("client/src/manager/plugins/Client", () => {
         //
         // These two lines set modeNodeJs mode to Node.js as running environment
         //
-        isNodeJs = Config.modeNodeJs;api.set('modeNodeJs', true);
+        isNodeJs = Config.modeNodeJs;
+        Config.modeNodeJs = true;
         Client   = require('./Client').Client;
         CEVENTS  = require('./Client').EVENTS;
         Server   = require('./../../../../../server/src/server/Server').Server;
