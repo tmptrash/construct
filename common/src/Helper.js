@@ -35,6 +35,7 @@ class Helper {
         // reference to fn.fn and this code crashes on line `fn.fn.apply(obj, args)`
         //
         const oldFn = fn.fn = obj[fnName];
+        if (typeof oldFn === 'undefined') {throw `Helper.override: Parent object doesn't contain method '${fnName}'`}
         if (!hard) {
             obj[fnName] = (...args) => {
                 const ret = fn(...args);

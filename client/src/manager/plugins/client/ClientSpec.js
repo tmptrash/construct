@@ -12,6 +12,7 @@ describe("client/src/manager/plugins/Client", () => {
     const Api        = require('./../../../../../server/src/server/plugins/Api');
     const Request    = require('./../../../../../common/src/plugins/Request');
     const waitEvent  = THelper.waitEvent;
+    const wait       = THelper.wait;
     let isNodeJs;
     let Client;
     let CEVENTS;
@@ -67,14 +68,16 @@ describe("client/src/manager/plugins/Client", () => {
                 this.activeAround = [false,false,false,false];
                 this._clientId = null;
             }
-            run()            {}
+            run() {}
+            stop() {}
+            get clientId()   {return this._clientId}
             set clientId(id) {this._clientId = id}
         }
         const man    = new Man0();
         const client = new Client(man);
 
         waitEvent(client, CEVENTS.DESTROY, () => client.destroy(), () => {
-            man.clear();
+            man.destroy();
             done();
         });
     });
@@ -86,15 +89,21 @@ describe("client/src/manager/plugins/Client", () => {
                 this._clientId = null;
             }
             run() {}
+            stop() {}
+            get clientId()   {return this._clientId}
             set clientId(id) {this._clientId = id}
         }
-        const man = new Man();
-        const server = new Server(SConfig.port);
+        const man       = new Man();
+        const server    = new Server(SConfig.port);
+        let   waitObj   = {done: false};
+        let   count     = 0;
 
         waitEvent(server, SEVENTS.RUN, () => server.run(), () => {
             const client = new Client(man);
             waitEvent(client, CEVENTS.GET_ID, () => client.run(), () => {
-                waitEvent(client, CEVENTS.CLOSE, () => server.destroy(), () => {
+                server.on(SEVENTS.DESTROY, () => ++count === 2 && (waitObj.done = true));
+                waitEvent(client, CEVENTS.CLOSE, () => server.destroy(), () => ++count === 2 && (waitObj.done = true))
+                wait(waitObj, () => {
                     client.destroy();
                     man.clear();
                     done();
@@ -111,18 +120,13 @@ describe("client/src/manager/plugins/Client", () => {
                 this.activeAround = [false,false,false,false];
                 this._clientId = null;
             }
-            set clientId(id) {this._clientId = id; ++count === 2 && (waitObj.done = true)}
-        }
-        class Man2 extends Observer {
-            constructor() {
-                super(EVENT_AMOUNT);
-                this.activeAround = [false,false,false,false];
-                this._clientId = null;
-            }
+            run() {}
+            stop() {}
+            get clientId()   {return this._clientId}
             set clientId(id) {this._clientId = id; ++count === 2 && (waitObj.done = true)}
         }
         const man1    = new Man1();
-        const man2    = new Man2();
+        const man2    = new Man1();
         const server  = new Server(SConfig.port);
 
         waitEvent(server, SEVENTS.RUN, () => server.run(), () => {
@@ -132,14 +136,15 @@ describe("client/src/manager/plugins/Client", () => {
             client2.run();
             THelper.wait(waitObj, () => { // waiting for Man1.run()
                 count = 0;
-                client1.on(CEVENTS.CLOSE, () => ++count === 2 && (waitObj.done = true));
-                client2.on(CEVENTS.CLOSE, () => ++count === 2 && (waitObj.done = true));
+                client1.on(CEVENTS.CLOSE,  () => ++count === 3 && (waitObj.done = true));
+                client2.on(CEVENTS.CLOSE,  () => ++count === 3 && (waitObj.done = true));
+                server.on(SEVENTS.DESTROY, () => ++count === 3 && (waitObj.done = true));
                 server.destroy();
                 THelper.wait(waitObj, () => {
                     client1.destroy();
                     client2.destroy();
-                    man1.clear();
-                    man2.clear();
+                    man1.destroy();
+                    man2.destroy();
                     done();
                 });
             });

@@ -273,6 +273,9 @@ describe("server/src/server/Server", () => {
                 this.activeAround = [false,false,false,false];
                 this._clientId = null;
             }
+            run() {}
+            stop() {}
+            get clientId()   {return this._clientId}
             set clientId(id) {this._clientId = id}
         }
         let man     = new Man();

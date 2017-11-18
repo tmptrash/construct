@@ -86,7 +86,6 @@ class Client extends Connection {
         Helper.unoverride(this._manager, 'stop', this._stopCb);
         this._runCb        = null;
         this._stopCb       = null;
-        this._onStepOutCbs = null;
         this._manager      = null;
         this._plugins      = null;
 
