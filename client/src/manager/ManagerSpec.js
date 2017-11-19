@@ -97,8 +97,9 @@ describe("client/src/manager/Manager", () => {
         const percent  = Config.orgCloneMutationPercent;
         let   iterated = false;
 
-        Config.orgStartAmount = 1;
-        Config.mutationPeriod = 0;
+        Config.orgStartAmount          = 1;
+        Config.mutationPeriod          = 0;
+        Config.orgCloneMutationPercent = 0;
         expect(man.organisms.size).toBe(0);
         man.on(EVENTS.ITERATION, () => {
             if (iterated) {return}
@@ -116,13 +117,37 @@ describe("client/src/manager/Manager", () => {
         man.run();
     });
     it("Checking two managers with a server", (done) => {
-        const server = new Server(SConfig.port);
-        const man1   = new Manager(false);
-        const man2   = new Manager(false);
+        const amount   = Config.orgStartAmount;
+        const period   = Config.mutationPeriod;
+        const percent  = Config.orgCloneMutationPercent;
+        const period1  = Config.orgEnergySpendPeriod;
+        const server   = new Server(SConfig.port);
+        const man1     = new Manager(false);
+        const man2     = new Manager(false);
+        let   iterated1 = false;
+        let   iterated2 = false;
 
+        Config.orgStartAmount          = 1;
+        Config.mutationPeriod          = 0;
+        Config.orgCloneMutationPercent = 0;
+        Config.orgEnergySpendPeriod    = 0;
         expect(man1.clientId).toBe(null);
         expect(man2.clientId).toBe(null);
+        expect(man1.organisms.size).toBe(0);
+        expect(man2.organisms.size).toBe(0);
         server.run();
+
+        man1.on(EVENTS.ITERATION, () => {
+            if (iterated1) {return}
+            expect(man1.organisms.size).toBe(1);
+            iterated1 = true;
+        });
+        man2.on(EVENTS.ITERATION, () => {
+            if (iterated2) {return}
+            expect(man2.organisms.size).toBe(1);
+            iterated2 = true;
+        });
+
         man1.run(() => {
             expect(man1.active).toBe(true);
             expect(man1.clientId !== null).toBe(true);
@@ -131,7 +156,13 @@ describe("client/src/manager/Manager", () => {
                 expect(man2.clientId !== null).toBe(true);
                 man1.destroy(() => {
                     man2.destroy(() => {
-                        waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), done);
+                        waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
+                            Config.orgEnergySpendPeriod    = period1;
+                            Config.orgCloneMutationPercent = percent;
+                            Config.mutationPeriod          = period;
+                            Config.orgStartAmount          = amount;
+                            done();
+                        });
                     });
                 });
             });

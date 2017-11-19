@@ -1,7 +1,9 @@
 /**
  * Main manager class of application. Contains all parts of jevo.js app
- * like World, Connection, Console etc... Runs infinite loop inside run()
- * method.
+ * like World, Client, Console etc... Runs infinite loop inside run()
+ * method. You may run and stop the manager as many times you need.
+ * Manager runs/stops and destroys in a asynchronous way. So you may set
+ * a callback to these methods, which will be called on finish.
  *
  * Usage:
  *   const Manager = require('.../Manager');
@@ -9,8 +11,6 @@
  *   manager.run();
  *
  * @author flatline
- * TODO: what about destroy of manager instance? We have to destroy plugins
- * TODO: by calling of destroy() method for every of them
  */
 const Observer         = require('./../../../common/src/Observer');
 const Queue            = require('./../../../common/src/Queue');
