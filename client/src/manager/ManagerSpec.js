@@ -115,4 +115,26 @@ describe("client/src/manager/Manager", () => {
         });
         man.run();
     });
+    it("Checking two managers with a server", (done) => {
+        const server = new Server(SConfig.port);
+        const man1   = new Manager(false);
+        const man2   = new Manager(false);
+
+        expect(man1.clientId).toBe(null);
+        expect(man2.clientId).toBe(null);
+        server.run();
+        man1.run(() => {
+            expect(man1.active).toBe(true);
+            expect(man1.clientId !== null).toBe(true);
+            man2.run(() => {
+                expect(man2.active).toBe(true);
+                expect(man2.clientId !== null).toBe(true);
+                man1.destroy(() => {
+                    man2.destroy(() => {
+                        waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), done);
+                    });
+                });
+            });
+        });
+    });
 });
