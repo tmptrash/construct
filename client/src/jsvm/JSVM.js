@@ -57,37 +57,20 @@ class JSVM extends Observer {
         this._line        = 0;
     }
 
-    get code() {
-        return this._code
-    }
-
-    get size() {
-        return this._code.length
-    }
-
-    get operators() {
-        return this._operators
-    }
-
-    get vars() {
-        return this._vars
-    }
-
-    get offsets() {
-        return this._offsets
-    }
-
-    get line() {
-        return this._line
-    }
+    get code()      {return this._code}
+    get size()      {return this._code.length}
+    get operators() {return this._operators}
+    get vars()      {return this._vars}
+    get offsets()   {return this._offsets}
+    get line()      {return this._line}
 
     serialize() {
         return {
             offsets: this._offsets.slice(),
-            vars: this._vars.slice(),
+            vars   : this._vars.slice(),
             // 'operators' field will be added after insertion
-            code: this._code.slice(),
-            line: this._line
+            code   : this._code.slice(),
+            line   : this._line
         };
     }
 

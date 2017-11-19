@@ -126,6 +126,7 @@ class Manager extends Observer {
         }
         this._active   = false;
         this._stopping = true;
+        this._hasView && this._visualize(false);
         Console.info('Manager is stopping...');
     }
 
@@ -238,7 +239,7 @@ class Manager extends Observer {
             this.onIteration(counter++, timer());
         }
         this._counter = counter;
-        this.zeroTimeout(this._onLoopCb);
+        this._active && this.zeroTimeout(this._onLoopCb);
     }
 
     _addHandlers() {

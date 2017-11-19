@@ -89,4 +89,30 @@ describe("client/src/manager/Manager", () => {
             });
         });
     });
+
+    it("Checking one organism creation in a manager", (done) => {
+        const man      = new Manager(false);
+        const amount   = Config.orgStartAmount;
+        const period   = Config.mutationPeriod;
+        const percent  = Config.orgCloneMutationPercent;
+        let   iterated = false;
+
+        Config.orgStartAmount = 1;
+        Config.mutationPeriod = 0;
+        expect(man.organisms.size).toBe(0);
+        man.on(EVENTS.ITERATION, () => {
+            if (iterated) {return}
+            expect(man.organisms.size).toBe(1);
+            man.stop(() => {
+                man.destroy(() => {
+                    Config.orgCloneMutationPercent = percent;
+                    Config.mutationPeriod          = period;
+                    Config.orgStartAmount          = amount;
+                    done();
+                });
+            });
+            iterated = true;
+        });
+        man.run();
+    });
 });

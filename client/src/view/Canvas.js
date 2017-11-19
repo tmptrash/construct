@@ -12,6 +12,7 @@ class Canvas {
         this._prepareDom();
         bodyEl.innerHTML += `<canvas id="${id}" width="${width}" height="${height}"></canvas>`;
 
+        this._id        = id;
         this._width     = width;
         this._height    = height;
         this._canvasEl  = doc.querySelector('#' + id);
@@ -29,7 +30,7 @@ class Canvas {
     }
 
     destroy() {
-        this._canvasEl.empty();
+        this._canvasEl.parentNode.removeChild(this._canvasEl);
         this._ctx     = null;
         this._imgData = null;
         this._data    = null;
