@@ -95,17 +95,20 @@ describe("client/src/manager/Manager", () => {
         const amount   = Config.orgStartAmount;
         const period   = Config.mutationPeriod;
         const percent  = Config.orgCloneMutationPercent;
+        const clone    = Config.orgClonePeriod;
         let   iterated = false;
 
         Config.orgStartAmount          = 1;
         Config.mutationPeriod          = 0;
         Config.orgCloneMutationPercent = 0;
+        Config.orgClonePeriod          = 0;
         expect(man.organisms.size).toBe(0);
         man.on(EVENTS.ITERATION, () => {
             if (iterated) {return}
             expect(man.organisms.size).toBe(1);
             man.stop(() => {
                 man.destroy(() => {
+                    Config.orgClonePeriod          = clone;
                     Config.orgCloneMutationPercent = percent;
                     Config.mutationPeriod          = period;
                     Config.orgStartAmount          = amount;
@@ -117,20 +120,38 @@ describe("client/src/manager/Manager", () => {
         man.run();
     });
     it("Checking two managers with a server", (done) => {
-        const amount   = Config.orgStartAmount;
-        const period   = Config.mutationPeriod;
-        const percent  = Config.orgCloneMutationPercent;
-        const period1  = Config.orgEnergySpendPeriod;
-        const server   = new Server(SConfig.port);
-        const man1     = new Manager(false);
-        const man2     = new Manager(false);
+        const amount    = Config.orgStartAmount;
+        const period    = Config.mutationPeriod;
+        const percent   = Config.orgCloneMutationPercent;
+        const period1   = Config.orgEnergySpendPeriod;
+        const clone     = Config.orgClonePeriod;
+        const server    = new Server(SConfig.port);
+        const man1      = new Manager(false);
+        const man2      = new Manager(false);
         let   iterated1 = false;
         let   iterated2 = false;
+        let   blocked   = false;
+        const destroy   = () => {
+            blocked = true;
+            man1.destroy(() => {
+                man2.destroy(() => {
+                    waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
+                        Config.orgClonePeriod          = clone;
+                        Config.orgEnergySpendPeriod    = period1;
+                        Config.orgCloneMutationPercent = percent;
+                        Config.mutationPeriod          = period;
+                        Config.orgStartAmount          = amount;
+                        done();
+                    });
+                });
+            });
+        };
 
         Config.orgStartAmount          = 1;
         Config.mutationPeriod          = 0;
         Config.orgCloneMutationPercent = 0;
         Config.orgEnergySpendPeriod    = 0;
+        Config.orgClonePeriod          = 0;
         expect(man1.clientId).toBe(null);
         expect(man2.clientId).toBe(null);
         expect(man1.organisms.size).toBe(0);
@@ -138,13 +159,15 @@ describe("client/src/manager/Manager", () => {
         server.run();
 
         man1.on(EVENTS.ITERATION, () => {
-            if (iterated1) {return}
+            if (blocked) {return}
             expect(man1.organisms.size).toBe(1);
+            if (iterated1 && iterated2) {destroy(); return}
             iterated1 = true;
         });
         man2.on(EVENTS.ITERATION, () => {
-            if (iterated2) {return}
+            if (blocked) {return}
             expect(man2.organisms.size).toBe(1);
+            if (iterated2 && iterated1) {destroy(); return}
             iterated2 = true;
         });
 
@@ -154,18 +177,58 @@ describe("client/src/manager/Manager", () => {
             man2.run(() => {
                 expect(man2.active).toBe(true);
                 expect(man2.clientId !== null).toBe(true);
-                man1.destroy(() => {
-                    man2.destroy(() => {
-                        waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
-                            Config.orgEnergySpendPeriod    = period1;
-                            Config.orgCloneMutationPercent = percent;
-                            Config.mutationPeriod          = period;
-                            Config.orgStartAmount          = amount;
-                            done();
-                        });
-                    });
-                });
             });
         });
     });
+    //
+    // it("Checking moving of organism from one Manager to another", (done) => {
+    //     const amount    = Config.orgStartAmount;
+    //     const period    = Config.mutationPeriod;
+    //     const percent   = Config.orgCloneMutationPercent;
+    //     const period1   = Config.orgEnergySpendPeriod;
+    //     const clone     = Config.orgClonePeriod;
+    //     const server    = new Server(SConfig.port);
+    //     const man1      = new Manager(false);
+    //     const man2      = new Manager(false);
+    //     let   iterated1 = 0;
+    //     let   iterated2 = 0;
+    //     let   org1;
+    //     let   org2;
+    //
+    //     Config.orgStartAmount          = 1;
+    //     Config.mutationPeriod          = 0;
+    //     Config.orgCloneMutationPercent = 0;
+    //     Config.orgEnergySpendPeriod    = 0;
+    //     Config.orgClonePeriod          = 0;
+    //     server.run();
+    //
+    //     man1.on(EVENTS.ITERATION, () => {
+    //         if (iterated1 === 0) {
+    //             org1 = man1.organisms.first.val;
+    //             org1.jsvm.code.push(0b00001101000000000000000000000000);
+    //         } else if (iterated1 === 1) {
+    //             man1.destroy(() => {
+    //                 man2.destroy(() => {
+    //                     waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
+    //                         Config.orgClonePeriod          = clone;
+    //                         Config.orgEnergySpendPeriod    = period1;
+    //                         Config.orgCloneMutationPercent = percent;
+    //                         Config.mutationPeriod          = period;
+    //                         Config.orgStartAmount          = amount;
+    //                         done();
+    //                     });
+    //                 });
+    //             });
+    //         }
+    //         //console.log(org1.y, ' ', org1.jsvm.code);
+    //         iterated1++;
+    //     });
+    //     man2.on(EVENTS.ITERATION, () =>  {
+    //         if (iterated2 === 0) {return}
+    //         org2 = man2.organisms.first.val;
+    //         iterated2++;
+    //     });
+    //
+    //     man1.run(man2.run);
+    // });
 });

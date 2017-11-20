@@ -1,6 +1,6 @@
 {
   "name": "jevo.js",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "description": "JavaScript digital organisms simulator",
   "main": "index.js",
   "directories": {
