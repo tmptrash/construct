@@ -11,6 +11,7 @@ describe("client/src/manager/Manager", () => {
     const Console      = require('./../../../client/src/share/Console');
     const SConsole     = require('./../../../server/src/share/Console');
     const THelper      = require('./../../../common/tests/Helper');
+    const World        = require('./../../../client/src/view/World').World;
     const Manager      = require('./Manager');
     const emptyFn      = () => {};
     const waitEvent    = THelper.waitEvent;
@@ -180,55 +181,56 @@ describe("client/src/manager/Manager", () => {
             });
         });
     });
-    //
-    // it("Checking moving of organism from one Manager to another", (done) => {
-    //     const amount    = Config.orgStartAmount;
-    //     const period    = Config.mutationPeriod;
-    //     const percent   = Config.orgCloneMutationPercent;
-    //     const period1   = Config.orgEnergySpendPeriod;
-    //     const clone     = Config.orgClonePeriod;
-    //     const server    = new Server(SConfig.port);
-    //     const man1      = new Manager(false);
-    //     const man2      = new Manager(false);
-    //     let   iterated1 = 0;
-    //     let   iterated2 = 0;
-    //     let   org1;
-    //     let   org2;
-    //
-    //     Config.orgStartAmount          = 1;
-    //     Config.mutationPeriod          = 0;
-    //     Config.orgCloneMutationPercent = 0;
-    //     Config.orgEnergySpendPeriod    = 0;
-    //     Config.orgClonePeriod          = 0;
-    //     server.run();
-    //
-    //     man1.on(EVENTS.ITERATION, () => {
-    //         if (iterated1 === 0) {
-    //             org1 = man1.organisms.first.val;
-    //             org1.jsvm.code.push(0b00001101000000000000000000000000);
-    //         } else if (iterated1 === 1) {
-    //             man1.destroy(() => {
-    //                 man2.destroy(() => {
-    //                     waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
-    //                         Config.orgClonePeriod          = clone;
-    //                         Config.orgEnergySpendPeriod    = period1;
-    //                         Config.orgCloneMutationPercent = percent;
-    //                         Config.mutationPeriod          = period;
-    //                         Config.orgStartAmount          = amount;
-    //                         done();
-    //                     });
-    //                 });
-    //             });
-    //         }
-    //         //console.log(org1.y, ' ', org1.jsvm.code);
-    //         iterated1++;
-    //     });
-    //     man2.on(EVENTS.ITERATION, () =>  {
-    //         if (iterated2 === 0) {return}
-    //         org2 = man2.organisms.first.val;
-    //         iterated2++;
-    //     });
-    //
-    //     man1.run(man2.run);
-    // });
+
+    it("Checking moving of organism from one Manager to another", (done) => {
+        const amount    = Config.orgStartAmount;
+        const period    = Config.mutationPeriod;
+        const percent   = Config.orgCloneMutationPercent;
+        const period1   = Config.orgEnergySpendPeriod;
+        const clone     = Config.orgClonePeriod;
+        const server    = new Server(SConfig.port);
+        const man1      = new Manager(false);
+        const man2      = new Manager(false);
+        let   iterated1 = 0;
+        let   iterated2 = 0;
+        let   freePos   = World.prototype.getFreePos;
+        let   org1      = null;
+        const destroy   = () => {
+            man1.destroy(() => {
+                man2.destroy(() => {
+                    waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
+                        World.prototype.getFreePos = freePos;
+                        Config.orgClonePeriod          = clone;
+                        Config.orgEnergySpendPeriod    = period1;
+                        Config.orgCloneMutationPercent = percent;
+                        Config.mutationPeriod          = period;
+                        Config.orgStartAmount          = amount;
+                        done();
+                    });
+                });
+            });
+        };
+
+        Config.orgStartAmount          = 1;
+        Config.mutationPeriod          = 0;
+        Config.orgCloneMutationPercent = 0;
+        Config.orgEnergySpendPeriod    = 0;
+        Config.orgClonePeriod          = 0;
+        World.prototype.getFreePos     = () => {return {x: 1, y: 399}};
+
+        man1.on(EVENTS.ITERATION, () => {
+            if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
+                org1 = man1.organisms.first.val;
+                org1.jsvm.code.push(0b00001101000000000000000000000000);
+            } else if (man2.organisms.size === 2) {
+                destroy();
+            }
+            if (iterated1 > 10000) {throw 'Error sending organism between Managers'}
+            iterated1++;
+        });
+        man2.on(EVENTS.ITERATION, () => iterated2++);
+
+        server.run();
+        man1.run(man2.run);
+    });
 });

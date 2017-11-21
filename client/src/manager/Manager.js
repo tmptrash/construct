@@ -192,7 +192,7 @@ class Manager extends Observer {
         (() => {
             let callback;
 
-            if (!this._hasView) {
+            if (Config.modeNodeJs) {
                 this.zeroTimeout = (fn) => setTimeout(callback = fn);
                 return;
             }
