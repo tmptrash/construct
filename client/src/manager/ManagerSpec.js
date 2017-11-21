@@ -188,6 +188,7 @@ describe("client/src/manager/Manager", () => {
         const percent   = Config.orgCloneMutationPercent;
         const period1   = Config.orgEnergySpendPeriod;
         const clone     = Config.orgClonePeriod;
+        const height    = Config.worldHeight;
         const server    = new Server(SConfig.port);
         const man1      = new Manager(false);
         const man2      = new Manager(false);
@@ -205,6 +206,7 @@ describe("client/src/manager/Manager", () => {
                         Config.orgCloneMutationPercent = percent;
                         Config.mutationPeriod          = period;
                         Config.orgStartAmount          = amount;
+                        Config.worldHeight             = height;
                         done();
                     });
                 });
@@ -216,12 +218,13 @@ describe("client/src/manager/Manager", () => {
         Config.orgCloneMutationPercent = 0;
         Config.orgEnergySpendPeriod    = 0;
         Config.orgClonePeriod          = 0;
+        Config.worldHeight             = 400;
         World.prototype.getFreePos     = () => {return {x: 1, y: 399}};
 
         man1.on(EVENTS.ITERATION, () => {
             if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
                 org1 = man1.organisms.first.val;
-                org1.jsvm.code.push(0b00001101000000000000000000000000);
+                org1.jsvm.code.push(0b00001101000000000000000000000000); // onStepDown()
             } else if (man2.organisms.size === 2) {
                 destroy();
             }
