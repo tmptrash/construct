@@ -270,7 +270,15 @@ ClientConfig.init({
      * {Boolean} Running mode. It's also possible to run jevo.js only on
      * server side without browser. For this it should be set to true.
      */
-    modeNodeJs: false
+    modeNodeJs: false,
+    /**
+     * {Number} Port number for connecting with server
+     */
+    serverPort: 8099,
+    /**
+     * {String} Host for connecting with server
+     */
+    serverHost: 'ws://localhost'
 });
 
 module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};

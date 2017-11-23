@@ -10,7 +10,6 @@
  */
 const Config       = require('./../../../share/Config').Config;
 const Helper       = require('./../../../../../common/src/Helper');
-const ServerConfig = require('./../../../../../server/src/share/Config').Config;
 const TYPES        = require('./../../../../../common/src/net/Requests').TYPES;
 const Console      = require('./../../../share/Console');
 const Connection   = require('./../../../../../common/src/net/Connection').Connection;
@@ -40,10 +39,11 @@ const CLIENT_EVENTS = Object.assign({
 const CLIENT_EVENTS_LEN = Object.keys(CLIENT_EVENTS).length;
 
 class Client extends Connection {
+    // TODO: rename to parent
     constructor(manager) {
         super(CLIENT_EVENTS_LEN);
         this.EVENTS       = CLIENT_EVENTS;
-
+        // TODO: rename to _parent
         this._manager     = manager;
         this._onStepOutCb = this._onStepOut.bind(this);
         this._runCb       = this.run.bind(this);
@@ -72,6 +72,7 @@ class Client extends Connection {
         this._manager.off(GEVENTS.STEP_OUT, this._onStepOutCb);
     }
 
+    // TODO: rename to parent()
     get manager() {return this._manager}
     get socket()  {return this._client}
 
@@ -132,7 +133,7 @@ class Client extends Connection {
     _createWebSocket() {
         let ws = null;
         try {
-            ws = new WS(`${ServerConfig.host}:${ServerConfig.port}`);
+            ws = new WS(`${Config.serverHost}:${Config.serverPort}`);
         } catch (e) {
             Console.error(e.message);
         }

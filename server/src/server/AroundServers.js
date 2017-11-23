@@ -17,6 +17,7 @@ class AroundServers {
         /**
          * {Object} All nearest servers by direction
          */
+        // TODO: rename to _clients. It should be a map of Client instances
         this._socks = {};
         this._socks[DIR.UP]    = null;
         this._socks[DIR.RIGHT] = null;
@@ -29,6 +30,7 @@ class AroundServers {
         this._socks  = null;
     }
 
+    // TODO: rename to 'clients'
     get socks() {return this._socks}
 
     setSocket(sock, dir) {

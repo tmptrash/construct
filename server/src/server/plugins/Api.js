@@ -8,12 +8,12 @@
  */
 const Helper      = require('./../../../../common/src/Helper');
 const TYPES       = require('./../../../../common/src/net/Requests').TYPES;
-const DIR         = require('./../../../../common/src/Directions').DIR;
-const DIR_NAMES   = require('./../../../../common/src/Directions').NAMES;
-const BaseApi     = require('./../../../../common/src/net/Api');
 const Console     = require('./../../share/Console');
 const Connections = require('./../Connections');
 
+const DIR         = require('./../../../../common/src/Directions').DIR;
+const DIR_NAMES   = require('./../../../../common/src/Directions').NAMES;
+const BaseApi     = require('./../../../../common/src/net/Api');
 class Api extends BaseApi {
     constructor(parent) {
         super(parent);

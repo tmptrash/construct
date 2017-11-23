@@ -37,9 +37,15 @@ ServerConfig.init({
      */
     port: 8099,
     /**
-     * {String} Host for connecting with server
+     * TODO: this config should be obtained from Admin server or from command line
+     * TODO: parameters in future cmd line parser
      */
-    host: 'ws://localhost'
+    upHost: 'ws://localhost',
+    /**
+     * TODO: this config should be obtained from Admin server or from command line
+     * TODO: parameters in future cmd line parser
+     */
+    upPort: 8099
 });
 
 module.exports = {Config: ServerConfig.cfg(), api: ServerConfig};

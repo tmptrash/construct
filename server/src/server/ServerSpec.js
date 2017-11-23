@@ -18,7 +18,7 @@ describe("server/src/server/Server", () => {
     const Request      = require('./../../../common/src/plugins/Request');
     const waitEvent    = Helper.waitEvent;
 
-    const CLIENT_URL = `ws://127.0.0.1:${SConfig.port}`;
+    const CLIENT_URL = `ws://127.0.0.1:${Config.serverPort}`;
 
     let error;
     let warn;
