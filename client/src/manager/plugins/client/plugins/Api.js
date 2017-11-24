@@ -28,11 +28,12 @@ class Api extends BaseApi {
      * @param {String} reqId Unique request id
      * @param {Number} x Current org X position
      * @param {Number} y Current org Y position
+     * @param {Number} dir Direction of moving
      * @param {String} orgJson Organism's serialized json
      * @param {String|null} errMsg Error message
      * @api
      */
-    _stepIn(reqId, x, y, orgJson, errMsg = null) {
+    _stepIn(reqId, x, y, dir, orgJson, errMsg = null) {
         this.parent.manager.fire(EVENTS.STEP_IN, x, y, orgJson);
         errMsg && Console.warn(errMsg);
     }

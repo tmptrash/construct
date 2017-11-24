@@ -240,7 +240,12 @@ describe("client/src/manager/Manager", () => {
         server.run();
         man1.run(man2.run);
     });
-    it("Checking moving of organism from one Manager to another and back", (done) => {
+    /**
+     * The meaning of this test is in checking if one organism from up manager
+     * will go into the down manager, but there will be another organism. First
+     * organism should die in this case.
+     */
+    it("Checking moving of organism from one Manager to another 2", (done) => {
         const amount    = Config.orgStartAmount;
         const period    = Config.mutationPeriod;
         const percent   = Config.orgCloneMutationPercent;
