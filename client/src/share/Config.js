@@ -81,7 +81,7 @@ ClientConfig.init({
      * {Number} Percent of mutations from jsvm size, which will be applied to
      * organism after cloning. Should be <= 1.0
      */
-    orgCloneMutationPercent: 0.10,
+    orgCloneMutationPercent: 0.01,
     /**
      * {Number} Amount of iterations before cloning process
      */
@@ -96,7 +96,7 @@ ClientConfig.init({
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 1000,
+    orgRainMutationPeriod: 10000,
     /**
      * {Number} Value, which will be used like amount of mutations per
      * orgRainMutationPeriod iterations. 0 is a possible value if
@@ -155,7 +155,7 @@ ClientConfig.init({
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    orgMaxOrgs: 50,
+    orgMaxOrgs: 400,
     /**
      * {Number} Maximum amount of arguments in custom functions. Minimum 1. Maximum
      * <= amount of default variables.
@@ -221,11 +221,11 @@ ClientConfig.init({
     /**
      * {Number} World width
      */
-    worldWidth: 400,
+    worldWidth: 300,
     /**
      * {Number} World height
      */
-    worldHeight: 400,
+    worldHeight: 300,
     /**
      * {Number} Turns on cyclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
