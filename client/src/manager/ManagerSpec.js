@@ -20,10 +20,12 @@ describe("client/src/manager/Manager", () => {
     let serror;
     let swarn;
     let sinfo;
+    let timeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
 
 
     beforeEach(() => delete Config.Ips);
     beforeAll(() => {
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
         Config.plugIncluded.splice(Config.plugIncluded.indexOf('ips/Ips'));
         error = Console.error;
         warn  = Console.warn;
@@ -49,6 +51,7 @@ describe("client/src/manager/Manager", () => {
         Console.info  = info;
         Config.modeNodeJs = OLD_MODE;
         Config.plugIncluded.push('ips/Ips');
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = timeout;
     });
 
     it("Checking manager creation", (done) => {
@@ -187,6 +190,7 @@ describe("client/src/manager/Manager", () => {
         const period1   = Config.orgEnergySpendPeriod;
         const clone     = Config.orgClonePeriod;
         const height    = Config.worldHeight;
+        const energy    = Config.orgStartEnergy;
         const server    = new Server(SConfig.port);
         const man1      = new Manager(false);
         const man2      = new Manager(false);
@@ -199,6 +203,7 @@ describe("client/src/manager/Manager", () => {
                 man2.destroy(() => {
                     waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
                         World.prototype.getFreePos     = freePos;
+                        Config.orgStartEnergy          = energy;
                         Config.orgClonePeriod          = clone;
                         Config.orgEnergySpendPeriod    = period1;
                         Config.orgCloneMutationPercent = percent;
@@ -217,6 +222,7 @@ describe("client/src/manager/Manager", () => {
         Config.orgEnergySpendPeriod    = 0;
         Config.orgClonePeriod          = 0;
         Config.worldHeight             = 400;
+        Config.orgStartEnergy          = 10000;
         World.prototype.getFreePos     = () => {return {x: 1, y: 399}};
 
         man1.on(EVENTS.ITERATION, () => {
@@ -230,6 +236,83 @@ describe("client/src/manager/Manager", () => {
             iterated1++;
         });
         man2.on(EVENTS.ITERATION, () => iterated2++);
+
+        server.run();
+        man1.run(man2.run);
+    });
+    it("Checking moving of organism from one Manager to another and back", (done) => {
+        const amount    = Config.orgStartAmount;
+        const period    = Config.mutationPeriod;
+        const percent   = Config.orgCloneMutationPercent;
+        const period1   = Config.orgEnergySpendPeriod;
+        const clone     = Config.orgClonePeriod;
+        const height    = Config.worldHeight;
+        const energy    = Config.orgStartEnergy;
+        const server    = new Server(SConfig.port);
+        const man1      = new Manager(false);
+        const man2      = new Manager(false);
+        let   iterated1 = 0;
+        let   iterated2 = 0;
+        let   freePos   = World.prototype.getFreePos;
+        let   org1      = null;
+        let   org2      = null;
+        let   inc       = 0;
+        let   doneInc   = 0;
+        const destroy   = () => {
+            man1.destroy(() => {
+                man2.destroy(() => {
+                    waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
+                        World.prototype.getFreePos     = freePos;
+                        Config.orgStartEnergy          = energy;
+                        Config.orgClonePeriod          = clone;
+                        Config.orgEnergySpendPeriod    = period1;
+                        Config.orgCloneMutationPercent = percent;
+                        Config.mutationPeriod          = period;
+                        Config.orgStartAmount          = amount;
+                        Config.worldHeight             = height;
+                        done();
+                    });
+                });
+            });
+        };
+
+        Config.orgStartAmount          = 1;
+        Config.mutationPeriod          = 0;
+        Config.orgCloneMutationPercent = 0;
+        Config.orgEnergySpendPeriod    = 0;
+        Config.orgClonePeriod          = 0;
+        Config.worldHeight             = 400;
+        Config.orgStartEnergy          = 10000;
+        World.prototype.getFreePos     = () => {return inc++ === 0 && {x: 1, y: 399} || {x: 1, y: 0}};
+
+        man1.on(EVENTS.ITERATION, () => {
+            if (iterated1 > 0 && iterated2 > 0 && org1 === null && org2 !== null) {
+                org1 = man1.organisms.first.val;
+                org1.jsvm.code.push(0b00001101000000000000000000000000); // onStepDown()
+                man1.on(EVENTS.STEP_OUT, () => {
+                    expect(doneInc < 3).toBe(true);
+                    ++doneInc;
+                });
+                man2.on(EVENTS.STEP_IN, () => {
+                    ++doneInc;
+                    expect(man1.organisms.size).toBe(1);
+                    expect(man1.organisms.first.val.y).toBe(0);
+                });
+            } else if (org1 !== null && org2 !== null && doneInc === 2) {
+                expect(man1.organisms.size).toBe(1);
+                expect(man1.organisms.first.val.y).toBe(0);
+                expect(man2.organisms.size).toBe(1);
+                expect(man2.organisms.first.val.y).toBe(0);
+                destroy();
+                doneInc++;
+            }
+            if (iterated1 > 10000) {throw 'Error sending organism between Managers'}
+            iterated1++;
+        });
+        man2.on(EVENTS.ITERATION, () => {
+            !iterated2 && (org2 = man2.organisms.first.val);
+            iterated2++;
+        });
 
         server.run();
         man1.run(man2.run);

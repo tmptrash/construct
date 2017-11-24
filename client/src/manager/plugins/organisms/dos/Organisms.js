@@ -170,7 +170,7 @@ class Organisms extends BaseOrganisms {
         // We have to pass him to the server to another
         // client (Manager). Changing x,y two times is needed
         // for serializing correct coordinates for destination
-        // world and correct removing= require(current world
+        // world and correct removing in current world
         //
         if (man.activeAround[dir]) {
             org.x = x2;

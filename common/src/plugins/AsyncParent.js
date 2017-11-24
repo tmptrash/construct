@@ -14,7 +14,7 @@
  * {Number} Amount of milliseconds we are waiting for one plugin to start or
  * stop. In case of timeout exception will be thrown.
  */
-const WAIT_TIMEOUT_MS   = 10000;
+const WAIT_TIMEOUT_MS   = 8000;
 const CHECK_INTERVAL_MS = 50;
 
 class AsyncParent {

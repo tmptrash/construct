@@ -105,13 +105,18 @@ class Server extends Connection {
 
         this._running = true;
         Server.ports[this._port] = true;
-        this._server = new WebSocket.Server({port: this._port}, () => {
-            this._server.on('connection', this.onConnect.bind(this));
-            this.active   = true;
-            this._running = false;
-            this.fire(RUN);
-            Console.info('Server is ready');
-        });
+        try {
+            this._server = new WebSocket.Server({port: this._port}, () => {
+                this._server.on('connection', this.onConnect.bind(this));
+                this.active = true;
+                this._running = false;
+                this.fire(RUN);
+                Console.info('Server is ready');
+            });
+        } catch (e) {
+            Console.warn(`Can\'t run server on port ${this._port}. Error: ${e.message}`);
+            return false;
+        }
 
         return true;
     }
