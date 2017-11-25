@@ -172,7 +172,11 @@ class Manager extends Observer {
         this.positions     = null;
         this.organisms.destroy();
         this.organisms     = null;
-
+        //
+        // destroy event should be fired before super will be called, because
+        // it will remove observer and all events
+        //
+        this.fire(EVENTS.DESTROY);
         super.destroy();
     }
 

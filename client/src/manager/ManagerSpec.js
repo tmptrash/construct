@@ -73,6 +73,27 @@ describe("client/src/manager/Manager", () => {
         expect(man.hasView).toBe(false);
         man.destroy(done);
     });
+    it("Checking creation of two managers", (done) => {
+        const man1 = new Manager(false);
+        const man2 = new Manager(false);
+
+        waitEvent(man1, EVENTS.DESTROY, () => man1.destroy(), () => {
+            waitEvent(man2, EVENTS.DESTROY, () => man2.destroy(), done);
+        });
+    });
+    it("Checking creation huge amount of managers", (done) => {
+        const mans      = [];
+        const amount    = 100;
+        let   destroyed = 0;
+        let   waitObj   = {done: false};
+
+        for (let i = 0; i < amount; i++) {mans.push(new Manager(false))}
+        for (let i = 0; i < amount; i++) {mans[i].destroy(() => ++destroyed === amount && (waitObj.done = true))}
+
+        if (waitObj.done) {done(); return}
+        wait(waitObj, () => done, 30000);
+    });
+
     it("Checking running manager", (done) => {
         const man = new Manager(false);
         man.run(() => man.on(EVENTS.ITERATION, () => man.destroy(done)));
@@ -85,6 +106,14 @@ describe("client/src/manager/Manager", () => {
         const man = new Manager(false);
         waitEvent(man, EVENTS.RUN, () => man.run(), () => {
             waitEvent(man, EVENTS.STOP, () => man.stop(), () => man.destroy(done));
+        });
+    });
+    it("Checking DESTROY event", (done) => {
+        const man = new Manager(false);
+        waitEvent(man, EVENTS.RUN, () => man.run(), () => {
+            waitEvent(man, EVENTS.STOP, () => man.stop(), () => {
+                waitEvent(man, EVENTS.DESTROY, () => man.destroy(), done);
+            });
         });
     });
 
