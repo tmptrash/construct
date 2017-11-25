@@ -58,7 +58,7 @@ class Manager extends Observer {
          * may add their methods to this map also.
          */
         this.api           = {
-            version: () => '2.0'
+            version: () => '0.2.0'
         };
         hasView && (this.api.visualize = this._visualize.bind(this));
 
