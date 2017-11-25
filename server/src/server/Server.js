@@ -65,7 +65,7 @@ class Server extends Connection {
      * with initially null values.
      * @param {Number} port
      */
-    constructor(port) {
+    constructor(port = Config.port) {
         super(SERVER_EVENTS_LEN);
         this.EVENTS         = SERVER_EVENTS;
         this.conns          = new Connections(Config.maxConnections);

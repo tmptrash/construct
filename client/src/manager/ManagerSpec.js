@@ -13,6 +13,7 @@ describe("client/src/manager/Manager", () => {
     const Manager      = require('./Manager');
     const emptyFn      = () => {};
     const waitEvent    = THelper.waitEvent;
+    const wait         = THelper.wait;
 
     let error;
     let warn;
@@ -78,7 +79,7 @@ describe("client/src/manager/Manager", () => {
     });
 
     it("Checking running of manager with a server", (done) => {
-        const server = new Server(SConfig.port);
+        const server = new Server();
         const man    = new Manager(false);
 
         expect(man.clientId).toBe(null);
@@ -127,7 +128,7 @@ describe("client/src/manager/Manager", () => {
         const percent   = Config.orgCloneMutationPercent;
         const period1   = Config.orgEnergySpendPeriod;
         const clone     = Config.orgClonePeriod;
-        const server    = new Server(SConfig.port);
+        const server    = new Server();
         const man1      = new Manager(false);
         const man2      = new Manager(false);
         let   iterated1 = false;
@@ -191,7 +192,7 @@ describe("client/src/manager/Manager", () => {
         const clone     = Config.orgClonePeriod;
         const height    = Config.worldHeight;
         const energy    = Config.orgStartEnergy;
-        const server    = new Server(SConfig.port);
+        const server    = new Server();
         const man1      = new Manager(false);
         const man2      = new Manager(false);
         let   iterated1 = 0;
@@ -253,7 +254,7 @@ describe("client/src/manager/Manager", () => {
         const clone     = Config.orgClonePeriod;
         const height    = Config.worldHeight;
         const energy    = Config.orgStartEnergy;
-        const server    = new Server(SConfig.port);
+        const server    = new Server();
         const man1      = new Manager(false);
         const man2      = new Manager(false);
         let   iterated1 = 0;
@@ -321,5 +322,30 @@ describe("client/src/manager/Manager", () => {
 
         server.run();
         man1.run(man2.run);
+    });
+
+    // TODO: tune Config parameters
+    it("Testing ten managers and one server", (done) => {
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = 35000;
+        const server    = new Server();
+        const mans      = [];
+        const CLIENTS   = 100;
+        let   amount    = 0;
+        let   waitObj   = {done: false};
+        let   man;
+
+        server.run();
+        for (let i = 0; i < CLIENTS; i++) {
+            mans.push(man = new Manager(false));
+            man.run(() => ++amount === CLIENTS && (waitObj.done = true));
+        }
+        wait(waitObj, () => {
+            amount = 0;
+            server.on(server.EVENTS.CLOSE, () => ++amount === CLIENTS && (waitObj.done = true));
+            for (let i = 0; i < CLIENTS; i++) {mans[i].destroy()}
+            wait(waitObj, () => {
+                waitEvent(server, server.EVENTS.DESTROY, () => server.destroy(), done);
+            });
+        }, 30000);
     });
 });
