@@ -77,6 +77,16 @@ describe("client/src/manager/Manager", () => {
         const man = new Manager(false);
         man.run(() => man.on(EVENTS.ITERATION, () => man.destroy(done)));
     });
+    it("Checking RUN event", (done) => {
+        const man = new Manager(false);
+        waitEvent(man, EVENTS.RUN, () => man.run(), () => man.destroy(done));
+    });
+    it("Checking STOP event", (done) => {
+        const man = new Manager(false);
+        waitEvent(man, EVENTS.RUN, () => man.run(), () => {
+            waitEvent(man, EVENTS.STOP, () => man.stop(), () => man.destroy(done));
+        });
+    });
 
     it("Checking running of manager with a server", (done) => {
         const server = new Server();
@@ -324,9 +334,9 @@ describe("client/src/manager/Manager", () => {
         man1.run(man2.run);
     });
 
-    // TODO: tune Config parameters
     it("Testing ten managers and one server", (done) => {
         jasmine.DEFAULT_TIMEOUT_INTERVAL = 35000;
+        const maxCons   = SConfig.maxConnections;
         const server    = new Server();
         const mans      = [];
         const CLIENTS   = 100;
@@ -334,6 +344,7 @@ describe("client/src/manager/Manager", () => {
         let   waitObj   = {done: false};
         let   man;
 
+        SConfig.maxConnections = CLIENTS;
         server.run();
         for (let i = 0; i < CLIENTS; i++) {
             mans.push(man = new Manager(false));
@@ -344,7 +355,10 @@ describe("client/src/manager/Manager", () => {
             server.on(server.EVENTS.CLOSE, () => ++amount === CLIENTS && (waitObj.done = true));
             for (let i = 0; i < CLIENTS; i++) {mans[i].destroy()}
             wait(waitObj, () => {
-                waitEvent(server, server.EVENTS.DESTROY, () => server.destroy(), done);
+                waitEvent(server, server.EVENTS.DESTROY, () => server.destroy(), () => {
+                    SConfig.maxConnections = maxCons;
+                    done();
+                });
             });
         }, 30000);
     });

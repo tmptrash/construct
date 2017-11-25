@@ -62,7 +62,6 @@ class Manager extends Observer {
         };
         hasView && (this.api.visualize = this._visualize.bind(this));
 
-
         this._world        = new World(Config.worldWidth, Config.worldHeight);
         this._canvas       = hasView && new Canvas(Config.worldWidth, Config.worldHeight) || null;
         this._visualized   = true;
@@ -266,12 +265,14 @@ class Manager extends Observer {
             this._counter = 0;
             this._running = false;
             this._active  = true;
+            this.fire(EVENTS.RUN);
             this._onLoop();
             return;
         }
 
         Console.info('Manager has stopped');
         this._stopping = false;
+        this.fire(EVENTS.STOP);
         this._destroying && this.destroy();
     }
 }
