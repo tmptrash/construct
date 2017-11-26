@@ -98,6 +98,13 @@ describe("client/src/manager/Manager", () => {
         const man = new Manager(false);
         man.run(() => man.on(EVENTS.ITERATION, () => man.destroy(done)));
     });
+    it("Checking if manager runs main loop", (done) => {
+        const man   = new Manager(false);
+        let   count = 0;
+        man.run(() => man.on(EVENTS.ITERATION, () => {
+            ++count === 100 && man.destroy(done);
+        }));
+    });
 
     it("Checking RUN event", (done) => {
         const man = new Manager(false);
