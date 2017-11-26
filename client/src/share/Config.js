@@ -126,7 +126,7 @@ ClientConfig.init({
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used.
      */
-    orgAlivePeriod: 30000,
+    orgAlivePeriod: 0,
     /**
      * {Number} This value means the period between organism codeSizes, which
      * affects energy grabbing by the system. For example: we have two
@@ -136,7 +136,7 @@ ClientConfig.init({
      * same amount of energy - 1 unit. This is because the period goes
      * from 1..5, 6..10,... and both organisms are in the same period.
      */
-    orgGarbagePeriod: 50,
+    orgGarbagePeriod: 20,
     /**
      * {Number} Size of organism stack (internal memory)
      */
@@ -225,7 +225,7 @@ ClientConfig.init({
     /**
      * {Number} World height
      */
-    worldHeight: 300,
+    worldHeight: 428,
     /**
      * {Number} Turns on cyclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10

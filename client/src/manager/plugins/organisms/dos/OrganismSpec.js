@@ -123,8 +123,10 @@ describe("client/src/organism/OrganismDos", () => {
     });
 
     it("Checking organism destroy because of age", () => {
-        let   org  = new OrganismDos(0, 1, 2, true, null, ()=>{});
+        const period = Config.orgAlivePeriod;
+        let   org    = new OrganismDos(0, 1, 2, true, null, ()=>{});
 
+        Config.orgAlivePeriod = 30000;
         for (let i = 0; i < Config.orgAlivePeriod; i++) {
             expect(org.alive).toEqual(true);
             org.run();
@@ -132,11 +134,14 @@ describe("client/src/organism/OrganismDos", () => {
         expect(org.alive).toEqual(false);
         // we don't need to call destroy, because organism
         // should be dead at this moment
+        Config.orgAlivePeriod = period;
     });
 
     it("Checking organism destroy because of zero energy", () => {
-        let   org  = new OrganismDos(0, 1, 2, true, null, ()=>{});
+        const period = Config.orgAlivePeriod;
+        let   org    = new OrganismDos(0, 1, 2, true, null, ()=>{});
 
+        Config.orgAlivePeriod = 30000;
         expect(org.energy).toEqual(Config.orgStartEnergy);
         org.energy = 0;
         expect(org.alive).toEqual(true);
@@ -144,6 +149,7 @@ describe("client/src/organism/OrganismDos", () => {
         expect(org.alive).toEqual(false);
         // we don't need to call destroy, because organism
         // should be dead at this moment
+        Config.orgAlivePeriod = period;
     });
 
     it("Checking organism destroy because of grab energy", () => {

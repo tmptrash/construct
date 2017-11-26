@@ -116,6 +116,18 @@ describe("client/src/manager/Manager", () => {
             });
         });
     });
+    it("Checking isDistributed() method", (done) => {
+        const man = new Manager(false);
+
+        expect(man.isDistributed()).toBe(false);
+        waitEvent(man, EVENTS.RUN, () => man.run(), () => {
+            expect(man.isDistributed()).toBe(false);
+            waitEvent(man, EVENTS.STOP, () => man.stop(), () => {
+                expect(man.isDistributed()).toBe(false);
+                man.destroy(done);
+            });
+        });
+    });
 
     it("Checking running of manager with a server", (done) => {
         const server = new Server();
