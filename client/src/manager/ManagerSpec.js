@@ -98,6 +98,7 @@ describe("client/src/manager/Manager", () => {
         const man = new Manager(false);
         man.run(() => man.on(EVENTS.ITERATION, () => man.destroy(done)));
     });
+
     it("Checking RUN event", (done) => {
         const man = new Manager(false);
         waitEvent(man, EVENTS.RUN, () => man.run(), () => man.destroy(done));
@@ -116,6 +117,17 @@ describe("client/src/manager/Manager", () => {
             });
         });
     });
+    it("Checking ITERATION event", (done) => {
+        const man = new Manager(false);
+        let   ok  = false;
+
+        man.on(EVENTS.ITERATION, () => ok = true);
+        waitEvent(man, EVENTS.RUN, () => man.run(), () => {
+            expect(ok).toBe(true);
+            waitEvent(man, EVENTS.STOP, () => man.stop(), () => man.destroy(done));
+        });
+    });
+
     it("Checking isDistributed() method", (done) => {
         const man = new Manager(false);
 
@@ -126,6 +138,18 @@ describe("client/src/manager/Manager", () => {
                 expect(man.isDistributed()).toBe(false);
                 man.destroy(done);
             });
+        });
+    });
+    it("Checking 'codeRuns' property", (done) => {
+        const man = new Manager(false);
+        let   ok  = false;
+
+        man.on(EVENTS.ITERATION, () => ok = true);
+        expect(man.codeRuns).toBe(0);
+        waitEvent(man, EVENTS.RUN, () => man.run(), () => {
+            // codeRuns should be 0, because there is no code lines
+            expect(man.codeRuns).toBe(0);
+            waitEvent(man, EVENTS.STOP, () => man.stop(), () => man.destroy(done));
         });
     });
 
@@ -402,5 +426,44 @@ describe("client/src/manager/Manager", () => {
                 });
             });
         }, 30000);
+    });
+    it("Testing run/stop/run manager and one server", (done) => {
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = 35000;
+        const maxCons   = SConfig.maxConnections;
+        const server    = new Server();
+        const CLIENTS   = 100;
+        let   amount    = 0;
+        let   waitObj   = {done: false};
+        let   count     = 0;
+        let   man1;
+        let   man2;
+        let   oldId;
+
+        SConfig.maxConnections = CLIENTS;
+        man1 = new Manager(false);
+        man2 = new Manager(false);
+
+        server.run();
+        man1.run(() => ++count === 2 && (waitObj.done = true));
+        man2.run(() => ++count === 2 && (waitObj.done = true));
+        wait(waitObj, () => {
+            man1.stop(() => {
+                expect(man1.clientId).toBe(null);
+                oldId = man1.clientId;
+                man1.run(() => {
+                    expect(man1.clientId).not.toBe(null);
+                    amount = 0;
+                    server.on(server.EVENTS.CLOSE, () => ++amount === 2 && (waitObj.done = true));
+                    man1.destroy();
+                    man2.destroy();
+                    wait(waitObj, () => {
+                        waitEvent(server, server.EVENTS.DESTROY, () => server.destroy(), () => {
+                            SConfig.maxConnections = maxCons;
+                            done();
+                        });
+                    });
+                });
+            });
+        });
     });
 });

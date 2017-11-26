@@ -43,6 +43,14 @@ class Manager extends Observer {
          */
         this.positions     = {};
         /**
+         * {Object} This field is used as a container for public API of the Manager.
+         * It may be used in a user console by the Operator of jevo.js. Plugins
+         * may add their methods to this map also.
+         */
+        this.api           = {version: () => '0.2.0'};
+        hasView && (this.api.visualize = this._visualize.bind(this));
+
+        /**
          * {Boolean} Means that this manager instance doesn't contain view(canvas).
          * All calculations will be done only in memory.
          */
@@ -52,15 +60,6 @@ class Manager extends Observer {
          * code line will done. May be changed in plugins.
          */
         this._codeRuns     = 0;
-        /**
-         * {Object} This field is used as a container for public API of the Manager.
-         * It may be used in a user console by the Operator of jevo.js. Plugins
-         * may add their methods to this map also.
-         */
-        this.api           = {
-            version: () => '0.2.0'
-        };
-        hasView && (this.api.visualize = this._visualize.bind(this));
 
         this._world        = new World(Config.worldWidth, Config.worldHeight);
         this._canvas       = hasView && new Canvas(Config.worldWidth, Config.worldHeight) || null;
@@ -90,6 +89,7 @@ class Manager extends Observer {
             run    : this._onDone.bind(this)
         });
     }
+
     get world()        {return this._world}
     get canvas()       {return this._canvas}
     get clientId()     {return this._clientId}
@@ -271,8 +271,8 @@ class Manager extends Observer {
             this._counter = 0;
             this._running = false;
             this._active  = true;
-            this.fire(EVENTS.RUN);
             this._onLoop();
+            this.fire(EVENTS.RUN);
             return;
         }
 

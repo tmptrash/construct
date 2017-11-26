@@ -124,7 +124,7 @@ describe("client/src/manager/plugins/Client", () => {
             run() {}
             stop() {}
             get clientId()   {return this._clientId}
-            set clientId(id) {this._clientId = id; ++count === 2 && (waitObj.done = true)}
+            set clientId(id) {this._clientId = id; id && ++count === 2 && (waitObj.done = true)}
         }
         const man1    = new Man1();
         const man2    = new Man1();
