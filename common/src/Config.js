@@ -10,6 +10,7 @@ class Config {
         this._cfg = cfg;
     }
 
+    // TODO: add complex key support like: 'Organisms.orgMutationProbs'
     static set(key, val) {
         this._cfg[key] = val;
         return this;

@@ -48,6 +48,15 @@ class Helper {
     }
 
     /**
+     * Sets first letter to lover case
+     * @param {String} s
+     * @returns {String}
+     */
+    static loverCase(s) {
+        return s && s[0].toUpperCase() + s.slice(1);
+    }
+
+    /**
      * Opposite to override. Removes overridden method.
      * @param {Object} obj Destination object, we want to override
      * @param {String} fnName Function name

@@ -14,6 +14,7 @@
 const BaseOrganisms = require('./../Organisms');
 const Organism      = require('./Organism');
 const Config        = require('./../../../../share/Config').Config;
+const OConfig       = require('./../Config');
 const EVENTS        = require('./../../../../share/Events').EVENTS;
 const Helper        = require('./../../../../../../common/src/Helper');
 const DIR           = require('./../../../../../../common/src/Directions').DIR;
@@ -208,10 +209,10 @@ class Organisms extends BaseOrganisms {
      * @private
      */
     _onStepIn(x, y, orgJson) {
-        if (this.manager.world.isFree(x, y) && this.organisms.size < Config.orgMaxOrgs && this.createOrg({x, y})) {
+        if (this.manager.world.isFree(x, y) && this.organisms.size < OConfig.orgMaxOrgs && this.createOrg({x, y})) {
             const org = this.organisms.last.val;
             org.unserialize(orgJson);
-            org.grabEnergy(Config.orgStepEnergySpendPercent);
+            org.grabEnergy(OConfig.orgStepEnergySpendPercent);
         }
     }
 

@@ -40,7 +40,7 @@ ServerConfig.init({
      * TODO: this config should be obtained from Admin server or from command line
      * TODO: parameters in future cmd line parser
      */
-    upHost: 'ws://localhost',
+    upHost: 'ws://127.0.0.1',
     /**
      * TODO: this config should be obtained from Admin server or from command line
      * TODO: parameters in future cmd line parser

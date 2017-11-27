@@ -10,6 +10,7 @@ const Helper    = require('./../../../../../../common/src/Helper');
 const Operators = require('./../../../../../../client/src/jsvm/Operators');
 const Num       = require('./../../../../../../client/src/jsvm/Num');
 const Config    = require('./../../../../share/Config').Config;
+const OConfig   = require('./../Config');
 
 /**
  * {Function} Just a shortcuts
@@ -151,7 +152,7 @@ class OperatorsGarmin extends  Operators {
     onToMem(num, line, org) {
         const val = this.vars[VAR1(num)];
 
-        if (IS_NUM(val) && org.mem.length < Config.orgMemSize) {
+        if (IS_NUM(val) && org.mem.length < OConfig.orgMemSize) {
             org.mem.push(val);
             this.vars[VAR0(num)] = val;
         } else {

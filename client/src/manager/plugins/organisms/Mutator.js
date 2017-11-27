@@ -11,6 +11,7 @@
  */
 const EVENTS   = require('./../../../share/Events').EVENTS;
 const Config   = require('./../../../share/Config').Config;
+const OConfig  = require('./../../../manager/plugins/organisms/Config');
 const Helper   = require('./../../../../../common/src/Helper');
 const Organism = require('./dos/Organism');
 const Num      = require('./../../../jsvm/Num');
@@ -45,13 +46,13 @@ class Mutator {
     }
 
     _onOrganism(org) {
-        if (org.iterations % org.mutationPeriod === 0 && Config.orgRainMutationPeriod > 0 && org.mutationPeriod > 0 && org.alive) {
+        if (org.iterations % org.mutationPeriod === 0 && OConfig.orgRainMutationPeriod > 0 && org.mutationPeriod > 0 && org.alive) {
             this._mutate(org, false);
         }
     }
 
     _onCloneOrg(parent, child) {
-        if (child.energy > 0 && Config.orgCloneMutationPercent > 0) {this._mutate(child)}
+        if (child.energy > 0 && OConfig.orgCloneMutationPercent > 0) {this._mutate(child)}
     }
 
     _mutate(org, clone = true) {
@@ -128,7 +129,7 @@ class Mutator {
     }
 
     _onProbs(org) {
-        org.mutationProbs[Helper.rand(org.mutationProbs.length)] = Helper.rand(Config.orgMutationProbsMaxValue) || 1;
+        org.mutationProbs[Helper.rand(org.mutationProbs.length)] = Helper.rand(OConfig.orgMutationProbsMaxValue) || 1;
     }
 
     _onCloneEnergyPercent(org) {

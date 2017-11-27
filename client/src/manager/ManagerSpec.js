@@ -1,5 +1,6 @@
 describe("client/src/manager/Manager", () => {
     const Config       = require('./../../../client/src/share/Config').Config;
+    const OConfig      = require('./../manager/plugins/organisms/Config');
     const SConfig      = require('./../../../server/src/share/Config').Config;
     const OLD_MODE     = Config.modeNodeJs;
     Config.modeNodeJs  = true;
@@ -177,26 +178,26 @@ describe("client/src/manager/Manager", () => {
 
     it("Checking one organism creation in a manager", (done) => {
         const man      = new Manager(false);
-        const amount   = Config.orgStartAmount;
+        const amount   = OConfig.orgStartAmount;
         const period   = Config.mutationPeriod;
-        const percent  = Config.orgCloneMutationPercent;
-        const clone    = Config.orgClonePeriod;
+        const percent  = OConfig.orgCloneMutationPercent;
+        const clone    = OConfig.orgClonePeriod;
         let   iterated = false;
 
-        Config.orgStartAmount          = 1;
-        Config.mutationPeriod          = 0;
-        Config.orgCloneMutationPercent = 0;
-        Config.orgClonePeriod          = 0;
+        OConfig.orgStartAmount          = 1;
+        Config.mutationPeriod           = 0;
+        OConfig.orgCloneMutationPercent = 0;
+        OConfig.orgClonePeriod          = 0;
         expect(man.organisms.size).toBe(0);
         man.on(EVENTS.ITERATION, () => {
             if (iterated) {return}
             expect(man.organisms.size).toBe(1);
             man.stop(() => {
                 man.destroy(() => {
-                    Config.orgClonePeriod          = clone;
-                    Config.orgCloneMutationPercent = percent;
-                    Config.mutationPeriod          = period;
-                    Config.orgStartAmount          = amount;
+                    OConfig.orgClonePeriod          = clone;
+                    OConfig.orgCloneMutationPercent = percent;
+                    Config.mutationPeriod           = period;
+                    OConfig.orgStartAmount          = amount;
                     done();
                 });
             });
@@ -205,11 +206,11 @@ describe("client/src/manager/Manager", () => {
         man.run();
     });
     it("Checking two managers with a server", (done) => {
-        const amount    = Config.orgStartAmount;
+        const amount    = OConfig.orgStartAmount;
         const period    = Config.mutationPeriod;
-        const percent   = Config.orgCloneMutationPercent;
-        const period1   = Config.orgEnergySpendPeriod;
-        const clone     = Config.orgClonePeriod;
+        const percent   = OConfig.orgCloneMutationPercent;
+        const period1   = OConfig.orgEnergySpendPeriod;
+        const clone     = OConfig.orgClonePeriod;
         const server    = new Server();
         const man1      = new Manager(false);
         const man2      = new Manager(false);
@@ -221,22 +222,22 @@ describe("client/src/manager/Manager", () => {
             man1.destroy(() => {
                 man2.destroy(() => {
                     waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
-                        Config.orgClonePeriod          = clone;
-                        Config.orgEnergySpendPeriod    = period1;
-                        Config.orgCloneMutationPercent = percent;
-                        Config.mutationPeriod          = period;
-                        Config.orgStartAmount          = amount;
+                        OConfig.orgClonePeriod          = clone;
+                        OConfig.orgEnergySpendPeriod    = period1;
+                        OConfig.orgCloneMutationPercent = percent;
+                        Config.mutationPeriod           = period;
+                        OConfig.orgStartAmount          = amount;
                         done();
                     });
                 });
             });
         };
 
-        Config.orgStartAmount          = 1;
-        Config.mutationPeriod          = 0;
-        Config.orgCloneMutationPercent = 0;
-        Config.orgEnergySpendPeriod    = 0;
-        Config.orgClonePeriod          = 0;
+        OConfig.orgStartAmount          = 1;
+        Config.mutationPeriod           = 0;
+        OConfig.orgCloneMutationPercent = 0;
+        OConfig.orgEnergySpendPeriod    = 0;
+        OConfig.orgClonePeriod          = 0;
         expect(man1.clientId).toBe(null);
         expect(man2.clientId).toBe(null);
         expect(man1.organisms.size).toBe(0);
@@ -267,13 +268,13 @@ describe("client/src/manager/Manager", () => {
     });
 
     it("Checking moving of organism from one Manager to another", (done) => {
-        const amount    = Config.orgStartAmount;
+        const amount    = OConfig.orgStartAmount;
         const period    = Config.mutationPeriod;
-        const percent   = Config.orgCloneMutationPercent;
-        const period1   = Config.orgEnergySpendPeriod;
-        const clone     = Config.orgClonePeriod;
+        const percent   = OConfig.orgCloneMutationPercent;
+        const period1   = OConfig.orgEnergySpendPeriod;
+        const clone     = OConfig.orgClonePeriod;
         const height    = Config.worldHeight;
-        const energy    = Config.orgStartEnergy;
+        const energy    = OConfig.orgStartEnergy;
         const server    = new Server();
         const man1      = new Manager(false);
         const man2      = new Manager(false);
@@ -285,28 +286,28 @@ describe("client/src/manager/Manager", () => {
             man1.destroy(() => {
                 man2.destroy(() => {
                     waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
-                        World.prototype.getFreePos     = freePos;
-                        Config.orgStartEnergy          = energy;
-                        Config.orgClonePeriod          = clone;
-                        Config.orgEnergySpendPeriod    = period1;
-                        Config.orgCloneMutationPercent = percent;
-                        Config.mutationPeriod          = period;
-                        Config.orgStartAmount          = amount;
-                        Config.worldHeight             = height;
+                        World.prototype.getFreePos      = freePos;
+                        OConfig.orgStartEnergy          = energy;
+                        OConfig.orgClonePeriod          = clone;
+                        OConfig.orgEnergySpendPeriod    = period1;
+                        OConfig.orgCloneMutationPercent = percent;
+                        Config.mutationPeriod           = period;
+                        OConfig.orgStartAmount          = amount;
+                        Config.worldHeight              = height;
                         done();
                     });
                 });
             });
         };
 
-        Config.orgStartAmount          = 1;
-        Config.mutationPeriod          = 0;
-        Config.orgCloneMutationPercent = 0;
-        Config.orgEnergySpendPeriod    = 0;
-        Config.orgClonePeriod          = 0;
-        Config.worldHeight             = 400;
-        Config.orgStartEnergy          = 10000;
-        World.prototype.getFreePos     = () => {return {x: 1, y: 399}};
+        OConfig.orgStartAmount          = 1;
+        Config.mutationPeriod           = 0;
+        OConfig.orgCloneMutationPercent = 0;
+        OConfig.orgEnergySpendPeriod    = 0;
+        OConfig.orgClonePeriod          = 0;
+        Config.worldHeight              = 400;
+        OConfig.orgStartEnergy          = 10000;
+        World.prototype.getFreePos      = () => {return {x: 1, y: 399}};
 
         man1.on(EVENTS.ITERATION, () => {
             if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
@@ -329,13 +330,13 @@ describe("client/src/manager/Manager", () => {
      * organism should die in this case.
      */
     it("Checking moving of organism from one Manager to another 2", (done) => {
-        const amount    = Config.orgStartAmount;
+        const amount    = OConfig.orgStartAmount;
         const period    = Config.mutationPeriod;
-        const percent   = Config.orgCloneMutationPercent;
-        const period1   = Config.orgEnergySpendPeriod;
-        const clone     = Config.orgClonePeriod;
+        const percent   = OConfig.orgCloneMutationPercent;
+        const period1   = OConfig.orgEnergySpendPeriod;
+        const clone     = OConfig.orgClonePeriod;
         const height    = Config.worldHeight;
-        const energy    = Config.orgStartEnergy;
+        const energy    = OConfig.orgStartEnergy;
         const server    = new Server();
         const man1      = new Manager(false);
         const man2      = new Manager(false);
@@ -350,28 +351,28 @@ describe("client/src/manager/Manager", () => {
             man1.destroy(() => {
                 man2.destroy(() => {
                     waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
-                        World.prototype.getFreePos     = freePos;
-                        Config.orgStartEnergy          = energy;
-                        Config.orgClonePeriod          = clone;
-                        Config.orgEnergySpendPeriod    = period1;
-                        Config.orgCloneMutationPercent = percent;
-                        Config.mutationPeriod          = period;
-                        Config.orgStartAmount          = amount;
-                        Config.worldHeight             = height;
+                        World.prototype.getFreePos      = freePos;
+                        OConfig.orgStartEnergy          = energy;
+                        OConfig.orgClonePeriod          = clone;
+                        OConfig.orgEnergySpendPeriod    = period1;
+                        OConfig.orgCloneMutationPercent = percent;
+                        Config.mutationPeriod           = period;
+                        OConfig.orgStartAmount          = amount;
+                        Config.worldHeight              = height;
                         done();
                     });
                 });
             });
         };
 
-        Config.orgStartAmount          = 1;
-        Config.mutationPeriod          = 0;
-        Config.orgCloneMutationPercent = 0;
-        Config.orgEnergySpendPeriod    = 0;
-        Config.orgClonePeriod          = 0;
-        Config.worldHeight             = 400;
-        Config.orgStartEnergy          = 10000;
-        World.prototype.getFreePos     = () => {return inc++ === 0 && {x: 1, y: 399} || {x: 1, y: 0}};
+        OConfig.orgStartAmount          = 1;
+        Config.mutationPeriod           = 0;
+        OConfig.orgCloneMutationPercent = 0;
+        OConfig.orgEnergySpendPeriod    = 0;
+        OConfig.orgClonePeriod          = 0;
+        Config.worldHeight              = 400;
+        OConfig.orgStartEnergy          = 10000;
+        World.prototype.getFreePos      = () => {return inc++ === 0 && {x: 1, y: 399} || {x: 1, y: 0}};
 
         man1.on(EVENTS.ITERATION, () => {
             if (iterated1 > 0 && iterated2 > 0 && org1 === null && org2 !== null) {

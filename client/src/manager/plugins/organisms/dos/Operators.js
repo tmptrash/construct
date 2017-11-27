@@ -10,6 +10,7 @@ const DIR       = require('./../../../../../../common/src/Directions').DIR;
 const Helper    = require('./../../../../../../common/src/Helper');
 const EVENTS    = require('./../../../../../src/share/Events').EVENTS;
 const Config    = require('./../../../../../src/share/Config').Config;
+const OConfig   = require('./../Config');
 const Operators = require('./../../../../../src/jsvm/Operators');
 const Num       = require('./../../../../../src/jsvm/Num');
 
@@ -204,7 +205,7 @@ class OperatorsDos extends Operators {
     onToMem(num, line, org) {
         const val = this.vars[VAR1(num)];
 
-        if (IS_NUM(val) && org.mem.length < Config.orgMemSize) {
+        if (IS_NUM(val) && org.mem.length < OConfig.orgMemSize) {
             this.vars[VAR0(num)] = org.mem.push(val);
         } else {
             this.vars[VAR0(num)] = 0;

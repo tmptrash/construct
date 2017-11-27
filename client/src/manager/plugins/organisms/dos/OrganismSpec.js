@@ -4,6 +4,7 @@
 describe("client/src/organism/OrganismDos", () => {
     let OrganismDos = require('./Organism');
     let Config      = require('./../../../../share/Config').Config;
+    let OConfig     = require('./../../../../manager/plugins/organisms/Config');
     let api         = require('./../../../../share/Config').api;
     let THelper     = require('./../../../../../../common/tests/Helper');
     let cls;
@@ -16,15 +17,15 @@ describe("client/src/organism/OrganismDos", () => {
         expect(org.y).toEqual(2);
         expect(org.item).toEqual(null);
         expect(org.alive).toEqual(true);
-        expect(THelper.compare(org.mutationProbs, Config.orgMutationProbs)).toEqual(true);
-        expect(org.mutationPeriod === Config.orgRainMutationPeriod).toEqual(true);
-        expect(org.mutationPercent === Config.orgRainMutationPercent).toEqual(true);
-        expect(org.cloneMutationPercent === Config.orgCloneMutationPercent).toEqual(true);
+        expect(THelper.compare(org.mutationProbs, OConfig.orgMutationProbs)).toEqual(true);
+        expect(org.mutationPeriod === OConfig.orgRainMutationPeriod).toEqual(true);
+        expect(org.mutationPercent === OConfig.orgRainMutationPercent).toEqual(true);
+        expect(org.cloneMutationPercent === OConfig.orgCloneMutationPercent).toEqual(true);
         expect(org.changes === 1).toEqual(true);
-        expect(org.energy === Config.orgStartEnergy).toEqual(true);
-        expect(org.color === Config.orgStartColor).toEqual(true);
+        expect(org.energy === OConfig.orgStartEnergy).toEqual(true);
+        expect(org.color === OConfig.orgStartColor).toEqual(true);
         expect(org.mem.length === 0).toEqual(true);
-        expect(org.cloneEnergyPercent === Config.orgCloneEnergyPercent).toEqual(true);
+        expect(org.cloneEnergyPercent === OConfig.orgCloneEnergyPercent).toEqual(true);
         expect(org.iterations === 0).toEqual(true);
 
         org.destroy();
@@ -78,8 +79,8 @@ describe("client/src/organism/OrganismDos", () => {
 
     it("Checking if organism if alive", () => {
         let   org     = new OrganismDos(0, 1, 2, true, null, ()=>{});
-        const period  = Config.orgAlivePeriod;
-        const energy  = Config.orgStartEnergy;
+        const period  = OConfig.orgAlivePeriod;
+        const energy  = OConfig.orgStartEnergy;
         const speriod = Config.orgEnergySpendPeriod;
 
         api.set('orgAlivePeriod', 100);
@@ -123,33 +124,33 @@ describe("client/src/organism/OrganismDos", () => {
     });
 
     it("Checking organism destroy because of age", () => {
-        const period = Config.orgAlivePeriod;
+        const period = OConfig.orgAlivePeriod;
         let   org    = new OrganismDos(0, 1, 2, true, null, ()=>{});
 
-        Config.orgAlivePeriod = 30000;
-        for (let i = 0; i < Config.orgAlivePeriod; i++) {
+        OConfig.orgAlivePeriod = 30000;
+        for (let i = 0; i < OConfig.orgAlivePeriod; i++) {
             expect(org.alive).toEqual(true);
             org.run();
         }
         expect(org.alive).toEqual(false);
         // we don't need to call destroy, because organism
         // should be dead at this moment
-        Config.orgAlivePeriod = period;
+        OConfig.orgAlivePeriod = period;
     });
 
     it("Checking organism destroy because of zero energy", () => {
-        const period = Config.orgAlivePeriod;
+        const period = OConfig.orgAlivePeriod;
         let   org    = new OrganismDos(0, 1, 2, true, null, ()=>{});
 
-        Config.orgAlivePeriod = 30000;
-        expect(org.energy).toEqual(Config.orgStartEnergy);
+        OConfig.orgAlivePeriod = 30000;
+        expect(org.energy).toEqual(OConfig.orgStartEnergy);
         org.energy = 0;
         expect(org.alive).toEqual(true);
         org.run();
         expect(org.alive).toEqual(false);
         // we don't need to call destroy, because organism
         // should be dead at this moment
-        Config.orgAlivePeriod = period;
+        OConfig.orgAlivePeriod = period;
     });
 
     it("Checking organism destroy because of grab energy", () => {

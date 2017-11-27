@@ -1,0 +1,120 @@
+/**
+ * Configuration of Organisms plugin
+ *
+ * @author flatline
+ */
+// TODO: remove 'org' prefix of all values
+const Config = {
+    /**
+     * {Array} Probabilities which used, when mutator decides what to do:
+     * add, change, delete code line inside the jsvm; change amount of
+     * mutations or change mutations period... Depending on these
+     * values, organism may have different strategies of living.
+     * For example: if add value is bigger then del and change,
+     * then jsvm size will be grow up all the time. If del value is
+     * bigger then other, then it will be decreased to zero lines
+     * of jsvm and organism will die.
+     * Format: [
+     *     add          - Probability of adding new line to the code
+     *     change       - Probability of changing existing line of code
+     *     delete       - Probability of deleting a line of code
+     *     small-change - Probability of "small change" - change part of one code line
+     *     clone        - Probability for sharing of energy percent on clone
+     *     copy         - Probability of copying of code lines inside it's own code
+     *     period       - Probability of period of organism mutations
+     *     amount       - Probability of amount of mutations per period
+     *     probs        - Probability of change one of probability coefficient in this array
+     *     clonePeriod  - Probability of change clone energy percent value
+     * ]
+     */
+    orgMutationProbs: [50,80,10,100,1,10,10,10,10,10],
+    /**
+     * {Number} Max value, which we may use in orgMutationProbs array. We may use
+     * range: [0...orgMutationProbsMaxValue] including these values
+     */
+    orgMutationProbsMaxValue: 100,
+    /**
+     * {Number} Percent of mutations from jsvm size, which will be applied to
+     * organism after cloning. Should be <= 1.0 (1.0 === 100%)
+     */
+    orgCloneMutationPercent: 0.01,
+    /**
+     * {Number} Amount of iterations between cloning. Set it to 0 to turn it off
+     */
+    orgClonePeriod: 5,
+    /**
+     * {Number} Amount of iterations, after which crossover will be applied
+     * to random organisms. May be set to 0 to turn crossover off
+     */
+    orgCrossoverPeriod: 0,
+    /**
+     * {Number} Amount of iterations within organism's life loop, after that we
+     * do mutations according to orgRainMutationPercent config. If 0, then
+     * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
+     */
+    orgRainMutationPeriod: 10000,
+    /**
+     * {Number} Percent of mutations from code size. 0 is a possible value if
+     * we want to disable mutations. Should be less then 1.0 (1.0 === 100%)
+     */
+    orgRainMutationPercent: 0.02,
+    /**
+     * {Number} Amount of organisms we have to create on program start
+     */
+    orgStartAmount: 500,
+    /**
+     * {Number} Amount of energy for first organisms. They are like Adam and
+     * Eve. It means that these empty (without jsvm) organism were created
+     * by operator and not by evolution.
+     */
+    orgStartEnergy: 10000,
+    /**
+     * {Number} Begin color of "empty" organism (organism without code). Color
+     * should be set in HEX-RGB mode. Example: 0xRRGGBB
+     */
+    orgStartColor: 0xFF0000,
+    /**
+     * {Number} Amount of iterations within organism's life loop, after that we decrease
+     * some amount of energy. If 0, then energy decreasing will be disabled.
+     */
+    orgEnergySpendPeriod: 10,
+    /**
+     * {Number} Amount of iterations when organism is alive. It will die after
+     * this period. If 0, then will not be used and organism may leave forever
+     */
+    orgAlivePeriod: 0,
+    /**
+     * {Number} This value means the period between organism codeSizes, which
+     * affects energy grabbing by the system. For example: we have two
+     * organisms: org1.energy = 10, org2.energy = 10, org1.codeSize = 6,
+     * org2.codeSize = 9, Config.orgGarbagePeriod = 5. It means that
+     * during energy grabbing by the system org1 and org2 will spend the
+     * same amount of energy - 1 unit. This is because the period goes
+     * from 1..5, 6..10,... and both organisms are in the same period. In
+     * simple words, if your size is between 0-20, then 1 unit of energy will
+     * be grabbed from you. If your size is between 21-40, then 2 units of
+     * energy will be grabbed from you and so on...
+     */
+    orgGarbagePeriod: 20,
+    /**
+     * {Number} Size of organism stack (internal memory)
+     */
+    orgMemSize: 64,
+    /**
+     * {Number} Percent of energy, which will be given to the child
+     */
+    orgCloneEnergyPercent: 0.5,
+    /**
+     * {Number} Percent of energy, which will be minused from organism after
+     * stepping from one instance to another.
+     */
+    orgStepEnergySpendPercent: 0.0,
+    /**
+     * {Number} Maximum amount of organisms in a world. If some organism will
+     * try to clone itself, when entire amount of organisms are equal
+     * this value, the cloning will not happen.
+     */
+    orgMaxOrgs: 400
+};
+
+module.exports = Config;
