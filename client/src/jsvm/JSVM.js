@@ -10,6 +10,7 @@
 const Helper       = require('./../../../common/src/Helper');
 const Observer     = require('./../../../common/src/Observer');
 const Config       = require('./../../src/share/Config').Config;
+const OConfig      = require('./../manager/plugins/organisms/Config');
 const EVENTS       = require('./../../src/share/Events').EVENTS;
 const EVENT_AMOUNT = require('./../../src/share/Events').EVENT_AMOUNT;
 const Num          = require('./Num');
@@ -92,7 +93,7 @@ class JSVM extends Observer {
         let line  = this._line;
         let code  = this._code;
         let lines = code.length;
-        let len   = lines === 0 ? 0 : Config.codeYieldPeriod || lines;
+        let len   = lines === 0 ? 0 : OConfig.codeYieldPeriod || lines;
         let len2  = len;
         let ops   = this._operators.operators;
         let getOp = Num.getOperator;
@@ -166,7 +167,7 @@ class JSVM extends Observer {
         }
 
         adds = Math.abs(end1 - start1 - end + start);
-        if (this._code.length + adds >= Config.codeMaxSize) {
+        if (this._code.length + adds >= OConfig.codeMaxSize) {
             return 0
         }
         this._code.splice.apply(this._code, [start, end - start + 1].concat(jsvm.code.slice(start1, end1 + 1)));
@@ -245,9 +246,9 @@ class JSVM extends Observer {
             return this._vars
         }
 
-        const len    = Math.pow(2, Config.codeBitsPerVar);
+        const len    = Math.pow(2, OConfig.codeBitsPerVar);
         let vars     = new Array(len);
-        const range  = Config.codeVarInitRange;
+        const range  = OConfig.codeVarInitRange;
         const range2 = range / 2;
         const rand   = Helper.rand;
 

@@ -5,10 +5,11 @@ describe("client/src/organism/OperatorsDos", () => {
     let EVENTS       = require('./../../../../share/Events').EVENTS;
     let EVENT_AMOUNT = require('./../../../../share/Events').EVENT_AMOUNT;
     let Config       = require('./../../../../share/Config').Config;
+    let OConfig      = require('./../../organisms/Config');
     let api          = require('./../../../../share/Config').api;
     let cbpv         = null;
 
-    beforeEach(() => {cbpv = Config.codeBitsPerVar;api.set('codeBitsPerVar', 2)});
+    beforeEach(() => {cbpv = OConfig.codeBitsPerVar;api.set('codeBitsPerVar', 2)});
     afterEach(() => api.set('codeBitsPerVar', cbpv));
 
     it("Checking onVar() method", () => {
@@ -35,9 +36,9 @@ describe("client/src/organism/OperatorsDos", () => {
 
     // it("Checking onVar() method with 3 bits per var config", () => {
     //     let ops = new OperatorsDos([], [0, 1, 2, 3], new Observer());
-    //     let bpv = Config.codeBitsPerVar;
+    //     let bpv = OConfig.codeBitsPerVar;
     //
-    //     Config.codeBitsPerVar = 4;
+    //     OConfig.codeBitsPerVar = 4;
     //     expect(ops.onVar(0x00ffffff, 0)).toEqual(1);
     //     expect(ops.vars[0] === 0).toEqual(true);
     //     expect(ops.vars[1] === 1).toEqual(true);
@@ -54,7 +55,7 @@ describe("client/src/organism/OperatorsDos", () => {
     //     // expect(ops.vars[2] === 0).toEqual(true);
     //     // expect(ops.vars[3] === 0).toEqual(true);
     //
-    //     Config.codeBitsPerVar = bpv;
+    //     OConfig.codeBitsPerVar = bpv;
     //     ops.destroy();
     // });
 

@@ -166,7 +166,7 @@ class Organism extends Observer {
     }
 
     fitness() {
-        return (Config.codeMaxSize - this.jsvm.size) *  this._energy * this._changes;
+        return (OConfig.codeMaxSize - this.jsvm.size) *  this._energy * this._changes;
     }
 
     destroy() {
@@ -237,7 +237,6 @@ class Organism extends Observer {
         const codeSize = this.jsvm.size;
         let   grabSize = Math.floor(codeSize / OConfig.orgGarbagePeriod);
 
-        if (codeSize > Config.codeMaxSize) {grabSize = codeSize * Config.codeSizeCoef}
         if (grabSize < 1) {grabSize = 1}
         grabSize = Math.min(this._energy, grabSize);
         this.fire(EVENTS.GRAB_ENERGY, grabSize);

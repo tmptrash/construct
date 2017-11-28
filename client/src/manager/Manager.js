@@ -15,6 +15,7 @@
 const Observer         = require('./../../../common/src/Observer');
 const Queue            = require('./../../../common/src/Queue');
 const Config           = require('./../share/Config').Config;
+const OConfig          = require('./plugins/organisms/Config');
 const Plugins          = require('./Plugins');
 const EVENTS           = require('./../share/Events').EVENTS;
 const EVENT_AMOUNT     = require('./../share/Events').EVENT_AMOUNT;
@@ -236,7 +237,7 @@ class Manager extends Observer {
         // prevent flickering of organisms in a canvas. It makes their
         // movement smooth
         //
-        const amount  = this._visualized ? 1 : Config.codeIterationsPerOnce;
+        const amount  = this._visualized ? 1 : OConfig.codeIterationsPerOnce;
         const timer   = Date.now;
         let   counter = this._counter;
 

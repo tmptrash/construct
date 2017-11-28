@@ -114,7 +114,47 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 400
+    orgMaxOrgs: 400,
+    /**
+     * {Number} If organism reach this limit of amount of jsvm lines, then codeSizeCoef
+     * will be used during it's energy grabbing by system. We use this approach,
+     * because our CPU's are slow and organisms with big codes are very slow. But
+     * it's possible for organisms to go outside the limit by inventing new
+     * effective mechanisms of energy obtaining.
+     */
+    codeMaxSize: 100,
+    /**
+     * {Number} Amount of bits per one variable. It affects maximum value,
+     * which this variable may contain. This value shouldn't be less then 2.
+     */
+    codeBitsPerVar: 2,
+    /**
+     * {Number} The value from -X/2 to X/2, which is used for setting
+     * default value, while organism is delivering. So, if the value is
+     * 1000, then ragne will be: -500..500
+     */
+    codeVarInitRange: 1000,
+    /**
+     * {Number} Every jsvm line 'yield' operator will be inserted to prevent
+     * locking of threads. Set this value to value bigger then jsvm size, then
+     * entire jsvm of organism will be run
+     */
+    codeYieldPeriod: 10,
+    /**
+     * {Number} Amount of bits for storing operator. This is first XX bits
+     * in a number.
+     */
+    codeBitsPerOperator: 8,
+    /**
+     * {Number} Amount of bits, which stores maximum block length. Under block
+     * length we mean maximum amount of lines in one block like if, for,...
+     */
+    codeBitsPerBlock: 4,
+    /**
+     * {Number} Amount of iterations between calls to V8 event loop. See
+     * Manager._initLoop(), Manager.run() methods for details.
+     */
+    codeIterationsPerOnce: 50,
 };
 
 module.exports = Config;

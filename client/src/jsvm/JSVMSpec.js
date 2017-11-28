@@ -3,6 +3,7 @@ describe("client/src/organism/JSVM", () => {
     let Helper       = require('./../../../common/src/Helper');
     let THelper      = require('./../../../common/tests/Helper');
     let Config       = require('./../share/Config').Config;
+    let OConfig      = require('./../manager/plugins/organisms/Config');
     let api          = require('./../share/Config').api;
     let JSVM         = require('./JSVM');
     let Num          = require('./Num');
@@ -39,7 +40,7 @@ describe("client/src/organism/JSVM", () => {
         const obs  = new Observer(2);
         const jsvm = new JSVM(()=>{}, obs, ()=>{});
 
-        expect(jsvm.vars.length === Math.pow(2, Config.codeBitsPerVar)).toEqual(true);
+        expect(jsvm.vars.length === Math.pow(2, OConfig.codeBitsPerVar)).toEqual(true);
 
         jsvm.destroy();
     });

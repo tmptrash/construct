@@ -15,7 +15,7 @@ const Organism      = require('./Organism');
 const Console       = require('./../../../../share/Console');
 const EVENTS        = require('./../../../../share/Events').EVENTS;
 const BaseOrganisms = require('./../Organisms');
-const Fitness       = Config.codeFitnessCls && require('CLIENT/' + Config.codeFitnessCls + '.js') || Config.codeFitnessCls;
+const Fitness       = require('./Fitness');
 
 class Organisms extends BaseOrganisms {
     constructor(manager) {

@@ -59,7 +59,7 @@ class Mutator {
         const jsvm      = org.jsvm;
         const probIndex = Helper.probIndex;
         const mTypes    = this._MUTATION_TYPES;
-        const maxSize   = Config.codeMaxSize;
+        const maxSize   = OConfig.codeMaxSize;
         let   mutations = Math.round(jsvm.size * (clone ? org.cloneMutationPercent : org.mutationPercent)) || 1;
         let   type;
 
@@ -78,8 +78,7 @@ class Mutator {
     }
 
     _onAdd(org) {
-        if (Config.codeFitnessCls !== null && org.jsvm.size >= Config.codeMaxSize) {return}
-        org.jsvm.insertLine();
+        org.jsvm.size <= OConfig.codeMaxSize && org.jsvm.insertLine();
     }
 
     _onChange(org) {
