@@ -5,19 +5,34 @@
  *
  * @author flatline
  */
+const _get = require('lodash.get');
+const _set = require('lodash.set');
+
 class Config {
     static init(cfg) {
         this._cfg = cfg;
     }
 
-    // TODO: add complex key support like: 'Organisms.orgMutationProbs'
+    /**
+     * Sets value into the config. key may be composite string like:
+     * 'organisms.orgMaxOrgs'.
+     * @param {String} key
+     * @param {*} val
+     * @returns {Config}
+     */
     static set(key, val) {
-        this._cfg[key] = val;
+        _set(this._cfg, key, val);
         return this;
     }
 
+    /**
+     * Gets value of specified config key. key may be composite like:
+     * 'organisms.orgMaxOrgs'.
+     * @param {String} key
+     * @returns {*}
+     */
     static get(key) {
-        return this._cfg[key];
+        return _get(this._cfg, key);
     }
 
     static cfg() {

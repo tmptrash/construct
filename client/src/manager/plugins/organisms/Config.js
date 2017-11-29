@@ -3,8 +3,21 @@
  *
  * @author flatline
  */
-// TODO: remove 'org' prefix of all values
 const Config = {
+    /**
+     * {Number} Maximum value of mutation period in iterations. It's used
+     * in mutations of org.mutationPeriod parameter
+     */
+    ORG_MAX_MUTATION_PERIOD: 10000,
+    /**
+     * {Number} Index of first color of organism. After maximum color this
+     * color will be applied
+     */
+    ORG_FIRST_COLOR: 1,
+    /**
+     * {Number} Maximum color index of organism
+     */
+    ORG_MAX_COLOR: Number.MAX_SAFE_INTEGER,
     /**
      * {Array} Probabilities which used, when mutator decides what to do:
      * add, change, delete code line inside the jsvm; change amount of

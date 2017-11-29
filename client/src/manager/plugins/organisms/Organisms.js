@@ -6,17 +6,21 @@
  *
  * @author flatline
  */
-const Helper  = require('./../../../../../common/src/Helper');
-const Config  = require('./../../../../src/share/Config').Config;
-const OConfig = require('./Config');
-const Console = require('./../../../../src/share/Console');
-const EVENTS  = require('./../../../../src/share/Events').EVENTS;
-const Backup  = require('./../backup/Backup');
-const Mutator = require('./Mutator');
+const Configurable = require('./../../../../../common/src/Configurable');
+const Helper       = require('./../../../../../common/src/Helper');
+const Config       = require('./../../../../src/share/Config').Config;
+const OConfig      = require('./Config');
+const Console      = require('./../../../../src/share/Console');
+const EVENTS       = require('./../../../../src/share/Events').EVENTS;
+const Backup       = require('./../backup/Backup');
+const Mutator      = require('./Mutator');
 
 const RAND_OFFS = 4;
+
+const API = {getAmount: ['_apiGetAmount', 'Shows amount of organisms within current Client(Manager)']};
+
 // TODO: inherit this class from Configurable
-class Organisms {
+class Organisms extends Configurable {
     /**
      * Compares two organisms and returns more fit one
      * @param {Organism} org1
@@ -85,6 +89,7 @@ class Organisms {
     createEmptyOrg(...args) {}
 
     constructor(manager) {
+        super(manager, {Config, cfg: OConfig}, API);
         this.organisms      = manager.organisms;
         this.manager        = manager;
         this.randOrgItem    = this.organisms.first;
@@ -105,6 +110,8 @@ class Organisms {
         this._mutator       = null;
         this.manager        = null;
         this._onIterationCb = null;
+
+        super.destroy();
     }
 
     /**
@@ -289,6 +296,14 @@ class Organisms {
         this.onAfterKillOrg(org);
         this.manager.fire(EVENTS.KILL_ORGANISM, org);
         //Console.info(org.id, ' die');
+    }
+
+    /**
+     * API method, which will be added to Manager.api interface
+     * @return {Number} Amount of organisms within current Manager
+     */
+    _apiGetAmount() {
+        return this.manager.organisms.size;
     }
 }
 

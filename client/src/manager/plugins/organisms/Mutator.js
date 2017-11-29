@@ -120,7 +120,7 @@ class Mutator {
     }
 
     _onPeriod(org) {
-        org.mutationPeriod = Helper.rand(Config.ORG_MAX_MUTATION_PERIOD);
+        org.mutationPeriod = Helper.rand(OConfig.ORG_MAX_MUTATION_PERIOD);
     }
 
     _onAmount(org) {

@@ -94,7 +94,7 @@ class OperatorsGarmin extends  Operators {
     onCondition(num, line, org, lines) {
         const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
         const offs = line + val3 < lines ? line + val3 + 1 : lines;
-        const cond = VAR2(num) >>> (Config.codeBitsPerVar - CONDITION_BITS);
+        const cond = VAR2(num) >>> (OConfig.codeBitsPerVar - CONDITION_BITS);
 
         if (this._CONDITIONS[cond](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
             return line + 1;

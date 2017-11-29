@@ -11,10 +11,6 @@ const QUIET_ALL               = 0;
 const QUIET_IMPORTANT         = 1;
 const QUIET_NO                = 2;
 
-const ORG_MAX_MUTATION_PERIOD = 10000;
-const ORG_FIRST_COLOR         = 1;
-const ORG_MAX_COLOR           = Number.MAX_SAFE_INTEGER;
-
 class ClientConfig extends Config {}
 
 ClientConfig.init({
@@ -26,10 +22,6 @@ ClientConfig.init({
     QUIET_ALL,
     QUIET_IMPORTANT,
     QUIET_NO,
-
-    ORG_MAX_MUTATION_PERIOD,
-    ORG_FIRST_COLOR,
-    ORG_MAX_COLOR,
     /**
      * {Array} Array of paths to Manager's plugins. Root folder for plugins
      * should be './client/src/manager/plugins/'.

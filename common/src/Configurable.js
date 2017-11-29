@@ -62,13 +62,13 @@ class Configurable {
      */
     _updateCfg(cfg) {
         const config = cfg.Config;
-        const cls    = this.constructor.name;
+        const cls    = Helper.loverCase(this.constructor.name);
 
         if (typeof config[cls] !== 'undefined') {
             throw `Looks like there are two plugins with the same name try to set their configuration. Name: ${cls}`;
         }
 
-        config[Helper.loverCase(cls)] = cfg.cfg;
+        config[cls] = cfg.cfg;
     }
 
     /**
@@ -82,13 +82,13 @@ class Configurable {
      */
     _updateApi(apiCfg) {
         const api = this._parent.api;
-        const cls = this.constructor.name;
+        const cls = Helper.loverCase(this.constructor.name);
 
         if (typeof api[cls] !== 'undefined') {
             throw `Looks like there are two plugins with the same name try to set their configuration. Name: ${cls}`;
         }
 
-        api[Helper.loverCase(cls)] = this._prepareCfg(apiCfg);
+        api[cls] = this._prepareCfg(apiCfg);
     }
 
     _prepareCfg(cfg) {
