@@ -17,8 +17,6 @@ const Mutator      = require('./Mutator');
 
 const RAND_OFFS = 4;
 
-const API = {getAmount: ['_apiGetAmount', 'Shows amount of organisms within current Client(Manager)']};
-
 // TODO: inherit this class from Configurable
 class Organisms extends Configurable {
     /**
@@ -89,7 +87,7 @@ class Organisms extends Configurable {
     createEmptyOrg(...args) {}
 
     constructor(manager) {
-        super(manager, {Config, cfg: OConfig}, API);
+        super(manager, {Config, cfg: OConfig}, {getAmount: ['_apiGetAmount', 'Shows amount of organisms within current Client(Manager)']});
         this.organisms      = manager.organisms;
         this.manager        = manager;
         this.randOrgItem    = this.organisms.first;
