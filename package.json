@@ -32,6 +32,7 @@
   "homepage": "https://github.com/tmptrash/jevo.js#readme",
   "devDependencies": {
     "clean-webpack-plugin": "^0.1.17",
-    "babel-register": "latest"
+    "babel-register": "latest",
+    "ignore-loader": "latest"
   }
 }

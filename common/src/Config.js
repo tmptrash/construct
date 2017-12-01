@@ -5,8 +5,8 @@
  *
  * @author flatline
  */
-const _get = require('lodash.get');
-const _set = require('lodash.set');
+const _get = require('lodash/get');
+const _set = require('lodash/set');
 
 class Config {
     static init(cfg) {

@@ -414,7 +414,7 @@ describe("client/src/manager/Manager", () => {
         man1.run(man2.run);
     });
 
-    it("Testing ten managers and one server", (done) => {
+    it("Testing hundred managers and one server", (done) => {
         jasmine.DEFAULT_TIMEOUT_INTERVAL = 35000;
         const maxCons   = SConfig.maxConnections;
         const server    = new Server();
