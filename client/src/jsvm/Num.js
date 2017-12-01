@@ -3,11 +3,12 @@
  *
  * @author flatline
  */
-const Helper = require('./../../../common/src/Helper');
-const Config = require('./../../src/share/Config').Config;
+const Helper  = require('./../../../common/src/Helper');
+const Config  = require('./../../src/share/Config').Config;
+const OConfig = require('./../manager/plugins/organisms/Config');
 
-const BITS_PER_VAR        = Config.codeBitsPerVar;
-const BITS_PER_OPERATOR   = Config.codeBitsPerOperator;
+const BITS_PER_VAR        = OConfig.codeBitsPerVar;
+const BITS_PER_OPERATOR   = OConfig.codeBitsPerOperator;
 const NO_OPERATOR_MASK    = 0xffffffff >>> BITS_PER_OPERATOR;
 const BITS_OF_TWO_VARS    = BITS_PER_VAR * 2;
 const BITS_OF_FIRST_VAR   = 32 - BITS_PER_VAR;

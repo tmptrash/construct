@@ -6,16 +6,19 @@
  *
  * @author flatline
  */
-const Helper  = require('./../../../../../common/src/Helper');
-const Config  = require('./../../../../src/share/Config').Config;
-const Console = require('./../../../../src/share/Console');
-const EVENTS  = require('./../../../../src/share/Events').EVENTS;
-const Backup  = require('./../backup/Backup');
-const Mutator = require('./Mutator');
+const Configurable = require('./../../../../../common/src/Configurable');
+const Helper       = require('./../../../../../common/src/Helper');
+const Config       = require('./../../../../src/share/Config').Config;
+const OConfig      = require('./Config');
+const Console      = require('./../../../../src/share/Console');
+const EVENTS       = require('./../../../../src/share/Events').EVENTS;
+const Backup       = require('./../backup/Backup');
+const Mutator      = require('./Mutator');
 
 const RAND_OFFS = 4;
 
-class Organisms {
+// TODO: inherit this class from Configurable
+class Organisms extends Configurable {
     /**
      * Compares two organisms and returns more fit one
      * @param {Organism} org1
@@ -84,6 +87,7 @@ class Organisms {
     createEmptyOrg(...args) {}
 
     constructor(manager) {
+        super(manager, {Config, cfg: OConfig}, {getAmount: ['_apiGetAmount', 'Shows amount of organisms within current Client(Manager)']});
         this.organisms      = manager.organisms;
         this.manager        = manager;
         this.randOrgItem    = this.organisms.first;
@@ -104,6 +108,8 @@ class Organisms {
         this._mutator       = null;
         this.manager        = null;
         this._onIterationCb = null;
+
+        super.destroy();
     }
 
     /**
@@ -140,7 +146,7 @@ class Organisms {
      */
     updateClone(counter) {
         const orgs      = this.organisms;
-        const needClone = counter % Config.orgClonePeriod === 0 && Config.orgClonePeriod !== 0;
+        const needClone = counter % OConfig.orgClonePeriod === 0 && OConfig.orgClonePeriod !== 0;
         let   orgAmount = orgs.size;
         if (!needClone || orgAmount < 1) {return false}
         let   org1      = this.getRandOrg();
@@ -150,7 +156,7 @@ class Organisms {
         let tmpOrg = this._tournament(org1, org2);
         if (tmpOrg === org2) {[org1, org2] = [org2, org1]}
 
-        if (orgAmount >= Config.orgMaxOrgs) {org2.destroy()}
+        if (orgAmount >= OConfig.orgMaxOrgs) {org2.destroy()}
         if (org1.alive) {this._clone(org1)}
 
         return true;
@@ -159,7 +165,7 @@ class Organisms {
     updateCrossover(counter) {
         const orgs      = this.organisms;
         const orgAmount = orgs.size;
-        const needCrossover = counter % Config.orgCrossoverPeriod === 0 && Config.orgCrossoverPeriod !== 0;
+        const needCrossover = counter % OConfig.orgCrossoverPeriod === 0 && OConfig.orgCrossoverPeriod !== 0;
         if (!needCrossover || orgAmount < 1) {return false}
 
         let org1   = this._tournament();
@@ -212,7 +218,7 @@ class Organisms {
 
     createOrg(pos, parent = null) {
         const orgs = this.organisms;
-        if (orgs.size >= Config.orgMaxOrgs || pos === false) {return false}
+        if (orgs.size >= OConfig.orgMaxOrgs || pos === false) {return false}
         orgs.add(null);
         let last = orgs.last;
         let org  = this.createEmptyOrg(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), parent);
@@ -258,7 +264,7 @@ class Organisms {
 
         if (child.alive && looser.alive) {
             child.changes += child.jsvm.crossover(looser.jsvm);
-            if (orgs.size >= Config.orgMaxOrgs) {looser.destroy()}
+            if (orgs.size >= OConfig.orgMaxOrgs) {looser.destroy()}
         }
     }
 
@@ -266,7 +272,7 @@ class Organisms {
         const world = this.manager.world;
 
         this.reset();
-        for (let i = 0; i < Config.orgStartAmount; i++) {
+        for (let i = 0; i < OConfig.orgStartAmount; i++) {
             this.createOrg(world.getFreePos());
         }
         Console.info('Population has created');
@@ -288,6 +294,14 @@ class Organisms {
         this.onAfterKillOrg(org);
         this.manager.fire(EVENTS.KILL_ORGANISM, org);
         //Console.info(org.id, ' die');
+    }
+
+    /**
+     * API method, which will be added to Manager.api interface
+     * @return {Number} Amount of organisms within current Manager
+     */
+    _apiGetAmount() {
+        return this.manager.organisms.size;
     }
 }
 

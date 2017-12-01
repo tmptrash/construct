@@ -10,6 +10,7 @@ const DIR       = require('./../../../../../../common/src/Directions').DIR;
 const Helper    = require('./../../../../../../common/src/Helper');
 const EVENTS    = require('./../../../../../src/share/Events').EVENTS;
 const Config    = require('./../../../../../src/share/Config').Config;
+const OConfig   = require('./../Config');
 const Operators = require('./../../../../../src/jsvm/Operators');
 const Num       = require('./../../../../../src/jsvm/Num');
 
@@ -21,7 +22,7 @@ const VAR1                  = (n) => Num.getVar(n, 1);
 const VAR2                  = (n) => Num.getVar(n, 2);
 const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
 const FOUR_BITS             = 4;
-const BLOCK_MAX_LEN         = Config.codeBitsPerBlock;
+const BLOCK_MAX_LEN         = OConfig.codeBitsPerBlock;
 const BITS_FOR_NUMBER       = 16;
 const IS_NUM                = Helper.isNumeric;
 const HALF_OF_VAR           = Num.MAX_VAR / 2;
@@ -111,7 +112,7 @@ class OperatorsDos extends Operators {
     onCondition(num, line, org, lines) {
         const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BLOCK_MAX_LEN);
         const offs = this._getOffs(line, lines, val3);
-        const cond = VAR2(num) >>> (Config.codeBitsPerVar - CONDITION_BITS);
+        const cond = VAR2(num) >>> (OConfig.codeBitsPerVar - CONDITION_BITS);
 
         if (this._CONDITIONS[cond](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
             return line + 1;
@@ -204,7 +205,7 @@ class OperatorsDos extends Operators {
     onToMem(num, line, org) {
         const val = this.vars[VAR1(num)];
 
-        if (IS_NUM(val) && org.mem.length < Config.orgMemSize) {
+        if (IS_NUM(val) && org.mem.length < OConfig.orgMemSize) {
             this.vars[VAR0(num)] = org.mem.push(val);
         } else {
             this.vars[VAR0(num)] = 0;

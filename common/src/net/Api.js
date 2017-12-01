@@ -67,7 +67,7 @@ class Api {
         const type  = data[0];
 
         this._sock = sock;
-        if (((reqId & MASKS.REQ_MASK) >>> 0) > 0) {
+        if (((reqId & MASKS.REQ_MASK) >>> 31) === 1) {
             if (this.api[type]) {
                 this.api[type](...[reqId].concat(data.slice(2)));
             } else {

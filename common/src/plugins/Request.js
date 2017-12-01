@@ -116,7 +116,7 @@ class Request {
      */
     _onMessage(sock, event) {
         const data  = JSON.parse(event.data || event);
-        const reqId = (data[1] & MASKS.RES_MASK) >>> 0;
+        const reqId = (data[1] & MASKS.REQ_MASK) >>> 31 === 1 ? null : (data[1] & MASKS.RES_MASK) >>> 0;
         const cb    = this._requests[reqId];
         //
         // data[0] is type

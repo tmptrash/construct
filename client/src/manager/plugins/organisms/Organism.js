@@ -8,6 +8,7 @@
 const Observer      = require('./../../../../../common/src/Observer');
 const Helper        = require('./../../../../../common/src/Helper');
 const Config        = require('./../../../share/Config').Config;
+const OConfig       = require('./../../../manager/plugins/organisms/Config');
 const EVENTS        = require('./../../../share/Events').EVENTS;
 const EVENT_AMOUNT  = require('./../../../share/Events').EVENT_AMOUNT;
 const JSVM          = require('./../../../jsvm/JSVM');
@@ -165,7 +166,7 @@ class Organism extends Observer {
     }
 
     fitness() {
-        return (Config.codeMaxSize - this.jsvm.size) *  this._energy * this._changes;
+        return (OConfig.codeMaxSize - this.jsvm.size) *  this._energy * this._changes;
     }
 
     destroy() {
@@ -182,20 +183,20 @@ class Organism extends Observer {
     }
 
     _updateColor(changes) {
-        if ((this._color += changes) > Config.ORG_MAX_COLOR) {
-            this._color = Config.ORG_FIRST_COLOR;
+        if ((this._color += changes) > OConfig.ORG_MAX_COLOR) {
+            this._color = OConfig.ORG_FIRST_COLOR;
         }
     }
 
     _create() {
         this.jsvm                   = new JSVM(this._codeEndCb.bind(this, this), this, this._operatorCls);
-        this._energy                = Config.orgStartEnergy;
-        this._color                 = Config.orgStartColor;
-        this._mutationProbs         = Config.orgMutationProbs.slice();
-        this._cloneMutationPercent  = Config.orgCloneMutationPercent;
-        this._mutationPeriod        = Config.orgRainMutationPeriod;
-        this._mutationPercent       = Config.orgRainMutationPercent;
-        this._cloneEnergyPercent    = Config.orgCloneEnergyPercent;
+        this._energy                = OConfig.orgStartEnergy;
+        this._color                 = OConfig.orgStartColor;
+        this._mutationProbs         = OConfig.orgMutationProbs.slice();
+        this._cloneMutationPercent  = OConfig.orgCloneMutationPercent;
+        this._mutationPeriod        = OConfig.orgRainMutationPeriod;
+        this._mutationPercent       = OConfig.orgRainMutationPercent;
+        this._cloneEnergyPercent    = OConfig.orgCloneEnergyPercent;
         this._mem                   = [];
     }
 
@@ -217,7 +218,7 @@ class Organism extends Observer {
      * @private
      */
     _updateDestroy() {
-        const alivePeriod = Config.orgAlivePeriod;
+        const alivePeriod = OConfig.orgAlivePeriod;
         const needDestroy = (this._energy < 1 || this._iterations >= alivePeriod) && alivePeriod > 0;
 
         needDestroy && this.destroy();
@@ -234,9 +235,8 @@ class Organism extends Observer {
     _updateEnergy() {
         if (this._iterations % Config.orgEnergySpendPeriod !== 0 || Config.orgEnergySpendPeriod === 0) {return true}
         const codeSize = this.jsvm.size;
-        let   grabSize = Math.floor(codeSize / Config.orgGarbagePeriod);
+        let   grabSize = Math.floor(codeSize / OConfig.orgGarbagePeriod);
 
-        if (codeSize > Config.codeMaxSize) {grabSize = codeSize * Config.codeSizeCoef}
         if (grabSize < 1) {grabSize = 1}
         grabSize = Math.min(this._energy, grabSize);
         this.fire(EVENTS.GRAB_ENERGY, grabSize);

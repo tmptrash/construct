@@ -15,6 +15,7 @@
 const Observer         = require('./../../../common/src/Observer');
 const Queue            = require('./../../../common/src/Queue');
 const Config           = require('./../share/Config').Config;
+const OConfig          = require('./plugins/organisms/Config');
 const Plugins          = require('./Plugins');
 const EVENTS           = require('./../share/Events').EVENTS;
 const EVENT_AMOUNT     = require('./../share/Events').EVENT_AMOUNT;
@@ -43,6 +44,14 @@ class Manager extends Observer {
          */
         this.positions     = {};
         /**
+         * {Object} This field is used as a container for public API of the Manager.
+         * It may be used in a user console by the Operator of jevo.js. Plugins
+         * may add their methods to this map also.
+         */
+        this.api           = {version: () => '0.2.0'};
+        hasView && (this.api.visualize = this._visualize.bind(this));
+
+        /**
          * {Boolean} Means that this manager instance doesn't contain view(canvas).
          * All calculations will be done only in memory.
          */
@@ -52,15 +61,6 @@ class Manager extends Observer {
          * code line will done. May be changed in plugins.
          */
         this._codeRuns     = 0;
-        /**
-         * {Object} This field is used as a container for public API of the Manager.
-         * It may be used in a user console by the Operator of jevo.js. Plugins
-         * may add their methods to this map also.
-         */
-        this.api           = {
-            version: () => '0.2.0'
-        };
-        hasView && (this.api.visualize = this._visualize.bind(this));
 
         this._world        = new World(Config.worldWidth, Config.worldHeight);
         this._canvas       = hasView && new Canvas(Config.worldWidth, Config.worldHeight) || null;
@@ -90,12 +90,15 @@ class Manager extends Observer {
             run    : this._onDone.bind(this)
         });
     }
+
     get world()        {return this._world}
     get canvas()       {return this._canvas}
     get clientId()     {return this._clientId}
     get activeAround() {return this._activeAround}
     get active()       {return this._active}
     get codeRuns()     {return this._codeRuns}
+    // TODO: this getter will be removed when hasView will be
+    // TODO: removed from Status plugin
     get hasView()      {return this._hasView}
 
     set codeRuns(cr)   {this._codeRuns = cr}
@@ -234,7 +237,7 @@ class Manager extends Observer {
         // prevent flickering of organisms in a canvas. It makes their
         // movement smooth
         //
-        const amount  = this._visualized ? 1 : Config.codeIterationsPerOnce;
+        const amount  = this._visualized ? 1 : OConfig.codeIterationsPerOnce;
         const timer   = Date.now;
         let   counter = this._counter;
 
@@ -269,8 +272,8 @@ class Manager extends Observer {
             this._counter = 0;
             this._running = false;
             this._active  = true;
-            this.fire(EVENTS.RUN);
             this._onLoop();
+            this.fire(EVENTS.RUN);
             return;
         }
 

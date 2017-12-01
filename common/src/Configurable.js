@@ -27,6 +27,8 @@
  *
  * @author flatline
  */
+const Helper = require('./Helper');
+
 class Configurable {
     /**
      * See Ips plugin for details of configurations formats.
@@ -60,7 +62,7 @@ class Configurable {
      */
     _updateCfg(cfg) {
         const config = cfg.Config;
-        const cls    = this.constructor.name;
+        const cls    = Helper.loverCase(this.constructor.name);
 
         if (typeof config[cls] !== 'undefined') {
             throw `Looks like there are two plugins with the same name try to set their configuration. Name: ${cls}`;
@@ -80,7 +82,7 @@ class Configurable {
      */
     _updateApi(apiCfg) {
         const api = this._parent.api;
-        const cls = this.constructor.name;
+        const cls = Helper.loverCase(this.constructor.name);
 
         if (typeof api[cls] !== 'undefined') {
             throw `Looks like there are two plugins with the same name try to set their configuration. Name: ${cls}`;

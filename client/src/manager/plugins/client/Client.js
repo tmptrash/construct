@@ -102,6 +102,7 @@ class Client extends Connection {
     onClose(event) {
         super.onClose(event);
         this.active = false;
+        this._manager.clientId = null;
         Console.warn(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
     }
 

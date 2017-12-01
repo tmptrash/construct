@@ -11,6 +11,7 @@
  */
 const EVENTS   = require('./../../../share/Events').EVENTS;
 const Config   = require('./../../../share/Config').Config;
+const OConfig  = require('./../../../manager/plugins/organisms/Config');
 const Helper   = require('./../../../../../common/src/Helper');
 const Organism = require('./dos/Organism');
 const Num      = require('./../../../jsvm/Num');
@@ -45,20 +46,20 @@ class Mutator {
     }
 
     _onOrganism(org) {
-        if (org.iterations % org.mutationPeriod === 0 && Config.orgRainMutationPeriod > 0 && org.mutationPeriod > 0 && org.alive) {
+        if (org.iterations % org.mutationPeriod === 0 && OConfig.orgRainMutationPeriod > 0 && org.mutationPeriod > 0 && org.alive) {
             this._mutate(org, false);
         }
     }
 
     _onCloneOrg(parent, child) {
-        if (child.energy > 0 && Config.orgCloneMutationPercent > 0) {this._mutate(child)}
+        if (child.energy > 0 && OConfig.orgCloneMutationPercent > 0) {this._mutate(child)}
     }
 
     _mutate(org, clone = true) {
         const jsvm      = org.jsvm;
         const probIndex = Helper.probIndex;
         const mTypes    = this._MUTATION_TYPES;
-        const maxSize   = Config.codeMaxSize;
+        const maxSize   = OConfig.codeMaxSize;
         let   mutations = Math.round(jsvm.size * (clone ? org.cloneMutationPercent : org.mutationPercent)) || 1;
         let   type;
 
@@ -77,8 +78,7 @@ class Mutator {
     }
 
     _onAdd(org) {
-        if (Config.codeFitnessCls !== null && org.jsvm.size >= Config.codeMaxSize) {return}
-        org.jsvm.insertLine();
+        org.jsvm.size <= OConfig.codeMaxSize && org.jsvm.insertLine();
     }
 
     _onChange(org) {
@@ -120,7 +120,7 @@ class Mutator {
     }
 
     _onPeriod(org) {
-        org.mutationPeriod = Helper.rand(Config.ORG_MAX_MUTATION_PERIOD);
+        org.mutationPeriod = Helper.rand(OConfig.ORG_MAX_MUTATION_PERIOD);
     }
 
     _onAmount(org) {
@@ -128,7 +128,7 @@ class Mutator {
     }
 
     _onProbs(org) {
-        org.mutationProbs[Helper.rand(org.mutationProbs.length)] = Helper.rand(Config.orgMutationProbsMaxValue) || 1;
+        org.mutationProbs[Helper.rand(org.mutationProbs.length)] = Helper.rand(OConfig.orgMutationProbsMaxValue) || 1;
     }
 
     _onCloneEnergyPercent(org) {

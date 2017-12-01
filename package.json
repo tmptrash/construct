@@ -23,7 +23,7 @@
     "type": "git",
     "url": "git+https://github.com/tmptrash/jevo.js.git"
   },
-  "keywords": [],
+  "keywords": ["genetic algorithm", "digital organisms", "evolution", "javascript", "distributed system", "distributed calculations", "evolutionary programming"],
   "author": "flatline",
   "license": "MIT",
   "bugs": {
@@ -31,6 +31,8 @@
   },
   "homepage": "https://github.com/tmptrash/jevo.js#readme",
   "devDependencies": {
-    "clean-webpack-plugin": "^0.1.17"
+    "clean-webpack-plugin": "^0.1.17",
+    "babel-register": "latest",
+    "ignore-loader": "latest"
   }
 }

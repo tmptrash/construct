@@ -3,12 +3,12 @@
  *
  * @author flatline
  */
-const Api = require('./../../../../common/src/Config');
+const Api = require('./../../share/Config').api;
 
 class Config {
     constructor(manager) {
-        manager.api.setConfig = Api.set;
-        manager.api.getConfig = Api.get;
+        manager.api.setConfig = Api.set.bind(Api);
+        manager.api.getConfig = Api.get.bind(Api);
     }
 }
 
