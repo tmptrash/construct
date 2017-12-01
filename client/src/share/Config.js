@@ -85,7 +85,7 @@ ClientConfig.init({
     /**
      * {Number} Amount of iterations before cloning process
      */
-    orgClonePeriod: 5,
+    orgClonePeriod: 50,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
@@ -96,17 +96,17 @@ ClientConfig.init({
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 10000,
+    orgRainMutationPeriod: 50000,
     /**
      * {Number} Value, which will be used like amount of mutations per
      * orgRainMutationPeriod iterations. 0 is a possible value if
      * we want to disable mutations. Should be less then 100
      */
-    orgRainMutationPercent: 0.02,
+    orgRainMutationPercent: 0.01,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 500,
+    orgStartAmount: 100,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without jsvm) organism were created
@@ -121,12 +121,12 @@ ClientConfig.init({
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
      */
-    orgEnergySpendPeriod: 10,
+    orgEnergySpendPeriod: 20,
     /**
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used.
      */
-    orgAlivePeriod: 30000,
+    orgAlivePeriod: 0,
     /**
      * {Number} This value means the period between organism codeSizes, which
      * affects energy grabbing by the system. For example: we have two
@@ -136,7 +136,7 @@ ClientConfig.init({
      * same amount of energy - 1 unit. This is because the period goes
      * from 1..5, 6..10,... and both organisms are in the same period.
      */
-    orgGarbagePeriod: 50,
+    orgGarbagePeriod: 20,
     /**
      * {Number} Size of organism stack (internal memory)
      */
@@ -155,7 +155,7 @@ ClientConfig.init({
      * try to clone itself, when entire amount of organisms are equal
      * this value, then it(cloning) will not happen.
      */
-    orgMaxOrgs: 400,
+    orgMaxOrgs: 100,
     /**
      * {Number} Maximum amount of arguments in custom functions. Minimum 1. Maximum
      * <= amount of default variables.
@@ -196,7 +196,7 @@ ClientConfig.init({
      * locking of threads. Set this value to value bigger then jsvm size, then
      * entire jsvm of organism will be run
      */
-    codeYieldPeriod: 10,
+    codeYieldPeriod: 3,
     /**
      * {Number} Amount of bits for storing operator. This is first XX bits
      * in a number.
@@ -221,11 +221,11 @@ ClientConfig.init({
     /**
      * {Number} World width
      */
-    worldWidth: 300,
+    worldWidth: 1920,
     /**
      * {Number} World height
      */
-    worldHeight: 300,
+    worldHeight: 1010,
     /**
      * {Number} Turns on cyclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
@@ -252,13 +252,13 @@ ClientConfig.init({
      * Should be less then 100.0 and more and equal to 0.0. 0.17 is a
      * normal percent for this system.
      */
-    worldEnergyCheckPercent: 0.3,
+    worldEnergyCheckPercent: 0.1,
     /**
      * {Number} An amount of iteration, after which we have to check world energy
      * amount. Works in pair with worldEnergyCheckPercent. May be 0 if
      * you want to disable it
      */
-    worldEnergyCheckPeriod: 5000,
+    worldEnergyCheckPeriod: 10000,
     /**
      * {Number} Mode for showing/supressing of messages. Possible values:
      *   0 - all messages
