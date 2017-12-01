@@ -219,7 +219,7 @@ class Organism extends Observer {
      */
     _updateDestroy() {
         const alivePeriod = OConfig.orgAlivePeriod;
-        const needDestroy = (this._energy < 1 || this._iterations >= alivePeriod) && alivePeriod > 0;
+        const needDestroy = this._energy < 1 || this._iterations >= alivePeriod && alivePeriod > 0;
 
         needDestroy && this.destroy();
 
