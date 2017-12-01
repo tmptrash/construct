@@ -56,6 +56,7 @@ class JSVM extends Observer {
         this._operators   = new operatorCls(this._offsets, this._vars, obs);
         this._code        = parent && parent.code.slice() || [];
         this._line        = 0;
+        this._linesRun    = 0;
     }
 
     get code()      {return this._code}
@@ -115,13 +116,15 @@ class JSVM extends Observer {
                 line = 0;
                 org.alive && (this._operators.offsets = (this._offsets = []));
                 if (this._onCodeEnd) {
-                    this._onCodeEnd(len2 - len);
+                    this._onCodeEnd(this._linesRun + (len2 - len));
+                    this._linesRun = 0;
                 }
                 break;
             }
         }
 
-        this._line = line;
+        this._linesRun += (len2 - len);
+        this._line      = line;
     }
 
     destroy() {
