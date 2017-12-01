@@ -44,11 +44,11 @@ ClientConfig.init({
     /**
      * {Number} World width
      */
-    worldWidth: 300,
+    worldWidth: 1920,
     /**
      * {Number} World height
      */
-    worldHeight: 428,
+    worldHeight: 1010,
     /**
      * {Number} Turns on cyclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
@@ -101,7 +101,7 @@ ClientConfig.init({
     /**
      * {String} Host for connecting with server
      */
-    serverHost: 'ws://127.0.0.1'
+    serverHost: 'ws://192.168.31.176'
 });
 
 module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
