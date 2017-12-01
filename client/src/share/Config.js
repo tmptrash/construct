@@ -75,13 +75,13 @@ ClientConfig.init({
      * Should be less then 100.0 and more and equal to 0.0. 0.17 is a
      * normal percent for this system.
      */
-    worldEnergyCheckPercent: 0.3,
+    worldEnergyCheckPercent: 0.1,
     /**
      * {Number} An amount of iteration, after which we have to check world energy
      * amount. Works in pair with worldEnergyCheckPercent. May be 0 if
      * you want to disable it
      */
-    worldEnergyCheckPeriod: 5000,
+    worldEnergyCheckPeriod: 10000,
     /**
      * {Number} Mode for showing/supressing of messages. Possible values:
      *   0 - all messages

@@ -74,7 +74,7 @@ const Config = {
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 500,
+    orgStartAmount: 100,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without jsvm) organism were created
@@ -127,7 +127,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 400,
+    orgMaxOrgs: 100,
     /**
      * {Number} If organism reach this limit of amount of jsvm lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
