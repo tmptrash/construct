@@ -228,7 +228,7 @@ class Organism extends Observer {
 
     /**
      * This is how our system grabs an energy= require(organism if it's age is
-     * divided into Config.orgEnergySpendPeriod.
+     * divided into OConfig.orgEnergySpendPeriod.
      * @return {Boolean} false means that organism was destroyed.
      * @private
      */
