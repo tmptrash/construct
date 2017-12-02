@@ -15,6 +15,7 @@ describe("server/src/server/plugins/Api", () => {
     const Request      = require('./../../../../common/src/plugins/Request');
     const Api          = require('./Api');
     const waitEvent    = Helper.waitEvent;
+    const host         = Config.serverHost;
 
     let error;
     let warn;
@@ -24,6 +25,7 @@ describe("server/src/server/plugins/Api", () => {
     let sinfo;
 
     beforeAll(() => {
+        Config.serverHost = 'ws://127.0.0.1';
         error = Console.error;
         warn  = Console.warn;
         info  = Console.info;
@@ -47,6 +49,7 @@ describe("server/src/server/plugins/Api", () => {
         Console.warn  = warn;
         Console.info  = info;
         Config.modeNodeJs = OLD_MODE;
+        Config.serverHost = host;
     });
 
     it("Checking unique id on client connect", (done) => {

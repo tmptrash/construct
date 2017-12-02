@@ -15,6 +15,7 @@ describe("client/src/manager/Manager", () => {
     const emptyFn      = () => {};
     const waitEvent    = THelper.waitEvent;
     const wait         = THelper.wait;
+    const host         = Config.serverHost;
 
     let error;
     let warn;
@@ -31,6 +32,7 @@ describe("client/src/manager/Manager", () => {
     });
     beforeAll(() => {
         jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+        Config.serverHost = 'ws://127.0.0.1';
         Config.plugIncluded.splice(Config.plugIncluded.indexOf('ips/Ips'));
         error = Console.error;
         warn  = Console.warn;
@@ -57,6 +59,7 @@ describe("client/src/manager/Manager", () => {
         Config.modeNodeJs = OLD_MODE;
         Config.plugIncluded.push('ips/Ips');
         jasmine.DEFAULT_TIMEOUT_INTERVAL = timeout;
+        Config.serverHost = host;
     });
 
     it("Checking manager creation", (done) => {
@@ -86,17 +89,30 @@ describe("client/src/manager/Manager", () => {
             waitEvent(man2, EVENTS.DESTROY, () => man2.destroy(), done);
         });
     });
-    it("Checking creation huge amount of managers", (done) => {
+    it("Checking creation 100 managers", (done) => {
         const mans      = [];
         const amount    = 100;
+        const width     = Config.worldWidth;
+        const height    = Config.worldHeight;
         let   destroyed = 0;
         let   waitObj   = {done: false};
 
+        Config.worldWidth  = 10;
+        Config.worldHeight = 10;
         for (let i = 0; i < amount; i++) {delete Config.organisms; mans.push(new Manager(false))}
         for (let i = 0; i < amount; i++) {mans[i].destroy(() => ++destroyed === amount && (waitObj.done = true))}
 
-        if (waitObj.done) {done(); return}
-        wait(waitObj, () => done, 30000);
+        if (waitObj.done) {
+            Config.worldWidth  = width;
+            Config.worldHeight = height;
+            done();
+            return;
+        }
+        wait(waitObj, () => {
+            Config.worldWidth  = width;
+            Config.worldHeight = height;
+            done();
+        }, 30000);
     });
 
     it("Checking running manager", (done) => {
@@ -420,10 +436,14 @@ describe("client/src/manager/Manager", () => {
         const server    = new Server();
         const mans      = [];
         const CLIENTS   = 100;
+        const width     = Config.worldWidth;
+        const height    = Config.worldHeight;
         let   amount    = 0;
         let   waitObj   = {done: false};
         let   man;
 
+        Config.worldWidth      = 100;
+        Config.worldHeight     = 100;
         SConfig.maxConnections = CLIENTS;
         server.run();
         for (let i = 0; i < CLIENTS; i++) {
@@ -438,6 +458,8 @@ describe("client/src/manager/Manager", () => {
             wait(waitObj, () => {
                 waitEvent(server, server.EVENTS.DESTROY, () => server.destroy(), () => {
                     SConfig.maxConnections = maxCons;
+                    Config.worldWidth      = width;
+                    Config.worldHeight     = height;
                     done();
                 });
             });
@@ -448,6 +470,8 @@ describe("client/src/manager/Manager", () => {
         const maxCons   = SConfig.maxConnections;
         const server    = new Server();
         const CLIENTS   = 100;
+        const width     = Config.worldWidth;
+        const height    = Config.worldHeight;
         let   amount    = 0;
         let   waitObj   = {done: false};
         let   count     = 0;
@@ -455,6 +479,8 @@ describe("client/src/manager/Manager", () => {
         let   man2;
         let   oldId;
 
+        Config.worldWidth      = 100;
+        Config.worldHeight     = 100;
         SConfig.maxConnections = CLIENTS;
         man1 = new Manager(false);
         delete Config.organisms;
@@ -476,6 +502,8 @@ describe("client/src/manager/Manager", () => {
                     wait(waitObj, () => {
                         waitEvent(server, server.EVENTS.DESTROY, () => server.destroy(), () => {
                             SConfig.maxConnections = maxCons;
+                            Config.worldWidth      = width;
+                            Config.worldHeight     = height;
                             done();
                         });
                     });
