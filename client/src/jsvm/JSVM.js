@@ -240,7 +240,7 @@ class JSVM extends Observer {
 
     /**
      * Generates default variables jsvm. It should be in ES5 version, because
-     * speed is important. Amount of vars depends on Config.codeBitsPerVar config.
+     * speed is important. Amount of vars depends on OConfig.codeBitsPerVar config.
      * @returns {Array} vars jsvm
      * @private
      */

@@ -13,6 +13,7 @@ describe("client/src/manager/plugins/Client", () => {
     const Request    = require('./../../../../../common/src/plugins/Request');
     const waitEvent  = THelper.waitEvent;
     const wait       = THelper.wait;
+    const host       = Config.serverHost;
     let isNodeJs;
     let Client;
     let CEVENTS;
@@ -31,6 +32,7 @@ describe("client/src/manager/plugins/Client", () => {
         //
         isNodeJs = Config.modeNodeJs;
         Config.modeNodeJs = true;
+        Config.serverHost = 'ws://127.0.0.1';
         Client   = require('./Client').Client;
         CEVENTS  = require('./Client').EVENTS;
         Server   = require('./../../../../../server/src/server/Server').Server;
@@ -60,6 +62,8 @@ describe("client/src/manager/plugins/Client", () => {
         Console.error = error;
         Console.warn  = warn;
         Console.info  = info;
+
+        Config.serverHost = host;
     });
 
     it("Checking client creation without server", (done) => {
@@ -103,7 +107,7 @@ describe("client/src/manager/plugins/Client", () => {
             const client = new Client(man);
             waitEvent(client, CEVENTS.GET_ID, () => client.run(), () => {
                 server.on(SEVENTS.DESTROY, () => ++count === 2 && (waitObj.done = true));
-                waitEvent(client, CEVENTS.CLOSE, () => server.destroy(), () => ++count === 2 && (waitObj.done = true))
+                waitEvent(client, CEVENTS.CLOSE, () => server.destroy(), () => ++count === 2 && (waitObj.done = true));
                 wait(waitObj, () => {
                     client.destroy();
                     man.clear();

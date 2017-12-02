@@ -100,7 +100,7 @@ const Config = {
      * {Number} This value means the period between organism codeSizes, which
      * affects energy grabbing by the system. For example: we have two
      * organisms: org1.energy = 10, org2.energy = 10, org1.codeSize = 6,
-     * org2.codeSize = 9, Config.orgGarbagePeriod = 5. It means that
+     * org2.codeSize = 9, OConfig.orgGarbagePeriod = 5. It means that
      * during energy grabbing by the system org1 and org2 will spend the
      * same amount of energy - 1 unit. This is because the period goes
      * from 1..5, 6..10,... and both organisms are in the same period. In

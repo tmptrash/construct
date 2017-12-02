@@ -17,6 +17,7 @@ describe("server/src/server/Server", () => {
     const Api          = require('./plugins/Api');
     const Request      = require('./../../../common/src/plugins/Request');
     const waitEvent    = Helper.waitEvent;
+    const host         = Config.serverHost;
 
     const CLIENT_URL = `ws://127.0.0.1:${Config.serverPort}`;
 
@@ -28,6 +29,7 @@ describe("server/src/server/Server", () => {
     let sinfo;
 
     beforeAll(() => {
+        Config.serverHost = 'ws://127.0.0.1';
         error = Console.error;
         warn  = Console.warn;
         info  = Console.info;
@@ -51,6 +53,7 @@ describe("server/src/server/Server", () => {
         Console.warn  = warn;
         Console.info  = info;
         Config.modeNodeJs = OLD_MODE;
+        Config.serverHost = host;
     });
 
     it("Checking server creation", () => {
