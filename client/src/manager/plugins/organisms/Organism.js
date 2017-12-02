@@ -166,7 +166,7 @@ class Organism extends Observer {
     }
 
     fitness() {
-        return (OConfig.codeMaxSize - this.jsvm.size) *  this._energy * this._changes;
+        return Math.abs(OConfig.codeMaxSize - this.jsvm.size) *  this._energy * this._changes;
     }
 
     destroy() {
