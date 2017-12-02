@@ -228,12 +228,12 @@ class Organism extends Observer {
 
     /**
      * This is how our system grabs an energy= require(organism if it's age is
-     * divided into Config.orgEnergySpendPeriod.
+     * divided into OConfig.orgEnergySpendPeriod.
      * @return {Boolean} false means that organism was destroyed.
      * @private
      */
     _updateEnergy() {
-        if (this._iterations % Config.orgEnergySpendPeriod !== 0 || Config.orgEnergySpendPeriod === 0) {return true}
+        if (this._iterations % OConfig.orgEnergySpendPeriod !== 0 || OConfig.orgEnergySpendPeriod === 0) {return true}
         const codeSize = this.jsvm.size;
         let   grabSize = Math.floor(codeSize / OConfig.orgGarbagePeriod);
 

@@ -81,7 +81,7 @@ describe("client/src/organism/OrganismDos", () => {
         let   org     = new OrganismDos(0, 1, 2, true, null, ()=>{});
         const period  = OConfig.orgAlivePeriod;
         const energy  = OConfig.orgStartEnergy;
-        const speriod = Config.orgEnergySpendPeriod;
+        const speriod = OConfig.orgEnergySpendPeriod;
 
         api.set('orgAlivePeriod', 100);
         api.set('orgStartEnergy', 100);
@@ -154,7 +154,7 @@ describe("client/src/organism/OrganismDos", () => {
     });
 
     it("Checking organism destroy because of grab energy", () => {
-        const period = Config.orgEnergySpendPeriod;
+        const period = OConfig.orgEnergySpendPeriod;
         let   org    = new OrganismDos(0, 1, 2, true, null, ()=>{});
 
         api.set('orgEnergySpendPeriod', 1);
