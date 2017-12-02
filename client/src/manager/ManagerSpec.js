@@ -112,7 +112,7 @@ describe("client/src/manager/Manager", () => {
             Config.worldWidth  = width;
             Config.worldHeight = height;
             done();
-        }, 30000);
+        }, 31000);
     });
 
     it("Checking running manager", (done) => {
@@ -463,7 +463,7 @@ describe("client/src/manager/Manager", () => {
                     done();
                 });
             });
-        }, 30000);
+        }, 31000);
     });
     it("Testing run/stop/run manager and one server", (done) => {
         jasmine.DEFAULT_TIMEOUT_INTERVAL = 35000;

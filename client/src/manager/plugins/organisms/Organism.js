@@ -166,7 +166,7 @@ class Organism extends Observer {
     }
 
     fitness() {
-        return Math.abs(OConfig.codeMaxSize - this.jsvm.size) *  this._energy * this._changes;
+        return Math.abs(OConfig.codeMaxSize - this.jsvm.size) * this._energy * this._changes;
     }
 
     destroy() {
@@ -233,7 +233,7 @@ class Organism extends Observer {
      * @private
      */
     _updateEnergy() {
-        if (this._iterations % Config.orgEnergySpendPeriod !== 0 || Config.orgEnergySpendPeriod === 0) {return true}
+        if (this._iterations % OConfig.orgEnergySpendPeriod !== 0 || OConfig.orgEnergySpendPeriod === 0) {return true}
         const codeSize = this.jsvm.size;
         let   grabSize = Math.floor(codeSize / OConfig.orgGarbagePeriod);
 

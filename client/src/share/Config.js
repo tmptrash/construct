@@ -101,7 +101,7 @@ ClientConfig.init({
     /**
      * {String} Host for connecting with server
      */
-    serverHost: 'ws://192.168.31.176'
+    serverHost: 'ws://127.0.0.1'//'ws://192.168.31.176'
 });
 
 module.exports = {Config: ClientConfig.cfg(), api: ClientConfig};
