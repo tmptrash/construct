@@ -127,7 +127,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 100,
+    orgMaxOrgs: 300,
     /**
      * {Number} If organism reach this limit of amount of jsvm lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
@@ -135,7 +135,7 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 200,
+    codeMaxSize: 150,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain. This value shouldn't be less then 2.
@@ -148,9 +148,9 @@ const Config = {
      */
     codeVarInitRange: 1000,
     /**
-     * {Number} Every jsvm line 'yield' operator will be inserted to prevent
-     * locking of threads. Set this value to value bigger then jsvm size, then
-     * entire jsvm of organism will be run
+     * {Number} This value is amount of code lines, which will be run for one
+     * organism without interruption by one JSVM. Set this value to value bigger
+     * then codeMaxSize, then entire code of organism will be run
      */
     codeYieldPeriod: 10,
     /**

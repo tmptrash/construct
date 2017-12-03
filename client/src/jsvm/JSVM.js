@@ -117,7 +117,7 @@ class JSVM extends Observer {
                 org.alive && (this._operators.offsets = (this._offsets = []));
                 if (this._onCodeEnd) {
                     this._onCodeEnd(this._linesRun + (len2 - len));
-                    this._linesRun = 0;
+                    this._linesRun = -(len2 - len);
                 }
                 break;
             }
@@ -196,6 +196,10 @@ class JSVM extends Observer {
         if (end - start > MAX_STACK_SIZE) {
             return;
         }
+        //
+        // Organism size should be less them codeMaxSize
+        //
+        if (code.length + end - start >= OConfig.codeMaxSize) {return}
         //
         // We may insert copied piece before "start" (0) or after "end" (1)
         //
