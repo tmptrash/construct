@@ -83,18 +83,18 @@ describe("client/src/organism/OrganismDos", () => {
         const energy  = OConfig.orgStartEnergy;
         const speriod = OConfig.orgEnergySpendPeriod;
 
-        api.set('orgAlivePeriod', 100);
-        api.set('orgStartEnergy', 100);
-        api.set('orgEnergySpendPeriod', 100);
+        OConfig.orgAlivePeriod = 100;
+        OConfig.orgStartEnergy = 100;
+        OConfig.orgEnergySpendPeriod = 100;
 
         expect(org.alive).toEqual(true);
         org.run();
         expect(org.alive).toEqual(true);
 
         expect(org.alive).toEqual(true);
-        api.set('orgAlivePeriod', period);
-        api.set('orgStartEnergy', energy);
-        api.set('orgEnergySpendPeriod', speriod);
+        OConfig.orgAlivePeriod = period;
+        OConfig.orgStartEnergy = energy;
+        OConfig.orgEnergySpendPeriod = speriod;
 
         org.destroy();
     });
@@ -157,7 +157,7 @@ describe("client/src/organism/OrganismDos", () => {
         const period = OConfig.orgEnergySpendPeriod;
         let   org    = new OrganismDos(0, 1, 2, true, null, ()=>{});
 
-        api.set('orgEnergySpendPeriod', 1);
+        OConfig.orgEnergySpendPeriod = 1;
         org.energy = 1;
         expect(org.alive).toEqual(true);
         org.run();
@@ -166,7 +166,7 @@ describe("client/src/organism/OrganismDos", () => {
         // we don't need to call destroy, because organism
         // should be dead at this moment
         //
-        api.set('orgEnergySpendPeriod', period);
+        OConfig.orgEnergySpendPeriod = period;
     });
 
     it("Checking grabbing energy", () => {
