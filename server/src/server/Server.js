@@ -206,7 +206,6 @@ class Server extends Connection {
         sock.on('close', this.onClose.bind(this, clientId, sock));
 
         this.fire(CONNECT, sock);
-        Console.info(`Client has connected`);
     }
 
     /**

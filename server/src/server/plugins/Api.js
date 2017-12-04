@@ -90,6 +90,7 @@ class Api extends BaseApi {
         this.parent.conns.setData(region, 'sock', sock);
 		this._setActive(clientId, true);
         this.parent.response(sock, TYPES.RES_GET_ID_OK, reqId, clientId);
+        Console.info(`Client ${clientId} has connected`);
     }
 
     /**
