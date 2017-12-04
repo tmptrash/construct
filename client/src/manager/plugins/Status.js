@@ -18,10 +18,12 @@ class Status {
         this._ips         = 0;
         this._energy      = 0;
         this._codeSize    = 0;
-        this._runLines    = 0;
+        this._runLines    = 1;
         this._changes     = 0;
         this._fitness     = 0;
+        this._times       = 0;
         this._oldValues   = [0, 0, 0];
+        this._speed       = [0, 0, 0];
 
         manager.on(EVENTS.IPS, this._onIps.bind(this));
         manager.on(EVENTS.ORGANISM, this._onOrganism.bind(this));
@@ -30,23 +32,24 @@ class Status {
     _onIps(ips, orgs) {
         const stamp     = Date.now();
 
-        if (stamp - this._stamp < PERIOD) {return}
         this._onBeforeIps(ips, orgs);
+        if (stamp - this._stamp < PERIOD) {return}
 
-        const olds      = this._oldValues;
+        const times     = this._times || 1;
+        const times_1   = (times - 1) || 1;
+        const realIps   = this._ips / times;
         const orgAmount = orgs.size || 1;
-        const sips      = `ips:${this._ips.toFixed(this._ips < 10 ? 2 : 0)}`.padEnd(9);
-        const slps      = this._format(this._runLines,          'lps', orgAmount, 0, 14, 1, false, false);
-        const sorgs     = this._format(orgAmount,               'org', orgAmount, 0, 10, 1, false, false);
-        const siq       = this._format(this._energy  - olds[0], 'iq',  orgAmount, 3, 13, 1000);
-        const senergy   = this._format(this._energy,            'nrg', orgAmount, 0, 14, 1, false);
-        const schanges  = this._format(this._changes - olds[1], 'che', orgAmount, 3, 12, 100000);
-        const sfit      = this._format(this._fitness - olds[2], 'fit', orgAmount, 3, 14);
-        const scode     = this._format(this._codeSize,          'cod', orgAmount, 1, 12, 1, false);
+        const sips      = `ips:${realIps.toFixed(realIps < 10 ? 2 : 0)}`.padEnd(10);
+        const slps      = this._format(this._runLines / times,   'lps', orgAmount, 0, 14, 1, false, false);
+        const sorgs     = this._format(orgAmount,                'org', orgAmount, 0, 10, 1, false, false);
+        const senergy   = this._format(this._energy   / times,   'nrg', orgAmount, 0, 14, 1, false);
+        const siq       = this._format(this._speed[0] / times_1, 'iq',  orgAmount, 3, 13, 1000);
+        const schanges  = this._format(this._speed[1] / times_1, 'che', orgAmount, 3, 12, 100000);
+        const sfit      = this._format(this._speed[2] / times_1, 'fit', orgAmount, 3, 14);
+        const scode     = this._format(this._codeSize / times,   'cod', orgAmount, 1, 12, 1, false);
 
         console.log(`%c${sips}${slps}${sorgs}%c${siq}${senergy}${schanges}${sfit}${scode}`, GREEN, RED);
         this._manager.hasView && this._manager.canvas.text(5, 15, sips);
-        this._setOldValues();
         this._onAfterIps(stamp);
     }
 
@@ -76,20 +79,38 @@ class Status {
             item = item.next;
         }
 
-        this._ips      = ips;
-        this._energy   = energy;
-        this._codeSize = codeSize;
-        this._changes  = changes;
-        this._fitness  = fitness;
+        if (this._oldValues) {
+            const olds = this._oldValues;
+            this._speed[0] += energy  - olds[0];
+            this._speed[1] += changes - olds[1];
+            this._speed[2] += fitness - olds[2];
+        }
+
+        this._ips      += ips;
+        this._energy   += energy;
+        this._codeSize += codeSize;
+        this._changes  += changes;
+        this._fitness  += fitness;
+        this._setOldValues(energy, changes, fitness);
+
+        this._times++;
     }
 
     _onAfterIps(stamp) {
-        this._stamp    = stamp;
-        this._runLines = 0;
+        this._ips       = 0;
+        this._energy    = 0;
+        this._codeSize  = 0;
+        this._changes   = 0;
+        this._fitness   = 0;
+        this._runLines  = 0;
+        this._times     = 0;
+        this._stamp     = stamp;
+        this._oldValues = null;
+        this._speed     = [0, 0, 0];
     }
 
-    _setOldValues() {
-        this._oldValues = [this._energy, this._changes, this._fitness];
+    _setOldValues(energy, changes, fitness) {
+        this._oldValues = [energy, changes, fitness];
     }
 }
 
