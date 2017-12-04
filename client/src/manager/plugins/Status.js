@@ -38,12 +38,13 @@ class Status {
         const sips      = `ips:${this._ips.toFixed(this._ips < 10 ? 2 : 0)}`.padEnd(9);
         const slps      = this._format(this._runLines,          'lps', orgAmount, 0, 14, 1, false, false);
         const sorgs     = this._format(orgAmount,               'org', orgAmount, 0, 10, 1, false, false);
-        const senergy   = this._format(this._energy  - olds[0], 'nrg', orgAmount, 3, 14, 1000);
+        const siq       = this._format(this._energy  - olds[0], 'iq',  orgAmount, 3, 13, 1000);
+        const senergy   = this._format(this._energy,            'nrg', orgAmount, 0, 14, 1, false);
         const schanges  = this._format(this._changes - olds[1], 'che', orgAmount, 3, 12, 100000);
         const sfit      = this._format(this._fitness - olds[2], 'fit', orgAmount, 3, 14);
         const scode     = this._format(this._codeSize,          'cod', orgAmount, 1, 12, 1, false);
 
-        console.log(`%c${sips}${slps}${sorgs}%c${senergy}${schanges}${sfit}${scode}`, GREEN, RED);
+        console.log(`%c${sips}${slps}${sorgs}%c${siq}${senergy}${schanges}${sfit}${scode}`, GREEN, RED);
         this._manager.hasView && this._manager.canvas.text(5, 15, sips);
         this._setOldValues();
         this._onAfterIps(stamp);
