@@ -10,7 +10,7 @@ describe("client/src/organism/OrganismDos", () => {
     let cls;
 
     it("Checking organism creation", () => {
-        let   org  = new OrganismDos(0, 1, 2, true, null, ()=>{});
+        let   org  = new OrganismDos(0, 1, 2, true, null, () => {});
 
         expect(org.id).toEqual(0);
         expect(org.x).toEqual(1);
@@ -32,7 +32,7 @@ describe("client/src/organism/OrganismDos", () => {
     });
 
     it("Checking organism creation from parent", () => {
-        const parent = new OrganismDos(1, 3, 4, true, null, ()=>{});
+        const parent = new OrganismDos(1, 3, 4, true, null, () => {});
         parent.jsvm.insertLine();
         parent.energy               = 123;
         parent.changes              = 0xaabbcc;
@@ -43,7 +43,7 @@ describe("client/src/organism/OrganismDos", () => {
         parent.cloneEnergyPercent   = 0.34;
         parent._mem                 = [1,2,4,3];
 
-        let   org    = new OrganismDos(0, 1, 2, true, null, ()=>{}, parent);
+        let   org    = new OrganismDos(0, 1, 2, true, null, () => {}, parent);
 
         expect(org.jsvm.code[0] === parent.jsvm.code[0]).toEqual(true);
         expect(org.jsvm.size === parent.jsvm.size).toEqual(true);
@@ -62,7 +62,7 @@ describe("client/src/organism/OrganismDos", () => {
     });
 
     it("Checking organism coordinates", () => {
-        let   org  = new OrganismDos(0, 1, 2, true, null, ()=>{});
+        let   org  = new OrganismDos(0, 1, 2, true, null, () => {});
 
         org.x = 4;
         org.y = 5;
@@ -78,7 +78,7 @@ describe("client/src/organism/OrganismDos", () => {
     });
 
     it("Checking if organism if alive", () => {
-        let   org     = new OrganismDos(0, 1, 2, true, null, ()=>{});
+        let   org     = new OrganismDos(0, 1, 2, true, null, () => {});
         const period  = OConfig.orgAlivePeriod;
         const energy  = OConfig.orgStartEnergy;
         const speriod = OConfig.orgEnergySpendPeriod;
@@ -100,7 +100,7 @@ describe("client/src/organism/OrganismDos", () => {
     });
 
     it("Checking organism changes", () => {
-        let   org     = new OrganismDos(0, 1, 2, true, null, ()=>{});
+        let   org     = new OrganismDos(0, 1, 2, true, null, () => {});
 
         expect(org.changes).toEqual(1);
         org.changes = 10;
@@ -112,7 +112,7 @@ describe("client/src/organism/OrganismDos", () => {
     });
 
     it("Checking run() method", () => {
-        let   org     = new OrganismDos(0, 1, 2, true, null, ()=>{});
+        let   org     = new OrganismDos(0, 1, 2, true, null, () => {});
 
         expect(org.iterations).toEqual(0);
         org.run();
@@ -125,7 +125,7 @@ describe("client/src/organism/OrganismDos", () => {
 
     it("Checking organism destroy because of age", () => {
         const period = OConfig.orgAlivePeriod;
-        let   org    = new OrganismDos(0, 1, 2, true, null, ()=>{});
+        let   org    = new OrganismDos(0, 1, 2, true, null, () => {});
 
         OConfig.orgAlivePeriod = 30000;
         for (let i = 0; i < OConfig.orgAlivePeriod; i++) {
@@ -140,7 +140,7 @@ describe("client/src/organism/OrganismDos", () => {
 
     it("Checking organism destroy because of zero energy", () => {
         const period = OConfig.orgAlivePeriod;
-        let   org    = new OrganismDos(0, 1, 2, true, null, ()=>{});
+        let   org    = new OrganismDos(0, 1, 2, true, null, () => {});
 
         OConfig.orgAlivePeriod = 30000;
         expect(org.energy).toEqual(OConfig.orgStartEnergy);
@@ -155,7 +155,7 @@ describe("client/src/organism/OrganismDos", () => {
 
     it("Checking organism destroy because of grab energy", () => {
         const period = OConfig.orgEnergySpendPeriod;
-        let   org    = new OrganismDos(0, 1, 2, true, null, ()=>{});
+        let   org    = new OrganismDos(0, 1, 2, true, null, () => {});
 
         OConfig.orgEnergySpendPeriod = 1;
         org.energy = 1;
@@ -170,7 +170,7 @@ describe("client/src/organism/OrganismDos", () => {
     });
 
     it("Checking grabbing energy", () => {
-        let   org    = new OrganismDos(0, 1, 2, true, null, ()=>{});
+        let   org    = new OrganismDos(0, 1, 2, true, null, () => {});
         const energy = org.energy;
 
         org.grabEnergy(10);
@@ -180,7 +180,7 @@ describe("client/src/organism/OrganismDos", () => {
     });
 
     it("Checking organism color change", () => {
-        let   org    = new OrganismDos(0, 1, 2, true, null, ()=>{});
+        let   org    = new OrganismDos(0, 1, 2, true, null, () => {});
         const color  = org.color;
 
         org.changes = 10;
@@ -190,7 +190,7 @@ describe("client/src/organism/OrganismDos", () => {
     });
 
     it("Checking destroy() method", () => {
-        let   org    = new OrganismDos(0, 1, 2, true, null, ()=>{});
+        let   org    = new OrganismDos(0, 1, 2, true, null, () => {});
 
         expect(org.alive).toEqual(true);
         expect(org.energy > 0).toEqual(true);

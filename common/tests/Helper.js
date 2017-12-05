@@ -53,7 +53,7 @@ class Helper {
         const eventCb = () => waitObj.done = true;
         const waitCb  = () => {obj.off(event, eventCb); cb(); return true};
 
-        !cb && (cb = preCb) && (preCb = ()=>{});
+        !cb && (cb = preCb) && (preCb = () => {});
         obj.on(event, eventCb);
         preCb();
 

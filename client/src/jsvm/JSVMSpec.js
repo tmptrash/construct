@@ -13,7 +13,7 @@ describe("client/src/organism/JSVM", () => {
     it("Checking jsvm creation", () => {
         let   flag = false;
         const obs  = new Observer(1);
-        const jsvm = new JSVM(() => flag = true, obs, ()=>{});
+        const jsvm = new JSVM(() => flag = true, obs, () => {});
 
         jsvm.run();
         expect(flag).toEqual(false);
@@ -23,10 +23,10 @@ describe("client/src/organism/JSVM", () => {
 
     it("Checking parent argument and 'cloning' mode", () => {
         const obs    = new Observer(1);
-        const parent = new JSVM(()=>{}, obs, ()=>{});
+        const parent = new JSVM(() => {}, obs, () => {});
 
         parent.insertLine();
-        const jsvm   = new JSVM(()=>{}, obs, ()=>{}, parent);
+        const jsvm   = new JSVM(() => {}, obs, () => {}, parent);
 
         expect(jsvm.code[0] === parent.code[0]).toEqual(true);
         expect(jsvm.size === parent.size).toEqual(true);
@@ -38,7 +38,7 @@ describe("client/src/organism/JSVM", () => {
 
     it("Checking 'vars' getter for non 'cloning' mode", () => {
         const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, ()=>{});
+        const jsvm = new JSVM(() => {}, obs, () => {});
 
         expect(jsvm.vars.length === Math.pow(2, OConfig.codeBitsPerVar)).toEqual(true);
 
@@ -47,7 +47,7 @@ describe("client/src/organism/JSVM", () => {
 
     it("Checking no code size", () => {
         const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, ()=>{});
+        const jsvm = new JSVM(() => {}, obs, () => {});
 
         expect(jsvm.size).toEqual(0);
         jsvm.run();
@@ -58,7 +58,7 @@ describe("client/src/organism/JSVM", () => {
 
     it("Checking destroy", () => {
         const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, ()=>{});
+        const jsvm = new JSVM(() => {}, obs, () => {});
 
         jsvm.destroy();
         expect(jsvm.code).toEqual(null);
@@ -66,7 +66,7 @@ describe("client/src/organism/JSVM", () => {
 
     it("Checking 'code' and 'size' properties", () => {
         const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, ()=>{});
+        const jsvm = new JSVM(() => {}, obs, () => {});
 
         expect(jsvm.code instanceof Array).toEqual(true);
         expect(jsvm.size).toEqual(0);
@@ -87,7 +87,7 @@ describe("client/src/organism/JSVM", () => {
 
     it("Checking 'operators' property", () => {
         const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, Operators);
+        const jsvm = new JSVM(() => {}, obs, Operators);
 
         expect(jsvm.operators instanceof Operators).toEqual(true);
 
@@ -101,7 +101,7 @@ describe("client/src/organism/JSVM", () => {
     //         get size     () {return 1}
     //     }
     //     const obs  = new Observer(1);
-    //     const jsvm = new JSVM(()=>{}, obs, ()=>{});
+    //     const jsvm = new JSVM(() => {}, obs, () => {});
     //     const coc  = api.get('codeOperatorsCls');
     //     const yp   = api.get('codeYieldPeriod');
     //     const fc   = api.get('codeFitnessCls');
@@ -123,8 +123,8 @@ describe("client/src/organism/JSVM", () => {
 
     it("Checking crossover with increasing child code", () => {
         const obs   = new Observer(1);
-        const jsvm1 = new JSVM(()=>{}, obs, ()=>{});
-        const jsvm2 = new JSVM(()=>{}, obs, ()=>{});
+        const jsvm1 = new JSVM(() => {}, obs, () => {});
+        const jsvm2 = new JSVM(() => {}, obs, () => {});
         const rand  = Helper.rand;
         let   i     = -1;
 
@@ -164,8 +164,8 @@ describe("client/src/organism/JSVM", () => {
     });
     it("Checking crossover with decreasing child code", () => {
         const obs   = new Observer(1);
-        const jsvm1 = new JSVM(()=>{}, obs, ()=>{});
-        const jsvm2 = new JSVM(()=>{}, obs, ()=>{});
+        const jsvm1 = new JSVM(() => {}, obs, () => {});
+        const jsvm2 = new JSVM(() => {}, obs, () => {});
         const rand  = Helper.rand;
         let   i     = -1;
 
@@ -203,8 +203,8 @@ describe("client/src/organism/JSVM", () => {
     });
     it("Checking crossover with the same child code size", () => {
         const obs   = new Observer(1);
-        const jsvm1 = new JSVM(()=>{}, obs, ()=>{});
-        const jsvm2 = new JSVM(()=>{}, obs, ()=>{});
+        const jsvm1 = new JSVM(() => {}, obs, () => {});
+        const jsvm2 = new JSVM(() => {}, obs, () => {});
         const rand  = Helper.rand;
         let   i     = -1;
 
@@ -243,8 +243,8 @@ describe("client/src/organism/JSVM", () => {
     });
     it("Checking crossover with no code size in parents", () => {
         const obs   = new Observer(1);
-        const jsvm1 = new JSVM(()=>{}, obs, ()=>{});
-        const jsvm2 = new JSVM(()=>{}, obs, ()=>{});
+        const jsvm1 = new JSVM(() => {}, obs, () => {});
+        const jsvm2 = new JSVM(() => {}, obs, () => {});
 
         jsvm1.crossover(jsvm2);
         expect(jsvm1.size).toEqual(0);
@@ -255,8 +255,8 @@ describe("client/src/organism/JSVM", () => {
     });
     it("Checking crossover with no code size for one parent and twp lines of code for other", () => {
         const obs   = new Observer(1);
-        const jsvm1 = new JSVM(()=>{}, obs, ()=>{});
-        const jsvm2 = new JSVM(()=>{}, obs, ()=>{});
+        const jsvm1 = new JSVM(() => {}, obs, () => {});
+        const jsvm2 = new JSVM(() => {}, obs, () => {});
         const rand  = Helper.rand;
         let   i     = -1;
 
@@ -285,8 +285,8 @@ describe("client/src/organism/JSVM", () => {
     });
     it("Checking crossover with no code size for one parent and twp lines of code for other 2", () => {
         const obs   = new Observer(1);
-        const jsvm1 = new JSVM(()=>{}, obs, ()=>{});
-        const jsvm2 = new JSVM(()=>{}, obs, ()=>{});
+        const jsvm1 = new JSVM(() => {}, obs, () => {});
+        const jsvm2 = new JSVM(() => {}, obs, () => {});
         const rand  = Helper.rand;
         let   i     = -1;
 
@@ -317,7 +317,7 @@ describe("client/src/organism/JSVM", () => {
 
     it('Checking insertLine() method', () => {
         const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, ()=>{});
+        const jsvm = new JSVM(() => {}, obs, () => {});
 
         expect(jsvm.size).toEqual(0);
         jsvm.insertLine();
@@ -329,7 +329,7 @@ describe("client/src/organism/JSVM", () => {
     });
     it('Checking insertLine() method 2', () => {
         const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, ()=>{});
+        const jsvm = new JSVM(() => {}, obs, () => {});
         let   get  = Num.get;
 
         Num.get = () => 0xabcdefff;
@@ -345,7 +345,7 @@ describe("client/src/organism/JSVM", () => {
 
     it('Checking copyLines() method', () => {
         const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, ()=>{});
+        const jsvm = new JSVM(() => {}, obs, () => {});
         let   rand = Helper.rand;
         let   i    = -1;
 
@@ -376,7 +376,7 @@ describe("client/src/organism/JSVM", () => {
     });
     it('Checking copyLines() method 2', () => {
         const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, ()=>{});
+        const jsvm = new JSVM(() => {}, obs, () => {});
         let   rand = Helper.rand;
         let   i    = -1;
 
@@ -407,7 +407,7 @@ describe("client/src/organism/JSVM", () => {
     });
     it('Checking copyLines() method 3', () => {
         const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, ()=>{});
+        const jsvm = new JSVM(() => {}, obs, () => {});
         let   rand = Helper.rand;
         let   i    = -1;
 
@@ -438,7 +438,7 @@ describe("client/src/organism/JSVM", () => {
     });
     it('Checking copyLines() method with no code', () => {
         const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, ()=>{});
+        const jsvm = new JSVM(() => {}, obs, () => {});
         let   rand = Helper.rand;
 
         Helper.rand = () => 0;
@@ -452,7 +452,7 @@ describe("client/src/organism/JSVM", () => {
 
     it('Checking updateLine() method', () => {
         const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, ()=>{});
+        const jsvm = new JSVM(() => {}, obs, () => {});
         let   get  = Num.get;
 
         Num.get = () => 0xabcdefff;
@@ -471,7 +471,7 @@ describe("client/src/organism/JSVM", () => {
 
     it('Checking removeLine() method', () => {
         const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, ()=>{});
+        const jsvm = new JSVM(() => {}, obs, () => {});
 
         jsvm.insertLine();
         expect(jsvm.size).toEqual(1);
@@ -482,7 +482,7 @@ describe("client/src/organism/JSVM", () => {
     });
     it('Checking removeLine() for empty code', () => {
         const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, ()=>{});
+        const jsvm = new JSVM(() => {}, obs, () => {});
 
         expect(jsvm.size).toEqual(0);
         jsvm.removeLine();
@@ -495,7 +495,7 @@ describe("client/src/organism/JSVM", () => {
 
     it('Checking getLine()', () => {
         const obs  = new Observer(2);
-        const jsvm = new JSVM(()=>{}, obs, ()=>{});
+        const jsvm = new JSVM(() => {}, obs, () => {});
         let get  = Num.get;
 
         Num.get = () => 0xabcdefff;
