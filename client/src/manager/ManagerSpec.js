@@ -199,13 +199,13 @@ describe("client/src/manager/Manager", () => {
     it("Checking one organism creation in a manager", (done) => {
         const man      = new Manager(false);
         const amount   = OConfig.orgStartAmount;
-        const period   = Config.mutationPeriod;
+        const period   = OConfig.orgRainMutationPeriod;
         const percent  = OConfig.orgCloneMutationPercent;
         const clone    = OConfig.orgClonePeriod;
         let   iterated = false;
 
         OConfig.orgStartAmount          = 1;
-        Config.mutationPeriod           = 0;
+        OConfig.orgRainMutationPeriod   = 0;
         OConfig.orgCloneMutationPercent = 0;
         OConfig.orgClonePeriod          = 0;
         expect(man.organisms.size).toBe(0);
@@ -216,7 +216,7 @@ describe("client/src/manager/Manager", () => {
                 man.destroy(() => {
                     OConfig.orgClonePeriod          = clone;
                     OConfig.orgCloneMutationPercent = percent;
-                    Config.mutationPeriod           = period;
+                    OConfig.orgRainMutationPeriod   = period;
                     OConfig.orgStartAmount          = amount;
                     done();
                 });
@@ -227,7 +227,7 @@ describe("client/src/manager/Manager", () => {
     });
     it("Checking two managers with a server", (done) => {
         const amount    = OConfig.orgStartAmount;
-        const period    = Config.mutationPeriod;
+        const period    = OConfig.orgRainMutationPeriod;
         const percent   = OConfig.orgCloneMutationPercent;
         const period1   = OConfig.orgEnergySpendPeriod;
         const clone     = OConfig.orgClonePeriod;
@@ -246,7 +246,7 @@ describe("client/src/manager/Manager", () => {
                         OConfig.orgClonePeriod          = clone;
                         OConfig.orgEnergySpendPeriod    = period1;
                         OConfig.orgCloneMutationPercent = percent;
-                        Config.mutationPeriod           = period;
+                        OConfig.orgRainMutationPeriod   = period;
                         OConfig.orgStartAmount          = amount;
                         done();
                     });
@@ -255,7 +255,7 @@ describe("client/src/manager/Manager", () => {
         };
 
         OConfig.orgStartAmount          = 1;
-        Config.mutationPeriod           = 0;
+        OConfig.orgRainMutationPeriod   = 0;
         OConfig.orgCloneMutationPercent = 0;
         OConfig.orgEnergySpendPeriod    = 0;
         OConfig.orgClonePeriod          = 0;
@@ -290,7 +290,7 @@ describe("client/src/manager/Manager", () => {
 
     it("Checking moving of organism from one Manager to another", (done) => {
         const amount    = OConfig.orgStartAmount;
-        const period    = Config.mutationPeriod;
+        const period    = OConfig.orgRainMutationPeriod;
         const percent   = OConfig.orgCloneMutationPercent;
         const period1   = OConfig.orgEnergySpendPeriod;
         const clone     = OConfig.orgClonePeriod;
@@ -313,7 +313,7 @@ describe("client/src/manager/Manager", () => {
                         OConfig.orgClonePeriod          = clone;
                         OConfig.orgEnergySpendPeriod    = period1;
                         OConfig.orgCloneMutationPercent = percent;
-                        Config.mutationPeriod           = period;
+                        OConfig.orgRainMutationPeriod   = period;
                         OConfig.orgStartAmount          = amount;
                         Config.worldHeight              = height;
                         done();
@@ -323,7 +323,7 @@ describe("client/src/manager/Manager", () => {
         };
 
         OConfig.orgStartAmount          = 1;
-        Config.mutationPeriod           = 0;
+        OConfig.orgRainMutationPeriod   = 0;
         OConfig.orgCloneMutationPercent = 0;
         OConfig.orgEnergySpendPeriod    = 0;
         OConfig.orgClonePeriod          = 0;
@@ -353,7 +353,7 @@ describe("client/src/manager/Manager", () => {
      */
     it("Checking moving of organism from one Manager to another 2", (done) => {
         const amount    = OConfig.orgStartAmount;
-        const period    = Config.mutationPeriod;
+        const period    = OConfig.orgRainMutationPeriod;
         const percent   = OConfig.orgCloneMutationPercent;
         const period1   = OConfig.orgEnergySpendPeriod;
         const clone     = OConfig.orgClonePeriod;
@@ -379,7 +379,7 @@ describe("client/src/manager/Manager", () => {
                         OConfig.orgClonePeriod          = clone;
                         OConfig.orgEnergySpendPeriod    = period1;
                         OConfig.orgCloneMutationPercent = percent;
-                        Config.mutationPeriod           = period;
+                        OConfig.orgRainMutationPeriod   = period;
                         OConfig.orgStartAmount          = amount;
                         Config.worldHeight              = height;
                         done();
@@ -389,7 +389,7 @@ describe("client/src/manager/Manager", () => {
         };
 
         OConfig.orgStartAmount          = 1;
-        Config.mutationPeriod           = 0;
+        OConfig.orgRainMutationPeriod   = 0;
         OConfig.orgCloneMutationPercent = 0;
         OConfig.orgEnergySpendPeriod    = 0;
         OConfig.orgClonePeriod          = 0;
@@ -510,5 +510,55 @@ describe("client/src/manager/Manager", () => {
                 });
             });
         });
+    });
+
+    it("Tests many connections/disconnections of Manager to the server", (done) => {
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = 35000;
+        const maxCons   = SConfig.maxConnections;
+        const server    = new Server();
+        const CLIENTS   = 16;
+        const width     = Config.worldWidth;
+        const height    = Config.worldHeight;
+        let   waitObj   = {done: false};
+        let   amount    = 0;
+        let   count     = 0;
+        let   man1;
+        let   man2;
+        const cb        = () => {
+            man1.stop(() => {
+                expect(man1.clientId).toBe(null);
+                man1.run(() => {
+                    expect(man1.clientId).not.toBe(null);
+                    if (++amount < 10) {
+                        cb();
+                        return;
+                    }
+                    man1.destroy();
+                    man2.destroy();
+                    amount = 0;
+                    server.on(server.EVENTS.CLOSE, () => ++amount === 2 && (waitObj.done = true));
+                    wait(waitObj, () => {
+                        waitEvent(server, server.EVENTS.DESTROY, () => server.destroy(), () => {
+                            SConfig.maxConnections = maxCons;
+                            Config.worldWidth      = width;
+                            Config.worldHeight     = height;
+                            done();
+                        });
+                    });
+                });
+            });
+        };
+
+        Config.worldWidth      = 10;
+        Config.worldHeight     = 10;
+        SConfig.maxConnections = CLIENTS;
+        man1 = new Manager(false);
+        delete Config.organisms;
+        man2 = new Manager(false);
+
+        server.run();
+        man1.run(() => ++count === 2 && (waitObj.done = true));
+        man2.run(() => ++count === 2 && (waitObj.done = true));
+        wait(waitObj, cb);
     });
 });

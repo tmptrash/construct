@@ -50,7 +50,7 @@ class Connections {
         /**
          * {Number} Size of one full side of the connections squire
          */
-        this._side   = Math.sqrt(amount) + 2;
+        this._side   = +Math.sqrt(amount).toFixed() + 2;
 
         for (let col = 0, conns = this.conns; col < this._side; col++) {
             conns[col] = (new Array(this._side)).fill(null);
