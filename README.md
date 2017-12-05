@@ -14,7 +14,7 @@ More details on [blog](https://jevosite.wordpress.com) and youtube [channel](htt
 - Install [Node.js](https://nodejs.org/uk/)
 - Clone this repo to your local machine
 - Go to the root folder of cloned repo
-- Run `npm run install` to install all construct dependencies
+- Run `npm install` to install all dependencies
 - Run `npm run build` to build client part
 - Run tests using `npm run test` command if you need
 
