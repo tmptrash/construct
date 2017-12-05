@@ -1,5 +1,5 @@
 /**
- * Tiny server for jevo.js clients. Manages many browser clients. Main
+ * Tiny server for construct clients. Manages many browser clients. Main
  * goal of this server is to track/manage browser or phantom like based
  * clients as a distributed nodes. Server supports maxConnections
  * clients at the time. All connected clients/nodes create big virtual

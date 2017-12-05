@@ -1,5 +1,5 @@
 /**
- * Main manager class of application. Contains all parts of jevo.js app
+ * Main manager class of application. Contains all parts of construct app
  * like World, Client, Console etc... Runs infinite loop inside run()
  * method. You may run and stop the manager as many times you need.
  * Manager runs/stops and destroys in a asynchronous way. So you may set
@@ -45,7 +45,7 @@ class Manager extends Observer {
         this.positions     = {};
         /**
          * {Object} This field is used as a container for public API of the Manager.
-         * It may be used in a user console by the Operator of jevo.js. Plugins
+         * It may be used in a user console by the Operator of construct. Plugins
          * may add their methods to this map also.
          */
         this.api           = {version: () => '0.2.0'};

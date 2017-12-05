@@ -90,7 +90,7 @@ ClientConfig.init({
      */
     modeQuiet: QUIET_IMPORTANT,
     /**
-     * {Boolean} Running mode. It's also possible to run jevo.js only on
+     * {Boolean} Running mode. It's also possible to run construct only on
      * server side without browser. For this it should be set to true.
      */
     modeNodeJs: false,

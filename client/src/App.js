@@ -1,5 +1,5 @@
 /**
- * This is an entry point of jevo.js application. Compiled version of
+ * This is an entry point of construct application. Compiled version of
  * this file should be included into index.html.
  *
  * File structure:
