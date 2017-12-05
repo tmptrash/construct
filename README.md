@@ -10,6 +10,8 @@ More details on [blog](https://jevosite.wordpress.com) and youtube [channel](htt
 - Last stable version of Node.js
 
 # Installation
+- Install [Chome](https://www.google.com/chrome/browser/desktop/index.html) browser
+- Install [Node.js](https://nodejs.org/uk/)
 - Clone this repo to your local machine
 - Go to the root folder of cloned repo
 - Run `npm run install` to install all jevo.js dependencies
@@ -19,13 +21,12 @@ More details on [blog](https://jevosite.wordpress.com) and youtube [channel](htt
 # Run
 - To run jevo.js in a "serverless" mode, just open `./client/dist/index.html` in Chrome
 - To run jevo.js in a "distributed" mode, you have to:
-    - run server `npm run server`
-    - open as many `index.html` files in Chrome as you want. Every `index.html` grabs `~12%` of your CPU
-
-By default, clients use local IP - `127.0.0.1` for server connection. If you have many computers in a local network, you may run many clients (`index.html` files) on different machines for distributed computing. For this, you have to build client with these steps:
-- Go to configuration `client/src/share/Config.js`, find `serverHost` option and change it to the IP, of your server. You may use `ipconfig` under windows to get server's IP
-- Run `npm run build` command in a terminal from the root folder
-- Copy `./client/dist/index.html` on remote machine and run it there under Chrome
+    - Choose some host in your local netwok for server
+	- Clone jevo.js repo to this host
+    - Go to configuration `./client/src/share/Config.js`, find `serverHost` option and change it to the IP, of your server host. You may use `ipconfig` under windows to get server's IP
+    - Run `npm run build` command in a terminal from the root folder
+    - Run server `npm run server` on chosen host
+    - Copy `./client/dist/index.html` and `./client/dist/app.js` on remote machines and run it there under Chrome
 
 ___
 P.S. If you `ES6 js developer` | `Canvas 2D developer` | `Node.js developer` | you just a <img align="center" width="18" height="18" src="https://github.com/tmptrash/jevo.js/raw/v0.2/assets/ninja-icon.png"> - join us!
