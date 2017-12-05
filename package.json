@@ -1,6 +1,6 @@
 {
-  "name": "jevo.js",
-  "version": "1.0.0",
+  "name": "construct",
+  "version": "0.2.0",
   "description": "JavaScript digital organisms simulator",
   "main": "index.js",
   "directories": {
@@ -11,21 +11,36 @@
     "babel-preset-env": "^1.6.0",
     "jasmine": "^2.6.0",
     "js-beautify": "^1.6.14",
-    "webpack": "^2.6.1"
+    "webpack": "^3.9.1",
+    "ws": "^3.3.2"
   },
   "scripts": {
-    "test": "babel-node jasmine/spec/run.js"
+    "test": "babel-node tests/run.js",
+    "build": "node_modules/.bin/webpack",
+    "server": "node server/src/App.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tmptrash/jevo.js.git"
   },
-  "keywords": [],
-  "author": "DeadbraiN",
+  "keywords": [
+    "genetic algorithm",
+    "digital organisms",
+    "evolution",
+    "javascript",
+    "distributed system",
+    "distributed calculations",
+    "evolutionary programming"
+  ],
+  "author": "flatline",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/tmptrash/jevo.js/issues"
   },
   "homepage": "https://github.com/tmptrash/jevo.js#readme",
-  "devDependencies": {}
+  "devDependencies": {
+    "babel-register": "latest",
+    "clean-webpack-plugin": "^0.1.17",
+    "ignore-loader": "^0.1.2"
+  }
 }

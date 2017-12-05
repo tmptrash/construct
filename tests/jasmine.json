@@ -1,0 +1,10 @@
+{
+  "spec_dir": "./",
+  "spec_files": [
+    "client/src/**/*[sS]pec.js",
+    "common/src/**/*[sS]pec.js",
+    "server/src/**/*[sS]pec.js"
+  ],
+  "stopSpecOnExpectationFailure": false,
+  "random": false
+}

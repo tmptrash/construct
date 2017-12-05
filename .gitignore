@@ -20,3 +20,6 @@ shrinkwrap.yaml
 ehthumbs.db
 Thumbs.db
 desktop.ini
+/client/dist/app.js.map
+/client/dist/app.js
+/.idea
