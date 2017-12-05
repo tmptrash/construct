@@ -26,7 +26,7 @@ More details on [blog](https://jevosite.wordpress.com) and youtube [channel](htt
     - Go to configuration `./client/src/share/Config.js`, find `serverHost` option and change it to the IP, of your server host. You may use `ipconfig` under windows to get server's IP
     - Run `npm run build` command in a terminal from the root folder
     - Run server `npm run server` on chosen host
-    - Copy `./client/dist/index.html` and `./client/dist/app.js` on remote machines and run it there under Chrome
+    - Copy `./client/dist/index.html` and `./client/dist/app.js` on all your remote machines and run it there under Chrome
 
 ___
 P.S. If you `ES6 js developer` | `Canvas 2D developer` | `Node.js developer` | you just a <img align="center" width="18" height="18" src="https://github.com/tmptrash/jevo.js/raw/v0.2/assets/ninja-icon.png"> - join us!
