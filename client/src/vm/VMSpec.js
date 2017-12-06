@@ -5,12 +5,12 @@ describe("client/src/organism/JSVM", () => {
     let Config       = require('./../share/Config').Config;
     let OConfig      = require('./../manager/plugins/organisms/Config');
     let api          = require('./../share/Config').api;
-    let JSVM         = require('./JSVM');
+    let JSVM         = require('./VM');
     let Num          = require('./Num');
     let Operators    = require('./Operators');
     let cls          = null;
 
-    it("Checking jsvm creation", () => {
+    it("Checking vm creation", () => {
         let   flag = false;
         const obs  = new Observer(1);
         const jsvm = new JSVM(() => flag = true, obs, () => {});
@@ -101,24 +101,24 @@ describe("client/src/organism/JSVM", () => {
     //         get size     () {return 1}
     //     }
     //     const obs  = new Observer(1);
-    //     const jsvm = new JSVM(() => {}, obs, () => {});
+    //     const vm = new JSVM(() => {}, obs, () => {});
     //     const coc  = api.get('codeOperatorsCls');
     //     const yp   = api.get('codeYieldPeriod');
     //     const fc   = api.get('codeFitnessCls');
     //     //
     //     // Small hack. Use of private field for this test only
     //     //
-    //     jsvm._code.push(0b1000000000000000000000000);
+    //     vm._code.push(0b1000000000000000000000000);
     //     api.set('codeYieldPeriod', 1);
     //     api.set('codeFitnessCls', null);
     //     api.set('codeOperatorsCls', '');
-    //     jsvm.run({alive: true});
+    //     vm.run({alive: true});
     //     expect(flag === '167772160').toEqual(true);
     //     api.set('codeYieldPeriod', yp);
     //     api.set('codeFitnessCls', fc);
     //     api.set('codeOperatorsCls', coc);
     //
-    //     jsvm.destroy();
+    //     vm.destroy();
     // });
 
     it("Checking crossover with increasing child code", () => {

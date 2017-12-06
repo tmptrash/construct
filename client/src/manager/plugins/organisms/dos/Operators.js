@@ -11,8 +11,8 @@ const Helper    = require('./../../../../../../common/src/Helper');
 const EVENTS    = require('./../../../../../src/share/Events').EVENTS;
 const Config    = require('./../../../../../src/share/Config').Config;
 const OConfig   = require('./../Config');
-const Operators = require('./../../../../../src/jsvm/Operators');
-const Num       = require('./../../../../../src/jsvm/Num');
+const Operators = require('./../../../../vm/Operators');
+const Num       = require('./../../../../vm/Num');
 
 /**
  * {Function} Just a shortcuts
@@ -95,9 +95,9 @@ class OperatorsDos extends Operators {
      * Parses variable operator. Format: var = number|var. 'num' bits format:
      * TODO:
      *
-     * @param {Num} num Packed into number jsvm line
-     * @param {Number} line Current line in jsvm
-     * @return {Number} Parsed jsvm line string
+     * @param {Num} num Packed into number vm line
+     * @param {Number} line Current line in vm
+     * @return {Number} Parsed vm line string
      */
     onVar(num, line) {
         const vars = this.vars;

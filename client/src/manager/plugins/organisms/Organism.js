@@ -11,7 +11,7 @@ const Config        = require('./../../../share/Config').Config;
 const OConfig       = require('./../../../manager/plugins/organisms/Config');
 const EVENTS        = require('./../../../share/Events').EVENTS;
 const EVENT_AMOUNT  = require('./../../../share/Events').EVENT_AMOUNT;
-const JSVM          = require('./../../../jsvm/JSVM');
+const JSVM          = require('./../../../vm/VM');
 
 const IS_NUM = Helper.isNumeric;
 

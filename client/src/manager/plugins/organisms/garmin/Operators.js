@@ -7,8 +7,8 @@
  * @author flatline
  */
 const Helper    = require('./../../../../../../common/src/Helper');
-const Operators = require('./../../../../../../client/src/jsvm/Operators');
-const Num       = require('./../../../../../../client/src/jsvm/Num');
+const Operators = require('./../../../../vm/Operators');
+const Num       = require('./../../../../vm/Num');
 const Config    = require('./../../../../share/Config').Config;
 const OConfig   = require('./../Config');
 
@@ -79,9 +79,9 @@ class OperatorsGarmin extends  Operators {
      *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
      *   BITS_PER_VAR bits  - variable index or all bits till the end for constant
      *
-     * @param {Num} num Packed into number jsvm line
-     * @param {Number} line Current line in jsvm
-     * @return {Number} Parsed jsvm line string
+     * @param {Num} num Packed into number vm line
+     * @param {Number} line Current line in vm
+     * @return {Number} Parsed vm line string
      */
     onVar(num, line) {
         const vars = this.vars;

@@ -10,11 +10,9 @@
  * @author flatline
  */
 const EVENTS   = require('./../../../share/Events').EVENTS;
-const Config   = require('./../../../share/Config').Config;
 const OConfig  = require('./../../../manager/plugins/organisms/Config');
 const Helper   = require('./../../../../../common/src/Helper');
-const Organism = require('./dos/Organism');
-const Num      = require('./../../../jsvm/Num');
+const Num      = require('./../../../vm/Num');
 
 const VAR_BITS_OFFS = Num.VAR_BITS_OFFS - 1;
 const VARS          = Num.VARS;

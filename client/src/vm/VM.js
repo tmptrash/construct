@@ -1,5 +1,6 @@
 /**
- * Implements organism's code logic.
+ * Simple Virtual Machine for DOS language. Runs code line by line till the
+ * last and calls operators associated callbacks.
  * TODO: explain here code one number format,...
  *
  * @author flatline
@@ -9,7 +10,6 @@
  */
 const Helper       = require('./../../../common/src/Helper');
 const Observer     = require('./../../../common/src/Observer');
-const Config       = require('./../../src/share/Config').Config;
 const OConfig      = require('./../manager/plugins/organisms/Config');
 const EVENTS       = require('./../../src/share/Events').EVENTS;
 const EVENT_AMOUNT = require('./../../src/share/Events').EVENT_AMOUNT;
@@ -40,7 +40,7 @@ class JSVM extends Observer {
         this._operatorCls = operatorCls;
         /**
          * {Function} Callback, which is called on every organism
-         * jsvm iteration. On it's end.
+         * vm iteration. On it's end.
          */
         this._onCodeEnd   = codeEndCb;
         /**
@@ -138,8 +138,8 @@ class JSVM extends Observer {
     }
 
     /**
-     * Does crossover between two parent byte codes. Takes second jsvm's code part
-     * (from start1 to end1 offset) and inserts it instead first jsvm code part (start...end).
+     * Does crossover between two parent byte codes. Takes second vm's code part
+     * (from start1 to end1 offset) and inserts it instead first vm code part (start...end).
      * For example:
      *   code1 : [1,2,3]
      *   code2 : [4,5,6]
@@ -150,7 +150,7 @@ class JSVM extends Observer {
      *   jsvm1.crossover(jsvm2) // [4,5,6] instead [2,3] ->, jsvm1 === [1,4,5,6]
      *
      * @param {JSVM} jsvm JSVM instance, from where we have to cut code part
-     * @returns {Number} Amount of changes in current (this) jsvm
+     * @returns {Number} Amount of changes in current (this) vm
      */
     crossover(jsvm) {
         const rand = Helper.rand;
@@ -225,7 +225,7 @@ class JSVM extends Observer {
     }
 
     /**
-     * Removes random generated number into byte jsvm at random position
+     * Removes random generated number into byte vm at random position
      */
     removeLine() {
         this._code.splice(Helper.rand(this._code.length), 1);
@@ -243,21 +243,19 @@ class JSVM extends Observer {
     }
 
     /**
-     * Generates default variables jsvm. It should be in ES5 version, because
+     * Generates default variables vm. It should be in ES5 version, because
      * speed is important. Amount of vars depends on OConfig.codeBitsPerVar config.
-     * @returns {Array} vars jsvm
+     * @returns {Array} vars vm
      * @private
      */
     _getVars() {
-        if (this._vars && this._vars.length > 0) {
-            return this._vars
-        }
+        if (this._vars && this._vars.length > 0) {return this._vars}
 
         const len    = Math.pow(2, OConfig.codeBitsPerVar);
-        let vars     = new Array(len);
         const range  = OConfig.codeVarInitRange;
         const range2 = range / 2;
         const rand   = Helper.rand;
+        let   vars   = new Array(len);
 
         for (let i = 0; i < len; i++) {
             vars[i] = rand(range) - range2;

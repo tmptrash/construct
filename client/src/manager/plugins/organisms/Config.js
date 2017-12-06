@@ -20,13 +20,13 @@ const Config = {
     ORG_MAX_COLOR: Number.MAX_SAFE_INTEGER,
     /**
      * {Array} Probabilities which used, when mutator decides what to do:
-     * add, change, delete code line inside the jsvm; change amount of
+     * add, change, delete code line inside the vm; change amount of
      * mutations or change mutations period... Depending on these
      * values, organism may have different strategies of living.
      * For example: if add value is bigger then del and change,
-     * then jsvm size will be grow up all the time. If del value is
+     * then vm size will be grow up all the time. If del value is
      * bigger then other, then it will be decreased to zero lines
-     * of jsvm and organism will die.
+     * of vm and organism will die.
      * Format: [
      *     add          - Probability of adding new line to the code
      *     change       - Probability of changing existing line of code
@@ -47,7 +47,7 @@ const Config = {
      */
     orgMutationProbsMaxValue: 100,
     /**
-     * {Number} Percent of mutations from jsvm size, which will be applied to
+     * {Number} Percent of mutations from vm size, which will be applied to
      * organism after cloning. Should be <= 1.0 (1.0 === 100%)
      */
     orgCloneMutationPercent: 0.01,
@@ -77,7 +77,7 @@ const Config = {
     orgStartAmount: 100,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
-     * Eve. It means that these empty (without jsvm) organism were created
+     * Eve. It means that these empty (without vm) organism were created
      * by operator and not by evolution.
      */
     orgStartEnergy: 10000,
@@ -129,7 +129,7 @@ const Config = {
      */
     orgMaxOrgs: 300,
     /**
-     * {Number} If organism reach this limit of amount of jsvm lines, then codeSizeCoef
+     * {Number} If organism reach this limit of amount of vm lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
      * because our CPU's are slow and organisms with big codes are very slow. But
      * it's possible for organisms to go outside the limit by inventing new
