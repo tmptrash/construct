@@ -19,8 +19,6 @@ class Status {
         this._energy      = 0;
         this._codeSize    = 0;
         this._runLines    = 1;
-        this._changes     = 0;
-        this._fitness     = 0;
         this._times       = 0;
         this._oldValues   = [0, 0, 0];
         this._speed       = [0, 0, 0];
@@ -36,16 +34,16 @@ class Status {
         if (stamp - this._stamp < PERIOD) {return}
 
         const times     = this._times || 1;
-        const times_1   = (times - 1) || 1;
+        const times1    = (times - 1) || 1;
         const realIps   = this._ips / times;
         const orgAmount = orgs.size || 1;
         const sips      = `ips:${realIps.toFixed(realIps < 10 ? 2 : 0)}`.padEnd(10);
         const slps      = this._format(this._runLines / times,   'lps', orgAmount, 0, 14, 1, false, false);
         const sorgs     = this._format(orgAmount,                'org', orgAmount, 0, 10, 1, false, false);
         const senergy   = this._format(this._energy   / times,   'nrg', orgAmount, 0, 14, 1, false);
-        const siq       = this._format(this._speed[0] / times_1, 'iq',  orgAmount, 3, 13, 1000);
-        const schanges  = this._format(this._speed[1] / times_1, 'che', orgAmount, 3, 12, 100000);
-        const sfit      = this._format(this._speed[2] / times_1, 'fit', orgAmount, 3, 14);
+        const siq       = this._format(this._speed[0] / times1,  'iq',  orgAmount, 3, 13, 1000);
+        const schanges  = this._format(this._speed[1] / times1,  'che', orgAmount, 3, 12, 100000);
+        const sfit      = this._format(this._speed[2] / times1,  'fit', orgAmount, 3, 14);
         const scode     = this._format(this._codeSize / times,   'cod', orgAmount, 1, 12, 1, false);
 
         console.log(`%c${sips}${slps}${sorgs}%c${siq}${senergy}${schanges}${sfit}${scode}`, GREEN, RED);
@@ -89,8 +87,6 @@ class Status {
         this._ips      += ips;
         this._energy   += energy;
         this._codeSize += codeSize;
-        this._changes  += changes;
-        this._fitness  += fitness;
         this._setOldValues(energy, changes, fitness);
 
         this._times++;
@@ -100,8 +96,6 @@ class Status {
         this._ips       = 0;
         this._energy    = 0;
         this._codeSize  = 0;
-        this._changes   = 0;
-        this._fitness   = 0;
         this._runLines  = 0;
         this._times     = 0;
         this._stamp     = stamp;
