@@ -222,7 +222,7 @@ class Server extends Connection {
         sock.removeAllListeners('message');
         sock.removeAllListeners('error');
         sock.removeAllListeners('close');
-        Console.warn(`Server: client ${clientId} has disconnected by reason: ${this.closeReason}`);
+        Console.warn(`Client ${clientId} has disconnected by reason: ${this.closeReason}`);
     }
 }
 

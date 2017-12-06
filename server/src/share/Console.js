@@ -4,13 +4,13 @@
  * @author flatline
  */
 class Console {
-    static error(...msg) {console.log(this._time() + '\x1b[31m%s\x1b[0m', msg.join(''))}
-    static warn (...msg) {console.log(this._time() + '\x1b[33m%s\x1b[0m', msg.join(''))}
-    static info (...msg) {console.log(this._time() + '\x1b[37m%s\x1b[0m', msg.join(''))}
+    static error(...msg) {console.log('%s \x1b[31m%s\x1b[0m', this._time(), msg.join(''))}
+    static warn (...msg) {console.log('%s \x1b[33m%s\x1b[0m', this._time(), msg.join(''))}
+    static info (...msg) {console.log('%s \x1b[32m%s\x1b[0m', this._time(), msg.join(''))}
     static _time() {
         const date = new Date;
 
-        return `${date.toLocaleDateString()} ${date.toLocaleTimeString()} `;
+        return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
     }
 }
 
