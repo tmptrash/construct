@@ -29,6 +29,7 @@ describe("client/src/manager/Manager", () => {
     beforeEach(() => {
         delete Config.ips;
         delete Config.organisms;
+        delete Config.status;
     });
     beforeAll(() => {
         jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
@@ -83,6 +84,7 @@ describe("client/src/manager/Manager", () => {
     it("Checking creation of two managers", (done) => {
         const man1 = new Manager(false);
         delete Config.organisms;
+        delete Config.status;
         const man2 = new Manager(false);
 
         waitEvent(man1, EVENTS.DESTROY, () => man1.destroy(), () => {
@@ -99,7 +101,7 @@ describe("client/src/manager/Manager", () => {
 
         Config.worldWidth  = 10;
         Config.worldHeight = 10;
-        for (let i = 0; i < amount; i++) {delete Config.organisms; mans.push(new Manager(false))}
+        for (let i = 0; i < amount; i++) {delete Config.organisms;delete Config.status; mans.push(new Manager(false))}
         for (let i = 0; i < amount; i++) {mans[i].destroy(() => ++destroyed === amount && (waitObj.done = true))}
 
         if (waitObj.done) {
@@ -234,6 +236,7 @@ describe("client/src/manager/Manager", () => {
         const server    = new Server();
         const man1      = new Manager(false);
         delete Config.organisms;
+        delete Config.status;
         const man2      = new Manager(false);
         let   iterated1 = false;
         let   iterated2 = false;
@@ -299,6 +302,7 @@ describe("client/src/manager/Manager", () => {
         const server    = new Server();
         const man1      = new Manager(false);
         delete Config.organisms;
+        delete Config.status;
         const man2      = new Manager(false);
         let   iterated1 = 0;
         let   iterated2 = 0;
@@ -362,6 +366,7 @@ describe("client/src/manager/Manager", () => {
         const server    = new Server();
         const man1      = new Manager(false);
         delete Config.organisms;
+        delete Config.status;
         const man2      = new Manager(false);
         let   iterated1 = 0;
         let   iterated2 = 0;
@@ -448,6 +453,7 @@ describe("client/src/manager/Manager", () => {
         server.run();
         for (let i = 0; i < CLIENTS; i++) {
             delete Config.organisms;
+            delete Config.status;
             mans.push(man = new Manager(false));
             man.run(() => ++amount === CLIENTS && (waitObj.done = true));
         }
@@ -484,6 +490,7 @@ describe("client/src/manager/Manager", () => {
         SConfig.maxConnections = CLIENTS;
         man1 = new Manager(false);
         delete Config.organisms;
+        delete Config.status;
         man2 = new Manager(false);
 
         server.run();
@@ -554,6 +561,7 @@ describe("client/src/manager/Manager", () => {
         SConfig.maxConnections = CLIENTS;
         man1 = new Manager(false);
         delete Config.organisms;
+        delete Config.status;
         man2 = new Manager(false);
 
         server.run();

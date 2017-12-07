@@ -29,6 +29,13 @@ class Status extends Configurable {
         manager.on(EVENTS.ORGANISM, this._onOrganism.bind(this));
     }
 
+    destroy() {
+        this._manager   = null;
+        this._oldValues = null;
+        this._speed     = null;
+        super.destroy();
+    }
+
     _onIps(ips, orgs) {
         if (!StatusConfig.showMessages) {return}
         const stamp     = Date.now();
