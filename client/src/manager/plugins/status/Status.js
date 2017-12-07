@@ -3,16 +3,18 @@
  *
  * @author flatline
  */
-const EVENTS = require('./../../share/Events').EVENTS;
-const Config = require('./../../share/Config').Config;
+const Configurable = require('./../../../../../common/src/Configurable');
+const EVENTS       = require('./../../../share/Events').EVENTS;
+const Config       = require('./../../../share/Config').Config;
+const StatusConfig = require('./Config');
 
 const GREEN  = 'color: #00aa00';
 const RED    = 'color: #aa0000';
-// TODO: move this value to Status plugin config
-const PERIOD = 10000;
 
-class Status {
+class Status extends Configurable {
     constructor(manager) {
+        super(manager, {Config, cfg: StatusConfig});
+
         this._manager     = manager;
         this._stamp       = 0;
         this._ips         = 0;
@@ -28,10 +30,11 @@ class Status {
     }
 
     _onIps(ips, orgs) {
+        if (!StatusConfig.showMessages) {return}
         const stamp     = Date.now();
 
         this._onBeforeIps(ips, orgs);
-        if (stamp - this._stamp < PERIOD) {return}
+        if (stamp - this._stamp < StatusConfig.period) {return}
 
         const times     = this._times || 1;
         const times1    = (times - 1) || 1;

@@ -32,7 +32,7 @@ ClientConfig.init({
         'Config',
         'client/Client',
         'Energy',
-        'Status',
+        'status/Status',
         'ips/Ips',
         'backup/Backup'
     ],
