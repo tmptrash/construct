@@ -30,9 +30,6 @@ class AroundServers {
         this._socks  = null;
     }
 
-    // TODO: rename to 'clients'
-    get socks() {return this._socks}
-
     setSocket(sock, dir) {
         this._socks[dir] = sock;
     }
