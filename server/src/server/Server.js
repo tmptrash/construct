@@ -68,6 +68,7 @@ class Server extends Connection {
     constructor(port = Config.port) {
         super(SERVER_EVENTS_LEN);
         this.EVENTS         = SERVER_EVENTS;
+        this.cfg            = Config;
         this.conns          = new Connections(Config.maxConnections);
         // TODO: This field should be used for connections with around servers.
         // TODO: We have to connect with all available around servers on start

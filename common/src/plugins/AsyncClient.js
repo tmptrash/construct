@@ -1,14 +1,16 @@
 /**
- * Implements asynchronous interface of `Async` class for `Client'. See
- * `common/src/plugins/Async` class for details.
+ * Implements asynchronous interface of `AsyncChild` class for `Client'. See
+ * `common/src/plugins/AsyncChild` class for details. It tracks client states
+ * like 'running', 'stopping', 'failed' etc and adds appropriate methods to
+ * parent: isRunning(), isStopping(),...
  *
  * @author flatline
  */
-const AsyncChild = require('./../../../../../../common/src/plugins/AsyncChild');
-const Helper     = require('./../../../../../../common/src/Helper');
+const AsyncChild = require('./AsyncChild');
+const Helper     = require('./../Helper');
 
-class Async extends AsyncChild {
-    constructor(parent) {
+class AsyncClient extends AsyncChild {
+    constructor(parent, cfg = null) {
         super(parent);
         const EVENTS    = parent.EVENTS;
 
@@ -16,13 +18,14 @@ class Async extends AsyncChild {
         this._running   = false;
         this._stopping  = false;
         this._failed    = false;
+        this._openEvent = cfg && cfg.openEvent || EVENTS.GET_ID;
 
         this._onOpenCb  = this._onOpen.bind(this);
         this._onCloseCb = this._onClose.bind(this);
         this._onRunCb   = this._onRun.bind(this);
         this._onStopCb  = this._onStop.bind(this);
 
-        parent.on(EVENTS.GET_ID, this._onOpenCb);
+        parent.on(this._openEvent, this._onOpenCb);
         parent.on(EVENTS.CLOSE, this._onCloseCb);
         parent.on(EVENTS.DESTROY, this._onCloseCb);
 
@@ -95,4 +98,4 @@ class Async extends AsyncChild {
     }
 }
 
-module.exports = Async;
+module.exports = AsyncClient;

@@ -17,7 +17,7 @@ const GEVENTS     = require('./../../../share/Events').EVENTS;
 const PLUGINS     = [
     'src/plugins/Request',
     'src/manager/plugins/client/plugins/Api',
-    'src/manager/plugins/client/plugins/Async'
+    'src/plugins/AsyncClient'
 ];
 
 const EVENTS_LEN  = Object.keys(EVENTS).length;

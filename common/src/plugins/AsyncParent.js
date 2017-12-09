@@ -18,10 +18,10 @@ const WAIT_TIMEOUT_MS   = 35000;
 const CHECK_INTERVAL_MS = 50;
 
 class AsyncParent {
-    constructor(parent, cfg = {}) {
+    constructor(parent, cfg = {}, classes = null) {
         this._parent     = parent;
         this._cfg        = cfg;
-        this._plugins    = parent.plugins;
+        this._plugins    = classes || parent.plugins;
         this._destroying = false;
         this._done       = null;
         /**

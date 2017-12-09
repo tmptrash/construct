@@ -37,15 +37,37 @@ ServerConfig.init({
      */
     port: 8099,
     /**
-     * TODO: this config should be obtained from Admin server or from command line
-     * TODO: parameters in future cmd line parser
+     * {String} Host address of server above. Shouldn't contain port
      */
     upHost: 'ws://127.0.0.1',
     /**
-     * TODO: this config should be obtained from Admin server or from command line
-     * TODO: parameters in future cmd line parser
+     * {Number} Port number of server above
      */
-    upPort: 8099
+    upPort: 8099,
+    /**
+     * {String} Host address of server on the right. Shouldn't contain port
+     */
+    rightHost: 'ws://127.0.0.1',
+    /**
+     * {Number} Port number of server on the right
+     */
+    rightPort: 8100,
+    /**
+     * {String} Host address of server below. Shouldn't contain port
+     */
+    downHost: 'ws://127.0.0.1',
+    /**
+     * {Number} Port number of server below
+     */
+    downPort: 8101,
+    /**
+     * {String} Host address of server on the left. Shouldn't contain port
+     */
+    leftHost: 'ws://127.0.0.1',
+    /**
+     * {Number} Port number of server on the left
+     */
+    leftPort: 8102
 });
 
 module.exports = {Config: ServerConfig.cfg(), api: ServerConfig};

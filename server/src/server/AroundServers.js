@@ -1,33 +1,59 @@
 /**
  * This class stores logic of communication with nearest servers (up, right,
  * down and left), which are connected to current one. It keeps connections
- * to them and updates active status.
+ * to them and updates active status. There are two types of connection with
+ * servers ans saving their sockets:
+ *   1. create local clients and connect them to remote servers
+ *   2. catch input connection from remote client
+ *
+ * The type of connection depends on who was created first and last. First
+ * created server A, which is above second created server B should do nothing.
+ * Server B should create four clients and connect them to A and other nearest
+ * servers, if they exist. For server A, input client connection from bottom
+ * will be stored in this._socks[DIR.DOWN]. The same scenario for right, down
+ * and left servers as well.
  *
  * @author flatline
  */
-const DIR   = require('./../../../common/src/Directions').DIR;
-const TYPES = require('./../../../common/src/net/Requests').TYPES;
+const DIR    = require('./../../../common/src/Directions').DIR;
+const TYPES  = require('./../../../common/src/net/Requests').TYPES;
+const Client = require('./../../../common/src/net/Client').Client;
 
 class AroundServers {
     constructor(parent) {
         /**
          * {Connection} Connection instance of current Client or Server
          */
-        this._parent = parent;
+        this._parent  = parent;
         /**
-         * {Object} All nearest servers by direction
+         * {Object} Four sockets for sending messages to nearest servers.
+         * They may be: clients created within current class or sockets
+         * obtained after input client connection (created by remote server).
          */
-        // TODO: rename to _clients. It should be a map of Client instances
-        this._socks = {};
-        this._socks[DIR.UP]    = null;
-        this._socks[DIR.RIGHT] = null;
-        this._socks[DIR.DOWN]  = null;
-        this._socks[DIR.LEFT]  = null;
+        this._socks   = new Array(4);
+        /**
+         * {Object} Optional clients for connection with nearest servers.
+         * This map may be empty ar partly empty if servers around make
+         * connection first. Keys - directions, values - client instances.
+         */
+        this._clients = new Array(4);
+        /**
+         * {AsyncParent} Keep reference to AsyncParent class, which tracks
+         * async running of classes through AsyncChild interface.
+         */
+        this._async   = null;
+        //
+        // Try to create clients map for connection with nearest servers
+        //
+        // TODO: uncomment this!
+        //this._createClients();
     }
 
-    destroy() {
-        this._parent = null;
-        this._socks  = null;
+    destroy(done = () => {}) {
+        this._parent  = null;
+        this._socks   = null;
+        this._clients = null;
+        this._async.destroy(done);
     }
 
     setSocket(sock, dir) {
@@ -48,6 +74,27 @@ class AroundServers {
         socks[DOWN]  && parent.request(socks[DOWN],  ACTIVE, UP,    activate);
         socks[LEFT]  && parent.request(socks[LEFT],  ACTIVE, RIGHT, activate);
     }
+
+    _createClients() {
+        const cfg     = this._parent.cfg;
+        const nodeJs  = cfg.modeNodeJs;
+        const socks   = this._socks;
+        const clients = this._clients;
+        const UP      = DIR.UP;
+        const RIGHT   = DIR.RIGHT;
+        const DOWN    = DIR.DOWN;
+        const LEFT    = DIR.LEFT;
+
+        !socks[UP]    && (clients[UP]    = new Client(cfg.upHost,    cfg.upPort,    nodeJs));
+        !socks[RIGHT] && (clients[RIGHT] = new Client(cfg.rightHost, cfg.rightPort, nodeJs));
+        !socks[DOWN]  && (clients[DOWN]  = new Client(cfg.downHost,  cfg.downPort,  nodeJs));
+        !socks[LEFT]  && (clients[LEFT]  = new Client(cfg.leftHost,  cfg.leftPort,  nodeJs));
+
+        this._async = new AsyncParent(this, {run: this._onDone.bind(this)}, clients);
+        clients.forEach((c) => c.run());
+    }
+
+    _onDone() {}
 }
 
 module.exports = AroundServers;
