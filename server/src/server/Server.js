@@ -70,9 +70,6 @@ class Server extends Connection {
         this.EVENTS         = SERVER_EVENTS;
         this.cfg            = Config;
         this.conns          = new Connections(Config.maxConnections);
-        // TODO: This field should be used for connections with around servers.
-        // TODO: We have to connect with all available around servers on start
-        // TODO: and set them into aroundServers.setSocket()
         this.aroundServers  = new AroundServers(this);
 
         this._server        = null;

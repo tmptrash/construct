@@ -15,10 +15,12 @@
  *
  * @author flatline
  */
-const DIR    = require('./../../../common/src/Directions').DIR;
-const TYPES  = require('./../../../common/src/net/Requests').TYPES;
-const Client = require('./../../../common/src/net/Client').Client;
+const DIR         = require('./../../../common/src/Directions').DIR;
+const TYPES       = require('./../../../common/src/net/Requests').TYPES;
+const AsyncParent = require('./../../../common/src/plugins/AsyncParent');
+const Client      = require('./Client');
 
+// TODO: later here should be auto connect mechanism for this._clients
 class AroundServers {
     constructor(parent) {
         /**
@@ -45,15 +47,27 @@ class AroundServers {
         //
         // Try to create clients map for connection with nearest servers
         //
-        // TODO: uncomment this!
-        //this._createClients();
+        this._createClients();
+    }
+
+    run(done = () => {}) {
+        this._clients.forEach(c => c.run());
+        this._async.run(done);
+    }
+
+    stop(done = () => {}) {
+        this._clients.forEach(c => c.stop());
+        this._async.stop(done);
     }
 
     destroy(done = () => {}) {
-        this._parent  = null;
-        this._socks   = null;
-        this._clients = null;
-        this._async.destroy(done);
+        this.stop(() => {
+            this._parent  = null;
+            this._socks   = null;
+            this._clients.forEach(c => c.destroy());
+            this._clients = null;
+            this._async.destroy(done);
+        });
     }
 
     setSocket(sock, dir) {
@@ -77,24 +91,25 @@ class AroundServers {
 
     _createClients() {
         const cfg     = this._parent.cfg;
-        const nodeJs  = cfg.modeNodeJs;
-        const socks   = this._socks;
         const clients = this._clients;
-        const UP      = DIR.UP;
-        const RIGHT   = DIR.RIGHT;
-        const DOWN    = DIR.DOWN;
-        const LEFT    = DIR.LEFT;
 
-        !socks[UP]    && (clients[UP]    = new Client(cfg.upHost,    cfg.upPort,    nodeJs));
-        !socks[RIGHT] && (clients[RIGHT] = new Client(cfg.rightHost, cfg.rightPort, nodeJs));
-        !socks[DOWN]  && (clients[DOWN]  = new Client(cfg.downHost,  cfg.downPort,  nodeJs));
-        !socks[LEFT]  && (clients[LEFT]  = new Client(cfg.leftHost,  cfg.leftPort,  nodeJs));
+        clients[DIR.UP]    = new Client(cfg.upHost,    cfg.upPort,    true);
+        clients[DIR.RIGHT] = new Client(cfg.rightHost, cfg.rightPort, true);
+        clients[DIR.DOWN]  = new Client(cfg.downHost,  cfg.downPort,  true);
+        clients[DIR.LEFT]  = new Client(cfg.leftHost,  cfg.leftPort,  true);
 
-        this._async = new AsyncParent(this, {run: this._onDone.bind(this)}, clients);
-        clients.forEach((c) => c.run());
+        this._addHandlers(clients);
+        this._async = new AsyncParent(this, {classes: clients, isBrowser: false});
     }
 
-    _onDone() {}
+    _addHandlers(clients) {
+        const socks = this._socks;
+
+        clients.forEach((c, i) => {
+            c.on(c.EVENTS.OPEN,  () => socks[i] = c.socket);
+            c.on(c.EVENTS.CLOSE, () => socks[i] = null);
+        });
+    }
 }
 
 module.exports = AroundServers;

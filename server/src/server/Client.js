@@ -5,7 +5,7 @@
  */
 const Config      = require('./../../../client/src/share/Config').Config;
 const Helper      = require('./../../../common/src/Helper');
-const NAMES       = require('./../../../common/src/net/Requests').NAMES;
+const NAMES       = require('./../../../common/src/Directions').NAMES;
 const Console     = require('./../share/Console');
 const BaseClient  = require('./../../../common/src/net/Client').Client;
 const EVENTS      = require('./../../../common/src/net/Client').EVENTS;
@@ -18,7 +18,7 @@ const PLUGINS     = [
 
 class Client extends BaseClient {
     constructor(dir, host, port) {
-        super(host, port, Config.modeNodeJs);
+        super(host, port, true);
         this._dir = dir;
         //
         // Plugins should be created at the end of constructor to

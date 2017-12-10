@@ -11,17 +11,17 @@
  * @author flatline
  */
 /**
- * {Number} Amount of milliseconds we are waiting for one plugin to start or
+ * {Number} Amount of nanoseconds we are waiting for one plugin to start or
  * stop. In case of timeout exception will be thrown.
  */
-const WAIT_TIMEOUT_MS   = 35000;
+const WAIT_TIMEOUT_NS   = 35 * 1e9;
 const CHECK_INTERVAL_MS = 50;
 
 class AsyncParent {
-    constructor(parent, cfg = {}, classes = null) {
+    constructor(parent, cfg = {}) {
         this._parent     = parent;
         this._cfg        = cfg;
-        this._plugins    = classes || parent.plugins;
+        this._plugins    = cfg.classes || parent.plugins;
         this._destroying = false;
         this._done       = null;
         /**
@@ -59,7 +59,7 @@ class AsyncParent {
 
         for (let p of plugins) {
             if (p.isAsync) {
-                const id    = Date.now();
+                const id    = this._now();
                 waitMap[id] = setInterval(this._onInterval.bind(this, id, p, run, done), CHECK_INTERVAL_MS);
             }
         }
@@ -69,10 +69,22 @@ class AsyncParent {
     _onInterval(id, plugin, run, done) {
         if (plugin.isFailed() || plugin.isActive() === run) {this._clearWaiter(id)}
         if (!this._hasWaiters()) {return this._onDone(run, done)}
-        if (Date.now() - id > WAIT_TIMEOUT_MS) {
+        if (this._now() - id > WAIT_TIMEOUT_NS) {
             this._clearWaiter(id);
             throw `Async waiting timeout. Plugin: ${plugin.constructor.name}`;
         }
+    }
+
+    /**
+     * Returns time stamp in nanoseconds. Works under browser and Node.js
+     * @return {Number} Nanoseconds time stamp
+     */
+    _now() {
+        if (this._cfg.isBrowser) {
+            return window.performance.now();
+        }
+        const now = process.hrtime();
+        return now[0] * 1e9 + now[1];
     }
 
     _clearWaiter(id) {

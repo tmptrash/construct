@@ -21,7 +21,7 @@ class Client extends Connection {
      * @param {Object} events Events map
      */
     constructor(host, port, nodeJs, events = null) {
-        super(Object.keys(events).length);
+        super(Object.keys(events || CLIENT_EVENTS).length);
         this.EVENTS  = events || CLIENT_EVENTS;
         this._host   = host;
         this._port   = port;

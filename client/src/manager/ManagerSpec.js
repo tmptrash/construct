@@ -35,6 +35,7 @@ describe("client/src/manager/Manager", () => {
         jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
         Config.serverHost = 'ws://127.0.0.1';
         Config.plugIncluded.splice(Config.plugIncluded.indexOf('ips/Ips'));
+        Config.modeNodeJs = true;
         error = Console.error;
         warn  = Console.warn;
         info  = Console.info;
