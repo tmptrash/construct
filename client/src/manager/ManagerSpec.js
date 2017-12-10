@@ -23,6 +23,7 @@ describe("client/src/manager/Manager", () => {
     let serror;
     let swarn;
     let sinfo;
+    let dist;
     let timeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
 
 
@@ -36,6 +37,9 @@ describe("client/src/manager/Manager", () => {
         Config.serverHost = 'ws://127.0.0.1';
         Config.plugIncluded.splice(Config.plugIncluded.indexOf('ips/Ips'));
         Config.modeNodeJs = true;
+        dist = SConfig.modeDistributed;
+        SConfig.modeDistributed = false;
+
         error = Console.error;
         warn  = Console.warn;
         info  = Console.info;
@@ -62,6 +66,7 @@ describe("client/src/manager/Manager", () => {
         Config.plugIncluded.push('ips/Ips');
         jasmine.DEFAULT_TIMEOUT_INTERVAL = timeout;
         Config.serverHost = host;
+        SConfig.modeDistributed = dist;
     });
 
     it("Checking manager creation", (done) => {

@@ -25,6 +25,7 @@ describe("client/src/manager/plugins/Client", () => {
     let serror;
     let swarn;
     let sinfo;
+    let dist;
 
     beforeAll(() => {
         //
@@ -33,6 +34,8 @@ describe("client/src/manager/plugins/Client", () => {
         isNodeJs = Config.modeNodeJs;
         Config.modeNodeJs = true;
         Config.serverHost = 'ws://127.0.0.1';
+        dist = SConfig.modeDistributed;
+        SConfig.modeDistributed = false;
         Client   = require('./Client').Client;
         CEVENTS  = require('./Client').EVENTS;
         Server   = require('./../../../../../server/src/server/Server').Server;
@@ -64,6 +67,7 @@ describe("client/src/manager/plugins/Client", () => {
         Console.info  = info;
 
         Config.serverHost = host;
+        SConfig.modeDistributed = dist;
     });
 
     it("Checking client creation without server", (done) => {

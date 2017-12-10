@@ -3,8 +3,6 @@
  *
  * @author flatline
  */
-const Config      = require('./../../../client/src/share/Config').Config;
-const Helper      = require('./../../../common/src/Helper');
 const NAMES       = require('./../../../common/src/Directions').NAMES;
 const Console     = require('./../share/Console');
 const BaseClient  = require('./../../../common/src/net/Client').Client;
@@ -34,6 +32,16 @@ class Client extends BaseClient {
     }
 
     /**
+     * Is called if error occurred
+     * @param {String} msg
+     * @override
+     */
+    onError(msg) {
+        super.onError(msg);
+        Console.error(`'${NAMES[this._dir]}' server error: ${msg} on ${this.host}:${this.port}`);
+    }
+
+    /**
      * Is called on connection close with server. Close reason will be in
      * this.closeReason field after calling super.onClose() method
      * @param {Event} event
@@ -41,7 +49,7 @@ class Client extends BaseClient {
      */
     onClose(event) {
         super.onClose(event);
-        Console.warn(`Client "${NAMES[this._dir]}" has disconnected by reason: ${this.closeReason}`);
+        Console.warn(`'${NAMES[this._dir]}' server has disconnected by reason: ${this.closeReason} on ${this.host}:${this.port}`);
     }
 
     /**
@@ -51,7 +59,7 @@ class Client extends BaseClient {
      */
     onOpen(event) {
         super.onOpen(event);
-        Console.info(`Client ${NAMES[this._dir]} has connected with Server`);
+        Console.info(`'${NAMES[this._dir]}' server has connected on ${this.host}:${this.port}`);
     }
 }
 

@@ -70,8 +70,8 @@ class Server extends Connection {
         this.EVENTS         = SERVER_EVENTS;
         this.cfg            = Config;
         this.conns          = new Connections(Config.maxConnections);
-        this.aroundServers  = new AroundServers(this);
 
+        this._aroundServers = Config.modeDistributed ? new AroundServers(this) : null;
         this._server        = null;
         this._port          = port;
         this._running       = false;
@@ -105,11 +105,14 @@ class Server extends Connection {
         Server.ports[this._port] = true;
         try {
             this._server = new WebSocket.Server({port: this._port}, () => {
-                this._server.on('connection', this.onConnect.bind(this));
-                this.active = true;
-                this._running = false;
-                this.fire(RUN);
-                Console.info('Server is ready');
+                const onDone = () => {
+                    this._server.on('connection', this.onConnect.bind(this));
+                    this.active = true;
+                    this._running = false;
+                    this.fire(RUN);
+                    Console.info('Server is ready');
+                };
+                this._aroundServers && this._aroundServers.run(onDone) || onDone();
             });
         } catch (e) {
             Console.warn(`Can\'t run server on port ${this._port}. Error: ${e.message}`);
@@ -146,14 +149,17 @@ class Server extends Connection {
         try {
             me._stopping = true;
             me._server.close(() => {
-                delete Server.ports[me._port];
-                me._server.removeAllListeners('connection');
-                me.active    = false;
-                me._stopping = false;
-                this._server = null;
-                me.fire(STOP);
-                Console.info('Server has stopped. All clients have disconnected');
-                if (me._destroying) {me.destroy()}
+                const onDone = () => {
+                    delete Server.ports[me._port];
+                    me._server.removeAllListeners('connection');
+                    me.active    = false;
+                    me._stopping = false;
+                    this._server = null;
+                    me.fire(STOP);
+                    Console.info('Server has stopped. All clients have disconnected');
+                    if (me._destroying) {me.destroy()}
+                };
+                this._aroundServers && this._aroundServers.stop(onDone) || onDone();
             });
         } catch(e) {
             Console.error('Server.stop() failed: ', e);

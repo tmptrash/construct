@@ -22,10 +22,13 @@ describe("server/src/server/plugins/Api", () => {
     let serror;
     let swarn;
     let sinfo;
+    let dist;
 
     beforeAll(() => {
         Config.serverHost = 'ws://127.0.0.1';
         Config.modeNodeJs = true;
+        dist = SConfig.modeDistributed;
+        SConfig.modeDistributed = false;
         error = Console.error;
         warn  = Console.warn;
         info  = Console.info;
@@ -50,6 +53,7 @@ describe("server/src/server/plugins/Api", () => {
         Console.info  = info;
         Config.modeNodeJs = OLD_MODE;
         Config.serverHost = host;
+        SConfig.modeDistributed = dist;
     });
 
     it("Checking unique id on client connect", (done) => {

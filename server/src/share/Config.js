@@ -33,17 +33,24 @@ ServerConfig.init({
      */
     maxConnections: 100,
     /**
-     * {Number} Port number for connecting with server
+     * {Number} Port number for connecting with server. This value will be
+     * passed to the server during creation
      */
     port: 8099,
+    /**
+     * {Boolean} Means, that this server will be run in distributed mode. And
+     * will be connected with near servers (up...left). false, means, that
+     * server will be run in single server mode (no near servers).
+     */
+    modeDistributed: true,
     /**
      * {String} Host address of server above. Shouldn't contain port
      */
     upHost: 'ws://127.0.0.1',
     /**
-     * {Number} Port number of server above
+     * {Number} Port number of server above.
      */
-    upPort: 8099,
+    upPort: 8100,
     /**
      * {String} Host address of server on the right. Shouldn't contain port
      */
@@ -51,7 +58,7 @@ ServerConfig.init({
     /**
      * {Number} Port number of server on the right
      */
-    rightPort: 8100,
+    rightPort: 8101,
     /**
      * {String} Host address of server below. Shouldn't contain port
      */
@@ -59,7 +66,7 @@ ServerConfig.init({
     /**
      * {Number} Port number of server below
      */
-    downPort: 8101,
+    downPort: 8102,
     /**
      * {String} Host address of server on the left. Shouldn't contain port
      */
@@ -67,7 +74,7 @@ ServerConfig.init({
     /**
      * {Number} Port number of server on the left
      */
-    leftPort: 8102
+    leftPort: 8103
 });
 
 module.exports = {Config: ServerConfig.cfg(), api: ServerConfig};

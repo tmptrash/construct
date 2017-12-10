@@ -53,11 +53,13 @@ class AroundServers {
     run(done = () => {}) {
         this._clients.forEach(c => c.run());
         this._async.run(done);
+        return true;
     }
 
     stop(done = () => {}) {
         this._clients.forEach(c => c.stop());
         this._async.stop(done);
+        return true;
     }
 
     destroy(done = () => {}) {
@@ -93,10 +95,10 @@ class AroundServers {
         const cfg     = this._parent.cfg;
         const clients = this._clients;
 
-        clients[DIR.UP]    = new Client(cfg.upHost,    cfg.upPort,    true);
-        clients[DIR.RIGHT] = new Client(cfg.rightHost, cfg.rightPort, true);
-        clients[DIR.DOWN]  = new Client(cfg.downHost,  cfg.downPort,  true);
-        clients[DIR.LEFT]  = new Client(cfg.leftHost,  cfg.leftPort,  true);
+        clients[DIR.UP]    = new Client(DIR.UP,    cfg.upHost,    cfg.upPort,    true);
+        clients[DIR.RIGHT] = new Client(DIR.RIGHT, cfg.rightHost, cfg.rightPort, true);
+        clients[DIR.DOWN]  = new Client(DIR.DOWN,  cfg.downHost,  cfg.downPort,  true);
+        clients[DIR.LEFT]  = new Client(DIR.LEFT,  cfg.leftHost,  cfg.leftPort,  true);
 
         this._addHandlers(clients);
         this._async = new AsyncParent(this, {classes: clients, isBrowser: false});

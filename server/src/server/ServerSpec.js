@@ -27,9 +27,12 @@ describe("server/src/server/Server", () => {
     let serror;
     let swarn;
     let sinfo;
+    let dist;
 
     beforeAll(() => {
         Config.serverHost = 'ws://127.0.0.1';
+        dist = SConfig.modeDistributed;
+        SConfig.modeDistributed = false;
         error = Console.error;
         warn  = Console.warn;
         info  = Console.info;
@@ -54,6 +57,7 @@ describe("server/src/server/Server", () => {
         Console.info  = info;
         Config.modeNodeJs = OLD_MODE;
         Config.serverHost = host;
+        SConfig.modeDistributed = dist;
     });
 
     it("Checking server creation", () => {

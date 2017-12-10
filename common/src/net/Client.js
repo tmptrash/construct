@@ -23,8 +23,8 @@ class Client extends Connection {
     constructor(host, port, nodeJs, events = null) {
         super(Object.keys(events || CLIENT_EVENTS).length);
         this.EVENTS  = events || CLIENT_EVENTS;
-        this._host   = host;
-        this._port   = port;
+        this.host    = host;
+        this.port    = port;
         this._nodeJs = nodeJs;
     }
 
@@ -82,7 +82,7 @@ class Client extends Connection {
         let   client = null;
 
         try {
-            client = new WS(`${this._host}:${this._port}`);
+            client = new WS(`${this.host}:${this.port}`);
         } catch (e) {
             this.fire(this.EVENTS.ERR, e.message);
         }
