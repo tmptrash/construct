@@ -31,7 +31,6 @@ class Api {
          */
         this.api          = {};
         this.parent       = parent;
-
         /**
          * {WebSocket} Currently active socket. It's available only during
          * message is received

@@ -17,8 +17,9 @@ const BaseApi     = require('./../../../../common/src/net/Api');
 class Api extends BaseApi {
     constructor(parent) {
         super(parent);
-        this.api[TYPES.REQ_MOVE_ORG] = this._moveOrg.bind(this);
-        this.api[TYPES.REQ_GET_ID]   = this._getId.bind(this);
+        this.api[TYPES.REQ_MOVE_ORG]        = this._moveOrg.bind(this);
+        this.api[TYPES.REQ_GET_ID]          = this._getId.bind(this);
+        this.api[TYPES.REQ_SET_NEAR_ACTIVE] = this._setNearServer.bind(this);
 
         this._onCloseCb = this._onClose.bind(this);
 
@@ -63,20 +64,11 @@ class Api extends BaseApi {
     }
 
     /**
-     * Creates response with unique client id for just connected clients or servers
+     * Creates response with unique client id for just connected clients
      * @param {Number} reqId Unique request id. Needed for response
-     * @param {Boolean} isClient true for request from client, false for server
      * @api
      */
-    _getId(reqId, isClient = true) {
-        isClient && this._onGetClientId(reqId) || this._onGetServerId(reqId);
-    }
-
-    /**
-     * If it was a request from client, then we have to create unique clientId for him.
-     * @param {Number} reqId Unique request id
-     */
-    _onGetClientId(reqId) {
+    _getId(reqId) {
         const sock     = this.sock;
         const region   = this.parent.conns.getFreeRegion();
         const clientId = Connections.toId(region);
@@ -88,17 +80,19 @@ class Api extends BaseApi {
             return;
         }
         this.parent.conns.setData(region, 'sock', sock);
-		this._setActive(clientId, true);
+        this._setActive(clientId, true);
         this.parent.response(sock, TYPES.RES_GET_ID_OK, reqId, clientId);
         Console.info(`Client ${clientId} has connected`);
     }
 
     /**
-     * If it was a server, then we have to update our "around" servers (this.parent.activeAround)
-     * @param {Number} reqId Unique request id
+     * Sets near server by direction
+     * @param {Number} reqId Unique request id. Needed for response
+     * @param {Number} dir Direction of incoming nearest server
+     * @api
      */
-    _onGetServerId(reqId) {
-        // TODO:
+    _setNearServer(reqId, dir) {
+        this.parent.aroundServers.setSocket(this.sock, dir);
     }
 
     /**

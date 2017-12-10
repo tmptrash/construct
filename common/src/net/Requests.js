@@ -17,16 +17,17 @@ const TYPES = {
     //
     // Requests section
     //
-    REQ_MOVE_ORG       : 0,
-    REQ_GIVE_ID        : 1,
-    REQ_SET_NEAR_ACTIVE: 2,
-    REQ_GET_ID         : 3,
+    REQ_MOVE_ORG          : 0,
+    REQ_GIVE_ID           : 1,
+    REQ_SET_NEAR_ACTIVE   : 2, // Other (near) server wants to connect with current one
+    REQ_GET_ID            : 3, // Client wants obtain it's unique id from server
     //
     // Responses section
     //
-    RES_MOVE_ERR       : 1000,
-    RES_INVALID_TYPE   : 1001,
-    RES_GET_ID_OK      : 1002
+    RES_MOVE_ERR          : 1000,
+    RES_INVALID_TYPE      : 1001,
+    RES_GET_ID_OK         : 1002,
+    RES_SET_NEAR_ACTIVE_OK: 1003
 };
 
 module.exports = {TYPES, MASKS};

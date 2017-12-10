@@ -16,9 +16,15 @@
  * @author flatline
  */
 const DIR         = require('./../../../common/src/Directions').DIR;
+const NAMES       = require('./../../../common/src/Directions').NAMES;
 const TYPES       = require('./../../../common/src/net/Requests').TYPES;
 const AsyncParent = require('./../../../common/src/plugins/AsyncParent');
 const Client      = require('./Client');
+/**
+ * {Array} Array of flipped directions. Is used for connecting with nearest
+ * servers: left -> right, up -> down, right -> left, down -> up
+ */
+const FLIP_DIR    = [DIR.DOWN, DIR.LEFT, DIR.UP, DIR.RIGHT];
 
 // TODO: later here should be auto connect mechanism for this._clients
 class AroundServers {
@@ -76,21 +82,6 @@ class AroundServers {
         this._socks[dir] = sock;
     }
 
-    activate(activate = true) {
-        const socks  = this._socks;
-        const parent = this._parent;
-        const UP     = DIR.UP;
-        const RIGHT  = DIR.RIGHT;
-        const DOWN   = DIR.DOWN;
-        const LEFT   = DIR.LEFT;
-        const ACTIVE = TYPES.REQ_SET_NEAR_ACTIVE;
-
-        socks[UP]    && parent.request(socks[UP],    ACTIVE, DOWN,  activate);
-        socks[RIGHT] && parent.request(socks[RIGHT], ACTIVE, LEFT,  activate);
-        socks[DOWN]  && parent.request(socks[DOWN],  ACTIVE, UP,    activate);
-        socks[LEFT]  && parent.request(socks[LEFT],  ACTIVE, RIGHT, activate);
-    }
-
     _createClients() {
         const cfg     = this._parent.cfg;
         const clients = this._clients;
@@ -108,8 +99,26 @@ class AroundServers {
         const socks = this._socks;
 
         clients.forEach((c, i) => {
-            c.on(c.EVENTS.OPEN,  () => socks[i] = c.socket);
+            c.on(c.EVENTS.OPEN,  this._onOpen.bind(this, c, i));
             c.on(c.EVENTS.CLOSE, () => socks[i] = null);
+        });
+    }
+    /**
+     * Sends a request to tell remote server, that this client is
+     * for inter server communication only. dir parameter sets nearest
+     * server location (up...left)
+     * @param {WebSocket} client WebSocket client instance for connection
+     * with nearest server
+     * @param {Number} dir Direction of nearest server (up...left)
+     */
+    _onOpen(client, dir) {
+        client.request(client.socket, TYPES.REQ_SET_NEAR_ACTIVE, FLIP_DIR[dir], (type) => {
+            if (type !== TYPES.RES_SET_NEAR_ACTIVE_OK) {
+                Console.error(`Unable to connect to '${NAMES[dir]}' server. Response type: ${type}`);
+                return;
+            }
+            this._socks[dir] = client.socket;
+            Console.info(`Connected with '${dir}' server`);
         });
     }
 }

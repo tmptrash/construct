@@ -70,8 +70,8 @@ class Server extends Connection {
         this.EVENTS         = SERVER_EVENTS;
         this.cfg            = Config;
         this.conns          = new Connections(Config.maxConnections);
+        this.aroundServers  = Config.modeDistributed ? new AroundServers(this) : null;
 
-        this._aroundServers = Config.modeDistributed ? new AroundServers(this) : null;
         this._server        = null;
         this._port          = port;
         this._running       = false;
@@ -112,7 +112,7 @@ class Server extends Connection {
                     this.fire(RUN);
                     Console.info('Server is ready');
                 };
-                this._aroundServers && this._aroundServers.run(onDone) || onDone();
+                this.aroundServers && this.aroundServers.run(onDone) || onDone();
             });
         } catch (e) {
             Console.warn(`Can\'t run server on port ${this._port}. Error: ${e.message}`);
@@ -159,7 +159,7 @@ class Server extends Connection {
                     Console.info('Server has stopped. All clients have disconnected');
                     if (me._destroying) {me.destroy()}
                 };
-                this._aroundServers && this._aroundServers.stop(onDone) || onDone();
+                this.aroundServers && this.aroundServers.stop(onDone) || onDone();
             });
         } catch(e) {
             Console.error('Server.stop() failed: ', e);
