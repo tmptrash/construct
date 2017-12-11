@@ -88,7 +88,7 @@ class Manager extends Observer {
             plugins  : Config.plugIncluded,
             async    : true,
             run      : this._onDone.bind(this),
-            isBrowser: true
+            isBrowser: !Config.modeNodeJs
         });
     }
 
