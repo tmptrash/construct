@@ -19,6 +19,7 @@ const DIR         = require('./../../../common/src/Directions').DIR;
 const NAMES       = require('./../../../common/src/Directions').NAMES;
 const TYPES       = require('./../../../common/src/net/Requests').TYPES;
 const AsyncParent = require('./../../../common/src/plugins/AsyncParent');
+const Console     = require('./../share/Console');
 const Client      = require('./Client');
 /**
  * {Array} Array of flipped directions. Is used for connecting with nearest
@@ -78,6 +79,16 @@ class AroundServers {
         });
     }
 
+    /**
+     * Returns direction by socket
+     * @param {WebSocket} sock
+     * @return {Number} Direction DIR.NO is also available
+     */
+    getDirection(sock) {
+        const index = this._socks.indexOf(sock);
+        return index < 0 && DIR.NO || index;
+    }
+
     setSocket(sock, dir) {
         this._socks[dir] = sock;
     }
@@ -118,7 +129,7 @@ class AroundServers {
                 return;
             }
             this._socks[dir] = client.socket;
-            Console.info(`Connected with '${dir}' server`);
+            Console.info(`Connected with '${NAMES[dir]}' server`);
         });
     }
 }

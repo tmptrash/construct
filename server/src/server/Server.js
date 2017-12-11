@@ -37,6 +37,8 @@ const Config           = require('./../share/Config').Config;
 const Plugins          = require('./Plugins');
 const Console          = require('./../share/Console');
 const Connections      = require('./Connections');
+const DIR              = require('./../../../common/src/Directions').DIR;
+const NAMES            = require('./../../../common/src/Directions').NAMES;
 /**
  * {Number} Amount of base events. Is used to extend them by server related
  */
@@ -226,7 +228,13 @@ class Server extends Connection {
         sock.removeAllListeners('message');
         sock.removeAllListeners('error');
         sock.removeAllListeners('close');
-        Console.warn(`Client ${clientId} has disconnected by reason: ${this.closeReason}`);
+        Console.warn(`Client '${this._getClientId(clientId, sock)}' has disconnected by reason: ${this.closeReason}`);
+    }
+
+    _getClientId(clientId, sock) {
+        if (!this.aroundServers) {return clientId}
+        const dir = this.aroundServers.getDirection(sock);
+        return dir === DIR.NO ? clientId : NAMES[dir];
     }
 }
 

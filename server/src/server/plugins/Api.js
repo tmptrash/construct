@@ -13,7 +13,7 @@ const Console     = require('./../../share/Console');
 const Connections = require('./../Connections');
 
 const DIR         = require('./../../../../common/src/Directions').DIR;
-const DIR_NAMES   = require('./../../../../common/src/Directions').NAMES;
+const NAMES       = require('./../../../../common/src/Directions').NAMES;
 const BaseApi     = require('./../../../../common/src/net/Api');
 class Api extends BaseApi {
     constructor(parent) {
@@ -59,7 +59,7 @@ class Api extends BaseApi {
             const org        = JSON.parse(orgJson);
             const backRegion = Connections.toRegion(clientId);
             const backCon    = this.parent.conns.getConnection(backRegion);
-            this.parent.request(backCon.sock, TYPES.RES_MOVE_ERR, x, y, dir, orgJson, `Region "${region}" on direction "${DIR_NAMES[dir]}" is not active`);
+            this.parent.request(backCon.sock, TYPES.RES_MOVE_ERR, x, y, dir, orgJson, `Region "${region}" on direction "${NAMES[dir]}" is not active`);
             Console.error(`Destination region ${region} is not active. Organism "${org.id}" will be sent back.`);
         }
     }
@@ -94,6 +94,8 @@ class Api extends BaseApi {
      */
     _setNearServer(reqId, dir) {
         this.parent.aroundServers.setSocket(this.sock, dir);
+        this.parent.response(this.sock, TYPES.RES_SET_NEAR_ACTIVE_OK, reqId);
+        Console.info(`'${NAMES[dir]}' server has connected`);
     }
 
     /**
