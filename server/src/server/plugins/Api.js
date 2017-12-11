@@ -6,6 +6,7 @@
  *
  * @author flatline
  */
+const _get        = require('lodash/get');
 const Helper      = require('./../../../../common/src/Helper');
 const TYPES       = require('./../../../../common/src/net/Requests').TYPES;
 const Console     = require('./../../share/Console');
@@ -128,10 +129,10 @@ class Api extends BaseApi {
         //
         // We should also send around active clients status to the current (sock)
         //
-        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.DOWN,  !!conns.getConnection(conns.downRegion(activeRegion)).sock);
-        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.LEFT,  !!conns.getConnection(conns.leftRegion(activeRegion)).sock);
-        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.UP,    !!conns.getConnection(conns.upRegion(activeRegion)).sock);
-        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.RIGHT, !!conns.getConnection(conns.rightRegion(activeRegion)).sock);
+        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.DOWN,  !!conns.getConnection(_get(conns.downRegion(activeRegion),  'sock')));
+        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.LEFT,  !!conns.getConnection(_get(conns.leftRegion(activeRegion),  'sock')));
+        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.UP,    !!conns.getConnection(_get(conns.upRegion(activeRegion),    'sock')));
+        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.RIGHT, !!conns.getConnection(_get(conns.rightRegion(activeRegion), 'sock')));
     }
 
     /**
@@ -142,10 +143,10 @@ class Api extends BaseApi {
     _activateAround(region, activate = true) {
         const server    = this.parent;
         const conns     = server.conns;
-        const upSock    = conns.getConnection(conns.upRegion(region)).sock;
-        const rightSock = conns.getConnection(conns.rightRegion(region)).sock;
-        const downSock  = conns.getConnection(conns.downRegion(region)).sock;
-        const leftSock  = conns.getConnection(conns.leftRegion(region)).sock;
+        const upSock    = _get(conns.getConnection(conns.upRegion(region)),    'sock');
+        const rightSock = _get(conns.getConnection(conns.rightRegion(region)), 'sock');
+        const downSock  = _get(conns.getConnection(conns.downRegion(region)),  'sock');
+        const leftSock  = _get(conns.getConnection(conns.leftRegion(region)),  'sock');
 
         upSock    && server.request(upSock,    TYPES.REQ_SET_NEAR_ACTIVE, DIR.DOWN,  activate);
         rightSock && server.request(rightSock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.LEFT,  activate);

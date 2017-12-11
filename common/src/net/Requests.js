@@ -17,10 +17,9 @@ const TYPES = {
     //
     // Requests section
     //
-    REQ_MOVE_ORG          : 0,
-    REQ_GIVE_ID           : 1,
-    REQ_SET_NEAR_ACTIVE   : 2, // Other (near) server wants to connect with current one
-    REQ_GET_ID            : 3, // Client wants obtain it's unique id from server
+    REQ_MOVE_ORG          : 0, // Organism moves from one world(manager) to another(sibling)
+    REQ_SET_NEAR_ACTIVE   : 1, // Other (near) server wants to connect with current one
+    REQ_GET_ID            : 2, // Client wants obtain it's unique id from server
     //
     // Responses section
     //
