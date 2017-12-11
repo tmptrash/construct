@@ -31,7 +31,7 @@ class Plugins {
         if (cfg.async) {
             Helper.override(parent, 'run', this._onRunCb);
             Helper.override(parent, 'stop', this._onStopCb);
-            this._async = new AsyncParent(parent, {run: cfg.run});
+            this._async = new AsyncParent(parent, {run: cfg.run, isBrowser: cfg.isBrowser});
         }
     }
 

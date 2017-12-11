@@ -85,9 +85,10 @@ class Manager extends Observer {
         // have an ability access Manager's API from them
         //
         this._plugins      = new Plugins(this, {
-            plugins: Config.plugIncluded,
-            async  : true,
-            run    : this._onDone.bind(this)
+            plugins  : Config.plugIncluded,
+            async    : true,
+            run      : this._onDone.bind(this),
+            isBrowser: true
         });
     }
 
