@@ -124,7 +124,7 @@ class Api extends BaseApi {
         if (con.active) {
             this.parent.request(con.sock, TYPES.REQ_MOVE_ORG, x, y, dir, orgJson);
         } else {
-            // TODO: possibly slow code - parse() do we really need this line?
+            // TODO: possibly slow code - parse() do we really need this id?
             const org        = JSON.parse(orgJson);
             const backRegion = Connections.toRegion(clientId);
             const backCon    = this.parent.conns.getConnection(backRegion);
@@ -148,7 +148,7 @@ class Api extends BaseApi {
         if (sock) {
             this.parent.request(sock, TYPES.REQ_MOVE_ORG, x, y, dir, orgJson);
         } else {
-            // TODO: possibly slow code - parse() do we really need this line?
+            // TODO: possibly slow code - parse() do we really need this id?
             const org        = JSON.parse(orgJson);
             const backCon    = this.parent.conns.getConnection(region);
             this.parent.request(backCon.sock, TYPES.REQ_MOVE_ORG, x, y, dir, orgJson);

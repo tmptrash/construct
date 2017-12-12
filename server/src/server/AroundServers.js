@@ -147,12 +147,12 @@ class AroundServers extends Observer {
     _onOpen(client, dir) {
         client.request(client.socket, TYPES.REQ_SET_NEAR_ACTIVE, FLIP_DIR[dir], (type) => {
             if (type !== TYPES.RES_SET_NEAR_ACTIVE_OK) {
-                Console.error(`Unable to connect to '${NAMES[dir]}' server. Response type: ${type}`);
+                Console.error(`Unable update active status on '${NAMES[dir]}' server. Response type: ${type}`);
                 return;
             }
             this._socks[dir] = client.socket;
             this.fire(OPEN, dir);
-            Console.info(`Connected with '${NAMES[dir]}' server`);
+            Console.info(`Active status of '${NAMES[dir]}' server has updated`);
         });
     }
 

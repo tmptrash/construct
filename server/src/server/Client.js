@@ -33,12 +33,12 @@ class Client extends BaseClient {
 
     /**
      * Is called if error occurred
-     * @param {String} msg
+     * @param {Object} event Error event object
      * @override
      */
-    onError(msg) {
-        super.onError(msg);
-        Console.error(`'${NAMES[this._dir]}' server error: ${msg} on ${this.host}:${this.port}`);
+    onError(event) {
+        super.onError(event);
+        Console.error(`'${NAMES[this._dir]}' server error: ${event.message} on ${this.host}:${this.port}`);
     }
 
     /**
@@ -48,8 +48,12 @@ class Client extends BaseClient {
      * @override
      */
     onClose(event) {
+        const active = this.active;
         super.onClose(event);
-        Console.warn(`'${NAMES[this._dir]}' server has disconnected by reason: ${this.closeReason} on ${this.host}:${this.port}`);
+        //
+        // We have to show message only if we had been active for some time
+        //
+        active && Console.warn(`'${NAMES[this._dir]}' server has disconnected by reason: ${this.closeReason} on ${this.host}:${this.port}`);
     }
 
     /**
