@@ -223,18 +223,16 @@ class Server extends Connection {
      */
     onClose(clientId, sock, event) {
         super.onClose(event);
-        const region = Connections.toRegion(clientId);
-        this.conns.clearData(region);
+        const servers = this.aroundServers;
+        const region  = Connections.toRegion(clientId);
+        const dir     = servers ? servers.getDirection(sock) : clientId;
+
+        this.conns.clearData( region);
         sock.removeAllListeners('message');
         sock.removeAllListeners('error');
         sock.removeAllListeners('close');
-        Console.warn(`Client '${this._getClientId(clientId, sock)}' has disconnected by reason: ${this.closeReason}`);
-    }
-
-    _getClientId(clientId, sock) {
-        if (!this.aroundServers) {return clientId}
-        const dir = this.aroundServers.getDirection(sock);
-        return dir === DIR.NO ? clientId : NAMES[dir];
+        servers && servers.setSocket(sock, dir);
+        Console.warn(`Client '${dir !== DIR.NO ? NAMES[dir] : clientId}' has disconnected by reason: ${this.closeReason}`);
     }
 }
 

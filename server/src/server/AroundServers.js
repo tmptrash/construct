@@ -90,7 +90,7 @@ class AroundServers {
     }
 
     setSocket(sock, dir) {
-        this._socks[dir] = sock;
+        dir !== DIR.NO && (this._socks[dir] = sock);
     }
 
     _createClients() {
