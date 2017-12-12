@@ -2,7 +2,7 @@
  * This class stores logic of communication with nearest servers (up, right,
  * down and left), which are connected to current one. It keeps connections
  * to them and updates active status. There are two types of connection with
- * servers ans saving their sockets:
+ * servers and saving their sockets:
  *   1. create local clients and connect them to remote servers
  *   2. catch input connection from remote client
  *
@@ -19,6 +19,7 @@ const DIR         = require('./../../../common/src/Directions').DIR;
 const NAMES       = require('./../../../common/src/Directions').NAMES;
 const TYPES       = require('./../../../common/src/net/Requests').TYPES;
 const AsyncParent = require('./../../../common/src/plugins/AsyncParent');
+const Observer    = require('./../../../common/src/Observer');
 const Console     = require('./../share/Console');
 const Client      = require('./Client');
 /**
@@ -26,10 +27,22 @@ const Client      = require('./Client');
  * servers: left -> right, up -> down, right -> left, down -> up
  */
 const FLIP_DIR    = [DIR.DOWN, DIR.LEFT, DIR.UP, DIR.RIGHT];
+/**
+ * Events of this class
+ */
+const OPEN        = 0;
+const CLOSE       = 1;
+const EVENTS      = {
+    OPEN,
+    CLOSE
+};
 
 // TODO: later here should be auto connect mechanism for this._clients
-class AroundServers {
+class AroundServers extends Observer {
     constructor(parent) {
+        super(Object.keys(EVENTS).length);
+
+        this.EVENTS = EVENTS;
         /**
          * {Connection} Connection instance of current Client or Server
          */
@@ -76,6 +89,7 @@ class AroundServers {
             this._clients.forEach(c => c.destroy());
             this._clients = null;
             this._async.destroy(done);
+            super.destroy();
         });
     }
 
@@ -87,6 +101,14 @@ class AroundServers {
     getDirection(sock) {
         const index = this._socks.indexOf(sock);
         return index < 0 && DIR.NO || index;
+    }
+
+    hasSocket(dir) {
+        return !!this._socks[dir];
+    }
+
+    getSocket(dir) {
+        return this._socks[dir];
     }
 
     setSocket(sock, dir) {
@@ -111,7 +133,7 @@ class AroundServers {
 
         clients.forEach((c, i) => {
             c.on(c.EVENTS.OPEN,  this._onOpen.bind(this, c, i));
-            c.on(c.EVENTS.CLOSE, () => socks[i] = null);
+            c.on(c.EVENTS.CLOSE, () => this._onClose.bind(this, i));
         });
     }
     /**
@@ -129,8 +151,14 @@ class AroundServers {
                 return;
             }
             this._socks[dir] = client.socket;
+            this.fire(OPEN, dir);
             Console.info(`Connected with '${NAMES[dir]}' server`);
         });
+    }
+
+    _onClose(dir) {
+        this._socks[dir] = null;
+        this.fire(CLOSE, dir);
     }
 }
 

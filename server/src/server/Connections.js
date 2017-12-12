@@ -52,6 +52,10 @@ class Connections {
         }
     }
 
+    get side() {
+        return this._side;
+    }
+
     destroy() {
         this.conns = null;
         this._side = null;

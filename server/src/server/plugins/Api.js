@@ -18,24 +18,38 @@ const BaseApi     = require('./../../../../common/src/net/Api');
 class Api extends BaseApi {
     constructor(parent) {
         super(parent);
+        const servers = parent.aroundServers;
+
         this.api[TYPES.REQ_MOVE_ORG]        = this._moveOrg.bind(this);
         this.api[TYPES.REQ_GET_ID]          = this._getId.bind(this);
         this.api[TYPES.REQ_SET_NEAR_ACTIVE] = this._setNearServer.bind(this);
 
-        this._onCloseCb = this._onClose.bind(this);
+        this._onCloseCb       = this._onClose.bind(this);
+        this._onServerOpenCb  = this._onServerOpen.bind(this);
+        this._onServerCloseCb = this._onServerClose.bind(this);
 
         Helper.override(parent, 'onClose', this._onCloseCb);
+        servers && servers.on(servers.EVENTS.OPEN, this._onServerOpenCb);
+        servers && servers.on(servers.EVENTS.CLOSE, this._onServerCloseCb);
     }
 
     destroy() {
+        const servers = parent.aroundServers;
+
         Helper.unoverride(this.parent, 'onClose', this._onCloseCb);
-        this._onCloseCb = null;
+        servers && servers.off(servers.EVENTS.CLOSE, this._onServerCloseCb);
+        servers && servers.off(servers.EVENTS.OPEN, this._onServerOpenCb);
+
+        this._onCloseCb       = null;
+        this._onServerCloseCb = null;
+        this._onServerOpenCb  = null;
 
         super.destroy();
     }
 
     /**
-     * Moves organism from one client to another
+     * Moves organism from one client to another or to nearest server if
+     * it's connected to current one
      * @param {Number} reqId Unique request id. Needed for response
      * @param {String} clientId Unique client id
      * @param {Number} x Current org X position
@@ -45,22 +59,14 @@ class Api extends BaseApi {
      * @api
      */
     _moveOrg(reqId, clientId, x, y, dir, orgJson) {
-        const region = Connections.toRegion(clientId);
+        const reg  = Connections.toRegion(clientId);
+        const side = this.parent.conns.side - 1;
 
-        if      (dir === DIR.UP)    {region[1]--}
-        else if (dir === DIR.RIGHT) {region[0]++}
-        else if (dir === DIR.DOWN)  {region[1]++}
-        else if (dir === DIR.LEFT)  {region[0]--}
-
-        const con = this.parent.conns.getConnection(region);
-        if (con.active) {
-            this.parent.request(con.sock, TYPES.REQ_MOVE_ORG, x, y, dir, orgJson);
+        if (dir === DIR.UP   && reg[1] > 0    || dir === DIR.RIGHT && reg[0] < side ||
+            dir === DIR.DOWN && reg[1] < side || dir === DIR.LEFT  && reg[0] > 0) {
+            this._moveToClient(clientId, x, y, dir, orgJson);
         } else {
-            const org        = JSON.parse(orgJson);
-            const backRegion = Connections.toRegion(clientId);
-            const backCon    = this.parent.conns.getConnection(backRegion);
-            this.parent.request(backCon.sock, TYPES.RES_MOVE_ERR, x, y, dir, orgJson, `Region "${region}" on direction "${NAMES[dir]}" is not active`);
-            Console.error(`Destination region ${region} is not active. Organism "${org.id}" will be sent back.`);
+            this._moveToServer(clientId, x, y, dir, orgJson);
         }
     }
 
@@ -99,6 +105,58 @@ class Api extends BaseApi {
     }
 
     /**
+     * Moves organism's json to nearest client depending on dir parameter
+     * @param {String} clientId Unique client id
+     * @param {Number} x Organism x coordinate
+     * @param {Number} y Organism y coordinate
+     * @param {Number} dir Moving direction
+     * @param {String} orgJson Organism's serialized json
+     */
+    _moveToClient(clientId, x, y, dir, orgJson) {
+        const region = Connections.toRegion(clientId);
+
+        if      (dir === DIR.UP)    {region[1]--}
+        else if (dir === DIR.RIGHT) {region[0]++}
+        else if (dir === DIR.DOWN)  {region[1]++}
+        else if (dir === DIR.LEFT)  {region[0]--}
+
+        const con = this.parent.conns.getConnection(region);
+        if (con.active) {
+            this.parent.request(con.sock, TYPES.REQ_MOVE_ORG, x, y, dir, orgJson);
+        } else {
+            // TODO: possibly slow code - parse() do we really need this line?
+            const org        = JSON.parse(orgJson);
+            const backRegion = Connections.toRegion(clientId);
+            const backCon    = this.parent.conns.getConnection(backRegion);
+            this.parent.request(backCon.sock, TYPES.REQ_MOVE_ORG, x, y, dir, orgJson);
+            Console.info(`Destination region ${region} is not active. Organism "${org.id}" will be sent back.`);
+        }
+    }
+
+    /**
+     * Moves organism's json to nearest server depending on dir parameter
+     * @param {String} clientId Unique client id
+     * @param {Number} x Organism x coordinate
+     * @param {Number} y Organism y coordinate
+     * @param {Number} dir Moving direction
+     * @param {String} orgJson Organism's serialized json
+     */
+    _moveToServer(clientId, x, y, dir, orgJson) {
+        const region = Connections.toRegion(clientId);
+
+        const sock = this.parent.aroundServers.getSocket(dir);
+        if (sock) {
+            this.parent.request(sock, TYPES.REQ_MOVE_ORG, x, y, dir, orgJson);
+        } else {
+            // TODO: possibly slow code - parse() do we really need this line?
+            const org        = JSON.parse(orgJson);
+            const backCon    = this.parent.conns.getConnection(region);
+            this.parent.request(backCon.sock, TYPES.REQ_MOVE_ORG, x, y, dir, orgJson);
+            Console.error(`Destination server ${NAMES[dir]} is not active. Organism "${org.id}" will be sent back.`);
+        }
+    }
+
+    /**
      * Sets client active. It means, that sibling active client may
      * transfer it's organisms to this client
      * @param {String} clientId
@@ -120,21 +178,25 @@ class Api extends BaseApi {
      * @param {Array} activeRegion Region of activated client
      */
     _activateAll(activeRegion) {
-        const server = this.parent;
-        const conns  = server.conns;
-        const sock   = server.conns.getConnection(activeRegion).sock;
-        //
-        // We have to send activate message every nearest client to
-        // current lying on activeRegion
-        //
         this._activateAround(activeRegion);
-        //
-        // We should also send around active clients status to the current (sock)
-        //
-        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.DOWN,  !!conns.getConnection(_get(conns.downRegion(activeRegion),  'sock')));
-        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.LEFT,  !!conns.getConnection(_get(conns.leftRegion(activeRegion),  'sock')));
-        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.UP,    !!conns.getConnection(_get(conns.upRegion(activeRegion),    'sock')));
-        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.RIGHT, !!conns.getConnection(_get(conns.rightRegion(activeRegion), 'sock')));
+        this._activateCentral(activeRegion);
+    }
+
+    _activateCentral(region) {
+        const server      = this.parent;
+        const conns       = server.conns;
+        const sock        = server.conns.getConnection(region).sock;
+        const servers     = this.parent.aroundServers;
+        const side        = conns.side - 1;
+        const activeUp    = !!conns.getConnection(_get(conns.upRegion  (region),  'sock')) || region[1] === 0    && servers.hasSocket(DIR.UP);
+        const activeRight = !!conns.getConnection(_get(conns.downRegion(region),  'sock')) || region[0] === side && servers.hasSocket(DIR.RIGHT);
+        const activeDown  = !!conns.getConnection(_get(conns.downRegion(region),  'sock')) || region[1] === side && servers.hasSocket(DIR.DOWN);
+        const activeLeft  = !!conns.getConnection(_get(conns.leftRegion(region),  'sock')) || region[0] === 0    && servers.hasSocket(DIR.LEFT);
+
+        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.UP,    activeUp);
+        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.RIGHT, activeRight);
+        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.DOWN,  activeDown);
+        server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.LEFT,  activeLeft);
     }
 
     /**
@@ -164,6 +226,52 @@ class Api extends BaseApi {
      */
     _onClose(clientId) {
         this._activateAround(Connections.toRegion(clientId), false);
+    }
+
+    /**
+     * Handler of opening connection with near server. dir parameter points to
+     * the direction of near server. If new near server appears, we have to notify
+     * near clients about it.
+     * @param {Number} dir Direction of server
+     */
+    _onServerOpen(dir) {
+        this._updateConnections(dir, true);
+    }
+
+    /**
+     * Handler of closing connection with near server. dir parameter points to
+     * the direction of near server. If near server disappears, we have to notify
+     * near clients about it.
+     * @param {Number} dir Direction of server
+     */
+    _onServerClose(dir) {
+        this._updateConnections(dir, false);
+    }
+
+    _updateConnections(dir, open) {
+        const server = this.parent;
+        const conns  = server.conns;
+        const side   = conns.side;
+        let   region;
+        let   line;
+        let   sock;
+        let   offs;
+
+        if (dir === DIR.UP || dir === DIR.DOWN) {
+            line   = dir === DIR.UP ? 0 : side - 1;
+            region = [0, line];
+            offs   = 0;
+        } else {
+            line   = dir === DIR.LEFT ? 0 : side - 1;
+            region = [line, 0];
+            offs   = 1;
+        }
+
+        for (let i = 0; i < side; i++) {
+            region[offs] = i;
+            sock = conns.getConnection(region).sock;
+            sock && server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, dir, open);
+        }
     }
 }
 

@@ -14,7 +14,6 @@ class Api extends BaseApi {
         super(client);
 
         this.api[TYPES.REQ_MOVE_ORG]        = this._stepIn.bind(this);
-        this.api[TYPES.RES_MOVE_ERR]        = this._stepIn.bind(this);
         this.api[TYPES.REQ_SET_NEAR_ACTIVE] = this._setActive.bind(this);
     }
 
@@ -30,12 +29,10 @@ class Api extends BaseApi {
      * @param {Number} y Current org Y position
      * @param {Number} dir Direction of moving
      * @param {String} orgJson Organism's serialized json
-     * @param {String|null} errMsg Error message
      * @api
      */
-    _stepIn(reqId, x, y, dir, orgJson, errMsg = null) {
+    _stepIn(reqId, x, y, dir, orgJson) {
         this.parent.manager.fire(EVENTS.STEP_IN, x, y, orgJson);
-        errMsg && Console.warn(errMsg);
     }
 
     /**
