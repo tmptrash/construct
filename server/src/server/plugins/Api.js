@@ -101,6 +101,7 @@ class Api extends BaseApi {
     _onSetNearServer(reqId, dir) {
         this.parent.aroundServers.setSocket(this.sock, dir);
         this.parent.response(this.sock, TYPES.RES_SET_NEAR_ACTIVE_OK, reqId);
+        this._onServerOpen(dir);
         Console.info(`'${NAMES[dir]}' server has connected`);
     }
 
@@ -222,10 +223,19 @@ class Api extends BaseApi {
      * On connection close with one of the client we have to update active
      * state for nearest clients/Managers
      * @param {String} clientId Deactivated client id
+     * @param {WebSocket} sock
      * @private
      */
-    _onClose(clientId) {
-        this._activateAround(Connections.toRegion(clientId), false);
+    _onClose(clientId, sock) {
+        const servers = this.parent.aroundServers;
+        const dir     = servers ? servers.getDirection(sock) : clientId;
+
+        if (dir === DIR.NO) {
+            this._activateAround(Connections.toRegion(clientId), false);
+            return;
+        }
+
+        this._onServerClose(dir);
     }
 
     /**

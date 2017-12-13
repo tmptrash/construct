@@ -129,11 +129,9 @@ class AroundServers extends Observer {
     }
 
     _addHandlers(clients) {
-        const socks = this._socks;
-
         clients.forEach((c, i) => {
             c.on(c.EVENTS.OPEN,  this._onOpen.bind(this, c, i));
-            c.on(c.EVENTS.CLOSE, () => this._onClose.bind(this, i));
+            c.on(c.EVENTS.CLOSE, this._onClose.bind(this, i));
         });
     }
     /**
