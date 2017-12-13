@@ -182,6 +182,7 @@ class JSVM extends Observer {
     /**
      * Takes few lines from itself and makes a copy of them. After that inserts
      * them before or after copied part. All positions are random
+     * @return {Number} Amount of added/copied lines
      */
     copyLines() {
         const rand    = Helper.rand;
@@ -194,21 +195,23 @@ class JSVM extends Observer {
         // for amount of parameters and we shouldn't exceed it
         //
         if (end - start > MAX_STACK_SIZE) {
-            return;
+            return 0;
         }
         //
         // Organism size should be less them codeMaxSize
         //
-        if (code.length + end - start >= OConfig.codeMaxSize) {return}
+        if (code.length + end - start >= OConfig.codeMaxSize) {return 0}
         //
         // We may insert copied piece before "start" (0) or after "end" (1)
         //
         if (rand(2) === 0) {
             code.splice(rand(start), 0, ...code.slice(start, end));
-            return;
+            return end - start;
         }
 
         code.splice(end + rand(codeLen - end + 1), 0, ...code.slice(start, end));
+
+        return end - start;
     }
 
     /**

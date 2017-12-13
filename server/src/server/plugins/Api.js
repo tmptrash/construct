@@ -20,9 +20,9 @@ class Api extends BaseApi {
         super(parent);
         const servers = parent.aroundServers;
 
-        this.api[TYPES.REQ_MOVE_ORG]        = this._moveOrg.bind(this);
-        this.api[TYPES.REQ_GET_ID]          = this._getId.bind(this);
-        this.api[TYPES.REQ_SET_NEAR_ACTIVE] = this._setNearServer.bind(this);
+        this.api[TYPES.REQ_MOVE_ORG]        = this._onMoveOrg.bind(this);
+        this.api[TYPES.REQ_GET_ID]          = this._onGetId.bind(this);
+        this.api[TYPES.REQ_SET_NEAR_ACTIVE] = this._onSetNearServer.bind(this);
 
         this._onCloseCb       = this._onClose.bind(this);
         this._onServerOpenCb  = this._onServerOpen.bind(this);
@@ -58,7 +58,7 @@ class Api extends BaseApi {
      * @param {String} orgJson Organism's serialized json
      * @api
      */
-    _moveOrg(reqId, clientId, x, y, dir, orgJson) {
+    _onMoveOrg(reqId, clientId, x, y, dir, orgJson) {
         const reg  = Connections.toRegion(clientId);
         const side = this.parent.conns.side - 1;
 
@@ -75,7 +75,7 @@ class Api extends BaseApi {
      * @param {Number} reqId Unique request id. Needed for response
      * @api
      */
-    _getId(reqId) {
+    _onGetId(reqId) {
         const sock     = this.sock;
         const region   = this.parent.conns.getFreeRegion();
         const clientId = Connections.toId(region);
@@ -98,7 +98,7 @@ class Api extends BaseApi {
      * @param {Number} dir Direction of incoming nearest server
      * @api
      */
-    _setNearServer(reqId, dir) {
+    _onSetNearServer(reqId, dir) {
         this.parent.aroundServers.setSocket(this.sock, dir);
         this.parent.response(this.sock, TYPES.RES_SET_NEAR_ACTIVE_OK, reqId);
         Console.info(`'${NAMES[dir]}' server has connected`);

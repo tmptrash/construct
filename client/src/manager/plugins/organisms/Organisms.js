@@ -14,8 +14,10 @@ const Console      = require('./../../../../src/share/Console');
 const EVENTS       = require('./../../../../src/share/Events').EVENTS;
 const Backup       = require('./../backup/Backup');
 const Mutator      = require('./Mutator');
+const Num          = require('./../../../vm/Num');
 
 const RAND_OFFS = 4;
+const MAX_BITS  = Num.MAX_BITS;
 
 // TODO: inherit this class from Configurable
 class Organisms extends Configurable {
@@ -263,7 +265,7 @@ class Organisms extends Configurable {
         let   child = orgs.last.val;
 
         if (child.alive && looser.alive) {
-            child.changes += child.jsvm.crossover(looser.jsvm);
+            child.changes += (child.jsvm.crossover(looser.jsvm) * MAX_BITS);
             if (orgs.size >= OConfig.orgMaxOrgs) {looser.destroy()}
         }
     }

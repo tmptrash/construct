@@ -17,21 +17,93 @@ const Num      = require('./../../../vm/Num');
 const VAR_BITS_OFFS = Num.VAR_BITS_OFFS - 1;
 const VARS          = Num.VARS;
 const MAX_VAR       = Num.MAX_VAR;
+const MAX_BITS      = Num.MAX_BITS;
+const BITS_PER_VAR  = Num.BITS_PER_VAR;
 
 class Mutator {
+    static _onAdd(org) {
+        org.jsvm.insertLine();
+        org.changes += MAX_BITS;
+    }
+
+    static _onChange(org) {
+        const jsvm = org.jsvm;
+        jsvm.updateLine(Helper.rand(jsvm.size), Num.get());
+        org.changes += MAX_BITS;
+    }
+
+    static _onDel(org) {
+        org.jsvm.removeLine();
+        org.changes += MAX_BITS;
+    }
+
+    /**
+     * Operator type or one variable may mutate
+     * @param {Organism} org
+     * @private
+     */
+    static _onSmallChange(org) {
+        const rand  = Helper.rand;
+        const jsvm  = org.jsvm;
+        const index = rand(jsvm.size);
+        const rnd   = rand(3);
+
+        if (rnd === 0) {
+            jsvm.updateLine(index, Num.setOperator(jsvm.getLine(index), rand(jsvm.operators.operators.length)));
+            org.changes += MAX_BITS;
+        } else if (rnd === 1) {
+            jsvm.updateLine(index, Num.setVar(jsvm.getLine(index), rand(VARS), rand(MAX_VAR)));
+            org.changes += BITS_PER_VAR;
+        } else {
+            // toggle specified bit
+            jsvm.updateLine(index, jsvm.getLine(index) ^ (1 << rand(VAR_BITS_OFFS)));
+            org.changes++;
+        }
+    }
+
+    static _onClone(org) {
+        org.cloneMutationPercent = Math.random();
+        org.changes++;
+    }
+
+    static _onCopy(org) {
+        org.changes += (org.jsvm.copyLines() * MAX_BITS);
+
+    }
+
+    static _onPeriod(org) {
+        org.mutationPeriod = Helper.rand(OConfig.ORG_MAX_MUTATION_PERIOD);
+        org.changes++;
+    }
+
+    static _onAmount(org) {
+        org.mutationPercent = Math.random();
+        org.changes++;
+    }
+
+    static _onProbs(org) {
+        org.mutationProbs[Helper.rand(org.mutationProbs.length)] = Helper.rand(OConfig.orgMutationProbsMaxValue) || 1;
+        org.changes++;
+    }
+
+    static _onCloneEnergyPercent(org) {
+        org.cloneEnergyPercent = Math.random();
+        org.changes++;
+    }
+
     constructor(manager) {
         this._manager = manager;
         this._MUTATION_TYPES = [
-            this._onAdd,
-            this._onChange,
-            this._onDel,
-            this._onSmallChange,
-            this._onClone,
-            this._onCopy,
-            this._onPeriod,
-            this._onAmount,
-            this._onProbs,
-            this._onCloneEnergyPercent
+            Mutator._onAdd,
+            Mutator._onChange,
+            Mutator._onDel,
+            Mutator._onSmallChange,
+            Mutator._onClone,
+            Mutator._onCopy,
+            Mutator._onPeriod,
+            Mutator._onAmount,
+            Mutator._onProbs,
+            Mutator._onCloneEnergyPercent
         ];
         
         manager.on(EVENTS.ORGANISM, this._onOrganism.bind(this));
@@ -62,75 +134,11 @@ class Mutator {
         let   type;
 
         for (let i = 0; i < mutations; i++) {
-            if (jsvm.size > maxSize) {
-                mutations = i;
-                break;
-            }
+            if (jsvm.size > maxSize) {mutations = i; break}
             type = jsvm.size < 1 ? 0 : probIndex(org.mutationProbs);
             mTypes[type](org);
         }
-        org.changes += mutations;
         this._manager.fire(EVENTS.MUTATIONS, org, mutations, clone);
-
-        return mutations;
-    }
-
-    _onAdd(org) {
-        org.jsvm.size <= OConfig.codeMaxSize && org.jsvm.insertLine();
-    }
-
-    _onChange(org) {
-        const jsvm = org.jsvm;
-        jsvm.updateLine(Helper.rand(jsvm.size), Num.get());
-    }
-
-    _onDel(org) {
-        org.jsvm.removeLine();
-    }
-
-    /**
-     * Operator type or one variable may mutate
-     * @param {Organism} org
-     * @private
-     */
-    _onSmallChange(org) {
-        const rand  = Helper.rand;
-        const jsvm  = org.jsvm;
-        const index = rand(jsvm.size);
-        const rnd   = rand(3);
-
-        if (rnd === 0) {
-            jsvm.updateLine(index, Num.setOperator(jsvm.getLine(index), rand(jsvm.operators.operators.length)));
-        } else if (rnd === 1) {
-            jsvm.updateLine(index, Num.setVar(jsvm.getLine(index), rand(VARS), rand(MAX_VAR)));
-        } else {
-            // toggle specified bit
-            jsvm.updateLine(index, jsvm.getLine(index) ^ (1 << rand(VAR_BITS_OFFS)));
-        }
-    }
-
-    _onClone(org) {
-        org.cloneMutationPercent = Math.random();
-    }
-
-    _onCopy(org) {
-        org.jsvm.copyLines();
-    }
-
-    _onPeriod(org) {
-        org.mutationPeriod = Helper.rand(OConfig.ORG_MAX_MUTATION_PERIOD);
-    }
-
-    _onAmount(org) {
-        org.mutationPercent = Math.random();
-    }
-
-    _onProbs(org) {
-        org.mutationProbs[Helper.rand(org.mutationProbs.length)] = Helper.rand(OConfig.orgMutationProbsMaxValue) || 1;
-    }
-
-    _onCloneEnergyPercent(org) {
-        org.cloneEnergyPercent = Math.random();
     }
 }
 

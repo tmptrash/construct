@@ -4,24 +4,25 @@
  * @author flatline
  */
 const Helper  = require('./../../../common/src/Helper');
-const Config  = require('./../../src/share/Config').Config;
 const OConfig = require('./../manager/plugins/organisms/Config');
 
+const MAX_BITS            = 32;
 const BITS_PER_VAR        = OConfig.codeBitsPerVar;
 const BITS_PER_OPERATOR   = OConfig.codeBitsPerOperator;
 const NO_OPERATOR_MASK    = 0xffffffff >>> BITS_PER_OPERATOR;
 const BITS_OF_TWO_VARS    = BITS_PER_VAR * 2;
-const BITS_OF_FIRST_VAR   = 32 - BITS_PER_VAR;
+const BITS_OF_FIRST_VAR   = MAX_BITS - BITS_PER_VAR;
 const MAX_VAR             = 1 << BITS_PER_VAR;
 const MAX_OPERATOR        = 1 << BITS_PER_OPERATOR;
-const VAR_BITS_OFFS       = 32 - BITS_PER_OPERATOR;
+const VAR_BITS_OFFS       = MAX_BITS - BITS_PER_OPERATOR;
 const BITS_WITHOUT_2_VARS = 1 << (VAR_BITS_OFFS - BITS_PER_VAR * 2);
 
 class Num {
+    static get MAX_BITS()            {return MAX_BITS}
     static get VAR_BITS_OFFS()       {return VAR_BITS_OFFS}
     static get BITS_PER_VAR()        {return BITS_PER_VAR}
     static get BITS_PER_OPERATOR()   {return BITS_PER_OPERATOR}
-    static get VARS()                {return (32 - BITS_PER_OPERATOR) / BITS_PER_VAR}
+    static get VARS()                {return (MAX_BITS - BITS_PER_OPERATOR) / BITS_PER_VAR}
     static get MAX_VAR()             {return MAX_VAR}
     static get BITS_OF_TWO_VARS()    {return BITS_OF_TWO_VARS}
     static get MAX_OPERATOR()        {return MAX_OPERATOR}
@@ -81,7 +82,7 @@ class Num {
      * @return {Number} Cut bits (number)
      */
     static getBits(num, start, len) {
-        return num << start >>> (32 - len);
+        return num << start >>> (MAX_BITS - len);
     }
 }
 
