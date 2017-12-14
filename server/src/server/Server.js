@@ -200,7 +200,7 @@ class Server extends Connection {
     onConnect(sock) {
         const region   = this.conns.getFreeRegion();
         const clientId = Connections.toId(region);
-        if (region === null) {
+        if (region === null && this._server.clients.length > Config.maxConnections + 4) { // 4 extra connections for near servers
             sock.terminate();
             this.fire(OVERFLOW, sock);
             Console.warn('This server is overloaded by clients. Try another server to connect.');
@@ -223,16 +223,17 @@ class Server extends Connection {
      */
     onClose(clientId, sock, event) {
         super.onClose(event);
-        const servers = this.aroundServers;
-        const region  = Connections.toRegion(clientId);
-        const dir     = servers ? servers.getDirection(sock) : clientId;
+        const servers  = this.aroundServers;
+        const region   = Connections.toRegion(clientId);
+        const dir      = servers ? servers.getDirection(sock) : clientId;
+        const isServer = dir !== clientId;
 
-        this.conns.clearData( region);
+        !isServer && this.conns.clearData(region);
         sock.removeAllListeners('message');
         sock.removeAllListeners('error');
         sock.removeAllListeners('close');
         servers && servers.setSocket(sock, dir);
-        Console.warn(`Client '${dir !== DIR.NO ? NAMES[dir] : clientId}' has disconnected by reason: ${this.closeReason}`);
+        Console.warn(`Client '${isServer ? NAMES[dir] : clientId}' has disconnected by reason: ${this.closeReason}`);
     }
 }
 

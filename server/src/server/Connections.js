@@ -8,6 +8,7 @@
  *
  * @author flatline
  */
+const DIR = require('./../../../common/src/Directions').DIR;
 /**
  * {String} Separator string, which separates id parts. Like
  * 'X' + ID_SEPARATOR + 'X'
@@ -31,7 +32,7 @@ class Connections {
      * @returns {Array} Array of numbers (region)
      */
     static toRegion(id) {
-        return id.split(ID_SEPARATOR).map(Number);
+        return id && id.split(ID_SEPARATOR).map(Number);
     }
 
     constructor(amount) {
@@ -99,6 +100,24 @@ class Connections {
     leftRegion(region) {
         (region = region.slice())[0]--;
         return this._validRegion(region) && region || null;
+    }
+
+    /**
+     * Returns opposite region. It means the region on the diagonally
+     * other side related to specified. up -> down, right -> left,...
+     * @param {Array} region
+     * @param {Number} dir Direction
+     * @return {Array} Opposite region
+     */
+    oppositeRegion(region, dir) {
+        const side = this._side - 1;
+
+        if (dir === DIR.UP)    {region[1] = side; return region}
+        if (dir === DIR.RIGHT) {region[0] = 0;    return region}
+        if (dir === DIR.DOWN)  {region[1] = 0;    return region}
+        if (dir === DIR.LEFT)  {region[0] = side; return region}
+
+        return region;
     }
 
     /**

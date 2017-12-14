@@ -116,13 +116,14 @@ class AroundServers extends Observer {
     }
 
     _createClients() {
-        const cfg     = this._parent.cfg;
+        const parent  = this._parent;
+        const cfg     = parent.cfg;
         const clients = this._clients;
 
-        clients[DIR.UP]    = new Client(DIR.UP,    cfg.upHost,    cfg.upPort,    true);
-        clients[DIR.RIGHT] = new Client(DIR.RIGHT, cfg.rightHost, cfg.rightPort, true);
-        clients[DIR.DOWN]  = new Client(DIR.DOWN,  cfg.downHost,  cfg.downPort,  true);
-        clients[DIR.LEFT]  = new Client(DIR.LEFT,  cfg.leftHost,  cfg.leftPort,  true);
+        clients[DIR.UP]    = new Client(parent, DIR.UP,    cfg.upHost,    cfg.upPort,    true);
+        clients[DIR.RIGHT] = new Client(parent, DIR.RIGHT, cfg.rightHost, cfg.rightPort, true);
+        clients[DIR.DOWN]  = new Client(parent, DIR.DOWN,  cfg.downHost,  cfg.downPort,  true);
+        clients[DIR.LEFT]  = new Client(parent, DIR.LEFT,  cfg.leftHost,  cfg.leftPort,  true);
 
         this._addHandlers(clients);
         this._async = new AsyncParent(this, {classes: clients, isBrowser: false});

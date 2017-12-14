@@ -15,9 +15,14 @@ const PLUGINS     = [
 ];
 
 class Client extends BaseClient {
-    constructor(dir, host, port) {
+    constructor(server, dir, host, port) {
         super(host, port, true);
-        this._dir = dir;
+        /**
+         * {Server} Parent server created current client for communication
+         * with near servers.
+         */
+        this._server = server;
+        this._dir    = dir;
         //
         // Plugins should be created at the end of constructor to
         // have an ability to access this class public fields
@@ -39,6 +44,18 @@ class Client extends BaseClient {
     onError(event) {
         super.onError(event);
         Console.error(`'${NAMES[this._dir]}' server error: ${event.message} on ${this.host}:${this.port}`);
+    }
+
+    /**
+     * Is called every time if near server sends us a request. This is
+     * a bridge between near server and current server
+     * @param {WebSocket} sock Socket, received the message
+     * @param {Event} event Message event. Data is in 'data' property
+     * @override
+     */
+    onMessage(sock, event) {
+        super.onMessage(sock, event);
+        this._server.onMessage(sock, event);
     }
 
     /**

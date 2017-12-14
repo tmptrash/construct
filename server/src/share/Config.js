@@ -31,12 +31,12 @@ ServerConfig.init({
      * with additional "around" rows and columns for connecting with sibling
      * servers. So, result amount of cells will be e.g.: 16 + 2 rows + 2 cols.
      */
-    maxConnections: 100,
+    maxConnections: 1,
     /**
      * {Number} Port number for connecting with server. This value will be
      * passed to the server during creation
      */
-    port: 8099,
+    port: 8200,
     /**
      * {Boolean} Means, that this server will be run in distributed mode. And
      * will be connected with near servers (up...left). false, means, that
@@ -50,7 +50,7 @@ ServerConfig.init({
     /**
      * {Number} Port number of server above.
      */
-    upPort: 8100,
+    upPort: 8110,
     /**
      * {String} Host address of server on the right. Shouldn't contain port
      */
@@ -66,7 +66,7 @@ ServerConfig.init({
     /**
      * {Number} Port number of server below
      */
-    downPort: 8102,
+    downPort: 8100,
     /**
      * {String} Host address of server on the left. Shouldn't contain port
      */

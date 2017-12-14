@@ -20,9 +20,10 @@ class Api extends BaseApi {
         super(parent);
         const servers = parent.aroundServers;
 
-        this.api[TYPES.REQ_MOVE_ORG]        = this._onMoveOrg.bind(this);
-        this.api[TYPES.REQ_GET_ID]          = this._onGetId.bind(this);
-        this.api[TYPES.REQ_SET_NEAR_ACTIVE] = this._onSetNearServer.bind(this);
+        this.api[TYPES.REQ_MOVE_ORG]             = this._onMoveOrg.bind(this);
+        this.api[TYPES.REQ_MOVE_ORG_FROM_SERVER] = this._onMoveOrgFromServer.bind(this);
+        this.api[TYPES.REQ_GET_ID]               = this._onGetId.bind(this);
+        this.api[TYPES.REQ_SET_NEAR_ACTIVE]      = this._onSetNearServer.bind(this);
 
         this._onCloseCb       = this._onClose.bind(this);
         this._onServerOpenCb  = this._onServerOpen.bind(this);
@@ -48,6 +49,22 @@ class Api extends BaseApi {
     }
 
     /**
+     * Moves organism from near server to current server
+     * @param {Number} reqId Unique request id. Needed for response
+     * @param {String} clientId Unique client id of near server
+     * @param {Number} x Current org X position
+     * @param {Number} y Current org Y position
+     * @param {Number} dir Moving direction
+     * @param {String} orgJson Organism's serialized json
+     * @api
+     */
+    _onMoveOrgFromServer(reqId, clientId, x, y, dir, orgJson) {
+        const reg   = Connections.toRegion(clientId);
+        const conns = this.parent.conns;
+        this._moveToClient(Connections.toId(conns.oppositeRegion(reg, dir)), x, y, dir, orgJson, false);
+    }
+
+    /**
      * Moves organism from one client to another or to nearest server if
      * it's connected to current one
      * @param {Number} reqId Unique request id. Needed for response
@@ -59,15 +76,22 @@ class Api extends BaseApi {
      * @api
      */
     _onMoveOrg(reqId, clientId, x, y, dir, orgJson) {
-        const reg  = Connections.toRegion(clientId);
-        const side = this.parent.conns.side - 1;
-
+        const reg   = Connections.toRegion(clientId);
+        const side  = this.parent.conns.side - 1;
+        //
+        // This organism came from client, served by current server. We have
+        // to move it to other client on current server
+        //
         if (dir === DIR.UP   && reg[1] > 0    || dir === DIR.RIGHT && reg[0] < side ||
             dir === DIR.DOWN && reg[1] < side || dir === DIR.LEFT  && reg[0] > 0) {
             this._moveToClient(clientId, x, y, dir, orgJson);
-        } else {
-            this._moveToServer(clientId, x, y, dir, orgJson);
+            return;
         }
+        //
+        // This organism wants to move outside the current server - to the
+        // near server
+        //
+        this._moveToServer(clientId, x, y, dir, orgJson);
     }
 
     /**
@@ -112,26 +136,20 @@ class Api extends BaseApi {
      * @param {Number} y Organism y coordinate
      * @param {Number} dir Moving direction
      * @param {String} orgJson Organism's serialized json
+     * @param {Boolean} fromClient false if organism came from near server
      */
-    _moveToClient(clientId, x, y, dir, orgJson) {
+    _moveToClient(clientId, x, y, dir, orgJson, fromClient = true) {
         const region = Connections.toRegion(clientId);
 
-        if      (dir === DIR.UP)    {region[1]--}
-        else if (dir === DIR.RIGHT) {region[0]++}
-        else if (dir === DIR.DOWN)  {region[1]++}
-        else if (dir === DIR.LEFT)  {region[0]--}
+        if (fromClient) {
+            if      (dir === DIR.UP)    {region[1]--}
+            else if (dir === DIR.RIGHT) {region[0]++}
+            else if (dir === DIR.DOWN)  {region[1]++}
+            else if (dir === DIR.LEFT)  {region[0]--}
+        }
 
         const con = this.parent.conns.getConnection(region);
-        if (con.active) {
-            this.parent.request(con.sock, TYPES.REQ_MOVE_ORG, x, y, dir, orgJson);
-        } else {
-            // TODO: possibly slow code - parse() do we really need this id?
-            const org        = JSON.parse(orgJson);
-            const backRegion = Connections.toRegion(clientId);
-            const backCon    = this.parent.conns.getConnection(backRegion);
-            this.parent.request(backCon.sock, TYPES.REQ_MOVE_ORG, x, y, dir, orgJson);
-            Console.info(`Destination region ${region} is not active. Organism "${org.id}" will be sent back.`);
-        }
+        con.active && this.parent.request(con.sock, TYPES.REQ_MOVE_ORG, clientId, x, y, dir, orgJson);
     }
 
     /**
@@ -146,15 +164,7 @@ class Api extends BaseApi {
         const region = Connections.toRegion(clientId);
 
         const sock = this.parent.aroundServers.getSocket(dir);
-        if (sock) {
-            this.parent.request(sock, TYPES.REQ_MOVE_ORG, x, y, dir, orgJson);
-        } else {
-            // TODO: possibly slow code - parse() do we really need this id?
-            const org        = JSON.parse(orgJson);
-            const backCon    = this.parent.conns.getConnection(region);
-            this.parent.request(backCon.sock, TYPES.REQ_MOVE_ORG, x, y, dir, orgJson);
-            Console.error(`Destination server ${NAMES[dir]} is not active. Organism "${org.id}" will be sent back.`);
-        }
+        sock && this.parent.request(sock, TYPES.REQ_MOVE_ORG_FROM_SERVER, clientId, x, y, dir, orgJson);
     }
 
     /**

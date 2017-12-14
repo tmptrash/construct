@@ -97,7 +97,7 @@ ClientConfig.init({
     /**
      * {Number} Port number for connecting with server
      */
-    serverPort: 8099,
+    serverPort: 8100,
     /**
      * {String} Host for connecting with server
      */
