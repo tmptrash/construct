@@ -29,4 +29,4 @@
 
 Note: to improve speed, type `man.api.visualize(false)` in Chrome's devtool console during application run
 ___
-P.S. If you `ES6 js developer` | `Canvas 2D developer` | `Node.js developer` | you just a <img align="center" width="18" height="18" src="https://github.com/tmptrash/construct/raw/v0.2/assets/ninja-icon.png"> - join us!
+P.S. If you are a `ES6 js developer` | `Canvas 2D developer` | `Node.js developer` | you just a <img align="center" width="18" height="18" src="https://github.com/tmptrash/construct/raw/v0.2/assets/ninja-icon.png"> - join us!
