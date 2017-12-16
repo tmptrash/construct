@@ -25,13 +25,14 @@ class Api extends BaseApi {
     /**
      * Is called if organism is move in from other Manager (world)
      * @param {String} reqId Unique request id
+     * @param {String} clientId Unique client id within current server
      * @param {Number} x Current org X position
      * @param {Number} y Current org Y position
      * @param {Number} dir Direction of moving
      * @param {String} orgJson Organism's serialized json
      * @api
      */
-    _stepIn(reqId, x, y, dir, orgJson) {
+    _stepIn(reqId, clientId, x, y, dir, orgJson) {
         this.parent.manager.fire(EVENTS.STEP_IN, x, y, orgJson);
     }
 

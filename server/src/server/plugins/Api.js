@@ -20,7 +20,7 @@ class Api extends BaseApi {
         super(parent);
         const servers = parent.aroundServers;
 
-        this.api[TYPES.REQ_MOVE_ORG]             = this._onMoveOrg.bind(this);
+        this.api[TYPES.REQ_MOVE_ORG]             = this._onMoveOrgFromClient.bind(this);
         this.api[TYPES.REQ_MOVE_ORG_FROM_SERVER] = this._onMoveOrgFromServer.bind(this);
         this.api[TYPES.REQ_GET_ID]               = this._onGetId.bind(this);
         this.api[TYPES.REQ_SET_NEAR_ACTIVE]      = this._onSetNearServer.bind(this);
@@ -75,7 +75,7 @@ class Api extends BaseApi {
      * @param {String} orgJson Organism's serialized json
      * @api
      */
-    _onMoveOrg(reqId, clientId, x, y, dir, orgJson) {
+    _onMoveOrgFromClient(reqId, clientId, x, y, dir, orgJson) {
         const reg   = Connections.toRegion(clientId);
         const side  = this.parent.conns.side - 1;
         //
@@ -234,12 +234,15 @@ class Api extends BaseApi {
      * state for nearest clients/Managers
      * @param {String} clientId Deactivated client id
      * @param {WebSocket} sock
-     * @private
      */
     _onClose(clientId, sock) {
         const servers = this.parent.aroundServers;
         const dir     = servers ? servers.getDirection(sock) : clientId;
-
+        //
+        // This client was an extra client for current server. It means, that the
+        // server is full of other clients and there is no free slot for this
+        //
+        if (clientId === false) {return}
         if (dir === DIR.NO) {
             this._activateAround(Connections.toRegion(clientId), false);
             return;

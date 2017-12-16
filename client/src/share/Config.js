@@ -83,7 +83,7 @@ ClientConfig.init({
      */
     worldEnergyCheckPeriod: 10000,
     /**
-     * {Number} Mode for showing/supressing of messages. Possible values:
+     * {Number} Mode for showing/suppressing of messages. Possible values:
      *   0 - all messages
      *   1 - only important messages
      *   2 - no messages
@@ -97,7 +97,7 @@ ClientConfig.init({
     /**
      * {Number} Port number for connecting with server
      */
-    serverPort: 8100,
+    serverPort: 8200,
     /**
      * {String} Host for connecting with server
      */

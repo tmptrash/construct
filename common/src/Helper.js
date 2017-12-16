@@ -48,7 +48,7 @@ class Helper {
     }
 
     /**
-     * Sets first letter to lover case
+     * Sets first letter to lower case
      * @param {String} s
      * @returns {String}
      */
