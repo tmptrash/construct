@@ -158,10 +158,10 @@ class VM extends Observer {
         const rand   = Helper.rand;
         const len    = this._code.length;
         const len1   = vm.code.length;
-        const start  = rand(len);
-        const end    = rand(len);
-        const start1 = rand(len1);
-        const end1   = rand(len1);
+        let   start  = rand(len);
+        let   end    = rand(len);
+        let   start1 = rand(len1);
+        let   end1   = rand(len1);
         let   adds;
 
         if (start > end) {
