@@ -33,7 +33,7 @@ describe("client/src/organism/OrganismDos", () => {
 
     it("Checking organism creation from parent", () => {
         const parent = new OrganismDos(1, 3, 4, true, null, () => {});
-        parent.jsvm.insertLine();
+        parent.vm.insertLine();
         parent.energy               = 123;
         parent.changes              = 0xaabbcc;
         parent._mutationProbs       = [5,8,1,10,1,2,32,7];
@@ -45,8 +45,8 @@ describe("client/src/organism/OrganismDos", () => {
 
         let   org    = new OrganismDos(0, 1, 2, true, null, () => {}, parent);
 
-        expect(org.jsvm.code[0] === parent.jsvm.code[0]).toEqual(true);
-        expect(org.jsvm.size === parent.jsvm.size).toEqual(true);
+        expect(org.vm.code[0] === parent.vm.code[0]).toEqual(true);
+        expect(org.vm.size === parent.vm.size).toEqual(true);
         expect(org.energy === parent.energy).toEqual(true);
         expect(org.color === parent.color).toEqual(true);
         expect(THelper.compare(org.mutationProbs, parent.mutationProbs)).toEqual(true);

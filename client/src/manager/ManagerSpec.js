@@ -344,7 +344,7 @@ describe("client/src/manager/Manager", () => {
         man1.on(EVENTS.ITERATION, () => {
             if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
                 org1 = man1.organisms.first.val;
-                org1.jsvm.code.push(0b00001101000000000000000000000000); // onStepDown()
+                org1.vm.code.push(0b00001101000000000000000000000000); // onStepDown()
             } else if (man2.organisms.size === 2) {
                 destroy();
             }
@@ -411,7 +411,7 @@ describe("client/src/manager/Manager", () => {
         man1.on(EVENTS.ITERATION, () => {
             if (iterated1 > 0 && iterated2 > 0 && org1 === null && org2 !== null) {
                 org1 = man1.organisms.first.val;
-                org1.jsvm.code.push(0b00001101000000000000000000000000); // onStepDown()
+                org1.vm.code.push(0b00001101000000000000000000000000); // onStepDown()
                 man1.on(EVENTS.STEP_OUT, () => {
                     expect(doneInc < 3).toBe(true);
                     ++doneInc;

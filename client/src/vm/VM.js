@@ -18,16 +18,20 @@ const Num          = require('./Num');
  * {Number} Maximum stack size, which may be used for recursion or function parameters
  */
 const MAX_STACK_SIZE = 30000;
+/**
+ * {Number} Index of first bit after operator bits
+ */
+const VAR_BITS_OFFS  = Num.VAR_BITS_OFFS;
 
-class JSVM extends Observer {
+class VM extends Observer {
     /**
-     * Creates JSVM instance. codeEndCb will be called after last code line is run.
-     * parent is used if JSVM instance is in a cloning mode and we have to create
+     * Creates VM instance. codeEndCb will be called after last code line is run.
+     * parent is used if VM instance is in a cloning mode and we have to create
      * a copy of it.
      * @param {Function} codeEndCb
      * @param {Observer} obs Observer instance for Operators class
      * @param {Function} operatorCls Class of operators
-     * @param {JSVM} parent Parent JSVM instance in case of cloning
+     * @param {VM} parent Parent VM instance in case of cloning
      */
     constructor(codeEndCb, obs, operatorCls, parent = null) {
         super(EVENT_AMOUNT);
@@ -35,7 +39,7 @@ class JSVM extends Observer {
         this._obs         = obs;
         /**
          * {Function} Class of operators, with implementation of all available
-         * script parts for current JSVM instance
+         * script parts for current VM instance
          */
         this._operatorCls = operatorCls;
         /**
@@ -54,6 +58,7 @@ class JSVM extends Observer {
          * {Function} Class, which implement all supported operators
          */
         this._operators   = new operatorCls(this._offsets, this._vars, obs);
+        this._ops         = this._operators.operators;
         this._code        = parent && parent.code.slice() || [];
         this._line        = 0;
         this._linesRun    = 0;
@@ -77,10 +82,10 @@ class JSVM extends Observer {
     }
 
     unserialize(json) {
-        this._offsets = json.offsets;
-        this._vars    = json.vars;
-        this._code    = json.code;
-        this._line    = json.line;
+        this._offsets   = json.offsets;
+        this._vars      = json.vars;
+        this._code      = json.code;
+        this._line      = json.line;
         this._operators = new this._operatorCls(this._offsets, this._vars, this._obs);
     }
 
@@ -91,18 +96,17 @@ class JSVM extends Observer {
      * @param {Organism} org Current organism
      */
     run(org) {
-        let line  = this._line;
-        let code  = this._code;
-        let lines = code.length;
-        let len   = lines === 0 ? 0 : OConfig.codeYieldPeriod || lines;
-        let len2  = len;
-        let ops   = this._operators.operators;
-        let getOp = Num.getOperator;
-        let ret   = false;
-        let offs  = this._offsets;
+        const code  = this._code;
+        const lines = code.length;
+        const ops   = this._ops;
+        const offs  = this._offsets;
+        let   line  = this._line;
+        let   len   = lines === 0 ? 0 : OConfig.codeYieldPeriod || lines;
+        let   len2  = len;
+        let   ret   = false;
 
         while (len-- > 0 && org.alive) {
-            line = ops[getOp(code[line])](code[line], line, org, lines, ret);
+            line = ops[code[line] >>> VAR_BITS_OFFS](code[line], line, org, lines, ret);
             //
             // We found closing bracket '}' of some loop and have to return
             // to the beginning of operator (e.g.: for)
@@ -115,10 +119,8 @@ class JSVM extends Observer {
             if (line >= lines) {
                 line = 0;
                 org.alive && (this._operators.offsets = (this._offsets = []));
-                if (this._onCodeEnd) {
-                    this._onCodeEnd(this._linesRun + (len2 - len));
-                    this._linesRun = -(len2 - len);
-                }
+                this._onCodeEnd(this._linesRun + (len2 - len));
+                this._linesRun = -(len2 - len);
                 break;
             }
         }
@@ -149,13 +151,13 @@ class JSVM extends Observer {
      *   end1  : 2
      *   jsvm1.crossover(jsvm2) // [4,5,6] instead [2,3] ->, jsvm1 === [1,4,5,6]
      *
-     * @param {JSVM} jsvm JSVM instance, from where we have to cut code part
+     * @param {VM} vm VM instance, from where we have to cut code part
      * @returns {Number} Amount of changes in current (this) vm
      */
-    crossover(jsvm) {
+    crossover(vm) {
         const rand = Helper.rand;
         const len  = this._code.length;
-        const len1 = jsvm.code.length;
+        const len1 = vm.code.length;
         let start  = rand(len);
         let end    = rand(len);
         let start1 = rand(len1);
@@ -173,7 +175,7 @@ class JSVM extends Observer {
         if (this._code.length + adds >= OConfig.codeMaxSize) {
             return 0
         }
-        this._code.splice.apply(this._code, [start, end - start + 1].concat(jsvm.code.slice(start1, end1 + 1)));
+        this._code.splice.apply(this._code, [start, end - start + 1].concat(vm.code.slice(start1, end1 + 1)));
         this._reset();
 
         return adds;
@@ -268,4 +270,4 @@ class JSVM extends Observer {
     }
 }
 
-module.exports = JSVM;
+module.exports = VM;

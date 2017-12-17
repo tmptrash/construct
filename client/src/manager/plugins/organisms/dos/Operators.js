@@ -1,5 +1,5 @@
 /**
- * Digital Organisms Script - (DOS) is a simple language for JSVM.
+ * Digital Organisms Script - (DOS) is a simple language for VM.
  * This file contains all available operators implementation. For example:
  * for, if, variable declaration, steps, eating etc... User may override
  * this class for own needs and change operator list to custom.
@@ -17,9 +17,9 @@ const Num       = require('./../../../../vm/Num');
 /**
  * {Function} Just a shortcuts
  */
-const VAR0                  = Num.getVar;
-const VAR1                  = (n) => Num.getVar(n, 1);
-const VAR2                  = (n) => Num.getVar(n, 2);
+const VAR0                  = Num.getVar0;
+const VAR1                  = Num.getVar1;
+const VAR2                  = Num.getVar2;
 const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
 const FOUR_BITS             = 4;
 const BLOCK_MAX_LEN         = OConfig.codeBitsPerBlock;
@@ -27,6 +27,7 @@ const BITS_FOR_NUMBER       = 16;
 const IS_NUM                = Helper.isNumeric;
 const HALF_OF_VAR           = Num.MAX_VAR / 2;
 const CONDITION_BITS        = 2;
+const BITS                  = Num.getBits;
 
 class OperatorsDos extends Operators {
     constructor(offs, vars, obs) {
@@ -95,27 +96,26 @@ class OperatorsDos extends Operators {
      * Parses variable operator. Format: var = number|var. 'num' bits format:
      * TODO:
      *
-     * @param {Num} num Packed into number vm line
+     * @param {Number} num Packed into number vm line
      * @param {Number} line Current line in vm
      * @return {Number} Parsed vm line string
      */
     onVar(num, line) {
-        const vars = this.vars;
-        vars[VAR0(num)] = VAR2(num) < HALF_OF_VAR ? Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_FOR_NUMBER) : vars[VAR1(num)];
-        return line + 1;
+        this.vars[VAR0(num)] = VAR2(num) < HALF_OF_VAR ? BITS(num, BITS_AFTER_THREE_VARS, BITS_FOR_NUMBER) : this.vars[VAR1(num)];
+        return ++line;
     }
 
     //onFunc(num, line) {
-    //    return line + 1;
+    //    return ++line;
     //}
 
     onCondition(num, line, org, lines) {
-        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BLOCK_MAX_LEN);
+        const val3 = BITS(num, BITS_AFTER_THREE_VARS, BLOCK_MAX_LEN);
         const offs = this._getOffs(line, lines, val3);
         const cond = VAR2(num) >>> (OConfig.codeBitsPerVar - CONDITION_BITS);
 
         if (this._CONDITIONS[cond](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
-            return line + 1;
+            return ++line;
         }
 
         return offs;
@@ -127,7 +127,7 @@ class OperatorsDos extends Operators {
     onLoop(num, line, org, lines, afterIteration = false) {
         const vars = this.vars;
         const var0 = VAR0(num);
-        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BLOCK_MAX_LEN);
+        const val3 = BITS(num, BITS_AFTER_THREE_VARS, BLOCK_MAX_LEN);
         const offs = this._getOffs(line, lines, val3);
         //
         // If last iteration has done and we've returned to the line,
@@ -136,18 +136,18 @@ class OperatorsDos extends Operators {
         if (afterIteration === true) {
             if (++vars[var0] < vars[VAR2(num)]) {
                 this.offs.push(line, offs);
-                return line + 1;
+                return ++line;
             }
             return offs;
         }
         //
         // This is first time we are running "for" operator. No
-        // iterations hav done, yet
+        // iterations have done, yet
         //
         vars[var0] = vars[VAR1(num)];
         if (vars[var0] < vars[VAR2(num)]) {
             this.offs.push(line, offs);
-            return line + 1;
+            return ++line;
         }
 
         return offs;
@@ -155,23 +155,23 @@ class OperatorsDos extends Operators {
 
     onOperator(num, line) {
         const vars = this.vars;
-        vars[VAR0(num)] = this._OPERATORS[Num.getBits(num, BITS_AFTER_THREE_VARS, FOUR_BITS)](vars[VAR1(num)], vars[VAR2(num)]);
-        return line + 1;
+        vars[VAR0(num)] = this._OPERATORS[BITS(num, BITS_AFTER_THREE_VARS, FOUR_BITS)](vars[VAR1(num)], vars[VAR2(num)]);
+        return ++line;
     }
 
     onNot(num, line) {
         this.vars[VAR0(num)] = +!this.vars[VAR1(num)];
-        return line + 1;
+        return ++line;
     }
 
     //onPi(num, line) {
     //    this.vars[VAR0(num)] = Math.PI;
-    //    return line + 1;
+    //    return ++line;
     //}
 
     //onTrig(num, line) {
     //    this.vars[VAR0(num)] = this._TRIGS[VAR2(num)](this.vars[VAR1(num)]);
-    //    return line + 1;
+    //    return ++line;
     //}
 
     onLookAt(num, line, org) {
@@ -181,27 +181,27 @@ class OperatorsDos extends Operators {
 
         if (!IS_NUM(x) || !IS_NUM(y) || Helper.normalize(x, y)[2] !== DIR.NO) {
             vars[VAR0(num)] = 0;
-            return line + 1;
+            return ++line;
         }
 
         let ret = {ret: 0};
         this.obs.fire(EVENTS.GET_ENERGY, org, x, y, ret);
         vars[VAR0(num)] = ret.ret;
 
-        return line + 1;
+        return ++line;
     }
 
-    onEatLeft(num, line, org)   {this.vars[VAR0(num)] = this._eat(org, num, org.x - 1, org.y); return line + 1}
-    onEatRight(num, line, org)  {this.vars[VAR0(num)] = this._eat(org, num, org.x + 1, org.y); return line + 1}
-    onEatUp(num, line, org)     {this.vars[VAR0(num)] = this._eat(org, num, org.x, org.y - 1); return line + 1}
-    onEatDown(num, line, org)   {this.vars[VAR0(num)] = this._eat(org, num, org.x, org.y + 1); return line + 1}
+    onEatLeft(num, line, org)   {this.vars[VAR0(num)] = this._eat(org, num, org.x - 1, org.y); return ++line}
+    onEatRight(num, line, org)  {this.vars[VAR0(num)] = this._eat(org, num, org.x + 1, org.y); return ++line}
+    onEatUp(num, line, org)     {this.vars[VAR0(num)] = this._eat(org, num, org.x, org.y - 1); return ++line}
+    onEatDown(num, line, org)   {this.vars[VAR0(num)] = this._eat(org, num, org.x, org.y + 1); return ++line}
 
-    onStepLeft(num, line, org)  {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x - 1, org.y); return line + 1}
-    onStepRight(num, line, org) {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x + 1, org.y); return line + 1}
-    onStepUp(num, line, org)    {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y - 1); return line + 1}
-    onStepDown(num, line, org)  {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y + 1); return line + 1}
+    onStepLeft(num, line, org)  {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x - 1, org.y); return ++line}
+    onStepRight(num, line, org) {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x + 1, org.y); return ++line}
+    onStepUp(num, line, org)    {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y - 1); return ++line}
+    onStepDown(num, line, org)  {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y + 1); return ++line}
 
-    onFromMem(num, line, org) {this.vars[VAR0(num)] = org.mem.pop() || 0; return line + 1}
+    onFromMem(num, line, org) {this.vars[VAR0(num)] = org.mem.pop() || 0; return ++line}
     onToMem(num, line, org) {
         const val = this.vars[VAR1(num)];
 
@@ -211,11 +211,11 @@ class OperatorsDos extends Operators {
             this.vars[VAR0(num)] = 0;
         }
 
-        return line + 1;
+        return ++line;
     }
 
-    onMyX(num, line, org) {this.vars[VAR0(num)] = org.x; return line + 1}
-    onMyY(num, line, org) {this.vars[VAR0(num)] = org.y; return line + 1}
+    onMyX(num, line, org) {this.vars[VAR0(num)] = org.x; return ++line}
+    onMyY(num, line, org) {this.vars[VAR0(num)] = org.y; return ++line}
 
     onCheckLeft(num, line, org)  {return this._checkAt(num, line, org, org.x - 1, org.y)}
     onCheckRight(num, line, org) {return this._checkAt(num, line, org, org.x + 1, org.y)}
@@ -226,7 +226,7 @@ class OperatorsDos extends Operators {
         const ret = {ret: 0};
         org.fire(EVENTS.CHECK_AT, x, y, ret);
         this.vars[VAR0(num)] = ret.ret;
-        return line + 1;
+        return ++line;
     }
 
     _eat(org, num, x, y) {

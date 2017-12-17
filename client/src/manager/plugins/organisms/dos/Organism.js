@@ -26,7 +26,7 @@ class OrganismDos extends Organism {
     }
 
     onRun() {
-        this.jsvm.run(this);
+        this.vm.run(this);
     }
 }
 

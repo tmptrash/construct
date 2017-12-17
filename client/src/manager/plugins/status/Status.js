@@ -81,7 +81,7 @@ class Status extends Configurable {
 
         while(item && (org = item.val)) {
             energy   += org.energy;
-            codeSize += org.jsvm.size;
+            codeSize += org.vm.size;
             changes  += org.changes;
             fitness  += org.fitness();
             item = item.next;

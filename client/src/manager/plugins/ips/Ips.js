@@ -6,7 +6,7 @@
  *   {Boolean} show Shows/Hides IPS value at the top-left corner
  *   {Number}  periodMs Period of milliseconds, which is user for checking
  *             IPS value. It's possible to increase it to reduce amount of
- *             requests and additional jsvm in main loop
+ *             requests and additional vm in main loop
  *
  * @author flatline
  */

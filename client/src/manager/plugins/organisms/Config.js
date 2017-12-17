@@ -149,7 +149,7 @@ const Config = {
     codeVarInitRange: 1000,
     /**
      * {Number} This value is amount of code lines, which will be run for one
-     * organism without interruption by one JSVM. Set this value to value bigger
+     * organism without interruption by one VM. Set this value to value bigger
      * then codeMaxSize, then entire code of organism will be run
      */
     codeYieldPeriod: 10,
