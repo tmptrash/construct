@@ -36,7 +36,9 @@ class Connections {
     }
 
     constructor(amount) {
+        const side = +Math.sqrt(amount).toFixed();
         if (amount < 1) {throw `Incorrect amount of connections in class Connections - ${amount}`}
+        if (side * side !== amount) {throw `Incorrect amount of connections in class Connections - ${amount}. Should be a pow of two`}
         /**
          * {Number} Size of one side of MAX_CONNECTIONS qub. Contains additional
          * "around" rows and columns. For qub == 16, it's 4.
@@ -45,7 +47,7 @@ class Connections {
         /**
          * {Number} Size of one full side of the connections squire
          */
-        this._side   = +Math.sqrt(amount).toFixed();
+        this._side   = side;
 
         for (let col = 0, conns = this.conns; col < this._side; col++) {
             conns[col] = (new Array(this._side)).fill(null);

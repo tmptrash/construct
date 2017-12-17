@@ -100,9 +100,9 @@ class VM extends Observer {
         const lines = code.length;
         const ops   = this._ops;
         const offs  = this._offsets;
+        const len2  = lines === 0 ? 0 : OConfig.codeYieldPeriod || lines;
+        let   len   = len2;
         let   line  = this._line;
-        let   len   = lines === 0 ? 0 : OConfig.codeYieldPeriod || lines;
-        let   len2  = len;
         let   ret   = false;
 
         while (len-- > 0 && org.alive) {
@@ -155,14 +155,14 @@ class VM extends Observer {
      * @returns {Number} Amount of changes in current (this) vm
      */
     crossover(vm) {
-        const rand = Helper.rand;
-        const len  = this._code.length;
-        const len1 = vm.code.length;
-        let start  = rand(len);
-        let end    = rand(len);
-        let start1 = rand(len1);
-        let end1   = rand(len1);
-        let adds;
+        const rand   = Helper.rand;
+        const len    = this._code.length;
+        const len1   = vm.code.length;
+        const start  = rand(len);
+        const end    = rand(len);
+        const start1 = rand(len1);
+        const end1   = rand(len1);
+        let   adds;
 
         if (start > end) {
             [start, end] = [end, start]

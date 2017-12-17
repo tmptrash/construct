@@ -43,7 +43,7 @@ class Client extends BaseClient {
      */
     onError(event) {
         super.onError(event);
-        Console.error(`'${NAMES[this._dir]}' server error: ${event.message} on ${this.host}:${this.port}`);
+        Console.warn(`'${NAMES[this._dir]}' server error: ${event.message} on ${this.host}:${this.port}`);
     }
 
     /**

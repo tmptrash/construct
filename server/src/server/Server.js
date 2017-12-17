@@ -116,8 +116,9 @@ class Server extends Connection {
                 };
                 this.aroundServers && this.aroundServers.run(onDone) || onDone();
             });
+            this._server.on('error', (e) => Console.error(`Can\'t run server on port ${this._port}. Error: '${e.message}'`));
         } catch (e) {
-            Console.warn(`Can\'t run server on port ${this._port}. Error: ${e.message}`);
+            Console.error(`Can\'t run server on port ${this._port}. Error: '${e.message}'`);
             return false;
         }
 
