@@ -44,21 +44,6 @@ class Plugins {
         return require(path);
     }
 
-    _onRun(done = () => {})  {this._async.run(done)}
-    _onStop(done = () => {}) {this._async.stop(done)}
-
-    _createPlugins(parent, cfg) {
-        const parentPlugins = parent.plugins = [];
-
-        for (let p of cfg.plugins) {
-            const path      = p.path || p;
-            const name      = path.split('/').slice(-1)[0];
-            let   pluginCls = this.require(path);
-
-            parentPlugins.push(new (pluginCls[name] || pluginCls)(parent, p.cfg || {}));
-        }
-    }
-
     /**
      * Is called if parent instance calls destroy() method. Here we
      * destroy all created plugins and the reference to this instance
@@ -93,6 +78,21 @@ class Plugins {
         // be later after success stopping
         //
         me._async ? me._async.stop(onAfterDestroy) : onAfterDestroy();
+    }
+
+    _onRun(done = () => {})  {this._async.run(done)}
+    _onStop(done = () => {}) {this._async.stop(done)}
+
+    _createPlugins(parent, cfg) {
+        const parentPlugins = parent.plugins = [];
+
+        for (let p of cfg.plugins) {
+            const path      = p.path || p;
+            const name      = path.split('/').slice(-1)[0];
+            let   pluginCls = this.require(path);
+
+            parentPlugins.push(new (pluginCls[name] || pluginCls)(parent, p.cfg || {}));
+        }
     }
 }
 

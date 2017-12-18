@@ -16,6 +16,8 @@ describe("client/src/manager/Manager", () => {
     const waitEvent    = THelper.waitEvent;
     const wait         = THelper.wait;
     const host         = Config.serverHost;
+    const port         = SConfig.port;
+    const maxConns     = SConfig.maxConnections;
 
     let error;
     let warn;
@@ -39,6 +41,8 @@ describe("client/src/manager/Manager", () => {
         Config.modeNodeJs = true;
         dist = SConfig.modeDistributed;
         SConfig.modeDistributed = false;
+        SConfig.port = Config.serverPort;
+        SConfig.maxConnections = 100;
 
         error = Console.error;
         warn  = Console.warn;
@@ -67,6 +71,8 @@ describe("client/src/manager/Manager", () => {
         jasmine.DEFAULT_TIMEOUT_INTERVAL = timeout;
         Config.serverHost = host;
         SConfig.modeDistributed = dist;
+        SConfig.port = port;
+        SConfig.maxConnections = maxConns;
     });
 
     it("Checking manager creation", (done) => {

@@ -7,7 +7,6 @@
 const TYPES   = require('./../../../../../../common/src/net/Requests').TYPES;
 const BaseApi = require('./../../../../../../common/src/net/Api');
 const EVENTS  = require('./../../../../share/Events').EVENTS;
-const Console = require('./../../../../share/Console');
 
 class Api extends BaseApi {
     constructor(client) {
@@ -25,13 +24,14 @@ class Api extends BaseApi {
     /**
      * Is called if organism is move in from other Manager (world)
      * @param {String} reqId Unique request id
+     * @param {String} clientId Unique client id on current server
      * @param {Number} x Current org X position
      * @param {Number} y Current org Y position
      * @param {Number} dir Direction of moving
      * @param {String} orgJson Organism's serialized json
      * @api
      */
-    _stepIn(reqId, x, y, dir, orgJson) {
+    _stepIn(reqId, clientId, x, y, dir, orgJson) {
         this.parent.manager.fire(EVENTS.STEP_IN, x, y, orgJson);
     }
 
