@@ -17,6 +17,11 @@ const MAX_OPERATOR        = 1 << BITS_PER_OPERATOR;
 const VAR_BITS_OFFS       = MAX_BITS - BITS_PER_OPERATOR;
 const BITS_WITHOUT_2_VARS = 1 << (VAR_BITS_OFFS - BITS_PER_VAR * 2);
 
+const BITS_OF_VAR0        = BITS_PER_OPERATOR;
+const BITS_OF_VAR1        = BITS_PER_OPERATOR +     BITS_PER_VAR;
+const BITS_OF_VAR2        = BITS_PER_OPERATOR + 2 * BITS_PER_VAR;
+const BITS_OF_VAR3        = BITS_PER_OPERATOR + 3 * BITS_PER_VAR;
+
 class Num {
     static get MAX_BITS()            {return MAX_BITS}
     static get VAR_BITS_OFFS()       {return VAR_BITS_OFFS}
@@ -56,6 +61,22 @@ class Num {
 
     static getVar(num, index = 0) {
         return num << (BITS_PER_OPERATOR + index * BITS_PER_VAR) >>> BITS_OF_FIRST_VAR;
+    }
+
+    static getVar0(num) {
+        return num << BITS_OF_VAR0 >>> BITS_OF_FIRST_VAR;
+    }
+
+    static getVar1(num) {
+        return num << BITS_OF_VAR1 >>> BITS_OF_FIRST_VAR;
+    }
+
+    static getVar2(num) {
+        return num << BITS_OF_VAR2 >>> BITS_OF_FIRST_VAR;
+    }
+
+    static getVar3(num) {
+        return num << BITS_OF_VAR3 >>> BITS_OF_FIRST_VAR;
     }
 
     /**

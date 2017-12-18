@@ -33,7 +33,7 @@ class Api {
         this.parent       = parent;
         /**
          * {WebSocket} Currently active socket. It's available only during
-         * message is received
+         * message is received in _onMessage() method
          */
         this._sock        = null;
         this._onMessageCb = this._onMessage.bind(this);

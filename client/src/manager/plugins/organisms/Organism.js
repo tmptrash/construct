@@ -11,7 +11,7 @@ const Config        = require('./../../../share/Config').Config;
 const OConfig       = require('./../../../manager/plugins/organisms/Config');
 const EVENTS        = require('./../../../share/Events').EVENTS;
 const EVENT_AMOUNT  = require('./../../../share/Events').EVENT_AMOUNT;
-const JSVM          = require('./../../../vm/VM');
+const VM          = require('./../../../vm/VM');
 
 const IS_NUM = Helper.isNumeric;
 
@@ -117,7 +117,7 @@ class Organism extends Observer {
             // 'item' will be added after insertion
             iterations          : this._iterations,
             fnId                : this._fnId,
-            jsvm                : this.jsvm.serialize(),
+            vm                : this.vm.serialize(),
             energy              : this._energy,
             color               : this._color,
             mutationProbs       : this._mutationProbs,
@@ -147,7 +147,7 @@ class Organism extends Observer {
         // 'item' will be added after insertion
         this._iterations           = json.iterations;
         this._fnId                 = json.fnId;
-        this.jsvm.unserialize(json.jsvm);
+        this.vm.unserialize(json.vm);
         this._energy               = json.energy;
         this._color                = json.color;
         this._mutationProbs        = json.mutationProbs;
@@ -166,7 +166,7 @@ class Organism extends Observer {
     }
 
     fitness() {
-        return Math.abs(OConfig.codeMaxSize - this.jsvm.size) * this._energy * this._changes;
+        return Math.abs(OConfig.codeMaxSize - this.vm.size) * this._energy * this._changes;
     }
 
     destroy() {
@@ -175,8 +175,8 @@ class Organism extends Observer {
         this._energy     = 0;
         this._item       = null;
         this._mem        = null;
-        this.jsvm && this.jsvm.destroy();
-        this.jsvm        = null;
+        this.vm && this.vm.destroy();
+        this.vm        = null;
         this._codeEndCb  = null;
 
         super.destroy();
@@ -189,7 +189,7 @@ class Organism extends Observer {
     }
 
     _create() {
-        this.jsvm                   = new JSVM(this._codeEndCb.bind(this, this), this, this._operatorCls);
+        this.vm                   = new VM(this._codeEndCb.bind(this, this), this, this._operatorCls);
         this._energy                = OConfig.orgStartEnergy;
         this._color                 = OConfig.orgStartColor;
         this._mutationProbs         = OConfig.orgMutationProbs.slice();
@@ -201,7 +201,7 @@ class Organism extends Observer {
     }
 
     _clone(parent) {
-        this.jsvm                   = new JSVM(this._codeEndCb.bind(this, this), this, this._operatorCls, parent.jsvm);
+        this.vm                   = new VM(this._codeEndCb.bind(this, this), this, this._operatorCls, parent.vm);
         this._energy                = parent.energy;
         this._color                 = parent.color;
         this._mutationProbs         = parent.mutationProbs.slice();
@@ -234,7 +234,7 @@ class Organism extends Observer {
      */
     _updateEnergy() {
         if (this._iterations % OConfig.orgEnergySpendPeriod !== 0 || OConfig.orgEnergySpendPeriod === 0) {return true}
-        const codeSize = this.jsvm.size;
+        const codeSize = this.vm.size;
         let   grabSize = Math.floor(codeSize / OConfig.orgGarbagePeriod);
 
         if (grabSize < 1) {grabSize = 1}

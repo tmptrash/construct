@@ -116,8 +116,9 @@ class Server extends Connection {
                 };
                 this.aroundServers && this.aroundServers.run(onDone) || onDone();
             });
+            this._server.on('error', (e) => Console.error(`Can\'t run server on port ${this._port}. Error: '${e.message}'`));
         } catch (e) {
-            Console.warn(`Can\'t run server on port ${this._port}. Error: ${e.message}`);
+            Console.error(`Can\'t run server on port ${this._port}. Error: '${e.message}'`);
             return false;
         }
 
@@ -226,14 +227,14 @@ class Server extends Connection {
         const servers  = this.aroundServers;
         const region   = Connections.toRegion(clientId);
         const dir      = servers ? servers.getDirection(sock) : clientId;
-        const isServer = dir !== clientId;
+        const isServer = dir < DIR.NO;
 
         !isServer && this.conns.clearData(region);
         sock.removeAllListeners('message');
         sock.removeAllListeners('error');
         sock.removeAllListeners('close');
         servers && servers.setSocket(sock, dir);
-        Console.warn(`Client '${isServer ? NAMES[dir] : clientId}' has disconnected by reason: ${this.closeReason}`);
+        clientId !== false && Console.warn(`Client '${isServer ? NAMES[dir] : clientId}' has disconnected by reason: ${this.closeReason}`);
     }
 }
 

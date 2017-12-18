@@ -22,18 +22,18 @@ const BITS_PER_VAR  = Num.BITS_PER_VAR;
 
 class Mutator {
     static _onAdd(org) {
-        org.jsvm.insertLine();
+        org.vm.insertLine();
         org.changes += MAX_BITS;
     }
 
     static _onChange(org) {
-        const jsvm = org.jsvm;
-        jsvm.updateLine(Helper.rand(jsvm.size), Num.get());
+        const vm = org.vm;
+        vm.updateLine(Helper.rand(vm.size), Num.get());
         org.changes += MAX_BITS;
     }
 
     static _onDel(org) {
-        org.jsvm.removeLine();
+        org.vm.removeLine();
         org.changes += MAX_BITS;
     }
 
@@ -44,19 +44,19 @@ class Mutator {
      */
     static _onSmallChange(org) {
         const rand  = Helper.rand;
-        const jsvm  = org.jsvm;
-        const index = rand(jsvm.size);
+        const vm  = org.vm;
+        const index = rand(vm.size);
         const rnd   = rand(3);
 
         if (rnd === 0) {
-            jsvm.updateLine(index, Num.setOperator(jsvm.getLine(index), rand(jsvm.operators.operators.length)));
+            vm.updateLine(index, Num.setOperator(vm.getLine(index), rand(vm.operators.operators.length)));
             org.changes += MAX_BITS;
         } else if (rnd === 1) {
-            jsvm.updateLine(index, Num.setVar(jsvm.getLine(index), rand(VARS), rand(MAX_VAR)));
+            vm.updateLine(index, Num.setVar(vm.getLine(index), rand(VARS), rand(MAX_VAR)));
             org.changes += BITS_PER_VAR;
         } else {
             // toggle specified bit
-            jsvm.updateLine(index, jsvm.getLine(index) ^ (1 << rand(VAR_BITS_OFFS)));
+            vm.updateLine(index, vm.getLine(index) ^ (1 << rand(VAR_BITS_OFFS)));
             org.changes++;
         }
     }
@@ -67,7 +67,7 @@ class Mutator {
     }
 
     static _onCopy(org) {
-        org.changes += (org.jsvm.copyLines() * MAX_BITS);
+        org.changes += (org.vm.copyLines() * MAX_BITS);
 
     }
 
@@ -126,16 +126,16 @@ class Mutator {
     }
 
     _mutate(org, clone = true) {
-        const jsvm      = org.jsvm;
+        const vm      = org.vm;
         const probIndex = Helper.probIndex;
         const mTypes    = this._MUTATION_TYPES;
         const maxSize   = OConfig.codeMaxSize;
-        let   mutations = Math.round(jsvm.size * (clone ? org.cloneMutationPercent : org.mutationPercent)) || 1;
+        let   mutations = Math.round(vm.size * (clone ? org.cloneMutationPercent : org.mutationPercent)) || 1;
         let   type;
 
         for (let i = 0; i < mutations; i++) {
-            if (jsvm.size > maxSize) {mutations = i; break}
-            type = jsvm.size < 1 ? 0 : probIndex(org.mutationProbs);
+            if (vm.size > maxSize) {mutations = i; break}
+            type = vm.size < 1 ? 0 : probIndex(org.mutationProbs);
             mTypes[type](org);
         }
         this._manager.fire(EVENTS.MUTATIONS, org, mutations, clone);

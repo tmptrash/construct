@@ -29,7 +29,7 @@ class OrganismGarmin extends Organism {
 
         this._needRun = true;
 
-        this.jsvm.on(EVENTS.RESET_CODE, this._onResetCode.bind(this));
+        this.vm.on(EVENTS.RESET_CODE, this._onResetCode.bind(this));
     }
 
     onBeforeRun() {

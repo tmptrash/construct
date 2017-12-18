@@ -24,7 +24,7 @@ class Api extends BaseApi {
     /**
      * Is called if organism is move in from other Manager (world)
      * @param {String} reqId Unique request id
-     * @param {String} clientId Unique client id on current server
+     * @param {String} clientId Unique client id within current server
      * @param {Number} x Current org X position
      * @param {Number} y Current org Y position
      * @param {Number} dir Direction of moving

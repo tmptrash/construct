@@ -39,8 +39,8 @@ class Organisms extends BaseOrganisms {
             this._maxEnergy = org.energy;
             Console.warn('--------------------------------------------------');
             Console.warn('Max energy: ', org.energy, ', org Id: ', org.id);
-            Console.warn('[' + org.jsvm.code + ']');
-            Console.warn(this.manager.api.formatCode(org.jsvm.code));
+            Console.warn('[' + org.vm.code + ']');
+            Console.warn(this.manager.api.formatCode(org.vm.code));
         }
 
         if (org.changes > this._maxChanges) {this._maxChanges = org.changes}
@@ -77,8 +77,8 @@ class Organisms extends BaseOrganisms {
         this.manager.stop();
         Console.warn('--------------------------------------------------');
         Console.warn('org id: ', org.id, ', energy: ', org.energy);
-        Console.warn('[' + org.jsvm.code + ']');
-        Console.warn(this.manager.api.formatCode(org.jsvm.code));
+        Console.warn('[' + org.vm.code + ']');
+        Console.warn(this.manager.api.formatCode(org.vm.code));
     }
 }
 

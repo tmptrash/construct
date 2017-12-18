@@ -265,7 +265,7 @@ class Organisms extends Configurable {
         let   child = orgs.last.val;
 
         if (child.alive && looser.alive) {
-            child.changes += (child.jsvm.crossover(looser.jsvm) * MAX_BITS);
+            child.changes += (child.vm.crossover(looser.vm) * MAX_BITS);
             if (orgs.size >= OConfig.orgMaxOrgs) {looser.destroy()}
         }
     }

@@ -23,5 +23,11 @@
  *
  * @author flatline
  */
+//const VM        = require('./vm/VM');
+//const Operators = require('./manager/plugins/organisms/dos/Operators');
+
 const Manager = require('./manager/Manager');
 (window.man = new Manager()).run();
+//setTimeout(() => window.man.stop(), 2000);
+//window.VM        = VM;
+//window.Operators = Operators;
