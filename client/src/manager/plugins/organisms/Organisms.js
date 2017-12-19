@@ -12,7 +12,7 @@ const Config       = require('./../../../../src/share/Config').Config;
 const OConfig      = require('./Config');
 const Console      = require('./../../../../src/share/Console');
 const EVENTS       = require('./../../../../src/share/Events').EVENTS;
-const Backup       = require('./../backup/Backup');
+//const Backup       = require('./../backup/Backup');
 const Mutator      = require('./Mutator');
 const Num          = require('./../../../vm/Num');
 
@@ -29,13 +29,6 @@ class Organisms extends Configurable {
      * @abstract
      */
     compare(org1, org2) {}
-
-    /**
-     * Is called every time after organism's code was run
-     * @param {Organism} org
-     * @abstract
-     */
-    onOrganism(org) {}
 
     /**
      * Is called after moving of organism is done. Updates Manager.positions
@@ -134,6 +127,14 @@ class Organisms extends Configurable {
         this.updateClone(counter);
         this.updateCrossover(counter);
         this.updateCreate();
+    }
+
+    /**
+     * Is called every time after organism's code was run
+     * @param {Organism} org
+     */
+    onOrganism(org) {
+        org.alive && org.vm.size === 0 && this._onCodeEnd(org, 0);
     }
 
     addOrgHandlers(org) {

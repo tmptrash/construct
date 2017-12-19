@@ -40,7 +40,7 @@ const Config = {
      *     clonePeriod  - Probability of change clone energy percent value
      * ]
      */
-    orgMutationProbs: [50,80,10,100,1,10,10,10,10,10],
+    orgMutationProbs: [10,1,1,100,1,1,1,1,1,1],
     /**
      * {Number} Max value, which we may use in orgMutationProbs array. We may use
      * range: [0...orgMutationProbsMaxValue] including these values
@@ -50,7 +50,7 @@ const Config = {
      * {Number} Percent of mutations from vm size, which will be applied to
      * organism after cloning. Should be <= 1.0 (1.0 === 100%)
      */
-    orgCloneMutationPercent: 0.01,
+    orgCloneMutationPercent: 0.000,
     /**
      * {Number} Amount of iterations between cloning. Set it to 0 to turn it off
      */
@@ -59,13 +59,13 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 0,
+    orgCrossoverPeriod: 1000,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 10000,
+    orgRainMutationPeriod: 500,
     /**
      * {Number} Percent of mutations from code size. 0 is a possible value if
      * we want to disable mutations. Should be less then 1.0 (1.0 === 100%)
@@ -80,7 +80,7 @@ const Config = {
      * Eve. It means that these empty (without vm) organism were created
      * by operator and not by evolution.
      */
-    orgStartEnergy: 10000,
+    orgStartEnergy: 100000,
     /**
      * {Number} Begin color of "empty" organism (organism without code). Color
      * should be set in HEX-RGB mode. Example: 0xRRGGBB
@@ -112,7 +112,7 @@ const Config = {
     /**
      * {Number} Size of organism stack (internal memory)
      */
-    orgMemSize: 64,
+    orgMemSize: 1024,
     /**
      * {Number} Percent of energy, which will be given to the child
      */
@@ -167,7 +167,7 @@ const Config = {
      * {Number} Amount of iterations between calls to V8 event loop. See
      * Manager._initLoop(), Manager.run() methods for details.
      */
-    codeIterationsPerOnce: 300,
+    codeIterationsPerOnce: 1000,
 };
 
 module.exports = Config;

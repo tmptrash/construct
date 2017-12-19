@@ -9,7 +9,6 @@
 const DIR       = require('./../../../../../../common/src/Directions').DIR;
 const Helper    = require('./../../../../../../common/src/Helper');
 const EVENTS    = require('./../../../../../src/share/Events').EVENTS;
-const Config    = require('./../../../../../src/share/Config').Config;
 const OConfig   = require('./../Config');
 const Operators = require('./../../../../vm/Operators');
 const Num       = require('./../../../../vm/Num');
@@ -29,6 +28,16 @@ const HALF_OF_VAR           = Num.MAX_VAR / 2;
 const CONDITION_BITS        = 2;
 const BITS                  = Num.getBits;
 
+/**
+ * {Array} Available conditions for if operator. Amount should be
+ * the same like (1 << BITS_PER_VAR)
+ */
+const CONDITIONS = [(a,b)=>a<b, (a,b)=>a>b, (a,b)=>a===b, (a,b)=>a!==b];
+/**
+ * {Array} Available operators for math calculations
+ */
+const OPERATORS = [(a,b)=>a+b, (a,b)=>a-b, (a,b)=>a*b, (a,b)=>a/b, (a,b)=>a%b, (a,b)=>a&b, (a,b)=>a|b, (a,b)=>a^b, (a,b)=>a>>b, (a,b)=>a<<b, (a,b)=>a>>>b, (a,b)=>+(a<b), (a,b)=>+(a>b), (a,b)=>+(a===b), (a,b)=>+(a!==b), (a,b)=>+(a<=b)];
+
 class OperatorsDos extends Operators {
     constructor(offs, vars, obs) {
         super(offs, vars, obs);
@@ -42,7 +51,7 @@ class OperatorsDos extends Operators {
             this.onCondition.bind(this),
             this.onLoop.bind(this),
             this.onOperator.bind(this),
-            this.onNot.bind(this),
+            //this.onNot.bind(this),
             //this.onPi.bind(this),
             //this.onTrig.bind(this),
             this.onLookAt.bind(this),
@@ -63,17 +72,6 @@ class OperatorsDos extends Operators {
             this.onCheckUp.bind(this),
             this.onCheckDown.bind(this)
         ];
-        /**
-         * {Array} Available conditions for if operator. Amount should be
-         * the same like (1 << BITS_PER_VAR)
-         */
-        this._CONDITIONS = [(a,b)=>a<b, (a,b)=>a>b, (a,b)=>a===b, (a,b)=>a!==b];
-        /**
-         * {Array} Available operators for math calculations
-         */
-        this._OPERATORS = [
-            (a,b)=>a+b, (a,b)=>a-b, (a,b)=>a*b, (a,b)=>a/b, (a,b)=>a%b, (a,b)=>a&b, (a,b)=>a|b, (a,b)=>a^b, (a,b)=>a>>b, (a,b)=>a<<b, (a,b)=>a>>>b, (a,b)=>+(a<b), (a,b)=>+(a>b), (a,b)=>+(a===b), (a,b)=>+(a!==b), (a,b)=>+(a<=b)
-        ];
         //this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
         //
         // We have to set amount of available operators for correct
@@ -85,8 +83,6 @@ class OperatorsDos extends Operators {
     destroy() {
         super.destroy();
         this._OPERATORS_CB = null;
-        this._CONDITIONS   = null;
-        this._OPERATORS    = null;
         //this._TRIGS        = null;
     }
 
@@ -114,7 +110,7 @@ class OperatorsDos extends Operators {
         const offs = this._getOffs(line, lines, val3);
         const cond = VAR2(num) >>> (OConfig.codeBitsPerVar - CONDITION_BITS);
 
-        if (this._CONDITIONS[cond](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
+        if (CONDITIONS[cond](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
             return ++line;
         }
 
@@ -155,14 +151,14 @@ class OperatorsDos extends Operators {
 
     onOperator(num, line) {
         const vars = this.vars;
-        vars[VAR0(num)] = this._OPERATORS[BITS(num, BITS_AFTER_THREE_VARS, FOUR_BITS)](vars[VAR1(num)], vars[VAR2(num)]);
+        vars[VAR0(num)] = OPERATORS[BITS(num, BITS_AFTER_THREE_VARS, FOUR_BITS)](vars[VAR1(num)], vars[VAR2(num)]);
         return ++line;
     }
 
-    onNot(num, line) {
-        this.vars[VAR0(num)] = +!this.vars[VAR1(num)];
-        return ++line;
-    }
+    // onNot(num, line) {
+    //     this.vars[VAR0(num)] = +!this.vars[VAR1(num)];
+    //     return ++line;
+    // }
 
     //onPi(num, line) {
     //    this.vars[VAR0(num)] = Math.PI;
