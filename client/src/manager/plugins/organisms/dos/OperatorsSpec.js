@@ -198,25 +198,25 @@ describe("client/src/organism/OperatorsDos", () => {
         ops.destroy();
     });
 
-    it("Checking onNot() method", () => {
-        let ops = new OperatorsDos([], [0, 1, 2, 3], new Observer());
-
-        expect(ops.onNot(0x041fffff, 0, {}, 1)).toEqual(1); //'v0=!v1';
-        expect(ops.vars[0] === 0).toEqual(true);
-        expect(ops.vars[1] === 1).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
-        expect(ops.onNot(0x046fffff, 1, {}, 1)).toEqual(2); //'v1=!v2';
-        expect(ops.vars[0] === 0).toEqual(true);
-        expect(ops.vars[1] === 0).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
-        expect(ops.onNot(0x04ffffff, 2, {}, 1)).toEqual(3); //'v3=!v3';
-        expect(ops.vars[0] === 0).toEqual(true);
-        expect(ops.vars[1] === 0).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 0).toEqual(true);
-    });
+    // it("Checking onNot() method", () => {
+    //     let ops = new OperatorsDos([], [0, 1, 2, 3], new Observer());
+    //
+    //     expect(ops.onNot(0x041fffff, 0, {}, 1)).toEqual(1); //'v0=!v1';
+    //     expect(ops.vars[0] === 0).toEqual(true);
+    //     expect(ops.vars[1] === 1).toEqual(true);
+    //     expect(ops.vars[2] === 2).toEqual(true);
+    //     expect(ops.vars[3] === 3).toEqual(true);
+    //     expect(ops.onNot(0x046fffff, 1, {}, 1)).toEqual(2); //'v1=!v2';
+    //     expect(ops.vars[0] === 0).toEqual(true);
+    //     expect(ops.vars[1] === 0).toEqual(true);
+    //     expect(ops.vars[2] === 2).toEqual(true);
+    //     expect(ops.vars[3] === 3).toEqual(true);
+    //     expect(ops.onNot(0x04ffffff, 2, {}, 1)).toEqual(3); //'v3=!v3';
+    //     expect(ops.vars[0] === 0).toEqual(true);
+    //     expect(ops.vars[1] === 0).toEqual(true);
+    //     expect(ops.vars[2] === 2).toEqual(true);
+    //     expect(ops.vars[3] === 0).toEqual(true);
+    // });
     //
     // it("Checking onPi() method", () => {
     //     let ops = new OperatorsDos([]);
@@ -238,7 +238,7 @@ describe("client/src/organism/OperatorsDos", () => {
         let obs = new Observer(EVENT_AMOUNT);
         let ops = new OperatorsDos([], [1, 1, 2, 3], obs);
 
-        expect(ops.onLookAt(0x071bffff, 0, {}, 1)).toEqual(1);//v0=org.lookAt(v1,v2);
+        expect(ops.onLookAt(0x041bffff, 0, {}, 1)).toEqual(1);//v0=org.lookAt(v1,v2);
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -248,7 +248,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.ret = 7;
             expect(x === 1 && y === 2).toEqual(true);
         });
-        expect(ops.onLookAt(0x071bffff, 0, {}, 1)).toEqual(1);//v0=org.lookAt(v1,v2);
+        expect(ops.onLookAt(0x041bffff, 0, {}, 1)).toEqual(1);//v0=org.lookAt(v1,v2);
         expect(ops.vars[0] === 7).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -259,7 +259,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.ret = 8;
             expect(x === 2 && y === 3).toEqual(true);
         });
-        expect(ops.onLookAt(0x076fffff, 1, {}, 1)).toEqual(2);//v1=org.lookAt(v2,v3);
+        expect(ops.onLookAt(0x046fffff, 1, {}, 1)).toEqual(2);//v1=org.lookAt(v2,v3);
         expect(ops.vars[0] === 7).toEqual(true);
         expect(ops.vars[1] === 8).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -270,7 +270,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.ret = 9;
             expect(x === 3 && y === 3).toEqual(true);
         });
-        expect(ops.onLookAt(0x07ffffff, 3, {}, 1)).toEqual(4);//v3=org.lookAt(v3,v3);
+        expect(ops.onLookAt(0x04ffffff, 3, {}, 1)).toEqual(4);//v3=org.lookAt(v3,v3);
         expect(ops.vars[0] === 7).toEqual(true);
         expect(ops.vars[1] === 8).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -290,7 +290,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.ret = 5;
             expect(x === 3 && y === 5).toEqual(true);
         });
-        expect(ops.onEatLeft(0x081fffff, 0, org, 1)).toEqual(1); // v0=org.eatLeft(v1);
+        expect(ops.onEatLeft(0x051fffff, 0, org, 1)).toEqual(1); // v0=org.eatLeft(v1);
         expect(ops.vars[0] === 5).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -310,7 +310,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.ret = 5;
             expect(x === 4 && y === 6).toEqual(true);
         });
-        expect(ops.onEatLeft(0x086fffff, 0, org, 1)).toEqual(1); // v1=org.eatLeft(v2);
+        expect(ops.onEatLeft(0x056fffff, 0, org, 1)).toEqual(1); // v1=org.eatLeft(v2);
         expect(ops.vars[0] === 1).toEqual(true);
         expect(ops.vars[1] === 5).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -330,7 +330,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.ret = 1;
             expect(x === 2 && y === 4).toEqual(true);
         });
-        expect(ops.onEatLeft(0x08ffffff, 0, org, 1)).toEqual(1); // v3=org.eatLeft(v3);
+        expect(ops.onEatLeft(0x05ffffff, 0, org, 1)).toEqual(1); // v3=org.eatLeft(v3);
         expect(ops.vars[0] === 1).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -351,7 +351,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.ret = 5;
             expect(x === 5 && y === 5).toEqual(true);
         });
-        expect(ops.onEatRight(0x081fffff, 0, org, 1)).toEqual(1); // v0=org.eatRight(v1);
+        expect(ops.onEatRight(0x061fffff, 0, org, 1)).toEqual(1); // v0=org.eatRight(v1);
         expect(ops.vars[0] === 5).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -371,7 +371,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.ret = 5;
             expect(x === 6 && y === 6).toEqual(true);
         });
-        expect(ops.onEatRight(0x086fffff, 0, org, 1)).toEqual(1); // v1=org.eatRight(v2);
+        expect(ops.onEatRight(0x066fffff, 0, org, 1)).toEqual(1); // v1=org.eatRight(v2);
         expect(ops.vars[0] === 1).toEqual(true);
         expect(ops.vars[1] === 5).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -391,7 +391,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.ret = 1;
             expect(x === 4 && y === 4).toEqual(true);
         });
-        expect(ops.onEatRight(0x08ffffff, 0, org, 1)).toEqual(1); // v3=org.eatRight(v3);
+        expect(ops.onEatRight(0x06ffffff, 0, org, 1)).toEqual(1); // v3=org.eatRight(v3);
         expect(ops.vars[0] === 1).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -412,7 +412,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.ret = 5;
             expect(x === 4 && y === 4).toEqual(true);
         });
-        expect(ops.onEatUp(0x081fffff, 0, org, 1)).toEqual(1); // v0=org.onEatUp(v1);
+        expect(ops.onEatUp(0x071fffff, 0, org, 1)).toEqual(1); // v0=org.onEatUp(v1);
         expect(ops.vars[0] === 5).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -422,7 +422,7 @@ describe("client/src/organism/OperatorsDos", () => {
         obs.clear();
         ops.destroy();
     });
-    it("Checking onEatRight() method 2", () => {
+    it("Checking onEatUp() method 2", () => {
         let obs = new Observer(EVENT_AMOUNT);
         let ops = new OperatorsDos([], [1, 1, 2, 3], obs);
         let org = {x:5, y:6, energy:0};
@@ -432,7 +432,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.ret = 5;
             expect(x === 5 && y === 5).toEqual(true);
         });
-        expect(ops.onEatUp(0x086fffff, 0, org, 1)).toEqual(1); // v1=org.onEatUp(v2);
+        expect(ops.onEatUp(0x076fffff, 0, org, 1)).toEqual(1); // v1=org.onEatUp(v2);
         expect(ops.vars[0] === 1).toEqual(true);
         expect(ops.vars[1] === 5).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -452,7 +452,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.ret = 1;
             expect(x === 3 && y === 3).toEqual(true);
         });
-        expect(ops.onEatUp(0x08ffffff, 0, org, 1)).toEqual(1); // v3=org.onEatUp(v3);
+        expect(ops.onEatUp(0x07ffffff, 0, org, 1)).toEqual(1); // v3=org.onEatUp(v3);
         expect(ops.vars[0] === 1).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -535,7 +535,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
         });
-        expect(ops.onStepLeft(0x081fffff, 0, org, 1)).toEqual(1); // v0=org.stepLeft();
+        expect(ops.onStepLeft(0x091fffff, 0, org, 1)).toEqual(1); // v0=org.stepLeft();
         expect(ops.vars[0] === 1).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -556,7 +556,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
         });
-        expect(ops.onStepLeft(0x081fffff, 0, org, 1)).toEqual(1); // v0=org.stepLeft();
+        expect(ops.onStepLeft(0x091fffff, 0, org, 1)).toEqual(1); // v0=org.stepLeft();
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -577,7 +577,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
         });
-        expect(ops.onStepLeft(0x086fffff, 0, org, 1)).toEqual(1); // v1=org.stepLeft();
+        expect(ops.onStepLeft(0x096fffff, 0, org, 1)).toEqual(1); // v1=org.stepLeft();
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -599,7 +599,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
         });
-        expect(ops.onStepLeft(0x086fffff, 0, org, 1)).toEqual(1); // v1=org.stepLeft();
+        expect(ops.onStepLeft(0x096fffff, 0, org, 1)).toEqual(1); // v1=org.stepLeft();
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 0).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -620,7 +620,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
         });
-        expect(ops.onStepLeft(0x08ffffff, 0, org, 1)).toEqual(1); // v3=org.stepLeft();
+        expect(ops.onStepLeft(0x09ffffff, 0, org, 1)).toEqual(1); // v3=org.stepLeft();
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -641,7 +641,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
         });
-        expect(ops.onStepLeft(0x08ffffff, 0, org, 1)).toEqual(1); // v3=org.stepLeft();
+        expect(ops.onStepLeft(0x09ffffff, 0, org, 1)).toEqual(1); // v3=org.stepLeft();
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -663,7 +663,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 4 && y2 === 4).toEqual(true);
         });
-        expect(ops.onStepRight(0x081fffff, 0, org, 1)).toEqual(1); // v0=org.stepRight();
+        expect(ops.onStepRight(0x0a1fffff, 0, org, 1)).toEqual(1); // v0=org.stepRight();
         expect(ops.vars[0] === 1).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -673,7 +673,7 @@ describe("client/src/organism/OperatorsDos", () => {
         obs.clear();
         ops.destroy();
     });
-    it("Checking onStepRight() method with no free space on the left", () => {
+    it("Checking onStepRight() method with no free space on the right", () => {
         let obs = new Observer(EVENT_AMOUNT);
         let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
         let org = {x:3, y:4};
@@ -684,7 +684,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 4 && y2 === 4).toEqual(true);
         });
-        expect(ops.onStepRight(0x081fffff, 0, org, 1)).toEqual(1); // v0=org.stepRight();
+        expect(ops.onStepRight(0x0a1fffff, 0, org, 1)).toEqual(1); // v0=org.stepRight();
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -705,7 +705,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 4 && y2 === 4).toEqual(true);
         });
-        expect(ops.onStepRight(0x086fffff, 0, org, 1)).toEqual(1); // v1=org.stepRight();
+        expect(ops.onStepRight(0x0a6fffff, 0, org, 1)).toEqual(1); // v1=org.stepRight();
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -726,7 +726,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 4 && y2 === 4).toEqual(true);
         });
-        expect(ops.onStepRight(0x086fffff, 0, org, 1)).toEqual(1); // v1=org.stepRight();
+        expect(ops.onStepRight(0x0a6fffff, 0, org, 1)).toEqual(1); // v1=org.stepRight();
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 0).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -747,7 +747,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 4 && y2 === 4).toEqual(true);
         });
-        expect(ops.onStepRight(0x08ffffff, 0, org, 1)).toEqual(1); // v3=org.stepRight();
+        expect(ops.onStepRight(0x0affffff, 0, org, 1)).toEqual(1); // v3=org.stepRight();
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -768,7 +768,7 @@ describe("client/src/organism/OperatorsDos", () => {
             ret.y   = 4;
             expect(x1 === 3 && y1 === 4 && x2 === 4 && y2 === 4).toEqual(true);
         });
-        expect(ops.onStepRight(0x08ffffff, 0, org, 1)).toEqual(1); // v3=org.stepRight();
+        expect(ops.onStepRight(0x0affffff, 0, org, 1)).toEqual(1); // v3=org.stepRight();
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -783,17 +783,17 @@ describe("client/src/organism/OperatorsDos", () => {
         let org = {mem: [1,2,3]};
         let ops = new OperatorsDos([], [0, 1, 2, 3], new Observer());
 
-        expect(ops.onFromMem(0x081fffff, 0, org, 1)).toEqual(1); //v0=org.fromMem();
+        expect(ops.onFromMem(0x0d1fffff, 0, org, 1)).toEqual(1); //v0=org.fromMem();
         expect(ops.vars[0] === 3).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
         expect(ops.vars[3] === 3).toEqual(true);
-        expect(ops.onFromMem(0x086fffff, 1, org, 2)).toEqual(2); //v1=org.fromMem();
+        expect(ops.onFromMem(0x0d6fffff, 1, org, 2)).toEqual(2); //v1=org.fromMem();
         expect(ops.vars[0] === 3).toEqual(true);
         expect(ops.vars[1] === 2).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
         expect(ops.vars[3] === 3).toEqual(true);
-        expect(ops.onFromMem(0x08ffffff, 2, org, 3)).toEqual(3); //v3=org.fromMem();
+        expect(ops.onFromMem(0x0dffffff, 2, org, 3)).toEqual(3); //v3=org.fromMem();
         expect(ops.vars[0] === 3).toEqual(true);
         expect(ops.vars[1] === 2).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -805,7 +805,7 @@ describe("client/src/organism/OperatorsDos", () => {
         let org = {mem: []};
         let ops = new OperatorsDos([], [7, 1, 2, 3], new Observer());
 
-        expect(ops.onFromMem(0x081fffff, 0, org, 1)).toEqual(1); //v0=org.fromMem();
+        expect(ops.onFromMem(0x0d1fffff, 0, org, 1)).toEqual(1); //v0=org.fromMem();
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -818,11 +818,11 @@ describe("client/src/organism/OperatorsDos", () => {
         let org = {mem: []};
         let ops = new OperatorsDos([], [0, 1, 2, 3], new Observer());
 
-        expect(ops.onToMem(0x08ffffff, 0, org, 1)).toEqual(1); //'v3 = org.toMem(v3)');
+        expect(ops.onToMem(0x0effffff, 0, org, 1)).toEqual(1); //'v3 = org.toMem(v3)');
         expect(org.mem[0]).toEqual(3);
-        expect(ops.onToMem(0x086fffff, 0, org, 1)).toEqual(1); //'v1 = org.toMem(v2)');
+        expect(ops.onToMem(0x0e6fffff, 0, org, 1)).toEqual(1); //'v1 = org.toMem(v2)');
         expect(org.mem[1]).toEqual(2);
-        expect(ops.onToMem(0x081fffff, 0, org, 1)).toEqual(1); //'v0 = org.toMem(v1)');
+        expect(ops.onToMem(0x0e1fffff, 0, org, 1)).toEqual(1); //'v0 = org.toMem(v1)');
         expect(org.mem[2]).toEqual(2);
 
         ops.destroy();
@@ -832,17 +832,17 @@ describe("client/src/organism/OperatorsDos", () => {
         let org = {x: 1, y:2};
         let ops = new OperatorsDos([], [0, 7, 2, 3], new Observer());
 
-        expect(ops.onMyX(0x081fffff, 0, org, 1)).toEqual(1); // v0=org.myX();
+        expect(ops.onMyX(0x0f1fffff, 0, org, 1)).toEqual(1); // v0=org.myX();
         expect(ops.vars[0] === 1).toEqual(true);
         expect(ops.vars[1] === 7).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
         expect(ops.vars[3] === 3).toEqual(true);
-        expect(ops.onMyX(0x086fffff, 0, org, 1)).toEqual(1); // v1=org.myX();
+        expect(ops.onMyX(0x0f6fffff, 0, org, 1)).toEqual(1); // v1=org.myX();
         expect(ops.vars[0] === 1).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
         expect(ops.vars[3] === 3).toEqual(true);
-        expect(ops.onMyX(0x08ffffff, 0, org, 1)).toEqual(1); // v3=org.myX();
+        expect(ops.onMyX(0x0fffffff, 0, org, 1)).toEqual(1); // v3=org.myX();
         expect(ops.vars[0] === 1).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -854,17 +854,17 @@ describe("client/src/organism/OperatorsDos", () => {
         let org = {x: 1, y:2};
         let ops = new OperatorsDos([], [0, 7, 2, 3], new Observer());
 
-        expect(ops.onMyY(0x081fffff, 0, org, 1)).toEqual(1); // v0=org.myY();
+        expect(ops.onMyY(0x0f1fffff, 0, org, 1)).toEqual(1); // v0=org.myY();
         expect(ops.vars[0] === 2).toEqual(true);
         expect(ops.vars[1] === 7).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
         expect(ops.vars[3] === 3).toEqual(true);
-        expect(ops.onMyY(0x086fffff, 0, org, 1)).toEqual(1); // v1=org.myY();
+        expect(ops.onMyY(0x0f6fffff, 0, org, 1)).toEqual(1); // v1=org.myY();
         expect(ops.vars[0] === 2).toEqual(true);
         expect(ops.vars[1] === 2).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
         expect(ops.vars[3] === 3).toEqual(true);
-        expect(ops.onMyY(0x08ffffff, 0, org, 1)).toEqual(1); // v3=org.myY();
+        expect(ops.onMyY(0x0fffffff, 0, org, 1)).toEqual(1); // v3=org.myY();
         expect(ops.vars[0] === 2).toEqual(true);
         expect(ops.vars[1] === 2).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -885,7 +885,7 @@ describe("client/src/organism/OperatorsDos", () => {
             expect(x === 0 && y === 2).toEqual(true);
             ret.ret = 0;
         });
-        expect(ops.onCheckLeft(0x081fffff, 0, org)).toEqual(1); // v0=org.onCheckLeft();
+        expect(ops.onCheckLeft(0x111fffff, 0, org)).toEqual(1); // v0=org.onCheckLeft();
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 7).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -896,7 +896,7 @@ describe("client/src/organism/OperatorsDos", () => {
             expect(x === 0 && y === 2).toEqual(true);
             ret.ret = 1;
         });
-        expect(ops.onCheckLeft(0x086fffff, 0, org)).toEqual(1); // v1=org.onCheckLeft();
+        expect(ops.onCheckLeft(0x116fffff, 0, org)).toEqual(1); // v1=org.onCheckLeft();
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -907,7 +907,7 @@ describe("client/src/organism/OperatorsDos", () => {
             expect(x === 0 && y === 2).toEqual(true);
             ret.ret = 2;
         });
-        expect(ops.onCheckLeft(0x08ffffff, 0, org)).toEqual(1); // v3=org.onCheckLeft();
+        expect(ops.onCheckLeft(0x11ffffff, 0, org)).toEqual(1); // v3=org.onCheckLeft();
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -928,7 +928,7 @@ describe("client/src/organism/OperatorsDos", () => {
             expect(x === 2 && y === 2).toEqual(true);
             ret.ret = 0;
         });
-        expect(ops.onCheckRight(0x081fffff, 0, org)).toEqual(1); // v0=org.onCheckRight();
+        expect(ops.onCheckRight(0x121fffff, 0, org)).toEqual(1); // v0=org.onCheckRight();
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 7).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -939,7 +939,7 @@ describe("client/src/organism/OperatorsDos", () => {
             expect(x === 2 && y === 2).toEqual(true);
             ret.ret = 1;
         });
-        expect(ops.onCheckRight(0x086fffff, 0, org)).toEqual(1); // v1=org.onCheckRight();
+        expect(ops.onCheckRight(0x126fffff, 0, org)).toEqual(1); // v1=org.onCheckRight();
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -950,7 +950,7 @@ describe("client/src/organism/OperatorsDos", () => {
             expect(x === 2 && y === 2).toEqual(true);
             ret.ret = 2;
         });
-        expect(ops.onCheckRight(0x08ffffff, 0, org)).toEqual(1); // v3=org.onCheckRight();
+        expect(ops.onCheckRight(0x12ffffff, 0, org)).toEqual(1); // v3=org.onCheckRight();
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -971,7 +971,7 @@ describe("client/src/organism/OperatorsDos", () => {
             expect(x === 1 && y === 1).toEqual(true);
             ret.ret = 0;
         });
-        expect(ops.onCheckUp(0x081fffff, 0, org)).toEqual(1); // v0=org.onCheckUp();
+        expect(ops.onCheckUp(0x131fffff, 0, org)).toEqual(1); // v0=org.onCheckUp();
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 7).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -982,7 +982,7 @@ describe("client/src/organism/OperatorsDos", () => {
             expect(x === 1 && y === 1).toEqual(true);
             ret.ret = 1;
         });
-        expect(ops.onCheckUp(0x086fffff, 0, org)).toEqual(1); // v1=org.onCheckUp();
+        expect(ops.onCheckUp(0x136fffff, 0, org)).toEqual(1); // v1=org.onCheckUp();
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -993,7 +993,7 @@ describe("client/src/organism/OperatorsDos", () => {
             expect(x === 1 && y === 1).toEqual(true);
             ret.ret = 2;
         });
-        expect(ops.onCheckUp(0x08ffffff, 0, org)).toEqual(1); // v3=org.onCheckUp();
+        expect(ops.onCheckUp(0x13ffffff, 0, org)).toEqual(1); // v3=org.onCheckUp();
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -1014,7 +1014,7 @@ describe("client/src/organism/OperatorsDos", () => {
             expect(x === 1 && y === 3).toEqual(true);
             ret.ret = 0;
         });
-        expect(ops.onCheckDown(0x081fffff, 0, org)).toEqual(1); // v0=org.onCheckDown();
+        expect(ops.onCheckDown(0x141fffff, 0, org)).toEqual(1); // v0=org.onCheckDown();
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 7).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -1025,7 +1025,7 @@ describe("client/src/organism/OperatorsDos", () => {
             expect(x === 1 && y === 3).toEqual(true);
             ret.ret = 1;
         });
-        expect(ops.onCheckDown(0x086fffff, 0, org)).toEqual(1); // v1=org.onCheckDown();
+        expect(ops.onCheckDown(0x146fffff, 0, org)).toEqual(1); // v1=org.onCheckDown();
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
@@ -1036,7 +1036,7 @@ describe("client/src/organism/OperatorsDos", () => {
             expect(x === 1 && y === 3).toEqual(true);
             ret.ret = 2;
         });
-        expect(ops.onCheckDown(0x08ffffff, 0, org)).toEqual(1); // v3=org.onCheckDown();
+        expect(ops.onCheckDown(0x14ffffff, 0, org)).toEqual(1); // v3=org.onCheckDown();
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);

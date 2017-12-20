@@ -315,6 +315,7 @@ describe("client/src/manager/Manager", () => {
         const height    = Config.worldHeight;
         const energy    = OConfig.orgStartEnergy;
         const server    = new Server();
+        Config.worldHeight              = 400;
         const man1      = new Manager(false);
         delete Config.organisms;
         delete Config.status;
@@ -346,14 +347,13 @@ describe("client/src/manager/Manager", () => {
         OConfig.orgCloneMutationPercent = 0;
         OConfig.orgEnergySpendPeriod    = 0;
         OConfig.orgClonePeriod          = 0;
-        Config.worldHeight              = 400;
         OConfig.orgStartEnergy          = 10000;
         World.prototype.getFreePos      = () => {return {x: 1, y: 399}};
 
         man1.on(EVENTS.ITERATION, () => {
             if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
                 org1 = man1.organisms.first.val;
-                org1.vm.code.push(0b00001101000000000000000000000000); // onStepDown()
+                org1.vm.code.push(0b00001100000000000000000000000000); // onStepDown()
             } else if (man2.organisms.size === 2) {
                 destroy();
             }
@@ -379,6 +379,7 @@ describe("client/src/manager/Manager", () => {
         const height    = Config.worldHeight;
         const energy    = OConfig.orgStartEnergy;
         const server    = new Server();
+        Config.worldHeight              = 400;
         const man1      = new Manager(false);
         delete Config.organisms;
         delete Config.status;
@@ -413,14 +414,13 @@ describe("client/src/manager/Manager", () => {
         OConfig.orgCloneMutationPercent = 0;
         OConfig.orgEnergySpendPeriod    = 0;
         OConfig.orgClonePeriod          = 0;
-        Config.worldHeight              = 400;
         OConfig.orgStartEnergy          = 10000;
         World.prototype.getFreePos      = () => {return inc++ === 0 && {x: 1, y: 399} || {x: 1, y: 0}};
 
         man1.on(EVENTS.ITERATION, () => {
             if (iterated1 > 0 && iterated2 > 0 && org1 === null && org2 !== null) {
                 org1 = man1.organisms.first.val;
-                org1.vm.code.push(0b00001101000000000000000000000000); // onStepDown()
+                org1.vm.code.push(0b00001100000000000000000000000000); // onStepDown()
                 man1.on(EVENTS.STEP_OUT, () => {
                     expect(doneInc < 3).toBe(true);
                     ++doneInc;

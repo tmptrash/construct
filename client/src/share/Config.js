@@ -52,8 +52,8 @@ ClientConfig.init({
     /**
      * {Number} Turns on cyclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
-     * size and the organism has 10x5 position in it, one step right will move
-     * this organism at the position 1x5. The same scenario regarding Y
+     * size and the organism has 9x5 position in it, one step right will move
+     * this organism at the position 0x5. The same scenario regarding Y
      * coordinate (height). It actual only for one instance mode (no distributed
      * calculations).
      */
