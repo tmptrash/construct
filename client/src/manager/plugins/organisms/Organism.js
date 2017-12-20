@@ -7,7 +7,6 @@
  */
 const Observer      = require('./../../../../../common/src/Observer');
 const Helper        = require('./../../../../../common/src/Helper');
-const Config        = require('./../../../share/Config').Config;
 const OConfig       = require('./../../../manager/plugins/organisms/Config');
 const EVENTS        = require('./../../../share/Events').EVENTS;
 const EVENT_AMOUNT  = require('./../../../share/Events').EVENT_AMOUNT;
@@ -117,7 +116,7 @@ class Organism extends Observer {
             // 'item' will be added after insertion
             iterations          : this._iterations,
             fnId                : this._fnId,
-            vm                : this.vm.serialize(),
+            vm                  : this.vm.serialize(),
             energy              : this._energy,
             color               : this._color,
             mutationProbs       : this._mutationProbs,

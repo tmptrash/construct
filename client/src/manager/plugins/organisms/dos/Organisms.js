@@ -53,7 +53,7 @@ class Organisms extends BaseOrganisms {
      * @override
      */
     onBeforeClone(org) {
-        return org.energy > 0;
+        return org.energy > 1;
     }
 
     /**
