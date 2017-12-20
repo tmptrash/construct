@@ -13,11 +13,9 @@ describe("server/src/server/Server", () => {
     const SConsole     = require('./../share/Console');
     const Console      = require('./../../../client/src/share/Console');
     const Helper       = require('./../../../common/tests/Helper');
-    const TYPES        = require('./../../../common/src/net/Requests').TYPES;
-    const Api          = require('./plugins/Api');
-    const Request      = require('./../../../common/src/plugins/Request');
     const waitEvent    = Helper.waitEvent;
     const host         = Config.serverHost;
+    const port         = SConfig.port;
 
     const CLIENT_URL = `ws://127.0.0.1:${Config.serverPort}`;
 
@@ -33,6 +31,7 @@ describe("server/src/server/Server", () => {
         Config.serverHost = 'ws://127.0.0.1';
         dist = SConfig.modeDistributed;
         SConfig.modeDistributed = false;
+        SConfig.port = Config.serverPort;
         error = Console.error;
         warn  = Console.warn;
         info  = Console.info;
@@ -58,6 +57,7 @@ describe("server/src/server/Server", () => {
         Config.modeNodeJs = OLD_MODE;
         Config.serverHost = host;
         SConfig.modeDistributed = dist;
+        SConfig.port = port;
     });
 
     it("Checking server creation", () => {

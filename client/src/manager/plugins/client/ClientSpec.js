@@ -9,11 +9,11 @@ describe("client/src/manager/plugins/Client", () => {
     let api          = require('./../../../share/Config').api;
     let Console      = require('./../../../share/Console');
     let SConsole     = require('./../../../../../server/src/share/Console');
-    const Api        = require('./../../../../../server/src/server/plugins/Api');
-    const Request    = require('./../../../../../common/src/plugins/Request');
     const waitEvent  = THelper.waitEvent;
     const wait       = THelper.wait;
     const host       = Config.serverHost;
+    const port       = SConfig.port;
+    const maxConns   = SConfig.maxConnections;
     let isNodeJs;
     let Client;
     let CEVENTS;
@@ -36,6 +36,8 @@ describe("client/src/manager/plugins/Client", () => {
         Config.serverHost = 'ws://127.0.0.1';
         dist = SConfig.modeDistributed;
         SConfig.modeDistributed = false;
+        SConfig.port = Config.serverPort;
+        SConfig.maxConnections = 100;
         Client   = require('./Client').Client;
         CEVENTS  = require('./Client').EVENTS;
         Server   = require('./../../../../../server/src/server/Server').Server;
@@ -68,6 +70,8 @@ describe("client/src/manager/plugins/Client", () => {
 
         Config.serverHost = host;
         SConfig.modeDistributed = dist;
+        SConfig.port = port;
+        SConfig.maxConnections = maxConns;
     });
 
     it("Checking client creation without server", (done) => {

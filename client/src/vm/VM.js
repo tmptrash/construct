@@ -117,10 +117,12 @@ class VM extends Observer {
                 continue;
             }
             if (line >= lines) {
-                line = 0;
-                org.alive && (this._operators.offsets = (this._offsets = []));
-                this._onCodeEnd(this._linesRun + (len2 - len));
-                this._linesRun = -(len2 - len);
+                if (org.alive) {
+                    line = 0;
+                    this._operators.offsets = this._offsets = [];
+                    this._onCodeEnd(this._linesRun + (len2 - len));
+                    this._linesRun = -(len2 - len);
+                }
                 break;
             }
         }

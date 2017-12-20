@@ -18,6 +18,7 @@ describe("client/src/manager/Manager", () => {
     const host         = Config.serverHost;
     const port         = SConfig.port;
     const maxConns     = SConfig.maxConnections;
+    const startOrgs    = OConfig.orgStartAmount;
 
     let error;
     let warn;
@@ -43,6 +44,7 @@ describe("client/src/manager/Manager", () => {
         SConfig.modeDistributed = false;
         SConfig.port = Config.serverPort;
         SConfig.maxConnections = 100;
+        OConfig.orgStartAmount = 0;
 
         error = Console.error;
         warn  = Console.warn;
@@ -73,6 +75,7 @@ describe("client/src/manager/Manager", () => {
         SConfig.modeDistributed = dist;
         SConfig.port = port;
         SConfig.maxConnections = maxConns;
+        OConfig.orgStartAmount = startOrgs;
     });
 
     it("Checking manager creation", (done) => {

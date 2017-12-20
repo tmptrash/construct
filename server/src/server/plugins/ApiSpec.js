@@ -12,9 +12,9 @@ describe("server/src/server/plugins/Api", () => {
     const Console      = require('./../../../../client/src/share/Console');
     const SConsole     = require('./../../share/Console');
     const Helper       = require('./../../../../common/tests/Helper');
-    const Api          = require('./Api');
     const waitEvent    = Helper.waitEvent;
     const host         = Config.serverHost;
+    const port         = SConfig.port;
 
     let error;
     let warn;
@@ -29,6 +29,7 @@ describe("server/src/server/plugins/Api", () => {
         Config.modeNodeJs = true;
         dist = SConfig.modeDistributed;
         SConfig.modeDistributed = false;
+        SConfig.port = Config.serverPort;
         error = Console.error;
         warn  = Console.warn;
         info  = Console.info;
@@ -54,6 +55,7 @@ describe("server/src/server/plugins/Api", () => {
         Config.modeNodeJs = OLD_MODE;
         Config.serverHost = host;
         SConfig.modeDistributed = dist;
+        SConfig.port = port;
     });
 
     it("Checking unique id on client connect", (done) => {
