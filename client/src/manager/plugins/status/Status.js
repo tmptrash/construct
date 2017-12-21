@@ -41,7 +41,6 @@ class Status extends Configurable {
         this._codeSize     = 0;
         this._runLines     = 1;
         this._times        = 0;
-        this._ipsTimes     = 0;
         this._oldValues    = [0, 0];
         this._onIpsCb      = this._onIps.bind(this);
         this._onOrganismCb = this._onOrganism.bind(this);
@@ -63,21 +62,20 @@ class Status extends Configurable {
     _onIps(ips, orgs) {
         if (!StatusConfig.showMessages) {return}
         const stamp     = Date.now();
-        this._ipsTimes++;
+        this._times++;
         if (stamp - this._stamp < StatusConfig.period) {return}
 
         this._onBeforeLog(ips, orgs);
         const format    = Status._format;
-        const times     = this._times;
         const orgAmount = orgs.size || 1;
         const sips      = `ips:${ips.toFixed(ips < 10 ? 2 : 0)}`.padEnd(10);
-        const slps      = format(this._runLines / this._ipsTimes, 'lps', orgAmount, 0, 14, 1       );
-        const sorgs     = format(orgAmount,                       'org', orgAmount, 0, 10, 1       );
-        const senergy   = format(this._curEnergy,                 'nrg', orgAmount, 0, 14, 1       );
-        const siq       = format(this._energy   / times,          'iq',  orgAmount, 3, 13, 0.001   );
-        const sfit      = format(this._fitness  / times,          'fit', orgAmount, 3, 14, 0.000001);
-        const schanges  = format(this._changes,                   'che', orgAmount, 3, 12, 1, true );
-        const scode     = format(this._codeSize,                  'cod', orgAmount, 1, 12, 1, true );
+        const slps      = format(this._runLines / this._times, 'lps', orgAmount, 0, 14         );
+        const sorgs     = format(orgAmount,                    'org', orgAmount, 0, 10         );
+        const senergy   = format(this._curEnergy,              'nrg', orgAmount, 0, 14         );
+        const siq       = format(this._energy,                 'iq',  orgAmount, 3, 13, 1000   );
+        const sfit      = format(this._fitness,                'fit', orgAmount, 3, 14         );
+        const schanges  = format(this._changes,                'che', orgAmount, 3, 12, 1, true);
+        const scode     = format(this._codeSize,               'cod', orgAmount, 1, 12, 1, true);
 
         console.log(`%c${sips}${slps}${sorgs}%c${siq}${senergy}${schanges}${sfit}${scode}`, GREEN, RED);
         this._manager.hasView && this._manager.canvas.text(5, 15, sips);
@@ -92,6 +90,7 @@ class Status extends Configurable {
     _onBeforeLog(ips, orgs) {
         const olds      = this._oldValues;
         const size      = orgs.size || 1;
+        const lines     = this._runLines;
         let   energy    = 0;
         let   fitness   = 0;
         let   changes   = 0;
@@ -107,17 +106,18 @@ class Status extends Configurable {
             item      = item.next;
         }
 
-        this._curEnergy = (energy   /= size);
-        this._energy    = (energy    - olds[0]);
-        this._fitness   = ((fitness /= size) - olds[1]);
+        this._curEnergy = energy / size;
+        energy  = (energy  / size) / lines;
+        fitness = (fitness / size) / lines;
+        this._energy    = energy   - olds[0];
+        this._fitness   = fitness  - olds[1];
         this._changes   = changes;
         this._codeSize  = codeSize;
         this._oldValues = [energy, fitness];
-        this._times++;
     }
 
     _onAfterLog(stamp) {
-        this._ipsTimes = 0;
+        this._times    = 0;
         this._runLines = 0;
         this._stamp    = stamp;
     }
