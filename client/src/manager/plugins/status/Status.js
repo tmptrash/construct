@@ -1,17 +1,19 @@
 /**
  * This plugin is a primitive version of real time charts. It shows
  * different parameters of the jevo.js system, like average energy,
- * iq (energy picking speed), average code size and so on. Here labels
- * explanation:
- *   ips: Iterations Per Second - amount of all organisms full code
- *        runs per one second
- *   lps: Lines Per Second - average run code lines per second
- *   org: Average amount of organisms
- *   nrg: Amount of energy of average organism
- *   iq : Energy picking speed per time
- *   che: Average changes amount
- *   fit: Fitness of one average organism
- *   cod: Average code size
+ * iq (energy picking speed), average code size and so on. Here
+ * labels explanation:
+ *
+ *     ips: Iterations Per Second - amount of all organisms full
+ *          code runs per one second
+ *     lps: Lines Per Second - average amount of run code lines
+ *          per one second
+ *     org: Average amount of organisms at the moment of logging
+ *     nrg: Amount of energy of average organism
+ *     iq : Energy picking speed per StatusConfig.period seconds
+ *     che: Changes amount of average organism
+ *     fit: Fitness of average organism
+ *     cod: Code size of average organism
  *
  * @author flatline
  */
