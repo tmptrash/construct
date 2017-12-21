@@ -106,11 +106,11 @@ class Status extends Configurable {
             item      = item.next;
         }
 
-        this._curEnergy = energy / size;
-        energy  = (energy  / size) / lines;
-        fitness = (fitness / size) / lines;
-        this._energy    = energy   - olds[0];
-        this._fitness   = fitness  - olds[1];
+        energy  /= size;
+        fitness /= size;
+        this._curEnergy = energy;
+        this._energy    = (energy  - olds[0]) / lines;
+        this._fitness   = (fitness - olds[1]) / lines;
         this._changes   = changes;
         this._codeSize  = codeSize;
         this._oldValues = [energy, fitness];
