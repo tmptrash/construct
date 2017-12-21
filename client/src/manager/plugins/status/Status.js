@@ -61,14 +61,15 @@ class Status extends Configurable {
         this._onAfterIps(stamp);
     }
 
+    _onOrganism(org, lines) {
+	    if (!StatusConfig.showMessages) {return}
+        this._runLines += lines;
+    }
+	
     _format(value, name, orgs, fixed, pad, coef = 1, lines = true, perOrg = true) {
         orgs  = perOrg ? orgs : 1;
         lines = lines  ? this._runLines : 1;
         return `${name}:${(((value / orgs) / lines) * coef).toFixed(fixed)}`.padEnd(pad);
-    }
-
-    _onOrganism(org, lines) {
-        this._runLines += lines;
     }
 
     _onBeforeIps(ips, orgs) {
