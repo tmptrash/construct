@@ -57,7 +57,7 @@ ClientConfig.init({
      * coordinate (height). It actual only for one instance mode (no distributed
      * calculations).
      */
-    worldCyclical: true,
+    worldCyclical: false,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
@@ -97,7 +97,7 @@ ClientConfig.init({
     /**
      * {Number} Port number for connecting with server
      */
-    serverPort: 8099,
+    serverPort: 8301,
     /**
      * {String} Host for connecting with server
      */

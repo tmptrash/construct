@@ -61,7 +61,6 @@ class VM extends Observer {
         this._ops         = this._operators.operators;
         this._code        = parent && parent.code.slice() || [];
         this._line        = 0;
-        this._linesRun    = 0;
     }
 
     get code()      {return this._code}
@@ -108,27 +107,25 @@ class VM extends Observer {
         while (len-- > 0 && org.alive) {
             line = ops[code[line] >>> VAR_BITS_OFFS](code[line], line, org, lines, ret);
             //
+            // We reach the end of the script and have to run it from the beginning
+            //
+            if (line >= lines && org.alive) {
+                line = 0;
+                this._operators.offsets = this._offsets = [];
+                this._onCodeEnd(len2 - len - 1);
+                continue;
+            }
+            //
             // We found closing bracket '}' of some loop and have to return
             // to the beginning of operator (e.g.: for)
             //
             if ((ret = (offs.length > 0 && line === offs[offs.length - 1]))) {
                 offs.pop();
                 line = offs.pop();
-                continue;
-            }
-            if (line >= lines) {
-                if (org.alive) {
-                    line = 0;
-                    this._operators.offsets = this._offsets = [];
-                    this._onCodeEnd(this._linesRun + (len2 - len));
-                    this._linesRun = -(len2 - len);
-                }
-                break;
             }
         }
 
-        this._linesRun += (len2 - len);
-        this._line      = line;
+        this._line = line;
     }
 
     destroy() {

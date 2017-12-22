@@ -31,12 +31,12 @@ ServerConfig.init({
      * with additional "around" rows and columns for connecting with sibling
      * servers. So, result amount of cells will be e.g.: 16 + 2 rows + 2 cols.
      */
-    maxConnections: 1,
+    maxConnections: 4,
     /**
      * {Number} Port number for connecting with server. This value will be
      * passed to the server during creation
      */
-    port: 8201,
+    port: 8301,
     /**
      * {Boolean} Means, that this server will be run in distributed mode. And
      * will be connected with near servers (up...left). false, means, that
@@ -46,11 +46,11 @@ ServerConfig.init({
     /**
      * {String} Host address of server above. Shouldn't contain port
      */
-    upHost: 'ws://127.0.0.1',
+    upHost: 'ws://192.168.31.176',
     /**
      * {Number} Port number of server above.
      */
-    upPort: 8110,
+    upPort: 8201,
     /**
      * {String} Host address of server on the right. Shouldn't contain port
      */
