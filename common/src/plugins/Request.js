@@ -74,8 +74,11 @@ class Request {
         const reqId = Helper.getId();
 
         cb && (this._requests[reqId] = cb);
-        sock.send(JSON.stringify([type, (reqId | MASKS.REQ_MASK) >>> 0].concat(params)), this._onSendErrCb);
-
+        try {
+            sock.send(JSON.stringify([type, (reqId | MASKS.REQ_MASK) >>> 0].concat(params)), this._onSendErrCb);
+        } catch (e) {
+            this._onSendErr(e);
+        }
         return reqId;
     }
 
@@ -90,7 +93,11 @@ class Request {
      * @override
      */
     _onResponse(sock, type, reqId, ...params) {
-        sock.send(JSON.stringify([type, (reqId & MASKS.RES_MASK) >>> 0].concat(params)), this._onSendErrCb);
+        try {
+            sock.send(JSON.stringify([type, (reqId & MASKS.RES_MASK) >>> 0].concat(params)), this._onSendErrCb);
+        } catch (e) {
+            this._onSendErr(e);
+        }
     }
 
     /**
