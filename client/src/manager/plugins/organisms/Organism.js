@@ -58,7 +58,6 @@ class Organism extends Observer {
         this._changes     = 1;
         this._alive       = alive;
         this._item        = item;
-        this._iterations  = 0;
         this._fnId        = 0;
     }
 
@@ -196,6 +195,7 @@ class Organism extends Observer {
         this._mutationPeriod        = OConfig.orgRainMutationPeriod;
         this._mutationPercent       = OConfig.orgRainMutationPercent;
         this._cloneEnergyPercent    = OConfig.orgCloneEnergyPercent;
+        this._iterations            = 0;
         this._mem                   = [];
     }
 
@@ -208,6 +208,7 @@ class Organism extends Observer {
         this._mutationPeriod        = parent.mutationPeriod;
         this._mutationPercent       = parent.mutationPercent;
         this._cloneEnergyPercent    = parent.cloneEnergyPercent;
+        this._iterations            = parent.iterations;
         this._mem                   = parent.mem.slice();
     }
 
