@@ -83,7 +83,7 @@ class Client extends Connection {
 
         try {
             client = new WS(`${this.host}:${this.port}`);
-			client.on('error', (e) => this.fire(this.EVENTS.ERR, e));
+            client.on('error', (e) => this.fire(this.EVENTS.ERR, e));
         } catch (e) {
             this.fire(this.EVENTS.ERR, e.message);
         }
