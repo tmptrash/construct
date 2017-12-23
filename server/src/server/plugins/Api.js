@@ -161,8 +161,6 @@ class Api extends BaseApi {
      * @param {String} orgJson Organism's serialized json
      */
     _moveToServer(clientId, x, y, dir, orgJson) {
-        const region = Connections.toRegion(clientId);
-
         const sock = this.parent.aroundServers.getSocket(dir);
         sock && this.parent.request(sock, TYPES.REQ_MOVE_ORG_FROM_SERVER, clientId, x, y, dir, orgJson);
     }
