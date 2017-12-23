@@ -187,7 +187,7 @@ class Organism extends Observer {
     }
 
     _create() {
-        this.vm                   = new VM(this._codeEndCb.bind(this, this), this, this._operatorCls);
+        this.vm                     = new VM(this._codeEndCb.bind(this, this), this, this._operatorCls);
         this._energy                = OConfig.orgStartEnergy;
         this._color                 = OConfig.orgStartColor;
         this._mutationProbs         = OConfig.orgMutationProbs.slice();
@@ -200,7 +200,7 @@ class Organism extends Observer {
     }
 
     _clone(parent) {
-        this.vm                   = new VM(this._codeEndCb.bind(this, this), this, this._operatorCls, parent.vm);
+        this.vm                     = new VM(this._codeEndCb.bind(this, this), this, this._operatorCls, parent.vm);
         this._energy                = parent.energy;
         this._color                 = parent.color;
         this._mutationProbs         = parent.mutationProbs.slice();

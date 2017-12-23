@@ -99,7 +99,7 @@ class VM extends Observer {
         const lines = code.length;
         const ops   = this._ops;
         const offs  = this._offsets;
-        const len2  = lines === 0 ? 0 : OConfig.codeYieldPeriod || lines;
+        let   len2  = lines === 0 ? 0 : OConfig.codeYieldPeriod || lines;
         let   len   = len2;
         let   line  = this._line;
         let   ret   = false;
@@ -112,7 +112,8 @@ class VM extends Observer {
             if (line >= lines && org.alive) {
                 line = 0;
                 this._operators.offsets = this._offsets = [];
-                this._onCodeEnd(len2 - len - 1);
+                this._onCodeEnd(len2 - len);
+                len2 = len;
                 continue;
             }
             //
