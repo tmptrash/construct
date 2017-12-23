@@ -1,4 +1,5 @@
 describe("client/src/manager/Manager", () => {
+    const SERVER_HOST  = 'ws://127.0.0.1';
     const Config       = require('./../../../client/src/share/Config').Config;
     const OConfig      = require('./../manager/plugins/organisms/Config');
     const SConfig      = require('./../../../server/src/share/Config').Config;
@@ -37,7 +38,7 @@ describe("client/src/manager/Manager", () => {
     });
     beforeAll(() => {
         jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
-        Config.serverHost = 'ws://127.0.0.1';
+        Config.serverHost = SERVER_HOST;
         Config.plugIncluded.splice(Config.plugIncluded.indexOf('ips/Ips'));
         Config.modeNodeJs = true;
         dist = SConfig.modeDistributed;
@@ -46,28 +47,28 @@ describe("client/src/manager/Manager", () => {
         SConfig.maxConnections = 100;
         OConfig.orgStartAmount = 0;
 
-        error = Console.error;
-        warn  = Console.warn;
-        info  = Console.info;
-        Console.error = emptyFn;
-        Console.warn  = emptyFn;
-        Console.info  = emptyFn;
-
-        serror = SConsole.error;
-        swarn  = SConsole.warn;
-        sinfo  = SConsole.info;
-        SConsole.error = emptyFn;
-        SConsole.warn  = emptyFn;
-        SConsole.info  = emptyFn;
+        // error = Console.error;
+        // warn  = Console.warn;
+        // info  = Console.info;
+        // Console.error = emptyFn;
+        // Console.warn  = emptyFn;
+        // Console.info  = emptyFn;
+        //
+        // serror = SConsole.error;
+        // swarn  = SConsole.warn;
+        // sinfo  = SConsole.info;
+        // SConsole.error = emptyFn;
+        // SConsole.warn  = emptyFn;
+        // SConsole.info  = emptyFn;
     });
     afterAll(()  => {
-        SConsole.error = serror;
-        SConsole.warn  = swarn;
-        SConsole.info  = sinfo;
-
-        Console.error = error;
-        Console.warn  = warn;
-        Console.info  = info;
+        // SConsole.error = serror;
+        // SConsole.warn  = swarn;
+        // SConsole.info  = sinfo;
+        //
+        // Console.error = error;
+        // Console.warn  = warn;
+        // Console.info  = info;
         Config.modeNodeJs = OLD_MODE;
         Config.plugIncluded.push('ips/Ips');
         jasmine.DEFAULT_TIMEOUT_INTERVAL = timeout;
@@ -584,4 +585,92 @@ describe("client/src/manager/Manager", () => {
         man2.run(() => ++count === 2 && (waitObj.done = true));
         wait(waitObj, cb);
     });
+
+    // it('Tests organism moving from client of one server to client of other server', () => {
+    //     const amount                    = OConfig.orgStartAmount;
+    //     const period                    = OConfig.orgRainMutationPeriod;
+    //     const percent                   = OConfig.orgCloneMutationPercent;
+    //     const period1                   = OConfig.orgEnergySpendPeriod;
+    //     const clone                     = OConfig.orgClonePeriod;
+    //     const energy                    = OConfig.orgStartEnergy;
+    //     const width                     = Config.worldWidth;
+    //     const height                    = Config.worldHeight;
+    //     const cport                     = Config.serverPort;
+    //     const chost                     = Config.serverHost;
+    //     const cycl                      = Config.worldCyclical;
+    //     const sport                     = SConfig.port;
+    //     const sdport                    = SConfig.downPort;
+    //     const suport                    = SConfig.upPort;
+    //     const maxConns                  = SConfig.maxConnections;
+    //     const freePos                   = World.prototype.getFreePos;
+    //     let   iterated1                 = 0;
+    //     let   iterated2                 = 0;
+    //     let   org1                      = null;
+    //     const destroy                   = () => {
+    //         man1.destroy(() => {
+    //             man2.destroy(() => {
+    //                 waitEvent(server1, SEVENTS.DESTROY, () => server1.destroy(), () => {
+    //                     World.prototype.getFreePos      = freePos;
+    //                     OConfig.orgStartEnergy          = energy;
+    //                     OConfig.orgClonePeriod          = clone;
+    //                     OConfig.orgEnergySpendPeriod    = period1;
+    //                     OConfig.orgCloneMutationPercent = percent;
+    //                     OConfig.orgRainMutationPeriod   = period;
+    //                     OConfig.orgStartAmount          = amount;
+    //                     Config.worldWidth               = width;
+    //                     Config.worldHeight              = height;
+    //                     SConfig.port                    = sport;
+    //                     SConfig.downPort                = sdport;
+    //                     SConfig.upPort                  = suport;
+    //                     Config.serverPort               = cport;
+    //                     Config.serverHost               = chost;
+    //                     SConfig.maxConnections          = maxConns;
+    //                     Config.worldCyclical            = cycl;
+    //                     done();
+    //                 });
+    //             });
+    //         });
+    //     };
+    //
+    //     SConfig.maxConnections          = 1;
+    //     SConfig.port                    = 3000;
+    //     SConfig.downPort                = 3001;
+    //     const server1                   = new Server(); // up server
+    //     SConfig.port                    = 3001;
+    //     SConfig.upPort                  = 3000;
+    //     const server2                   = new Server(); // down server
+    //     Config.worldWidth               = 10;
+    //     Config.worldHeight              = 10;
+    //     Config.serverPort               = 3000;
+    //     Config.serverHost               = SERVER_HOST;
+    //     const man1                      = new Manager(false);
+    //     delete Config.organisms;
+    //     delete Config.status;
+    //     Config.serverPort               = 3001;
+    //     const man2                      = new Manager(false);
+    //     OConfig.orgStartAmount          = 1;
+    //     OConfig.orgRainMutationPeriod   = 0;
+    //     OConfig.orgCloneMutationPercent = 0;
+    //     OConfig.orgEnergySpendPeriod    = 0;
+    //     OConfig.orgClonePeriod          = 0;
+    //     OConfig.orgStartEnergy          = 10000;
+    //     Config.worldCyclical            = false;
+    //     World.prototype.getFreePos      = () => {return {x: 1, y: 9}};
+    //
+    //     man1.on(EVENTS.ITERATION, () => {
+    //         if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
+    //             org1 = man1.organisms.first.val;
+    //             org1.vm.code.push(0b00001100000000000000000000000000); // onStepDown()
+    //         } else if (man2.organisms.size === 2) {
+    //             destroy();
+    //         }
+    //         if (iterated1 > 10000) {throw 'Error sending organism between Servers'}
+    //         iterated1++;
+    //     });
+    //     man2.on(EVENTS.ITERATION, () => iterated2++);
+    //
+    //     server1.run();
+    //     server2.run();
+    //     man1.run(man2.run);
+    // });
 });
