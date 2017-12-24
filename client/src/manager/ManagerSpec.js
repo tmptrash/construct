@@ -686,6 +686,7 @@ describe("client/src/manager/Manager", () => {
 
         man1.on(EVENTS.ITERATION, () => {
             if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
+                expect(man2.organisms.size).toBe(1);
                 org1 = man1.organisms.first.val;
                 org1.vm.code.push(0b00001100000000000000000000000000); // onStepDown()
             } else if (man2.organisms.size === 2) {
