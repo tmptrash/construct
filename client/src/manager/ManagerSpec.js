@@ -285,7 +285,6 @@ describe("client/src/manager/Manager", () => {
         expect(man2.clientId).toBe(null);
         expect(man1.organisms.size).toBe(0);
         expect(man2.organisms.size).toBe(0);
-        server.run();
 
         man1.on(EVENTS.ITERATION, () => {
             if (blocked) {return}
@@ -300,12 +299,14 @@ describe("client/src/manager/Manager", () => {
             iterated2 = true;
         });
 
-        man1.run(() => {
-            expect(man1.active).toBe(true);
-            expect(man1.clientId !== null).toBe(true);
-            man2.run(() => {
-                expect(man2.active).toBe(true);
-                expect(man2.clientId !== null).toBe(true);
+        waitEvent(server, server.EVENTS.RUN, () => server.run(), () => {
+            man1.run(() => {
+                expect(man1.active).toBe(true);
+                expect(man1.clientId !== null).toBe(true);
+                man2.run(() => {
+                    expect(man2.active).toBe(true);
+                    expect(man2.clientId !== null).toBe(true);
+                });
             });
         });
     });
@@ -366,10 +367,7 @@ describe("client/src/manager/Manager", () => {
         });
         man2.on(EVENTS.ITERATION, () => iterated2++);
 
-        server.run();
-        man1.run(() => {
-            man2.run();
-        });
+        waitEvent(server, server.EVENTS.RUN, () => server.run(), () => man1.run(() => man2.run()));
     });
     /**
      * The meaning of this test is in checking if one organism from up manager
@@ -452,8 +450,7 @@ describe("client/src/manager/Manager", () => {
             iterated2++;
         });
 
-        server.run();
-        man1.run(man2.run);
+        waitEvent(server, server.EVENTS.RUN, () => server.run(), () => man1.run(() => man2.run()));
     });
 
     it("Testing hundred managers and one server", (done) => {
@@ -471,26 +468,28 @@ describe("client/src/manager/Manager", () => {
         Config.worldWidth      = 100;
         Config.worldHeight     = 100;
         SConfig.maxConnections = CLIENTS;
-        server.run();
-        for (let i = 0; i < CLIENTS; i++) {
-            delete Config.organisms;
-            delete Config.status;
-            mans.push(man = new Manager(false));
-            man.run(() => ++amount === CLIENTS && (waitObj.done = true));
-        }
-        wait(waitObj, () => {
-            amount = 0;
-            server.on(server.EVENTS.CLOSE, () => ++amount === CLIENTS && (waitObj.done = true));
-            for (let i = 0; i < CLIENTS; i++) {mans[i].destroy()}
+
+        waitEvent(server, server.EVENTS.RUN, () => server.run(), () => {
+            for (let i = 0; i < CLIENTS; i++) {
+                delete Config.organisms;
+                delete Config.status;
+                mans.push(man = new Manager(false));
+                man.run(() => ++amount === CLIENTS && (waitObj.done = true));
+            }
             wait(waitObj, () => {
-                waitEvent(server, server.EVENTS.DESTROY, () => server.destroy(), () => {
-                    SConfig.maxConnections = maxCons;
-                    Config.worldWidth      = width;
-                    Config.worldHeight     = height;
-                    done();
+                amount = 0;
+                server.on(server.EVENTS.CLOSE, () => ++amount === CLIENTS && (waitObj.done = true));
+                for (let i = 0; i < CLIENTS; i++) {mans[i].destroy()}
+                wait(waitObj, () => {
+                    waitEvent(server, server.EVENTS.DESTROY, () => server.destroy(), () => {
+                        SConfig.maxConnections = maxCons;
+                        Config.worldWidth      = width;
+                        Config.worldHeight     = height;
+                        done();
+                    });
                 });
-            });
-        }, 31000);
+            }, 31000);
+        });
     });
     it("Testing run/stop/run manager and one server", (done) => {
         jasmine.DEFAULT_TIMEOUT_INTERVAL = 35000;
@@ -514,25 +513,26 @@ describe("client/src/manager/Manager", () => {
         delete Config.status;
         man2 = new Manager(false);
 
-        server.run();
-        man1.run(() => ++count === 2 && (waitObj.done = true));
-        man2.run(() => ++count === 2 && (waitObj.done = true));
-        wait(waitObj, () => {
-            man1.stop(() => {
-                expect(man1.clientId).toBe(null);
-                oldId = man1.clientId;
-                man1.run(() => {
-                    expect(man1.clientId).not.toBe(null);
-                    amount = 0;
-                    server.on(server.EVENTS.CLOSE, () => ++amount === 2 && (waitObj.done = true));
-                    man1.destroy();
-                    man2.destroy();
-                    wait(waitObj, () => {
-                        waitEvent(server, server.EVENTS.DESTROY, () => server.destroy(), () => {
-                            SConfig.maxConnections = maxCons;
-                            Config.worldWidth      = width;
-                            Config.worldHeight     = height;
-                            done();
+        waitEvent(server, server.EVENTS.RUN, () => server.run(), () => {
+            man1.run(() => ++count === 2 && (waitObj.done = true));
+            man2.run(() => ++count === 2 && (waitObj.done = true));
+            wait(waitObj, () => {
+                man1.stop(() => {
+                    expect(man1.clientId).toBe(null);
+                    oldId = man1.clientId;
+                    man1.run(() => {
+                        expect(man1.clientId).not.toBe(null);
+                        amount = 0;
+                        server.on(server.EVENTS.CLOSE, () => ++amount === 2 && (waitObj.done = true));
+                        man1.destroy();
+                        man2.destroy();
+                        wait(waitObj, () => {
+                            waitEvent(server, server.EVENTS.DESTROY, () => server.destroy(), () => {
+                                SConfig.maxConnections = maxCons;
+                                Config.worldWidth      = width;
+                                Config.worldHeight     = height;
+                                done();
+                            });
                         });
                     });
                 });
