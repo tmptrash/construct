@@ -10,7 +10,6 @@
  *
  * @author flatline
  */
-const Config        = require('./../../../../share/Config').Config;
 const Organism      = require('./Organism');
 const Console       = require('./../../../../share/Console');
 const EVENTS        = require('./../../../../share/Events').EVENTS;
@@ -21,6 +20,7 @@ class Organisms extends BaseOrganisms {
     constructor(manager) {
         super(manager);
         this._maxChanges = 0;
+        this._maxEnergy  = 0;
     }
 
     /**
@@ -54,6 +54,7 @@ class Organisms extends BaseOrganisms {
     reset() {
         super.reset();
         this._maxChanges = 0;
+        this._maxEnergy  = 0;
     }
 
     /**

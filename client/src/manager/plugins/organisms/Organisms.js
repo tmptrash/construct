@@ -203,8 +203,7 @@ class Organisms extends Configurable {
     }
 
     reset() {
-        this._orgId     = 0;
-        this._maxEnergy = 0;
+        this._orgId = 0;
     }
 
     move(x1, y1, x2, y2, org) {
