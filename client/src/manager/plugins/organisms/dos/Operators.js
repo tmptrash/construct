@@ -268,7 +268,6 @@ class OperatorsDos extends Operators {
      * @param {Number} lines Amount of lines
      * @param {Number} offs Local offset of closing bracket we want to set
      * @returns {Number}
-     * @private
      */
     _getOffs(line, lines, offs) {
         let   offset  = line + offs < lines ? line + offs + 1 : lines;

@@ -119,7 +119,6 @@ class Request {
      * [type, reqId|null, ...params].
      * @param {WebSocket} sock Owner socket
      * @param {Event} event Event object with received data
-     * @private
      */
     _onMessage(sock, event) {
         const data  = JSON.parse(event.data || event);

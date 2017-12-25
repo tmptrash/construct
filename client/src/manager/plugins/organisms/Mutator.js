@@ -40,7 +40,6 @@ class Mutator {
     /**
      * Operator type or one variable may mutate
      * @param {Organism} org
-     * @private
      */
     static _onSmallChange(org) {
         const rand  = Helper.rand;

@@ -13,6 +13,7 @@ const Console     = require('./../../share/Console');
 const Connections = require('./../Connections');
 
 const DIR         = require('./../../../../common/src/Directions').DIR;
+const FLIP_DIR    = require('./../../../../common/src/Directions').FLIP_DIR;
 const NAMES       = require('./../../../../common/src/Directions').NAMES;
 const BaseApi     = require('./../../../../common/src/net/Api');
 class Api extends BaseApi {
@@ -20,10 +21,11 @@ class Api extends BaseApi {
         super(parent);
         const servers = parent.aroundServers;
 
-        this.api[TYPES.REQ_MOVE_ORG]             = this._onMoveOrgFromClient.bind(this);
-        this.api[TYPES.REQ_MOVE_ORG_FROM_SERVER] = this._onMoveOrgFromServer.bind(this);
-        this.api[TYPES.REQ_GET_ID]               = this._onGetId.bind(this);
-        this.api[TYPES.REQ_SET_NEAR_ACTIVE]      = this._onSetNearServer.bind(this);
+        this.api[TYPES.REQ_MOVE_ORG]                  = this._onMoveOrgFromClient.bind(this, false);
+        this.api[TYPES.REQ_MOVE_ORG_FROM_SERVER]      = this._onMoveOrgFromServer.bind(this);
+        this.api[TYPES.REQ_MOVE_ORG_BACK]             = this._onMoveOrgFromClient.bind(this, true);
+        this.api[TYPES.REQ_GET_ID]                    = this._onGetId.bind(this);
+        this.api[TYPES.REQ_SET_NEAR_ACTIVE]           = this._onSetNearServer.bind(this);
 
         this._onCloseCb       = this._onClose.bind(this);
         this._onServerOpenCb  = this._onServerOpen.bind(this);
@@ -51,7 +53,7 @@ class Api extends BaseApi {
     /**
      * Moves organism from near server to current server
      * @param {Number} reqId Unique request id. Needed for response
-     * @param {String} clientId Unique client id of near server
+     * @param {String} clientId Unique source client id
      * @param {Number} x Current org X position
      * @param {Number} y Current org Y position
      * @param {Number} dir Moving direction
@@ -61,21 +63,22 @@ class Api extends BaseApi {
     _onMoveOrgFromServer(reqId, clientId, x, y, dir, orgJson) {
         const reg   = Connections.toRegion(clientId);
         const conns = this.parent.conns;
-        this._moveToClient(Connections.toId(conns.oppositeRegion(reg, dir)), x, y, dir, orgJson, false);
+        this._moveToClient(false, Connections.toId(conns.oppositeRegion(reg, dir)), x, y, dir, orgJson, false);
     }
 
     /**
      * Moves organism from one client to another or to nearest server if
      * it's connected to current one
+     * @param {Boolean} back true, if the organism is sent back
      * @param {Number} reqId Unique request id. Needed for response
-     * @param {String} clientId Unique client id
+     * @param {String} clientId Unique source client id
      * @param {Number} x Current org X position
      * @param {Number} y Current org Y position
      * @param {Number} dir Moving direction
      * @param {String} orgJson Organism's serialized json
      * @api
      */
-    _onMoveOrgFromClient(reqId, clientId, x, y, dir, orgJson) {
+    _onMoveOrgFromClient(back, reqId, clientId, x, y, dir, orgJson) {
         const reg   = Connections.toRegion(clientId);
         const side  = this.parent.conns.side - 1;
         //
@@ -84,7 +87,7 @@ class Api extends BaseApi {
         //
         if (dir === DIR.UP   && reg[1] > 0    || dir === DIR.RIGHT && reg[0] < side ||
             dir === DIR.DOWN && reg[1] < side || dir === DIR.LEFT  && reg[0] > 0) {
-            this._moveToClient(clientId, x, y, dir, orgJson);
+            this._moveToClient(back, clientId, x, y, dir, orgJson);
             return;
         }
         //
@@ -130,15 +133,19 @@ class Api extends BaseApi {
     }
 
     /**
-     * Moves organism's json to nearest client depending on dir parameter
-     * @param {String} clientId Unique client id
+     * Moves organism's json to nearest client depending on dir parameter.
+     * This method is called in both client->client or server->client directions.
+     * If destination client is not active or there is no free space for the
+     * organism, then it will be sent back to source client.
+     * @param {Boolean} back true, if organism is sent back
+     * @param {String} clientId Unique source client id
      * @param {Number} x Organism x coordinate
      * @param {Number} y Organism y coordinate
      * @param {Number} dir Moving direction
      * @param {String} orgJson Organism's serialized json
      * @param {Boolean} fromClient false if organism came from near server
      */
-    _moveToClient(clientId, x, y, dir, orgJson, fromClient = true) {
+    _moveToClient(back, clientId, x, y, dir, orgJson, fromClient = true) {
         const region = Connections.toRegion(clientId);
 
         if (fromClient) {
@@ -147,14 +154,27 @@ class Api extends BaseApi {
             else if (dir === DIR.DOWN)  {region[1]++}
             else if (dir === DIR.LEFT)  {region[0]--}
         }
-
+        //
+        // If destination client active, then organism is moved there.
+        // Otherwise, we have to move it back to source client (possibly
+        // through near server)
+        //
         const con = this.parent.conns.getConnection(region);
-        con.active && this.parent.request(con.sock, TYPES.REQ_MOVE_ORG, clientId, x, y, dir, orgJson);
+        if (con.active) {
+            this.parent.request(con.sock, TYPES.REQ_MOVE_ORG, clientId, x, y, dir, orgJson, (type) => {
+                //
+                // No free space for organism - send it back to source client
+                //
+                type === TYPES.RES_MOVE_ERR && back && this._moveBack(region, clientId, x, y, dir, orgJson, fromClient);
+            });
+        } else {
+            back && this._moveBack(region, clientId, x, y, dir, orgJson, fromClient);
+        }
     }
 
     /**
      * Moves organism's json to nearest server depending on dir parameter
-     * @param {String} clientId Unique client id
+     * @param {String} clientId Unique source client id
      * @param {Number} x Organism x coordinate
      * @param {Number} y Organism y coordinate
      * @param {Number} dir Moving direction
@@ -166,9 +186,28 @@ class Api extends BaseApi {
     }
 
     /**
+     * Moves organism back to source client\server
+     * @param {Array} region Destination region if fromClient === true
+     * @param {String} clientId Unique source client id
+     * @param {Number} x Organism x coordinate
+     * @param {Number} y Organism y coordinate
+     * @param {Number} dir Moving direction
+     * @param {String} orgJson Organism's serialized json
+     * @param {Boolean} fromClient false if organism came from near server
+     */
+    _moveBack(region, clientId, x, y, dir, orgJson, fromClient) {
+        const newDir      = FLIP_DIR[dir];
+        const parent      = this.parent;
+        const sock        = fromClient ? parent.conns.getConnection(region).sock : parent.aroundServers.getSocket(newDir);
+        const newClientId = fromClient ? Connections.toId(region) : clientId;
+        const flipped     = Helper.flip(x, y);
+        sock && parent.request(sock, TYPES.REQ_MOVE_ORG_BACK, newClientId, flipped[0], flipped[1], newDir, orgJson);
+    }
+
+    /**
      * Sets client active. It means, that sibling active client may
      * transfer it's organisms to this client
-     * @param {String} clientId
+     * @param {String} clientId Unique source client id
      * @param {Boolean} active
      */
     _setActive(clientId, active) {

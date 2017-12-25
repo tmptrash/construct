@@ -58,7 +58,6 @@ class Api {
      * answers.
      * @param {WebSocket} sock Communication socket
      * @param {Event} event Event with parameters obtained from the client
-     * @private
      */
     _onMessage(sock, event) {
         const data  = JSON.parse(event.data || event);

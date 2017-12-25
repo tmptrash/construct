@@ -251,7 +251,6 @@ class VM extends Observer {
      * Generates default variables vm. It should be in ES5 version, because
      * speed is important. Amount of vars depends on OConfig.codeBitsPerVar config.
      * @returns {Array} vars vm
-     * @private
      */
     _getVars() {
         if (this._vars && this._vars.length > 0) {return this._vars}

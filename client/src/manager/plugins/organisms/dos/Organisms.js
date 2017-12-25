@@ -202,14 +202,15 @@ class Organisms extends BaseOrganisms {
     /**
      * Is called if organism step in from the server or other client (Manager/World).
      * If step in position is not free or maximum organisms are in the world, then
-     * organism die at the moment.
+     * organism die at the moment. We have to set true to ret.ret, if in this world
+     * there is a free place for the organism. And false otherwise.
      * @param {Number} x Current org X position
      * @param {Number} y Current org Y position
      * @param {String} orgJson Organism's serialized json
-     * @private
+     * @param {Object} ret Return object
      */
-    _onStepIn(x, y, orgJson) {
-        if (this.manager.world.isFree(x, y) && this.organisms.size < OConfig.orgMaxOrgs && this.createOrg({x, y})) {
+    _onStepIn(x, y, orgJson, ret) {
+        if (ret.ret = this.manager.world.isFree(x, y) && this.organisms.size < OConfig.orgMaxOrgs && this.createOrg({x, y})) {
             const org = this.organisms.last.val;
             org.unserialize(orgJson);
             org.grabEnergy(OConfig.orgStepEnergySpendPercent);

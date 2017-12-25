@@ -215,7 +215,6 @@ class Organism extends Observer {
     /**
      * Checks if organism need to be killed/destroyed, because of age or zero energy
      * @return {Boolean} false means that organism was destroyed.
-     * @private
      */
     _updateDestroy() {
         const alivePeriod = OConfig.orgAlivePeriod;
@@ -230,7 +229,6 @@ class Organism extends Observer {
      * This is how our system grabs an energy= require(organism if it's age is
      * divided into OConfig.orgEnergySpendPeriod.
      * @return {Boolean} false means that organism was destroyed.
-     * @private
      */
     _updateEnergy() {
         if (this._iterations % OConfig.orgEnergySpendPeriod !== 0 || OConfig.orgEnergySpendPeriod === 0) {return true}

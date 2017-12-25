@@ -48,7 +48,6 @@ class OrganismGarmin extends Organism {
     /**
      * Is called when some modifications in code appeared and we have
      * to re-execute it again
-     * @private
      */
     _onResetCode() {
         this._needRun = true;

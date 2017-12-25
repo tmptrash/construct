@@ -112,7 +112,6 @@ class Organisms extends Configurable {
      * iteration of main loop. The counter is an analog of time.
      * @param {Number} counter Value of main loop counter.
      * @param {Number} stamp Time stamp of current iteration
-     * @private
      */
     onIteration(counter, stamp) {
         let item = this.organisms.first;
@@ -145,7 +144,6 @@ class Organisms extends Configurable {
      * Cloning parents are chosen according to tournament principle
      * @param {Number} counter Current counter
      * @returns {boolean}
-     * @private
      */
     updateClone(counter) {
         const orgs      = this.organisms;

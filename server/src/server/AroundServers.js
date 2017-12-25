@@ -16,17 +16,13 @@
  * @author flatline
  */
 const DIR         = require('./../../../common/src/Directions').DIR;
+const FLIP_DIR    = require('./../../../common/src/Directions').FLIP_DIR;
 const NAMES       = require('./../../../common/src/Directions').NAMES;
 const TYPES       = require('./../../../common/src/net/Requests').TYPES;
 const AsyncParent = require('./../../../common/src/plugins/AsyncParent');
 const Observer    = require('./../../../common/src/Observer');
 const Console     = require('./../share/Console');
 const Client      = require('./Client');
-/**
- * {Array} Array of flipped directions. Is used for connecting with nearest
- * servers: left -> right, up -> down, right -> left, down -> up
- */
-const FLIP_DIR    = [DIR.DOWN, DIR.LEFT, DIR.UP, DIR.RIGHT];
 /**
  * Events of this class
  */
