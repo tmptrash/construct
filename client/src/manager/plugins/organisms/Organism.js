@@ -174,7 +174,7 @@ class Organism extends Observer {
         this._item       = null;
         this._mem        = null;
         this.vm && this.vm.destroy();
-        this.vm        = null;
+        this.vm          = null;
         this._codeEndCb  = null;
 
         super.destroy();

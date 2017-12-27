@@ -11,6 +11,7 @@ describe("client/src/manager/Manager", () => {
     const Console      = require('./../../../client/src/share/Console');
     const SConsole     = require('./../../../server/src/share/Console');
     const THelper      = require('./../../../common/tests/Helper');
+    const ConfigHelper = require('./../../../common/tests/Config');
     const World        = require('./../../../client/src/view/World').World;
     const Manager      = require('./Manager');
     const emptyFn      = () => {};
@@ -593,27 +594,9 @@ describe("client/src/manager/Manager", () => {
     });
 
     it('Tests organism moving from client of one server to client of other server', (done) => {
-        const amount                    = OConfig.orgStartAmount;
-        const period                    = OConfig.orgRainMutationPeriod;
-        const percent                   = OConfig.orgCloneMutationPercent;
-        const period1                   = OConfig.orgEnergySpendPeriod;
-        const clone                     = OConfig.orgClonePeriod;
-        const energy                    = OConfig.orgStartEnergy;
-        const width                     = Config.worldWidth;
-        const height                    = Config.worldHeight;
-        const cport                     = Config.serverPort;
-        const chost                     = Config.serverHost;
-        const cycl                      = Config.worldCyclical;
-        const sport                     = SConfig.port;
-        const sdport                    = SConfig.downPort;
-        const suport                    = SConfig.upPort;
-        const maxConns                  = SConfig.maxConnections;
-        const distrib                   = SConfig.modeDistributed;
-        const iters                     = OConfig.codeIterationsPerOnce;
-        const upHost                    = SConfig.upHost;
-        const rightHost                 = SConfig.rightHost;
-        const downHost                  = SConfig.downHost;
-        const leftHost                  = SConfig.leftHost;
+        const ocfg                      = new ConfigHelper(OConfig);
+        const cfg                       = new ConfigHelper(Config);
+        const scfg                      = new ConfigHelper(SConfig);
         const freePos                   = World.prototype.getFreePos;
         let   iterated1                 = 0;
         let   iterated2                 = 0;
@@ -624,27 +607,9 @@ describe("client/src/manager/Manager", () => {
                     waitEvent(server1, SEVENTS.DESTROY, () => server1.destroy(), () => {
                         waitEvent(server2, SEVENTS.DESTROY, () => server2.destroy(), () => {
                             World.prototype.getFreePos = freePos;
-                            OConfig.orgStartEnergy = energy;
-                            OConfig.orgClonePeriod = clone;
-                            OConfig.orgEnergySpendPeriod = period1;
-                            OConfig.orgCloneMutationPercent = percent;
-                            OConfig.orgRainMutationPeriod = period;
-                            OConfig.orgStartAmount = amount;
-                            Config.worldWidth = width;
-                            Config.worldHeight = height;
-                            SConfig.port = sport;
-                            SConfig.downPort = sdport;
-                            SConfig.upPort = suport;
-                            Config.serverPort = cport;
-                            Config.serverHost = chost;
-                            SConfig.maxConnections = maxConns;
-                            Config.worldCyclical = cycl;
-                            SConfig.modeDistributed = distrib;
-                            OConfig.codeIterationsPerOnce = iters;
-                            SConfig.upHost = upHost;
-                            SConfig.rightHost = rightHost;
-                            SConfig.downHost = downHost;
-                            SConfig.leftHost = leftHost;
+                            ocfg.reset();
+                            scfg.reset();
+                            cfg.reset();
                             done();
                         });
                     });
@@ -652,36 +617,36 @@ describe("client/src/manager/Manager", () => {
             });
         };
 
-        SConfig.upHost                  = SERVER_HOST;
-        SConfig.rightHost               = SERVER_HOST;
-        SConfig.downHost                = SERVER_HOST;
-        SConfig.leftHost                = SERVER_HOST;
-        OConfig.codeIterationsPerOnce   = 1;
-        SConfig.modeDistributed         = true;
-        SConfig.maxConnections          = 1;
-        SConfig.port                    = 3000;
-        SConfig.downPort                = 3001;
+        scfg.set('upHost',                SERVER_HOST);
+        scfg.set('rightHost',             SERVER_HOST);
+        scfg.set('downHost',              SERVER_HOST);
+        scfg.set('leftHost',              SERVER_HOST);
+        ocfg.set('codeIterationsPerOnce', 1);
+        scfg.set('modeDistributed',       true);
+        scfg.set('maxConnections',        1);
+        scfg.set('port',                  3000);
+        scfg.set('downPort',              3001);
         const server1                   = new Server(); // up server
-        SConfig.port                    = 3001;
-        SConfig.upPort                  = 3000;
-        SConfig.downPort                = 1001;
+        scfg.set('port',                  3001);
+        scfg.set('upPort',                3000);
+        scfg.set('downPort',              1001);
         const server2                   = new Server(); // down server
-        Config.worldWidth               = 10;
-        Config.worldHeight              = 10;
-        Config.serverPort               = 3000;
-        Config.serverHost               = SERVER_HOST;
+        cfg.set('worldWidth',             10);
+        cfg.set('worldHeight',            10);
+        cfg.set('serverPort',             3000);
+        cfg.set('serverHost',             SERVER_HOST);
         const man1                      = new Manager(false);
         delete Config.organisms;
         delete Config.status;
-        Config.serverPort               = 3001;
+        cfg.set('serverPort',             3001);
         const man2                      = new Manager(false);
-        OConfig.orgStartAmount          = 1;
-        OConfig.orgRainMutationPeriod   = 0;
-        OConfig.orgCloneMutationPercent = 0;
-        OConfig.orgEnergySpendPeriod    = 0;
-        OConfig.orgClonePeriod          = 0;
-        OConfig.orgStartEnergy          = 10000;
-        Config.worldCyclical            = false;
+        ocfg.set('orgStartAmount',        1);
+        ocfg.set('orgRainMutationPeriod', 0);
+        ocfg.set('orgCloneMutationPercent',0);
+        ocfg.set('orgEnergySpendPeriod',  0);
+        ocfg.set('orgClonePeriod',        0);
+        ocfg.set('orgStartEnergy',        10000);
+        cfg.set('worldCyclical',          false);
         World.prototype.getFreePos      = () => {return {x: 1, y: 9}};
 
         man1.on(EVENTS.ITERATION, () => {
@@ -690,6 +655,91 @@ describe("client/src/manager/Manager", () => {
                 org1 = man1.organisms.first.val;
                 org1.vm.code.push(0b00001100000000000000000000000000); // onStepDown()
             } else if (man2.organisms.size === 2) {
+                destroy();
+            }
+            if (iterated1 > 10000) {throw 'Error sending organism between Servers'}
+            iterated1++;
+        });
+        man2.on(EVENTS.ITERATION, () => iterated2++);
+
+        waitEvent(server1, server1.EVENTS.RUN, () => server1.run(), () => {
+            waitEvent(server2, server2.EVENTS.RUN, () => server2.run(), () => {
+                man1.run(man2.run);
+            });
+        });
+    });
+
+    it('Tests organism moving back from client of near server', (done) => {
+        const ocfg                      = new ConfigHelper(OConfig);
+        const cfg                       = new ConfigHelper(Config);
+        const scfg                      = new ConfigHelper(SConfig);
+        const freePos                   = World.prototype.getFreePos;
+        let   iterated1                 = 0;
+        let   iterated2                 = 0;
+        let   org1                      = null;
+        let   destroyFlag               = false;
+        let   stepInFlag                = false;
+        const destroy                   = () => {
+            man1.destroy(() => {
+                man2.destroy(() => {
+                    waitEvent(server1, SEVENTS.DESTROY, () => server1.destroy(), () => {
+                        waitEvent(server2, SEVENTS.DESTROY, () => server2.destroy(), () => {
+                            World.prototype.getFreePos = freePos;
+                            ocfg.reset();
+                            scfg.reset();
+                            cfg.reset();
+                            done();
+                        });
+                    });
+                });
+            });
+        };
+
+        scfg.set('upHost',                SERVER_HOST);
+        scfg.set('rightHost',             SERVER_HOST);
+        scfg.set('downHost',              SERVER_HOST);
+        scfg.set('leftHost',              SERVER_HOST);
+        ocfg.set('codeIterationsPerOnce', 1);
+        scfg.set('modeDistributed',       true);
+        scfg.set('maxConnections',        1);
+        scfg.set('port',                  3000);
+        scfg.set('downPort',              3001);
+        const server1                   = new Server(); // up server
+        scfg.set('port',                  3001);
+        scfg.set('upPort',                3000);
+        scfg.set('downPort',              1001);
+        const server2                   = new Server(); // down server
+        cfg.set('worldWidth',             10);
+        cfg.set('worldHeight',            10);
+        cfg.set('serverPort',             3000);
+        cfg.set('serverHost',             SERVER_HOST);
+        const man1                      = new Manager(false);
+        delete Config.organisms;
+        delete Config.status;
+        cfg.set('serverPort',             3001);
+        const man2                      = new Manager(false);
+        ocfg.set('orgStartAmount',        1);
+        ocfg.set('orgRainMutationPeriod', 0);
+        ocfg.set('orgCloneMutationPercent',0);
+        ocfg.set('orgEnergySpendPeriod',  0);
+        ocfg.set('orgClonePeriod',        0);
+        ocfg.set('orgStartEnergy',        10000);
+        cfg.set('worldCyclical',          false);
+        World.prototype.getFreePos      = () => {return {x: 1, y: 0}};
+
+        man1.on(EVENTS.ITERATION, () => {
+            if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
+                expect(man2.organisms.size).toBe(1);
+                org1 = man1.organisms.first.val;
+                org1.vm.code.push(0b00001100000000000000000000000000); // onStepDown()
+                man1.on(EVENTS.KILL_ORGANISM, () => {
+                    destroyFlag = true;
+                });
+                man2.on(EVENTS.STEP_IN, () => {
+                    stepInFlag  = true;
+                });
+            } else if (destroyFlag && stepInFlag) {
+                destroyFlag = false;
                 destroy();
             }
             if (iterated1 > 10000) {throw 'Error sending organism between Servers'}
