@@ -30,26 +30,26 @@ class Code2String {
             1 : this._onCondition.bind(this),
             2 : this._onLoop.bind(this),
             3 : this._onOperator.bind(this),
-            4 : this._onNot.bind(this),
+            //4 : this._onNot.bind(this),
             //5 : this._onPi.bind(this),
             //6 : this._onTrig.bind(this),
-            5 : this._onLookAt.bind(this),
-            6 : this._onEatLeft.bind(this),
-            7 : this._onEatRight.bind(this),
-            8 : this._onEatUp.bind(this),
-            9 : this._onEatDown.bind(this),
-            10: this._onStepLeft.bind(this),
-            11: this._onStepRight.bind(this),
-            12: this._onStepUp.bind(this),
-            13: this._onStepDown.bind(this),
-            14: this._onFromMem.bind(this),
-            15: this._onToMem.bind(this),
-            16: this._onMyX.bind(this),
-            17: this._onMyY.bind(this),
-            18: this._onCheckLeft.bind(this),
-            19: this._onCheckRight.bind(this),
-            20: this._onCheckUp.bind(this),
-            21: this._onCheckDown.bind(this)
+            4 : this._onLookAt.bind(this),
+            5 : this._onEatLeft.bind(this),
+            6 : this._onEatRight.bind(this),
+            7 : this._onEatUp.bind(this),
+            8 : this._onEatDown.bind(this),
+            9 : this._onStepLeft.bind(this),
+            10: this._onStepRight.bind(this),
+            11: this._onStepUp.bind(this),
+            12: this._onStepDown.bind(this),
+            13: this._onFromMem.bind(this),
+            14: this._onToMem.bind(this),
+            15: this._onMyX.bind(this),
+            16: this._onMyY.bind(this),
+            17: this._onCheckLeft.bind(this),
+            18: this._onCheckRight.bind(this),
+            19: this._onCheckUp.bind(this),
+            20: this._onCheckDown.bind(this)
         };
         this._OPERATORS_CB_LEN = Object.keys(this._OPERATORS_CB).length;
         /**
@@ -80,6 +80,9 @@ class Code2String {
         this._OPERATORS_CB = null;
         this._CONDITIONS   = null;
         this._OPERATORS    = null;
+        this._offsets      = null;
+        delete this._manager.api.formatCode;
+        this._manager      = null;
     }
 
     format(code, separator = '\n') {
@@ -136,10 +139,10 @@ class Code2String {
 
         return `v${VAR0(num)}=${isConst ? Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_FOR_NUMBER) : ('v' + var1)}`;
     }
-
-    _onFunc(num) {
-        return '';
-    }
+    //
+    // _onFunc(num) {
+    //     return '';
+    // }
 
     _onCondition(num, line, lines) {
         const val3    = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
@@ -158,9 +161,9 @@ class Code2String {
         return `v${VAR0(num)}=v${VAR1(num)}${this._OPERATORS[Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS)]}v${VAR2(num)}`;
     }
 
-    _onNot(num) {
-        return `v${VAR0(num)}=+!v${VAR1(num)}`;
-    }
+    // _onNot(num) {
+    //     return `v${VAR0(num)}=+!v${VAR1(num)}`;
+    // }
 
     //_onPi(num) {
     //    return `v${VAR0(num)}=Math.PI`;
