@@ -679,6 +679,7 @@ describe("client/src/manager/Manager", () => {
         let   org1                      = null;
         let   destroyFlag               = false;
         let   stepInFlag                = false;
+        let   stepInBack                = false;
         const destroy                   = () => {
             man1.destroy(() => {
                 man2.destroy(() => {
@@ -732,13 +733,10 @@ describe("client/src/manager/Manager", () => {
                 expect(man2.organisms.size).toBe(1);
                 org1 = man1.organisms.first.val;
                 org1.vm.code.push(0b00001100000000000000000000000000); // onStepDown()
-                man1.on(EVENTS.KILL_ORGANISM, () => {
-                    destroyFlag = true;
-                });
-                man2.on(EVENTS.STEP_IN, () => {
-                    stepInFlag  = true;
-                });
-            } else if (destroyFlag && stepInFlag) {
+                man1.on(EVENTS.KILL_ORGANISM, () => destroyFlag = true);
+                man1.on(EVENTS.STEP_IN,       () => stepInBack  = true);
+                man2.on(EVENTS.STEP_IN,       () => stepInFlag  = true);
+            } else if (destroyFlag && stepInFlag && stepInBack) {
                 destroyFlag = false;
                 destroy();
             }

@@ -21,9 +21,9 @@ class Api extends BaseApi {
         super(parent);
         const servers = parent.aroundServers;
 
-        this.api[TYPES.REQ_MOVE_ORG]                  = this._onMoveOrgFromClient.bind(this, false);
-        this.api[TYPES.REQ_MOVE_ORG_FROM_SERVER]      = this._onMoveOrgFromServer.bind(this);
-        this.api[TYPES.REQ_MOVE_ORG_BACK]             = this._onMoveOrgFromClient.bind(this, true);
+        this.api[TYPES.REQ_MOVE_ORG]                  = this._onMoveOrgFromClient.bind(this);
+        this.api[TYPES.REQ_MOVE_ORG_FROM_SERVER]      = this._onMoveOrgFromServer.bind(this, false);
+        this.api[TYPES.REQ_MOVE_ORG_BACK]             = this._onMoveOrgFromServer.bind(this, true);
         this.api[TYPES.REQ_GET_ID]                    = this._onGetId.bind(this);
         this.api[TYPES.REQ_SET_NEAR_ACTIVE]           = this._onSetNearServer.bind(this);
 
@@ -52,23 +52,6 @@ class Api extends BaseApi {
 
     /**
      * Moves organism from near server to current server
-     * @param {Number} reqId Unique request id. Needed for response
-     * @param {String} clientId Unique source client id
-     * @param {Number} x Current org X position
-     * @param {Number} y Current org Y position
-     * @param {Number} dir Moving direction
-     * @param {String} orgJson Organism's serialized json
-     * @api
-     */
-    _onMoveOrgFromServer(reqId, clientId, x, y, dir, orgJson) {
-        const reg   = Connections.toRegion(clientId);
-        const conns = this.parent.conns;
-        this._moveToClient(false, Connections.toId(conns.oppositeRegion(reg, dir)), x, y, dir, orgJson, false);
-    }
-
-    /**
-     * Moves organism from one client to another or to nearest server if
-     * it's connected to current one
      * @param {Boolean} back true, if the organism is sent back
      * @param {Number} reqId Unique request id. Needed for response
      * @param {String} clientId Unique source client id
@@ -78,7 +61,24 @@ class Api extends BaseApi {
      * @param {String} orgJson Organism's serialized json
      * @api
      */
-    _onMoveOrgFromClient(back, reqId, clientId, x, y, dir, orgJson) {
+    _onMoveOrgFromServer(back, reqId, clientId, x, y, dir, orgJson) {
+        const reg   = Connections.toRegion(clientId);
+        const conns = this.parent.conns;
+        this._moveToClient(back, Connections.toId(conns.oppositeRegion(reg, dir)), x, y, dir, orgJson, false);
+    }
+
+    /**
+     * Moves organism from one client to another or to nearest server if
+     * it's connected to current one
+     * @param {Number} reqId Unique request id. Needed for response
+     * @param {String} clientId Unique source client id
+     * @param {Number} x Current org X position
+     * @param {Number} y Current org Y position
+     * @param {Number} dir Moving direction
+     * @param {String} orgJson Organism's serialized json
+     * @api
+     */
+    _onMoveOrgFromClient(reqId, clientId, x, y, dir, orgJson) {
         const reg   = Connections.toRegion(clientId);
         const side  = this.parent.conns.side - 1;
         //
@@ -87,7 +87,7 @@ class Api extends BaseApi {
         //
         if (dir === DIR.UP   && reg[1] > 0    || dir === DIR.RIGHT && reg[0] < side ||
             dir === DIR.DOWN && reg[1] < side || dir === DIR.LEFT  && reg[0] > 0) {
-            this._moveToClient(back, clientId, x, y, dir, orgJson);
+            this._moveToClient(false, clientId, x, y, dir, orgJson);
             return;
         }
         //
@@ -165,10 +165,10 @@ class Api extends BaseApi {
                 //
                 // No free space for organism - send it back to source client
                 //
-                type === TYPES.RES_MOVE_ERR && back && this._moveBack(region, clientId, x, y, dir, orgJson, fromClient);
+                type === TYPES.RES_MOVE_ERR && !back && this._moveBack(region, clientId, x, y, dir, orgJson, fromClient);
             });
         } else {
-            back && this._moveBack(region, clientId, x, y, dir, orgJson, fromClient);
+            !back && this._moveBack(region, clientId, x, y, dir, orgJson, fromClient);
         }
     }
 
