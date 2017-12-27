@@ -36,7 +36,7 @@ ServerConfig.init({
      * {Number} Port number for connecting with server. This value will be
      * passed to the server during creation
      */
-    port: 8301,
+    port: 8100,
     /**
      * {Boolean} Means, that this server will be run in distributed mode. And
      * will be connected with near servers (up...left). false, means, that
@@ -46,11 +46,11 @@ ServerConfig.init({
     /**
      * {String} Host address of server above. Shouldn't contain port
      */
-    upHost: 'ws://192.168.31.176',
+    upHost: 'ws://127.0.0.1',
     /**
      * {Number} Port number of server above.
      */
-    upPort: 8201,
+    upPort: 8200,
     /**
      * {String} Host address of server on the right. Shouldn't contain port
      */
@@ -66,7 +66,7 @@ ServerConfig.init({
     /**
      * {Number} Port number of server below
      */
-    downPort: 8100,
+    downPort: 8102,
     /**
      * {String} Host address of server on the left. Shouldn't contain port
      */
