@@ -751,4 +751,79 @@ describe("client/src/manager/Manager", () => {
             });
         });
     });
+
+    it('Tests organism moving back from client of near server (with no clients)', (done) => {
+        const ocfg                      = new ConfigHelper(OConfig);
+        const cfg                       = new ConfigHelper(Config);
+        const scfg                      = new ConfigHelper(SConfig);
+        const freePos                   = World.prototype.getFreePos;
+        let   iterated1                 = 0;
+        let   iterated2                 = 0;
+        let   org1                      = null;
+        let   destroyFlag               = false;
+        let   stepInBack                = false;
+        const destroy                   = () => {
+            man1.destroy(() => {
+                //man2.destroy(() => {
+                    waitEvent(server1, SEVENTS.DESTROY, () => server1.destroy(), () => {
+                        waitEvent(server2, SEVENTS.DESTROY, () => server2.destroy(), () => {
+                            World.prototype.getFreePos = freePos;
+                            ocfg.reset();
+                            scfg.reset();
+                            cfg.reset();
+                            done();
+                        });
+                    });
+                //});
+            });
+        };
+
+        scfg.set('upHost',                SERVER_HOST);
+        scfg.set('rightHost',             SERVER_HOST);
+        scfg.set('downHost',              SERVER_HOST);
+        scfg.set('leftHost',              SERVER_HOST);
+        ocfg.set('codeIterationsPerOnce', 1);
+        scfg.set('modeDistributed',       true);
+        scfg.set('maxConnections',        1);
+        scfg.set('port',                  3000);
+        scfg.set('downPort',              3001);
+        const server1                   = new Server(); // up server
+        scfg.set('port',                  3001);
+        scfg.set('upPort',                3000);
+        scfg.set('downPort',              1001);
+        const server2                   = new Server(); // down server
+        cfg.set('worldWidth',             10);
+        cfg.set('worldHeight',            10);
+        cfg.set('serverPort',             3000);
+        cfg.set('serverHost',             SERVER_HOST);
+        const man1                      = new Manager(false);
+        ocfg.set('orgStartAmount',        1);
+        ocfg.set('orgRainMutationPeriod', 0);
+        ocfg.set('orgCloneMutationPercent',0);
+        ocfg.set('orgEnergySpendPeriod',  0);
+        ocfg.set('orgClonePeriod',        0);
+        ocfg.set('orgStartEnergy',        10000);
+        cfg.set('worldCyclical',          false);
+        World.prototype.getFreePos      = () => {return {x: 1, y: 5}};
+
+        man1.on(EVENTS.ITERATION, () => {
+            if (iterated1 > 0 && org1 === null) {
+                org1 = man1.organisms.first.val;
+                org1.vm.code.push(0b00001100000000000000000000000000); // onStepDown()
+                man1.on(EVENTS.KILL_ORGANISM, () => destroyFlag = true);
+                man1.on(EVENTS.STEP_IN,       () => stepInBack  = true);
+            } else if (destroyFlag && stepInBack) {
+                destroyFlag = false;
+                destroy();
+            }
+            if (iterated1 > 10000) {throw 'Error sending organism between Servers'}
+            iterated1++;
+        });
+
+        waitEvent(server1, server1.EVENTS.RUN, () => server1.run(), () => {
+            waitEvent(server2, server2.EVENTS.RUN, () => server2.run(), () => {
+                man1.run();
+            });
+        });
+    });
 });
