@@ -62,7 +62,7 @@ ClientConfig.init({
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
      */
-    worldEnergyDots: 1000,
+    worldEnergyDots: 10000,
     /**
      * {Number} Amount of energy in every block. See worldEnergyDots
      * config for details.

@@ -36,7 +36,7 @@ ServerConfig.init({
      * {Number} Port number for connecting with server. This value will be
      * passed to the server during creation
      */
-    port: 8100,
+    port: 8301,
     /**
      * {Boolean} Means, that this server will be run in distributed mode. And
      * will be connected with near servers (up...left). false, means, that

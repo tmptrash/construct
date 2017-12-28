@@ -236,10 +236,10 @@ class Api extends BaseApi {
         const sock        = server.conns.getConnection(region).sock;
         const servers     = this.parent.aroundServers;
         const side        = conns.side - 1;
-        const activeUp    = !!conns.getConnection(_get(conns.upRegion  (region),  'sock')) || region[1] === 0    && servers && servers.hasSocket(DIR.UP);
-        const activeRight = !!conns.getConnection(_get(conns.downRegion(region),  'sock')) || region[0] === side && servers && servers.hasSocket(DIR.RIGHT);
-        const activeDown  = !!conns.getConnection(_get(conns.downRegion(region),  'sock')) || region[1] === side && servers && servers.hasSocket(DIR.DOWN);
-        const activeLeft  = !!conns.getConnection(_get(conns.leftRegion(region),  'sock')) || region[0] === 0    && servers && servers.hasSocket(DIR.LEFT);
+        const activeUp    = !!_get(conns.getConnection(conns.upRegion  (region)),  'sock') || region[1] === 0    && servers && servers.hasSocket(DIR.UP);
+        const activeRight = !!_get(conns.getConnection(conns.downRegion(region)),  'sock') || region[0] === side && servers && servers.hasSocket(DIR.RIGHT);
+        const activeDown  = !!_get(conns.getConnection(conns.downRegion(region)),  'sock') || region[1] === side && servers && servers.hasSocket(DIR.DOWN);
+        const activeLeft  = !!_get(conns.getConnection(conns.leftRegion(region)),  'sock') || region[0] === 0    && servers && servers.hasSocket(DIR.LEFT);
 
         server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.UP,    activeUp);
         server.request(sock, TYPES.REQ_SET_NEAR_ACTIVE, DIR.RIGHT, activeRight);

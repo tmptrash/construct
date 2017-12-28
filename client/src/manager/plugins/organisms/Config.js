@@ -65,12 +65,12 @@ const Config = {
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 500,
+    orgRainMutationPeriod: 1000,
     /**
      * {Number} Percent of mutations from code size. 0 is a possible value if
      * we want to disable mutations. Should be less then 1.0 (1.0 === 100%)
      */
-    orgRainMutationPercent: 0.02,
+    orgRainMutationPercent: 0.01,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
@@ -80,7 +80,7 @@ const Config = {
      * Eve. It means that these empty (without vm) organism were created
      * by operator and not by evolution.
      */
-    orgStartEnergy: 100000,
+    orgStartEnergy: 1000000,
     /**
      * {Number} Begin color of "empty" organism (organism without code). Color
      * should be set in HEX-RGB mode. Example: 0xRRGGBB
@@ -152,7 +152,7 @@ const Config = {
      * organism without interruption by one VM. Set this value to value bigger
      * then codeMaxSize, then entire code of organism will be run
      */
-    codeYieldPeriod: 10,
+    codeYieldPeriod: 5,
     /**
      * {Number} Amount of bits for storing operator. This is first XX bits
      * in a number.
