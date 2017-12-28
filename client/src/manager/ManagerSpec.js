@@ -758,7 +758,6 @@ describe("client/src/manager/Manager", () => {
         const scfg                      = new ConfigHelper(SConfig);
         const freePos                   = World.prototype.getFreePos;
         let   iterated1                 = 0;
-        let   iterated2                 = 0;
         let   org1                      = null;
         let   destroyFlag               = false;
         let   stepInBack                = false;
@@ -811,9 +810,12 @@ describe("client/src/manager/Manager", () => {
                 org1 = man1.organisms.first.val;
                 org1.vm.code.push(0b00001100000000000000000000000000); // onStepDown()
                 man1.on(EVENTS.KILL_ORGANISM, () => destroyFlag = true);
-                man1.on(EVENTS.STEP_IN,       () => stepInBack  = true);
+                man1.on(EVENTS.STEP_IN,       () => {
+                    stepInBack  = true;
+                });
             } else if (destroyFlag && stepInBack) {
-                destroyFlag = false;
+                stepInBack = false;
+                expect(man1.organisms.size).toBe(2);
                 destroy();
             }
             if (iterated1 > 10000) {throw 'Error sending organism between Servers'}
