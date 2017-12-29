@@ -167,7 +167,7 @@ const Config = {
      * {Number} Amount of iterations between calls to V8 event loop. See
      * Manager._initLoop(), Manager.run() methods for details.
      */
-    codeIterationsPerOnce: 1000,
+    codeIterationsPerOnce: 100,
 };
 
 module.exports = Config;

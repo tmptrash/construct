@@ -208,12 +208,13 @@ describe("client/src/manager/Manager", () => {
         const man    = new Manager(false);
 
         expect(man.clientId).toBe(null);
-        server.run();
-        man.run(() => {
-            expect(man.active).toBe(true);
-            expect(man.clientId !== null).toBe(true);
-            man.destroy(() => {
-                waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), done);
+        waitEvent(server, SEVENTS.RUN, () => server.run(), () => {
+            man.run(() => {
+                expect(man.active).toBe(true);
+                expect(man.clientId !== null).toBe(true);
+                man.destroy(() => {
+                    waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), done);
+                });
             });
         });
     });
