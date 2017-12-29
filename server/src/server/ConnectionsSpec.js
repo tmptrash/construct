@@ -1,6 +1,6 @@
 describe("server/src/server/Connections", () => {
     const Connections = require('./Connections');
-    let THelper       = require('./../../../common/tests/Helper');
+    const eq          = require('lodash/isEqual');
 
     it("Checking Connections instance creation", () => {
         let cons = new Connections(1);
@@ -19,15 +19,15 @@ describe("server/src/server/Connections", () => {
         let cons   = new Connections(1);
         let region = cons.getFreeRegion();
 
-        expect(THelper.compare(region, [0, 0])).toEqual(true);
+        expect(eq(region, [0, 0])).toEqual(true);
         expect(Connections.toId(region)).toEqual('0-0');
         expect(Connections.toId([1,1])).toEqual('1-1');
         expect(Connections.toId([0,0])).toEqual('0-0');
         cons.destroy();
     });
     it("Checking toRegion() method", () => {
-        expect(THelper.compare(Connections.toRegion('1-1'), [1,1])).toEqual(true);
-        expect(THelper.compare(Connections.toRegion('1-0'), [1,0])).toEqual(true);
+        expect(eq(Connections.toRegion('1-1'), [1,1])).toEqual(true);
+        expect(eq(Connections.toRegion('1-0'), [1,0])).toEqual(true);
     });
     it("Checking upRegion() method", () => {
         let cons = new Connections(1);

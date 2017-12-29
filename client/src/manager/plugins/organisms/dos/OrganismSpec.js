@@ -2,12 +2,10 @@
 // This spec covers two classes "Organism" and "OrganismDos"
 //
 describe("client/src/organism/OrganismDos", () => {
-    let OrganismDos = require('./Organism');
-    let Config      = require('./../../../../share/Config').Config;
-    let OConfig     = require('./../../../../manager/plugins/organisms/Config');
-    let api         = require('./../../../../share/Config').api;
-    let THelper     = require('./../../../../../../common/tests/Helper');
-    let cls;
+    const eq            = require('lodash/isEqual');
+    const OrganismDos = require('./Organism');
+    const OConfig     = require('./../../../../manager/plugins/organisms/Config');
+    const api         = require('./../../../../share/Config').api;
 
     it("Checking organism creation", () => {
         let   org  = new OrganismDos(0, 1, 2, true, null, () => {});
@@ -17,7 +15,7 @@ describe("client/src/organism/OrganismDos", () => {
         expect(org.y).toEqual(2);
         expect(org.item).toEqual(null);
         expect(org.alive).toEqual(true);
-        expect(THelper.compare(org.mutationProbs, OConfig.orgMutationProbs)).toEqual(true);
+        expect(eq(org.mutationProbs, OConfig.orgMutationProbs)).toEqual(true);
         expect(org.mutationPeriod === OConfig.orgRainMutationPeriod).toEqual(true);
         expect(org.mutationPercent === OConfig.orgRainMutationPercent).toEqual(true);
         expect(org.cloneMutationPercent === OConfig.orgCloneMutationPercent).toEqual(true);
@@ -49,12 +47,12 @@ describe("client/src/organism/OrganismDos", () => {
         expect(org.vm.size === parent.vm.size).toEqual(true);
         expect(org.energy === parent.energy).toEqual(true);
         expect(org.color === parent.color).toEqual(true);
-        expect(THelper.compare(org.mutationProbs, parent.mutationProbs)).toEqual(true);
+        expect(eq(org.mutationProbs, parent.mutationProbs)).toEqual(true);
         expect(org.cloneMutationPercent === parent.cloneMutationPercent).toEqual(true);
         expect(org.mutationPeriod === parent.mutationPeriod).toEqual(true);
         expect(org.mutationPercent === parent.mutationPercent).toEqual(true);
         expect(org.cloneEnergyPercent === parent.cloneEnergyPercent).toEqual(true);
-        expect(THelper.compare(org.mem, parent.mem)).toEqual(true);
+        expect(eq(org.mem, parent.mem)).toEqual(true);
         expect(org.changes === 1).toEqual(true);
         expect(org.iterations === 0).toEqual(true);
 

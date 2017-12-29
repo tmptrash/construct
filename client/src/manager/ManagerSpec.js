@@ -17,6 +17,7 @@ describe("client/src/manager/Manager", () => {
     const emptyFn      = () => {};
     const waitEvent    = THelper.waitEvent;
     const wait         = THelper.wait;
+    const testQ        = THelper.testQ;
     const host         = Config.serverHost;
     const port         = SConfig.port;
     const maxConns     = SConfig.maxConnections;
@@ -503,6 +504,7 @@ describe("client/src/manager/Manager", () => {
         let   amount    = 0;
         let   waitObj   = {done: false};
         let   count     = 0;
+        const onDone    = () => ++count === 2 && (waitObj.done = true);
         let   man1;
         let   man2;
         let   oldId;
@@ -515,31 +517,19 @@ describe("client/src/manager/Manager", () => {
         delete Config.status;
         man2 = new Manager(false);
 
-        waitEvent(server, server.EVENTS.RUN, () => server.run(), () => {
-            man1.run(() => ++count === 2 && (waitObj.done = true));
-            man2.run(() => ++count === 2 && (waitObj.done = true));
-            wait(waitObj, () => {
-                man1.stop(() => {
-                    expect(man1.clientId).toBe(null);
-                    oldId = man1.clientId;
-                    man1.run(() => {
-                        expect(man1.clientId).not.toBe(null);
-                        amount = 0;
-                        server.on(server.EVENTS.CLOSE, () => ++amount === 2 && (waitObj.done = true));
-                        man1.destroy();
-                        man2.destroy();
-                        wait(waitObj, () => {
-                            waitEvent(server, server.EVENTS.DESTROY, () => server.destroy(), () => {
-                                SConfig.maxConnections = maxCons;
-                                Config.worldWidth      = width;
-                                Config.worldHeight     = height;
-                                done();
-                            });
-                        });
-                    });
-                });
-            });
-        });
+        testQ(done,
+            [server, SEVENTS.RUN,     () => server.run(),     () => {man1.run(onDone); man2.run(onDone)}],
+            [waitObj],
+            [man1,   EVENTS.STOP,     () => man1.stop(),      () => {expect(man1.clientId).toBe(null); oldId = man1.clientId}],
+            [man1,   EVENTS.RUN,      () => man1.run(),       () => {expect(man1.clientId).not.toBe(null); amount = 0; waitObj.done = false}],
+            [server, SEVENTS.CLOSE,   () => man1.destroy(),   () => {}],
+            [server, SEVENTS.CLOSE,   () => man2.destroy(),   () => {}],
+            [server, SEVENTS.DESTROY, () => server.destroy(), () => {
+                SConfig.maxConnections = maxCons;
+                Config.worldWidth      = width;
+                Config.worldHeight     = height;
+            }]
+        );
     });
 
     it("Tests many connections/disconnections of Manager to the server", (done) => {
