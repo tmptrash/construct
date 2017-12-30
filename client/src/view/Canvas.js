@@ -23,7 +23,7 @@ class Canvas {
         this._animate   = this._onAnimate.bind(this);
         this._visualize = true;
 
-        this._ctx.font = "13px Consolas";
+        this._ctx.font = "18px Consolas";
         this._ctx.fillStyle = "white";
         this.clear();
         window.requestAnimationFrame(this._animate);
