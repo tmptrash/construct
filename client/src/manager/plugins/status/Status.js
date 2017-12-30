@@ -67,6 +67,7 @@ class Status extends Configurable {
         this._times++;
         if (stamp - this._stamp < StatusConfig.period) {return}
 
+        const man = this._manager;
         this._onBeforeLog(ips, orgs);
         const format    = Status._format;
         const orgAmount = orgs.size || 1;
@@ -80,7 +81,7 @@ class Status extends Configurable {
         const scode     = format(this._codeSize,               'cod', orgAmount, 1, 12, 1, true);
 
         console.log(`%c${sips}${slps}${sorgs}%c${siq}${senergy}${schanges}${sfit}${scode}`, GREEN, RED);
-        this._manager.hasView && this._manager.canvas.text(5, 15, sips + this._manager.clientId);
+        man.hasView && man.canvas.text(5, 15, sips + man.clientId);
         this._onAfterLog(stamp);
     }
 

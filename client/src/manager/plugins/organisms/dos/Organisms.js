@@ -214,6 +214,10 @@ class Organisms extends BaseOrganisms {
             const org = this.organisms.last.val;
             org.unserialize(orgJson);
             org.grabEnergy(OConfig.orgStepEnergySpendPercent);
+            //
+            // We have to update organism color
+            //
+            this.manager.world.setDot(org.x, org.y, org.color);
         }
     }
 
