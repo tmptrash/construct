@@ -1,14 +1,12 @@
 describe("client/src/organism/VM", () => {
-    let Observer     = require('./../../../common/src/Observer');
-    let Helper       = require('./../../../common/src/Helper');
-    let THelper      = require('./../../../common/tests/Helper');
-    let Config       = require('./../share/Config').Config;
-    let OConfig      = require('./../manager/plugins/organisms/Config');
-    let api          = require('./../share/Config').api;
-    let VM         = require('./VM');
-    let Num          = require('./Num');
-    let Operators    = require('./Operators');
-    let cls          = null;
+    const eq         = require('lodash/isEqual');
+    const Observer   = require('./../../../common/src/Observer');
+    const Helper     = require('./../../../common/src/Helper');
+    const OConfig    = require('./../manager/plugins/organisms/Config');
+    const api        = require('./../share/Config').api;
+    const VM         = require('./VM');
+    const Num        = require('./Num');
+    const Operators  = require('./Operators');
 
     it("Checking vm creation", () => {
         let   flag = false;
@@ -149,7 +147,7 @@ describe("client/src/organism/VM", () => {
         jsvm2._code.push(17000004);
 
         jsvm1.crossover(jsvm2);
-        expect(THelper.compare(jsvm1.code, [
+        expect(eq(jsvm1.code, [
             16000000,
             17000001,
             17000002,
@@ -190,7 +188,7 @@ describe("client/src/organism/VM", () => {
         jsvm2._code.push(17000004);
 
         jsvm1.crossover(jsvm2);
-        expect(THelper.compare(jsvm1.code, [
+        expect(eq(jsvm1.code, [
             16000000,
             17000001,
             16000003,
@@ -229,7 +227,7 @@ describe("client/src/organism/VM", () => {
         jsvm2._code.push(17000004);
 
         jsvm1.crossover(jsvm2);
-        expect(THelper.compare(jsvm1.code, [
+        expect(eq(jsvm1.code, [
             16000000,
             17000001,
             17000002,
@@ -274,7 +272,7 @@ describe("client/src/organism/VM", () => {
         jsvm2._code.push(17000003);
 
         jsvm1.crossover(jsvm2);
-        expect(THelper.compare(jsvm1.code, [
+        expect(eq(jsvm1.code, [
             17000001,
             17000002
         ])).toEqual(true);
@@ -304,7 +302,7 @@ describe("client/src/organism/VM", () => {
         jsvm1._code.push(16000003);
 
         jsvm1.crossover(jsvm2);
-        expect(THelper.compare(jsvm1.code, [
+        expect(eq(jsvm1.code, [
             16000000,
             16000003,
         ])).toEqual(true);

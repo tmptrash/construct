@@ -280,7 +280,7 @@ class Api extends BaseApi {
         // server is full of other clients and there is no free slot for this
         //
         if (clientId === false) {return}
-        if (dir === DIR.NO) {
+        if (dir === DIR.NO || dir === clientId) {
             this._activateAround(Connections.toRegion(clientId), false);
             return;
         }
