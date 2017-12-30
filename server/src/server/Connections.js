@@ -49,9 +49,9 @@ class Connections {
          */
         this._side   = side;
 
-        for (let col = 0, conns = this.conns; col < this._side; col++) {
-            conns[col] = (new Array(this._side)).fill(null);
-            conns[col].forEach((v, i, a) => a[i] = {sock: null});
+        for (let row = 0, conns = this.conns; row < this._side; row++) {
+            conns[row] = (new Array(this._side)).fill(null);
+            conns[row].forEach((v, i, a) => a[i] = {sock: null});
         }
     }
 
@@ -151,10 +151,10 @@ class Connections {
         const conns = this.conns;
         const side  = this._side;
 
-        for (let row = 0; row < side; row++) {
-            for (let col = 0; col < side; col++) {
-                if (conns[col][row].sock === null) {
-                    return [col, row];
+        for (let y = 0; y < side; y++) {
+            for (let x = 0; x < side; x++) {
+                if (conns[x][y].sock === null) {
+                    return [x, y];
                 }
             }
         }

@@ -80,7 +80,7 @@ class Status extends Configurable {
         const scode     = format(this._codeSize,               'cod', orgAmount, 1, 12, 1, true);
 
         console.log(`%c${sips}${slps}${sorgs}%c${siq}${senergy}${schanges}${sfit}${scode}`, GREEN, RED);
-        this._manager.hasView && this._manager.canvas.text(5, 15, sips);
+        this._manager.hasView && this._manager.canvas.text(5, 15, sips + this._manager.clientId);
         this._onAfterLog(stamp);
     }
 
