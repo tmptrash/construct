@@ -200,7 +200,7 @@ class Api extends BaseApi {
         const parent      = this.parent;
         const sock        = fromClient ? parent.conns.getConnection(region).sock : parent.aroundServers.getSocket(newDir);
         const newClientId = fromClient ? Connections.toId(region) : clientId;
-        const flipped     = Helper.flip(x, y);
+        const flipped     = Helper.flip(x, y, newDir);
         sock && parent.request(sock, TYPES.REQ_MOVE_ORG_BACK, newClientId, flipped[0], flipped[1], newDir, orgJson);
     }
 

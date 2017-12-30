@@ -139,11 +139,13 @@ class Helper {
      * width=10, height=10, x=3, y=9 -> x=3, y=0
      * @param {Number} x X coordinate
      * @param {Number} y Y coordinate
+     * @param {Number} dir Moving direction
      */
-    static flip(x, y) {
+    static flip(x, y, dir) {
         const xMap = {0: Config.worldWidth  - 1, [Config.worldWidth  - 1]: 0};
         const yMap = {0: Config.worldHeight - 1, [Config.worldHeight - 1]: 0};
-        return [xMap[x] ? xMap[x] : x, yMap[y] ? yMap[y] : y];
+
+        return [(dir === DIR.LEFT || dir === DIR.RIGHT) && xMap[x] ? xMap[x] : x, (dir === DIR.UP || dir === DIR.DOWN) && yMap[y] ? yMap[y] : y];
     }
 
     /**

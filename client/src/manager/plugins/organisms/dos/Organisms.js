@@ -215,8 +215,10 @@ class Organisms extends BaseOrganisms {
             org.unserialize(orgJson);
             org.grabEnergy(OConfig.orgStepEnergySpendPercent);
             //
-            // We have to update organism color
+            // We have to update organism color and coordinates
             //
+            org.x = x;
+            org.y = y;
             this.manager.world.setDot(org.x, org.y, org.color);
         }
     }
