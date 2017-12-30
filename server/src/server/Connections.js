@@ -151,8 +151,8 @@ class Connections {
         const conns = this.conns;
         const side  = this._side;
 
-        for (let col = 0; col < side; col++) {
-            for (let row = 0; row < side; row++) {
+        for (let row = 0; row < side; row++) {
+            for (let col = 0; col < side; col++) {
                 if (conns[col][row].sock === null) {
                     return [col, row];
                 }
