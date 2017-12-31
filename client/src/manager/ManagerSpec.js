@@ -320,9 +320,11 @@ describe("client/src/manager/Manager", () => {
         const percent   = OConfig.orgCloneMutationPercent;
         const period1   = OConfig.orgEnergySpendPeriod;
         const clone     = OConfig.orgClonePeriod;
+        const width     = Config.worldWidth;
         const height    = Config.worldHeight;
         const energy    = OConfig.orgStartEnergy;
         const server    = new Server();
+        Config.worldWidth               = 400;
         Config.worldHeight              = 400;
         const man1      = new Manager(false);
         delete Config.organisms;
@@ -343,6 +345,7 @@ describe("client/src/manager/Manager", () => {
                         OConfig.orgCloneMutationPercent = percent;
                         OConfig.orgRainMutationPeriod   = period;
                         OConfig.orgStartAmount          = amount;
+                        Config.worldWidth               = width;
                         Config.worldHeight              = height;
                         done();
                     });
@@ -356,12 +359,12 @@ describe("client/src/manager/Manager", () => {
         OConfig.orgEnergySpendPeriod    = 0;
         OConfig.orgClonePeriod          = 0;
         OConfig.orgStartEnergy          = 10000;
-        World.prototype.getFreePos      = () => {return {x: 1, y: 399}};
+        World.prototype.getFreePos      = () => {return {x: 399, y: 1}};
 
         man1.on(EVENTS.ITERATION, () => {
             if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
                 org1 = man1.organisms.first.val;
-                org1.vm.code.push(0b00001100000000000000000000000000); // onStepDown()
+                org1.vm.code.push(0b00001010000000000000000000000000); // onStepRight()
             } else if (man2.organisms.size === 2) {
                 destroy();
             }
@@ -387,6 +390,7 @@ describe("client/src/manager/Manager", () => {
         const energy    = OConfig.orgStartEnergy;
         const server    = new Server();
         Config.worldHeight = 400;
+        Config.worldWidth  = 400;
         const man1      = new Manager(false);
         delete Config.organisms;
         delete Config.status;
@@ -422,12 +426,12 @@ describe("client/src/manager/Manager", () => {
         OConfig.orgEnergySpendPeriod    = 0;
         OConfig.orgClonePeriod          = 0;
         OConfig.orgStartEnergy          = 10000;
-        World.prototype.getFreePos      = () => {return inc++ === 0 && {x: 1, y: 399} || {x: 1, y: 0}};
+        World.prototype.getFreePos      = () => {return inc++ === 0 && {x: 399, y: 1} || {x: 0, y: 1}};
 
         man1.on(EVENTS.ITERATION, () => {
             if (iterated1 > 0 && iterated2 > 0 && org1 === null && org2 !== null) {
                 org1 = man1.organisms.first.val;
-                org1.vm.code.push(0b00001100000000000000000000000000); // onStepDown()
+                org1.vm.code.push(0b00001010000000000000000000000000); // onStepRight()
                 man1.on(EVENTS.STEP_OUT, () => {
                     expect(doneInc < 3).toBe(true);
                     ++doneInc;
@@ -435,13 +439,13 @@ describe("client/src/manager/Manager", () => {
                 man2.on(EVENTS.STEP_IN, () => {
                     ++doneInc;
                     expect(man1.organisms.size).toBe(1);
-                    expect(man1.organisms.first.val.y).toBe(0);
+                    expect(man1.organisms.first.val.x).toBe(0);
                 });
             } else if (org1 !== null && org2 !== null && doneInc === 2) {
                 expect(man1.organisms.size).toBe(1);
-                expect(man1.organisms.first.val.y).toBe(0);
+                expect(man1.organisms.first.val.x).toBe(0);
                 expect(man2.organisms.size).toBe(1);
-                expect(man2.organisms.first.val.y).toBe(0);
+                expect(man2.organisms.first.val.x).toBe(0);
                 destroy();
                 doneInc++;
             }
@@ -616,11 +620,11 @@ describe("client/src/manager/Manager", () => {
         scfg.set('modeDistributed',       true);
         scfg.set('maxConnections',        1);
         scfg.set('port',                  3000);
-        scfg.set('downPort',              3001);
+        scfg.set('rightPort',             3001);
         const server1                   = new Server(); // up server
         scfg.set('port',                  3001);
-        scfg.set('upPort',                3000);
-        scfg.set('downPort',              1001);
+        scfg.set('leftPort',              3000);
+        scfg.set('rightPort',             1001);
         const server2                   = new Server(); // down server
         cfg.set('worldWidth',             10);
         cfg.set('worldHeight',            10);
@@ -644,7 +648,7 @@ describe("client/src/manager/Manager", () => {
             if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
                 expect(man2.organisms.size).toBe(1);
                 org1 = man1.organisms.first.val;
-                org1.vm.code.push(0b00001100000000000000000000000000); // onStepDown()
+                org1.vm.code.push(0b00001010000000000000000000000000); // onStepRight()
             } else if (man2.organisms.size === 2) {
                 destroy();
             }
@@ -695,11 +699,11 @@ describe("client/src/manager/Manager", () => {
         scfg.set('modeDistributed',       true);
         scfg.set('maxConnections',        1);
         scfg.set('port',                  3000);
-        scfg.set('downPort',              3001);
+        scfg.set('rightPort',             3001);
         const server1                   = new Server(); // up server
         scfg.set('port',                  3001);
-        scfg.set('upPort',                3000);
-        scfg.set('downPort',              1001);
+        scfg.set('leftPort',              3000);
+        scfg.set('rightPort',             1001);
         const server2                   = new Server(); // down server
         cfg.set('worldWidth',             10);
         cfg.set('worldHeight',            10);
@@ -717,13 +721,13 @@ describe("client/src/manager/Manager", () => {
         ocfg.set('orgClonePeriod',        0);
         ocfg.set('orgStartEnergy',        10000);
         cfg.set('worldCyclical',          false);
-        World.prototype.getFreePos      = () => {return {x: 1, y: 0}};
+        World.prototype.getFreePos      = () => {return {x: 0, y: 1}};
 
         man1.on(EVENTS.ITERATION, () => {
             if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
                 expect(man2.organisms.size).toBe(1);
                 org1 = man1.organisms.first.val;
-                org1.vm.code.push(0b00001100000000000000000000000000); // onStepDown()
+                org1.vm.code.push(0b00001010000000000000000000000000); // onStepRight()
                 man1.on(EVENTS.KILL_ORGANISM, () => destroyFlag = true);
                 man1.on(EVENTS.STEP_IN,       () => stepInBack  = true);
                 man2.on(EVENTS.STEP_IN,       () => stepInFlag  = true);
@@ -754,17 +758,15 @@ describe("client/src/manager/Manager", () => {
         let   stepInBack                = false;
         const destroy                   = () => {
             man1.destroy(() => {
-                //man2.destroy(() => {
-                    waitEvent(server1, SEVENTS.DESTROY, () => server1.destroy(), () => {
-                        waitEvent(server2, SEVENTS.DESTROY, () => server2.destroy(), () => {
-                            World.prototype.getFreePos = freePos;
-                            ocfg.reset();
-                            scfg.reset();
-                            cfg.reset();
-                            done();
-                        });
+                waitEvent(server1, SEVENTS.DESTROY, () => server1.destroy(), () => {
+                    waitEvent(server2, SEVENTS.DESTROY, () => server2.destroy(), () => {
+                        World.prototype.getFreePos = freePos;
+                        ocfg.reset();
+                        scfg.reset();
+                        cfg.reset();
+                        done();
                     });
-                //});
+                });
             });
         };
 
@@ -776,11 +778,11 @@ describe("client/src/manager/Manager", () => {
         scfg.set('modeDistributed',       true);
         scfg.set('maxConnections',        1);
         scfg.set('port',                  3000);
-        scfg.set('downPort',              3001);
+        scfg.set('rightPort',             3001);
         const server1                   = new Server(); // up server
         scfg.set('port',                  3001);
-        scfg.set('upPort',                3000);
-        scfg.set('downPort',              1001);
+        scfg.set('leftPort',              3000);
+        scfg.set('rightPort',             1001);
         const server2                   = new Server(); // down server
         cfg.set('worldWidth',             10);
         cfg.set('worldHeight',            10);
@@ -794,17 +796,17 @@ describe("client/src/manager/Manager", () => {
         ocfg.set('orgClonePeriod',        0);
         ocfg.set('orgStartEnergy',        10000);
         cfg.set('worldCyclical',          false);
-        World.prototype.getFreePos      = () => {return {x: 1, y: 5}};
+        World.prototype.getFreePos      = () => {return {x: 5, y: 1}};
 
         man1.on(EVENTS.ITERATION, () => {
             if (iterated1 > 0 && org1 === null) {
                 org1 = man1.organisms.first.val;
-                org1.vm.code.push(0b00001100000000000000000000000000); // onStepDown()
+                org1.vm.code.push(0b00001010000000000000000000000000); // onStepRight()
                 man1.on(EVENTS.KILL_ORGANISM, () => destroyFlag = true);
                 man1.on(EVENTS.STEP_IN,       () => stepInBack  = true);
             } else if (destroyFlag && stepInBack) {
                 stepInBack = false;
-                expect(man1.organisms.size).toBe(2);
+                expect(man1.organisms.size).toBe(1);
                 destroy();
             }
             if (iterated1 > 10000) {throw 'Error sending organism between Servers'}
@@ -812,9 +814,7 @@ describe("client/src/manager/Manager", () => {
         });
 
         waitEvent(server1, server1.EVENTS.RUN, () => server1.run(), () => {
-            waitEvent(server2, server2.EVENTS.RUN, () => server2.run(), () => {
-                man1.run();
-            });
+            waitEvent(server2, server2.EVENTS.RUN, () => server2.run(), () => man1.run());
         });
     });
 });
