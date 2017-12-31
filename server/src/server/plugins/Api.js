@@ -237,7 +237,7 @@ class Api extends BaseApi {
         const servers     = this.parent.aroundServers;
         const side        = conns.side - 1;
         const activeUp    = !!_get(conns.getConnection(conns.upRegion  (region)),  'sock') || region[1] === 0    && servers && servers.hasSocket(DIR.UP);
-        const activeRight = !!_get(conns.getConnection(conns.downRegion(region)),  'sock') || region[0] === side && servers && servers.hasSocket(DIR.RIGHT);
+        const activeRight = !!_get(conns.getConnection(conns.rightRegion(region)), 'sock') || region[0] === side && servers && servers.hasSocket(DIR.RIGHT);
         const activeDown  = !!_get(conns.getConnection(conns.downRegion(region)),  'sock') || region[1] === side && servers && servers.hasSocket(DIR.DOWN);
         const activeLeft  = !!_get(conns.getConnection(conns.leftRegion(region)),  'sock') || region[0] === 0    && servers && servers.hasSocket(DIR.LEFT);
 
