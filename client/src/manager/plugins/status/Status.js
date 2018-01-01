@@ -65,7 +65,6 @@ class Status extends Configurable {
         if (!StatusConfig.showMessages) {return}
         const stamp     = Date.now();
         this._times++;
-        console.log(this._manager.activeAround);
         if (stamp - this._stamp < StatusConfig.period) {return}
 
         const man = this._manager;
