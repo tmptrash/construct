@@ -817,4 +817,54 @@ describe("client/src/manager/Manager", () => {
             waitEvent(server2, server2.EVENTS.RUN, () => server2.run(), () => man1.run());
         });
     });
+
+    it("Checking moving of organism through three Managers", (done) => {
+        const ocfg      = new ConfigHelper(OConfig);
+        const cfg       = new ConfigHelper(Config);
+        const server    = new Server();
+        cfg.set('worldWidth',   10);
+        cfg.set('worldHeight',  10);
+        const man1      = new Manager(false);
+        delete Config.organisms;
+        delete Config.status;
+        const man2      = new Manager(false);
+        delete Config.organisms;
+        delete Config.status;
+        const man3      = new Manager(false);
+        let   iterated1 = 0;
+        let   iterated2 = 0;
+        let   freePos   = World.prototype.getFreePos;
+        let   org1      = null;
+        let   waitObj   = {done: false};
+        let   i         = 0;
+        const destroy   = () => {
+            man1.destroy(() => {
+                man2.destroy(() => {
+                    man3.destroy(() => {
+                        waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
+                            World.prototype.getFreePos = freePos;
+                            ocfg.reset();
+                            cfg.reset();
+                            done();
+                        });
+                    });
+                });
+            });
+        };
+
+        ocfg.set('orgStartAmount',          1);
+        ocfg.set('orgRainMutationPeriod',   0);
+        ocfg.set('orgCloneMutationPercent', 0);
+        ocfg.set('orgEnergySpendPeriod',    0);
+        ocfg.set('orgClonePeriod',          0);
+        ocfg.set('orgStartEnergy',          10000);
+        World.prototype.getFreePos = () => {return {x: 5, y: ++i === 1 ? 1 : 2}};
+
+        testQ(done,
+            [server, SEVENTS.RUN, () => server.run(), () => {man1.run(() => man2.run(() => man3.run(() => waitObj.done = true)))}],
+            [waitObj],
+            [man1, EVENTS.ITERATION, () => {}, () => man1.organisms.first.val.vm.code.push(0b00001010000000000000000000000000)], // onStepRight()
+            [man3, EVENTS.STEP_IN, () => {}, () => destroy()]
+        );
+    });
 });
