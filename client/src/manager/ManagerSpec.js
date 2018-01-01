@@ -831,10 +831,7 @@ describe("client/src/manager/Manager", () => {
         delete Config.organisms;
         delete Config.status;
         const man3      = new Manager(false);
-        let   iterated1 = 0;
-        let   iterated2 = 0;
         let   freePos   = World.prototype.getFreePos;
-        let   org1      = null;
         let   waitObj   = {done: false};
         let   i         = 0;
         const destroy   = () => {
