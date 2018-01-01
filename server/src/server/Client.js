@@ -43,7 +43,7 @@ class Client extends BaseClient {
      */
     onError(event) {
         super.onError(event);
-        Console.warn(`'${NAMES[this._dir]}' server error: ${event.message} on ${this.host}:${this.port}`);
+        Console.warn(`[${NAMES[this._dir]}] server error: ${event.message} on ${this.host}:${this.port}`);
     }
 
     /**
@@ -70,7 +70,7 @@ class Client extends BaseClient {
         //
         // We have to show message only if we had been active for some time
         //
-        active && Console.warn(`'${NAMES[this._dir]}' server has disconnected by reason: '${this.closeReason}' on ${this.host}:${this.port}`);
+        active && Console.warn(`[${NAMES[this._dir]}] server has disconnected by reason: '${this.closeReason}' on ${this.host}:${this.port}`);
     }
 
     /**
@@ -80,7 +80,7 @@ class Client extends BaseClient {
      */
     onOpen(event) {
         super.onOpen(event);
-        Console.info(`'${NAMES[this._dir]}' server has connected on ${this.host}:${this.port}`);
+        Console.info(`[${NAMES[this._dir]}] server has connected on ${this.host}:${this.port}`);
     }
 }
 

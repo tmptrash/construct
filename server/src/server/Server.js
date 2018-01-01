@@ -234,7 +234,7 @@ class Server extends Connection {
         sock.removeAllListeners('error');
         sock.removeAllListeners('close');
         servers && servers.setSocket(sock, dir);
-        clientId !== false && Console.warn(`Client '${isServer ? NAMES[dir] : clientId}' has disconnected by reason: ${this.closeReason}`);
+        clientId !== false && Console.warn(`Client [${isServer ? NAMES[dir] : clientId}] has disconnected by reason: ${this.closeReason}`);
     }
 }
 

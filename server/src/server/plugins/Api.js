@@ -129,7 +129,7 @@ class Api extends BaseApi {
         this.parent.aroundServers.setSocket(this.sock, dir);
         this.parent.response(this.sock, TYPES.RES_SET_NEAR_ACTIVE_OK, reqId);
         this._onServerOpen(dir);
-        Console.info(`'${NAMES[dir]}' server has connected`);
+        Console.info(`[${NAMES[dir]}] server has connected`);
     }
 
     /**

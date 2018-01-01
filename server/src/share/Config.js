@@ -58,7 +58,7 @@ ServerConfig.init({
     /**
      * {Number} Port number of server on the right
      */
-    rightPort: 8101,
+    rightPort: 8302,
     /**
      * {String} Host address of server below. Shouldn't contain port
      */
@@ -66,7 +66,7 @@ ServerConfig.init({
     /**
      * {Number} Port number of server below
      */
-    downPort: 8102,
+    downPort: 8202,
     /**
      * {String} Host address of server on the left. Shouldn't contain port
      */
@@ -74,7 +74,7 @@ ServerConfig.init({
     /**
      * {Number} Port number of server on the left
      */
-    leftPort: 8103
+    leftPort: 8203
 });
 
 module.exports = {Config: ServerConfig.cfg(), api: ServerConfig};
