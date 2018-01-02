@@ -67,7 +67,6 @@ class Mutator {
 
     static _onCopy(org) {
         org.changes += (org.vm.copyLines() * MAX_BITS);
-
     }
 
     static _onPeriod(org) {
@@ -81,7 +80,7 @@ class Mutator {
     }
 
     static _onProbs(org) {
-        org.mutationProbs[Helper.rand(org.mutationProbs.length)] = Helper.rand(OConfig.orgMutationProbsMaxValue) || 1;
+        org.mutationProbs[Helper.rand(org.mutationProbs.length)] = Helper.rand(OConfig.ORG_MUTATION_PROBS_MAX_VAL) || 1;
         org.changes++;
     }
 

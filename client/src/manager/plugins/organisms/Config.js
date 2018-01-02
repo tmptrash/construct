@@ -19,6 +19,11 @@ const Config = {
      */
     ORG_MAX_COLOR: Number.MAX_SAFE_INTEGER,
     /**
+     * {Number} Max value, which we may use in orgMutationProbs array. We may use
+     * range: [0...ORG_MUTATION_PROBS_MAX_VAL] including these values
+     */
+    ORG_MUTATION_PROBS_MAX_VAL: 100,
+    /**
      * {Array} Probabilities which used, when mutator decides what to do:
      * add, change, delete code line inside the vm; change amount of
      * mutations or change mutations period... Depending on these
@@ -42,45 +47,40 @@ const Config = {
      */
     orgMutationProbs: [10,1,1,100,1,1,1,1,1,1],
     /**
-     * {Number} Max value, which we may use in orgMutationProbs array. We may use
-     * range: [0...orgMutationProbsMaxValue] including these values
-     */
-    orgMutationProbsMaxValue: 100,
-    /**
      * {Number} Percent of mutations from vm size, which will be applied to
      * organism after cloning. Should be <= 1.0 (1.0 === 100%)
      */
-    orgCloneMutationPercent: 0.000,
+    orgCloneMutationPercent: 0.01,
     /**
      * {Number} Amount of iterations between cloning. Set it to 0 to turn it off
      */
-    orgClonePeriod: 10,
+    orgClonePeriod: 300,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 1000,
+    orgCrossoverPeriod: 0,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 1000,
+    orgRainMutationPeriod: 300,
     /**
      * {Number} Percent of mutations from code size. 0 is a possible value if
      * we want to disable mutations. Should be less then 1.0 (1.0 === 100%)
      */
-    orgRainMutationPercent: 0.01,
+    orgRainMutationPercent: 0.5,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 100,
+    orgStartAmount: 300,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created
      * by operator and not by evolution.
      */
-    orgStartEnergy: 1000000,
+    orgStartEnergy: 500000,
     /**
      * {Number} Begin color of "empty" organism (organism without code). Color
      * should be set in HEX-RGB mode. Example: 0xRRGGBB
@@ -108,11 +108,11 @@ const Config = {
      * be grabbed from you. If your size is between 21-40, then 2 units of
      * energy will be grabbed from you and so on...
      */
-    orgGarbagePeriod: 20,
+    orgGarbagePeriod: 10,
     /**
      * {Number} Size of organism stack (internal memory)
      */
-    orgMemSize: 1024,
+    orgMemSize: 128,
     /**
      * {Number} Percent of energy, which will be given to the child
      */
@@ -127,7 +127,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 200,
+    orgMaxOrgs: 300,
     /**
      * {Number} If organism reach this limit of amount of vm lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
@@ -135,7 +135,7 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 150,
+    codeMaxSize: 100,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain. This value shouldn't be less then 2.
@@ -152,7 +152,7 @@ const Config = {
      * organism without interruption by one VM. Set this value to value bigger
      * then codeMaxSize, then entire code of organism will be run
      */
-    codeYieldPeriod: 5,
+    codeYieldPeriod: 2,
     /**
      * {Number} Amount of bits for storing operator. This is first XX bits
      * in a number.
@@ -167,7 +167,7 @@ const Config = {
      * {Number} Amount of iterations between calls to V8 event loop. See
      * Manager._initLoop(), Manager.run() methods for details.
      */
-    codeIterationsPerOnce: 100,
+    codeIterationsPerOnce: 10,
 };
 
 module.exports = Config;

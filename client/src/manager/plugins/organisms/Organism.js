@@ -55,7 +55,7 @@ class Organism extends Observer {
         this._id          = id;
         this._x           = x;
         this._y           = y;
-        this._changes     = 1;
+        this._iterations  = 0;
         this._alive       = alive;
         this._item        = item;
         this._fnId        = 0;
@@ -106,7 +106,7 @@ class Organism extends Observer {
      * @return {String} JSON string
      */
     serialize() {
-        let   json = {
+        let json = {
             id                  : this._id,
             x                   : this._x,
             y                   : this._y,
@@ -164,18 +164,20 @@ class Organism extends Observer {
     }
 
     fitness() {
-        return Math.abs(OConfig.codeMaxSize - this.vm.size) * this._energy * this._changes;
+        return /*Math.abs(OConfig.codeMaxSize - this.vm.size) * */ this._energy * this._changes;
     }
 
     destroy() {
         this.fire(EVENTS.DESTROY, this);
-        this._alive      = false;
-        this._energy     = 0;
-        this._item       = null;
-        this._mem        = null;
+        this._alive         = false;
+        this._energy        = 0;
+        this._item          = null;
+        this._mem           = null;
+        this._mutationProbs = null;
         this.vm && this.vm.destroy();
-        this.vm          = null;
-        this._codeEndCb  = null;
+        this.vm             = null;
+        this._codeEndCb     = null;
+        this._operatorCls   = null;
 
         super.destroy();
     }
@@ -195,7 +197,7 @@ class Organism extends Observer {
         this._mutationPeriod        = OConfig.orgRainMutationPeriod;
         this._mutationPercent       = OConfig.orgRainMutationPercent;
         this._cloneEnergyPercent    = OConfig.orgCloneEnergyPercent;
-        this._iterations            = 0;
+        this._changes               = 1;
         this._mem                   = [];
     }
 
@@ -208,7 +210,7 @@ class Organism extends Observer {
         this._mutationPeriod        = parent.mutationPeriod;
         this._mutationPercent       = parent.mutationPercent;
         this._cloneEnergyPercent    = parent.cloneEnergyPercent;
-        this._iterations            = parent.iterations;
+        this._changes               = parent.changes;
         this._mem                   = parent.mem.slice();
     }
 

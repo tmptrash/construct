@@ -131,10 +131,14 @@ class VM extends Observer {
 
     destroy() {
         this._operators.destroy && this._operators.destroy();
-        this._operators = null;
-        this._vars      = null;
-        this._code      = null;
-        this._onCodeEnd = null;
+        this._operators   = null;
+        this._operatorCls = null;
+        this._offsets     = null;
+        this._vars        = null;
+        this._code        = null;
+        this._onCodeEnd   = null;
+        this._obs         = null;
+        this._ops         = null;
 
         super.destroy();
     }
@@ -208,10 +212,12 @@ class VM extends Observer {
         //
         if (rand(2) === 0) {
             code.splice(rand(start), 0, ...code.slice(start, end));
+            this._reset();
             return end - start;
         }
 
         code.splice(end + rand(codeLen - end + 1), 0, ...code.slice(start, end));
+        this._reset();
 
         return end - start;
     }

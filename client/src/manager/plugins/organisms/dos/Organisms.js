@@ -64,6 +64,14 @@ class Organisms extends BaseOrganisms {
      */
     onClone(org, child) {
         let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >>> 1; // analog of Math.round()
+        //
+        // This is very special case, when organisms cheating by creating
+        // ancestors and put all energy into them at the same time resetting
+        // their iterations property and make them immortal
+        //
+        if (energy === org.energy) {
+            energy--;
+        }
         org.grabEnergy(energy);
         child.grabEnergy(child.energy - energy);
     }
@@ -84,15 +92,6 @@ class Organisms extends BaseOrganisms {
      */
     createEmptyOrg(...args) {
         return new Organism(...args);
-    }
-
-    /**
-     * Is called after organism has created
-     * @param {Organism} org
-     * @override
-     */
-    onAfterCreateOrg(org) {
-        this.manager.positions[org.posId] = org;
     }
 
     /**

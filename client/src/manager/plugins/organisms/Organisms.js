@@ -16,9 +16,8 @@ const EVENTS       = require('./../../../../src/share/Events').EVENTS;
 const Mutator      = require('./Mutator');
 const Num          = require('./../../../vm/Num');
 
-const RAND_OFFS = 4;
+const RAND_OFFS = 3;
 const MAX_BITS  = Num.MAX_BITS;
-
 // TODO: inherit this class from Configurable
 class Organisms extends Configurable {
     /**
@@ -59,13 +58,6 @@ class Organisms extends Configurable {
     onClone(org, child) {}
 
     /**
-     * Is called after organism has created
-     * @param {Organism} org
-     * @abstract
-     */
-    onAfterCreateOrg(org) {}
-
-    /**
      * Is called after organism has killed
      * @param {Organism} org Killed organism
      * @abstract
@@ -87,10 +79,12 @@ class Organisms extends Configurable {
         this.manager        = manager;
         this.randOrgItem    = this.organisms.first;
         this._mutator       = new Mutator(manager);
-        this._onIterationCb = this.onIteration.bind(this);
+        this._onIterationCb = this._onIteration.bind(this);
+        this._onLoopCb      = this._onLoop.bind(this);
 
         this.reset();
         Helper.override(manager, 'onIteration', this._onIterationCb);
+        Helper.override(manager, 'onLoop', this._onLoopCb);
     }
 
     destroy() {
@@ -99,33 +93,14 @@ class Organisms extends Configurable {
         while (item && (org = item.val)) {org.destroy(); item = item.next}
 
         Helper.unoverride(this.manager, 'onIteration', this._onIterationCb);
+        Helper.unoverride(this.manager, 'onLoop', this._onLoopCb);
         this._mutator.destroy();
         this._mutator       = null;
         this.manager        = null;
         this._onIterationCb = null;
+        this._onLoopCb      = null;
 
         super.destroy();
-    }
-
-    /**
-     * Override of Manager.onIteration() method. Is called on every
-     * iteration of main loop. The counter is an analog of time.
-     * @param {Number} counter Value of main loop counter.
-     * @param {Number} stamp Time stamp of current iteration
-     */
-    onIteration(counter, stamp) {
-        let item = this.organisms.first;
-        let org;
-
-        while (item && (org = item.val)) {
-            org.run();
-            this.onOrganism(org);
-            item = item.next;
-        }
-
-        this.updateClone(counter);
-        this.updateCrossover(counter);
-        this.updateCreate();
     }
 
     /**
@@ -150,9 +125,9 @@ class Organisms extends Configurable {
         const needClone = counter % OConfig.orgClonePeriod === 0 && OConfig.orgClonePeriod !== 0;
         let   orgAmount = orgs.size;
         if (!needClone || orgAmount < 1) {return false}
-        let   org1      = this.getRandOrg();
-        let   org2      = this.getRandOrg();
-        if (!org1.alive && !org2.alive) {return false}
+        let   org1      = this._randOrg();
+        let   org2      = this._randOrg();
+        if (!org1.alive && !org2.alive || org1 === org2) {return false}
 
         let tmpOrg = this._tournament(org1, org2);
         if (tmpOrg === org2) {[org1, org2] = [org2, org1]}
@@ -187,19 +162,6 @@ class Organisms extends Configurable {
         }
     }
 
-    getRandOrg() {
-        const offs = Helper.rand(RAND_OFFS);
-        let   item = this.randOrgItem;
-
-        for (let i = 0; i < offs; i++) {
-            if ((item = item.next) === null) {
-                item = this.organisms.first;
-            }
-        }
-
-        return (this.randOrgItem = item).val;
-    }
-
     reset() {
         this._orgId = 0;
     }
@@ -225,17 +187,53 @@ class Organisms extends Configurable {
 
         last.val = org;
         this.addOrgHandlers(org);
-        this.move(pos.x, pos.y, pos.x, pos.y, org);
-        this.onAfterCreateOrg(org);
+        this.move(-1, -1, pos.x, pos.y, org);
         this.manager.fire(EVENTS.BORN_ORGANISM, org);
         //Console.info(org.id, ' born');
 
         return true;
     }
 
+    /**
+     * Override of Manager.onIteration() method. Is called on every
+     * iteration of main loop. The counter is an analog of time.
+     * @param {Number} counter Value of main loop counter.
+     * @param {Number} stamp Time stamp of current iteration
+     */
+    _onIteration(counter, stamp) {
+        let item = this.organisms.first;
+        let org;
+
+        while (item && (org = item.val)) {
+            org.run();
+            this.onOrganism(org);
+            item = item.next;
+        }
+
+        this.updateClone(counter);
+        this.updateCrossover(counter);
+    }
+
+    _onLoop() {
+        this.updateCreate();
+    }
+
+    _randOrg() {
+        const offs = Helper.rand(RAND_OFFS) + 1;
+        let   item = this.randOrgItem;
+
+        for (let i = 0; i < offs; i++) {
+            if ((item = item.next) === null) {
+                item = this.organisms.first;
+            }
+        }
+
+        return (this.randOrgItem = item).val;
+    }
+
     _tournament(org1 = null, org2 = null) {
-        org1 = org1 || this.getRandOrg();
-        org2 = org2 || this.getRandOrg();
+        org1 = org1 || this._randOrg();
+        org2 = org2 || this._randOrg();
 
         if (!org1.alive && !org2.alive) {return false}
         if ((org2.alive && !org1.alive) || this.compare(org2, org1)) {
@@ -272,7 +270,7 @@ class Organisms extends Configurable {
         const world = this.manager.world;
 
         this.reset();
-        for (let i = 0; i < OConfig.orgStartAmount; i++) {
+        for (let i = 0, len = OConfig.orgStartAmount; i < len; i++) {
             this.createOrg(world.getFreePos());
         }
         Console.info('Population has created');

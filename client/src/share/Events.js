@@ -6,26 +6,27 @@
  * TODO: find unused and remove. But after main code is done.
  */
 const EVENTS = {
-    ITERATION      : 0,
-    IPS            : 1,
-    BACKUP         : 2,
-    ORGANISM       : 3,
-    GRAB_ENERGY    : 4,
-    UPDATE_ENERGY  : 5,
-    KILL_ORGANISM  : 6,
-    MUTATIONS      : 7,
-    CLONE          : 8,
-    EAT            : 9,
-    STEP           : 10,
-    STEP_OUT       : 11,
-    STEP_IN        : 12,
-    BORN_ORGANISM  : 13,
-    GET_ENERGY     : 14,
-    DESTROY        : 15,
-    RUN            : 16,
-    STOP           : 17,
-    RESET_CODE     : 18,
-    CHECK_AT       : 19
+    ITERATION       : 0,
+    LOOP            : 1,
+    IPS             : 2,
+    BACKUP          : 3,
+    ORGANISM        : 4,
+    GRAB_ENERGY     : 5,
+    UPDATE_ENERGY   : 6,
+    KILL_ORGANISM   : 7,
+    MUTATIONS       : 8,
+    CLONE           : 9,
+    EAT             : 10,
+    STEP            : 11,
+    STEP_OUT        : 12,
+    STEP_IN         : 13,
+    BORN_ORGANISM   : 14,
+    GET_ENERGY      : 15,
+    DESTROY         : 16,
+    RUN             : 17,
+    STOP            : 18,
+    RESET_CODE      : 19,
+    CHECK_AT        : 20
 };
 
 const EVENT_AMOUNT = Object.keys(EVENTS).length;

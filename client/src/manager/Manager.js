@@ -23,6 +23,10 @@ const Console          = require('./../share/Console');
 const World            = require('./../view/World').World;
 const WEVENTS          = require('./../view/World').EVENTS;
 const Canvas           = require('./../view/Canvas');
+/**
+ * {Function} Shortcut to the datetime stamp getter
+ */
+const TIMER            = Date.now;
 
 class Manager extends Observer {
     /**
@@ -143,6 +147,15 @@ class Manager extends Observer {
     }
 
     /**
+     * Is called after all iterations
+     * @param {Number} counter Global counter as an analog of time
+     * @param {Number} stamp UNIX time stamp
+     */
+    onLoop(counter, stamp) {
+        this.fire(EVENTS.LOOP);
+    }
+
+    /**
      * Returns true if at least one other Manager/client is around and is connected
      * to the current
      * @returns {Boolean}
@@ -238,14 +251,14 @@ class Manager extends Observer {
         // prevent flickering of organisms in a canvas. It makes their
         // movement smooth
         //
-        const amount  = this._visualized ? 1 : OConfig.codeIterationsPerOnce;
-        const timer   = Date.now;
-        let   counter = this._counter;
+        let amount  = this._visualized ? 1 : OConfig.codeIterationsPerOnce;
+        let counter = this._counter;
+        let i;
 
-        for (let i = 0; i < amount; i++) {
-            this.onIteration(counter++, timer());
+        for (i = counter, amount = counter + amount; i < amount; i++) {
+            this.onIteration(i, TIMER());
         }
-        this._counter = counter;
+        this.onLoop(this._counter = i, TIMER());
         this._active && this.zeroTimeout(this._onLoopCb);
     }
 
