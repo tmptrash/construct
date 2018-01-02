@@ -63,7 +63,7 @@ class Observer {
     }
 
     destroy() {
-        this._handlers = null;
+        this._handlers = {};
     }
 
     _resetEvents() {

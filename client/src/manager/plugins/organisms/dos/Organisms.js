@@ -63,16 +63,20 @@ class Organisms extends BaseOrganisms {
      * @override
      */
     onClone(org, child) {
-        let energy = (((org.energy * org.cloneEnergyPercent) + 0.5) << 1) >>> 1; // analog of Math.round()
+        const percent = org.cloneEnergyPercent;
+        const changes = (((org.changes * percent) + 0.5) << 1) >>> 1; // analog of Math.round()
+        let   energy  = (((org.energy * percent) + 0.5) << 1) >>> 1;  // analog of Math.round()
         //
-        // This is very special case, when organisms cheating by creating
+        // This is very special/rare case, when organisms cheating by creating
         // ancestors and put all energy into them at the same time resetting
         // their iterations property and make them immortal
         //
         if (energy === org.energy) {
             energy--;
         }
+        org.changes   -= changes;
         org.grabEnergy(energy);
+        child.changes -= child.changes - changes;
         child.grabEnergy(child.energy - energy);
     }
 

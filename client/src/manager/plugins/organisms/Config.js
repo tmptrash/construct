@@ -50,22 +50,22 @@ const Config = {
      * {Number} Percent of mutations from vm size, which will be applied to
      * organism after cloning. Should be <= 1.0 (1.0 === 100%)
      */
-    orgCloneMutationPercent: 0.01,
+    orgCloneMutationPercent: 0.0,
     /**
      * {Number} Amount of iterations between cloning. Set it to 0 to turn it off
      */
-    orgClonePeriod: 300,
+    orgClonePeriod: 30,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 0,
+    orgCrossoverPeriod: 3000,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 300,
+    orgRainMutationPeriod: 3000,
     /**
      * {Number} Percent of mutations from code size. 0 is a possible value if
      * we want to disable mutations. Should be less then 1.0 (1.0 === 100%)
@@ -80,7 +80,7 @@ const Config = {
      * Eve. It means that these empty (without vm) organism were created
      * by operator and not by evolution.
      */
-    orgStartEnergy: 500000,
+    orgStartEnergy: 100000,
     /**
      * {Number} Begin color of "empty" organism (organism without code). Color
      * should be set in HEX-RGB mode. Example: 0xRRGGBB
@@ -95,7 +95,7 @@ const Config = {
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
      */
-    orgAlivePeriod: 0,
+    orgAlivePeriod: 100000,
     /**
      * {Number} This value means the period between organism codeSizes, which
      * affects energy grabbing by the system. For example: we have two
@@ -108,7 +108,7 @@ const Config = {
      * be grabbed from you. If your size is between 21-40, then 2 units of
      * energy will be grabbed from you and so on...
      */
-    orgGarbagePeriod: 10,
+    orgGarbagePeriod: 8,
     /**
      * {Number} Size of organism stack (internal memory)
      */
@@ -121,13 +121,13 @@ const Config = {
      * {Number} Percent of energy, which will be minused from organism after
      * stepping from one instance to another.
      */
-    orgStepEnergySpendPercent: 0.0,
+    orgStepEnergySpendPercent: 0.1,
     /**
      * {Number} Maximum amount of organisms in a world. If some organism will
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 300,
+    orgMaxOrgs: 100,
     /**
      * {Number} If organism reach this limit of amount of vm lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
@@ -135,7 +135,7 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 100,
+    codeMaxSize: 64,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain. This value shouldn't be less then 2.
@@ -152,7 +152,7 @@ const Config = {
      * organism without interruption by one VM. Set this value to value bigger
      * then codeMaxSize, then entire code of organism will be run
      */
-    codeYieldPeriod: 2,
+    codeYieldPeriod: 5,
     /**
      * {Number} Amount of bits for storing operator. This is first XX bits
      * in a number.
@@ -167,7 +167,7 @@ const Config = {
      * {Number} Amount of iterations between calls to V8 event loop. See
      * Manager._initLoop(), Manager.run() methods for details.
      */
-    codeIterationsPerOnce: 10,
+    codeIterationsPerOnce: 200,
 };
 
 module.exports = Config;

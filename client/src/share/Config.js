@@ -44,11 +44,11 @@ ClientConfig.init({
     /**
      * {Number} World width
      */
-    worldWidth: 400,
+    worldWidth: 1920,
     /**
      * {Number} World height
      */
-    worldHeight: 400,
+    worldHeight: 1010,
     /**
      * {Number} Turns on cyclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
@@ -57,7 +57,7 @@ ClientConfig.init({
      * coordinate (height). It actual only for one instance mode (no distributed
      * calculations).
      */
-    worldCyclical: true,
+    worldCyclical: false,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
@@ -75,7 +75,7 @@ ClientConfig.init({
      * Should be less then 100.0 and more and equal to 0.0. 0.17 is a
      * normal percent for this system.
      */
-    worldEnergyCheckPercent: 0.1,
+    worldEnergyCheckPercent: 0.2,
     /**
      * {Number} An amount of iteration, after which we have to check world energy
      * amount. Works in pair with worldEnergyCheckPercent. May be 0 if

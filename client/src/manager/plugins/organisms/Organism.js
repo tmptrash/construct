@@ -10,7 +10,7 @@ const Helper        = require('./../../../../../common/src/Helper');
 const OConfig       = require('./../../../manager/plugins/organisms/Config');
 const EVENTS        = require('./../../../share/Events').EVENTS;
 const EVENT_AMOUNT  = require('./../../../share/Events').EVENT_AMOUNT;
-const VM          = require('./../../../vm/VM');
+const VM            = require('./../../../vm/VM');
 
 const IS_NUM = Helper.isNumeric;
 
@@ -164,7 +164,7 @@ class Organism extends Observer {
     }
 
     fitness() {
-        return /*Math.abs(OConfig.codeMaxSize - this.vm.size) * */ this._energy * this._changes;
+        return Math.abs(OConfig.codeMaxSize - this.vm.size) * this._energy * this._changes;
     }
 
     destroy() {

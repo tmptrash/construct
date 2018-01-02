@@ -77,7 +77,7 @@ class Status extends Configurable {
         const senergy   = format(this._curEnergy,              'nrg', orgAmount, 0, 14         );
         const siq       = format(this._energy,                 'iq',  orgAmount, 3, 14, 100000 );
         const sfit      = format(this._fitness,                'fit', orgAmount, 3, 14         );
-        const schanges  = format(this._changes,                'che', orgAmount, 3, 12, 1, true);
+        const schanges  = format(this._changes,                'che', orgAmount, 3, 14, 1, true);
         const scode     = format(this._codeSize,               'cod', orgAmount, 1, 12, 1, true);
 
         console.log(`%c${sips}${slps}${sorgs}%c${siq}${senergy}${schanges}${sfit}${scode}`, GREEN, RED);
