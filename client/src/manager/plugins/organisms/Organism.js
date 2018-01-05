@@ -91,7 +91,8 @@ class Organism extends Observer {
     }
 
     /**
-     * Runs one code iteration and returns
+     * Runs one code iteration (amount of lines set in Config.codeYieldPeriod) and returns
+     * organism destroy state
      * @return {Boolean} false means that organism was destroyed
      */
     run() {
@@ -160,6 +161,7 @@ class Organism extends Observer {
     grabEnergy(amount) {
         if (!IS_NUM(amount)) {return true}
         const noEnergy = (this._energy -= amount) < 1;
+        this.fire(EVENTS.GRAB_ENERGY, amount + (noEnergy ? -this._energy : 0));
         noEnergy && this.destroy();
         return !noEnergy;
     }
@@ -235,14 +237,10 @@ class Organism extends Observer {
      */
     _updateEnergy() {
         if (this._iterations % OConfig.orgEnergySpendPeriod !== 0 || OConfig.orgEnergySpendPeriod === 0) {return true}
-        const codeSize = this.vm.size;
-        let   grabSize = Math.floor(codeSize / OConfig.orgGarbagePeriod);
-
+        let grabSize = Math.floor(this.vm.size / OConfig.orgGarbagePeriod);
         if (grabSize < 1) {grabSize = 1}
-        grabSize = Math.min(this._energy, grabSize);
-        this.fire(EVENTS.GRAB_ENERGY, grabSize);
 
-        return this.grabEnergy(grabSize);
+        return this.grabEnergy(this._energy < grabSize ? this._energy : grabSize);
     }
 }
 

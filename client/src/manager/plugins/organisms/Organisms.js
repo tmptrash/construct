@@ -201,7 +201,7 @@ class Organisms extends Configurable {
         let item = this.organisms.first;
         let org;
 
-        while (item && (org = item.val)) {
+        while (org = item && item.val) {
             org.run();
             this.onOrganism(org);
             item = item.next;
@@ -242,9 +242,9 @@ class Organisms extends Configurable {
 
     _clone(org) {
         if (this.onBeforeClone(org) === false) {return false}
-        let pos = this.manager.world.getNearFreePos(org.x, org.y);
+        let pos   = this.manager.world.getNearFreePos(org.x, org.y);
         if (pos === false || this.createOrg(pos, org) === false) {return false}
-        let child  = this.organisms.last.val;
+        let child = this.organisms.last.val;
 
         this.onClone(org, child);
         this.manager.fire(EVENTS.CLONE, org, child);

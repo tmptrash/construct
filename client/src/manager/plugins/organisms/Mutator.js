@@ -123,6 +123,12 @@ class Mutator {
         if (child.energy > 0 && OConfig.orgCloneMutationPercent > 0) {this._mutate(child)}
     }
 
+    /**
+     * IMPORTANT: mutations should be applied only after last line of organism's code
+     * has interpreted
+     * @param {Organism} org Current organism
+     * @param {Boolean} clone true if mutation is applying after clone
+     */
     _mutate(org, clone = true) {
         const vm      = org.vm;
         const probIndex = Helper.probIndex;
