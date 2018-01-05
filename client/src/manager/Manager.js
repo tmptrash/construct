@@ -102,9 +102,6 @@ class Manager extends Observer {
     get activeAround() {return this._activeAround}
     get active()       {return this._active}
     get codeRuns()     {return this._codeRuns}
-    // TODO: this getter will be removed when hasView will be
-    // TODO: removed from Status plugin
-    get hasView()      {return this._hasView}
 
     set codeRuns(cr)   {this._codeRuns = cr}
     set clientId(id)   {this._clientId = id}

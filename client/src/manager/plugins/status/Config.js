@@ -11,7 +11,7 @@ const Config = {
     /**
      * {Number} Delay in milliseconds between showing one status line
      */
-    period: 10000
+    period: 2000
 };
 
 module.exports = Config;

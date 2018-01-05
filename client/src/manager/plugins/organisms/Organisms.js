@@ -73,6 +73,13 @@ class Organisms extends Configurable {
      */
     createEmptyOrg(...args) {}
 
+    /**
+     * Is called at the end of run() method
+     * @param {Organism} org Current organism
+     * @abstract
+     */
+    onOrganism(org) {}
+
     constructor(manager) {
         super(manager, {Config, cfg: OConfig}, {getAmount: ['_apiGetAmount', 'Shows amount of organisms within current Client(Manager)']});
         this.organisms      = manager.organisms;
@@ -103,14 +110,6 @@ class Organisms extends Configurable {
         super.destroy();
     }
 
-    /**
-     * Is called every time after organism's code was run
-     * @param {Organism} org
-     */
-    onOrganism(org) {
-        org.alive && org.vm.size === 0 && this._onCodeEnd(org, 0);
-    }
-
     addOrgHandlers(org) {
         org.on(EVENTS.DESTROY, this._onKillOrg.bind(this));
     }
@@ -121,9 +120,8 @@ class Organisms extends Configurable {
      * @returns {boolean}
      */
     updateClone(counter) {
-        const orgs      = this.organisms;
         const needClone = counter % OConfig.orgClonePeriod === 0 && OConfig.orgClonePeriod !== 0;
-        let   orgAmount = orgs.size;
+        let   orgAmount = this.organisms.size;
         if (!needClone || orgAmount < 1) {return false}
         let   org1      = this._randOrg();
         let   org2      = this._randOrg();
@@ -139,8 +137,7 @@ class Organisms extends Configurable {
     }
 
     updateCrossover(counter) {
-        const orgs      = this.organisms;
-        const orgAmount = orgs.size;
+        const orgAmount = this.organisms.size;
         const needCrossover = counter % OConfig.orgCrossoverPeriod === 0 && OConfig.orgCrossoverPeriod !== 0;
         if (!needCrossover || orgAmount < 1) {return false}
 

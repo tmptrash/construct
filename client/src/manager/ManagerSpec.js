@@ -99,7 +99,7 @@ describe("client/src/manager/Manager", () => {
         expect(man.active).toBe(false);
         expect(man.clientId).toBe(null);
         expect(man.isDistributed()).toBe(false);
-        expect(man.hasView).toBe(false);
+        expect(man.canvas).toBe(null);
         man.destroy(done);
     });
     it("Checking creation of two managers", (done) => {

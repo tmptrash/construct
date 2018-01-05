@@ -38,15 +38,15 @@ class Organism extends Observer {
      * @param {Boolean} alive true if organism is alive
      * @param {Object} item Reference to the Queue item, where
      * this organism is located
-     * @param {Function} codeEndCb Callback, which is called at the
+     * @param {Function} onCodeEnd Callback, which is called at the
      * end of every code iteration.
      * @param {Function} operatorCls Class of operators
      * @param {Organism} parent Parent organism if cloning is needed
      */
-    constructor(id, x, y, alive, item, codeEndCb, operatorCls, parent = null) {
+    constructor(id, x, y, alive, item, onCodeEnd, operatorCls, parent = null) {
         super(EVENT_AMOUNT);
 
-        this._codeEndCb   = codeEndCb;
+        this._onCodeEnd   = onCodeEnd;
         this._operatorCls = operatorCls;
 
         if (parent === null) {this._create()}
@@ -98,6 +98,7 @@ class Organism extends Observer {
         this._iterations++;
         if (this.onBeforeRun() === false) {return true}
         this.onRun();
+        this.alive && this.vm.size === 0 && this._onCodeEnd(this, 0);
         return this.alive && this._updateDestroy() && this._updateEnergy();
     }
 
@@ -164,7 +165,7 @@ class Organism extends Observer {
     }
 
     fitness() {
-        return Math.abs(OConfig.codeMaxSize - this.vm.size) * this._energy * this._changes;
+        return (OConfig.codeMaxSize - this.vm.size) * this._energy * this._changes;
     }
 
     destroy() {
@@ -176,7 +177,7 @@ class Organism extends Observer {
         this._mutationProbs = null;
         this.vm && this.vm.destroy();
         this.vm             = null;
-        this._codeEndCb     = null;
+        this._onCodeEnd     = null;
         this._operatorCls   = null;
 
         super.destroy();
@@ -189,7 +190,7 @@ class Organism extends Observer {
     }
 
     _create() {
-        this.vm                     = new VM(this._codeEndCb.bind(this, this), this, this._operatorCls);
+        this.vm                     = new VM(this._onCodeEnd.bind(this, this), this, this._operatorCls);
         this._energy                = OConfig.orgStartEnergy;
         this._color                 = OConfig.orgStartColor;
         this._mutationProbs         = OConfig.orgMutationProbs.slice();
@@ -202,7 +203,7 @@ class Organism extends Observer {
     }
 
     _clone(parent) {
-        this.vm                     = new VM(this._codeEndCb.bind(this, this), this, this._operatorCls, parent.vm);
+        this.vm                     = new VM(this._onCodeEnd.bind(this, this), this, this._operatorCls, parent.vm);
         this._energy                = parent.energy;
         this._color                 = parent.color;
         this._mutationProbs         = parent.mutationProbs.slice();

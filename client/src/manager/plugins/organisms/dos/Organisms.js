@@ -64,7 +64,6 @@ class Organisms extends BaseOrganisms {
      */
     onClone(org, child) {
         const percent = org.cloneEnergyPercent;
-        const changes = (((org.changes * percent) + 0.5) << 1) >>> 1; // analog of Math.round()
         let   energy  = (((org.energy * percent) + 0.5) << 1) >>> 1;  // analog of Math.round()
         //
         // This is very special/rare case, when organisms cheating by creating
@@ -74,9 +73,7 @@ class Organisms extends BaseOrganisms {
         if (energy === org.energy) {
             energy--;
         }
-        org.changes   -= changes;
         org.grabEnergy(energy);
-        child.changes -= child.changes - changes;
         child.grabEnergy(child.energy - energy);
     }
 

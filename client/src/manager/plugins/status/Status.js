@@ -43,7 +43,7 @@ class Status extends Configurable {
         this._codeSize     = 0;
         this._runLines     = 1;
         this._times        = 0;
-        this._oldValues    = [0, 0];
+        this._oldValues    = [0, 0, 0];
         this._onIpsCb      = this._onIps.bind(this);
         this._onOrganismCb = this._onOrganism.bind(this);
 
@@ -72,16 +72,16 @@ class Status extends Configurable {
         const format    = Status._format;
         const orgAmount = orgs.size || 1;
         const sips      = `ips:${ips.toFixed(ips < 10 ? 2 : 0)}`.padEnd(10);
-        const slps      = format(this._runLines / this._times, 'lps', orgAmount, 0, 14         );
-        const sorgs     = format(orgAmount,                    'org', orgAmount, 0, 10         );
-        const senergy   = format(this._curEnergy,              'nrg', orgAmount, 0, 14         );
-        const siq       = format(this._energy,                 'iq',  orgAmount, 3, 14, 100000 );
-        const sfit      = format(this._fitness,                'fit', orgAmount, 3, 14         );
-        const schanges  = format(this._changes,                'che', orgAmount, 3, 14, 1, true);
-        const scode     = format(this._codeSize,               'cod', orgAmount, 1, 12, 1, true);
+        const slps      = format(this._runLines / this._times, 'lps', orgAmount, 0, 14                );
+        const sorgs     = format(orgAmount,                    'org', orgAmount, 0, 10                );
+        const senergy   = format(this._curEnergy,              'nrg', orgAmount, 0, 14                );
+        const siq       = format(this._energy,                 'iq',  orgAmount, 3, 14, 100000        );
+        const schanges  = format(this._changes,                'che', orgAmount, 2, 14, 10000000, true);
+        const sfit      = format(this._fitness,                'fit', orgAmount, 2, 14                );
+        const scode     = format(this._codeSize,               'cod', orgAmount, 1, 12, 1,        true);
 
         console.log(`%c${sips}${slps}${sorgs}%c${siq}${senergy}${schanges}${sfit}${scode}`, GREEN, RED);
-        man.hasView && man.canvas.text(5, 20, sips + (man.clientId && man.clientId || ''));
+        man.canvas && man.canvas.text(5, 20, sips + (man.clientId && man.clientId || ''));
         this._onAfterLog(stamp);
     }
 
@@ -110,13 +110,14 @@ class Status extends Configurable {
         }
 
         energy  /= size;
+        changes /= size;
         fitness /= size;
         this._curEnergy = energy;
         this._energy    = (energy  - olds[0]) / lines;
-        this._fitness   = (fitness - olds[1]) / lines;
-        this._changes   = changes;
+        this._changes   = (changes - olds[1]) / lines;
+        this._fitness   = (fitness - olds[2]) / lines;
         this._codeSize  = codeSize;
-        this._oldValues = [energy, fitness];
+        this._oldValues = [energy, changes, fitness];
     }
 
     _onAfterLog(stamp) {
