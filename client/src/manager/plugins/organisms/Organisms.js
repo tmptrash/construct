@@ -83,7 +83,6 @@ class Organisms extends Configurable {
     constructor(manager) {
         super(manager, {Config, cfg: OConfig}, {getAmount: ['_apiGetAmount', 'Shows amount of organisms within current Client(Manager)']});
         this.organisms      = manager.organisms;
-        this.manager        = manager;
         this.randOrgItem    = this.organisms.first;
         this._mutator       = new Mutator(manager);
         this._onIterationCb = this._onIteration.bind(this);
@@ -99,11 +98,10 @@ class Organisms extends Configurable {
         let org;
         while (item && (org = item.val)) {org.destroy(); item = item.next}
 
-        Helper.unoverride(this.manager, 'onIteration', this._onIterationCb);
-        Helper.unoverride(this.manager, 'onLoop', this._onLoopCb);
+        Helper.unoverride(this.parent, 'onIteration', this._onIterationCb);
+        Helper.unoverride(this.parent, 'onLoop', this._onLoopCb);
         this._mutator.destroy();
         this._mutator       = null;
-        this.manager        = null;
         this._onIterationCb = null;
         this._onLoopCb      = null;
 
@@ -122,15 +120,13 @@ class Organisms extends Configurable {
     updateClone(counter) {
         const needClone = counter % OConfig.orgClonePeriod === 0 && OConfig.orgClonePeriod !== 0;
         let   orgAmount = this.organisms.size;
-        if (!needClone || orgAmount < 1) {return false}
-        let   org1      = this._randOrg();
-        let   org2      = this._randOrg();
+        if (!needClone || orgAmount >= OConfig.orgMaxOrgs || orgAmount < 1) {return false}
+        let   org1      = this.randOrg();
+        let   org2      = this.randOrg();
         if (!org1.alive && !org2.alive || org1 === org2) {return false}
 
         let tmpOrg = this._tournament(org1, org2);
         if (tmpOrg === org2) {[org1, org2] = [org2, org1]}
-
-        if (orgAmount >= OConfig.orgMaxOrgs) {org2.destroy()}
         if (org1.alive) {this._clone(org1)}
 
         return true;
@@ -139,16 +135,13 @@ class Organisms extends Configurable {
     updateCrossover(counter) {
         const orgAmount = this.organisms.size;
         const needCrossover = counter % OConfig.orgCrossoverPeriod === 0 && OConfig.orgCrossoverPeriod !== 0;
-        if (!needCrossover || orgAmount < 1) {return false}
+        if (!needCrossover || orgAmount >= OConfig.orgMaxOrgs || orgAmount < 1) {return false}
 
-        let org1   = this._tournament();
-        let org2   = this._tournament();
-        let winner = this._tournament(org1, org2);
-        let looser = winner === org1 ? org2 : org1;
+        let org1 = this._tournament();
+        let org2 = this._tournament();
 
-        if (looser.alive) {
-            this._crossover(winner, looser);
-        }
+        if (!org1.alive || !org2.alive) {return false}
+        this._crossover(org1, org2);
 
         return true;
     }
@@ -165,7 +158,7 @@ class Organisms extends Configurable {
 
     move(x1, y1, x2, y2, org) {
         let   moved = false;
-        const world = this.manager.world;
+        const world = this.parent.world;
 
         if (world.isFree(x2, y2) === false) {return false}
         if (x1 !== x2 || y1 !== y2) {moved = true; world.setDot(x1, y1, 0)}
@@ -185,10 +178,27 @@ class Organisms extends Configurable {
         last.val = org;
         this.addOrgHandlers(org);
         this.move(-1, -1, pos.x, pos.y, org);
-        this.manager.fire(EVENTS.BORN_ORGANISM, org);
+        this.parent.fire(EVENTS.BORN_ORGANISM, org);
         //Console.info(org.id, ' born');
 
         return true;
+    }
+
+    /**
+     * Returns random organism of current population
+     * @return {Organism|null}
+     */
+    randOrg() {
+        const offs = Helper.rand(RAND_OFFS) + 1;
+        let   item = this.randOrgItem;
+
+        for (let i = 0; i < offs; i++) {
+            if ((item = item.next) === null) {
+                item = this.organisms.first;
+            }
+        }
+
+        return (this.randOrgItem = item).val;
     }
 
     /**
@@ -215,22 +225,9 @@ class Organisms extends Configurable {
         this.updateCreate();
     }
 
-    _randOrg() {
-        const offs = Helper.rand(RAND_OFFS) + 1;
-        let   item = this.randOrgItem;
-
-        for (let i = 0; i < offs; i++) {
-            if ((item = item.next) === null) {
-                item = this.organisms.first;
-            }
-        }
-
-        return (this.randOrgItem = item).val;
-    }
-
     _tournament(org1 = null, org2 = null) {
-        org1 = org1 || this._randOrg();
-        org2 = org2 || this._randOrg();
+        org1 = org1 || this.randOrg();
+        org2 = org2 || this.randOrg();
 
         if (!org1.alive && !org2.alive) {return false}
         if ((org2.alive && !org1.alive) || this.compare(org2, org1)) {
@@ -242,29 +239,28 @@ class Organisms extends Configurable {
 
     _clone(org) {
         if (this.onBeforeClone(org) === false) {return false}
-        let pos   = this.manager.world.getNearFreePos(org.x, org.y);
+        let pos   = this.parent.world.getNearFreePos(org.x, org.y);
         if (pos === false || this.createOrg(pos, org) === false) {return false}
         let child = this.organisms.last.val;
 
         this.onClone(org, child);
-        this.manager.fire(EVENTS.CLONE, org, child);
+        this.parent.fire(EVENTS.CLONE, org, child);
 
         return true;
     }
 
-    _crossover(winner, looser) {
-        this._clone(winner);
+    _crossover(org1, org2) {
+        this._clone(org1);
         const orgs  = this.organisms;
         let   child = orgs.last.val;
 
-        if (child.alive && looser.alive) {
-            child.changes += (child.vm.crossover(looser.vm) * MAX_BITS);
-            if (orgs.size >= OConfig.orgMaxOrgs) {looser.destroy()}
+        if (child.alive && org2.alive) {
+            child.changes += (child.vm.crossover(org2.vm) * MAX_BITS);
         }
     }
 
     _createPopulation() {
-        const world = this.manager.world;
+        const world = this.parent.world;
 
         this.reset();
         for (let i = 0, len = OConfig.orgStartAmount; i < len; i++) {
@@ -274,8 +270,8 @@ class Organisms extends Configurable {
     }
 
     _onCodeEnd(org, lines) {
-        this.manager.codeRuns++;
-        this.manager.fire(EVENTS.ORGANISM, org, lines);
+        this.parent.codeRuns++;
+        this.parent.fire(EVENTS.ORGANISM, org, lines);
     }
 
     _onKillOrg(org) {
@@ -285,9 +281,9 @@ class Organisms extends Configurable {
             }
         }
         this.organisms.del(org.item);
-        this.manager.world.setDot(org.x, org.y, 0);
+        this.parent.world.setDot(org.x, org.y, 0);
         this.onAfterKillOrg(org);
-        this.manager.fire(EVENTS.KILL_ORGANISM, org);
+        this.parent.fire(EVENTS.KILL_ORGANISM, org);
         //Console.info(org.id, ' die');
     }
 
@@ -296,7 +292,7 @@ class Organisms extends Configurable {
      * @return {Number} Amount of organisms within current Manager
      */
     _apiGetAmount() {
-        return this.manager.organisms.size;
+        return this.parent.organisms.size;
     }
 }
 

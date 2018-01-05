@@ -114,7 +114,8 @@ const Config = {
      */
     orgMemSize: 128,
     /**
-     * {Number} Percent of energy, which will be given to the child
+     * {Number} Percent of energy, which will be given to the child. Set to 0.0
+     * to share the same amount of energy with child (energy duplication)
      */
     orgCloneEnergyPercent: 0.5,
     /**

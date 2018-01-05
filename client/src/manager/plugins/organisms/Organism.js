@@ -186,9 +186,10 @@ class Organism extends Observer {
     }
 
     _updateColor(changes) {
-        if ((this._color += changes) > OConfig.ORG_MAX_COLOR) {
-            this._color = OConfig.ORG_FIRST_COLOR;
-        }
+        // TODO: tempoorary solution to have red organisms all the time
+        // if ((this._color += changes) > OConfig.ORG_MAX_COLOR) {
+        //     this._color = OConfig.ORG_FIRST_COLOR;
+        // }
     }
 
     _create() {

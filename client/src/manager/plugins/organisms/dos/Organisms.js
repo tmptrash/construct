@@ -27,11 +27,11 @@ class Organisms extends BaseOrganisms {
     constructor(manager) {
         super(manager);
         this._onStepInCb = this._onStepIn.bind(this);
-        this.manager.on(EVENTS.STEP_IN, this._onStepInCb);
+        this.parent.on(EVENTS.STEP_IN, this._onStepInCb);
     }
 
     destroy() {
-        this.manager.off(EVENTS.STEP_IN, this._onStepInCb);
+        this.parent.off(EVENTS.STEP_IN, this._onStepInCb);
         this._onStepInCb = null;
         super.destroy();
     }
@@ -64,6 +64,7 @@ class Organisms extends BaseOrganisms {
      */
     onClone(org, child) {
         const percent = org.cloneEnergyPercent;
+        if (percent === 0.0) {return}
         let   energy  = (((org.energy * percent) + 0.5) << 1) >>> 1;  // analog of Math.round()
         //
         // This is very special/rare case, when organisms cheating by creating
@@ -101,11 +102,11 @@ class Organisms extends BaseOrganisms {
      * @override
      */
     onAfterKillOrg(org) {
-        delete this.manager.positions[org.posId];
+        delete this.parent.positions[org.posId];
     }
 
     /**
-     * Is called after moving of organism is done. Updates this.manager.positions
+     * Is called after moving of organism is done. Updates this.parent.positions
      * map with a new position of organism
      * @param {Number} x1 Start X position
      * @param {Number} y1 Start Y position
@@ -117,8 +118,8 @@ class Organisms extends BaseOrganisms {
      */
     onAfterMove(x1, y1, x2, y2, org) {
         if (x1 !== x2 || y1 !== y2) {
-            delete this.manager.positions[Helper.posId(x1, y1)];
-            this.manager.positions[Helper.posId(x2, y2)] = org;
+            delete this.parent.positions[Helper.posId(x1, y1)];
+            this.parent.positions[Helper.posId(x2, y2)] = org;
         }
 
         return true;
@@ -128,16 +129,16 @@ class Organisms extends BaseOrganisms {
         if (x < 0 || y < 0 || !Number.isInteger(x) || !Number.isInteger(y)) {return}
         const posId = Helper.posId(x, y);
 
-        if (typeof(this.manager.positions[posId]) === 'undefined') {
-            ret.ret = this.manager.world.getDot(x, y)
+        if (typeof(this.parent.positions[posId]) === 'undefined') {
+            ret.ret = this.parent.world.getDot(x, y)
         } else {
-            ret.ret = this.manager.positions[posId].energy;
+            ret.ret = this.parent.positions[posId].energy;
         }
     }
 
     _onEat(org, x, y, ret) {
-        const world = this.manager.world;
-        const positions = this.manager.positions;
+        const world = this.parent.world;
+        const positions = this.parent.positions;
         let   dir;
 
         [x, y, dir] = Helper.normalize(x, y);
@@ -153,7 +154,7 @@ class Organisms extends BaseOrganisms {
 
     _onStep(org, x1, y1, x2, y2, ret) {
         if (org.alive === false) {return}
-        const man = this.manager;
+        const man = this.parent;
         let   dir;
 
         [x2, y2, dir] = Helper.normalize(x2, y2);
@@ -210,7 +211,7 @@ class Organisms extends BaseOrganisms {
      * @param {Object} ret Return object
      */
     _onStepIn(x, y, orgJson, ret) {
-        if (ret.ret = this.manager.world.isFree(x, y) && this.organisms.size < OConfig.orgMaxOrgs && this.createOrg({x, y})) {
+        if (ret.ret = this.parent.world.isFree(x, y) && this.organisms.size < OConfig.orgMaxOrgs && this.createOrg({x, y})) {
             const org = this.organisms.last.val;
             org.unserialize(orgJson);
             org.grabEnergy(OConfig.orgStepEnergySpendPercent);
@@ -219,7 +220,7 @@ class Organisms extends BaseOrganisms {
             //
             org.x = x;
             org.y = y;
-            this.manager.world.setDot(org.x, org.y, org.color);
+            this.parent.world.setDot(org.x, org.y, org.color);
         }
     }
 
@@ -227,8 +228,8 @@ class Organisms extends BaseOrganisms {
         let dir;
 
         [x, y, dir] = Helper.normalize(x, y);
-        if (typeof(this.manager.positions[Helper.posId(x, y)]) === 'undefined') {
-            ret.ret = this.manager.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
+        if (typeof(this.parent.positions[Helper.posId(x, y)]) === 'undefined') {
+            ret.ret = this.parent.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
         } else {
             ret.ret = ORGANISM;
         }
