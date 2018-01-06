@@ -161,6 +161,14 @@ class Manager extends Observer {
         return this._activeAround.indexOf(true) !== -1;
     }
 
+    /**
+     * Resets active around clients/Managers. It means, that connection with
+     * server has closed or interrupted
+     */
+    resetActive() {
+        for (let i = 0, active = this._activeAround, len = active.length; i < len; i++) {active[i] = false}
+    }
+
     destroy(done = () => {}) {
         if (this._active || this._stopping)  {
             this._destroying = true;

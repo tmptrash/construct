@@ -79,6 +79,7 @@ class Client extends BaseClient {
         super.onClose(event);
         Console.warn(`Client "${this._manager.clientId}" has disconnected by reason: ${this.closeReason}`);
         this._manager.clientId = null;
+        this._manager.resetActive();
     }
 
     /**
