@@ -237,12 +237,12 @@ class Server extends Connection {
         const dir      = servers ? servers.getDirection(sock) : clientId;
         const isServer = dir < DIR.NO;
 
-        !isServer && this.conns.clearData(region);
+        !isServer && region && this.conns.clearData(region);
         sock.removeAllListeners('message');
         sock.removeAllListeners('error');
         sock.removeAllListeners('close');
         servers && servers.setSocket(sock, dir);
-        clientId !== false && Console.warn(`Client [${isServer ? NAMES[dir] : clientId}] has disconnected by reason: ${this.closeReason}`);
+        Console.warn(`Client [${isServer ? NAMES[dir] : (clientId || sock.remoteAddr)}] has disconnected by reason: ${this.closeReason}`);
     }
 
     /**

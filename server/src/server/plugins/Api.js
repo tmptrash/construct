@@ -16,6 +16,7 @@ const DIR         = require('./../../../../common/src/Directions').DIR;
 const FLIP_DIR    = require('./../../../../common/src/Directions').FLIP_DIR;
 const NAMES       = require('./../../../../common/src/Directions').NAMES;
 const BaseApi     = require('./../../../../common/src/net/Api');
+
 class Api extends BaseApi {
     constructor(parent) {
         super(parent);
