@@ -29,6 +29,7 @@
  *
  * @author flatline
  */
+const OS               = require('os');
 const WebSocket        = require('./../../../node_modules/ws/index');
 const Connection       = require('./../../../common/src/net/Connection').Connection;
 const EVENTS           = require('./../../../common/src/net/Connection').EVENTS;
@@ -112,7 +113,7 @@ class Server extends Connection {
                     this.active = true;
                     this._running = false;
                     this.fire(RUN);
-                    Console.info('Server is ready');
+                    Console.info(`Server is ready on ${this._getIp()}:${this._port}`);
                 };
                 this.aroundServers && this.aroundServers.run(onDone) || onDone();
             });
@@ -197,8 +198,9 @@ class Server extends Connection {
      * regions for new connections, then places current one in a connection
      * cub and sends unique id to the client.
      * @param {WebSocket} sock Client's socket
+     * @param {Object} req Request info object
      */
-    onConnect(sock) {
+    onConnect(sock, req) {
         const region   = this.conns.getFreeRegion();
         const clientId = Connections.toId(region);
         if (region === null && this._server.clients.length > Config.maxConnections + 4) { // 4 extra connections for near servers
@@ -207,6 +209,12 @@ class Server extends Connection {
             Console.warn('This server is overloaded by clients. Try another server to connect.');
             return;
         }
+        //
+        // This is small hack. We have to bind remote client address and
+        // it's socket. We use this info in a terminal to show remote
+        // connected client address
+        //
+        sock.remoteAddr = req.connection.remoteAddress;
 
         sock.on('message', this.onMessage.bind(this, sock));
         sock.on('error', this.onError.bind(this, clientId, sock));
@@ -235,6 +243,25 @@ class Server extends Connection {
         sock.removeAllListeners('close');
         servers && servers.setSocket(sock, dir);
         clientId !== false && Console.warn(`Client [${isServer ? NAMES[dir] : clientId}] has disconnected by reason: ${this.closeReason}`);
+    }
+
+    /**
+     * Returns local IP, which is used by clients to connect
+     * @return {String}
+     */
+    _getIp() {
+        const iFaces = OS.networkInterfaces();
+        let   ip     = '127.0.0.1';
+
+        Object.keys(iFaces).forEach(dev => {
+            iFaces[dev].filter(details => {
+                if (details.family === 'IPv4' && details.internal === false) {
+                    ip = details.address;
+                }
+            });
+        });
+
+        return ip;
     }
 }
 
