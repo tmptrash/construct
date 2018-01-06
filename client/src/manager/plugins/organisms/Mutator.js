@@ -89,6 +89,11 @@ class Mutator {
         org.changes++;
     }
 
+    static _onClonePeriod(org) {
+        org.clonePeriod = Helper.rand(OConfig.ORG_MAX_CLONE_PERIOD);
+        org.changes++;
+    }
+
     constructor(manager) {
         this._manager = manager;
         this._MUTATION_TYPES = [
@@ -101,7 +106,8 @@ class Mutator {
             Mutator._onPeriod,
             Mutator._onAmount,
             Mutator._onProbs,
-            Mutator._onCloneEnergyPercent
+            Mutator._onCloneEnergyPercent,
+            Mutator._onClonePeriod
         ];
         
         manager.on(EVENTS.ORGANISM, this._onOrganism.bind(this));

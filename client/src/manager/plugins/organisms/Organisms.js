@@ -110,6 +110,7 @@ class Organisms extends Configurable {
 
     addOrgHandlers(org) {
         org.on(EVENTS.DESTROY, this._onKillOrg.bind(this));
+        org.on(EVENTS.CLONE,   this._onCloneOrg.bind(this));
     }
 
     /**
@@ -285,6 +286,10 @@ class Organisms extends Configurable {
         this.onAfterKillOrg(org);
         this.parent.fire(EVENTS.KILL_ORGANISM, org);
         //Console.info(org.id, ' die');
+    }
+
+    _onCloneOrg(org) {
+        org.alive && this.organisms.size < OConfig.orgMaxOrgs && this._clone(org);
     }
 
     /**

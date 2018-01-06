@@ -10,6 +10,10 @@ const Config = {
      */
     ORG_MAX_MUTATION_PERIOD: 10000,
     /**
+     * {Number} Maximum amount of iterations for clone period
+     */
+    ORG_MAX_CLONE_PERIOD: 10000,
+    /**
      * {Number} Index of first color of organism. After maximum color this
      * color will be applied
      */
@@ -33,19 +37,20 @@ const Config = {
      * bigger then other, then it will be decreased to zero lines
      * of vm and organism will die.
      * Format: [
-     *     add          - Probability of adding new line to the code
-     *     change       - Probability of changing existing line of code
-     *     delete       - Probability of deleting a line of code
-     *     small-change - Probability of "small change" - change part of one code line
-     *     clone        - Probability for sharing of energy percent on clone
-     *     copy         - Probability of copying of code lines inside it's own code
-     *     period       - Probability of period of organism mutations
-     *     amount       - Probability of amount of mutations per period
-     *     probs        - Probability of change one of probability coefficient in this array
-     *     clonePeriod  - Probability of change clone energy percent value
+     *     add           - Probability of adding new line to the code
+     *     change        - Probability of changing existing line of code
+     *     delete        - Probability of deleting a line of code
+     *     small-change  - Probability of "small change" - change part of one code line
+     *     clone         - Probability for sharing of energy percent on clone
+     *     copy          - Probability of copying of code lines inside it's own code
+     *     period        - Probability of period of organism mutations
+     *     amount        - Probability of amount of mutations per period
+     *     probs         - Probability of change one of probability coefficient in this array
+     *     clone-percent - Probability of change clone energy percent value
+     *     clone-period  - Probability of change clone period value
      * ]
      */
-    orgMutationProbs: [10,1,1,100,1,1,1,1,1,1],
+    orgMutationProbs: [10,1,1,100,1,1,1,1,1,1,1],
     /**
      * {Number} Percent of mutations from vm size, which will be applied to
      * organism after cloning. Should be <= 1.0 (1.0 === 100%)
@@ -54,7 +59,7 @@ const Config = {
     /**
      * {Number} Amount of iterations between cloning. Set it to 0 to turn it off
      */
-    orgClonePeriod: 30,
+    orgClonePeriod: 300,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
@@ -128,7 +133,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 300,
+    orgMaxOrgs: 5000,
     /**
      * {Number} If organism reach this limit of amount of vm lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,

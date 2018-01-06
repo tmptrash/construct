@@ -72,18 +72,20 @@ class Organism extends Observer {
     get mutationPeriod()        {return this._mutationPeriod}
     get mutationPercent()       {return this._mutationPercent}
     get cloneMutationPercent()  {return this._cloneMutationPercent}
+    get cloneEnergyPercent()    {return this._cloneEnergyPercent}
+    get clonePeriod()           {return this._clonePeriod}
     get energy()                {return this._energy}
     get color()                 {return this._color}
     get mem()                   {return this._mem}
-    get cloneEnergyPercent()    {return this._cloneEnergyPercent}
     get posId()                 {return Helper.posId(this._x, this._y)}
 
     set x(newX)                 {this._x = newX}
     set y(newY)                 {this._y = newY}
     set cloneMutationPercent(m) {this._cloneMutationPercent = m}
+    set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p}
+    set clonePeriod(p)          {this._clonePeriod = p}
     set mutationPeriod(m)       {this._mutationPeriod = m}
     set mutationPercent(p)      {this._mutationPercent = p}
-    set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p}
     set energy(e)               {this._energy = e}
     set changes(c) {
         this._changes = c;
@@ -99,8 +101,15 @@ class Organism extends Observer {
         this._iterations++;
         if (this.onBeforeRun() === false) {return true}
         this.onRun();
-        this.alive && this.vm.size === 0 && this._onCodeEnd(this, 0);
-        return this.alive && this._updateDestroy() && this._updateEnergy();
+
+        if (this.alive) {
+            this.vm.size === 0 && this._onCodeEnd(this, 0);
+            this._updateClone();
+            this.alive && this._updateDestroy();
+            this.alive && this._updateEnergy();
+        }
+
+        return true;
     }
 
     /**
@@ -122,9 +131,10 @@ class Organism extends Observer {
             color               : this._color,
             mutationProbs       : this._mutationProbs,
             cloneMutationPercent: this._cloneMutationPercent,
+            cloneEnergyPercent  : this._cloneEnergyPercent,
+            clonePeriod         : this._clonePeriod,
             mutationPeriod      : this._mutationPeriod,
             mutationPercent     : this._mutationPercent,
-            cloneEnergyPercent  : this._cloneEnergyPercent,
             mem                 : this.mem.slice()
         };
 
@@ -152,9 +162,10 @@ class Organism extends Observer {
         this._color                = json.color;
         this._mutationProbs        = json.mutationProbs;
         this._cloneMutationPercent = json.cloneMutationPercent;
+        this._cloneEnergyPercent   = json.cloneEnergyPercent;
+        this._clonePeriod          = json.clonePeriod;
         this._mutationPeriod       = json.mutationPeriod;
         this._mutationPercent      = json.mutationPercent;
-        this._cloneEnergyPercent   = json.cloneEnergyPercent;
         this._mem                  = json.mem.slice();
     }
 
@@ -186,10 +197,9 @@ class Organism extends Observer {
     }
 
     _updateColor(changes) {
-        // TODO: tempoorary solution to have red organisms all the time
-        // if ((this._color += changes) > OConfig.ORG_MAX_COLOR) {
-        //     this._color = OConfig.ORG_FIRST_COLOR;
-        // }
+        if ((this._color += changes) > OConfig.ORG_MAX_COLOR) {
+            this._color = OConfig.ORG_FIRST_COLOR;
+        }
     }
 
     _create() {
@@ -198,9 +208,10 @@ class Organism extends Observer {
         this._color                 = OConfig.orgStartColor;
         this._mutationProbs         = OConfig.orgMutationProbs.slice();
         this._cloneMutationPercent  = OConfig.orgCloneMutationPercent;
+        this._cloneEnergyPercent    = OConfig.orgCloneEnergyPercent;
+        this._clonePeriod           = OConfig.orgClonePeriod;
         this._mutationPeriod        = OConfig.orgRainMutationPeriod;
         this._mutationPercent       = OConfig.orgRainMutationPercent;
-        this._cloneEnergyPercent    = OConfig.orgCloneEnergyPercent;
         this._changes               = 1;
         this._mem                   = [];
     }
@@ -211,9 +222,10 @@ class Organism extends Observer {
         this._color                 = parent.color;
         this._mutationProbs         = parent.mutationProbs.slice();
         this._cloneMutationPercent  = parent.cloneMutationPercent;
+        this._cloneEnergyPercent    = parent.cloneEnergyPercent;
+        this._clonePeriod           = parent.clonePeriod;
         this._mutationPeriod        = parent.mutationPeriod;
         this._mutationPercent       = parent.mutationPercent;
-        this._cloneEnergyPercent    = parent.cloneEnergyPercent;
         this._changes               = parent.changes;
         this._mem                   = parent.mem.slice();
     }
@@ -232,8 +244,8 @@ class Organism extends Observer {
     }
 
     /**
-     * This is how our system grabs an energy= require(organism if it's age is
-     * divided into OConfig.orgEnergySpendPeriod.
+     * This is how our system grabs an energy from organism every OConfig.orgEnergySpendPeriod
+     * period.
      * @return {Boolean} false means that organism was destroyed.
      */
     _updateEnergy() {
@@ -242,6 +254,16 @@ class Organism extends Observer {
         if (grabSize < 1) {grabSize = 1}
 
         return this.grabEnergy(this._energy < grabSize ? this._energy : grabSize);
+    }
+
+    /**
+     * Current organism wants to clone himself
+     * @return {Boolean}
+     */
+    _updateClone() {
+        if (this._iterations % OConfig.orgClonePeriod !== 0 || OConfig.orgClonePeriod === 0) {return true}
+        this.fire(EVENTS.CLONE, this);
+        return true;
     }
 }
 
