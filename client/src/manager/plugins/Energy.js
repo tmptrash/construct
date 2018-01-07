@@ -39,7 +39,7 @@ class Energy {
             }
         }
 
-        if (energy * 100 / (width * height) <= Config.worldEnergyCheckPercent) {
+        if (energy / (width * height) <= Config.worldEnergyCheckPercent) {
             this._updateEnergy(Config.worldEnergyDots, Config.worldEnergyInDot);
         }
     }

@@ -113,26 +113,6 @@ class Organisms extends Configurable {
         org.on(EVENTS.CLONE,   this._onCloneOrg.bind(this));
     }
 
-    /**
-     * Cloning parents are chosen according to tournament principle
-     * @param {Number} counter Current counter
-     * @returns {boolean}
-     */
-    updateClone(counter) {
-        const needClone = counter % OConfig.orgClonePeriod === 0 && OConfig.orgClonePeriod !== 0;
-        let   orgAmount = this.organisms.size;
-        if (!needClone || orgAmount >= OConfig.orgMaxOrgs || orgAmount < 1) {return false}
-        let   org1      = this.randOrg();
-        let   org2      = this.randOrg();
-        if (!org1.alive && !org2.alive || org1 === org2) {return false}
-
-        let tmpOrg = this._tournament(org1, org2);
-        if (tmpOrg === org2) {[org1, org2] = [org2, org1]}
-        if (org1.alive) {this._clone(org1)}
-
-        return true;
-    }
-
     updateCrossover(counter) {
         const orgAmount = this.organisms.size;
         const needCrossover = counter % OConfig.orgCrossoverPeriod === 0 && OConfig.orgCrossoverPeriod !== 0;
@@ -218,7 +198,6 @@ class Organisms extends Configurable {
             item = item.next;
         }
 
-        this.updateClone(counter);
         this.updateCrossover(counter);
     }
 
@@ -289,7 +268,25 @@ class Organisms extends Configurable {
     }
 
     _onCloneOrg(org) {
-        org.alive && this.organisms.size < OConfig.orgMaxOrgs && this._clone(org);
+        this._updateAmount() && this._clone(org);
+    }
+
+    /**
+     * Does tournament between two random organisms and kill looser, if amount of
+     * organisms is greater or equal to maximum (OConfig.orgMaxOrgs). In general
+     * this function is a natural selection in our system.
+     * @returns {Boolean} true - amount is less then maximum, false - otherwise
+     */
+    _updateAmount() {
+        let orgAmount = this.organisms.size;
+        if (orgAmount < OConfig.orgMaxOrgs || orgAmount < 1) {return true}
+        let org1      = this.randOrg();
+        let org2      = this.randOrg();
+        if (!org1.alive || !org2.alive || org1 === org2) {return false}
+
+        this._tournament(org1, org2) === org2 ? org1.destroy() : org2.destroy();
+
+        return true;
     }
 
     /**

@@ -196,12 +196,6 @@ class Organism extends Observer {
         super.destroy();
     }
 
-    _updateColor(changes) {
-        if ((this._color += changes) > OConfig.ORG_MAX_COLOR) {
-            this._color = OConfig.ORG_FIRST_COLOR;
-        }
-    }
-
     _create() {
         this.vm                     = new VM(this._onCodeEnd.bind(this, this), this, this._operatorCls);
         this._energy                = OConfig.orgStartEnergy;
@@ -228,6 +222,12 @@ class Organism extends Observer {
         this._mutationPercent       = parent.mutationPercent;
         this._changes               = parent.changes;
         this._mem                   = parent.mem.slice();
+    }
+
+    _updateColor(changes) {
+        if ((this._color += changes) > OConfig.ORG_MAX_COLOR) {
+            this._color = OConfig.ORG_FIRST_COLOR;
+        }
     }
 
     /**

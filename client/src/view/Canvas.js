@@ -4,13 +4,17 @@
  * @author flatline
  */
 class Canvas {
-    constructor(width, height) {
+    constructor(width, height, noScrolls = false) {
         const id     = 'world';
         const doc    = document;
         const bodyEl = doc.body;
 
         this._prepareDom();
         bodyEl.innerHTML += `<canvas id="${id}" width="${width}" height="${height}"></canvas>`;
+        //
+        // This style hides scroll bars on full screen 2d canvas
+        //
+        if (noScrolls) {document.querySelector('html').style.overflow = 'hidden'}
 
         this._id        = id;
         this._width     = width;

@@ -59,12 +59,12 @@ const Config = {
     /**
      * {Number} Amount of iterations between cloning. Set it to 0 to turn it off
      */
-    orgClonePeriod: 300,
+    orgClonePeriod: 100,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 3000,
+    orgCrossoverPeriod: 300,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
@@ -85,7 +85,7 @@ const Config = {
      * Eve. It means that these empty (without vm) organism were created
      * by operator and not by evolution.
      */
-    orgStartEnergy: 100000,
+    orgStartEnergy: 50000,
     /**
      * {Number} Begin color of "empty" organism (organism without code). Color
      * should be set in HEX-RGB mode. Example: 0xRRGGBB
@@ -95,12 +95,12 @@ const Config = {
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
      */
-    orgEnergySpendPeriod: 20,
+    orgEnergySpendPeriod: 10,
     /**
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
      */
-    orgAlivePeriod: 20000,
+    orgAlivePeriod: 10000,
     /**
      * {Number} This value means the period between organism codeSizes, which
      * affects energy grabbing by the system. For example: we have two
@@ -113,7 +113,7 @@ const Config = {
      * be grabbed from you. If your size is between 21-40, then 2 units of
      * energy will be grabbed from you and so on...
      */
-    orgGarbagePeriod: 5,
+    orgGarbagePeriod: 6,
     /**
      * {Number} Size of organism stack (internal memory)
      */
@@ -133,7 +133,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 5000,
+    orgMaxOrgs: 1000,
     /**
      * {Number} If organism reach this limit of amount of vm lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
