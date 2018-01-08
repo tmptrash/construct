@@ -35,8 +35,10 @@ class Observer {
         let index;
         let handlers = this._handlers[event];
 
-        if ((index = handlers.indexOf(handler)) < 0) {return false}
-        handlers.splice(index, 1);
+        if (handlers) {
+            if ((index = handlers.indexOf(handler)) < 0) {return false}
+            handlers.splice(index, 1);
+        }
 
         return true;
     }
