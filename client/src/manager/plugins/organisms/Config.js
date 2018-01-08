@@ -71,7 +71,7 @@ const Config = {
      * is how natural selection is implemented in our system. Set this parameter
      * to 0 and tournament mechanism will be turned off
      */
-    orgTournamentPeriod: 100,
+    orgTournamentPeriod: 80,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
@@ -140,7 +140,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 800,
+    orgMaxOrgs: 200,
     /**
      * {Number} If organism reach this limit of amount of vm lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
