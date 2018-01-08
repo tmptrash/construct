@@ -13,7 +13,7 @@ class Api extends BaseApi {
         super(client);
 
         this.api[TYPES.REQ_MOVE_ORG]        = this._stepIn.bind(this);
-        this.api[TYPES.REQ_MOVE_ORG_BACK]   = this._stepIn.bind(this);
+        this.api[TYPES.REQ_MOVE_ORG_BACK]   = this._stepInBack.bind(this);
         this.api[TYPES.REQ_SET_NEAR_ACTIVE] = this._setActive.bind(this);
     }
 
@@ -36,6 +36,21 @@ class Api extends BaseApi {
         const ret = {ret: true};
         this.parent.manager.fire(EVENTS.STEP_IN, x, y, orgJson, ret);
         this.parent.response(this.sock, ret.ret ? TYPES.RES_MOVE_OK : TYPES.RES_MOVE_ERR, reqId, clientId);
+    }
+
+    /**
+     * Is called if organism is moved back from other Manager (world)
+     * @param {String} reqId Unique request id
+     * @param {String} clientId Unique client id within current server
+     * @param {Number} x Current org X position
+     * @param {Number} y Current org Y position
+     * @param {Number} dir Direction of moving
+     * @param {String} orgJson Organism's serialized json
+     * @api
+     */
+    _stepInBack(reqId, clientId, x, y, dir, orgJson) {
+        const ret = {ret: true};
+        this.parent.manager.fire(EVENTS.STEP_IN, x, y, orgJson, ret);
     }
 
     /**

@@ -147,14 +147,9 @@ class Api extends BaseApi {
      * @param {Boolean} fromClient false if organism came from near server
      */
     _moveToClient(back, clientId, x, y, dir, orgJson, fromClient = true) {
-        const region = Connections.toRegion(clientId);
+        let region = Connections.toRegion(clientId);
 
-        if (fromClient) {
-            if      (dir === DIR.UP)    {region[1]--}
-            else if (dir === DIR.RIGHT) {region[0]++}
-            else if (dir === DIR.DOWN)  {region[1]++}
-            else if (dir === DIR.LEFT)  {region[0]--}
-        }
+        if (fromClient) {region = Helper.flipRegion(region, dir)}
         //
         // If destination client active, then organism is moved there.
         // Otherwise, we have to move it back to source client (possibly
@@ -199,7 +194,7 @@ class Api extends BaseApi {
     _moveBack(region, clientId, x, y, dir, orgJson, fromClient) {
         const newDir      = FLIP_DIR[dir];
         const parent      = this.parent;
-        const sock        = fromClient ? parent.conns.getConnection(region).sock : parent.aroundServers.getSocket(newDir);
+        const sock        = fromClient ? parent.conns.getConnection(Helper.flipRegion(region, newDir)).sock : parent.aroundServers.getSocket(newDir);
         const newClientId = fromClient ? Connections.toId(region) : clientId;
         const flipped     = Helper.flip(x, y, newDir);
         sock && parent.request(sock, TYPES.REQ_MOVE_ORG_BACK, newClientId, flipped[0], flipped[1], newDir, orgJson);

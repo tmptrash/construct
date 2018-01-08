@@ -66,12 +66,14 @@ class Helper {
         obj[fnName] = fn.fn;
         delete fn.fn;
     }
+
     /**
      * Generates random Int number in range 0:n-1
      * @param {Number} n Right number value in a range
      * @return {Number}
      */
     static rand(n) {return Math.trunc(Math.random() * n)}
+
     /**
      * It calculates probability index from variable amount of components.
      * Let's imagine we have two actions: one and two. We want
@@ -104,11 +106,13 @@ class Helper {
 
         return i;
     }
+
     /**
      * Checks if position is empty. x == y == 0 - this is empty
      * @param {Object} pos Position to check
      */
     static empty(pos) {return pos.x === 0 && pos.y === 0}
+
     /**
      * Does normalization of X and Y coordinates. It's used
      * in cyclical mode for checking if we out of bound (world).
@@ -146,6 +150,23 @@ class Helper {
         const yMap = {0: Config.worldHeight - 1, [Config.worldHeight - 1]: 0};
 
         return [(dir === DIR.LEFT || dir === DIR.RIGHT) && typeof(xMap[x]) !== 'undefined' ? xMap[x] : x, (dir === DIR.UP || dir === DIR.DOWN) && typeof(yMap[y]) !== 'undefined' ? yMap[y] : y];
+    }
+
+    /**
+     * Flips region according to moving direction
+     * @param {Array} region Old region
+     * @param {Number} dir Moving direction
+     * @returns {Array} New region
+     */
+    static flipRegion(region, dir) {
+        const newReg = [region[0], region[1]];
+
+        if      (dir === DIR.UP)    {newReg[1]--}
+        else if (dir === DIR.RIGHT) {newReg[0]++}
+        else if (dir === DIR.DOWN)  {newReg[1]++}
+        else if (dir === DIR.LEFT)  {newReg[0]--}
+
+        return newReg;
     }
 
     /**
