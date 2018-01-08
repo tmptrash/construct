@@ -113,26 +113,6 @@ class Organisms extends Configurable {
         org.on(EVENTS.CLONE,   this._onCloneOrg.bind(this));
     }
 
-    updateCrossover(counter) {
-        const orgAmount = this.organisms.size;
-        const needCrossover = counter % OConfig.orgCrossoverPeriod === 0 && OConfig.orgCrossoverPeriod !== 0;
-        if (!needCrossover || orgAmount >= OConfig.orgMaxOrgs || orgAmount < 1) {return false}
-
-        let org1 = this._tournament();
-        let org2 = this._tournament();
-
-        if (!org1.alive || !org2.alive) {return false}
-        this._updateAmount() && this._crossover(org1, org2);
-
-        return true;
-    }
-
-    updateCreate() {
-        if (this.organisms.size < 1) {
-            this._createPopulation();
-        }
-    }
-
     reset() {
         this._orgId = 0;
     }
@@ -198,11 +178,12 @@ class Organisms extends Configurable {
             item = item.next;
         }
 
-        this.updateCrossover(counter);
+        this._updateAmount(counter);
+        this._updateCrossover(counter);
     }
 
     _onLoop() {
-        this.updateCreate();
+        this._updateCreate();
     }
 
     _tournament(org1 = null, org2 = null) {
@@ -249,6 +230,14 @@ class Organisms extends Configurable {
         Console.info('Population has created');
     }
 
+    /**
+     * API method, which will be added to Manager.api interface
+     * @return {Number} Amount of organisms within current Manager
+     */
+    _apiGetAmount() {
+        return this.parent.organisms.size;
+    }
+
     _onCodeEnd(org, lines) {
         this.parent.codeRuns++;
         this.parent.fire(EVENTS.ORGANISM, org, lines);
@@ -271,15 +260,35 @@ class Organisms extends Configurable {
         this.organisms.size < OConfig.orgMaxOrgs && this._clone(org);
     }
 
+    _updateCrossover(counter) {
+        const orgAmount = this.organisms.size;
+        if (orgAmount >= OConfig.orgMaxOrgs || counter % OConfig.orgCrossoverPeriod !== 0 && OConfig.orgCrossoverPeriod === 0 || orgAmount < 1) {return false}
+
+        let org1 = this._tournament();
+        let org2 = this._tournament();
+
+        if (!org1.alive || !org2.alive) {return false}
+        this._crossover(org1, org2);
+
+        return true;
+    }
+
+    _updateCreate() {
+        if (this.organisms.size < 1) {
+            this._createPopulation();
+        }
+    }
+
     /**
      * Does tournament between two random organisms and kill looser, if amount of
      * organisms is greater or equal to maximum (OConfig.orgMaxOrgs). In general
      * this function is a natural selection in our system.
+     * @param {Number} counter Current value of global iterations counter
      * @returns {Boolean} true - amount is less then maximum, false - otherwise
      */
-    _updateAmount() {
+    _updateAmount(counter) {
         let orgAmount = this.organisms.size;
-        if (orgAmount < OConfig.orgMaxOrgs) {return true}
+        if (counter % OConfig.orgTournamentPeriod !== 0 || orgAmount < 1 || OConfig.orgTournamentPeriod === 0) {return true}
         let org1      = this.randOrg();
         let org2      = this.randOrg();
         if (!org1.alive || !org2.alive || org1 === org2 || orgAmount < 1) {return false}
@@ -287,14 +296,6 @@ class Organisms extends Configurable {
         this._tournament(org1, org2) === org2 ? org1.destroy() : org2.destroy();
 
         return true;
-    }
-
-    /**
-     * API method, which will be added to Manager.api interface
-     * @return {Number} Amount of organisms within current Manager
-     */
-    _apiGetAmount() {
-        return this.parent.organisms.size;
     }
 }
 
