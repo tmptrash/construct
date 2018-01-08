@@ -192,10 +192,10 @@ class OperatorsDos extends Operators {
     onEatUp(num, line, org)     {this.vars[VAR0(num)] = this._eat(org, num, org.x, org.y - 1); return ++line}
     onEatDown(num, line, org)   {this.vars[VAR0(num)] = this._eat(org, num, org.x, org.y + 1); return ++line}
 
-    onStepLeft(num, line, org)  {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x - 1, org.y); return ++line}
-    onStepRight(num, line, org) {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x + 1, org.y); return ++line}
-    onStepUp(num, line, org)    {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y - 1); return ++line}
-    onStepDown(num, line, org)  {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y + 1); return ++line}
+    onStepLeft(num, line, org)  {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x - 1, org.y).x; return ++line}
+    onStepRight(num, line, org) {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x + 1, org.y).x; return ++line}
+    onStepUp(num, line, org)    {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y - 1).y; return ++line}
+    onStepDown(num, line, org)  {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y + 1).y; return ++line}
 
     onFromMem(num, line, org) {this.vars[VAR0(num)] = org.mem.pop() || 0; return ++line}
     onToMem(num, line, org) {
@@ -247,7 +247,7 @@ class OperatorsDos extends Operators {
             org.y = ret.y;
         }
 
-        return ret.ret;
+        return ret;
     }
 
     /**
