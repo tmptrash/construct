@@ -122,7 +122,7 @@ class Organisms extends Configurable {
         let org2 = this._tournament();
 
         if (!org1.alive || !org2.alive) {return false}
-        this._crossover(org1, org2);
+        this._updateAmount() && this._crossover(org1, org2);
 
         return true;
     }
@@ -268,7 +268,7 @@ class Organisms extends Configurable {
     }
 
     _onCloneOrg(org) {
-        this._updateAmount() && this._clone(org);
+        this.organisms.size < OConfig.orgMaxOrgs && this._clone(org);
     }
 
     /**
@@ -279,10 +279,10 @@ class Organisms extends Configurable {
      */
     _updateAmount() {
         let orgAmount = this.organisms.size;
-        if (orgAmount < OConfig.orgMaxOrgs || orgAmount < 1) {return true}
+        if (orgAmount < OConfig.orgMaxOrgs) {return true}
         let org1      = this.randOrg();
         let org2      = this.randOrg();
-        if (!org1.alive || !org2.alive || org1 === org2) {return false}
+        if (!org1.alive || !org2.alive || org1 === org2 || orgAmount < 1) {return false}
 
         this._tournament(org1, org2) === org2 ? org1.destroy() : org2.destroy();
 
