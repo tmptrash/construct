@@ -27,8 +27,8 @@ const RED    = 'color: #aa0000';
 
 class Status extends Configurable {
     static _format(value, name, orgs, fixed, pad, coef = 1, perOrg = false) {
-        orgs = perOrg ? orgs : 1;
-        return `${name}:${((value / orgs) * coef).toFixed(fixed)}`.padEnd(pad);
+        const val = (value / (perOrg ? orgs : 1)) * coef;
+        return `${name}:${val.toFixed(fixed === -1 && 2 || (val < 10 && val > -10 ? fixed : 0))}`.padEnd(pad);
     }
 
     constructor(manager) {
@@ -72,13 +72,13 @@ class Status extends Configurable {
         const format    = Status._format;
         const orgAmount = orgs.size || 1;
         const sips      = `ips:${ips.toFixed(ips < 10 ? 2 : 0)}`.padEnd(10);
-        const slps      = format(this._runLines / this._times, 'lps', orgAmount, 0, 14         );
-        const sorgs     = format(orgAmount,                    'org', orgAmount, 0, 10         );
-        const senergy   = format(this._curEnergy,              'nrg', orgAmount, 0, 14         );
-        const siq       = format(this._energy,                 'iq',  orgAmount, 3, 14, 100000 );
-        const schanges  = format(this._changes,                'che', orgAmount, 2, 14         );
-        const sfit      = format(this._fitness,                'fit', orgAmount, 2, 14         );
-        const scode     = format(this._codeSize,               'cod', orgAmount, 1, 12, 1, true);
+        const slps      = format(this._runLines / this._times, 'lps', orgAmount, 0,  14         );
+        const sorgs     = format(orgAmount,                    'org', orgAmount, 0,  10         );
+        const senergy   = format(this._curEnergy,              'nrg', orgAmount, 0,  14         );
+        const siq       = format(this._energy,                 'iq',  orgAmount, 3,  12, 100000 );
+        const schanges  = format(this._changes,                'che', orgAmount, 2,  12         );
+        const sfit      = format(this._fitness,                'fit', orgAmount, 2,  12         );
+        const scode     = format(this._codeSize,               'cod', orgAmount, -1, 12, 1, true);
 
         console.log(`%c${sips}${slps}${sorgs}%c${siq}${senergy}${schanges}${sfit}${scode}`, GREEN, RED);
         const active = man.activeAround;
