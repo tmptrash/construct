@@ -233,7 +233,7 @@ describe("client/src/manager/Manager", () => {
         OConfig.orgCloneMutationPercent = 0;
         OConfig.orgClonePeriod          = 0;
         expect(man.organisms.size).toBe(0);
-        man.on(EVENTS.ITERATION, () => {
+        man.on(EVENTS.LOOP, () => {
             if (iterated) {return}
             expect(man.organisms.size).toBe(1);
             man.stop(() => {
@@ -255,6 +255,7 @@ describe("client/src/manager/Manager", () => {
         const percent   = OConfig.orgCloneMutationPercent;
         const period1   = OConfig.orgEnergySpendPeriod;
         const clone     = OConfig.orgClonePeriod;
+        const max       = OConfig.orgMaxOrgs;
         const server    = new Server();
         const man1      = new Manager(false);
         delete Config.organisms;
@@ -273,6 +274,7 @@ describe("client/src/manager/Manager", () => {
                         OConfig.orgCloneMutationPercent = percent;
                         OConfig.orgRainMutationPeriod   = period;
                         OConfig.orgStartAmount          = amount;
+                        OConfig.orgMaxOrgs              = max;
                         done();
                     });
                 });
@@ -284,18 +286,19 @@ describe("client/src/manager/Manager", () => {
         OConfig.orgCloneMutationPercent = 0;
         OConfig.orgEnergySpendPeriod    = 0;
         OConfig.orgClonePeriod          = 0;
+        OConfig.orgMaxOrgs              = 1;
         expect(man1.clientId).toBe(null);
         expect(man2.clientId).toBe(null);
         expect(man1.organisms.size).toBe(0);
         expect(man2.organisms.size).toBe(0);
 
-        man1.on(EVENTS.ITERATION, () => {
+        man1.on(EVENTS.LOOP, () => {
             if (blocked) {return}
             expect(man1.organisms.size).toBe(1);
             if (iterated1 && iterated2) {destroy(); return}
             iterated1 = true;
         });
-        man2.on(EVENTS.ITERATION, () => {
+        man2.on(EVENTS.LOOP, () => {
             if (blocked) {return}
             expect(man2.organisms.size).toBe(1);
             if (iterated2 && iterated1) {destroy(); return}
@@ -323,6 +326,7 @@ describe("client/src/manager/Manager", () => {
         const width     = Config.worldWidth;
         const height    = Config.worldHeight;
         const energy    = OConfig.orgStartEnergy;
+        const max       = OConfig.orgMaxOrgs;
         const server    = new Server();
         Config.worldWidth               = 400;
         Config.worldHeight              = 400;
@@ -347,6 +351,7 @@ describe("client/src/manager/Manager", () => {
                         OConfig.orgStartAmount          = amount;
                         Config.worldWidth               = width;
                         Config.worldHeight              = height;
+                        OConfig.orgMaxOrgs              = max;
                         done();
                     });
                 });
@@ -359,9 +364,10 @@ describe("client/src/manager/Manager", () => {
         OConfig.orgEnergySpendPeriod    = 0;
         OConfig.orgClonePeriod          = 0;
         OConfig.orgStartEnergy          = 10000;
+        OConfig.orgMaxOrgs              = 2;
         World.prototype.getFreePos      = () => {return {x: 399, y: 1}};
 
-        man1.on(EVENTS.ITERATION, () => {
+        man1.on(EVENTS.LOOP, () => {
             if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
                 org1 = man1.organisms.first.val;
                 org1.vm.code.push(0b00001010000000000000000000000000); // onStepRight()
@@ -371,7 +377,7 @@ describe("client/src/manager/Manager", () => {
             if (iterated1 > 10000) {throw 'Error sending organism between Managers'}
             iterated1++;
         });
-        man2.on(EVENTS.ITERATION, () => iterated2++);
+        man2.on(EVENTS.LOOP, () => iterated2++);
 
         waitEvent(server, server.EVENTS.RUN, () => server.run(), () => man1.run(() => man2.run()));
     });
@@ -388,6 +394,7 @@ describe("client/src/manager/Manager", () => {
         const clone     = OConfig.orgClonePeriod;
         const height    = Config.worldHeight;
         const energy    = OConfig.orgStartEnergy;
+        const max       = OConfig.orgMaxOrgs;
         const server    = new Server();
         Config.worldHeight = 400;
         Config.worldWidth  = 400;
@@ -414,6 +421,7 @@ describe("client/src/manager/Manager", () => {
                         OConfig.orgRainMutationPeriod   = period;
                         OConfig.orgStartAmount          = amount;
                         Config.worldHeight              = height;
+                        OConfig.orgMaxOrgs              = max;
                         done();
                     });
                 });
@@ -426,9 +434,10 @@ describe("client/src/manager/Manager", () => {
         OConfig.orgEnergySpendPeriod    = 0;
         OConfig.orgClonePeriod          = 0;
         OConfig.orgStartEnergy          = 10000;
+        OConfig.orgMaxOrgs              = 1;
         World.prototype.getFreePos      = () => {return inc++ === 0 && {x: 399, y: 1} || {x: 0, y: 1}};
 
-        man1.on(EVENTS.ITERATION, () => {
+        man1.on(EVENTS.LOOP, () => {
             if (iterated1 > 0 && iterated2 > 0 && org1 === null && org2 !== null) {
                 org1 = man1.organisms.first.val;
                 org1.vm.code.push(0b00001010000000000000000000000000); // onStepRight()
@@ -452,7 +461,7 @@ describe("client/src/manager/Manager", () => {
             if (iterated1 > 10000) {throw 'Error sending organism between Managers'}
             iterated1++;
         });
-        man2.on(EVENTS.ITERATION, () => {
+        man2.on(EVENTS.LOOP, () => {
             !iterated2 && (org2 = man2.organisms.first.val);
             iterated2++;
         });
@@ -644,7 +653,7 @@ describe("client/src/manager/Manager", () => {
         cfg.set('worldCyclical',          false);
         World.prototype.getFreePos      = () => {return {x: 1, y: 9}};
 
-        man1.on(EVENTS.ITERATION, () => {
+        man1.on(EVENTS.LOOP, () => {
             if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
                 expect(man2.organisms.size).toBe(1);
                 org1 = man1.organisms.first.val;
@@ -655,7 +664,7 @@ describe("client/src/manager/Manager", () => {
             if (iterated1 > 10000) {throw 'Error sending organism between Servers'}
             iterated1++;
         });
-        man2.on(EVENTS.ITERATION, () => iterated2++);
+        man2.on(EVENTS.LOOP, () => iterated2++);
 
         waitEvent(server1, server1.EVENTS.RUN, () => server1.run(), () => {
             waitEvent(server2, server2.EVENTS.RUN, () => server2.run(), () => {
@@ -723,7 +732,7 @@ describe("client/src/manager/Manager", () => {
         cfg.set('worldCyclical',          false);
         World.prototype.getFreePos      = () => {return {x: 0, y: 1}};
 
-        man1.on(EVENTS.ITERATION, () => {
+        man1.on(EVENTS.LOOP, () => {
             if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
                 expect(man2.organisms.size).toBe(1);
                 org1 = man1.organisms.first.val;
@@ -738,7 +747,7 @@ describe("client/src/manager/Manager", () => {
             if (iterated1 > 10000) {throw 'Error sending organism between Servers'}
             iterated1++;
         });
-        man2.on(EVENTS.ITERATION, () => iterated2++);
+        man2.on(EVENTS.LOOP, () => iterated2++);
 
         waitEvent(server1, server1.EVENTS.RUN, () => server1.run(), () => {
             waitEvent(server2, server2.EVENTS.RUN, () => server2.run(), () => {
@@ -790,6 +799,7 @@ describe("client/src/manager/Manager", () => {
         cfg.set('serverHost',             SERVER_HOST);
         const man1                      = new Manager(false);
         ocfg.set('orgStartAmount',        1);
+        ocfg.set('orgMaxOrgs',            1);
         ocfg.set('orgRainMutationPeriod', 0);
         ocfg.set('orgCloneMutationPercent',0);
         ocfg.set('orgEnergySpendPeriod',  0);
@@ -798,7 +808,7 @@ describe("client/src/manager/Manager", () => {
         cfg.set('worldCyclical',          false);
         World.prototype.getFreePos      = () => {return {x: 5, y: 1}};
 
-        man1.on(EVENTS.ITERATION, () => {
+        man1.on(EVENTS.LOOP, () => {
             if (iterated1 > 0 && org1 === null) {
                 org1 = man1.organisms.first.val;
                 org1.vm.code.push(0b00001010000000000000000000000000); // onStepRight()
@@ -860,7 +870,7 @@ describe("client/src/manager/Manager", () => {
         testQ(done,
             [server, SEVENTS.RUN, () => server.run(), () => {man1.run(() => man2.run(() => man3.run(() => waitObj.done = true)))}],
             [waitObj],
-            [man1, EVENTS.ITERATION, () => {}, () => man1.organisms.first.val.vm.code.push(0b00001010000000000000000000000000)], // onStepRight()
+            [man1, EVENTS.LOOP, () => {}, () => man1.organisms.first.val.vm.code.push(0b00001010000000000000000000000000)], // onStepRight()
             [man3, EVENTS.STEP_IN, () => {}, () => destroy()]
         );
     });
