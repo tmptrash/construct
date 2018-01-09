@@ -214,7 +214,7 @@ class Organisms extends BaseOrganisms {
         if (ret.ret = this.parent.world.isFree(x, y) && this.organisms.size < (OConfig.orgMaxOrgs + OConfig.orgMaxOrgs * OConfig.orgStepOverflowPercent) && this.createOrg({x, y})) {
             const org = this.organisms.last.val;
             org.unserialize(orgJson);
-            org.grabEnergy(OConfig.orgStepEnergySpendPercent);
+            org.grabEnergy(org.energy * OConfig.orgStepEnergySpendPercent);
             //
             // We have to update organism color and coordinates
             //

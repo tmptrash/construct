@@ -134,7 +134,7 @@ const Config = {
      * {Number} Percent of energy, which will be minused from organism after
      * stepping from one instance to another.
      */
-    orgStepEnergySpendPercent: 0.5,
+    orgStepEnergySpendPercent: 0.3,
     /**
      * {Number} Percent from orgMaxOrgs config, which is used for crossing borders
      * between clients/Managers. Entire amount of organisms within one client =
@@ -149,7 +149,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 3000,
+    orgMaxOrgs: 1000,
     /**
      * {Number} If organism reach this limit of amount of vm lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
