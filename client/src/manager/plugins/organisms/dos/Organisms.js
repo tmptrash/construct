@@ -137,7 +137,7 @@ class Organisms extends BaseOrganisms {
     }
 
     _onEat(org, x, y, ret) {
-        const world = this.parent.world;
+        const world     = this.parent.world;
         const positions = this.parent.positions;
         let   dir;
 
@@ -219,8 +219,7 @@ class Organisms extends BaseOrganisms {
             //
             org.x = x;
             org.y = y;
-            org.grabEnergy(org.energy * OConfig.orgStepEnergySpendPercent);
-            this.parent.world.setDot(x, y, org.color);
+            org.grabEnergy((((org.energy * OConfig.orgStepEnergySpendPercent) + 0.5) << 1) >>> 1);
         }
     }
 
