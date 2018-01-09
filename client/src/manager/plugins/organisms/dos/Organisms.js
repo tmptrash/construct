@@ -214,12 +214,12 @@ class Organisms extends BaseOrganisms {
         if (ret.ret = this.parent.world.isFree(x, y) && this.organisms.size < (OConfig.orgMaxOrgs + OConfig.orgMaxOrgs * OConfig.orgStepOverflowPercent) && this.createOrg({x, y})) {
             const org = this.organisms.last.val;
             org.unserialize(orgJson);
-            org.grabEnergy(org.energy * OConfig.orgStepEnergySpendPercent);
             //
             // We have to update organism color and coordinates
             //
             org.x = x;
             org.y = y;
+            org.grabEnergy(org.energy * OConfig.orgStepEnergySpendPercent);
             this.parent.world.setDot(x, y, org.color);
         }
     }
