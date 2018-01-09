@@ -71,7 +71,7 @@ const Config = {
      * is how natural selection is implemented in our system. Set this parameter
      * to 0 and tournament mechanism will be turned off
      */
-    orgTournamentPeriod: 80,
+    orgTournamentPeriod: 30,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
@@ -134,13 +134,22 @@ const Config = {
      * {Number} Percent of energy, which will be minused from organism after
      * stepping from one instance to another.
      */
-    orgStepEnergySpendPercent: 0.1,
+    orgStepEnergySpendPercent: 0.5,
+    /**
+     * {Number} Percent from orgMaxOrgs config, which is used for crossing borders
+     * between clients/Managers. Entire amount of organisms within one client =
+     * orgMaxOrgs + orgMaxOrgs * orgStepOverflowPercent. Without this config organisms
+     * try to rich the limit of organisms on one client and it's impossible to cross
+     * the border (every organism will be returned back, but there will not be free
+     * space at that time). In this situation crossing organism just die during crossing.
+     */
+    orgStepOverflowPercent: 0.1,
     /**
      * {Number} Maximum amount of organisms in a world. If some organism will
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 1000,
+    orgMaxOrgs: 3000,
     /**
      * {Number} If organism reach this limit of amount of vm lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,

@@ -131,7 +131,7 @@ class Organisms extends Configurable {
 
     createOrg(pos, parent = null) {
         const orgs = this.organisms;
-        if (orgs.size >= OConfig.orgMaxOrgs || pos === false) {return false}
+        if (pos === false) {return false}
         orgs.add(null);
         let last = orgs.last;
         let org  = this.createEmptyOrg(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), parent);
