@@ -85,6 +85,7 @@ describe("client/src/manager/plugins/Client", () => {
             stop() {}
             get clientId()   {return this._clientId}
             set clientId(id) {this._clientId = id}
+            resetActive() {}
         }
         const man    = new Man0();
         const client = new Client(man);
@@ -105,6 +106,7 @@ describe("client/src/manager/plugins/Client", () => {
             stop() {}
             get clientId()   {return this._clientId}
             set clientId(id) {this._clientId = id}
+            resetActive() {}
         }
         const man       = new Man();
         const server    = new Server(SConfig.port);
@@ -137,6 +139,7 @@ describe("client/src/manager/plugins/Client", () => {
             stop() {}
             get clientId()   {return this._clientId}
             set clientId(id) {this._clientId = id; id && ++count === 2 && (waitObj.done = true)}
+            resetActive() {}
         }
         const man1    = new Man1();
         const man2    = new Man1();
