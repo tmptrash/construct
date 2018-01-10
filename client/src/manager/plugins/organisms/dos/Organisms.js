@@ -102,11 +102,11 @@ class Organisms extends BaseOrganisms {
      * @override
      */
     onAfterKillOrg(org) {
-        delete this.parent.positions[org.posId];
+        delete this.positions[org.posId];
     }
 
     /**
-     * Is called after moving of organism is done. Updates this.parent.positions
+     * Is called after moving of organism is done. Updates this.positions
      * map with a new position of organism
      * @param {Number} x1 Start X position
      * @param {Number} y1 Start Y position
@@ -118,8 +118,8 @@ class Organisms extends BaseOrganisms {
      */
     onAfterMove(x1, y1, x2, y2, org) {
         if (x1 !== x2 || y1 !== y2) {
-            delete this.parent.positions[Helper.posId(x1, y1)];
-            this.parent.positions[Helper.posId(x2, y2)] = org;
+            delete this.positions[Helper.posId(x1, y1)];
+            this.positions[Helper.posId(x2, y2)] = org;
         }
 
         return true;
@@ -129,23 +129,22 @@ class Organisms extends BaseOrganisms {
         if (x < 0 || y < 0 || !Number.isInteger(x) || !Number.isInteger(y)) {return}
         const posId = Helper.posId(x, y);
 
-        if (typeof(this.parent.positions[posId]) === 'undefined') {
-            ret.ret = this.parent.world.getDot(x, y)
+        if (typeof(this.positions[posId]) === 'undefined') {
+            ret.ret = this.world.getDot(x, y)
         } else {
-            ret.ret = this.parent.positions[posId].energy;
+            ret.ret = this.positions[posId].energy;
         }
     }
 
     _onEat(org, x, y, ret) {
-        const world     = this.parent.world;
-        const positions = this.parent.positions;
+        const positions = this.positions;
         let   dir;
 
         [x, y, dir] = Helper.normalize(x, y);
 
         const posId = Helper.posId(x, y);
         if (typeof(positions[posId]) === 'undefined') {
-            ret.ret = world.grabDot(x, y, ret.ret);
+            ret.ret = this.world.grabDot(x, y, ret.ret);
         } else {
             ret.ret = ret.ret < 0 ? 0 : (ret.ret > positions[posId].energy ? positions[posId].energy : ret.ret);
             positions[posId].grabEnergy(ret.ret);
@@ -211,7 +210,7 @@ class Organisms extends BaseOrganisms {
      * @param {Object} ret Return object
      */
     _onStepIn(x, y, orgJson, ret) {
-        if (ret.ret = this.parent.world.isFree(x, y) && this.organisms.size < (OConfig.orgMaxOrgs + OConfig.orgMaxOrgs * OConfig.orgStepOverflowPercent) && this.createOrg({x, y})) {
+        if (ret.ret = this.world.isFree(x, y) && this.organisms.size < (OConfig.orgMaxOrgs + OConfig.orgMaxOrgs * OConfig.orgStepOverflowPercent) && this.createOrg({x, y})) {
             const org = this.organisms.last.val;
             org.unserialize(orgJson);
             //
@@ -227,8 +226,8 @@ class Organisms extends BaseOrganisms {
         let dir;
 
         [x, y, dir] = Helper.normalize(x, y);
-        if (typeof(this.parent.positions[Helper.posId(x, y)]) === 'undefined') {
-            ret.ret = this.parent.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
+        if (typeof(this.positions[Helper.posId(x, y)]) === 'undefined') {
+            ret.ret = this.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
         } else {
             ret.ret = ORGANISM;
         }

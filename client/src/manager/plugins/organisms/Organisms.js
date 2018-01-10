@@ -84,6 +84,9 @@ class Organisms extends Configurable {
         super(manager, {Config, cfg: OConfig}, {getAmount: ['_apiGetAmount', 'Shows amount of organisms within current Client(Manager)']});
         this.organisms      = manager.organisms;
         this.randOrgItem    = this.organisms.first;
+        this.positions      = manager.positions;
+        this.world          = manager.world;
+
         this._mutator       = new Mutator(manager);
         this._onIterationCb = this._onIteration.bind(this);
         this._onLoopCb      = this._onLoop.bind(this);
@@ -119,7 +122,7 @@ class Organisms extends Configurable {
 
     move(x1, y1, x2, y2, org) {
         let   moved = false;
-        const world = this.parent.world;
+        const world = this.world;
 
         if (world.isFree(x2, y2) === false) {return false}
         if (x1 !== x2 || y1 !== y2) {moved = true; world.setDot(x1, y1, 0)}
@@ -200,7 +203,7 @@ class Organisms extends Configurable {
 
     _clone(org) {
         if (this.onBeforeClone(org) === false) {return false}
-        let pos   = this.parent.world.getNearFreePos(org.x, org.y);
+        let pos   = this.world.getNearFreePos(org.x, org.y);
         if (pos === false || this.createOrg(pos, org) === false) {return false}
         let child = this.organisms.last.val;
 
@@ -221,7 +224,7 @@ class Organisms extends Configurable {
     }
 
     _createPopulation() {
-        const world = this.parent.world;
+        const world = this.world;
 
         this.reset();
         for (let i = 0, len = OConfig.orgStartAmount; i < len; i++) {
@@ -250,7 +253,7 @@ class Organisms extends Configurable {
             }
         }
         this.organisms.del(org.item);
-        this.parent.world.setDot(org.x, org.y, 0);
+        this.world.setDot(org.x, org.y, 0);
         this.onAfterKillOrg(org);
         this.parent.fire(EVENTS.KILL_ORGANISM, org);
         //Console.info(org.id, ' die');
