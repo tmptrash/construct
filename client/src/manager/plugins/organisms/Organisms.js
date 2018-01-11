@@ -279,7 +279,7 @@ class Organisms extends Configurable {
 
     _updateRandomOrgs(counter) {
         const orgAmount = this.organisms.size;
-        if (orgAmount >= OConfig.orgMaxOrgs || counter % OConfig.orgRandomOrgPeriod !== 0 && OConfig.orgRandomOrgPeriod === 0 || this.organisms.size < 1) {return false}
+        if (orgAmount >= OConfig.orgMaxOrgs || counter % OConfig.orgRandomOrgPeriod !== 0 && OConfig.orgRandomOrgPeriod === 0 || orgAmount< 1) {return false}
         const size      = this.randOrg().vm.size;
         if (!this.createOrg(this.parent.world.getFreePos())) {return false}
         const vm        = this.organisms.last.val.vm;
