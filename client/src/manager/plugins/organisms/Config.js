@@ -71,7 +71,12 @@ const Config = {
      * is how natural selection is implemented in our system. Set this parameter
      * to 0 and tournament mechanism will be turned off
      */
-    orgTournamentPeriod: 30,
+    orgTournamentPeriod: 110,
+    /**
+     * {Number} Period of iterations for creation of random organisms. Set it to 0
+     * to turn off this feature
+     */
+    orgRandomOrgPeriod: 400,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
@@ -149,7 +154,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 1000,
+    orgMaxOrgs: 100,
     /**
      * {Number} If organism reach this limit of amount of vm lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
@@ -157,7 +162,7 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 64,
+    codeMaxSize: 80,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain. This value shouldn't be less then 2.
@@ -189,7 +194,7 @@ const Config = {
      * {Number} Amount of iterations between calls to V8 event loop. See
      * Manager._initLoop(), Manager.run() methods for details.
      */
-    codeIterationsPerOnce: 200,
+    codeIterationsPerOnce: 300,
 };
 
 module.exports = Config;

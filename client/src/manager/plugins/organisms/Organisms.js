@@ -183,6 +183,7 @@ class Organisms extends Configurable {
 
         this._updateAmount(counter);
         this._updateCrossover(counter);
+        this._updateRandomOrgs(counter);
     }
 
     _onLoop() {
@@ -274,6 +275,16 @@ class Organisms extends Configurable {
         this._crossover(org1, org2);
 
         return true;
+    }
+
+    _updateRandomOrgs(counter) {
+        const orgAmount = this.organisms.size;
+        if (orgAmount >= OConfig.orgMaxOrgs || counter % OConfig.orgRandomOrgPeriod !== 0 && OConfig.orgRandomOrgPeriod === 0 || this.organisms.size < 1) {return false}
+        const size      = this.randOrg().vm.size;
+        if (!this.createOrg(this.parent.world.getFreePos())) {return false}
+        const vm        = this.organisms.last.val.vm;
+
+        for (let i = 0; i < size; i++) {vm.insertLine()}
     }
 
     _updateCreate() {
