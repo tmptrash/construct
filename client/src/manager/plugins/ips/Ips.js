@@ -19,19 +19,19 @@ const IpsConfig    = require('./Config');
 class Ips extends Configurable {
     constructor(manager) {
         super(manager, {Config, cfg: IpsConfig}, {show: ['_show', 'Shows IPS of the world']});
-        this._stamp         = Date.now();
-        this._onIterationCb = this._onIteration.bind(this);
+        this._stamp    = Date.now();
+        this._onLoopCb = this._onLoop.bind(this);
 
-        Helper.override(manager, 'onIteration', this._onIterationCb);
+        Helper.override(manager, 'onLoop', this._onLoopCb);
     }
 
     destroy() {
-        Helper.unoverride(this.parent, 'onIteration', this._onIterationCb);
-        this._onIterationCb = null;
+        Helper.unoverride(this.parent, 'onLoop', this._onLoopCb);
+        this._onLoopCb = null;
         super.destroy();
     }
 
-    _onIteration(counter, stamp) {
+    _onLoop(counter, stamp) {
         if (!this.cfg.show) {return}
         const ts   = stamp - this._stamp;
         if (ts < this.cfg.periodMs) {return}

@@ -5,11 +5,6 @@
  */
 const Config = {
     /**
-     * {Number} Maximum value of mutation period in iterations. It's used
-     * in mutations of org.mutationPeriod parameter
-     */
-    ORG_MAX_MUTATION_PERIOD: 10000,
-    /**
      * {Number} Maximum amount of iterations for clone period
      */
     ORG_MAX_CLONE_PERIOD: 10000,
@@ -21,7 +16,7 @@ const Config = {
     /**
      * {Number} Maximum color index of organism
      */
-    ORG_MAX_COLOR: Number.MAX_SAFE_INTEGER,
+    ORG_MAX_COLOR: 0xFFFFFF,
     /**
      * {Number} Max value, which we may use in orgMutationProbs array. We may use
      * range: [0...ORG_MUTATION_PROBS_MAX_VAL] including these values
@@ -55,7 +50,7 @@ const Config = {
      * {Number} Percent of mutations from vm size, which will be applied to
      * organism after cloning. Should be <= 1.0 (1.0 === 100%)
      */
-    orgCloneMutationPercent: 0.0,
+    orgCloneMutationPercent: 0.1,
     /**
      * {Number} Amount of iterations between cloning. Set it to 0 to turn it off
      */
@@ -64,19 +59,19 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 400,
+    orgCrossoverPeriod: 0,
     /**
      * {Number} Period of tournament between organisms. If amount of organisms
      * is >= of maximum (orgMaxOrgs), then looser organism will be killed. This
      * is how natural selection is implemented in our system. Set this parameter
      * to 0 and tournament mechanism will be turned off
      */
-    orgTournamentPeriod: 500,
+    orgTournamentPeriod: 0,
     /**
      * {Number} Period of iterations for creation of random organisms. Set it to 0
      * to turn off this feature
      */
-    orgRandomOrgPeriod: 500,
+    orgRandomOrgPeriod: 0,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
@@ -125,7 +120,7 @@ const Config = {
      * be grabbed from you. If your size is between 21-40, then 2 units of
      * energy will be grabbed from you and so on...
      */
-    orgGarbagePeriod: 6,
+    orgGarbagePeriod: 10,
     /**
      * {Number} Size of organism stack (internal memory)
      */
@@ -154,7 +149,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 200,
+    orgMaxOrgs: 300,
     /**
      * {Number} If organism reach this limit of amount of vm lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
@@ -179,7 +174,7 @@ const Config = {
      * organism without interruption by one VM. Set this value to value bigger
      * then codeMaxSize, then entire code of organism will be run
      */
-    codeYieldPeriod: 15,
+    codeYieldPeriod: 10,
     /**
      * {Number} Amount of bits for storing operator. This is first XX bits
      * in a number.

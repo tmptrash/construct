@@ -138,16 +138,17 @@ class Organisms extends BaseOrganisms {
 
     _onEat(org, x, y, ret) {
         const positions = this.positions;
+        const eat       = ret.ret;
         let   dir;
 
         [x, y, dir] = Helper.normalize(x, y);
 
         const posId = Helper.posId(x, y);
         if (typeof(positions[posId]) === 'undefined') {
-            ret.ret = this.world.grabDot(x, y, ret.ret);
+            eat < 0 ? this.world.setDot(x, y, -eat) : (ret.ret = this.world.grabDot(x, y, eat));
         } else {
-            ret.ret = ret.ret < 0 ? 0 : (ret.ret > positions[posId].energy ? positions[posId].energy : ret.ret);
-            positions[posId].grabEnergy(ret.ret);
+            ret.ret = eat < 0 ? 0 : (eat > positions[posId].energy ? positions[posId].energy : eat);
+            positions[posId].grabEnergy(eat);
         }
     }
 

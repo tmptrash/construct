@@ -266,7 +266,7 @@ class Organisms extends Configurable {
 
     _updateCrossover(counter) {
         const orgAmount = this.organisms.size;
-        if (counter % OConfig.orgCrossoverPeriod !== 0 && OConfig.orgCrossoverPeriod === 0 || orgAmount < 1) {return false}
+        if (counter % OConfig.orgCrossoverPeriod !== 0 || OConfig.orgCrossoverPeriod === 0 || orgAmount < 1) {return false}
 
         let org1 = this._tournament();
         let org2 = this._tournament();
