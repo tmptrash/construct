@@ -59,7 +59,7 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 0,
+    orgCrossoverPeriod: 100,
     /**
      * {Number} Period of tournament between organisms. If amount of organisms
      * is >= of maximum (orgMaxOrgs), then looser organism will be killed. This

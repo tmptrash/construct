@@ -175,7 +175,7 @@ class VM extends Observer {
             [start1, end1] = [end1, start1]
         }
 
-        adds = Math.abs(end1 - start1 - end + start);
+        adds = end1 - start1 - end + start;
         if (this._code.length + adds >= OConfig.codeMaxSize) {
             return 0
         }
