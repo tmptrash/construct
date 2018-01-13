@@ -266,14 +266,14 @@ class Organisms extends Configurable {
 
     _updateCrossover(counter) {
         const orgAmount = this.organisms.size;
-        if (counter % OConfig.orgCrossoverPeriod !== 0 && OConfig.orgCrossoverPeriod === 0 || orgAmount < 1) {return false}
+        if (counter % OConfig.orgCrossoverPeriod !== 0 || OConfig.orgCrossoverPeriod === 0 || orgAmount < 1) {return false}
 
         let org1 = this._tournament();
         let org2 = this._tournament();
 
         if (!org1.alive || !org2.alive) {return false}
         this._crossover(org1, org2);
-		orgAmount > OConfig.orgMaxOrgs && this._tournament(org1, org2) === org2 ? org1.destroy() : org2.destroy();
+        (orgAmount + 1) > OConfig.orgMaxOrgs && org1.destroy();
 
         return true;
     }
@@ -281,16 +281,14 @@ class Organisms extends Configurable {
     _updateRandomOrgs(counter) {
         const orgAmount = this.organisms.size;
         if (counter % OConfig.orgRandomOrgPeriod !== 0 || OConfig.orgRandomOrgPeriod === 0 || orgAmount < 1 || !this.createOrg(this.parent.world.getFreePos())) {return false}
-		const org1      = this.randOrg();
-        const size      = org1.vm.size;
-        const vm        = this.organisms.last.val.vm;
+		const org       = this.randOrg();
+        const size      = org.vm.size;
+        const newOrg    = this.organisms.last.val;
+        const vm        = newOrg.vm;
+        if (org === newOrg) {return false}
 
         for (let i = 0; i < size; i++) {vm.insertLine()}
-	    if (orgAmount > OConfig.orgMaxOrgs) {
-            const org2 = this.randOrg();
-			if (!org1.alive || !org2.alive || org1 === org2) {return false}
-            this._tournament(org1, org2) === org2 ? org1.destroy() : org2.destroy();
-        }
+        (orgAmount + 1) > OConfig.orgMaxOrgs && org.destroy();
 		
         return true;
     }
