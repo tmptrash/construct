@@ -86,7 +86,9 @@ class Organism extends Observer {
     set clonePeriod(p)          {this._clonePeriod = p}
     set mutationPeriod(m)       {this._mutationPeriod = m}
     set mutationPercent(p)      {this._mutationPercent = p}
-    set energy(e)               {this._energy = e}
+    set energy(e)               {
+        this._energy = e;
+    }
     set changes(c) {
         this._changes = c;
         this._updateColor(c);
@@ -206,7 +208,7 @@ class Organism extends Observer {
         this._clonePeriod           = OConfig.orgClonePeriod;
         this._mutationPeriod        = OConfig.orgRainMutationPeriod;
         this._mutationPercent       = OConfig.orgRainMutationPercent;
-        this._changes               = 1;
+        this._changes               = 0;
         this._mem                   = [];
     }
 

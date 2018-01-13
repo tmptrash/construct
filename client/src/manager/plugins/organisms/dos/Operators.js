@@ -232,7 +232,7 @@ class OperatorsDos extends Operators {
 
         let ret = {ret: amount};
         this.obs.fire(EVENTS.EAT, org, x, y, ret);
-        if (!IS_NUM(ret.ret)) {return 0}
+        if (!IS_NUM(ret.ret) || ret.ret === 0) {return 0}
         org.energy += ret.ret;
 
         return ret.ret;

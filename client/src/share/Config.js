@@ -75,13 +75,13 @@ ClientConfig.init({
      * Should be less then 100.0 and more and equal to 0.0. 0.17 is a
      * normal percent for this system.
      */
-    worldEnergyCheckPercent: 0.1,
+    worldEnergyCheckPercent: 0.4,
     /**
      * {Number} An amount of iteration, after which we have to check world energy
      * amount. Works in pair with worldEnergyCheckPercent. May be 0 if
      * you want to disable it
      */
-    worldEnergyCheckPeriod: 10000,
+    worldEnergyCheckPeriod: 5000,
     /**
      * {Boolean} Turns on/off scroll bars in a 2D canvas
      */

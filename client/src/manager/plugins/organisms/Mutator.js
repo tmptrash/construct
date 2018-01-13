@@ -70,7 +70,7 @@ class Mutator {
     }
 
     static _onPeriod(org) {
-        org.mutationPeriod = Helper.rand(OConfig.ORG_MAX_MUTATION_PERIOD);
+        org.mutationPeriod = Helper.rand(OConfig.orgAlivePeriod);
         org.changes++;
     }
 
@@ -120,13 +120,13 @@ class Mutator {
     }
 
     _onOrganism(org) {
-        if (org.iterations % org.mutationPeriod === 0 && OConfig.orgRainMutationPeriod > 0 && org.mutationPeriod > 0 && org.alive) {
+        if (org.iterations % org.mutationPeriod === 0 && OConfig.orgRainMutationPeriod > 0 && OConfig.orgRainMutationPercent > 0.0 && org.mutationPeriod > 0 && org.alive) {
             this._mutate(org, false);
         }
     }
 
     _onCloneOrg(parent, child) {
-        if (child.energy > 0 && OConfig.orgCloneMutationPercent > 0) {this._mutate(child)}
+        if (child.energy > 0 && OConfig.orgCloneMutationPercent > 0.0 && OConfig.orgClonePeriod > 0) {this._mutate(child)}
     }
 
     /**

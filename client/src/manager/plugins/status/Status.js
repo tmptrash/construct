@@ -78,14 +78,14 @@ class Status extends Configurable {
         const format    = Status._format;
         const orgAmount = orgs.size || 1;
         const sips      = `ips:${ips.toFixed(ips < 10 ? 2 : 0)}`.padEnd(10);
-        const slps      = format(this._runLines / this._times, 'lps', orgAmount, 0,  14         );
-        const sorgs     = format(orgAmount,                    'org', orgAmount, 0,  10         );
-        const senergy   = format(this._curEnergy,              'nrg', orgAmount, 0,  14         );
-        const siq       = format(this._energy,                 'iq',  orgAmount, 3,  12, 100000 );
-        const schanges  = format(this._changes,                'che', orgAmount, 2,  12         );
-        const sfit      = format(this._fitness,                'fit', orgAmount, 2,  13         );
-        const sage      = format(this._age / this._ageCount,   'age', orgAmount, 0,  11, 1      );
-        const scode     = format(this._codeSize,               'cod', orgAmount, -1, 12, 1, true);
+        const slps      = format(this._runLines / this._times,      'lps', orgAmount, 0,  14         );
+        const sorgs     = format(orgAmount,                         'org', orgAmount, 0,  10         );
+        const senergy   = format(this._curEnergy,                   'nrg', orgAmount, 0,  14         );
+        const siq       = format(this._energy,                      'iq',  orgAmount, 3,  12, 100000 );
+        const schanges  = format(this._changes,                     'che', orgAmount, 2,  12         );
+        const sfit      = format(this._fitness,                     'fit', orgAmount, 2,  13         );
+        const sage      = format(this._age / (this._ageCount || 1), 'age', orgAmount, 0,  11, 1      );
+        const scode     = format(this._codeSize,                    'cod', orgAmount, -1, 12, 1, true);
 
         console.log(`%c${sips}${slps}${sorgs}%c${siq}${senergy}${schanges}${sfit}${sage}${scode}`, GREEN, RED);
         const active = man.activeAround;
@@ -106,7 +106,7 @@ class Status extends Configurable {
     _onBeforeLog(ips, orgs) {
         const olds      = this._oldValues;
         const size      = orgs.size || 1;
-        const lines     = this._runLines;
+        const lines     = this._runLines || 1;
         let   energy    = 0;
         let   fitness   = 0;
         let   changes   = 0;
