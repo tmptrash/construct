@@ -252,7 +252,7 @@ class Organism extends Observer {
      */
     _updateEnergy() {
         if (this._iterations % OConfig.orgEnergySpendPeriod !== 0 || OConfig.orgEnergySpendPeriod === 0) {return true}
-        let grabSize = Math.floor(this.vm.size / OConfig.orgGarbagePeriod);
+        let grabSize = Math.round(this.vm.size / OConfig.orgGarbagePeriod);
         if (grabSize < 1) {grabSize = 1}
 
         return this.grabEnergy(this._energy < grabSize ? this._energy : grabSize);

@@ -7,16 +7,10 @@ const Panzoom = require('panzoom');
 
 class Canvas {
     constructor(width, height, noScrolls = false) {
-        const id     = 'world';
-        const doc    = document;
-        const bodyEl = doc.body;
+        const id  = 'world';
+        const doc = document;
 
-        this._prepareDom();
-        bodyEl.innerHTML += `<canvas id="${id}" width="${width}" height="${height}"></canvas>`;
-        //
-        // This style hides scroll bars on full screen 2d canvas
-        //
-        if (noScrolls) {document.querySelector('html').style.overflow = 'hidden'}
+        doc.body.innerHTML += `<canvas id="${id}" width="${width}" height="${height}"></canvas>`;
 
         this._id        = id;
         this._width     = width;
@@ -30,10 +24,8 @@ class Canvas {
         this._visualize = true;
         this._panZoom   = null;
 
-        this._ctx.font  = "18px Consolas";
-        this._ctx.fillStyle = "white";
+        this._prepareDom(noScrolls);
         this._initPanZoomLib();
-
         this.clear();
         window.requestAnimationFrame(this._animate);
     }
@@ -105,16 +97,25 @@ class Canvas {
         }
     }
 
-    _prepareDom() {
-        const bodyEl = document.querySelector('body');
+    _prepareDom(noScrolls) {
+        const bodyEl = document.body;
         const htmlEl = document.querySelector('html');
 
-        bodyEl.style.width  = '100%';
-        bodyEl.style.height = '100%';
-        bodyEl.style.margin = 0;
-        htmlEl.style.width  = '100%';
-        htmlEl.style.height = '100%';
-        htmlEl.style.margin = 0;
+        bodyEl.style.width           = '100%';
+        bodyEl.style.height          = '100%';
+        bodyEl.style.margin          = 0;
+        bodyEl.style.backgroundColor = '#9e9e9e';
+
+        htmlEl.style.width           = '100%';
+        htmlEl.style.height          = '100%';
+        htmlEl.style.margin          = 0;
+
+        this._ctx.font               = "18px Consolas";
+        this._ctx.fillStyle          = "white";
+        //
+        // This style hides scroll bars on full screen 2d canvas
+        //
+        if (noScrolls) {document.querySelector('html').style.overflow = 'hidden'}
     }
 
     /**
@@ -123,13 +124,12 @@ class Canvas {
      * removes smooth effect while zooming
      */
     _initPanZoomLib() {
-        document.body.style.backgroundColor = '#9e9e9e';
         this._canvasEl.style.imageRendering = 'pixelated';
         this._panZoom   = Panzoom(this._canvasEl, {
             zoomSpeed   : 0.1,
             smoothScroll: false
         });
-        this._panZoom.zoomAbs(0, 0, 0.2);
+        this._panZoom.zoomAbs(0, 0, 0.5);
     }
 }
 
