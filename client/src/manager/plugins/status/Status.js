@@ -81,7 +81,7 @@ class Status extends Configurable {
         const slps      = format(this._runLines / this._times,      'lps', orgAmount, 0,  14         );
         const sorgs     = format(orgAmount,                         'org', orgAmount, 0,  10         );
         const senergy   = format(this._curEnergy,                   'nrg', orgAmount, 0,  14         );
-        const siq       = format(this._energy,                      'iq',  orgAmount, 3,  12, 100000 );
+        const siq       = format(this._energy,                      'iq',  orgAmount, 3,  14, 100000 );
         const schanges  = format(this._changes,                     'che', orgAmount, 2,  12         );
         const sfit      = format(this._fitness,                     'fit', orgAmount, 2,  13         );
         const sage      = format(this._age / (this._ageCount || 1), 'age', orgAmount, 0,  11, 1      );
@@ -94,7 +94,7 @@ class Status extends Configurable {
     }
 
     _onOrganism(org, lines) {
-	    if (!StatusConfig.showMessages) {return}
+        if (!StatusConfig.showMessages) {return}
         this._runLines += lines;
     }
 

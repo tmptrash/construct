@@ -3,6 +3,8 @@
  *
  * @author flatline
  */
+const Panzoom = require('panzoom');
+
 class Canvas {
     constructor(width, height, noScrolls = false) {
         const id     = 'world';
@@ -26,14 +28,18 @@ class Canvas {
         this._data      = this._imgData.data;
         this._animate   = this._onAnimate.bind(this);
         this._visualize = true;
+        this._panZoom   = null;
 
         this._ctx.font  = "18px Consolas";
         this._ctx.fillStyle = "white";
+        this._initPanZoomLib();
+
         this.clear();
         window.requestAnimationFrame(this._animate);
     }
 
     destroy() {
+        this._panZoom.dispose();
         this._canvasEl.parentNode.removeChild(this._canvasEl);
         this._ctx     = null;
         this._imgData = null;
@@ -109,6 +115,21 @@ class Canvas {
         htmlEl.style.width  = '100%';
         htmlEl.style.height = '100%';
         htmlEl.style.margin = 0;
+    }
+
+    /**
+     * Initializes 'panzoom' library, which adds possibility to
+     * zoom and scroll canvas by mouse. imageRendering css property
+     * removes smooth effect while zooming
+     */
+    _initPanZoomLib() {
+        document.body.style.backgroundColor = '#9e9e9e';
+        this._canvasEl.style.imageRendering = 'pixelated';
+        this._panZoom   = Panzoom(this._canvasEl, {
+            zoomSpeed   : 0.1,
+            smoothScroll: false
+        });
+        this._panZoom.zoomAbs(0, 0, 0.2);
     }
 }
 

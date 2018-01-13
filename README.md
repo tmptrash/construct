@@ -21,7 +21,7 @@
 - To run construct in a "serverless" mode, just open `./client/dist/index.html` in Chrome
 - To run construct in a "distributed" mode, you have to:
     - Choose some host in your local netwok for server
-	- Clone construct repo to this host
+    - Clone construct repo to this host
     - Go to configuration `./client/src/share/Config.js`, find `serverHost` option and change it to the IP, of your server host. You may use `ipconfig` under windows to get server's IP
     - Run `npm run build` command in a terminal from the root folder
     - Run server `npm run server` on chosen host

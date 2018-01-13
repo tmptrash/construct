@@ -247,6 +247,16 @@ class VM extends Observer {
         return this._code[index];
     }
 
+    /**
+     * Generates random code of organism with specified size
+     * @param {Number} size Final code size
+     */
+    generate(size) {
+        const code = this._code = new Array(size);
+
+        for (let i = 0; i < size; i++) {code[i] = Num.get()}
+    }
+
     _reset() {
         this.fire(EVENTS.RESET_CODE);
         this._line = 0;
