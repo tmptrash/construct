@@ -1,13 +1,13 @@
 /**
- * Configuration of Status plugin
+ * Configuration of Console plugin
  *
  * @author flatline
  */
 const Config = {
     /**
-     * {Boolean} Shows/Hides messages in a console
+     * {Boolean} Turns on/off plugin data collection
      */
-    showMessages: true,
+    active: true,
     /**
      * {Number} Delay in milliseconds between showing one status line
      */

@@ -1,8 +1,8 @@
 /**
- * This plugin is a primitive version of real time charts. It shows
- * different parameters of the jevo.js system, like average energy,
- * iq (energy picking speed), average code size and so on. Here
- * labels explanation:
+ * Base class for plugin which collects real time data about system like:
+ * population energy, changes, organisms iq etc and provide this data to
+ * other visualization classes (e.g. Charts). Output data is an object of
+ * described below format:
  *
  *     ips: Iterations Per Second - amount of all organisms full
  *          code runs per one second
@@ -17,24 +17,23 @@
  *
  * @author flatline
  */
-const Configurable = require('./../../../../../common/src/Configurable');
 const EVENTS       = require('./../../../share/Events').EVENTS;
+const Configurable = require('./../../../../../common/src/Configurable');
 const Config       = require('./../../../share/Config').Config;
-const StatusConfig = require('./Config');
-
-const GREEN  = 'color: #00aa00';
-const RED    = 'color: #aa0000';
 
 class Status extends Configurable {
-    static _format(value, name, orgs, fixed, pad, coef = 1, perOrg = false) {
-        const val = (value / (perOrg ? orgs : 1)) * coef;
-        return `${name}:${val.toFixed(fixed === -1 && 2 || (val < 10 && val > -10 ? fixed : 0))}`.padEnd(pad);
-    }
+    /**
+     * Is called every time, when new status data is available
+     * @param {Object} status Status data
+     * @param {Number} orgs Amount of organisms
+     * @abstract
+     */
+    onStatus(status, orgs) {}
 
-    constructor(manager) {
-        super(manager, {Config, cfg: StatusConfig});
+    constructor(manager, statCfg, apiCfg = {}) {
+        super(manager, {Config, cfg: statCfg}, apiCfg);
 
-        this._manager      = manager;
+        this.manager       = manager;
         this._stamp        = 0;
         this._curEnergy    = 0;
         this._energy       = 0;
@@ -46,6 +45,8 @@ class Status extends Configurable {
         this._ageCount     = 0;
         this._times        = 0;
         this._oldValues    = [0, 0, 0];
+        this._status       = {ips:0, lps:0, orgs:0, energy:0, iq:0, changes:0, fit:0, age:0, code:0};
+        this._statusCfg    = statCfg;
         this._onIpsCb      = this._onIps.bind(this);
         this._onOrganismCb = this._onOrganism.bind(this);
         this._onKillOrgCb  = this._onKillOrg.bind(this);
@@ -56,54 +57,17 @@ class Status extends Configurable {
     }
 
     destroy() {
-        this._manager.off(EVENTS.KILL_ORGANISM, this._onKillOrgCb);
-        this._manager.off(EVENTS.ORGANISM, this._onOrganismCb);
-        this._manager.off(EVENTS.IPS, this._onIpsCb);
+        this.manager.off(EVENTS.KILL_ORGANISM, this._onKillOrgCb);
+        this.manager.off(EVENTS.ORGANISM, this._onOrganismCb);
+        this.manager.off(EVENTS.IPS, this._onIpsCb);
         this._onKillOrgCb  = null;
         this._onOrganismCb = null;
         this._onIpsCb      = null;
-        this._manager      = null;
+        this.manager       = null;
         this._oldValues    = null;
-        super.destroy();
     }
 
-    _onIps(ips, orgs) {
-        if (!StatusConfig.showMessages) {return}
-        const stamp     = Date.now();
-        this._times++;
-        if (stamp - this._stamp < StatusConfig.period) {return}
-
-        const man = this._manager;
-        this._onBeforeLog(ips, orgs);
-        const format    = Status._format;
-        const orgAmount = orgs.size || 1;
-        const sips      = `ips:${ips.toFixed(ips < 10 ? 2 : 0)}`.padEnd(10);
-        const slps      = format(this._runLines / this._times,      'lps', orgAmount, 0,  14         );
-        const sorgs     = format(orgAmount,                         'org', orgAmount, 0,  10         );
-        const senergy   = format(this._curEnergy,                   'nrg', orgAmount, 0,  14         );
-        const siq       = format(this._energy,                      'iq',  orgAmount, 3,  14, 100000 );
-        const schanges  = format(this._changes,                     'che', orgAmount, 2,  12         );
-        const sfit      = format(this._fitness,                     'fit', orgAmount, 2,  13         );
-        const sage      = format(this._age / (this._ageCount || 1), 'age', orgAmount, 0,  11, 1      );
-        const scode     = format(this._codeSize,                    'cod', orgAmount, -1, 12, 1, true);
-
-        console.log(`%c${sips}${slps}${sorgs}%c${siq}${senergy}${schanges}${sfit}${sage}${scode}`, GREEN, RED);
-        const active = man.activeAround;
-        man.canvas && man.canvas.text(5, 20, `${sips}${man.clientId && man.clientId || ''} ${active[0] ? '^' : ' '}${active[1] ? '>' : ' '}${active[2] ? 'v' : ' '}${active[3] ? '<' : ' '}`);
-        this._onAfterLog(stamp);
-    }
-
-    _onOrganism(org, lines) {
-        if (!StatusConfig.showMessages) {return}
-        this._runLines += lines;
-    }
-
-    _onKillOrg(org) {
-        this._age += org.iterations;
-        this._ageCount++;
-    }
-
-    _onBeforeLog(ips, orgs) {
+    onBeforeStatus(ips, orgs) {
         const olds      = this._oldValues;
         const size      = orgs.size || 1;
         const lines     = this._runLines || 1;
@@ -132,12 +96,46 @@ class Status extends Configurable {
         this._oldValues = [energy, changes, fitness];
     }
 
-    _onAfterLog(stamp) {
+    onAfterStatus(stamp) {
         this._times    = 0;
         this._runLines = 0;
         this._age      = 0;
         this._ageCount = 0;
         this._stamp    = stamp;
+    }
+
+    _onIps(ips, orgs) {
+        if (!this._statusCfg.active) {return}
+        this._times++;
+        const stamp    = Date.now();
+        if (stamp - this._stamp < this._statusCfg.period) {return}
+        const status   = this._status;
+
+        this.onBeforeStatus(ips, orgs);
+
+        status.ips     = +ips.toFixed(ips < 10 ? 2 : 0);
+        status.lps     = this._runLines / this._times;
+        status.orgs    = orgs.size;
+        status.energy  = this._curEnergy;
+        status.iq      = this._energy;
+        status.changes = this._changes;
+        status.fit     = this._fitness;
+        status.age     = this._age / (this._ageCount || 1);
+        status.code    = this._codeSize;
+
+        this.onStatus(status, orgs.size);
+        this.onAfterStatus(stamp);
+    }
+
+    _onOrganism(org, lines) {
+        if (!this._statusCfg.active) {return}
+        this._runLines += lines;
+    }
+
+    _onKillOrg(org) {
+        if (!this._statusCfg.active) {return}
+        this._age += org.iterations;
+        this._ageCount++;
     }
 }
 
