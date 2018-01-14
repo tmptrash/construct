@@ -3,6 +3,7 @@
  * this class is to show dynamics of changing for some property. For
  * example: energy, iq or code size. update() method should obtain
  * new portion of property data to draw on chart. Works only in browser.
+ * Requires internet connection for google charts dynamic load.
  *
  * @author flatline
  */
@@ -91,6 +92,7 @@ class Chart {
     }
 
     _updatePos(pos) {
+        if (!this._el) {return}
         const style  = this._el.style;
         const size   = this._getSize(pos);
 

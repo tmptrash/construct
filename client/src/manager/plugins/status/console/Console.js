@@ -24,10 +24,7 @@ const GREEN  = 'color: #00aa00';
 const RED    = 'color: #aa0000';
 
 class Console extends Status {
-    static _format(value, name, orgs, fixed, pad, coef = 1, perOrg = false) {
-        const val = (value / (perOrg ? orgs : 1)) * coef;
-        return `${name}:${val.toFixed(fixed === -1 && 2 || (val < 10 && val > -10 ? fixed : 0))}`.padEnd(pad);
-    }
+    static _format(value, name, pad) {return `${name}:${value}`.padEnd(pad)}
 
     constructor(manager) {
         super(manager, Config);
@@ -50,17 +47,17 @@ class Console extends Status {
 
         const con       = `${active[0] ? '^' : ' '}${active[1] ? '>' : ' '}${active[2] ? 'v' : ' '}${active[3] ? '<' : ' '}`;
         const conns     = `con:${con === '    ' ? 'no  ' : con}`;
-        const orgAmount = orgs || 1;
-        const sips      = `ips:${status.ips}`.padEnd(10);
-        const slps      = format(status.lps,      'lps', orgAmount, 0,  14         );
-        const sorgs     = format(orgs,            'org', orgAmount, 0,  10         );
-        const senergy   = format(status.energy,   'nrg', orgAmount, 0,  14         );
-        const siq       = format(status.iq,       'iq',  orgAmount, 3,  14, 100000 );
-        const schanges  = format(status.changes,  'che', orgAmount, 2,  12         );
-        const sfit      = format(status.fit,      'fit', orgAmount, 2,  13         );
-        const sage      = format(status.age,      'age', orgAmount, 0,  11, 1      );
-        const scode     = format(status.code,     'cod', orgAmount, -1, 12, 1, true);
+        const sips      = format(status.ips,     'ips', 10);
+        const slps      = format(status.lps,     'lps', 14);
+        const sorgs     = format(orgs,           'org', 10);
+        const senergy   = format(status.energy,  'nrg', 14);
+        const siq       = format(status.iq,      'iq',  14);
+        const schanges  = format(status.changes, 'che', 12);
+        const sfit      = format(status.fit,     'fit', 13);
+        const sage      = format(status.age,     'age', 11);
+        const scode     = format(status.code,    'cod', 12);
 
+        // TODO: under Node.js should use Server/Console.xxx()
         console.log(`%c${conns}${sips}${slps}${sorgs}%c${siq}${senergy}${schanges}${sfit}${sage}${scode}`, GREEN, RED);
     }
 }

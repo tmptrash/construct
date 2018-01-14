@@ -16,8 +16,16 @@ const Config = {
      * {Object} Available chart types
      */
     charts: {
-        ips   : {pos: 'topleft',  active: false, transparent: 0.5},
-        energy: {pos: 'downleft', active: false, transparent: 0.5}
+        ips    : {pos: 'topleft',   active: false, transparent: 0.6},
+        lps    : {pos: 'downleft',  active: false, transparent: 0.6},
+        orgs   : {pos: 'topright',  active: false, transparent: 0.6},
+        energy : {pos: 'downright', active: true,  transparent: 0.6},
+        iq     : {pos: 'topleft',   active: true,  transparent: 0.6},
+        changes: {pos: 'downleft',  active: false, transparent: 0.6},
+        fit    : {pos: 'topright',  active: true,  transparent: 0.6},
+        age    : {pos: 'downright', active: false, transparent: 0.6},
+        code   : {pos: 'downleft',  active: true,  transparent: 0.6}
+
     }
 };
 

@@ -107,21 +107,22 @@ class Status extends Configurable {
     _onIps(ips, orgs) {
         if (!this._statusCfg.active) {return}
         this._times++;
-        const stamp    = Date.now();
+        const stamp     = Date.now();
         if (stamp - this._stamp < this._statusCfg.period) {return}
-        const status   = this._status;
+        const status    = this._status;
+        const orgAmount = orgs.size || 1;
 
         this.onBeforeStatus(ips, orgs);
 
-        status.ips     = +ips.toFixed(ips < 10 ? 2 : 0);
-        status.lps     = this._runLines / this._times;
-        status.orgs    = orgs.size;
-        status.energy  = this._curEnergy;
-        status.iq      = this._energy;
-        status.changes = this._changes;
-        status.fit     = this._fitness;
-        status.age     = this._age / (this._ageCount || 1);
-        status.code    = this._codeSize;
+        status.ips     = this._toFixed(ips, 2);
+        status.lps     = this._toFixed(this._runLines / this._times, 0);
+        status.orgs    = orgAmount;
+        status.energy  = this._toFixed(this._curEnergy, 2);
+        status.iq      = this._toFixed(this._energy * 100000, 3);
+        status.changes = this._toFixed(this._changes, 2);
+        status.fit     = this._toFixed(this._fitness, 2);
+        status.age     = this._toFixed(this._age / (this._ageCount || 1), 2);
+        status.code    = +(this._codeSize / orgAmount).toFixed(2);
 
         this.onStatus(status, orgs.size);
         this.onAfterStatus(stamp);
@@ -136,6 +137,10 @@ class Status extends Configurable {
         if (!this._statusCfg.active) {return}
         this._age += org.iterations;
         this._ageCount++;
+    }
+
+    _toFixed(val, fixed) {
+        return +val.toFixed(val < 10 && val > -10 ? fixed : 0);
     }
 }
 

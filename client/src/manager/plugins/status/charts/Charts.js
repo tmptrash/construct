@@ -21,8 +21,15 @@ class Charts extends Status {
 
         this._data   = new Array(2);
         this._charts = {
-            ips   : new Chart('IPS', Config.charts.ips),
-            energy: new Chart('Organism average energy', Config.charts.energy)
+            ips    : new Chart('IPS - Iterations Per Second',             Config.charts.ips),
+            lps    : new Chart('LPS - Lines Per Second',                  Config.charts.lps),
+            orgs   : new Chart('Amount of organisms',                     Config.charts.orgs),
+            energy : new Chart('Average organism energy',                 Config.charts.energy),
+            iq     : new Chart('Average organism IQ (Energy pick speed)', Config.charts.iq),
+            changes: new Chart('Average organism changes (Mutations)',    Config.charts.changes),
+            fit    : new Chart('Average organism Fitness',                Config.charts.fit),
+            age    : new Chart('Average organism Age',                    Config.charts.age),
+            code   : new Chart('Average organism code size',              Config.charts.code)
         };
     }
 
@@ -41,24 +48,8 @@ class Charts extends Status {
      * @override
      */
     onStatus(status, orgs) {
-        // const man       = this.manager;
-        // const active    = man.activeAround;
-        // const format    = Console._format;
         const stamp     = Date.now();
         const time      = new Date(stamp);
-        //
-        // const con       = `${active[0] ? '^' : ' '}${active[1] ? '>' : ' '}${active[2] ? 'v' : ' '}${active[3] ? '<' : ' '}`;
-        // const conns     = `con:${con === '    ' ? 'no  ' : con}`;
-        const orgAmount = orgs || 1;
-        // const sips      = `ips:${status.ips}`.padEnd(10);
-        // const slps      = format(status.lps,      'lps', orgAmount, 0,  14         );
-        // const sorgs     = format(orgs,            'org', orgAmount, 0,  10         );
-        // const senergy   = format(status.energy,   'nrg', orgAmount, 0,  14         );
-        // const siq       = format(status.iq,       'iq',  orgAmount, 3,  14, 100000 );
-        // const schanges  = format(status.changes,  'che', orgAmount, 2,  12         );
-        // const sfit      = format(status.fit,      'fit', orgAmount, 2,  13         );
-        // const sage      = format(status.age,      'age', orgAmount, 0,  11, 1      );
-        // const scode     = format(status.code,     'cod', orgAmount, -1, 12, 1, true);
 
         //console.log(`%c${conns}${sips}${slps}${sorgs}%c${siq}${senergy}${schanges}${sfit}${sage}${scode}`, GREEN, RED);
         // TODO: this code should be moved to separate plugin
@@ -66,14 +57,14 @@ class Charts extends Status {
         //man.canvas && man.canvas.text(5, 20, `${sips}${man.clientId && man.clientId || ''} ${active[0] ? '^' : ' '}${active[1] ? '>' : ' '}${active[2] ? 'v' : ' '}${active[3] ? '<' : ' '}`);
 
 
-        const data = this._data;
-        data[0]    = `${time.getHours()}:${time.getMinutes()}`;
+        const data   = this._data;
+        const charts = this._charts;
+        data[0]      = `${time.getHours()}:${time.getMinutes()}`;
 
-        data[1]    = status.ips;
-        this._charts.ips.update(data);
-
-        data[1]    = status.energy;
-        this._charts.energy.update(data);
+        _each(charts, (chart, key) => {
+            data[1] = status[key];
+            chart.update(data);
+        });
     }
 
     /**

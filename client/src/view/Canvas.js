@@ -129,7 +129,7 @@ class Canvas {
             zoomSpeed   : 0.1,
             smoothScroll: false
         });
-        this._panZoom.zoomAbs(0, 0, 0.5);
+        this._panZoom.zoomAbs(0, 0, 1.0);
     }
 }
 
