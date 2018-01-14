@@ -10,7 +10,7 @@
  *          per one second
  *     org: Average amount of organisms at the moment of logging
  *     nrg: Amount of energy of average organism
- *     iq : Energy picking speed per StatusConfig.period seconds
+ *     iq : Energy picking speed per status period
  *     che: Changes amount of average organism
  *     fit: Fitness of average organism
  *     cod: Code size of average organism
@@ -22,6 +22,10 @@ const Configurable = require('./../../../../../common/src/Configurable');
 const Config       = require('./../../../share/Config').Config;
 
 class Status extends Configurable {
+    static _toFixed(val, fixed) {
+        return +val.toFixed(val < 10 && val > -10 ? fixed : 0);
+    }
+
     /**
      * Is called every time, when new status data is available
      * @param {Object} status Status data
@@ -47,6 +51,7 @@ class Status extends Configurable {
         this._oldValues    = [0, 0, 0];
         this._status       = {ips:0, lps:0, orgs:0, energy:0, iq:0, changes:0, fit:0, age:0, code:0};
         this._statusCfg    = statCfg;
+        this._firstCall    = true;
         this._onIpsCb      = this._onIps.bind(this);
         this._onOrganismCb = this._onOrganism.bind(this);
         this._onKillOrgCb  = this._onKillOrg.bind(this);
@@ -63,6 +68,8 @@ class Status extends Configurable {
         this._onKillOrgCb  = null;
         this._onOrganismCb = null;
         this._onIpsCb      = null;
+        this._status       = null;
+        this._statusCfg    = null;
         this.manager       = null;
         this._oldValues    = null;
     }
@@ -111,21 +118,23 @@ class Status extends Configurable {
         if (stamp - this._stamp < this._statusCfg.period) {return}
         const status    = this._status;
         const orgAmount = orgs.size || 1;
+        const fix       = Status._toFixed;
 
         this.onBeforeStatus(ips, orgs);
 
-        status.ips     = this._toFixed(ips, 2);
-        status.lps     = this._toFixed(this._runLines / this._times, 0);
+        status.ips     = fix(ips, 2);
+        status.lps     = fix(this._runLines / this._times, 0);
         status.orgs    = orgAmount;
-        status.energy  = this._toFixed(this._curEnergy, 2);
-        status.iq      = this._toFixed(this._energy * 100000, 3);
-        status.changes = this._toFixed(this._changes, 2);
-        status.fit     = this._toFixed(this._fitness, 2);
-        status.age     = this._toFixed(this._age / (this._ageCount || 1), 2);
+        status.energy  = fix(this._curEnergy, 2);
+        status.iq      = fix(this._energy * 100000, 3);
+        status.changes = fix(this._changes, 2);
+        status.fit     = fix(this._fitness, 2);
+        status.age     = fix(this._age / (this._ageCount || 1), 2);
         status.code    = +(this._codeSize / orgAmount).toFixed(2);
 
-        this.onStatus(status, orgs.size);
+        !this._firstCall && this.onStatus(status, orgs.size);
         this.onAfterStatus(stamp);
+        this._firstCall = false;
     }
 
     _onOrganism(org, lines) {
@@ -137,10 +146,6 @@ class Status extends Configurable {
         if (!this._statusCfg.active) {return}
         this._age += org.iterations;
         this._ageCount++;
-    }
-
-    _toFixed(val, fixed) {
-        return +val.toFixed(val < 10 && val > -10 ? fixed : 0);
     }
 }
 

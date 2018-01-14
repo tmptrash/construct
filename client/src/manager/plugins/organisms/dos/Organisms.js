@@ -102,7 +102,7 @@ class Organisms extends BaseOrganisms {
      * @override
      */
     onAfterKillOrg(org) {
-        delete this.positions[org.posId];
+        this.positions[org.posId] = undefined;
     }
 
     /**
@@ -118,7 +118,7 @@ class Organisms extends BaseOrganisms {
      */
     onAfterMove(x1, y1, x2, y2, org) {
         if (x1 !== x2 || y1 !== y2) {
-            delete this.positions[Helper.posId(x1, y1)];
+            this.positions[Helper.posId(x1, y1)] = undefined;
             this.positions[Helper.posId(x2, y2)] = org;
         }
 

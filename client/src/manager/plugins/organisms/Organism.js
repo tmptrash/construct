@@ -56,6 +56,7 @@ class Organism extends Observer {
         this._x           = x;
         this._y           = y;
         this._iterations  = 0;
+        this._changes     = 0;
         this._alive       = alive;
         this._item        = item;
         this._fnId        = 0;
@@ -180,7 +181,7 @@ class Organism extends Observer {
     }
 
     fitness() {
-        return (OConfig.codeMaxSize - this.vm.size) * this._energy * this._changes;
+        return (OConfig.codeMaxSize - this.vm.size) * this._energy * (this._changes || 1);
     }
 
     destroy() {
@@ -208,7 +209,6 @@ class Organism extends Observer {
         this._clonePeriod           = OConfig.orgClonePeriod;
         this._mutationPeriod        = OConfig.orgRainMutationPeriod;
         this._mutationPercent       = OConfig.orgRainMutationPercent;
-        this._changes               = 0;
         this._mem                   = [];
     }
 
@@ -222,7 +222,6 @@ class Organism extends Observer {
         this._clonePeriod           = parent.clonePeriod;
         this._mutationPeriod        = parent.mutationPeriod;
         this._mutationPercent       = parent.mutationPercent;
-        this._changes               = parent.changes;
         this._mem                   = parent.mem.slice();
     }
 
