@@ -105,7 +105,7 @@ class Charts extends Status {
     _active(chart, a) {this._setProperty(chart, 'active', a)}
 
     _setProperty(chart, prop, val) {
-        _each(this._charts, chart => chart[prop] = val);
+        this._charts[chart][prop]    = val;
         this.cfg.charts[chart][prop] = val;
     }
 }

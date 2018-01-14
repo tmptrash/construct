@@ -106,7 +106,7 @@ class Chart {
         } else {
             this._chart.clearChart();
             this._el.parentNode.removeChild(this._el);
-            this._data = this._chart = null;
+            this._data = this._chart = this._el = null;
         }
     }
 }
