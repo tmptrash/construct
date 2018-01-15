@@ -92,21 +92,34 @@ class Charts extends Status {
     /**
      * Sets current chart position. Available positions:
      * top, down, left, right, topleft, downleft, topright,
-     * downright, full.
+     * downright, full. This method may be called with one
+     * Boolean parameter. In this case all charts will be activated
+     * or deactivated.
      * @param {String} chart Chart name, e.g: 'energy', or 'iq'
-     * @param {Boolean} a New active state
+     * @param {Boolean=} a New active state
      * @api
      */
-    _active(chart, a) {this._setProperty(chart, 'active', a)}
+    _active(chart, a) {
+        if (typeof a === 'undefined') {
+            _each(this._charts, (c, k) => this._setProperty(k, 'active', chart));
+        } else {
+            this._setProperty(chart, 'active', a);
+        }
+    }
 
     /**
      * Resets chart data. It means, that chart will be refreshed with
-     * data started from this moment and further
+     * data started from this moment and further. You may call this
+     * method without parameters to reset all charts.
      * @param {String} chart Chart name, e.g: 'energy', or 'iq'
      * @api
      */
     _reset(chart) {
-        _get(this, `_charts.${chart}`, {}).reset && this._charts[chart].reset();
+        if (typeof chart === 'undefined') {
+            _each(this._charts, c => {c.reset(); return true});
+        } else {
+            _get(this, `_charts.${chart}`, {}).reset && this._charts[chart].reset();
+        }
     }
 
     _setProperty(chart, prop, val) {
