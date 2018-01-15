@@ -53,6 +53,7 @@ class Charts extends Status {
 
         //console.log(`%c${conns}${sips}${slps}${sorgs}%c${siq}${senergy}${schanges}${sfit}${sage}${scode}`, GREEN, RED);
         // TODO: this code should be moved to separate plugin
+        // TODO: add energy, orgs and code: e:xxx, o:xxx, c:xxx
         //const active = man.activeAround;
         //man.canvas && man.canvas.text(5, 20, `${sips}${man.clientId && man.clientId || ''} ${active[0] ? '^' : ' '}${active[1] ? '>' : ' '}${active[2] ? 'v' : ' '}${active[3] ? '<' : ' '}`);
 
