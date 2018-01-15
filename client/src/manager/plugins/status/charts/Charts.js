@@ -8,11 +8,14 @@ const Status = require('./../Status');
 const Chart  = require('./Chart');
 const Config = require('./Config');
 const _each  = require('lodash/each');
+const _has   = require('lodash/has');
+const _get   = require('lodash/get');
 
 const API = {
     transparent: ['_transparent', 'Sets transparent level'     ],
     pos        : ['_pos',         'Sets chart position'        ],
-    active     : ['_active',      'Activates/Deactivates chart']
+    active     : ['_active',      'Activates/Deactivates chart'],
+    reset      : ['_reset',       'Resets chart data'          ]
 };
 
 class Charts extends Status {
@@ -96,9 +99,19 @@ class Charts extends Status {
      */
     _active(chart, a) {this._setProperty(chart, 'active', a)}
 
+    /**
+     * Resets chart data. It means, that chart will be refreshed with
+     * data started from this moment and further
+     * @param {String} chart Chart name, e.g: 'energy', or 'iq'
+     * @api
+     */
+    _reset(chart) {
+        _get(this, `_charts.${chart}`, {}).reset && this._charts[chart].reset();
+    }
+
     _setProperty(chart, prop, val) {
-        this._charts[chart][prop]    = val;
-        this.cfg.charts[chart][prop] = val;
+        this._charts[chart][prop] = val;
+        _has(this.cfg, `charts.${chart}.${prop}`) && (this.cfg.charts[chart][prop] = val);
     }
 }
 

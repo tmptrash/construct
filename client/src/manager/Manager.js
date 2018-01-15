@@ -52,7 +52,7 @@ class Manager extends Observer {
          * It may be used in a user console by the Operator of construct. Plugins
          * may add their methods to this map also.
          */
-        this.api           = {version: () => '0.2.1.1'};
+        this.api           = {version: () => '0.2.1'};
         hasView && (this.api.visualize = this._visualize.bind(this));
 
         /**

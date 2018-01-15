@@ -8,6 +8,7 @@
  * @author flatline
  */
 const GoogleCharts = require('google-charts').GoogleCharts;
+const _get         = require('lodash/get');
 
 class Chart {
     constructor(title, cfg) {
@@ -33,10 +34,10 @@ class Chart {
      * @return {Boolean}
      */
     update(data) {
-        if (!this._ready || !this._cfg.active) {return false}
+        if (!this._ready) {return false}
 
         this._data.addRow(data);
-        this._chart.draw(this._data, this._options);
+        _get(this, '_cfg.active') && this._chart.draw(this._data, this._options);
 
         return true;
     }
@@ -44,6 +45,12 @@ class Chart {
     set transparent(t) {this._el.style.opacity = t}
     set pos(p)         {this._updatePos(p)}
     set active(a)      {this._cfg.active !== a && this._updateActive(a)}
+
+    reset() {
+        if (!this._ready) {return false}
+        this._data = this._createDataTable();
+        return true;
+    }
 
     destroy() {
         this._cfg.active && this._chart.clearChart();
@@ -61,13 +68,10 @@ class Chart {
         el.style.opacity  = this._cfg.transparent;
         this._updatePos(this._cfg.pos);
         document.body.appendChild(el);
-
-        this._data  = new google.visualization.DataTable();
-        this._chart = new google.visualization.LineChart(el);
         this._ready = true;
 
-        this._data.addColumn('string', 'horizontal');
-        this._data.addColumn('number', 'vertical');
+        this._chart = new google.visualization.LineChart(el);
+        !this._data && (this._data = this._createDataTable());
     }
 
     /**
@@ -108,8 +112,17 @@ class Chart {
         } else {
             this._chart.clearChart();
             this._el.parentNode.removeChild(this._el);
-            this._data = this._chart = this._el = null;
+            this._chart = this._el = null;
         }
+    }
+
+    _createDataTable() {
+        const data = new google.visualization.DataTable();
+
+        data.addColumn('string', 'horizontal');
+        data.addColumn('number', 'vertical');
+
+        return data;
     }
 }
 
