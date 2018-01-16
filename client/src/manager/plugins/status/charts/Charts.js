@@ -29,8 +29,8 @@ class Charts extends Status {
             lps       : new Chart('LPS - Lines Per Second',                                         Config.charts.lps),
             orgs      : new Chart('Amount of organisms',                                            Config.charts.orgs),
             energy    : new Chart('Average organism energy',                                        Config.charts.energy),
-            paenergy  : new Chart('Average organism\'s picked energy (all)',                        Config.charts.paenergy),
-            penergy   : new Chart('Average organism\'s picked energy (energy only)',                Config.charts.penergy),
+            penergy   : new Chart('Average organism\'s picked energy (all)',                        Config.charts.penergy),
+            eenergy   : new Chart('Average organism\'s picked energy (energy only)',                Config.charts.eenergy),
             changes   : new Chart('Average organism\'s changes (Mutations)',                        Config.charts.changes),
             fit       : new Chart('Average organism\'s Fitness',                                    Config.charts.fit),
             age       : new Chart('Average organism\'s Age',                                        Config.charts.age),
@@ -62,7 +62,7 @@ class Charts extends Status {
      * @override
      */
     onStatus(status, orgs) {
-        //console.log(`%c${conns}${sips}${slps}${sorgs}%c${siq}${paenergy}${schanges}${sfit}${sage}${scode}`, GREEN, RED);
+        //console.log(`%c${conns}${sips}${slps}${sorgs}%c${siq}${penergy}${schanges}${sfit}${sage}${scode}`, GREEN, RED);
         // TODO: this code should be moved to separate plugin
         // TODO: add energy, orgs and code: e:xxx, o:xxx, c:xxx
         //const active = man.activeAround;

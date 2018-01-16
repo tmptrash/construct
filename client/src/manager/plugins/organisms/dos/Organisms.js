@@ -150,8 +150,10 @@ class Organisms extends BaseOrganisms {
         const posId = Helper.posId(x, y);
         if (typeof(positions[posId]) === 'undefined') {
             if (eat < 0) {
-                this.parent.fire(EVENTS.EAT_ENERGY, eat);
-                this.world.setDot(x, y, -eat);
+                if (this.world.isFree(x, y)) {
+                    this.parent.fire(EVENTS.EAT_ENERGY, eat);
+                    this.world.setDot(x, y, -eat);
+                }
             } else {
                 ret.ret = this.world.grabDot(x, y, eat);
                 this.parent.fire(EVENTS.EAT_ENERGY, ret.ret);
@@ -159,7 +161,6 @@ class Organisms extends BaseOrganisms {
         } else {
             const victimOrg = positions[posId];
             ret.ret = eat < 0 ? 0 : (eat > victimOrg.energy ? victimOrg.energy : eat);
-            this.parent.fire(EVENTS.EAT_ORG, ret.ret, victimOrg);
             victimOrg.energy <= eat && this.parent.fire(EVENTS.KILL_EAT, victimOrg);
             victimOrg.grabEnergy(ret.ret);
         }

@@ -39,12 +39,12 @@ class Status extends Configurable {
 
         this.manager         = manager;
         this._status         = {
-            ips :0, lps       :0, orgs   :0, energy :0, paenergy:0, penergy:0, changes:0, fit     :0, age      :0, code:0,
+            ips :0, lps       :0, orgs   :0, energy :0, penergy :0, eenergy:0, changes:0, fit     :0, age      :0, code:0,
             kill:0, killenergy:0, killage:0, killeat:0, killover:0, killout:0, killin :0, killtour:0, killclone:0
         };
         this._stamp          = 0;
         this._energy         = 0;
-        this._eatAll         = 0;
+        this._pickEnergy     = 0;
         this._eatEnergy      = 0;
         this._fitness        = 0;
         this._changes        = 0;
@@ -60,7 +60,6 @@ class Status extends Configurable {
         this._onIpsCb        = this._onIps.bind(this);
         this._onOrganismCb   = this._onOrganism.bind(this);
         this._onEatEnergyCb  = this._onEatEnergy.bind(this);
-        this._onEatOrgCb     = this._onEatOrg.bind(this);
         this._onKillOrgCb    = this._onKillOrg.bind(this);
         this._onKillEnergyCb = this._onKillHandlerOrg.bind(this, 1);
         this._onKillAgeCb    = this._onKillHandlerOrg.bind(this, 2);
@@ -73,7 +72,6 @@ class Status extends Configurable {
 
         manager.on(EVENTS.IPS,            this._onIpsCb);
         manager.on(EVENTS.ORGANISM,       this._onOrganismCb);
-        manager.on(EVENTS.EAT_ORG,        this._onEatOrgCb);
         manager.on(EVENTS.EAT_ENERGY,     this._onEatEnergyCb);
         manager.on(EVENTS.KILL,           this._onKillOrgCb);
         manager.on(EVENTS.KILL_NO_ENERGY, this._onKillEnergyCb);
@@ -101,13 +99,11 @@ class Status extends Configurable {
         man.off(EVENTS.KILL_NO_ENERGY, this._onKillEnergyCb);
         man.off(EVENTS.KILL,           this._onKillOrgCb);
         man.off(EVENTS.EAT_ENERGY,     this._onEatEnergyCb);
-        man.off(EVENTS.EAT_ORG,        this._onEatOrgCb);
         man.off(EVENTS.ORGANISM,       this._onOrganismCb);
         man.off(EVENTS.IPS,            this._onIpsCb);
 
         this._onKillOrgCb    = null;
         this._onOrganismCb   = null;
-        this._onEatOrgCb     = null;
         this._onEatEnergyCb  = null;
         this._onKillCloneCb  = null;
         this._onKillTourCb   = null;
@@ -124,36 +120,39 @@ class Status extends Configurable {
     }
 
     onBeforeStatus(ips, orgs) {
-        const size      = orgs.size || 1;
-        let   energy    = 0;
-        let   fitness   = 0;
-        let   changes   = 0;
-        let   codeSize  = 0;
-        let   item      = orgs.first;
+        const size        = orgs.size || 1;
+        let   energy      = 0;
+        let   startEnergy = 0;
+        let   fitness     = 0;
+        let   changes     = 0;
+        let   codeSize    = 0;
+        let   item        = orgs.first;
         let   org;
 
         while(item && (org = item.val)) {
-            energy    += org.energy;
-            changes   += org.changes;
-            fitness   += org.fitness();
-            codeSize  += org.vm.size;
-            item       = item.next;
+            energy      += org.energy;
+            startEnergy += org.startEnergy;
+            changes     += org.changes;
+            fitness     += org.fitness();
+            codeSize    += org.vm.size;
+            item         = item.next;
         }
 
-        this._energy   = energy  / size;
-        this._changes  = changes / size;
-        this._fitness  = fitness / size;
-        this._codeSize = codeSize;
+        this._pickEnergy = (energy - startEnergy) / size;
+        this._energy     = energy  / size;
+        this._changes    = changes / size;
+        this._fitness    = fitness / size;
+        this._codeSize   = codeSize;
     }
 
     onAfterStatus(stamp) {
-        this._times     = 0;
-        this._runLines  = 0;
-        this._age       = 0;
-        this._ageCount  = 0;
-        this._eatEnergy = 0;
-        this._eatAll    = 0;
-        this._stamp     = stamp;
+        this._times      = 0;
+        this._runLines   = 0;
+        this._age        = 0;
+        this._ageCount   = 0;
+        this._eatEnergy  = 0;
+        this._pickEnergy = 0;
+        this._stamp      = stamp;
         _fill(this._kill, 0);
     }
 
@@ -172,8 +171,8 @@ class Status extends Configurable {
         status.lps        = fix(this._runLines / this._times, 0);
         status.orgs       = orgAmount;
         status.energy     = fix(this._energy, 2);
-        status.paenergy   = fix(this._eatAll / orgAmount, 2);
-        status.penergy    = fix(this._eatEnergy / orgAmount, 2);
+        status.penergy    = fix(this._pickEnergy, 2);
+        status.eenergy    = fix(this._eatEnergy / orgAmount, 2);
         status.changes    = fix(this._changes, 2);
         status.fit        = fix(this._fitness / 10000000, 2);
         status.age        = fix(this._age / (this._ageCount || 1), 2);
@@ -199,16 +198,11 @@ class Status extends Configurable {
     }
 
     /**
-     * Calculates eat energy excluding eating other organisms
+     * Calculates eat energy, excluding eating other organisms
      * @param {Number} eat Amount of eat energy
      */
     _onEatEnergy(eat) {
         this._eatEnergy += eat;
-        this._eatAll += eat;
-    }
-
-    _onEatOrg(eat) {
-        this._eatAll += eat;
     }
 
     _onKillOrg(org) {

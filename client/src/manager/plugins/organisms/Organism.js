@@ -88,6 +88,7 @@ class Organism extends Observer {
     get cloneEnergyPercent()    {return this._cloneEnergyPercent}
     get clonePeriod()           {return this._clonePeriod}
     get energy()                {return this._energy}
+    get startEnergy()           {return this._startEnergy}
     get color()                 {return this._color}
     get mem()                   {return this._mem}
     get posId()                 {return Helper.posId(this._x, this._y)}
@@ -138,6 +139,7 @@ class Organism extends Observer {
             fnId                : this._fnId,
             vm                  : this.vm.serialize(),
             energy              : this._energy,
+            startEnergy         : this._startEnergy,
             color               : this._color,
             mutationProbs       : this._mutationProbs,
             cloneMutationPercent: this._cloneMutationPercent,
@@ -169,6 +171,7 @@ class Organism extends Observer {
         this._fnId                 = json.fnId;
         this.vm.unserialize(json.vm);
         this._energy               = json.energy;
+        this._startEnergy          = json.startEnergy;
         this._color                = json.color;
         this._mutationProbs        = json.mutationProbs;
         this._cloneMutationPercent = json.cloneMutationPercent;
@@ -195,6 +198,7 @@ class Organism extends Observer {
         this.fire(DESTROY, this);
         this._alive         = false;
         this._energy        = 0;
+        this._startEnergy   = 0;
         this._item          = null;
         this._mem           = null;
         this._mutationProbs = null;
@@ -209,6 +213,7 @@ class Organism extends Observer {
     _create() {
         this.vm                     = new VM(this._onCodeEnd.bind(this, this), this, this._operatorCls);
         this._energy                = OConfig.orgStartEnergy;
+        this._startEnergy           = OConfig.orgStartEnergy;
         this._color                 = OConfig.orgStartColor;
         this._mutationProbs         = OConfig.orgMutationProbs.slice();
         this._cloneMutationPercent  = OConfig.orgCloneMutationPercent;
@@ -222,6 +227,7 @@ class Organism extends Observer {
     _clone(parent) {
         this.vm                     = new VM(this._onCodeEnd.bind(this, this), this, this._operatorCls, parent.vm);
         this._energy                = parent.energy;
+        this._startEnergy           = parent.energy;
         this._color                 = parent.color;
         this._mutationProbs         = parent.mutationProbs.slice();
         this._cloneMutationPercent  = parent.cloneMutationPercent;
