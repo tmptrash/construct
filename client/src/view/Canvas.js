@@ -126,7 +126,7 @@ class Canvas {
     _initPanZoomLib() {
         this._canvasEl.style.imageRendering = 'pixelated';
         this._panZoom   = Panzoom(this._canvasEl, {
-            zoomSpeed   : 0.1,
+            zoomSpeed   : 0.05,
             smoothScroll: false
         });
         this._panZoom.zoomAbs(0, 0, 1.0);

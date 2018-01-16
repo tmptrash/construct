@@ -32,20 +32,20 @@ const Config = {
      * bigger then other, then it will be decreased to zero lines
      * of vm and organism will die.
      * Format: [
-     *     add           - Probability of adding new line to the code
      *     change        - Probability of changing existing line of code
      *     delete        - Probability of deleting a line of code
      *     small-change  - Probability of "small change" - change part of one code line
      *     clone         - Probability for sharing of energy percent on clone
-     *     copy          - Probability of copying of code lines inside it's own code
      *     period        - Probability of period of organism mutations
      *     amount        - Probability of amount of mutations per period
      *     probs         - Probability of change one of probability coefficient in this array
      *     clone-percent - Probability of change clone energy percent value
      *     clone-period  - Probability of change clone period value
+     *     add           - Probability of adding new line to the code
+     *     copy          - Probability of copying of code lines inside it's own code
      * ]
      */
-    orgMutationProbs: [10,1,1,100,1,1,1,1,1,1,1],
+    orgMutationProbs: [1,1,100,1,1,1,1,1,1,10,1],
     /**
      * {Number} Percent of mutations from vm size, which will be applied to
      * organism after cloning. Should be <= 1.0 (1.0 === 100%)
@@ -59,19 +59,19 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 0,
+    orgCrossoverPeriod: 200,
     /**
      * {Number} Period of tournament between organisms. If amount of organisms
      * is >= of maximum (orgMaxOrgs), then looser organism will be killed. This
      * is how natural selection is implemented in our system. Set this parameter
      * to 0 and tournament mechanism will be turned off
      */
-    orgTournamentPeriod: 100,
+    orgTournamentPeriod: 50,
     /**
      * {Number} Period of iterations for creation of random organisms. Set it to 0
      * to turn off this feature
      */
-    orgRandomOrgPeriod: 0,
+    orgRandomOrgPeriod: 200,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
@@ -92,7 +92,7 @@ const Config = {
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
      */
-    orgAlivePeriod: 3000,
+    orgAlivePeriod: 30000,
     /**
      * {Number} This value means the period between organism codeSizes, which
      * affects energy grabbing by the system. For example: we have two
@@ -134,7 +134,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 1000,
+    orgMaxOrgs: 800,
     /**
      * {Number} If organism reach this limit of amount of vm lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
@@ -142,17 +142,17 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 80,
+    codeMaxSize: 50,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 300,
+    orgStartAmount: 800,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created
      * by operator and not by evolution.
      */
-    orgStartEnergy: 50000,
+    orgStartEnergy: 100000,
     /**
      * {Number} Begin color of "empty" organism (organism without code). Color
      * should be set in HEX-RGB mode. Example: 0xRRGGBB

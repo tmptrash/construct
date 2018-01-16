@@ -737,7 +737,7 @@ describe("client/src/manager/Manager", () => {
                 expect(man2.organisms.size).toBe(1);
                 org1 = man1.organisms.first.val;
                 org1.vm.code.push(0b00001010000000000000000000000000); // onStepRight()
-                man1.on(EVENTS.KILL_ORGANISM, () => destroyFlag = true);
+                man1.on(EVENTS.KILL, () => destroyFlag = true);
                 man1.on(EVENTS.STEP_IN,       () => stepInBack  = true);
                 man2.on(EVENTS.STEP_IN,       () => stepInFlag  = true);
             } else if (destroyFlag && stepInFlag && stepInBack) {
@@ -812,7 +812,7 @@ describe("client/src/manager/Manager", () => {
             if (iterated1 > 0 && org1 === null) {
                 org1 = man1.organisms.first.val;
                 org1.vm.code.push(0b00001010000000000000000000000000); // onStepRight()
-                man1.on(EVENTS.KILL_ORGANISM, () => destroyFlag = true);
+                man1.on(EVENTS.KILL, () => destroyFlag = true);
                 man1.on(EVENTS.STEP_IN,       () => stepInBack  = true);
             } else if (destroyFlag && stepInBack) {
                 stepInBack = false;

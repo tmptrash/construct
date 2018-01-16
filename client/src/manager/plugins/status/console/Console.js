@@ -1,7 +1,7 @@
 /**
  * This plugin is a primitive version of real time charts. It shows
  * different parameters of the jevo.js system, like average energy,
- * iq (energy picking speed), average code size and so on. Here
+ * ips (Iterations Per Second), average code size and so on. Here
  * labels explanation:
  *
  *     ips: Iterations Per Second - amount of all organisms full
@@ -10,7 +10,6 @@
  *          per one second
  *     org: Average amount of organisms at the moment of logging
  *     nrg: Amount of energy of average organism
- *     iq : Energy picking speed per StatusConfig.period seconds
  *     che: Changes amount of average organism
  *     fit: Fitness of average organism
  *     cod: Code size of average organism
@@ -47,18 +46,19 @@ class Console extends Status {
 
         const con       = `${active[0] ? '^' : ' '}${active[1] ? '>' : ' '}${active[2] ? 'v' : ' '}${active[3] ? '<' : ' '}`;
         const conns     = `con:${con === '    ' ? 'no  ' : con}`;
-        const sips      = format(status.ips,     'ips', 10);
-        const slps      = format(status.lps,     'lps', 14);
-        const sorgs     = format(orgs,           'org', 10);
-        const senergy   = format(status.energy,  'nrg', 14);
-        const siq       = format(status.iq,      'iq',  14);
-        const schanges  = format(status.changes, 'che', 12);
-        const sfit      = format(status.fit,     'fit', 13);
-        const sage      = format(status.age,     'age', 11);
-        const scode     = format(status.code,    'cod', 12);
+        const sips      = format(status.ips,      'ips',  10);
+        const slps      = format(status.lps,      'lps',  14);
+        const sorgs     = format(orgs,            'org',  10);
+        const senergy   = format(status.energy,   'nrg',  14);
+        const spaenergy = format(status.paenergy, 'anrg', 15);
+        const spenergy  = format(status.penergy,  'pnrg', 15);
+        const schanges  = format(status.changes,  'che',  12);
+        const sfit      = format(status.fit,      'fit',  13);
+        const sage      = format(status.age,      'age',  11);
+        const scode     = format(status.code,     'cod',  12);
 
         // TODO: under Node.js should use Server/Console.xxx()
-        console.log(`%c${conns}${sips}${slps}${sorgs}%c${siq}${senergy}${schanges}${sfit}${sage}${scode}`, GREEN, RED);
+        console.log(`%c${conns}${sips}${slps}${sorgs}%c${senergy}${spaenergy}${spenergy}${schanges}${sfit}${sage}${scode}`, GREEN, RED);
     }
 }
 

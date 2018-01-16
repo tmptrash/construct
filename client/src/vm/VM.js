@@ -168,12 +168,8 @@ class VM extends Observer {
         let   end1   = rand(len1);
         let   adds;
 
-        if (start > end) {
-            [start, end] = [end, start]
-        }
-        if (start1 > end1) {
-            [start1, end1] = [end1, start1]
-        }
+        if (start > end)   {[start, end]   = [end, start]}
+        if (start1 > end1) {[start1, end1] = [end1, start1]}
 
         adds = end1 - start1 - end + start;
         if (this._code.length + adds >= OConfig.codeMaxSize) {
@@ -206,7 +202,7 @@ class VM extends Observer {
         //
         // Organism size should be less them codeMaxSize
         //
-        if (code.length + end - start >= OConfig.codeMaxSize) {return 0}
+        if (codeLen + end - start >= OConfig.codeMaxSize) {return 0}
         //
         // We may insert copied piece before "start" (0) or after "end" (1)
         //

@@ -2,7 +2,7 @@
 // This spec covers two classes "Organism" and "OrganismDos"
 //
 describe("client/src/organism/OrganismDos", () => {
-    const eq            = require('lodash/isEqual');
+    const eq          = require('lodash/isEqual');
     const OrganismDos = require('./Organism');
     const OConfig     = require('./../../../../manager/plugins/organisms/Config');
     const api         = require('./../../../../share/Config').api;

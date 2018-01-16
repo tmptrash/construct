@@ -20,12 +20,9 @@ const MAX_VAR       = Num.MAX_VAR;
 const MAX_BITS      = Num.MAX_BITS;
 const BITS_PER_VAR  = Num.BITS_PER_VAR;
 
-class Mutator {
-    static _onAdd(org) {
-        org.vm.insertLine();
-        org.changes += MAX_BITS;
-    }
+const ADD_MUTAION_INDEX = 9;
 
+class Mutator {
     static _onChange(org) {
         const vm = org.vm;
         vm.updateLine(Helper.rand(vm.size), Num.get());
@@ -65,10 +62,6 @@ class Mutator {
         org.changes++;
     }
 
-    static _onCopy(org) {
-        org.changes += (org.vm.copyLines() * MAX_BITS);
-    }
-
     static _onPeriod(org) {
         org.mutationPeriod = Helper.rand(OConfig.orgAlivePeriod);
         org.changes++;
@@ -94,24 +87,33 @@ class Mutator {
         org.changes++;
     }
 
+    static _onAdd(org) {
+        org.vm.insertLine();
+        org.changes += MAX_BITS;
+    }
+
+    static _onCopy(org) {
+        org.changes += (org.vm.copyLines() * MAX_BITS);
+    }
+
     constructor(manager) {
         this._manager = manager;
         this._MUTATION_TYPES = [
-            Mutator._onAdd,
             Mutator._onChange,
             Mutator._onDel,
             Mutator._onSmallChange,
             Mutator._onClone,
-            Mutator._onCopy,
             Mutator._onPeriod,
             Mutator._onAmount,
             Mutator._onProbs,
             Mutator._onCloneEnergyPercent,
-            Mutator._onClonePeriod
+            Mutator._onClonePeriod,
+            Mutator._onAdd,
+            Mutator._onCopy
         ];
         
         manager.on(EVENTS.ORGANISM, this._onOrganism.bind(this));
-        manager.on(EVENTS.CLONE, this._onCloneOrg.bind(this));
+        manager.on(EVENTS.CLONE,    this._onCloneOrg.bind(this));
     }
 
     destroy() {
@@ -144,8 +146,12 @@ class Mutator {
         let   type;
 
         for (let i = 0; i < mutations; i++) {
-            if (vm.size > maxSize) {mutations = i; break}
-            type = vm.size < 1 ? 0 : probIndex(org.mutationProbs);
+            //
+            // If we reach code size maximum, then only change and delete
+            // mutations may be applied to organism's code
+            //
+            type = vm.size < 1 ? ADD_MUTAION_INDEX : probIndex(org.mutationProbs);
+            if (vm.size >= maxSize && type >= ADD_MUTAION_INDEX) {mutations = i; break}
             mTypes[type](org);
         }
         this._manager.fire(EVENTS.MUTATIONS, org, mutations, clone);
