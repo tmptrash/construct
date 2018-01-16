@@ -66,7 +66,7 @@ const Config = {
      * is how natural selection is implemented in our system. Set this parameter
      * to 0 and tournament mechanism will be turned off
      */
-    orgTournamentPeriod: 50,
+    orgTournamentPeriod: 20,
     /**
      * {Number} Period of iterations for creation of random organisms. Set it to 0
      * to turn off this feature
