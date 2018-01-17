@@ -80,6 +80,8 @@ class Organisms extends BaseOrganisms {
         org.grabEnergy(energy);
         childEnergy <= (childEnergy - energy) && this.parent.fire(EVENTS.KILL_CLONE, child);
         child.grabEnergy(childEnergy - energy);
+        org.alive   && (org.startEnergy   = org.energy);
+        child.alive && (child.startEnergy = child.energy);
     }
 
     addOrgHandlers(org) {

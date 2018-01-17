@@ -59,7 +59,7 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 200,
+    orgCrossoverPeriod: 0,
     /**
      * {Number} Period of tournament between organisms. If amount of organisms
      * is >= of maximum (orgMaxOrgs), then looser organism will be killed. This
@@ -71,7 +71,7 @@ const Config = {
      * {Number} Period of iterations for creation of random organisms. Set it to 0
      * to turn off this feature
      */
-    orgRandomOrgPeriod: 200,
+    orgRandomOrgPeriod: 0,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
@@ -92,7 +92,7 @@ const Config = {
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
      */
-    orgAlivePeriod: 30000,
+    orgAlivePeriod: 50000,
     /**
      * {Number} This value means the period between organism codeSizes, which
      * affects energy grabbing by the system. For example: we have two
@@ -105,7 +105,7 @@ const Config = {
      * be grabbed from you. If your size is between 21-40, then 2 units of
      * energy will be grabbed from you and so on...
      */
-    orgGarbagePeriod: 10,
+    orgGarbagePeriod: 7,
     /**
      * {Number} Size of organism stack (internal memory)
      */
@@ -134,7 +134,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 800,
+    orgMaxOrgs: 1000,
     /**
      * {Number} If organism reach this limit of amount of vm lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
@@ -142,11 +142,11 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 50,
+    codeMaxSize: 40,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 800,
+    orgStartAmount: 1000,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created

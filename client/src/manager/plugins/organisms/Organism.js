@@ -101,6 +101,7 @@ class Organism extends Observer {
     set mutationPeriod(m)       {this._mutationPeriod = m}
     set mutationPercent(p)      {this._mutationPercent = p}
     set energy(e)               {this._energy = e}
+    set startEnergy(e)          {this._startEnergy = e}
     set changes(c)              {this._updateColor(this._changes = c)}
 
     /**
@@ -191,7 +192,7 @@ class Organism extends Observer {
     }
 
     fitness() {
-        return (OConfig.codeMaxSize - this.vm.size) * this._energy * (this._changes || 1);
+        return (OConfig.codeMaxSize - this.vm.size) * (this._energy - this.startEnergy) * (this._changes || 1);
     }
 
     destroy() {

@@ -173,7 +173,7 @@ class Status extends Configurable {
         status.energy     = fix(this._energy, 2);
         status.penergy    = fix(this._pickEnergy, 2);
         status.eenergy    = fix(this._eatEnergy / orgAmount, 2);
-        status.changes    = fix(this._changes, 2);
+        status.changes    = +(this._changes).toFixed(1);
         status.fit        = fix(this._fitness / 10000000, 2);
         status.age        = fix(this._age / (this._ageCount || 1), 2);
         status.code       = +(this._codeSize / orgAmount).toFixed(2);
