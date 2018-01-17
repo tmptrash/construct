@@ -20,12 +20,10 @@ class OrganismGarmin extends Organism {
      * @param {Boolean} alive true if organism is alive
      * @param {Object} item Reference to the Queue item, where
      * this organism is located
-     * @param {Function} codeEndCb Callback, which is called at the
-     * end of every code iteration.
      * @param {Organism} parent Parent organism if cloning is needed
      */
-    constructor(id, x, y, alive, item, codeEndCb, parent = null) {
-        super(id, x, y, alive, item, codeEndCb, Operators, parent);
+    constructor(id, x, y, alive, item, parent = null) {
+        super(id, x, y, alive, item, Operators, parent);
 
         this._needRun = true;
 

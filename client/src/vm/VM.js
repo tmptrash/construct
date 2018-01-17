@@ -28,12 +28,11 @@ class VM extends Observer {
      * Creates VM instance. codeEndCb will be called after last code line is run.
      * parent is used if VM instance is in a cloning mode and we have to create
      * a copy of it.
-     * @param {Function} codeEndCb
      * @param {Observer} obs Observer instance for Operators class
      * @param {Function} operatorCls Class of operators
      * @param {VM} parent Parent VM instance in case of cloning
      */
-    constructor(codeEndCb, obs, operatorCls, parent = null) {
+    constructor(obs, operatorCls, parent = null) {
         super(EVENT_AMOUNT);
 
         this._obs         = obs;
@@ -42,11 +41,6 @@ class VM extends Observer {
          * script parts for current VM instance
          */
         this._operatorCls = operatorCls;
-        /**
-         * {Function} Callback, which is called on every organism
-         * vm iteration. On it's end.
-         */
-        this._onCodeEnd   = codeEndCb;
         /**
          * {Array} Array of two numbers. first - line number where we have
          * to return if first line appears. second - line number, where ends
@@ -112,7 +106,6 @@ class VM extends Observer {
             if (line >= lines && org.alive) {
                 line = 0;
                 this._operators.offsets = this._offsets = [];
-                this._onCodeEnd(len2 - len);
                 len2 = len;
                 continue;
             }
@@ -136,7 +129,6 @@ class VM extends Observer {
         this._offsets     = null;
         this._vars        = null;
         this._code        = null;
-        this._onCodeEnd   = null;
         this._obs         = null;
         this._ops         = null;
 

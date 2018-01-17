@@ -52,15 +52,12 @@ class Organism extends Observer {
      * @param {Boolean} alive true if organism is alive
      * @param {Object} item Reference to the Queue item, where
      * this organism is located
-     * @param {Function} onCodeEnd Callback, which is called at the
-     * end of every code iteration.
      * @param {Function} operatorCls Class of operators
      * @param {Organism} parent Parent organism if cloning is needed
      */
-    constructor(id, x, y, alive, item, onCodeEnd, operatorCls, parent = null) {
+    constructor(id, x, y, alive, item, operatorCls, parent = null) {
         super(EVENT_AMOUNT);
 
-        this._onCodeEnd   = onCodeEnd;
         this._operatorCls = operatorCls;
 
         if (parent === null) {this._create()}
@@ -117,7 +114,7 @@ class Organism extends Observer {
         this.onRun();
 
         if (this.alive) {
-            this.vm.size > 0 && this.fire(ITERATION, this);
+            this.fire(ITERATION, this.vm.size > 0 ? OConfig.codeYieldPeriod : 0, this);
             this.alive && this._updateClone();
             this.alive && this._updateAge();
             this.alive && this._updateEnergy();
@@ -207,14 +204,13 @@ class Organism extends Observer {
         this._mutationProbs = null;
         this.vm && this.vm.destroy();
         this.vm             = null;
-        this._onCodeEnd     = null;
         this._operatorCls   = null;
 
         super.destroy();
     }
 
     _create() {
-        this.vm                     = new VM(this._onCodeEnd.bind(this, this), this, this._operatorCls);
+        this.vm                     = new VM(this, this._operatorCls);
         this._energy                = OConfig.orgStartEnergy;
         this._startEnergy           = OConfig.orgStartEnergy;
         this._color                 = OConfig.orgStartColor;
@@ -228,7 +224,7 @@ class Organism extends Observer {
     }
 
     _clone(parent) {
-        this.vm                     = new VM(this._onCodeEnd.bind(this, this), this, this._operatorCls, parent.vm);
+        this.vm                     = new VM(this, this._operatorCls, parent.vm);
         this._energy                = parent.energy;
         this._startEnergy           = parent.energy;
         this._color                 = parent.color;

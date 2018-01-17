@@ -158,6 +158,7 @@ class Status extends Configurable {
         status.fit        = fix(this._fitness / 10000000, 2);
         status.age        = fix(this._age / (this._ageCount || 1), 2);
         status.code       = +(this._codeSize / orgAmount).toFixed(2);
+
         status.kill       = fix(this._kill[0], 2);
         status.killenergy = fix(this._kill[1], 2);
         status.killage    = fix(this._kill[2], 2);

@@ -111,17 +111,24 @@ class Mutator {
             Mutator._onAdd,
             Mutator._onCopy
         ];
-        
-        manager.on(EVENTS.CODE_RUN, this._onOrganism.bind(this));
-        manager.on(EVENTS.CLONE,    this._onCloneOrg.bind(this));
+
+        this._onOrganismCb = this._onOrganism.bind(this);
+        this._onCloneCb    = this._onCloneOrg.bind(this);
+
+        manager.on(EVENTS.CODE_RUN, this._onOrganismCb);
+        manager.on(EVENTS.CLONE,    this._onCloneCb);
     }
 
     destroy() {
+        this._manager.on(EVENTS.CLONE,    this._onCloneCb);
+        this._manager.on(EVENTS.CODE_RUN, this._onOrganismCb);
+        this._onCloneCb      = null;
+        this._onOrganismCb   = null;
         this._manager        = null;
         this._MUTATION_TYPES = null;
     }
 
-    _onOrganism(org) {
+    _onOrganism(lines, org) {
         if (org.iterations % org.mutationPeriod === 0 && OConfig.orgRainMutationPeriod > 0 && OConfig.orgRainMutationPercent > 0.0 && org.mutationPeriod > 0 && org.alive) {
             this._mutate(org, false);
         }

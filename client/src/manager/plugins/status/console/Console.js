@@ -38,7 +38,7 @@ class Console extends Status {
      * @override
      */
     onStatus(status, orgs) {
-        const man       = this.manager;
+        const man       = this.parent;
         const active    = man.activeAround;
         const format    = Console._format;
 

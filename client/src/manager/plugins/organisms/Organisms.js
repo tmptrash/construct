@@ -141,7 +141,7 @@ class Organisms extends Configurable {
         if (pos === false) {return false}
         orgs.add(null);
         let last = orgs.last;
-        let org  = this.createEmptyOrg(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), parent);
+        let org  = this.createEmptyOrg(++this._orgId + '', pos.x, pos.y, true, last, parent);
 
         last.val = org;
         this.addOrgHandlers(org);
@@ -246,11 +246,6 @@ class Organisms extends Configurable {
         return this.parent.organisms.size;
     }
 
-    _onCodeEnd(org, lines) {
-        this.parent.codeRuns++;
-        this.parent.fire(EVENTS.ORGANISM, org, lines);
-    }
-
     _onKillOrg(org) {
         if (this.randOrgItem === org.item) {
             if ((this.randOrgItem = org.item.next) === null) {
@@ -270,9 +265,9 @@ class Organisms extends Configurable {
 
     _onKillNoEnergyOrg(org) {this._parent.fire(EVENTS.KILL_NO_ENERGY, org)}
     _onKillAgeOrg(org)      {this._parent.fire(EVENTS.KILL_AGE, org)}
-    _onIterationOrg(org)    {
-        this._parent.codeRuns += OConfig.codeYieldPeriod;
-        this._parent.fire(EVENTS.CODE_RUN, org);
+    _onIterationOrg(lines, org)    {
+        this._parent.codeRuns += lines;
+        this._parent.fire(EVENTS.CODE_RUN, lines, org);
     }
 
     _updateCrossover(counter) {
