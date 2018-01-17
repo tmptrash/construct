@@ -13,7 +13,6 @@
 const Configurable = require('./../../../../../common/src/Configurable');
 const Helper       = require('./../../../../../common/src/Helper');
 const Config       = require('./../../../share/Config').Config;
-const EVENTS       = require('./../../../share/Events').EVENTS;
 const IpsConfig    = require('./Config');
 
 class Ips extends Configurable {
@@ -36,10 +35,10 @@ class Ips extends Configurable {
         const ts   = stamp - this._stamp;
         if (ts < this.cfg.periodMs) {return}
         const man  = this.parent;
-        let   ips  = man.codeRuns / (man.organisms.size || 1) / (ts / 1000);
+        //let   ips  = man.codeRuns / (man.organisms.size || 1) / (ts / 1000);
 
-        man.fire(EVENTS.IPS, ips, man.organisms);
-        man.codeRuns = 0;
+        //man.fire(EVENTS.IPS, ips, man.organisms);
+        //man.codeRuns = 0;
         this._stamp  = stamp;
     }
 

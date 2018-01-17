@@ -63,19 +63,25 @@ class Organisms extends BaseOrganisms {
      * @override
      */
     onClone(org, child) {
-        const percent = org.cloneEnergyPercent;
+        const percent     = org.cloneEnergyPercent;
         if (percent === 0.0) {return}
-        let   energy  = (((org.energy * percent) + 0.5) << 1) >>> 1;  // analog of Math.round()
+        const orgEnergy   = org.energy;
+        const childEnergy = child.energy;
+        let   energy  = (((orgEnergy * percent) + 0.5) << 1) >>> 1;  // analog of Math.round()
         //
         // This is very special/rare case, when organisms cheating by creating
         // ancestors and put all energy into them at the same time resetting
         // their iterations property and make them immortal
         //
-        if (energy === org.energy) {
+        if (energy === orgEnergy) {
             energy--;
         }
+        orgEnergy <= energy && this.parent.fire(EVENTS.KILL_CLONE, org);
         org.grabEnergy(energy);
-        child.grabEnergy(child.energy - energy);
+        childEnergy <= (childEnergy - energy) && this.parent.fire(EVENTS.KILL_CLONE, child);
+        child.grabEnergy(childEnergy - energy);
+        org.alive   && (org.startEnergy   = org.energy);
+        child.alive && (child.startEnergy = child.energy);
     }
 
     addOrgHandlers(org) {
@@ -145,10 +151,20 @@ class Organisms extends BaseOrganisms {
 
         const posId = Helper.posId(x, y);
         if (typeof(positions[posId]) === 'undefined') {
-            eat < 0 ? this.world.setDot(x, y, -eat) : (ret.ret = this.world.grabDot(x, y, eat));
+            if (eat < 0) {
+                if (this.world.isFree(x, y)) {
+                    this.parent.fire(EVENTS.EAT_ENERGY, eat);
+                    this.world.setDot(x, y, -eat);
+                }
+            } else {
+                ret.ret = this.world.grabDot(x, y, eat);
+                this.parent.fire(EVENTS.EAT_ENERGY, ret.ret);
+            }
         } else {
-            ret.ret = eat < 0 ? 0 : (eat > positions[posId].energy ? positions[posId].energy : eat);
-            positions[posId].grabEnergy(eat);
+            const victimOrg = positions[posId];
+            ret.ret = eat < 0 ? 0 : (eat > victimOrg.energy ? victimOrg.energy : eat);
+            victimOrg.energy <= eat && this.parent.fire(EVENTS.KILL_EAT, victimOrg);
+            victimOrg.grabEnergy(ret.ret);
         }
     }
 
@@ -178,6 +194,7 @@ class Organisms extends BaseOrganisms {
             org.x = x2;
             org.y = y2;
             man.fire(EVENTS.STEP_OUT, x2, y2, dir, org);
+            man.fire(EVENTS.KILL_STEP_OUT, org);
             org.x = x1;
             org.y = y1;
             org.destroy();
@@ -219,7 +236,9 @@ class Organisms extends BaseOrganisms {
             //
             org.x = x;
             org.y = y;
-            org.grabEnergy((((org.energy * OConfig.orgStepEnergySpendPercent) + 0.5) << 1) >>> 1);
+            const energy = (((org.energy * OConfig.orgStepEnergySpendPercent) + 0.5) << 1) >>> 1;
+            (org.energy <= energy) && this.parent.fire(EVENTS.KILL_STEP_IN, org);
+            org.grabEnergy(energy);
         }
     }
 

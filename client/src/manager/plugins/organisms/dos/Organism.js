@@ -4,7 +4,7 @@
  * TODO:   -
  * @author flatline
  */
-const Organism  = require('./../Organism');
+const Organism  = require('./../Organism').Organism;
 const Operators = require('./Operators');
 
 class OrganismDos extends Organism {

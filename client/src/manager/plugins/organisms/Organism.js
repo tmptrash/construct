@@ -5,12 +5,26 @@
  * TODO:   -
  * @author flatline
  */
-const Observer      = require('./../../../../../common/src/Observer');
-const Helper        = require('./../../../../../common/src/Helper');
-const OConfig       = require('./../../../manager/plugins/organisms/Config');
-const EVENTS        = require('./../../../share/Events').EVENTS;
-const EVENT_AMOUNT  = require('./../../../share/Events').EVENT_AMOUNT;
-const VM            = require('./../../../vm/VM');
+const Observer       = require('./../../../../../common/src/Observer');
+const Helper         = require('./../../../../../common/src/Helper');
+const OConfig        = require('./../../../manager/plugins/organisms/Config');
+const EVENT_AMOUNT   = require('./../../../share/Events').EVENT_AMOUNT;
+const VM             = require('./../../../vm/VM');
+
+const GRAB_ENERGY    = 0;
+const DESTROY        = 1;
+const CLONE          = 2;
+const KILL_NO_ENERGY = 3;
+const KILL_AGE       = 4;
+const ITERATION      = 5;
+const ORG_EVENTS     = {
+    GRAB_ENERGY,
+    DESTROY,
+    CLONE,
+    KILL_NO_ENERGY,
+    KILL_AGE,
+    ITERATION
+};
 
 const IS_NUM = Helper.isNumeric;
 
@@ -76,6 +90,7 @@ class Organism extends Observer {
     get cloneEnergyPercent()    {return this._cloneEnergyPercent}
     get clonePeriod()           {return this._clonePeriod}
     get energy()                {return this._energy}
+    get startEnergy()           {return this._startEnergy}
     get color()                 {return this._color}
     get mem()                   {return this._mem}
     get posId()                 {return Helper.posId(this._x, this._y)}
@@ -87,13 +102,9 @@ class Organism extends Observer {
     set clonePeriod(p)          {this._clonePeriod = p}
     set mutationPeriod(m)       {this._mutationPeriod = m}
     set mutationPercent(p)      {this._mutationPercent = p}
-    set energy(e)               {
-        this._energy = e;
-    }
-    set changes(c) {
-        this._changes = c;
-        this._updateColor(c);
-    }
+    set energy(e)               {this._energy = e}
+    set startEnergy(e)          {this._startEnergy = e}
+    set changes(c)              {this._updateColor(this._changes = c)}
 
     /**
      * Runs one code iteration (amount of lines set in Config.codeYieldPeriod) and returns
@@ -106,9 +117,9 @@ class Organism extends Observer {
         this.onRun();
 
         if (this.alive) {
-            this.vm.size === 0 && this._onCodeEnd(this, 0);
-            this._updateClone();
-            this.alive && this._updateDestroy();
+            this.vm.size > 0 && this.fire(ITERATION, this);
+            this.alive && this._updateClone();
+            this.alive && this._updateAge();
             this.alive && this._updateEnergy();
         }
 
@@ -131,6 +142,7 @@ class Organism extends Observer {
             fnId                : this._fnId,
             vm                  : this.vm.serialize(),
             energy              : this._energy,
+            startEnergy         : this._startEnergy,
             color               : this._color,
             mutationProbs       : this._mutationProbs,
             cloneMutationPercent: this._cloneMutationPercent,
@@ -162,6 +174,7 @@ class Organism extends Observer {
         this._fnId                 = json.fnId;
         this.vm.unserialize(json.vm);
         this._energy               = json.energy;
+        this._startEnergy          = json.startEnergy;
         this._color                = json.color;
         this._mutationProbs        = json.mutationProbs;
         this._cloneMutationPercent = json.cloneMutationPercent;
@@ -175,19 +188,20 @@ class Organism extends Observer {
     grabEnergy(amount) {
         if (!IS_NUM(amount)) {return true}
         const noEnergy = (this._energy -= amount) < 1;
-        this.fire(EVENTS.GRAB_ENERGY, amount + (noEnergy ? -this._energy : 0));
+        this.fire(GRAB_ENERGY, amount + (noEnergy ? -this._energy : 0));
         noEnergy && this.destroy();
         return !noEnergy;
     }
 
     fitness() {
-        return (OConfig.codeMaxSize + 1 - this.vm.size) * this._energy * (this._changes || 1);
+        return (OConfig.codeMaxSize + 1 - this.vm.size) * (this._energy - this.startEnergy) * (this._changes || 1);
     }
 
     destroy() {
-        this.fire(EVENTS.DESTROY, this);
+        this.fire(DESTROY, this);
         this._alive         = false;
         this._energy        = 0;
+        this._startEnergy   = 0;
         this._item          = null;
         this._mem           = null;
         this._mutationProbs = null;
@@ -202,6 +216,7 @@ class Organism extends Observer {
     _create() {
         this.vm                     = new VM(this._onCodeEnd.bind(this, this), this, this._operatorCls);
         this._energy                = OConfig.orgStartEnergy;
+        this._startEnergy           = OConfig.orgStartEnergy;
         this._color                 = OConfig.orgStartColor;
         this._mutationProbs         = OConfig.orgMutationProbs.slice();
         this._cloneMutationPercent  = OConfig.orgCloneMutationPercent;
@@ -215,6 +230,7 @@ class Organism extends Observer {
     _clone(parent) {
         this.vm                     = new VM(this._onCodeEnd.bind(this, this), this, this._operatorCls, parent.vm);
         this._energy                = parent.energy;
+        this._startEnergy           = parent.energy;
         this._color                 = parent.color;
         this._mutationProbs         = parent.mutationProbs.slice();
         this._cloneMutationPercent  = parent.cloneMutationPercent;
@@ -232,28 +248,37 @@ class Organism extends Observer {
     }
 
     /**
-     * Checks if organism need to be killed/destroyed, because of age or zero energy
-     * @return {Boolean} false means that organism was destroyed.
+     * Checks if organism need to be killed, because of age
+     * @return {Boolean} false means that organism was killed.
      */
-    _updateDestroy() {
+    _updateAge() {
         const alivePeriod = OConfig.orgAlivePeriod;
-        const needDestroy = this._energy < 1 || this._iterations >= alivePeriod && alivePeriod > 0;
+        const needDestroy = this._iterations >= alivePeriod && alivePeriod > 0;
 
-        needDestroy && this.destroy();
+        if (needDestroy) {
+            this.fire(KILL_AGE, this);
+            this.destroy();
+        }
 
         return !needDestroy;
     }
 
     /**
      * This is how our system grabs an energy from organism every OConfig.orgEnergySpendPeriod
-     * period.
+     * period. If organism has zero energy, it will be killed also.
      * @return {Boolean} false means that organism was destroyed.
      */
     _updateEnergy() {
+        if (this._energy < 1) {
+            this.fire(KILL_NO_ENERGY, this);
+            this.destroy();
+            return true;
+        }
         if (this._iterations % OConfig.orgEnergySpendPeriod !== 0 || OConfig.orgEnergySpendPeriod === 0) {return true}
         let grabSize = Math.round(this.vm.size / OConfig.orgGarbagePeriod);
         if (grabSize < 1) {grabSize = 1}
 
+        (this._energy <= grabSize) && this.fire(KILL_NO_ENERGY, this);
         return this.grabEnergy(this._energy < grabSize ? this._energy : grabSize);
     }
 
@@ -263,9 +288,9 @@ class Organism extends Observer {
      */
     _updateClone() {
         if (this._iterations % OConfig.orgClonePeriod !== 0 || OConfig.orgClonePeriod === 0) {return true}
-        this.fire(EVENTS.CLONE, this);
+        this.fire(CLONE, this);
         return true;
     }
 }
 
-module.exports = Organism;
+module.exports = {EVENTS: ORG_EVENTS, Organism};

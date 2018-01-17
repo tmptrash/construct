@@ -58,7 +58,7 @@ ClientConfig.init({
      * coordinate (height). It actual only for one instance mode (no distributed
      * calculations).
      */
-    worldCyclical: false,
+    worldCyclical: true,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
@@ -82,7 +82,7 @@ ClientConfig.init({
      * amount. Works in pair with worldEnergyCheckPercent. May be 0 if
      * you want to disable it
      */
-    worldEnergyCheckPeriod: 5000,
+    worldEnergyCheckPeriod: 1000,
     /**
      * {Boolean} Turns on/off scroll bars in a 2D canvas
      */
