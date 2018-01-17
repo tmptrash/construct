@@ -88,7 +88,7 @@ class Organisms extends Configurable {
         this.positions      = manager.positions;
         this.world          = manager.world;
 
-        this._mutator       = new Mutator(manager);
+        this._mutator       = new Mutator(manager, this);
         this._onIterationCb = this._onIteration.bind(this);
         this._onLoopCb      = this._onLoop.bind(this);
 
@@ -186,8 +186,8 @@ class Organisms extends Configurable {
         }
 
         this._updateAmount(counter);
-        this._updateCrossover(counter);
         this._updateRandomOrgs(counter);
+        this._updateCrossover(counter);
     }
 
     _onLoop() {
@@ -297,7 +297,14 @@ class Organisms extends Configurable {
         const newOrg    = this.organisms.last.val;
         const vm        = newOrg.vm;
         if (org === newOrg) {return false}
-
+        //
+        //  IMPORTANT! This line reset energy for new/created organism.
+        //  With low energy, organism will not have a chance to survive
+        //  and have a ancestors. So, there is some probability, that
+        //  source organism will have high amount of energy and therefore
+        //  high chances to survive
+        //
+        newOrg.energy = org.energy;
         vm.generate(org.vm.size);
         if ((orgAmount + 1) > OConfig.orgMaxOrgs) {
             this.parent.fire(EVENTS.KILL_OVERFLOW, org);

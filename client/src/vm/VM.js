@@ -25,9 +25,8 @@ const VAR_BITS_OFFS  = Num.VAR_BITS_OFFS;
 
 class VM extends Observer {
     /**
-     * Creates VM instance. codeEndCb will be called after last code line is run.
-     * parent is used if VM instance is in a cloning mode and we have to create
-     * a copy of it.
+     * Creates VM instance. parent is used if VM instance is in a
+     * cloning mode and we have to create a copy of it.
      * @param {Observer} obs Observer instance for Operators class
      * @param {Function} operatorCls Class of operators
      * @param {VM} parent Parent VM instance in case of cloning
@@ -243,6 +242,7 @@ class VM extends Observer {
         const code = this._code = new Array(size);
 
         for (let i = 0; i < size; i++) {code[i] = Num.get()}
+        this._reset();
     }
 
     _reset() {

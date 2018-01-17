@@ -4,7 +4,6 @@
  *
  * Events od Manager:
  *   TODO:
- *   ORGANISM(org) Fires after one organism has processed
  *
  * Depends on:
  *   manager/Manager
@@ -18,10 +17,6 @@ const OConfig       = require('./../Config');
 const EVENTS        = require('./../../../../share/Events').EVENTS;
 const Helper        = require('./../../../../../../common/src/Helper');
 const DIR           = require('./../../../../../../common/src/Directions').DIR;
-
-const EMPTY         = 0;
-const ENERGY        = 1;
-const ORGANISM      = 2;
 
 class Organisms extends BaseOrganisms {
     constructor(manager) {
@@ -243,14 +238,11 @@ class Organisms extends BaseOrganisms {
     }
 
     _onCheckAt(x, y, ret) {
-        let dir;
+        const org = this.positions[Helper.posId(x, y)];
+        let   dir;
 
         [x, y, dir] = Helper.normalize(x, y);
-        if (typeof(this.positions[Helper.posId(x, y)]) === 'undefined') {
-            ret.ret = this.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
-        } else {
-            ret.ret = ORGANISM;
-        }
+        ret.ret = typeof(org) === 'undefined' ? this.world.getDot(x, y) : org.energy;
     }
 }
 

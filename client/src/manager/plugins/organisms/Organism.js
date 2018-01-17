@@ -113,11 +113,11 @@ class Organism extends Observer {
         if (this.onBeforeRun() === false) {return true}
         this.onRun();
 
-        if (this.alive) {
+        if (this._alive) {
             this.fire(ITERATION, this.vm.size > 0 ? OConfig.codeYieldPeriod : 0, this);
-            this.alive && this._updateClone();
-            this.alive && this._updateAge();
-            this.alive && this._updateEnergy();
+            this._alive && this._updateClone();
+            this._alive && this._updateAge();
+            this._alive && this._updateEnergy();
         }
 
         return true;
@@ -191,7 +191,7 @@ class Organism extends Observer {
     }
 
     fitness() {
-        return (OConfig.codeMaxSize + 1 - this.vm.size) * (this._energy - this.startEnergy) * (this._changes || 1);
+        return (OConfig.codeMaxSize + 1 - this.vm.size) * (this._energy - this._startEnergy) * (this._changes || 1);
     }
 
     destroy() {

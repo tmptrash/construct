@@ -125,7 +125,7 @@ class Charts extends Status {
      */
     _active(chart, a) {
         if (typeof a === 'undefined') {
-            _each(this._charts, (c, k) => this._setProperty(k, 'active', chart));
+            _each(this._charts, (c, k) => this._setProperty(k, 'active', typeof chart === 'undefined' ? true : chart));
         } else {
             this._setProperty(chart, 'active', a);
         }

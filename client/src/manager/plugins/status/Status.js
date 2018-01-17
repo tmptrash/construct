@@ -15,6 +15,7 @@
  * @author flatline
  */
 const _fill        = require('lodash/fill');
+const Helper       = require('./../../../../../common/src/Helper');
 const EVENTS       = require('./../../../share/Events').EVENTS;
 const Configurable = require('./../../../../../common/src/Configurable');
 const Config       = require('./../../../share/Config').Config;
@@ -66,7 +67,7 @@ class Status extends Configurable {
         this._onKillTourCb   = this._onKillHandlerOrg.bind(this, 7);
         this._onKillCloneCb  = this._onKillHandlerOrg.bind(this, 8);
 
-        manager.on(EVENTS.LOOP,           this._onLoopCb);
+        Helper.override(manager, 'onLoop', this._onLoopCb);
         manager.on(EVENTS.EAT_ENERGY,     this._onEatEnergyCb);
         manager.on(EVENTS.KILL,           this._onKillOrgCb);
         manager.on(EVENTS.KILL_NO_ENERGY, this._onKillEnergyCb);
@@ -94,7 +95,7 @@ class Status extends Configurable {
         man.off(EVENTS.KILL_NO_ENERGY, this._onKillEnergyCb);
         man.off(EVENTS.KILL,           this._onKillOrgCb);
         man.off(EVENTS.EAT_ENERGY,     this._onEatEnergyCb);
-        man.off(EVENTS.LOOP,           this._onLoopCb);
+        Helper.unoverride(manager, 'onLoop', this._onLoopCb);
 
         this._onKillOrgCb    = null;
         this._onEatEnergyCb  = null;
@@ -149,7 +150,7 @@ class Status extends Configurable {
 
         this._onBeforeLoop(orgs);
 
-        status.lps        = fix(this.parent.codeRuns - this._runLines, 0);
+        status.lps        = fix((this.parent.codeRuns - this._runLines) / ((stamp - this._stamp) / 1000), 0);
         status.orgs       = orgAmount;
         status.energy     = fix(this._energy, 2);
         status.penergy    = fix(this._pickEnergy, 2);
@@ -195,9 +196,9 @@ class Status extends Configurable {
 
     _onKillOrg(org) {
         if (!this._statusCfg.active) {return}
-        this._age += org.iterations;
-        this._kill[0]++;
+        this._age     += org.iterations;
         this._ageCount++;
+        this._kill[0] ++;
     }
 
     _onKillHandlerOrg(index) {

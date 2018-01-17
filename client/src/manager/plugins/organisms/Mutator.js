@@ -96,8 +96,9 @@ class Mutator {
         org.changes += (org.vm.copyLines() * MAX_BITS);
     }
 
-    constructor(manager) {
+    constructor(manager, owner) {
         this._manager = manager;
+        this._owner   = owner;
         this._MUTATION_TYPES = [
             Mutator._onChange,
             Mutator._onDel,
@@ -115,20 +116,21 @@ class Mutator {
         this._onOrganismCb = this._onOrganism.bind(this);
         this._onCloneCb    = this._onCloneOrg.bind(this);
 
-        manager.on(EVENTS.CODE_RUN, this._onOrganismCb);
-        manager.on(EVENTS.CLONE,    this._onCloneCb);
+        Helper.override(owner, 'onOrganism', this._onOrganismCb);
+        Helper.override(owner, 'onClone', this._onCloneCb);
     }
 
     destroy() {
-        this._manager.on(EVENTS.CLONE,    this._onCloneCb);
-        this._manager.on(EVENTS.CODE_RUN, this._onOrganismCb);
+        Helper.unoverride(this._owner, 'onClone', this._onCloneCb);
+        Helper.unoverride(this._owner, 'onOrganism', this._onOrganismCb);
         this._onCloneCb      = null;
         this._onOrganismCb   = null;
         this._manager        = null;
+        this._owner          = null;
         this._MUTATION_TYPES = null;
     }
 
-    _onOrganism(lines, org) {
+    _onOrganism(org) {
         if (org.iterations % org.mutationPeriod === 0 && OConfig.orgRainMutationPeriod > 0 && OConfig.orgRainMutationPercent > 0.0 && org.mutationPeriod > 0 && org.alive) {
             this._mutate(org, false);
         }
@@ -145,7 +147,7 @@ class Mutator {
      * @param {Boolean} clone true if mutation is applying after clone
      */
     _mutate(org, clone = true) {
-        const vm      = org.vm;
+        const vm        = org.vm;
         const probIndex = Helper.probIndex;
         const mTypes    = this._MUTATION_TYPES;
         const maxSize   = OConfig.codeMaxSize;

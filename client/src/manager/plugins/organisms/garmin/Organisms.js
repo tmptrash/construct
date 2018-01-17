@@ -3,7 +3,6 @@
  * in fitness mode.
  *
  * Events od Manager:
- *   ORGANISM(org) Fires after one organism has processed
  *
  * Depends on:
  *   manager/Manager
