@@ -117,6 +117,7 @@ class Organisms extends Configurable {
         org.on(ORG_EVENTS.CLONE,          this._onCloneOrg.bind(this));
         org.on(ORG_EVENTS.KILL_NO_ENERGY, this._onKillNoEnergyOrg.bind(this));
         org.on(ORG_EVENTS.KILL_AGE,       this._onKillAgeOrg.bind(this));
+        org.on(ORG_EVENTS.ITERATION,      this._onIterationOrg.bind(this));
     }
 
     reset() {
@@ -269,13 +270,20 @@ class Organisms extends Configurable {
 
     _onKillNoEnergyOrg(org) {this._parent.fire(EVENTS.KILL_NO_ENERGY, org)}
     _onKillAgeOrg(org)      {this._parent.fire(EVENTS.KILL_AGE, org)}
+    _onIterationOrg(org)    {
+        this._parent.codeRuns += OConfig.codeYieldPeriod;
+        this._parent.fire(EVENTS.CODE_RUN, org);
+    }
 
     _updateCrossover(counter) {
         const orgAmount = this.organisms.size;
         if (counter % OConfig.orgCrossoverPeriod !== 0 || OConfig.orgCrossoverPeriod === 0 || orgAmount < 1) {return false}
-
-        let org1 = this._tournament();
-        let org2 = this._tournament();
+        //
+        // We have to have a possibility to crossover not only with best
+        // organisms, but with low fit also
+        //
+        let org1 = Helper.rand(2) === 0 ? this._tournament() : this.randOrg();
+        let org2 = Helper.rand(2) === 0 ? this._tournament() : this.randOrg();
 
         if (!org1.alive || !org2.alive) {return false}
         this._crossover(org1, org2);

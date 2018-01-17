@@ -25,7 +25,6 @@ class Charts extends Status {
 
         this._data   = new Array(2);
         this._charts = {
-            ips       : new Chart('IPS - Iterations Per Second',                                    Config.charts.ips),
             lps       : new Chart('LPS - Lines Per Second',                                         Config.charts.lps),
             orgs      : new Chart('Amount of organisms',                                            Config.charts.orgs),
             energy    : new Chart('Average organism energy',                                        Config.charts.energy),
@@ -62,11 +61,11 @@ class Charts extends Status {
      * @override
      */
     onStatus(status, orgs) {
-        //console.log(`%c${conns}${sips}${slps}${sorgs}%c${siq}${penergy}${schanges}${sfit}${sage}${scode}`, GREEN, RED);
+        //console.log(`%c${conns}${slps}${sorgs}%c${siq}${penergy}${schanges}${sfit}${sage}${scode}`, GREEN, RED);
         // TODO: this code should be moved to separate plugin
         // TODO: add energy, orgs and code: e:xxx, o:xxx, c:xxx
         //const active = man.activeAround;
-        //man.canvas && man.canvas.text(5, 20, `${sips}${man.clientId && man.clientId || ''} ${active[0] ? '^' : ' '}${active[1] ? '>' : ' '}${active[2] ? 'v' : ' '}${active[3] ? '<' : ' '}`);
+        //man.canvas && man.canvas.text(5, 20, `${man.clientId && man.clientId || ''} ${active[0] ? '^' : ' '}${active[1] ? '>' : ' '}${active[2] ? 'v' : ' '}${active[3] ? '<' : ' '}`);
 
 
         const data   = this._data;
@@ -92,7 +91,7 @@ class Charts extends Status {
     /**
      * Sets specified chart transparent coefficient. May be called
      * with one Number parameter to set it for all charts.
-     * @param {String|Number} chart Chart name, e.g: 'energy', or 'ips' or opacity value
+     * @param {String|Number} chart Chart name, e.g: 'energy', or 'lps' or opacity value
      * @param {Number=} t Value between 0...1 or undefined
      * @api
      */
@@ -108,7 +107,7 @@ class Charts extends Status {
      * Sets current chart position. Available positions:
      * top, down, left, right, topleft, downleft, topright,
      * downright, full.
-     * @param {String} chart Chart name, e.g: 'energy', or 'ips'
+     * @param {String} chart Chart name, e.g: 'energy', or 'lps'
      * @param {String} p new position
      * @api
      */
@@ -120,7 +119,7 @@ class Charts extends Status {
      * downright, full. This method may be called with one
      * Boolean parameter. In this case all charts will be activated
      * or deactivated.
-     * @param {String|Boolean} chart Chart name, e.g: 'energy', or 'ips'
+     * @param {String|Boolean} chart Chart name, e.g: 'energy', or 'lps'
      * @param {Boolean=} a New active state
      * @api
      */
@@ -136,7 +135,7 @@ class Charts extends Status {
      * Resets chart data. It means, that chart will be refreshed with
      * data started from this moment and further. You may call this
      * method without parameters to reset all charts.
-     * @param {String=} chart Chart name, e.g: 'energy', or 'ips'
+     * @param {String=} chart Chart name, e.g: 'energy', or 'lps'
      * @api
      */
     _reset(chart) {

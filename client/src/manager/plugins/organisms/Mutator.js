@@ -112,7 +112,7 @@ class Mutator {
             Mutator._onCopy
         ];
         
-        manager.on(EVENTS.ORGANISM, this._onOrganism.bind(this));
+        manager.on(EVENTS.CODE_RUN, this._onOrganism.bind(this));
         manager.on(EVENTS.CLONE,    this._onCloneOrg.bind(this));
     }
 

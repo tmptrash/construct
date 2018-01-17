@@ -9,7 +9,7 @@
 const EVENTS = {
     ITERATION       : 0,
     LOOP            : 1,
-    IPS             : 2,
+    CODE_RUN        : 2,
     BACKUP          : 3,
     ORGANISM        : 4,
     GRAB_ENERGY     : 5,

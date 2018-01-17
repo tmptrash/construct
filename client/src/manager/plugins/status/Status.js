@@ -1,11 +1,9 @@
 /**
  * Base class for plugin which collects real time data about system like:
- * population energy, changes, organisms ips etc and provide this data to
+ * population energy, changes, organisms lps etc and provide this data to
  * other visualization classes (e.g. Charts). Output data is an object of
  * described below format:
  *
- *     ips: Iterations Per Second - amount of all organisms full
- *          code runs per one second
  *     lps: Lines Per Second - average amount of run code lines
  *          per one second
  *     org: Average amount of organisms at the moment of logging
@@ -37,9 +35,8 @@ class Status extends Configurable {
     constructor(manager, statCfg, apiCfg = {}) {
         super(manager, {Config, cfg: statCfg}, apiCfg);
 
-        this.manager         = manager;
         this._status         = {
-            ips :0, lps       :0, orgs   :0, energy :0, penergy :0, eenergy:0, changes:0, fit     :0, age      :0, code:0,
+            lps :0, orgs      :0, energy :0, penergy:0, eenergy :0, changes:0, fit    :0, age     :0, code     :0,
             kill:0, killenergy:0, killage:0, killeat:0, killover:0, killout:0, killin :0, killtour:0, killclone:0
         };
         this._stamp          = 0;
@@ -49,7 +46,7 @@ class Status extends Configurable {
         this._fitness        = 0;
         this._changes        = 0;
         this._codeSize       = 0;
-        this._runLines       = 1;
+        this._runLines       = 0;
         this._age            = 0;
         this._ageCount       = 0;
         this._times          = 0;
@@ -57,8 +54,7 @@ class Status extends Configurable {
         this._statusCfg      = statCfg;
         this._firstCall      = true;
 
-        this._onIpsCb        = this._onIps.bind(this);
-        this._onOrganismCb   = this._onOrganism.bind(this);
+        this._onLoopCb       = this._onLoop.bind(this);
         this._onEatEnergyCb  = this._onEatEnergy.bind(this);
         this._onKillOrgCb    = this._onKillOrg.bind(this);
         this._onKillEnergyCb = this._onKillHandlerOrg.bind(this, 1);
@@ -70,8 +66,7 @@ class Status extends Configurable {
         this._onKillTourCb   = this._onKillHandlerOrg.bind(this, 7);
         this._onKillCloneCb  = this._onKillHandlerOrg.bind(this, 8);
 
-        manager.on(EVENTS.IPS,            this._onIpsCb);
-        manager.on(EVENTS.ORGANISM,       this._onOrganismCb);
+        manager.on(EVENTS.LOOP,           this._onLoopCb);
         manager.on(EVENTS.EAT_ENERGY,     this._onEatEnergyCb);
         manager.on(EVENTS.KILL,           this._onKillOrgCb);
         manager.on(EVENTS.KILL_NO_ENERGY, this._onKillEnergyCb);
@@ -87,7 +82,7 @@ class Status extends Configurable {
     }
 
     destroy() {
-        const man = this.manager;
+        const man = this.parent;
 
         man.off(EVENTS.KILL_CLONE,     this._onKillCloneCb);
         man.off(EVENTS.KILL_TOUR,      this._onKillTourCb);
@@ -99,11 +94,9 @@ class Status extends Configurable {
         man.off(EVENTS.KILL_NO_ENERGY, this._onKillEnergyCb);
         man.off(EVENTS.KILL,           this._onKillOrgCb);
         man.off(EVENTS.EAT_ENERGY,     this._onEatEnergyCb);
-        man.off(EVENTS.ORGANISM,       this._onOrganismCb);
-        man.off(EVENTS.IPS,            this._onIpsCb);
+        man.off(EVENTS.LOOP,           this._onLoopCb);
 
         this._onKillOrgCb    = null;
-        this._onOrganismCb   = null;
         this._onEatEnergyCb  = null;
         this._onKillCloneCb  = null;
         this._onKillTourCb   = null;
@@ -113,13 +106,12 @@ class Status extends Configurable {
         this._onKillEatCb    = null;
         this._onKillAgeCb    = null;
         this._onKillEnergyCb = null;
-        this._onIpsCb        = null;
+        this._onLoopCb       = null;
         this._status         = null;
         this._statusCfg      = null;
-        this.manager         = null;
     }
 
-    onBeforeStatus(ips, orgs) {
+    _onBeforeLoop(orgs) {
         const size        = orgs.size || 1;
         let   energy      = 0;
         let   startEnergy = 0;
@@ -145,30 +137,19 @@ class Status extends Configurable {
         this._codeSize   = codeSize;
     }
 
-    onAfterStatus(stamp) {
-        this._times      = 0;
-        this._runLines   = 0;
-        this._age        = 0;
-        this._ageCount   = 0;
-        this._eatEnergy  = 0;
-        this._pickEnergy = 0;
-        this._stamp      = stamp;
-        _fill(this._kill, 0);
-    }
-
-    _onIps(ips, orgs) {
+    _onLoop() {
         if (!this._statusCfg.active) {return}
         this._times++;
         const stamp     = Date.now();
         if (stamp - this._stamp < this._statusCfg.period) {return}
+        const orgs      = this.parent.organisms;
         const status    = this._status;
         const orgAmount = orgs.size || 1;
         const fix       = Status._toFixed;
 
-        this.onBeforeStatus(ips, orgs);
+        this._onBeforeLoop(orgs);
 
-        status.ips        = fix(ips, 2);
-        status.lps        = fix(this._runLines / this._times, 0);
+        status.lps        = fix(this.parent.codeRuns - this._runLines, 0);
         status.orgs       = orgAmount;
         status.energy     = fix(this._energy, 2);
         status.penergy    = fix(this._pickEnergy, 2);
@@ -188,13 +169,19 @@ class Status extends Configurable {
         status.killclone  = fix(this._kill[8], 2);
 
         !this._firstCall && this.onStatus(status, orgs.size);
-        this.onAfterStatus(stamp);
+        this._onAfterLoop(stamp);
         this._firstCall = false;
     }
 
-    _onOrganism(org, lines) {
-        if (!this._statusCfg.active) {return}
-        this._runLines += lines;
+    _onAfterLoop(stamp) {
+        this._times      = 0;
+        this._runLines   = this.parent.codeRuns;
+        this._age        = 0;
+        this._ageCount   = 0;
+        this._eatEnergy  = 0;
+        this._pickEnergy = 0;
+        this._stamp      = stamp;
+        _fill(this._kill, 0);
     }
 
     /**

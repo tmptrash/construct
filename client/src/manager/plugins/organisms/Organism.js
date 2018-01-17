@@ -16,12 +16,14 @@ const DESTROY        = 1;
 const CLONE          = 2;
 const KILL_NO_ENERGY = 3;
 const KILL_AGE       = 4;
+const ITERATION      = 5;
 const ORG_EVENTS     = {
     GRAB_ENERGY,
     DESTROY,
     CLONE,
     KILL_NO_ENERGY,
-    KILL_AGE
+    KILL_AGE,
+    ITERATION
 };
 
 const IS_NUM = Helper.isNumeric;
@@ -115,7 +117,7 @@ class Organism extends Observer {
         this.onRun();
 
         if (this.alive) {
-            this.vm.size === 0 && this._onCodeEnd(this, 0);
+            this.vm.size > 0 && this.fire(ITERATION, this);
             this.alive && this._updateClone();
             this.alive && this._updateAge();
             this.alive && this._updateEnergy();

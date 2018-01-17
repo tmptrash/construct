@@ -16,7 +16,6 @@ const Config = {
      * {Object} Available chart types
      */
     charts: {
-        ips       : {pos: 'topleft',  active: false, transparent: 0.6},
         lps       : {pos: 'downleft', active: false, transparent: 0.6},
         killout   : {pos: 'topright', active: false, transparent: 0.6},
         orgs      : {pos: '0-0|16',   active: true,  transparent: 0.6},

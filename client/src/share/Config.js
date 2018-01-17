@@ -82,7 +82,7 @@ ClientConfig.init({
      * amount. Works in pair with worldEnergyCheckPercent. May be 0 if
      * you want to disable it
      */
-    worldEnergyCheckPeriod: 5000,
+    worldEnergyCheckPeriod: 1000,
     /**
      * {Boolean} Turns on/off scroll bars in a 2D canvas
      */
