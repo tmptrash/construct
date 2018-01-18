@@ -26,6 +26,7 @@ class Charts extends Status {
         this._data   = new Array(2);
         this._charts = {
             lps       : new Chart('LPS - Lines Per Second',                                         Config.charts.lps),
+            ips       : new Chart('IPS - Iterations Per Second',                                    Config.charts.ips),
             orgs      : new Chart('Amount of organisms',                                            Config.charts.orgs),
             energy    : new Chart('Average organism energy',                                        Config.charts.energy),
             penergy   : new Chart('Average organism\'s picked energy (all)',                        Config.charts.penergy),
@@ -124,8 +125,15 @@ class Charts extends Status {
      * @api
      */
     _active(chart, a) {
-        if (typeof a === 'undefined') {
-            _each(this._charts, (c, k) => this._setProperty(k, 'active', typeof chart === 'undefined' ? true : chart));
+        const noA     = typeof a === 'undefined';
+        const noChart = typeof chart === 'undefined';
+        const bChart  = typeof chart === 'boolean';
+
+        a     = noA     ? (bChart ? chart : true) : a;
+        chart = noChart ? null : (bChart ? null : chart);
+
+        if (chart === null) {
+            _each(this._charts, (c, k) => this._setProperty(k, 'active', a));
         } else {
             this._setProperty(chart, 'active', a);
         }

@@ -86,18 +86,19 @@ class VM extends Observer {
      * with line type callback. These callbacks interpret one line of code like:
      * condition, loop, function call etc...
      * @param {Organism} org Current organism
+     * @return {Number} Amount of run lines
      */
     run(org) {
-        const code  = this._code;
-        const lines = code.length;
-        const ops   = this._ops;
-        const offs  = this._offsets;
-        let   len2  = lines === 0 ? 0 : OConfig.codeYieldPeriod || lines;
-        let   len   = len2;
-        let   line  = this._line;
-        let   ret   = false;
+        const code   = this._code;
+        const lines  = code.length;
+        const ops    = this._ops;
+        const offs   = this._offsets;
+        const period = OConfig.codeYieldPeriod;
+        let   len    = period;
+        let   line   = this._line;
+        let   ret    = false;
 
-        while (len-- > 0 && org.alive) {
+        while (len > 0 && org.alive) {
             line = ops[code[line] >>> VAR_BITS_OFFS](code[line], line, org, lines, ret);
             //
             // We reach the end of the script and have to run it from the beginning
@@ -105,7 +106,7 @@ class VM extends Observer {
             if (line >= lines && org.alive) {
                 line = 0;
                 this._operators.offsets = this._offsets = [];
-                len2 = len;
+                len--;
                 continue;
             }
             //
@@ -116,9 +117,11 @@ class VM extends Observer {
                 offs.pop();
                 line = offs.pop();
             }
+            len--;
         }
-
         this._line = line;
+
+        return period - len;
     }
 
     destroy() {
@@ -235,13 +238,17 @@ class VM extends Observer {
     }
 
     /**
-     * Generates random code of organism with specified size
-     * @param {Number} size Final code size
+     * Generates random code and inserts it starting from 'pos'. The
+     * length of generated code is 'size'. Final code length shouldn't
+     * be greater then original size.
+     * @param {Number} pos Insert position
+     * @param {Number} size generated code size
      */
-    generate(size) {
-        const code = this._code = new Array(size);
+    generate(pos, size) {
+        const orgCode = this._code;
 
-        for (let i = 0; i < size; i++) {code[i] = Num.get()}
+        size = pos + size;
+        while (pos < size) {orgCode[pos++] = Num.get()}
         this._reset();
     }
 

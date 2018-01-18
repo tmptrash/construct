@@ -197,12 +197,18 @@ class OperatorsDos extends Operators {
     onStepUp(num, line, org)    {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y - 1).y; return ++line}
     onStepDown(num, line, org)  {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y + 1).y; return ++line}
 
-    onFromMem(num, line, org) {this.vars[VAR0(num)] = org.mem.pop() || 0; return ++line}
+    onFromMem(num, line, org) {
+        const index = this.vars[VAR1(num)];
+        this.vars[VAR0(num)] = index >= org.mem.length ? 0 : org.mem[index];
+        return ++line;
+    }
     onToMem(num, line, org) {
-        const val = this.vars[VAR1(num)];
+        const vars  = this.vars;
+        const val   = vars[VAR1(num)];
+        const index = vars[VAR2(num)];
 
-        if (IS_NUM(val) && org.mem.length < OConfig.orgMemSize) {
-            this.vars[VAR0(num)] = org.mem.push(val);
+        if (IS_NUM(val) && index < OConfig.orgMemSize) {
+            this.vars[VAR0(num)] = org.mem[index] = val;
         } else {
             this.vars[VAR0(num)] = 0;
         }

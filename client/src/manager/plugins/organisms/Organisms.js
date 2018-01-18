@@ -270,56 +270,6 @@ class Organisms extends Configurable {
         this._parent.fire(EVENTS.CODE_RUN, lines, org);
     }
 
-    _updateCrossover(counter) {
-        const orgAmount = this.organisms.size;
-        if (counter % OConfig.orgCrossoverPeriod !== 0 || OConfig.orgCrossoverPeriod === 0 || orgAmount < 1) {return false}
-        //
-        // We have to have a possibility to crossover not only with best
-        // organisms, but with low fit also
-        //
-        let org1 = Helper.rand(2) === 0 ? this._tournament() : this.randOrg();
-        let org2 = Helper.rand(2) === 0 ? this._tournament() : this.randOrg();
-
-        if (!org1.alive || !org2.alive) {return false}
-        this._crossover(org1, org2);
-        if ((orgAmount + 1) > OConfig.orgMaxOrgs) {
-            this.parent.fire(EVENTS.KILL_OVERFLOW, org1);
-            org1.destroy();
-        }
-
-        return true;
-    }
-
-    _updateRandomOrgs(counter) {
-        const orgAmount = this.organisms.size;
-        if (counter % OConfig.orgRandomOrgPeriod !== 0 || OConfig.orgRandomOrgPeriod === 0 || orgAmount < 1 || !this.createOrg(this.parent.world.getFreePos())) {return false}
-        const org       = this.randOrg();
-        const newOrg    = this.organisms.last.val;
-        const vm        = newOrg.vm;
-        if (org === newOrg) {return false}
-        //
-        //  IMPORTANT! This line reset energy for new/created organism.
-        //  With low energy, organism will not have a chance to survive
-        //  and have a ancestors. So, there is some probability, that
-        //  source organism will have high amount of energy and therefore
-        //  high chances to survive
-        //
-        newOrg.energy = org.energy;
-        vm.generate(org.vm.size);
-        if ((orgAmount + 1) > OConfig.orgMaxOrgs) {
-            this.parent.fire(EVENTS.KILL_OVERFLOW, org);
-            org.destroy();
-        }
-
-        return true;
-    }
-
-    _updateCreate() {
-        if (this.organisms.size < 1) {
-            this._createPopulation();
-        }
-    }
-
     /**
      * Does tournament between two random organisms and kill looser, if amount of
      * organisms is greater or equal to maximum (OConfig.orgMaxOrgs). In general
@@ -343,6 +293,41 @@ class Organisms extends Configurable {
         }
 
         return true;
+    }
+
+    _updateRandomOrgs(counter) {
+        if (counter % OConfig.orgRandomOrgPeriod !== 0 || OConfig.orgRandomOrgPeriod === 0 || this.organisms.size < 1) {return false}
+        const vm   = this.randOrg().vm;
+        const size = Helper.rand(vm.size) + 1;
+        const pos  = Helper.rand(vm.size - size);
+
+        vm.generate(pos, size);
+
+        return true;
+    }
+
+    _updateCrossover(counter) {
+        const orgAmount = this.organisms.size;
+        if (counter % OConfig.orgCrossoverPeriod !== 0 || OConfig.orgCrossoverPeriod === 0 || orgAmount < 1) {return false}
+        //
+        // We have to have a possibility to crossover not only with best
+        // organisms, but with low fit also
+        //
+        let org1 = Helper.rand(2) === 0 ? this._tournament() : this.randOrg();
+        let org2 = Helper.rand(2) === 0 ? this._tournament() : this.randOrg();
+
+        if (!org1.alive || !org2.alive) {return false}
+        this._crossover(org1, org2);
+        if ((orgAmount + 1) > OConfig.orgMaxOrgs) {
+            this.parent.fire(EVENTS.KILL_OVERFLOW, org1);
+            org1.destroy();
+        }
+
+        return true;
+    }
+
+    _updateCreate() {
+        if (this.organisms.size < 1) {this._createPopulation()}
     }
 }
 

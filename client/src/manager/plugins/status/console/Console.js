@@ -42,8 +42,9 @@ class Console extends Status {
         const active    = man.activeAround;
         const format    = Console._format;
 
-        const con       = `${active[0] ? '^' : ' '}${active[1] ? '>' : ' '}${active[2] ? 'v' : ' '}${active[3] ? '<' : ' '}`;
+        const con       = `${active[0] ? '^' : ' '}${active[1] ? '>' : ' '}${active[2] ? 'v' : ' '}${active[3] ? '<' : ' '} `;
         const conns     = `con:${con === '    ' ? 'no  ' : con}`;
+        const sips      = format(status.ips,      'ips',  12);
         const slps      = format(status.lps,      'lps',  14);
         const sorgs     = format(orgs,            'org',  10);
         const senergy   = format(status.energy,   'nrg',  17);
@@ -56,7 +57,7 @@ class Console extends Status {
         const scode     = format(status.code,     'cod',  12);
 
         // TODO: under Node.js should use Server/Console.xxx()
-        console.log(`%c${conns}${slps}${sorgs}%c${senergy}${spenergy}${seenergy}${skill}${schanges}${sfit}${sage}${scode}`, GREEN, RED);
+        console.log(`%c${conns}${sips}${slps}${sorgs}%c${senergy}${spenergy}${seenergy}${skill}${schanges}${sfit}${sage}${scode}`, GREEN, RED);
     }
 }
 

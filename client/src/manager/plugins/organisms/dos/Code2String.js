@@ -5,8 +5,8 @@
  *
  * @author flatline
  */
-const Num = require('./../../../../vm/Num');
-
+const Num     = require('./../../../../vm/Num');
+const OConfig = require('./../Config');
 /**
  * {Function} Just a shortcuts
  */
@@ -14,7 +14,10 @@ const VAR0                  = Num.getVar;
 const VAR1                  = (n) => Num.getVar(n, 1);
 const VAR2                  = (n) => Num.getVar(n, 2);
 const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
+const BLOCK_MAX_LEN         = OConfig.codeBitsPerBlock;
 const BITS_FOR_NUMBER       = 16;
+const FOUR_BITS             = 4;
+const CONDITION_BITS        = 2;
 const HALF_OF_VAR           = Num.MAX_VAR / 2;
 
 class Code2String {
@@ -145,20 +148,22 @@ class Code2String {
     // }
 
     _onCondition(num, line, lines) {
-        const val3    = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
+        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BLOCK_MAX_LEN);
+        const cond = VAR2(num) >>> (OConfig.codeBitsPerVar - CONDITION_BITS);
+
         this._offsets.push(this._getOffs(line, lines, val3));
-        return `if(v${VAR0(num)}${this._CONDITIONS[VAR2(num)]}v${VAR1(num)}){`;
+        return `if(v${VAR0(num)}${this._CONDITIONS[cond]}v${VAR1(num)}){`;
     }
 
     _onLoop(num, line, lines) {
         const var0    = VAR0(num);
-        const val3    = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
+        const val3    = Num.getBits(num, BITS_AFTER_THREE_VARS, BLOCK_MAX_LEN);
         this._offsets.push(this._getOffs(line, lines, val3));
         return `for(v${var0}=v${VAR1(num)};v${var0}<v${VAR2(num)};v${var0}++){`;
     }
 
     _onOperator(num) {
-        return `v${VAR0(num)}=v${VAR1(num)}${this._OPERATORS[Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS)]}v${VAR2(num)}`;
+        return `v${VAR0(num)}=v${VAR1(num)}${this._OPERATORS[Num.getBits(num, BITS_AFTER_THREE_VARS, FOUR_BITS)]}v${VAR2(num)}`;
     }
 
     // _onNot(num) {
@@ -210,11 +215,11 @@ class Code2String {
     }
 
     _onFromMem(num) {
-        return `v${VAR0(num)}=fromMem()`;
+        return `v${VAR0(num)}=fromMem(v${VAR1(num)})`;
     }
 
     _onToMem(num) {
-        return `v${VAR0(num)}=toMem(v${VAR1(num)})`;
+        return `v${VAR0(num)}=toMem(v${VAR1(num)},v${VAR2(num)})`;
     }
 
     _onMyX(num) {

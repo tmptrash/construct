@@ -37,17 +37,19 @@ class Status extends Configurable {
         super(manager, {Config, cfg: statCfg}, apiCfg);
 
         this._status         = {
-            lps :0, orgs      :0, energy :0, penergy:0, eenergy :0, changes:0, fit    :0, age     :0, code     :0,
+            lps :0, ips       :0, orgs   :0, energy :0, penergy :0, eenergy:0, changes:0, fit     :0, age      :0, code:0,
             kill:0, killenergy:0, killage:0, killeat:0, killover:0, killout:0, killin :0, killtour:0, killclone:0
         };
         this._stamp          = 0;
+        this._ips            = 0;
+        this._ipsTimes       = 0;
         this._energy         = 0;
         this._pickEnergy     = 0;
         this._eatEnergy      = 0;
         this._fitness        = 0;
         this._changes        = 0;
         this._codeSize       = 0;
-        this._runLines       = 0;
+        this._codeRuns       = 0;
         this._age            = 0;
         this._ageCount       = 0;
         this._times          = 0;
@@ -56,6 +58,7 @@ class Status extends Configurable {
         this._firstCall      = true;
 
         this._onLoopCb       = this._onLoop.bind(this);
+        this._onIpsCb        = this._onIps.bind(this);
         this._onEatEnergyCb  = this._onEatEnergy.bind(this);
         this._onKillOrgCb    = this._onKillOrg.bind(this);
         this._onKillEnergyCb = this._onKillHandlerOrg.bind(this, 1);
@@ -68,6 +71,7 @@ class Status extends Configurable {
         this._onKillCloneCb  = this._onKillHandlerOrg.bind(this, 8);
 
         Helper.override(manager, 'onLoop', this._onLoopCb);
+        manager.on(EVENTS.IPS,            this._onIpsCb);
         manager.on(EVENTS.EAT_ENERGY,     this._onEatEnergyCb);
         manager.on(EVENTS.KILL,           this._onKillOrgCb);
         manager.on(EVENTS.KILL_NO_ENERGY, this._onKillEnergyCb);
@@ -95,6 +99,7 @@ class Status extends Configurable {
         man.off(EVENTS.KILL_NO_ENERGY, this._onKillEnergyCb);
         man.off(EVENTS.KILL,           this._onKillOrgCb);
         man.off(EVENTS.EAT_ENERGY,     this._onEatEnergyCb);
+        man.off(EVENTS.IPS,            this._onIpsCb);
         Helper.unoverride(manager, 'onLoop', this._onLoopCb);
 
         this._onKillOrgCb    = null;
@@ -107,6 +112,7 @@ class Status extends Configurable {
         this._onKillEatCb    = null;
         this._onKillAgeCb    = null;
         this._onKillEnergyCb = null;
+        this._onIpsCb        = null;
         this._onLoopCb       = null;
         this._status         = null;
         this._statusCfg      = null;
@@ -150,7 +156,8 @@ class Status extends Configurable {
 
         this._onBeforeLoop(orgs);
 
-        status.lps        = fix((this.parent.codeRuns - this._runLines) / ((stamp - this._stamp) / 1000), 0);
+        status.ips        = fix(this._ips / this._ipsTimes, 2);
+        status.lps        = fix((this.parent.codeRuns - this._codeRuns) / ((stamp - this._stamp) / 1000), 0);
         status.orgs       = orgAmount;
         status.energy     = fix(this._energy, 2);
         status.penergy    = fix(this._pickEnergy, 2);
@@ -175,13 +182,20 @@ class Status extends Configurable {
         this._firstCall = false;
     }
 
+    _onIps(ips) {
+        this._ips += ips;
+        this._ipsTimes++;
+    }
+
     _onAfterLoop(stamp) {
         this._times      = 0;
-        this._runLines   = this.parent.codeRuns;
+        this._codeRuns   = this.parent.codeRuns;
         this._age        = 0;
         this._ageCount   = 0;
         this._eatEnergy  = 0;
         this._pickEnergy = 0;
+        this._ips        = 0;
+        this._ipsTimes   = 0;
         this._stamp      = stamp;
         _fill(this._kill, 0);
     }

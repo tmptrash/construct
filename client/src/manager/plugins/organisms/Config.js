@@ -47,19 +47,47 @@ const Config = {
      */
     orgMutationProbs: [1,1,100,1,1,1,1,1,1,10,1],
     /**
+     * {Number} Percent of energy, which will be given to the child. Set to 0.0
+     * to share the same amount of energy with child (energy duplication)
+     */
+    orgCloneEnergyPercent: 0.5,
+    /**
      * {Number} Percent of mutations from vm size, which will be applied to
      * organism after cloning. Should be <= 1.0 (1.0 === 100%)
      */
-    orgCloneMutationPercent: 0.1,
+    orgCloneMutationPercent: 0.0,
     /**
      * {Number} Amount of iterations between cloning. Set it to 0 to turn it off
      */
     orgClonePeriod: 100,
     /**
+     * {Boolean} Turn this flag on to give organism a possibility to choose his
+     * own clone period and percent. false - mean, that these values will be constant
+     * for all organisms
+     */
+    orgClonePerOrg: false,
+    /**
+     * {Number} Amount of iterations within organism's life loop, after that we
+     * do mutations according to orgRainMutationPercent config. If 0, then
+     * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
+     */
+    orgRainMutationPeriod: 5000,
+    /**
+     * {Number} Percent of mutations from code size. 0 is a possible value if
+     * we want to disable mutations. Should be less then 1.0 (1.0 === 100%)
+     */
+    orgRainMutationPercent: 0.02,
+    /**
+     * {Boolean} Turn this flag on to give organism a possibility to choose his
+     * own mutations period and percent. false - mean, that these values will be
+     * constant for all organisms
+     */
+    orgRainPerOrg: false,
+    /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 100,
+    orgCrossoverPeriod: 0,
     /**
      * {Number} Period of tournament between organisms. If amount of organisms
      * is >= of maximum (orgMaxOrgs), then looser organism will be killed. This
@@ -71,18 +99,7 @@ const Config = {
      * {Number} Period of iterations for creation of random organisms. Set it to 0
      * to turn off this feature
      */
-    orgRandomOrgPeriod: 100,
-    /**
-     * {Number} Amount of iterations within organism's life loop, after that we
-     * do mutations according to orgRainMutationPercent config. If 0, then
-     * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
-     */
-    orgRainMutationPeriod: 0,
-    /**
-     * {Number} Percent of mutations from code size. 0 is a possible value if
-     * we want to disable mutations. Should be less then 1.0 (1.0 === 100%)
-     */
-    orgRainMutationPercent: 0.1,
+    orgRandomOrgPeriod: 2000,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
@@ -111,11 +128,6 @@ const Config = {
      */
     orgMemSize: 128,
     /**
-     * {Number} Percent of energy, which will be given to the child. Set to 0.0
-     * to share the same amount of energy with child (energy duplication)
-     */
-    orgCloneEnergyPercent: 0.5,
-    /**
      * {Number} Percent of energy, which will be minused from organism after
      * stepping from one instance to another.
      */
@@ -134,19 +146,11 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 600,
-    /**
-     * {Number} If organism reach this limit of amount of vm lines, then codeSizeCoef
-     * will be used during it's energy grabbing by system. We use this approach,
-     * because our CPU's are slow and organisms with big codes are very slow. But
-     * it's possible for organisms to go outside the limit by inventing new
-     * effective mechanisms of energy obtaining.
-     */
-    codeMaxSize: 40,
+    orgMaxOrgs: 300,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 600,
+    orgStartAmount: 300,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created
@@ -158,11 +162,6 @@ const Config = {
      * should be set in HEX-RGB mode. Example: 0xRRGGBB
      */
     orgStartColor: 0xFF0000,
-    /**
-     * {Number} Amount of bits per one variable. It affects maximum value,
-     * which this variable may contain. This value shouldn't be less then 2.
-     */
-    codeBitsPerVar: 2,
     /**
      * {Number} The value from -X/2 to X/2, which is used for setting
      * default value, while organism is delivering. So, if the value is
@@ -176,6 +175,11 @@ const Config = {
      */
     codeYieldPeriod: 10,
     /**
+     * {Number} Amount of bits per one variable. It affects maximum value,
+     * which this variable may contain. This value shouldn't be less then 2.
+     */
+    codeBitsPerVar: 4,
+    /**
      * {Number} Amount of bits for storing operator. This is first XX bits
      * in a number.
      */
@@ -184,12 +188,20 @@ const Config = {
      * {Number} Amount of bits, which stores maximum block length. Under block
      * length we mean maximum amount of lines in one block like if, for,...
      */
-    codeBitsPerBlock: 4,
+    codeBitsPerBlock: 8,
     /**
      * {Number} Amount of iterations between calls to V8 event loop. See
      * Manager._initLoop(), Manager.run() methods for details.
      */
     codeIterationsPerOnce: 200,
+    /**
+     * {Number} If organism reach this limit of amount of vm lines, then codeSizeCoef
+     * will be used during it's energy grabbing by system. We use this approach,
+     * because our CPU's are slow and organisms with big codes are very slow. But
+     * it's possible for organisms to go outside the limit by inventing new
+     * effective mechanisms of energy obtaining.
+     */
+    codeMaxSize: 40
 };
 
 module.exports = Config;

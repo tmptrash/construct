@@ -24,7 +24,7 @@ class OrganismDos extends Organism {
     }
 
     onRun() {
-        this.vm.run(this);
+        return this.vm.run(this);
     }
 }
 

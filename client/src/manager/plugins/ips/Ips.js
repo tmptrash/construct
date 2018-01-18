@@ -14,33 +14,39 @@ const Configurable = require('./../../../../../common/src/Configurable');
 const Helper       = require('./../../../../../common/src/Helper');
 const Config       = require('./../../../share/Config').Config;
 const IpsConfig    = require('./Config');
+const EVENTS       = require('./../../../share/Events').EVENTS;
 
 class Ips extends Configurable {
     constructor(manager) {
         super(manager, {Config, cfg: IpsConfig}, {show: ['_show', 'Shows IPS of the world']});
-        this._stamp    = Date.now();
-        this._onLoopCb = this._onLoop.bind(this);
+        this._stamp         = Date.now();
+        this._ips           = 0;
+        this._onLoopCb      = this._onLoop.bind(this);
+        this._onIterationCb = this._onIteration.bind(this);
 
         Helper.override(manager, 'onLoop', this._onLoopCb);
+        Helper.override(manager, 'onIteration', this._onIterationCb);
     }
 
     destroy() {
         Helper.unoverride(this.parent, 'onLoop', this._onLoopCb);
-        this._onLoopCb = null;
+        Helper.unoverride(this.parent, 'onIteration', this._onIterationCb);
+        this._onLoopCb      = null;
+        this._onIterationCb = null;
         super.destroy();
     }
 
     _onLoop(counter, stamp) {
         if (!this.cfg.show) {return}
-        const ts   = stamp - this._stamp;
+        const ts = stamp - this._stamp;
         if (ts < this.cfg.periodMs) {return}
-        const man  = this.parent;
-        //let   ips  = man.codeRuns / (man.organisms.size || 1) / (ts / 1000);
 
-        //man.fire(EVENTS.IPS, ips, man.organisms);
-        //man.codeRuns = 0;
-        this._stamp  = stamp;
+        this.parent.fire(EVENTS.IPS, this._ips / (ts / 1000));
+        this._ips   = 0;
+        this._stamp = stamp;
     }
+
+    _onIteration() {this._ips++}
 
     _show(show = true) {
         this.cfg.show = show;

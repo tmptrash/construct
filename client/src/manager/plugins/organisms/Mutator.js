@@ -57,17 +57,14 @@ class Mutator {
         }
     }
 
-    static _onClone(org) {
-        org.cloneMutationPercent = Math.random();
-        org.changes++;
-    }
-
-    static _onPeriod(org) {
+    static _onMutationPeriod(org) {
+        if (!OConfig.orgRainPerOrg) {return}
         org.mutationPeriod = Helper.rand(OConfig.orgAlivePeriod);
         org.changes++;
     }
 
-    static _onAmount(org) {
+    static _onMutationPercent(org) {
+        if (!OConfig.orgRainPerOrg) {return}
         org.mutationPercent = Math.random();
         org.changes++;
     }
@@ -77,12 +74,20 @@ class Mutator {
         org.changes++;
     }
 
+    static _onClone(org) {
+        if (!OConfig.orgClonePerOrg) {return}
+        org.cloneMutationPercent = Math.random();
+        org.changes++;
+    }
+
     static _onCloneEnergyPercent(org) {
+        if (!OConfig.orgClonePerOrg) {return}
         org.cloneEnergyPercent = Math.random();
         org.changes++;
     }
 
     static _onClonePeriod(org) {
+        if (!OConfig.orgClonePerOrg) {return}
         org.clonePeriod = Helper.rand(OConfig.ORG_MAX_CLONE_PERIOD);
         org.changes++;
     }
@@ -103,10 +108,10 @@ class Mutator {
             Mutator._onChange,
             Mutator._onDel,
             Mutator._onSmallChange,
-            Mutator._onClone,
-            Mutator._onPeriod,
-            Mutator._onAmount,
+            Mutator._onMutationPeriod,
+            Mutator._onMutationPercent,
             Mutator._onProbs,
+            Mutator._onClone,
             Mutator._onCloneEnergyPercent,
             Mutator._onClonePeriod,
             Mutator._onAdd,

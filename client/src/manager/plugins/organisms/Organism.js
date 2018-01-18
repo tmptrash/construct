@@ -39,6 +39,7 @@ class Organism extends Observer {
 
     /**
      * Is called as a running body (main) method
+     * @return {Number} Amount of run lines
      * @abstract
      */
     onRun() {}
@@ -111,10 +112,10 @@ class Organism extends Observer {
     run() {
         this._iterations++;
         if (this.onBeforeRun() === false) {return true}
-        this.onRun();
+        const lines = this.onRun();
 
+        this.fire(ITERATION, lines, this);
         if (this._alive) {
-            this.fire(ITERATION, this.vm.size > 0 ? OConfig.codeYieldPeriod : 0, this);
             this._alive && this._updateClone();
             this._alive && this._updateAge();
             this._alive && this._updateEnergy();
@@ -191,7 +192,8 @@ class Organism extends Observer {
     }
 
     fitness() {
-        return (OConfig.codeMaxSize + 1 - this.vm.size) * (this._energy - this._startEnergy) * (this._changes || 1);
+        //return (OConfig.codeMaxSize + 1 - this.vm.size) * (this._energy - this._startEnergy) * (this._changes || 1);
+        return (OConfig.codeMaxSize + 1 - this.vm.size) * (this._energy - this._startEnergy);
     }
 
     destroy() {
@@ -220,7 +222,7 @@ class Organism extends Observer {
         this._clonePeriod           = OConfig.orgClonePeriod;
         this._mutationPeriod        = OConfig.orgRainMutationPeriod;
         this._mutationPercent       = OConfig.orgRainMutationPercent;
-        this._mem                   = [];
+        this._mem                   = new Array(OConfig.orgMemSize);
     }
 
     _clone(parent) {

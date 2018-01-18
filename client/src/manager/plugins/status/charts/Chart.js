@@ -9,6 +9,7 @@
  */
 const GoogleCharts = require('google-charts').GoogleCharts;
 const _get         = require('lodash/get');
+const Config       = require('./Config');
 
 class Chart {
     constructor(title, cfg) {
@@ -17,7 +18,7 @@ class Chart {
             hAxis    : {textStyle: {fontSize: 10}},
             vAxis    : {textStyle: {fontSize: 10}, gridlines: {count: 10}},
             legend   : 'none',
-            chartArea: {left: 80, top: 30, bottom: 50, width: '100%', height: '100%'},
+            chartArea: {left: 90, top: 30, bottom: 50, width: '100%', height: '100%'},
         };
         this._data    = null;
         this._chart   = null;
@@ -38,6 +39,10 @@ class Chart {
 
         this._data.addRow(data);
         _get(this, '_cfg.active') && this._chart.draw(this._data, this._options);
+
+        if (this._data.getNumberOfRows() > Config.dataMaxSize) {
+            this._data.removeRows(0, Config.dataMaxSize * 0.1);
+        }
 
         return true;
     }
