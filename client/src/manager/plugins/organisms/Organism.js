@@ -191,9 +191,11 @@ class Organism extends Observer {
         return !noEnergy;
     }
 
+    // TODO: describe fitness in details
     fitness() {
         //return (OConfig.codeMaxSize + 1 - this.vm.size) * (this._energy - this._startEnergy) * (this._changes || 1);
-        return (OConfig.codeMaxSize + 1 - this.vm.size) * (this._energy - this._startEnergy);
+        //return (OConfig.codeMaxSize + 1 - this.vm.size) * (this._energy - this._startEnergy);
+        return (OConfig.codeMaxSize + 1 - this.vm.size) * ((this._energy - this._startEnergy) / this._iterations);
     }
 
     destroy() {
@@ -273,7 +275,7 @@ class Organism extends Observer {
             return true;
         }
         if (this._iterations % OConfig.orgEnergySpendPeriod !== 0 || OConfig.orgEnergySpendPeriod === 0) {return true}
-        let grabSize = Math.round(this.vm.size / OConfig.orgGarbagePeriod);
+        let grabSize = this.vm.size;
         if (grabSize < 1) {grabSize = 1}
 
         (this._energy <= grabSize) && this.fire(KILL_NO_ENERGY, this);

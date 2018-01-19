@@ -45,7 +45,12 @@ const Config = {
      *     copy          - Probability of copying of code lines inside it's own code
      * ]
      */
-    orgMutationProbs: [1,1,100,1,1,1,1,1,1,10,1],
+    orgMutationProbs: [1,1,90,1,1,1,1,1,1,10,1],
+    /**
+     * {Boolean} If turned on, then organism will be responsible for changing
+     * mutations probabilities. Otherwise these probabilities will be constant
+     */
+    orgMutationPerOrg: false,
     /**
      * {Number} Percent of energy, which will be given to the child. Set to 0.0
      * to share the same amount of energy with child (energy duplication)
@@ -71,12 +76,12 @@ const Config = {
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 5000,
+    orgRainMutationPeriod: 0,
     /**
      * {Number} Percent of mutations from code size. 0 is a possible value if
      * we want to disable mutations. Should be less then 1.0 (1.0 === 100%)
      */
-    orgRainMutationPercent: 0.02,
+    orgRainMutationPercent: 0.01,
     /**
      * {Boolean} Turn this flag on to give organism a possibility to choose his
      * own mutations period and percent. false - mean, that these values will be
@@ -94,35 +99,22 @@ const Config = {
      * is how natural selection is implemented in our system. Set this parameter
      * to 0 and tournament mechanism will be turned off
      */
-    orgTournamentPeriod: 50,
+    orgTournamentPeriod: 500,
     /**
      * {Number} Period of iterations for creation of random organisms. Set it to 0
      * to turn off this feature
      */
-    orgRandomOrgPeriod: 2000,
+    orgRandomOrgPeriod: 5000,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
      */
-    orgEnergySpendPeriod: 10,
+    orgEnergySpendPeriod: 30,
     /**
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
      */
-    orgAlivePeriod: 50000,
-    /**
-     * {Number} This value means the period between organism codeSizes, which
-     * affects energy grabbing by the system. For example: we have two
-     * organisms: org1.energy = 10, org2.energy = 10, org1.codeSize = 6,
-     * org2.codeSize = 9, OConfig.orgGarbagePeriod = 5. It means that
-     * during energy grabbing by the system org1 and org2 will spend the
-     * same amount of energy - 1 unit. This is because the period goes
-     * from 1..5, 6..10,... and both organisms are in the same period. In
-     * simple words, if your size is between 0-20, then 1 unit of energy will
-     * be grabbed from you. If your size is between 21-40, then 2 units of
-     * energy will be grabbed from you and so on...
-     */
-    orgGarbagePeriod: 7,
+    orgAlivePeriod: 40000,
     /**
      * {Number} Size of organism stack (internal memory)
      */
@@ -146,11 +138,11 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 300,
+    orgMaxOrgs: 50,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 300,
+    orgStartAmount: 50,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created

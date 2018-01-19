@@ -199,7 +199,7 @@ class OperatorsDos extends Operators {
 
     onFromMem(num, line, org) {
         const index = this.vars[VAR1(num)];
-        this.vars[VAR0(num)] = index >= org.mem.length ? 0 : org.mem[index];
+        this.vars[VAR0(num)] = index < 0 || index >= org.mem.length ? 0 : org.mem[index];
         return ++line;
     }
     onToMem(num, line, org) {
@@ -207,7 +207,7 @@ class OperatorsDos extends Operators {
         const val   = vars[VAR1(num)];
         const index = vars[VAR2(num)];
 
-        if (IS_NUM(val) && index < OConfig.orgMemSize) {
+        if (IS_NUM(val) && index >= 0 && index < OConfig.orgMemSize) {
             this.vars[VAR0(num)] = org.mem[index] = val;
         } else {
             this.vars[VAR0(num)] = 0;

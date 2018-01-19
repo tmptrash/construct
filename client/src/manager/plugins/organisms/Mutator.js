@@ -70,6 +70,7 @@ class Mutator {
     }
 
     static _onProbs(org) {
+        if (!OConfig.orgMutationPerOrg) {return}
         org.mutationProbs[Helper.rand(org.mutationProbs.length)] = Helper.rand(OConfig.ORG_MUTATION_PROBS_MAX_VAL) || 1;
         org.changes++;
     }
