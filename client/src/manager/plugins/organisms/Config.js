@@ -131,7 +131,7 @@ const Config = {
      * {Number} Percent of energy, which will be minused from organism after
      * stepping from one instance to another.
      */
-    orgStepEnergySpendPercent: 0.3,
+    orgStepEnergySpendPercent: 0.0,
     /**
      * {Number} Percent from orgMaxOrgs config, which is used for crossing borders
      * between clients/Managers. Entire amount of organisms within one client =
