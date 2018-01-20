@@ -92,7 +92,7 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 1000,
+    orgCrossoverPeriod: 4000,
     /**
      * {Number} Period of tournament between organisms. If amount of organisms
      * is >= of maximum (orgMaxOrgs), then looser organism will be killed. This
@@ -104,7 +104,7 @@ const Config = {
      * {Number} Period of iterations for creation of random organisms. Set it to 0
      * to turn off this feature
      */
-    orgRandomOrgPeriod: 5000,
+    orgRandomOrgPeriod: 7000,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
@@ -159,7 +159,7 @@ const Config = {
     /**
      * {Number} The value from -X/2 to X/2, which is used for setting
      * default value, while organism is delivering. So, if the value is
-     * 1000, then ragne will be: -500..500
+     * 1000, then range will be: -500..500
      */
     codeVarInitRange: 100,
     /**

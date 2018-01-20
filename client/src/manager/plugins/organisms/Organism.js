@@ -196,7 +196,8 @@ class Organism extends Observer {
     fitness() {
         //return (OConfig.codeMaxSize + 1 - this.vm.size) * (this._energy - this._startEnergy) * (this._changes || 1);
         //return (OConfig.codeMaxSize + 1 - this.vm.size) * (this._energy - this._startEnergy);
-        return (OConfig.codeMaxSize + 1 - this.vm.size) * ((this._energy - this._startEnergy) / this._iterations);
+        //return (OConfig.codeMaxSize + 1 - this.vm.size) * ((this._energy - this._startEnergy) / this._iterations);
+        return this._energy;
     }
 
     destroy() {
