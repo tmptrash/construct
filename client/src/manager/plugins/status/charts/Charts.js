@@ -24,6 +24,7 @@ class Charts extends Status {
         const periodSec = Config.period / 1000;
 
         this._data   = new Array(2);
+        this._header = this._createHeader();
         this._charts = {
             lps       : new Chart('LPS - Lines Per Second',                                         Config.charts.lps),
             ips       : new Chart('IPS - Iterations Per Second',                                    Config.charts.ips),
@@ -58,17 +59,14 @@ class Charts extends Status {
     /**
      * Is called every time, when new status data is available
      * @param {Object} status Status data
-     * @param {Number} orgs Amount of organisms
      * @override
      */
-    onStatus(status, orgs) {
-        //console.log(`%c${conns}${slps}${sorgs}%c${siq}${penergy}${schanges}${sfit}${sage}${scode}`, GREEN, RED);
-        // TODO: this code should be moved to separate plugin
-        // TODO: add energy, orgs and code: e:xxx, o:xxx, c:xxx
-        //const active = man.activeAround;
-        //man.canvas && man.canvas.text(5, 20, `${man.clientId && man.clientId || ''} ${active[0] ? '^' : ' '}${active[1] ? '>' : ' '}${active[2] ? 'v' : ' '}${active[3] ? '<' : ' '}`);
+    onStatus(status) {
+        this._updateCharts(status);
+        this._updateHeader(status);
+    }
 
-
+    _updateCharts(status) {
         const data   = this._data;
         const charts = this._charts;
         data[0]      = this._to12h(new Date);
@@ -79,6 +77,19 @@ class Charts extends Status {
         });
     }
 
+    _updateHeader(status) {
+        const man    = this.parent;
+        const active = man.activeAround;
+        if (!man.canvas) {return}
+        const conns  = `${active[0] ? '^' : ''}${active[1] ? '>' : ''}${active[2] ? 'v' : ''}${active[3] ? '<' : ''}`;
+        const ips    = `ips:${status.ips}`;
+        const pnrg   = `pnrg:${status.penergy}`;
+        const code   = `cod:${status.code}`;
+        let   header = `id:${man.clientId ? man.clientId : ''} ${conns === '' ? '' : 'con:' + conns} ${ips} ${pnrg} ${code}`;
+
+        this._header.textContent = header;
+    }
+
     _to12h(time) {
         let hours   = time.getHours();
         let minutes = time.getMinutes();
@@ -87,6 +98,21 @@ class Charts extends Status {
         hours = hours ? hours : 12;
 
         return hours + ':' + minutes;
+    }
+
+    _createHeader() {
+        const el = this._el = document.createElement("DIV");
+
+        el.style.position   = 'absolute';
+        el.style.top        = '5px';
+        el.style.left       = '5px';
+        el.style.color      = '#fff';
+        el.style.fontSize   = '18px';
+        el.style.fontFamily = 'Consolas';
+
+        document.body.appendChild(el);
+
+        return el;
     }
 
     /**

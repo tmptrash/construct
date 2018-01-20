@@ -122,6 +122,7 @@ class Status extends Configurable {
         const size        = orgs.size || 1;
         let   energy      = 0;
         let   startEnergy = 0;
+        let   iterations  = 0;
         let   fitness     = 0;
         let   changes     = 0;
         let   codeSize    = 0;
@@ -131,13 +132,14 @@ class Status extends Configurable {
         while(item && (org = item.val)) {
             energy      += org.energy;
             startEnergy += org.startEnergy;
+            iterations  += org.iterations;
             changes     += org.changes;
             fitness     += org.fitness();
             codeSize    += org.vm.size;
             item         = item.next;
         }
 
-        this._pickEnergy = (energy - startEnergy) / size;
+        this._pickEnergy = ((energy - startEnergy) / iterations) / size;
         this._energy     = energy  / size;
         this._changes    = changes / size;
         this._fitness    = fitness / size;

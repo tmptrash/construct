@@ -9,15 +9,6 @@ const Config = {
      */
     ORG_MAX_CLONE_PERIOD: 10000,
     /**
-     * {Number} Index of first color of organism. After maximum color this
-     * color will be applied
-     */
-    ORG_FIRST_COLOR: 1,
-    /**
-     * {Number} Maximum color index of organism
-     */
-    ORG_MAX_COLOR: 0xFFFFFF,
-    /**
      * {Number} Max value, which we may use in orgMutationProbs array. We may use
      * range: [0...ORG_MUTATION_PROBS_MAX_VAL] including these values
      */
@@ -152,10 +143,10 @@ const Config = {
      */
     orgStartEnergy: 100000,
     /**
-     * {Number} Begin color of "empty" organism (organism without code). Color
-     * should be set in HEX-RGB mode. Example: 0xRRGGBB
+     * {Number} Begin color of "empty". It's just an index of color. Starts from
+     * 0 and till Number.MAX_VALUE
      */
-    orgStartColor: 0xFF0000,
+    orgStartColor: 18,
     /**
      * {Number} The value from -X/2 to X/2, which is used for setting
      * default value, while organism is delivering. So, if the value is

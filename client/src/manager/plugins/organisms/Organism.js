@@ -11,6 +11,9 @@ const Helper         = require('./../../../../../common/src/Helper');
 const OConfig        = require('./../../../manager/plugins/organisms/Config');
 const EVENT_AMOUNT   = require('./../../../share/Events').EVENT_AMOUNT;
 const VM             = require('./../../../vm/VM');
+const Num            = require('./../../../vm/Num');
+
+const MAX_BITS       = Num.MAX_BITS;
 
 const GRAB_ENERGY    = 0;
 const DESTROY        = 1;
@@ -30,6 +33,21 @@ const ORG_EVENTS     = {
 const IS_NUM = Helper.isNumeric;
 
 class Organism extends Observer {
+    /**
+     * Returns color by index. Index may be increased without limit
+     * @param {Number} index Color index. Starts from 0 till Number.MAX_VALUE
+     * @returns {Number} RGB value
+     */
+    static _getColor(index) {
+        const frequency = 0.1;
+
+        const r = Math.sin(frequency * index    ) * 127 + 128;
+        const g = Math.sin(frequency * index + 2) * 127 + 128;
+        const b = Math.sin(frequency * index + 4) * 127 + 128;
+
+        return r << 16 | g << 8 | b;
+    }
+
     /**
      * Is called before every run. Should return true, if everything
      * is okay and we don't need to interrupt running. If true, then
@@ -91,6 +109,7 @@ class Organism extends Observer {
     get energy()                {return this._energy}
     get startEnergy()           {return this._startEnergy}
     get color()                 {return this._color}
+    get colorIndex()            {return this._colorIndex}
     get mem()                   {return this._mem}
     get posId()                 {return Helper.posId(this._x, this._y)}
 
@@ -143,6 +162,7 @@ class Organism extends Observer {
             energy              : this._energy,
             startEnergy         : this._startEnergy,
             color               : this._color,
+            colorIndex          : this._colorIndex,
             mutationProbs       : this._mutationProbs,
             cloneMutationPercent: this._cloneMutationPercent,
             cloneEnergyPercent  : this._cloneEnergyPercent,
@@ -175,6 +195,7 @@ class Organism extends Observer {
         this._energy               = json.energy;
         this._startEnergy          = json.startEnergy;
         this._color                = json.color;
+        this._colorIndex           = json.colorIndex;
         this._mutationProbs        = json.mutationProbs;
         this._cloneMutationPercent = json.cloneMutationPercent;
         this._cloneEnergyPercent   = json.cloneEnergyPercent;
@@ -219,7 +240,8 @@ class Organism extends Observer {
         this.vm                     = new VM(this, this._operatorCls);
         this._energy                = OConfig.orgStartEnergy;
         this._startEnergy           = OConfig.orgStartEnergy;
-        this._color                 = OConfig.orgStartColor;
+        this._colorIndex            = OConfig.orgStartColor;
+        this._color                 = Organism._getColor(0);
         this._mutationProbs         = OConfig.orgMutationProbs.slice();
         this._cloneMutationPercent  = OConfig.orgCloneMutationPercent;
         this._cloneEnergyPercent    = OConfig.orgCloneEnergyPercent;
@@ -236,6 +258,7 @@ class Organism extends Observer {
         this._energy                = parent.energy;
         this._startEnergy           = parent.energy;
         this._color                 = parent.color;
+        this._colorIndex            = parent.colorIndex;
         this._mutationProbs         = parent.mutationProbs.slice();
         this._cloneMutationPercent  = parent.cloneMutationPercent;
         this._cloneEnergyPercent    = parent.cloneEnergyPercent;
@@ -246,9 +269,7 @@ class Organism extends Observer {
     }
 
     _updateColor(changes) {
-        if ((this._color += changes) > OConfig.ORG_MAX_COLOR) {
-            this._color = OConfig.ORG_FIRST_COLOR;
-        }
+        this._color = Organism._getColor(this._colorIndex = Math.round(changes / MAX_BITS));
     }
 
     /**

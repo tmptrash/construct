@@ -18,7 +18,7 @@ class Chart {
             hAxis    : {textStyle: {fontSize: 10}},
             vAxis    : {textStyle: {fontSize: 10}, gridlines: {count: 10}},
             legend   : 'none',
-            chartArea: {left: 90, top: 30, bottom: 50, width: '100%', height: '100%'},
+            chartArea: {left: 90, top: 30, bottom: 50, right: 3, width: '100%', height: '100%'},
         };
         this._data    = null;
         this._chart   = null;
