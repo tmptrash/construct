@@ -14,11 +14,13 @@ const VAR0                  = Num.getVar;
 const VAR1                  = (n) => Num.getVar(n, 1);
 const VAR2                  = (n) => Num.getVar(n, 2);
 const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
+const BITS_AFTER_ONE_VAR    = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR;
 const BLOCK_MAX_LEN         = OConfig.codeBitsPerBlock;
 const BITS_FOR_NUMBER       = 16;
 const FOUR_BITS             = 4;
 const CONDITION_BITS        = 2;
 const HALF_OF_VAR           = Num.MAX_VAR / 2;
+const BITS                  = Num.getBits;
 
 class Code2String {
     constructor(manager) {
@@ -215,11 +217,11 @@ class Code2String {
     }
 
     _onFromMem(num) {
-        return `v${VAR0(num)}=fromMem(v${VAR1(num)})`;
+        return `v${VAR0(num)}=fromMem(${BITS(num, BITS_AFTER_ONE_VAR, OConfig.orgMemBits)})`;
     }
 
     _onToMem(num) {
-        return `v${VAR0(num)}=toMem(v${VAR1(num)},v${VAR2(num)})`;
+        return `toMem(v${VAR0(num)},${BITS(num, BITS_AFTER_ONE_VAR, OConfig.orgMemBits)})`;
     }
 
     _onMyX(num) {

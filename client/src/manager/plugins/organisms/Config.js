@@ -50,7 +50,7 @@ const Config = {
      * {Boolean} If turned on, then organism will be responsible for changing
      * mutations probabilities. Otherwise these probabilities will be constant
      */
-    orgMutationPerOrg: false,
+    orgMutationPerOrg: true,
     /**
      * {Number} Percent of energy, which will be given to the child. Set to 0.0
      * to share the same amount of energy with child (energy duplication)
@@ -70,13 +70,13 @@ const Config = {
      * own clone period and percent. false - mean, that these values will be constant
      * for all organisms
      */
-    orgClonePerOrg: false,
+    orgClonePerOrg: true,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 0,
+    orgRainMutationPeriod: 1000,
     /**
      * {Number} Percent of mutations from code size. 0 is a possible value if
      * we want to disable mutations. Should be less then 1.0 (1.0 === 100%)
@@ -87,12 +87,12 @@ const Config = {
      * own mutations period and percent. false - mean, that these values will be
      * constant for all organisms
      */
-    orgRainPerOrg: false,
+    orgRainPerOrg: true,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 0,
+    orgCrossoverPeriod: 1000,
     /**
      * {Number} Period of tournament between organisms. If amount of organisms
      * is >= of maximum (orgMaxOrgs), then looser organism will be killed. This
@@ -116,9 +116,11 @@ const Config = {
      */
     orgAlivePeriod: 40000,
     /**
-     * {Number} Size of organism stack (internal memory)
+     * {Number} Size of organism stack (internal memory) in bits. Real amount of
+     * organism's internal memory will be 2^orgMemBits. Example: if orgMemBits=3,
+     * then memory=2^3 === 8 numbers
      */
-    orgMemSize: 128,
+    orgMemBits: 8,
     /**
      * {Number} Percent of energy, which will be minused from organism after
      * stepping from one instance to another.
@@ -138,11 +140,11 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 50,
+    orgMaxOrgs: 200,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 50,
+    orgStartAmount: 200,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created
@@ -159,13 +161,13 @@ const Config = {
      * default value, while organism is delivering. So, if the value is
      * 1000, then ragne will be: -500..500
      */
-    codeVarInitRange: 1000,
+    codeVarInitRange: 100,
     /**
      * {Number} This value is amount of code lines, which will be run for one
      * organism without interruption by one VM. Set this value to value bigger
      * then codeMaxSize, then entire code of organism will be run
      */
-    codeYieldPeriod: 10,
+    codeYieldPeriod: 5,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain. This value shouldn't be less then 2.

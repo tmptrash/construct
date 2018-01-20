@@ -63,12 +63,12 @@ ClientConfig.init({
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
      */
-    worldEnergyDots: 10000,
+    worldEnergyDots: 100,
     /**
      * {Number} Amount of energy in every block. See worldEnergyDots
      * config for details.
      */
-    worldEnergyInDot: 0x00FF00,
+    worldEnergyInDot: 0xFFFF00,
     /**
      * {Number} Minimum percent of energy in current world. Under percent i mean
      * percent from entire world area (100%). If the energy will be less
@@ -76,7 +76,7 @@ ClientConfig.init({
      * Should be less then 100.0 and more and equal to 0.0. 0.17 is a
      * normal percent for this system.
      */
-    worldEnergyCheckPercent: 0.4,
+    worldEnergyCheckPercent: 0.0003,
     /**
      * {Number} An amount of iteration, after which we have to check world energy
      * amount. Works in pair with worldEnergyCheckPercent. May be 0 if

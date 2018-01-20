@@ -5,6 +5,7 @@
  * TODO:   -
  * @author flatline
  */
+const _fill          = require('lodash/fill');
 const Observer       = require('./../../../../../common/src/Observer');
 const Helper         = require('./../../../../../common/src/Helper');
 const OConfig        = require('./../../../manager/plugins/organisms/Config');
@@ -224,7 +225,9 @@ class Organism extends Observer {
         this._clonePeriod           = OConfig.orgClonePeriod;
         this._mutationPeriod        = OConfig.orgRainMutationPeriod;
         this._mutationPercent       = OConfig.orgRainMutationPercent;
-        this._mem                   = new Array(OConfig.orgMemSize);
+        this._mem                   = new Array(Math.pow(2, OConfig.orgMemBits));
+
+        _fill(this._mem, 0);
     }
 
     _clone(parent) {

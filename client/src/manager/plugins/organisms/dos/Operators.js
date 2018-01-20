@@ -20,8 +20,8 @@ const VAR0                  = Num.getVar0;
 const VAR1                  = Num.getVar1;
 const VAR2                  = Num.getVar2;
 const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
+const BITS_AFTER_ONE_VAR    = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR;
 const FOUR_BITS             = 4;
-const BLOCK_MAX_LEN         = OConfig.codeBitsPerBlock;
 const BITS_FOR_NUMBER       = 16;
 const IS_NUM                = Helper.isNumeric;
 const HALF_OF_VAR           = Num.MAX_VAR / 2;
@@ -106,7 +106,7 @@ class OperatorsDos extends Operators {
     //}
 
     onCondition(num, line, org, lines) {
-        const val3 = BITS(num, BITS_AFTER_THREE_VARS, BLOCK_MAX_LEN);
+        const val3 = BITS(num, BITS_AFTER_THREE_VARS, OConfig.codeBitsPerBlock);
         const offs = this._getOffs(line, lines, val3);
         const cond = VAR2(num) >>> (OConfig.codeBitsPerVar - CONDITION_BITS);
 
@@ -123,7 +123,7 @@ class OperatorsDos extends Operators {
     onLoop(num, line, org, lines, afterIteration = false) {
         const vars = this.vars;
         const var0 = VAR0(num);
-        const val3 = BITS(num, BITS_AFTER_THREE_VARS, BLOCK_MAX_LEN);
+        const val3 = BITS(num, BITS_AFTER_THREE_VARS, OConfig.codeBitsPerBlock);
         const offs = this._getOffs(line, lines, val3);
         //
         // If last iteration has done and we've returned to the line,
@@ -198,21 +198,11 @@ class OperatorsDos extends Operators {
     onStepDown(num, line, org)  {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y + 1).y; return ++line}
 
     onFromMem(num, line, org) {
-        const index = this.vars[VAR1(num)];
-        this.vars[VAR0(num)] = index < 0 || index >= org.mem.length ? 0 : org.mem[index];
+        this.vars[VAR0(num)] = org.mem[BITS(num, BITS_AFTER_ONE_VAR, OConfig.orgMemBits)];
         return ++line;
     }
     onToMem(num, line, org) {
-        const vars  = this.vars;
-        const val   = vars[VAR1(num)];
-        const index = vars[VAR2(num)];
-
-        if (IS_NUM(val) && index >= 0 && index < OConfig.orgMemSize) {
-            this.vars[VAR0(num)] = org.mem[index] = val;
-        } else {
-            this.vars[VAR0(num)] = 0;
-        }
-
+        org.mem[BITS(num, BITS_AFTER_ONE_VAR, OConfig.orgMemBits)] = this.vars[VAR0(num)];
         return ++line;
     }
 
