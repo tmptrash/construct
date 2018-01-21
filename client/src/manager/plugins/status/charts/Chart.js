@@ -84,7 +84,6 @@ class Chart {
      * [width, height, left, top]
      * @param {String} pos Position
      * @returns {Array} [width, height, left, top]
-     * @private
      */
     _getSize(pos) {
         return {
@@ -148,8 +147,8 @@ class Chart {
         if (active) {
             this._onReady();
         } else {
-            this._chart.clearChart();
-            this._el.parentNode.removeChild(this._el);
+            this._chart && this._chart.clearChart();
+            this._el    && this._el.parentNode.removeChild(this._el);
             this._chart = this._el = null;
         }
     }

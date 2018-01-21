@@ -184,6 +184,7 @@ class Organisms extends Configurable {
             item = item.next;
         }
 
+        this._updateTournament(counter);
         this._updateClone(counter);
         this._updateRandomOrgs(counter);
         this._updateCrossover(counter);
@@ -265,19 +266,38 @@ class Organisms extends Configurable {
         this._parent.fire(EVENTS.CODE_RUN, lines, org);
     }
 
+    /**
+     * Does clone of random organism without tournament and removing of extra(overflow) organisms
+     * @param {Number} counter Current value of counter
+     * @returns {Boolean} true - clone occurred, false - otherwise
+     */
     _updateClone(counter) {
         const orgAmount = this.organisms.size;
-        if (counter % OConfig.orgClonePeriod !== 0 || OConfig.orgClonePeriod === 0 || orgAmount < 1) {return true}
-        let org1        = this.randOrg();
-        if (org1.alive && orgAmount < OConfig.orgMaxOrgs) {this._clone(org1);return}
-        let org2        = this.randOrg();
-        if (!org1.alive || !org2.alive || org1 === org2) {return false}
+        if (counter % OConfig.orgClonePeriod !== 0 || OConfig.orgClonePeriod === 0 || orgAmount < 1) {return false}
+        const org       = this.randOrg();
+        if (orgAmount < OConfig.orgMaxOrgs && org.alive) {this._clone(org)}
+
+        return true;
+    }
+
+    /**
+     * Does tournament between two random organisms and kill looser. In general
+     * this function is a natural selection in our system.
+     * @param {Number} counter Current value of global iterations counter
+     * @returns {Boolean} true - tournament occurred, false - otherwise
+     */
+    _updateTournament(counter) {
+        let orgAmount = this.organisms.size;
+        if (counter % OConfig.orgTournamentPeriod !== 0 || orgAmount < 1 || OConfig.orgTournamentPeriod === 0) {return true}
+        let org1      = this.randOrg();
+        let org2      = this.randOrg();
+        if (!org1.alive || !org2.alive || org1 === org2 || orgAmount < 1) {return false}
 
         if (this._tournament(org1, org2) === org2) {[org1, org2] = [org2, org1]}
-
-        this._clone(org1);
-        this.parent.fire(EVENTS.KILL_OVERFLOW, org2);
+        this.parent.fire(EVENTS.KILL_TOUR, org2);
         org2.destroy();
+
+        return true;
     }
 
     _updateRandomOrgs(counter) {

@@ -48,7 +48,7 @@ class Console extends Status {
         const slps      = format(status.lps,      'lps',  14);
         const sorgs     = format(orgs,            'org',  10);
         const senergy   = format(status.energy,   'nrg',  17);
-        const spenergy  = format(status.penergy,  'pnrg', 17);
+        const spenergy  = format(status.penergy,  'pnrg', 15);
         const seenergy  = format(status.eenergy,  'enrg', 16);
         const skill     = format(status.kill,     'kil',  12);
         const schanges  = format(status.changes,  'che',  12);

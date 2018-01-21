@@ -48,15 +48,20 @@ const Config = {
      */
     orgCloneMutationPercent: 0.0,
     /**
+     * {Boolean} Turn this flag on to give organism a possibility to choose his
+     * own clone energy and mutations percents. false - mean, that these values
+     * will be constant for all organisms
+     */
+    orgClonePerOrg: false,
+    /**
      * {Number} Amount of iterations between cloning. Set it to 0 to turn it off
      */
     orgClonePeriod: 400,
     /**
-     * {Boolean} Turn this flag on to give organism a possibility to choose his
-     * own clone period and percent. false - mean, that these values will be constant
-     * for all organisms
+     * {Number} Amount of iterations between tournament. During tournament one
+     * organism (looser) will be killed
      */
-    orgClonePerOrg: true,
+    orgTournamentPeriod: 200,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
@@ -123,7 +128,7 @@ const Config = {
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 200,
+    orgStartAmount: 800,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created
@@ -174,7 +179,7 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 40
+    codeMaxSize: 60
 };
 
 module.exports = Config;

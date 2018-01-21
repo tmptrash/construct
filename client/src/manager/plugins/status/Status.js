@@ -62,17 +62,19 @@ class Status extends Configurable {
         this._onEatEnergyCb  = this._onEatEnergy.bind(this);
         this._onKillOrgCb    = this._onKillOrg.bind(this);
         this._onKillEnergyCb = this._onKillHandlerOrg.bind(this, 1);
-        this._onKillAgeCb    = this._onKillHandlerOrg.bind(this, 2);
-        this._onKillEatCb    = this._onKillHandlerOrg.bind(this, 3);
-        this._onKillOverCb   = this._onKillHandlerOrg.bind(this, 4);
-        this._onKillOutCb    = this._onKillHandlerOrg.bind(this, 5);
-        this._onKillInCb     = this._onKillHandlerOrg.bind(this, 6);
+        this._onKillTourCb   = this._onKillHandlerOrg.bind(this, 2);
+        this._onKillAgeCb    = this._onKillHandlerOrg.bind(this, 3);
+        this._onKillEatCb    = this._onKillHandlerOrg.bind(this, 4);
+        this._onKillOverCb   = this._onKillHandlerOrg.bind(this, 5);
+        this._onKillOutCb    = this._onKillHandlerOrg.bind(this, 6);
+        this._onKillInCb     = this._onKillHandlerOrg.bind(this, 7);
         this._onKillCloneCb  = this._onKillHandlerOrg.bind(this, 8);
 
         Helper.override(manager, 'onLoop', this._onLoopCb);
         manager.on(EVENTS.IPS,            this._onIpsCb);
         manager.on(EVENTS.EAT_ENERGY,     this._onEatEnergyCb);
         manager.on(EVENTS.KILL,           this._onKillOrgCb);
+        manager.on(EVENTS.KILL_TOUR,      this._onKillTourCb);
         manager.on(EVENTS.KILL_NO_ENERGY, this._onKillEnergyCb);
         manager.on(EVENTS.KILL_AGE,       this._onKillAgeCb);
         manager.on(EVENTS.KILL_EAT,       this._onKillEatCb);
@@ -94,12 +96,14 @@ class Status extends Configurable {
         man.off(EVENTS.KILL_EAT,       this._onKillEatCb);
         man.off(EVENTS.KILL_AGE,       this._onKillAgeCb);
         man.off(EVENTS.KILL_NO_ENERGY, this._onKillEnergyCb);
+        man.off(EVENTS.KILL_TOUR,      this._onKillTourCb);
         man.off(EVENTS.KILL,           this._onKillOrgCb);
         man.off(EVENTS.EAT_ENERGY,     this._onEatEnergyCb);
         man.off(EVENTS.IPS,            this._onIpsCb);
         Helper.unoverride(manager, 'onLoop', this._onLoopCb);
 
         this._onKillOrgCb    = null;
+        this._onKillTourCb   = null;
         this._onEatEnergyCb  = null;
         this._onKillCloneCb  = null;
         this._onKillInCb     = null;
@@ -167,11 +171,12 @@ class Status extends Configurable {
 
         status.kill       = fix(this._kill[0], 2);
         status.killenergy = fix(this._kill[1], 2);
-        status.killage    = fix(this._kill[2], 2);
-        status.killeat    = fix(this._kill[3], 2);
-        status.killover   = fix(this._kill[4], 2);
-        status.killout    = fix(this._kill[5], 2);
-        status.killin     = fix(this._kill[6], 2);
+        status.killtour   = fix(this._kill[2], 2);
+        status.killage    = fix(this._kill[3], 2);
+        status.killeat    = fix(this._kill[4], 2);
+        status.killover   = fix(this._kill[5], 2);
+        status.killout    = fix(this._kill[6], 2);
+        status.killin     = fix(this._kill[7], 2);
         status.killclone  = fix(this._kill[8], 2);
 
         !this._firstCall && this.onStatus(status, orgs.size);

@@ -38,6 +38,7 @@ class Charts extends Status {
             age       : new Chart('Average organism\'s Age',                                        Config.charts.age),
             code      : new Chart('Average organism\'s code size',                                  Config.charts.code),
             kill      : new Chart(`Amount of killed organisms per ${periodSec} sec (all)`,          Config.charts.kill),
+            killtour  : new Chart(`Amount of killed organisms in tournament per ${periodSec} sec`,  Config.charts.killtour),
             killenergy: new Chart(`Amount of killed organisms with 0 energy per ${periodSec} sec`,  Config.charts.killenergy),
             killage   : new Chart(`Amount of killed organisms with max age per ${periodSec} sec`,   Config.charts.killage),
             killeat   : new Chart(`Amount of killed organisms eat by other per ${periodSec} sec`,   Config.charts.killeat),
