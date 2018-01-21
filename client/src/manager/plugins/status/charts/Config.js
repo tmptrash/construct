@@ -22,7 +22,6 @@ const Config = {
      */
     charts: {
         lps       : {pos: 'downleft',  active: false, transparent: 0.8},
-        ips       : {pos: '3-3|16',    active: true,  transparent: 0.8},
         killout   : {pos: 'topright',  active: false, transparent: 0.8},
         orgs      : {pos: '0-0|16',    active: true,  transparent: 0.8},
         energy    : {pos: '0-1|16',    active: true,  transparent: 0.8},
@@ -38,8 +37,8 @@ const Config = {
         killover  : {pos: '2-3|16',    active: true,  transparent: 0.8},
         changes   : {pos: '3-0|16',    active: true,  transparent: 0.8},
         killin    : {pos: '3-1|16',    active: true,  transparent: 0.8},
-        killtour  : {pos: '3-2|16',    active: true,  transparent: 0.8},
-        killclone : {pos: 'downright', active: false, transparent: 0.8}
+        killclone : {pos: '3-2|16',    active: true,  transparent: 0.8},
+        ips       : {pos: '3-3|16',    active: true,  transparent: 0.8}
     }
 };
 

@@ -105,7 +105,6 @@ class Organism extends Observer {
     get mutationPercent()       {return this._mutationPercent}
     get cloneMutationPercent()  {return this._cloneMutationPercent}
     get cloneEnergyPercent()    {return this._cloneEnergyPercent}
-    get clonePeriod()           {return this._clonePeriod}
     get energy()                {return this._energy}
     get startEnergy()           {return this._startEnergy}
     get color()                 {return this._color}
@@ -117,7 +116,6 @@ class Organism extends Observer {
     set y(newY)                 {this._y = newY}
     set cloneMutationPercent(m) {this._cloneMutationPercent = m}
     set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p}
-    set clonePeriod(p)          {this._clonePeriod = p}
     set mutationPeriod(m)       {this._mutationPeriod = m}
     set mutationPercent(p)      {this._mutationPercent = p}
     set energy(e)               {this._energy = e}
@@ -136,7 +134,6 @@ class Organism extends Observer {
 
         this.fire(ITERATION, lines, this);
         if (this._alive) {
-            this._alive && this._updateClone();
             this._alive && this._updateAge();
             this._alive && this._updateEnergy();
         }
@@ -166,7 +163,6 @@ class Organism extends Observer {
             mutationProbs       : this._mutationProbs,
             cloneMutationPercent: this._cloneMutationPercent,
             cloneEnergyPercent  : this._cloneEnergyPercent,
-            clonePeriod         : this._clonePeriod,
             mutationPeriod      : this._mutationPeriod,
             mutationPercent     : this._mutationPercent,
             mem                 : this.mem.slice()
@@ -199,7 +195,6 @@ class Organism extends Observer {
         this._mutationProbs        = json.mutationProbs;
         this._cloneMutationPercent = json.cloneMutationPercent;
         this._cloneEnergyPercent   = json.cloneEnergyPercent;
-        this._clonePeriod          = json.clonePeriod;
         this._mutationPeriod       = json.mutationPeriod;
         this._mutationPercent      = json.mutationPercent;
         this._mem                  = json.mem.slice();
@@ -215,6 +210,7 @@ class Organism extends Observer {
 
     // TODO: describe fitness in details
     fitness() {
+        // TODO: check these variants
         //return (OConfig.codeMaxSize + 1 - this.vm.size) * (this._energy - this._startEnergy) * (this._changes || 1);
         //return (OConfig.codeMaxSize + 1 - this.vm.size) * (this._energy - this._startEnergy);
         //return (OConfig.codeMaxSize + 1 - this.vm.size) * ((this._energy - this._startEnergy) / this._iterations);
@@ -245,7 +241,6 @@ class Organism extends Observer {
         this._mutationProbs         = OConfig.orgMutationProbs.slice();
         this._cloneMutationPercent  = OConfig.orgCloneMutationPercent;
         this._cloneEnergyPercent    = OConfig.orgCloneEnergyPercent;
-        this._clonePeriod           = OConfig.orgClonePeriod;
         this._mutationPeriod        = OConfig.orgRainMutationPeriod;
         this._mutationPercent       = OConfig.orgRainMutationPercent;
         this._mem                   = new Array(Math.pow(2, OConfig.orgMemBits));
@@ -262,7 +257,6 @@ class Organism extends Observer {
         this._mutationProbs         = parent.mutationProbs.slice();
         this._cloneMutationPercent  = parent.cloneMutationPercent;
         this._cloneEnergyPercent    = parent.cloneEnergyPercent;
-        this._clonePeriod           = parent.clonePeriod;
         this._mutationPeriod        = parent.mutationPeriod;
         this._mutationPercent       = parent.mutationPercent;
         this._mem                   = parent.mem.slice();
@@ -300,21 +294,12 @@ class Organism extends Observer {
             return true;
         }
         if (this._iterations % OConfig.orgEnergySpendPeriod !== 0 || OConfig.orgEnergySpendPeriod === 0) {return true}
-        let grabSize = this.vm.size;
+        //let grabSize = this.vm.size;
+        let grabSize = 1;
         if (grabSize < 1) {grabSize = 1}
 
         (this._energy <= grabSize) && this.fire(KILL_NO_ENERGY, this);
         return this.grabEnergy(this._energy < grabSize ? this._energy : grabSize);
-    }
-
-    /**
-     * Current organism wants to clone himself
-     * @return {Boolean}
-     */
-    _updateClone() {
-        if (this._iterations % OConfig.orgClonePeriod !== 0 || OConfig.orgClonePeriod === 0) {return true}
-        this.fire(CLONE, this);
-        return true;
     }
 }
 

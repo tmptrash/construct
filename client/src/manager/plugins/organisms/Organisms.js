@@ -114,7 +114,6 @@ class Organisms extends Configurable {
 
     addOrgHandlers(org) {
         org.on(ORG_EVENTS.DESTROY,        this._onKillOrg.bind(this));
-        org.on(ORG_EVENTS.CLONE,          this._onCloneOrg.bind(this));
         org.on(ORG_EVENTS.KILL_NO_ENERGY, this._onKillNoEnergyOrg.bind(this));
         org.on(ORG_EVENTS.KILL_AGE,       this._onKillAgeOrg.bind(this));
         org.on(ORG_EVENTS.ITERATION,      this._onIterationOrg.bind(this));
@@ -185,7 +184,7 @@ class Organisms extends Configurable {
             item = item.next;
         }
 
-        this._updateAmount(counter);
+        this._updateClone(counter);
         this._updateRandomOrgs(counter);
         this._updateCrossover(counter);
     }
@@ -259,10 +258,6 @@ class Organisms extends Configurable {
         //Console.info(org.id, ' die');
     }
 
-    _onCloneOrg(org) {
-        this.organisms.size < OConfig.orgMaxOrgs && this._clone(org);
-    }
-
     _onKillNoEnergyOrg(org) {this._parent.fire(EVENTS.KILL_NO_ENERGY, org)}
     _onKillAgeOrg(org)      {this._parent.fire(EVENTS.KILL_AGE, org)}
     _onIterationOrg(lines, org)    {
@@ -270,29 +265,19 @@ class Organisms extends Configurable {
         this._parent.fire(EVENTS.CODE_RUN, lines, org);
     }
 
-    /**
-     * Does tournament between two random organisms and kill looser, if amount of
-     * organisms is greater or equal to maximum (OConfig.orgMaxOrgs). In general
-     * this function is a natural selection in our system.
-     * @param {Number} counter Current value of global iterations counter
-     * @returns {Boolean} true - amount is less then maximum, false - otherwise
-     */
-    _updateAmount(counter) {
-        let orgAmount = this.organisms.size;
-        if (counter % OConfig.orgTournamentPeriod !== 0 || orgAmount < 1 || OConfig.orgTournamentPeriod === 0) {return true}
-        let org1      = this.randOrg();
-        let org2      = this.randOrg();
-        if (!org1.alive || !org2.alive || org1 === org2 || orgAmount < 1) {return false}
+    _updateClone(counter) {
+        const orgAmount = this.organisms.size;
+        if (counter % OConfig.orgClonePeriod !== 0 || OConfig.orgClonePeriod === 0 || orgAmount < 1) {return true}
+        let org1        = this.randOrg();
+        if (org1.alive && orgAmount < OConfig.orgMaxOrgs) {this._clone(org1);return}
+        let org2        = this.randOrg();
+        if (!org1.alive || !org2.alive || org1 === org2) {return false}
 
-        if (this._tournament(org1, org2) === org2) {
-            this.parent.fire(EVENTS.KILL_TOUR, org1);
-            org1.destroy();
-        } else {
-            this.parent.fire(EVENTS.KILL_TOUR, org2);
-            org2.destroy();
-        }
+        if (this._tournament(org1, org2) === org2) {[org1, org2] = [org2, org1]}
 
-        return true;
+        this._clone(org1);
+        this.parent.fire(EVENTS.KILL_OVERFLOW, org2);
+        org2.destroy();
     }
 
     _updateRandomOrgs(counter) {
@@ -318,7 +303,7 @@ class Organisms extends Configurable {
 
         if (!org1.alive || !org2.alive) {return false}
         this._crossover(org1, org2);
-        if ((orgAmount + 1) > OConfig.orgMaxOrgs) {
+        if (orgAmount + 1 >= OConfig.orgMaxOrgs) {
             this.parent.fire(EVENTS.KILL_OVERFLOW, org1);
             org1.destroy();
         }

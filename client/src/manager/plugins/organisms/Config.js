@@ -5,10 +5,6 @@
  */
 const Config = {
     /**
-     * {Number} Maximum amount of iterations for clone period
-     */
-    ORG_MAX_CLONE_PERIOD: 10000,
-    /**
      * {Number} Max value, which we may use in orgMutationProbs array. We may use
      * range: [0...ORG_MUTATION_PROBS_MAX_VAL] including these values
      */
@@ -31,12 +27,11 @@ const Config = {
      *     amount        - Probability of amount of mutations per period
      *     probs         - Probability of change one of probability coefficient in this array
      *     clone-percent - Probability of change clone energy percent value
-     *     clone-period  - Probability of change clone period value
      *     add           - Probability of adding new line to the code
      *     copy          - Probability of copying of code lines inside it's own code
      * ]
      */
-    orgMutationProbs: [1,1,90,1,1,1,1,1,1,10,1],
+    orgMutationProbs: [1,1,90,1,1,1,1,1,10,1],
     /**
      * {Boolean} If turned on, then organism will be responsible for changing
      * mutations probabilities. Otherwise these probabilities will be constant
@@ -85,13 +80,6 @@ const Config = {
      */
     orgCrossoverPeriod: 4000,
     /**
-     * {Number} Period of tournament between organisms. If amount of organisms
-     * is >= of maximum (orgMaxOrgs), then looser organism will be killed. This
-     * is how natural selection is implemented in our system. Set this parameter
-     * to 0 and tournament mechanism will be turned off
-     */
-    orgTournamentPeriod: 500,
-    /**
      * {Number} Period of iterations for creation of random organisms. Set it to 0
      * to turn off this feature
      */
@@ -100,7 +88,7 @@ const Config = {
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
      */
-    orgEnergySpendPeriod: 30,
+    orgEnergySpendPeriod: 10,
     /**
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever

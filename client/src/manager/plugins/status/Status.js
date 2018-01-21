@@ -37,8 +37,8 @@ class Status extends Configurable {
         super(manager, {Config, cfg: statCfg}, apiCfg);
 
         this._status         = {
-            lps :0, ips       :0, orgs   :0, energy :0, penergy :0, eenergy:0, changes:0, fit     :0, age      :0, code:0,
-            kill:0, killenergy:0, killage:0, killeat:0, killover:0, killout:0, killin :0, killtour:0, killclone:0
+            lps :0, ips       :0, orgs   :0, energy :0, penergy :0, eenergy:0, changes:0, fit      :0, age:0, code:0,
+            kill:0, killenergy:0, killage:0, killeat:0, killover:0, killout:0, killin :0, killclone:0
         };
         this._stamp          = 0;
         this._ips            = 0;
@@ -67,7 +67,6 @@ class Status extends Configurable {
         this._onKillOverCb   = this._onKillHandlerOrg.bind(this, 4);
         this._onKillOutCb    = this._onKillHandlerOrg.bind(this, 5);
         this._onKillInCb     = this._onKillHandlerOrg.bind(this, 6);
-        this._onKillTourCb   = this._onKillHandlerOrg.bind(this, 7);
         this._onKillCloneCb  = this._onKillHandlerOrg.bind(this, 8);
 
         Helper.override(manager, 'onLoop', this._onLoopCb);
@@ -80,7 +79,6 @@ class Status extends Configurable {
         manager.on(EVENTS.KILL_OVERFLOW,  this._onKillOverCb);
         manager.on(EVENTS.KILL_STEP_OUT,  this._onKillOutCb);
         manager.on(EVENTS.KILL_STEP_IN,   this._onKillInCb);
-        manager.on(EVENTS.KILL_TOUR,      this._onKillTourCb);
         manager.on(EVENTS.KILL_CLONE,     this._onKillCloneCb);
 
         _fill(this._kill, 0);
@@ -90,7 +88,6 @@ class Status extends Configurable {
         const man = this.parent;
 
         man.off(EVENTS.KILL_CLONE,     this._onKillCloneCb);
-        man.off(EVENTS.KILL_TOUR,      this._onKillTourCb);
         man.off(EVENTS.KILL_STEP_IN,   this._onKillInCb);
         man.off(EVENTS.KILL_STEP_OUT,  this._onKillOutCb);
         man.off(EVENTS.KILL_OVERFLOW,  this._onKillOverCb);
@@ -105,7 +102,6 @@ class Status extends Configurable {
         this._onKillOrgCb    = null;
         this._onEatEnergyCb  = null;
         this._onKillCloneCb  = null;
-        this._onKillTourCb   = null;
         this._onKillInCb     = null;
         this._onKillOutCb    = null;
         this._onKillOverCb   = null;
@@ -176,7 +172,6 @@ class Status extends Configurable {
         status.killover   = fix(this._kill[4], 2);
         status.killout    = fix(this._kill[5], 2);
         status.killin     = fix(this._kill[6], 2);
-        status.killtour   = fix(this._kill[7], 2);
         status.killclone  = fix(this._kill[8], 2);
 
         !this._firstCall && this.onStatus(status, orgs.size);

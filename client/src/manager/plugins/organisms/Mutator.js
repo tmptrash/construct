@@ -20,7 +20,7 @@ const MAX_VAR       = Num.MAX_VAR;
 const MAX_BITS      = Num.MAX_BITS;
 const BITS_PER_VAR  = Num.BITS_PER_VAR;
 
-const ADD_MUTAION_INDEX = 9;
+const ADD_MUTAION_INDEX = 8;
 
 class Mutator {
     static _onChange(org) {
@@ -75,7 +75,7 @@ class Mutator {
         org.changes++;
     }
 
-    static _onClone(org) {
+    static _onCloneMutationPercent(org) {
         if (!OConfig.orgClonePerOrg) {return}
         org.cloneMutationPercent = Math.random();
         org.changes++;
@@ -84,12 +84,6 @@ class Mutator {
     static _onCloneEnergyPercent(org) {
         if (!OConfig.orgClonePerOrg) {return}
         org.cloneEnergyPercent = Math.random();
-        org.changes++;
-    }
-
-    static _onClonePeriod(org) {
-        if (!OConfig.orgClonePerOrg) {return}
-        org.clonePeriod = Helper.rand(OConfig.ORG_MAX_CLONE_PERIOD);
         org.changes++;
     }
 
@@ -112,9 +106,8 @@ class Mutator {
             Mutator._onMutationPeriod,
             Mutator._onMutationPercent,
             Mutator._onProbs,
-            Mutator._onClone,
+            Mutator._onCloneMutationPercent,
             Mutator._onCloneEnergyPercent,
-            Mutator._onClonePeriod,
             Mutator._onAdd,
             Mutator._onCopy
         ];

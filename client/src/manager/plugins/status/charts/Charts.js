@@ -43,7 +43,6 @@ class Charts extends Status {
             killover  : new Chart(`Amount of organisms killed after overflow per ${periodSec} sec`, Config.charts.killover),
             killout   : new Chart(`Amount of organisms killed after step out per ${periodSec} sec`, Config.charts.killout),
             killin    : new Chart(`Amount of organisms killed after step in per ${periodSec} sec`,  Config.charts.killin),
-            killtour  : new Chart(`Amount of organisms killed in tournament per ${periodSec} sec`,  Config.charts.killtour),
             killclone : new Chart(`Amount of organisms killed during clone per ${periodSec} sec`,   Config.charts.killclone)
         };
     }

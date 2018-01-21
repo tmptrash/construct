@@ -21,23 +21,21 @@ const EVENTS = {
     KILL_OVERFLOW   : 11, // population reaches it's maximum, we have to kill one organism
     KILL_STEP_OUT   : 12, // killed, because organism step outside the world
     KILL_STEP_IN    : 13, // killed, because of panishment for step in from near client
-    KILL_TOUR       : 14, // killed in tournament
-    KILL_CLONE      : 15, // killed, because of lack of energy after clone
-    MUTATIONS       : 16,
-    CLONE           : 17,
-    EAT             : 18,
-    EAT_ORG         : 19,
-    EAT_ENERGY      : 20,
-    STEP            : 21,
-    STEP_OUT        : 22,
-    STEP_IN         : 23,
-    BORN_ORGANISM   : 24,
-    GET_ENERGY      : 25,
-    DESTROY         : 26,
-    RUN             : 27,
-    STOP            : 28,
-    RESET_CODE      : 29,
-    CHECK_AT        : 30
+    KILL_CLONE      : 14, // killed, because of lack of energy after clone
+    MUTATIONS       : 15,
+    EAT             : 16,
+    EAT_ORG         : 17,
+    EAT_ENERGY      : 18,
+    STEP            : 19,
+    STEP_OUT        : 20,
+    STEP_IN         : 21,
+    BORN_ORGANISM   : 22,
+    GET_ENERGY      : 23,
+    DESTROY         : 24,
+    RUN             : 25,
+    STOP            : 26,
+    RESET_CODE      : 27,
+    CHECK_AT        : 28
 };
 
 const EVENT_AMOUNT = Object.keys(EVENTS).length;
