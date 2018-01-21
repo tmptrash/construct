@@ -9,6 +9,7 @@
  */
 const GoogleCharts = require('google-charts').GoogleCharts;
 const _get         = require('lodash/get');
+const Helper       = require('./../../../../../../common/src/Helper');
 const Config       = require('./Config');
 
 class Chart {
@@ -67,15 +68,14 @@ class Chart {
     }
 
     _onReady() {
-        const el = this._el = document.createElement("DIV");
-
-        el.style.position = 'absolute';
-        el.style.opacity  = this._cfg.transparent;
+        document.body.appendChild(this._el = Helper.setStyles('DIV', {
+            position: 'absolute',
+            opacity : this._cfg.transparent
+        }));
         this._updatePos(this._cfg.pos);
-        document.body.appendChild(el);
-        this._ready = true;
 
-        this._chart = new google.visualization.LineChart(el);
+        this._ready = true;
+        this._chart = new google.visualization.LineChart(this._el);
         !this._data && (this._data = this._createDataTable());
     }
 
@@ -134,13 +134,14 @@ class Chart {
 
     _updatePos(pos) {
         if (!this._el) {return}
-        const style  = this._el.style;
-        const size   = this._getSize(pos);
+        const size = this._getSize(pos);
 
-        style.width  = size[0];
-        style.height = size[1];
-        style.left   = size[2];
-        style.top    = size[3];
+        Helper.setStyles(this._el, {
+            width : size[0],
+            height: size[1],
+            left  : size[2],
+            top   : size[3]
+        });
     }
 
     _updateActive(active) {

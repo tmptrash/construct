@@ -4,6 +4,7 @@
  * @author flatline
  */
 const Panzoom = require('panzoom');
+const Helper  = require('./../../../common/src/Helper');
 
 class Canvas {
     constructor(width, height, noScrolls = false) {
@@ -101,17 +102,20 @@ class Canvas {
         const bodyEl = document.body;
         const htmlEl = document.querySelector('html');
 
-        bodyEl.style.width           = '100%';
-        bodyEl.style.height          = '100%';
-        bodyEl.style.margin          = 0;
-        bodyEl.style.backgroundColor = '#9e9e9e';
+        Helper.setStyles(bodyEl, {
+            width          : '100%',
+            height         : '100%',
+            margin         : 0,
+            backgroundColor: '#9e9e9e'
+        });
+        Helper.setStyles(htmlEl, {
+            width          : '100%',
+            height         : '100%',
+            margin         : 0
+        });
 
-        htmlEl.style.width           = '100%';
-        htmlEl.style.height          = '100%';
-        htmlEl.style.margin          = 0;
-
-        this._ctx.font               = "18px Consolas";
-        this._ctx.fillStyle          = "white";
+        this._ctx.font      = "18px Consolas";
+        this._ctx.fillStyle = "white";
         //
         // This style hides scroll bars on full screen 2d canvas
         //

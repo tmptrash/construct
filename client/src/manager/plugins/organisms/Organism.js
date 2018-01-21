@@ -120,7 +120,7 @@ class Organism extends Observer {
     set mutationPercent(p)      {this._mutationPercent = p}
     set energy(e)               {this._energy = e}
     set startEnergy(e)          {this._startEnergy = e}
-    set changes(c)              {this._updateColor(this._changes = c)}
+    set changes(c)              {this._updateColor(c); this._changes = c}
 
     /**
      * Runs one code iteration (amount of lines set in Config.codeYieldPeriod) and returns
@@ -263,7 +263,8 @@ class Organism extends Observer {
     }
 
     _updateColor(changes) {
-        this._color = Organism._getColor(this._colorIndex = Math.round(changes / MAX_BITS));
+        this._colorIndex += (changes - this._changes);
+        this._color       = Organism._getColor(Math.round(this._colorIndex / MAX_BITS));
     }
 
     /**

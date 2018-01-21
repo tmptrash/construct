@@ -4,12 +4,13 @@
  *
  * @author flatline
  */
-const Status = require('./../Status');
-const Chart  = require('./Chart');
-const Config = require('./Config');
 const _each  = require('lodash/each');
 const _has   = require('lodash/has');
 const _get   = require('lodash/get');
+const Helper = require('./../../../../../../common/src/Helper');
+const Status = require('./../Status');
+const Chart  = require('./Chart');
+const Config = require('./Config');
 
 const API = {
     transparent: ['_transparent', 'Sets transparent level'     ],
@@ -84,9 +85,8 @@ class Charts extends Status {
         const ips    = `ips:${status.ips}`;
         const pnrg   = `pnrg:${status.penergy}`;
         const code   = `cod:${status.code}`;
-        let   header = `id:${man.clientId ? man.clientId : ''} ${conns === '' ? '' : 'con:' + conns} ${ips} ${pnrg} ${code}`;
 
-        this._header.textContent = header;
+        this._header.textContent = `id:${man.clientId ? man.clientId : ''} ${conns === '' ? '' : 'con:' + conns} ${ips} ${pnrg} ${code}`;
     }
 
     _to12h(time) {
@@ -100,18 +100,14 @@ class Charts extends Status {
     }
 
     _createHeader() {
-        const el = this._el = document.createElement("DIV");
-
-        el.style.position   = 'absolute';
-        el.style.top        = '5px';
-        el.style.left       = '5px';
-        el.style.color      = '#fff';
-        el.style.fontSize   = '18px';
-        el.style.fontFamily = 'Consolas';
-
-        document.body.appendChild(el);
-
-        return el;
+        return document.body.appendChild(this._el = Helper.setStyles('DIV', {
+            position  : 'absolute',
+            top       : '5px',
+            left      : '5px',
+            color     : '#fff',
+            fontSize  : '18px',
+            fontFamily: 'Consolas'
+        }));
     }
 
     /**

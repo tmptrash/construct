@@ -3,6 +3,7 @@
  *
  * @author flatline
  */
+const _each  = require('lodash/each');
 const Config = require('./../../client/src/share/Config').Config;
 const DIR    = require('./Directions').DIR;
 
@@ -45,6 +46,21 @@ class Helper {
             return;
         }
         obj[fnName] = fn;
+    }
+
+    /**
+     * Apply styles packed in object. key: style name, val: style value
+     * @param {Element|String} el Element to apply styles or tag name to create
+     * @param {Object} styles Styles object
+     * @return {Element} Element with applied styles
+     */
+    static setStyles(el, styles) {
+        el = typeof el === 'string' ? document.createElement(el) : el;
+        const style = el.style;
+
+        _each(styles, (val, name) => style[name] = val);
+
+        return el;
     }
 
     /**
@@ -178,16 +194,16 @@ class Helper {
         return !isNaN(parseFloat(n)) && isFinite(n);
     }
 
+    static isFunc(v) {
+        return typeof v === 'function';
+    }
+
     /**
      * Generates unique numeric ids
      * @returns {Number}
      */
     static getId() {
         return ++this._id;
-    }
-
-    static isFunc(v) {
-        return typeof v === 'function';
     }
 
     // TODO: will be used later

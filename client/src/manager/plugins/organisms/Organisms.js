@@ -223,7 +223,7 @@ class Organisms extends Configurable {
         let   child = orgs.last.val;
 
         if (child.alive && org2.alive) {
-            child.changes += (child.vm.crossover(org2.vm) * MAX_BITS);
+            child.changes += (Math.abs(child.vm.crossover(org2.vm)) * MAX_BITS);
         }
     }
 

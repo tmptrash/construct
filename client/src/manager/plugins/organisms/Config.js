@@ -36,7 +36,7 @@ const Config = {
      * {Boolean} If turned on, then organism will be responsible for changing
      * mutations probabilities. Otherwise these probabilities will be constant
      */
-    orgMutationPerOrg: true,
+    orgMutationPerOrg: false,
     /**
      * {Number} Percent of energy, which will be given to the child. Set to 0.0
      * to share the same amount of energy with child (energy duplication)
@@ -50,7 +50,7 @@ const Config = {
     /**
      * {Number} Amount of iterations between cloning. Set it to 0 to turn it off
      */
-    orgClonePeriod: 100,
+    orgClonePeriod: 400,
     /**
      * {Boolean} Turn this flag on to give organism a possibility to choose his
      * own clone period and percent. false - mean, that these values will be constant
@@ -62,7 +62,7 @@ const Config = {
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 1000,
+    orgRainMutationPeriod: 20000,
     /**
      * {Number} Percent of mutations from code size. 0 is a possible value if
      * we want to disable mutations. Should be less then 1.0 (1.0 === 100%)
@@ -73,7 +73,7 @@ const Config = {
      * own mutations period and percent. false - mean, that these values will be
      * constant for all organisms
      */
-    orgRainPerOrg: true,
+    orgRainPerOrg: false,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
@@ -93,7 +93,7 @@ const Config = {
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
      */
-    orgAlivePeriod: 40000,
+    orgAlivePeriod: 100000,
     /**
      * {Number} Size of organism stack (internal memory) in bits. Real amount of
      * organism's internal memory will be 2^orgMemBits. Example: if orgMemBits=3,
@@ -104,7 +104,7 @@ const Config = {
      * {Number} Percent of energy, which will be minused from organism after
      * stepping from one instance to another.
      */
-    orgStepEnergySpendPercent: 0.0,
+    orgStepEnergySpendPercent: 0.1,
     /**
      * {Number} Percent from orgMaxOrgs config, which is used for crossing borders
      * between clients/Managers. Entire amount of organisms within one client =
@@ -119,7 +119,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 200,
+    orgMaxOrgs: 800,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
