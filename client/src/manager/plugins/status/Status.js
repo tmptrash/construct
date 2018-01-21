@@ -162,7 +162,7 @@ class Status extends Configurable {
         status.lps        = fix((this.parent.codeRuns - this._codeRuns) / ((stamp - this._stamp) / 1000), 0);
         status.orgs       = orgAmount;
         status.energy     = fix(this._energy, 2);
-        status.penergy    = fix(this._pickEnergy, 2);
+        status.penergy    = fix(this._pickEnergy * 10, 2);
         status.eenergy    = fix(this._eatEnergy / orgAmount, 2);
         status.changes    = +(this._changes).toFixed(1);
         status.fit        = fix(this._fitness / 100, 2);

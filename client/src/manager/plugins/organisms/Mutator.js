@@ -130,9 +130,8 @@ class Mutator {
     }
 
     _onOrganism(org) {
-        if (org.iterations % org.mutationPeriod === 0 && OConfig.orgRainMutationPeriod > 0 && OConfig.orgRainMutationPercent > 0.0 && org.mutationPeriod > 0 && org.alive) {
-            this._mutate(org, false);
-        }
+        if (org.iterations % org.mutationPeriod !== 0 || OConfig.orgRainMutationPeriod === 0 || OConfig.orgRainMutationPercent === 0.0 || org.mutationPeriod === 0 || !org.alive) {return}
+        this._mutate(org, false);
     }
 
     _onCloneOrg(parent, child) {

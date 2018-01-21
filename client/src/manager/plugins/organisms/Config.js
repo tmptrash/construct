@@ -56,18 +56,18 @@ const Config = {
     /**
      * {Number} Amount of iterations between cloning. Set it to 0 to turn it off
      */
-    orgClonePeriod: 400,
+    orgClonePeriod: 30,
     /**
      * {Number} Amount of iterations between tournament. During tournament one
      * organism (looser) will be killed
      */
-    orgTournamentPeriod: 200,
+    orgTournamentPeriod: 100,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 20000,
+    orgRainMutationPeriod: 2000,
     /**
      * {Number} Percent of mutations from code size. 0 is a possible value if
      * we want to disable mutations. Should be less then 1.0 (1.0 === 100%)
@@ -88,7 +88,7 @@ const Config = {
      * {Number} Period of iterations for creation of random organisms. Set it to 0
      * to turn off this feature
      */
-    orgRandomOrgPeriod: 7000,
+    orgRandomOrgPeriod: 10000,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
@@ -98,7 +98,7 @@ const Config = {
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
      */
-    orgAlivePeriod: 100000,
+    orgAlivePeriod: 10000,
     /**
      * {Number} Size of organism stack (internal memory) in bits. Real amount of
      * organism's internal memory will be 2^orgMemBits. Example: if orgMemBits=3,

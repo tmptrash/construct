@@ -58,7 +58,7 @@ ClientConfig.init({
      * coordinate (height). It actual only for one instance mode (no distributed
      * calculations).
      */
-    worldCyclical: true,
+    worldCyclical: false,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...

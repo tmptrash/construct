@@ -236,8 +236,8 @@ class Organism extends Observer {
         this.vm                     = new VM(this, this._operatorCls);
         this._energy                = OConfig.orgStartEnergy;
         this._startEnergy           = OConfig.orgStartEnergy;
-        this._colorIndex            = OConfig.orgStartColor;
-        this._color                 = Organism._getColor(0);
+        this._colorIndex            = OConfig.orgStartColor * MAX_BITS;
+        this._color                 = Organism._getColor(this._colorIndex);
         this._mutationProbs         = OConfig.orgMutationProbs.slice();
         this._cloneMutationPercent  = OConfig.orgCloneMutationPercent;
         this._cloneEnergyPercent    = OConfig.orgCloneEnergyPercent;
@@ -295,8 +295,7 @@ class Organism extends Observer {
             return true;
         }
         if (this._iterations % OConfig.orgEnergySpendPeriod !== 0 || OConfig.orgEnergySpendPeriod === 0) {return true}
-        //let grabSize = this.vm.size;
-        let grabSize = 1;
+        let grabSize = this.vm.size;
         if (grabSize < 1) {grabSize = 1}
 
         (this._energy <= grabSize) && this.fire(KILL_NO_ENERGY, this);

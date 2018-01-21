@@ -89,7 +89,7 @@ class Charts extends Status {
         const pnrg   = `pnrg:${status.penergy}`;
         const code   = `cod:${status.code}`;
 
-        this._headerEl.textContent = `id:${man.clientId ? man.clientId : ''} ${conns === '' ? '' : 'con:' + conns} ${ips} ${pnrg} ${code}`;
+        this._headerEl.textContent = `${man.clientId ? 'id:' + man.clientId : ''} ${conns === '' ? '' : 'con:' + conns} ${ips} ${pnrg} ${code}`;
     }
 
     _to12h(time) {

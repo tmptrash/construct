@@ -324,8 +324,9 @@ class Organisms extends Configurable {
         if (!org1.alive || !org2.alive) {return false}
         this._crossover(org1, org2);
         if (orgAmount + 1 >= OConfig.orgMaxOrgs) {
-            this.parent.fire(EVENTS.KILL_OVERFLOW, org1);
-            org1.destroy();
+            if (this._tournament(org1, org2) === org2) {[org1, org2] = [org2, org1]}
+            this.parent.fire(EVENTS.KILL_OVERFLOW, org2);
+            org2.destroy();
         }
 
         return true;
