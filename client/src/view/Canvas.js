@@ -106,6 +106,7 @@ class Canvas {
             cursor         : 'pointer'
         }));
 
+        el.title   = 'fullscreen';
         el.onclick = () => {
             this._panZoom.zoomAbs(0, 0, 1.0);
             this._panZoom.moveTo(0, 0);
