@@ -24,9 +24,9 @@ class Charts extends Status {
         super(manager, Config, API);
         const periodSec = Config.period / 1000;
 
-        this._data   = new Array(2);
-        this._header = this._createHeader();
-        this._charts = {
+        this._data     = new Array(2);
+        this._headerEl = this._createHeader();
+        this._charts   = {
             lps       : new Chart('LPS - Lines Per Second',                                         Config.charts.lps),
             ips       : new Chart('IPS - Iterations Per Second',                                    Config.charts.ips),
             orgs      : new Chart('Amount of organisms',                                            Config.charts.orgs),
@@ -50,8 +50,10 @@ class Charts extends Status {
 
     destroy() {
         _each(this._charts, chart => chart.destroy());
-        this._charts = null;
-        this._data   = null;
+        this._headerEl.parentNode.removeChild(this._headerEl);
+        this._headerEl = null;
+        this._charts   = null;
+        this._data     = null;
 
         super.destroy();
     }
@@ -86,7 +88,7 @@ class Charts extends Status {
         const pnrg   = `pnrg:${status.penergy}`;
         const code   = `cod:${status.code}`;
 
-        this._header.textContent = `id:${man.clientId ? man.clientId : ''} ${conns === '' ? '' : 'con:' + conns} ${ips} ${pnrg} ${code}`;
+        this._headerEl.textContent = `id:${man.clientId ? man.clientId : ''} ${conns === '' ? '' : 'con:' + conns} ${ips} ${pnrg} ${code}`;
     }
 
     _to12h(time) {
@@ -100,10 +102,10 @@ class Charts extends Status {
     }
 
     _createHeader() {
-        return document.body.appendChild(this._el = Helper.setStyles('DIV', {
+        return document.body.appendChild(Helper.setStyles('DIV', {
             position  : 'absolute',
-            top       : '5px',
-            left      : '5px',
+            top       : '7px',
+            left      : '35px',
             color     : '#fff',
             fontSize  : '18px',
             fontFamily: 'Consolas'

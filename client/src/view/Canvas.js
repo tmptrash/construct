@@ -24,6 +24,7 @@ class Canvas {
         this._animate   = this._onAnimate.bind(this);
         this._visualize = true;
         this._panZoom   = null;
+        this._fullEl    = this._createFullScreen();
 
         this._prepareDom(noScrolls);
         this._initPanZoomLib();
@@ -32,11 +33,16 @@ class Canvas {
     }
 
     destroy() {
+        const parentNode = this._canvasEl.parentNode;
+
         this._panZoom.dispose();
-        this._canvasEl.parentNode.removeChild(this._canvasEl);
-        this._ctx     = null;
-        this._imgData = null;
-        this._data    = null;
+        parentNode.removeChild(this._canvasEl);
+        parentNode.removeChild(this._fullEl);
+        this._canvasEl = null;
+        this._fullEl   = null;
+        this._ctx      = null;
+        this._imgData  = null;
+        this._data     = null;
     }
 
     visualize(visualize = true) {
@@ -85,6 +91,27 @@ class Canvas {
         data[offs    ] = (color >> 16) & 0xff;
         data[offs + 1] = (color >> 8)  & 0xff;
         data[offs + 2] = color & 0xff;
+    }
+
+    _createFullScreen() {
+        const el = document.body.appendChild(Helper.setStyles('DIV', {
+            position       : 'absolute',
+            width          : '20px',
+            height         : '20px',
+            top            : '7px',
+            left           : '7px',
+            border         : '1px #000 solid',
+            backgroundColor: '#f7ed0e',
+            borderRadius   : '6px',
+            cursor         : 'pointer'
+        }));
+
+        el.onclick = () => {
+            this._panZoom.zoomAbs(0, 0, 1.0);
+            this._panZoom.moveTo(0, 0);
+        };
+        
+        return el;
     }
 
     _onAnimate() {
