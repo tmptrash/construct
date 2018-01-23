@@ -31,7 +31,7 @@ const Config = {
      *     copy          - Probability of copying of code lines inside it's own code
      * ]
      */
-    orgMutationProbs: [1,1,90,1,1,1,1,1,10,1],
+    orgMutationProbs: [10,1,90,1,1,1,1,1,10,5],
     /**
      * {Boolean} If turned on, then organism will be responsible for changing
      * mutations probabilities. Otherwise these probabilities will be constant
@@ -83,12 +83,12 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 50000,
+    orgCrossoverPeriod: 40000,
     /**
      * {Number} Period of iterations for creation of random organisms. Set it to 0
      * to turn off this feature
      */
-    orgRandomOrgPeriod: 50000,
+    orgRandomOrgPeriod: 40000,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
@@ -124,11 +124,11 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 600,
+    orgMaxOrgs: 800,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 600,
+    orgStartAmount: 800,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created
@@ -151,7 +151,7 @@ const Config = {
      * organism without interruption by one VM. Set this value to value bigger
      * then codeMaxSize, then entire code of organism will be run
      */
-    codeYieldPeriod: 1,
+    codeYieldPeriod: 4,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain. This value shouldn't be less then 2.

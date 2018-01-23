@@ -88,6 +88,10 @@ ClientConfig.init({
      */
     worldNoScrolls: true,
     /**
+     * {Number} Zoom speed 0..1
+     */
+    worldZoomSpeed: 0.05,
+    /**
      * {Number} Mode for showing/suppressing of messages. Possible values:
      *   0 - all messages
      *   1 - only important messages
