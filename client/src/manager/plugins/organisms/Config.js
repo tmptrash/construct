@@ -10,6 +10,18 @@ const Config = {
      */
     ORG_MUTATION_PROBS_MAX_VAL: 100,
     /**
+     * {Array} Array of operators weights in energy equivalent. Every value of this
+     * array is bind to special operator run on VM. The same sequence should be
+     * implemented. See Operators.operators getter for details. Values may be float.
+     * Values titles:
+     * [
+     *   onVar,onCondition,onLoop,omOperator,onLookAt,onEatLeft,onEatRight,onEatUp,
+     *   onEatDown,onStepLeft,onStepRight,onStepUp,onStepDown,onFromMem,onToMem,
+     *   onMyX,onMyY,onCheckLeft,onCheckRight,onCheckUp,onCheckDown
+     * ]
+     */
+    orgOperatorWeights: [.1,.1,.001,.1,.01,.2,.2,.2,.2,.5,.5,.5,.5,.1,.1,.1,.1,.1,.1,.1,.1],
+    /**
      * {Array} Probabilities which used, when mutator decides what to do:
      * add, change, delete code line inside the vm; change amount of
      * mutations or change mutations period... Depending on these
@@ -56,18 +68,18 @@ const Config = {
     /**
      * {Number} Amount of iterations between cloning. Set it to 0 to turn it off
      */
-    orgClonePeriod: 10,
+    orgClonePeriod: 2,
     /**
      * {Number} Amount of iterations between tournament. During tournament one
      * organism (looser) will be killed
      */
-    orgTournamentPeriod: 50,
+    orgTournamentPeriod: 0,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 10000,
+    orgRainMutationPeriod: 3000,
     /**
      * {Number} Percent of mutations from code size. 0 is a possible value if
      * we want to disable mutations. Should be less then 1.0 (1.0 === 100%)
@@ -93,12 +105,12 @@ const Config = {
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
      */
-    orgEnergySpendPeriod: 10,
+    orgEnergySpendPeriod: 0,
     /**
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
      */
-    orgAlivePeriod: 18000,
+    orgAlivePeriod: 10000,
     /**
      * {Number} Size of organism stack (internal memory) in bits. Real amount of
      * organism's internal memory will be 2^orgMemBits. Example: if orgMemBits=3,
