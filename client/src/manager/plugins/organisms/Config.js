@@ -61,13 +61,13 @@ const Config = {
      * {Number} Amount of iterations between tournament. During tournament one
      * organism (looser) will be killed
      */
-    orgTournamentPeriod: 400,
+    orgTournamentPeriod: 50,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 17000,
+    orgRainMutationPeriod: 10000,
     /**
      * {Number} Percent of mutations from code size. 0 is a possible value if
      * we want to disable mutations. Should be less then 1.0 (1.0 === 100%)
@@ -83,12 +83,12 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 40000,
+    orgCrossoverPeriod: 2000,
     /**
      * {Number} Period of iterations for creation of random organisms. Set it to 0
      * to turn off this feature
      */
-    orgRandomOrgPeriod: 40000,
+    orgRandomOrgPeriod: 2000,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
@@ -124,11 +124,11 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 800,
+    orgMaxOrgs: 10000,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 800,
+    orgStartAmount: 5000,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created
