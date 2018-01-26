@@ -16,6 +16,8 @@ const API = {
     transparent: ['_transparent', 'Sets transparent level'     ],
     pos        : ['_pos',         'Sets chart position'        ],
     active     : ['_active',      'Activates/Deactivates chart'],
+    on         : ['_on',          'Activates/Deactivates chart'],
+    off        : ['_off',         'Deactivates chart'          ],
     reset      : ['_reset',       'Resets chart data'          ]
 };
 
@@ -160,6 +162,25 @@ class Charts extends Status {
             _each(this._charts, (c, k) => this._setProperty(k, 'active', a));
         } else {
             this._setProperty(chart, 'active', a);
+        }
+    }
+
+    /**
+     * Shortcut for _active() method. See it for details.
+     */
+    _on(...args) {
+        this._active(...args)
+    }
+
+    /**
+     * Opposite to _on().
+     * @param {String=} chart Chart name
+     */
+    _off(chart) {
+        if (typeof chart === 'string') {
+            this._active(chart, false);
+        } else {
+            this._active(false);
         }
     }
 
