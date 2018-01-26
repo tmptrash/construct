@@ -10,6 +10,18 @@ const Config = {
      */
     ORG_MUTATION_PROBS_MAX_VAL: 100,
     /**
+     * {Array} Array of operators weights in energy equivalent. Every value of this
+     * array is bind to special operator run on VM. The same sequence should be
+     * implemented. See Operators.operators getter for details. Values may be float.
+     * Values titles:
+     * [
+     *   onVar,onCondition,onLoop,omOperator,onLookAt,onEatLeft,onEatRight,onEatUp,
+     *   onEatDown,onStepLeft,onStepRight,onStepUp,onStepDown,onFromMem,onToMem,
+     *   onMyX,onMyY,onCheckLeft,onCheckRight,onCheckUp,onCheckDown
+     * ]
+     */
+    orgOperatorWeights: [.1,.1,.001,.1,.01,.2,.2,.2,.2,.5,.5,.5,.5,.1,.1,.1,.1,.1,.1,.1,.1],
+    /**
      * {Array} Probabilities which used, when mutator decides what to do:
      * add, change, delete code line inside the vm; change amount of
      * mutations or change mutations period... Depending on these
@@ -31,7 +43,7 @@ const Config = {
      *     copy          - Probability of copying of code lines inside it's own code
      * ]
      */
-    orgMutationProbs: [1,1,90,1,1,1,1,1,10,1],
+    orgMutationProbs: [10,1,90,1,1,1,1,1,10,5],
     /**
      * {Boolean} If turned on, then organism will be responsible for changing
      * mutations probabilities. Otherwise these probabilities will be constant
@@ -56,18 +68,18 @@ const Config = {
     /**
      * {Number} Amount of iterations between cloning. Set it to 0 to turn it off
      */
-    orgClonePeriod: 30,
+    orgClonePeriod: 2,
     /**
      * {Number} Amount of iterations between tournament. During tournament one
      * organism (looser) will be killed
      */
-    orgTournamentPeriod: 100,
+    orgTournamentPeriod: 0,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 2000,
+    orgRainMutationPeriod: 3000,
     /**
      * {Number} Percent of mutations from code size. 0 is a possible value if
      * we want to disable mutations. Should be less then 1.0 (1.0 === 100%)
@@ -83,17 +95,17 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 4000,
+    orgCrossoverPeriod: 2000,
     /**
      * {Number} Period of iterations for creation of random organisms. Set it to 0
      * to turn off this feature
      */
-    orgRandomOrgPeriod: 10000,
+    orgRandomOrgPeriod: 2000,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
      */
-    orgEnergySpendPeriod: 10,
+    orgEnergySpendPeriod: 0,
     /**
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
@@ -124,34 +136,34 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 800,
+    orgMaxOrgs: 10000,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 800,
+    orgStartAmount: 5000,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created
      * by operator and not by evolution.
      */
-    orgStartEnergy: 100000,
+    orgStartEnergy: 500000,
     /**
      * {Number} Begin color of "empty". It's just an index of color. Starts from
      * 0 and till Number.MAX_VALUE
      */
-    orgStartColor: 18,
+    orgStartColor: 24,
     /**
      * {Number} The value from -X/2 to X/2, which is used for setting
      * default value, while organism is delivering. So, if the value is
      * 1000, then range will be: -500..500
      */
-    codeVarInitRange: 100,
+    codeVarInitRange: 500,
     /**
      * {Number} This value is amount of code lines, which will be run for one
      * organism without interruption by one VM. Set this value to value bigger
      * then codeMaxSize, then entire code of organism will be run
      */
-    codeYieldPeriod: 5,
+    codeYieldPeriod: 4,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain. This value shouldn't be less then 2.

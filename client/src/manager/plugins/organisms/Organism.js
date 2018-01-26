@@ -201,7 +201,7 @@ class Organism extends Observer {
     }
 
     grabEnergy(amount) {
-        if (!IS_NUM(amount)) {return true}
+        if (!IS_NUM(amount) || amount === 0) {return true}
         const noEnergy = (this._energy -= amount) < 1;
         this.fire(GRAB_ENERGY, amount + (noEnergy ? -this._energy : 0));
         noEnergy && this.destroy();

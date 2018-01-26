@@ -5,6 +5,7 @@
  */
 const Panzoom = require('panzoom');
 const Helper  = require('./../../../common/src/Helper');
+const Config  = require('./../share/Config').Config;
 
 class Canvas {
     constructor(width, height, noScrolls = false) {
@@ -158,7 +159,7 @@ class Canvas {
     _initPanZoomLib() {
         this._canvasEl.style.imageRendering = 'pixelated';
         this._panZoom   = Panzoom(this._canvasEl, {
-            zoomSpeed   : 0.05,
+            zoomSpeed   : Config.worldZoomSpeed,
             smoothScroll: false
         });
         this._panZoom.zoomAbs(0, 0, 1.0);
