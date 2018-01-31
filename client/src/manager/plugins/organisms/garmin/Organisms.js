@@ -20,6 +20,8 @@ class Organisms extends BaseOrganisms {
         super(manager);
         this._maxChanges = 0;
         this._maxEnergy  = 0;
+
+        this.callbacks[EVENTS.STOP] = this._onStop.bind(this);
     }
 
     /**
@@ -43,11 +45,6 @@ class Organisms extends BaseOrganisms {
         }
 
         if (org.changes > this._maxChanges) {this._maxChanges = org.changes}
-    }
-
-    addOrgHandlers(org) {
-        super.addOrgHandlers(org);
-        org.on(EVENTS.STOP, this._onStop.bind(this));
     }
 
     reset() {

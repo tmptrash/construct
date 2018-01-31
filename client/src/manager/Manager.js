@@ -251,6 +251,7 @@ class Manager extends Observer {
      * (onIteration()) inside by calling this.zeroTimeout().
      */
     _onLoop () {
+        if (!this._active) {return}
         //
         // This conditions id needed for turned on visualization mode to
         // prevent flickering of organisms in a canvas. It makes their
@@ -264,7 +265,7 @@ class Manager extends Observer {
             this.onIteration(i, TIMER());
         }
         this.onLoop(this._counter = i, TIMER());
-        this._active && this.zeroTimeout(this._onLoopCb);
+        this.zeroTimeout(this._onLoopCb);
     }
 
     _addHandlers() {

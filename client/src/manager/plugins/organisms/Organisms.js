@@ -87,6 +87,7 @@ class Organisms extends Configurable {
         this.randOrgItem    = this.organisms.first;
         this.positions      = manager.positions;
         this.world          = manager.world;
+        const cbs           = this.callbacks = {};
 
         this._mutator       = new Mutator(manager, this);
         this._onIterationCb = this._onIteration.bind(this);
@@ -95,6 +96,14 @@ class Organisms extends Configurable {
         this.reset();
         Helper.override(manager, 'onIteration', this._onIterationCb);
         Helper.override(manager, 'onLoop', this._onLoopCb);
+
+        cbs[ORG_EVENTS.DESTROY]        = this._onKillOrg.bind(this);
+        cbs[ORG_EVENTS.KILL_NO_ENERGY] = this._onKillNoEnergyOrg.bind(this);
+        cbs[ORG_EVENTS.KILL_AGE]       = this._onKillAgeOrg.bind(this);
+        cbs[ORG_EVENTS.ITERATION]      = this._onIterationOrg.bind(this);
+        cbs[ORG_EVENTS.CLONE]          = this._onCloneOrg.bind(this);
+        cbs[ORG_EVENTS.GRAB_ENERGY]    = () => {};
+
     }
 
     destroy() {
@@ -108,15 +117,9 @@ class Organisms extends Configurable {
         this._mutator       = null;
         this._onIterationCb = null;
         this._onLoopCb      = null;
+        this.callbacks      = null;
 
         super.destroy();
-    }
-
-    addOrgHandlers(org) {
-        org.on(ORG_EVENTS.DESTROY,        this._onKillOrg.bind(this));
-        org.on(ORG_EVENTS.KILL_NO_ENERGY, this._onKillNoEnergyOrg.bind(this));
-        org.on(ORG_EVENTS.KILL_AGE,       this._onKillAgeOrg.bind(this));
-        org.on(ORG_EVENTS.ITERATION,      this._onIterationOrg.bind(this));
     }
 
     reset() {
@@ -136,14 +139,13 @@ class Organisms extends Configurable {
     }
 
     createOrg(pos, parent = null) {
-        const orgs = this.organisms;
         if (pos === false) {return false}
+        const orgs = this.organisms;
         orgs.add(null);
-        let last = orgs.last;
-        let org  = this.createEmptyOrg(++this._orgId + '', pos.x, pos.y, true, last, parent);
+        let   last = orgs.last;
+        let   org  = this.createEmptyOrg(++this._orgId + '', pos.x, pos.y, true, last, this.callbacks, parent);
 
         last.val = org;
-        this.addOrgHandlers(org);
         this.move(-1, -1, pos.x, pos.y, org);
         this.parent.fire(EVENTS.BORN_ORGANISM, org);
         //Console.info(org.id, ' born');
@@ -175,17 +177,17 @@ class Organisms extends Configurable {
      * @param {Number} stamp Time stamp of current iteration
      */
     _onIteration(counter, stamp) {
-        let item = this.organisms.first;
-        let org;
+        const onOrganism = this.onOrganism.bind(this);
+        let   item       = this.organisms.first;
+        let   org;
 
         while (org = item && item.val) {
             org.run();
-            this.onOrganism(org);
+            onOrganism(org);
             item = item.next;
         }
 
         this._updateTournament(counter);
-        this._updateClone(counter);
         this._updateRandomOrgs(counter);
         this._updateCrossover(counter);
     }
@@ -213,6 +215,7 @@ class Organisms extends Configurable {
         let child = this.organisms.last.val;
 
         this.onClone(org, child);
+        if (!org.alive || !child.alive) {return false}
         this.parent.fire(EVENTS.CLONE, org, child);
 
         return true;
@@ -266,16 +269,24 @@ class Organisms extends Configurable {
         this._parent.fire(EVENTS.CODE_RUN, lines, org);
     }
 
-    /**
-     * Does clone of random organism without tournament and removing of extra(overflow) organisms
-     * @param {Number} counter Current value of counter
-     * @returns {Boolean} true - clone occurred, false - otherwise
-     */
-    _updateClone(counter) {
+    _onCloneOrg(org) {
+        const maxOrgs   = OConfig.orgMaxOrgs;
         const orgAmount = this.organisms.size;
-        if (counter % OConfig.orgClonePeriod !== 0 || OConfig.orgClonePeriod === 0 || orgAmount < 1) {return false}
-        const org       = this.randOrg();
-        if (orgAmount < OConfig.orgMaxOrgs && org.alive) {this._clone(org)}
+        const ret       = org.alive && (OConfig.orgKillOnClone || orgAmount < maxOrgs) && this._clone(org);
+
+        if (OConfig.orgKillOnClone && ret && orgAmount + 1 >= maxOrgs) {this._killInTour()}
+
+        return ret;
+    }
+
+    _killInTour() {
+        let org1 = this.randOrg();
+        let org2 = this.randOrg();
+        if (!org1.alive || !org2.alive || org1 === org2 || this.organisms.size < 1) {return false}
+
+        if (this._tournament(org1, org2) === org2) {[org1, org2] = [org2, org1]}
+        this.parent.fire(EVENTS.KILL_TOUR, org2);
+        org2.destroy();
 
         return true;
     }
@@ -287,17 +298,8 @@ class Organisms extends Configurable {
      * @returns {Boolean} true - tournament occurred, false - otherwise
      */
     _updateTournament(counter) {
-        let orgAmount = this.organisms.size;
-        if (counter % OConfig.orgTournamentPeriod !== 0 || orgAmount < 1 || OConfig.orgTournamentPeriod === 0) {return true}
-        let org1      = this.randOrg();
-        let org2      = this.randOrg();
-        if (!org1.alive || !org2.alive || org1 === org2 || orgAmount < 1) {return false}
-
-        if (this._tournament(org1, org2) === org2) {[org1, org2] = [org2, org1]}
-        this.parent.fire(EVENTS.KILL_TOUR, org2);
-        org2.destroy();
-
-        return true;
+        const period = OConfig.orgTournamentPeriod;
+        return counter % period === 0 && this.organisms.size > 0 || period !== 0 && this._killInTour();
     }
 
     _updateRandomOrgs(counter) {

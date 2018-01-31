@@ -61,7 +61,6 @@ class Backup {
                 x                   : org.x,
                 y                   : org.y,
                 mutationProbs       : org.mutationProbs,
-                cloneMutationPercent: org.cloneMutationPercent,
                 mutationPeriod      : org.mutationPeriod,
                 mutationPercent     : org.mutationPercent,
                 color               : org.color,

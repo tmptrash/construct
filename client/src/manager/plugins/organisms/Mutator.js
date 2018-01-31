@@ -20,7 +20,7 @@ const MAX_VAR       = Num.MAX_VAR;
 const MAX_BITS      = Num.MAX_BITS;
 const BITS_PER_VAR  = Num.BITS_PER_VAR;
 
-const ADD_MUTAION_INDEX = 8;
+const ADD_MUTAION_INDEX = 6;
 
 class Mutator {
     static _onChange(org) {
@@ -75,18 +75,6 @@ class Mutator {
         org.changes++;
     }
 
-    static _onCloneMutationPercent(org) {
-        if (!OConfig.orgClonePerOrg) {return}
-        org.cloneMutationPercent = Math.random();
-        org.changes++;
-    }
-
-    static _onCloneEnergyPercent(org) {
-        if (!OConfig.orgClonePerOrg) {return}
-        org.cloneEnergyPercent = Math.random();
-        org.changes++;
-    }
-
     static _onAdd(org) {
         org.vm.insertLine();
         org.changes += MAX_BITS;
@@ -106,23 +94,17 @@ class Mutator {
             Mutator._onMutationPeriod,
             Mutator._onMutationPercent,
             Mutator._onProbs,
-            Mutator._onCloneMutationPercent,
-            Mutator._onCloneEnergyPercent,
             Mutator._onAdd,
             Mutator._onCopy
         ];
 
         this._onOrganismCb = this._onOrganism.bind(this);
-        this._onCloneCb    = this._onCloneOrg.bind(this);
 
         Helper.override(owner, 'onOrganism', this._onOrganismCb);
-        Helper.override(owner, 'onClone', this._onCloneCb);
     }
 
     destroy() {
-        Helper.unoverride(this._owner, 'onClone', this._onCloneCb);
         Helper.unoverride(this._owner, 'onOrganism', this._onOrganismCb);
-        this._onCloneCb      = null;
         this._onOrganismCb   = null;
         this._manager        = null;
         this._owner          = null;
@@ -131,25 +113,20 @@ class Mutator {
 
     _onOrganism(org) {
         if (org.iterations % org.mutationPeriod !== 0 || OConfig.orgRainMutationPeriod === 0 || OConfig.orgRainMutationPercent === 0.0 || org.mutationPeriod === 0 || !org.alive) {return}
-        this._mutate(org, false);
-    }
-
-    _onCloneOrg(parent, child) {
-        if (child.energy > 0 && OConfig.orgCloneMutationPercent > 0.0 && OConfig.orgClonePeriod > 0) {this._mutate(child)}
+        this._mutate(org);
     }
 
     /**
      * IMPORTANT: mutations should be applied only after last line of organism's code
      * has interpreted
      * @param {Organism} org Current organism
-     * @param {Boolean} clone true if mutation is applying after clone
      */
-    _mutate(org, clone = true) {
+    _mutate(org) {
         const vm        = org.vm;
         const probIndex = Helper.probIndex;
         const mTypes    = this._MUTATION_TYPES;
         const maxSize   = OConfig.codeMaxSize;
-        let   mutations = Math.round(vm.size * (clone ? org.cloneMutationPercent : org.mutationPercent)) || 1;
+        let   mutations = Math.round(vm.size * org.mutationPercent) || 1;
         let   type;
 
         for (let i = 0; i < mutations; i++) {
@@ -161,7 +138,7 @@ class Mutator {
             if (vm.size >= maxSize && type >= ADD_MUTAION_INDEX) {mutations = i; break}
             mTypes[type](org);
         }
-        this._manager.fire(EVENTS.MUTATIONS, org, mutations, clone);
+        this._manager.fire(EVENTS.MUTATIONS, org, mutations);
     }
 }
 

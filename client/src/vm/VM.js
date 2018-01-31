@@ -27,14 +27,14 @@ class VM extends Observer {
     /**
      * Creates VM instance. parent is used if VM instance is in a
      * cloning mode and we have to create a copy of it.
-     * @param {Observer} obs Observer instance for Operators class
+     * @param {Object} callbacks Callbacks map for calling outside methods
      * @param {Function} operatorCls Class of operators
      * @param {VM} parent Parent VM instance in case of cloning
      */
-    constructor(obs, operatorCls, parent = null) {
+    constructor(callbacks, operatorCls, parent = null) {
         super(EVENT_AMOUNT);
 
-        this._obs         = obs;
+        this._callbacks   = callbacks;
         /**
          * {Function} Class of operators, with implementation of all available
          * script parts for current VM instance
@@ -50,7 +50,7 @@ class VM extends Observer {
         /**
          * {Function} Class, which implement all supported operators
          */
-        this._operators   = new operatorCls(this._offsets, this._vars, obs);
+        this._operators   = new operatorCls(this._offsets, this._vars, callbacks);
         this._ops         = this._operators.operators;
         this._code        = parent && parent.code.slice() || [];
         this._line        = 0;
@@ -78,7 +78,7 @@ class VM extends Observer {
         this._vars      = json.vars;
         this._code      = json.code;
         this._line      = json.line;
-        this._operators = new this._operatorCls(this._offsets, this._vars, this._obs);
+        this._operators = new this._operatorCls(this._offsets, this._vars, this._callbacks);
     }
 
     /**
@@ -91,6 +91,7 @@ class VM extends Observer {
     run(org) {
         const code   = this._code;
         const lines  = code.length;
+        if (lines < 1) {return 0}
         const ops    = this._ops;
         const offs   = this._offsets;
         const period = OConfig.codeYieldPeriod;
@@ -131,7 +132,7 @@ class VM extends Observer {
         this._offsets     = null;
         this._vars        = null;
         this._code        = null;
-        this._obs         = null;
+        this._callbacks   = null;
         this._ops         = null;
 
         super.destroy();

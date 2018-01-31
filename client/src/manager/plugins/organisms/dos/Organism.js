@@ -17,10 +17,11 @@ class OrganismDos extends Organism {
      * @param {Boolean} alive true if organism is alive
      * @param {Object} item Reference to the Queue item, where
      * this organism is located
+     * @param {Object} callbacks Map of callback functions
      * @param {Organism} parent Parent organism if cloning is needed
      */
-    constructor(id, x, y, alive, item, parent = null) {
-        super(id, x, y, alive, item, Operators, parent);
+    constructor(id, x, y, alive, item, callbacks, parent = null) {
+        super(id, x, y, alive, item, Operators, callbacks, parent);
     }
 
     onRun() {

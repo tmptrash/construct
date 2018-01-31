@@ -25,8 +25,8 @@ const HALF_OF_VAR           = Num.MAX_VAR / 2;
 const CONDITION_BITS        = 2;
 
 class OperatorsGarmin extends  Operators {
-    constructor(offs, vars, obs) {
-        super(offs, vars, obs);
+    constructor(offs, vars, callbacks) {
+        super(offs, vars, callbacks);
         /**
          * {Object} These operator handlers should return string, which
          * will be added to the final string script for evaluation.
@@ -65,7 +65,7 @@ class OperatorsGarmin extends  Operators {
         this._OPERATORS_CB = null;
         this._CONDITIONS   = null;
         this._OPERATORS    = null;
-        this._TRIGS        = null;
+        //this._TRIGS        = null;
 
         super.destroy();
     }

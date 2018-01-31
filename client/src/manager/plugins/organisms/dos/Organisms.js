@@ -17,12 +17,29 @@ const OConfig       = require('./../Config');
 const EVENTS        = require('./../../../../share/Events').EVENTS;
 const Helper        = require('./../../../../../../common/src/Helper');
 const DIR           = require('./../../../../../../common/src/Directions').DIR;
+/**
+ * {Function} Is created to speed up this function call. constants are run
+ * much faster, then Helper.normalize()
+ */
+const NORMALIZE     = Helper.normalize;
+/**
+ * {Function} Is created to speed up this function call. constants are run
+ * much faster, then Helper.posId()
+ */
+const POSID         = Helper.posId;
 
 class Organisms extends BaseOrganisms {
     constructor(manager) {
         super(manager);
         this._onStepInCb = this._onStepIn.bind(this);
+
         this.parent.on(EVENTS.STEP_IN, this._onStepInCb);
+
+        const cbs = this.callbacks;
+        cbs[EVENTS.GET_ENERGY] = this._onGetEnergy.bind(this);
+        cbs[EVENTS.EAT]        = this._onEat.bind(this);
+        cbs[EVENTS.STEP]       = this._onStep.bind(this);
+        cbs[EVENTS.CHECK_AT]   = this._onCheckAt.bind(this);
     }
 
     destroy() {
@@ -79,14 +96,6 @@ class Organisms extends BaseOrganisms {
         child.alive && (child.startEnergy = child.energy);
     }
 
-    addOrgHandlers(org) {
-        super.addOrgHandlers(org);
-        org.on(EVENTS.GET_ENERGY, this._onGetEnergy.bind(this));
-        org.on(EVENTS.EAT, this._onEat.bind(this));
-        org.on(EVENTS.STEP, this._onStep.bind(this));
-        org.on(EVENTS.CHECK_AT, this._onCheckAt.bind(this));
-    }
-
     /**
      * Creates instance of an organism
      * @param {Array} args Custom organism arguments
@@ -119,8 +128,8 @@ class Organisms extends BaseOrganisms {
      */
     onAfterMove(x1, y1, x2, y2, org) {
         if (x1 !== x2 || y1 !== y2) {
-            this.positions[Helper.posId(x1, y1)] = undefined;
-            this.positions[Helper.posId(x2, y2)] = org;
+            this.positions[POSID(x1, y1)] = undefined;
+            this.positions[POSID(x2, y2)] = org;
         }
 
         return true;
@@ -128,7 +137,7 @@ class Organisms extends BaseOrganisms {
 
     _onGetEnergy(org, x, y, ret) {
         if (x < 0 || y < 0 || !Number.isInteger(x) || !Number.isInteger(y)) {return}
-        const posId = Helper.posId(x, y);
+        const posId = POSID(x, y);
 
         if (typeof(this.positions[posId]) === 'undefined') {
             ret.ret = this.world.getDot(x, y)
@@ -139,26 +148,27 @@ class Organisms extends BaseOrganisms {
 
     _onEat(org, x, y, ret) {
         const positions = this.positions;
-        const eat       = ret.ret;
+        //
+        // Amount of eat energy depends on organism size. Small organisms
+        // eat less, big - more
+        //
+        const eat       = ret.ret / (OConfig.codeMaxSize / (org.vm.size || 1));
         let   dir;
 
-        [x, y, dir] = Helper.normalize(x, y);
+        [x, y, dir] = NORMALIZE(x, y);
 
-        const posId = Helper.posId(x, y);
+        const posId = POSID(x, y);
         if (typeof(positions[posId]) === 'undefined') {
-            if (eat < 0) {
-                if (this.world.isFree(x, y)) {
-                    this.parent.fire(EVENTS.EAT_ENERGY, eat);
-                    this.world.setDot(x, y, -eat);
-                }
-            } else {
+            if (eat > 0) {
                 ret.ret = this.world.grabDot(x, y, eat);
                 this.parent.fire(EVENTS.EAT_ENERGY, ret.ret);
+            } else {
+                ret.ret = 0;
             }
         } else {
             const victimOrg = positions[posId];
             ret.ret = eat < 0 ? 0 : (eat > victimOrg.energy ? victimOrg.energy : eat);
-            victimOrg.energy <= eat && this.parent.fire(EVENTS.KILL_EAT, victimOrg);
+            victimOrg.energy <= ret.ret && this.parent.fire(EVENTS.KILL_EAT, victimOrg);
             victimOrg.grabEnergy(ret.ret);
         }
     }
@@ -168,7 +178,7 @@ class Organisms extends BaseOrganisms {
         const man = this.parent;
         let   dir;
 
-        [x2, y2, dir] = Helper.normalize(x2, y2);
+        [x2, y2, dir] = NORMALIZE(x2, y2);
         //
         // Organism has moved, but still is within the current world (client)
         //
@@ -238,11 +248,15 @@ class Organisms extends BaseOrganisms {
     }
 
     _onCheckAt(x, y, ret) {
-        const org = this.positions[Helper.posId(x, y)];
-        let   dir;
+        const org = this.positions[POSID(x, y)];
 
-        [x, y, dir] = Helper.normalize(x, y);
-        ret.ret = typeof(org) === 'undefined' ? this.world.getDot(x, y) : org.energy;
+        if (typeof(org) === 'undefined') {
+            let dir;
+            [x, y, dir] = NORMALIZE(x, y);
+            ret.ret = this.world.getDot(x, y);
+        } else {
+            ret.ret = org.energy;
+        }
     }
 }
 

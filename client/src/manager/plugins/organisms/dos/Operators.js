@@ -14,6 +14,11 @@ const Operators = require('./../../../../vm/Operators');
 const Num       = require('./../../../../vm/Num');
 
 /**
+ * {Function} Is created to speed up this function call. constants are run
+ * much faster, then Helper.normalize()
+ */
+const NORMALIZE     = Helper.normalize;
+/**
  * {Function} Just a shortcuts
  */
 const VAR0                  = Num.getVar0;
@@ -39,8 +44,8 @@ const CONDITIONS = [(a,b)=>a<b, (a,b)=>a>b, (a,b)=>a===b, (a,b)=>a!==b];
 const OPERATORS = [(a,b)=>a+b, (a,b)=>a-b, (a,b)=>a*b, (a,b)=>a/b, (a,b)=>a%b, (a,b)=>a&b, (a,b)=>a|b, (a,b)=>a^b, (a,b)=>a>>b, (a,b)=>a<<b, (a,b)=>a>>>b, (a,b)=>+(a<b), (a,b)=>+(a>b), (a,b)=>+(a===b), (a,b)=>+(a!==b), (a,b)=>+(a<=b)];
 
 class OperatorsDos extends Operators {
-    constructor(offs, vars, obs) {
-        super(offs, vars, obs);
+    constructor(offs, vars, callbacks) {
+        super(offs, vars, callbacks);
         /**
          * {Object} These operator handlers should return string, which
          * will be added to the final string script for evaluation.
@@ -72,6 +77,10 @@ class OperatorsDos extends Operators {
             this.onCheckUp.bind(this),
             this.onCheckDown.bind(this)
         ];
+        /**
+         * {Object} Reusable object to pass it as a parameter to this.callbacks(..., ret)
+         */
+        this._ret = {ret: 0, x: 0, y: 0};
         //this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
         //
         // We have to set amount of available operators for correct
@@ -185,14 +194,15 @@ class OperatorsDos extends Operators {
         let   x    = vars[VAR1(num)];
         let   y    = vars[VAR2(num)];
 
-        if (!IS_NUM(x) || !IS_NUM(y) || Helper.normalize(x, y)[2] !== DIR.NO) {
+        if (!IS_NUM(x) || !IS_NUM(y) || NORMALIZE(x, y)[2] !== DIR.NO) {
             vars[VAR0(num)] = 0;
             org.grabEnergy(OConfig.orgOperatorWeights[4]);
             return ++line;
         }
 
-        let ret = {ret: 0};
-        this.obs.fire(EVENTS.GET_ENERGY, org, x, y, ret);
+        const ret = this._ret;
+        ret.ret = 0;
+        this.callbacks[EVENTS.GET_ENERGY](org, x, y, ret);
         vars[VAR0(num)] = ret.ret;
 
         org.grabEnergy(OConfig.orgOperatorWeights[4]);
@@ -229,29 +239,31 @@ class OperatorsDos extends Operators {
     onCheckDown(num, line, org)  {const energy = this._checkAt(num, line, org, org.x, org.y + 1); org.grabEnergy(OConfig.orgOperatorWeights[20]); return energy}
 
     _checkAt(num, line, org, x, y) {
-        const ret = {ret: 0};
-        org.fire(EVENTS.CHECK_AT, x, y, ret);
+        const ret = this._ret;
+
+        ret.ret = 0;
+        this.callbacks[EVENTS.CHECK_AT](x, y, ret);
         this.vars[VAR0(num)] = ret.ret;
         return ++line;
     }
 
     _eat(org, num, x, y) {
-        const vars   = this.vars;
-        const amount = vars[VAR1(num)];
+        const amount = this.vars[VAR1(num)];
         if (!IS_NUM(amount) || amount === 0) {return 0}
+        const ret    = this._ret;
 
-        let ret = {ret: amount};
-        this.obs.fire(EVENTS.EAT, org, x, y, ret);
-        if (!IS_NUM(ret.ret) || ret.ret === 0) {return 0}
+        if ((ret.ret = amount) <= 0) {return 0}
+        this.callbacks[EVENTS.EAT](org, x, y, ret);
         org.energy += ret.ret;
 
         return ret.ret;
     }
 
     _step(org, x1, y1, x2, y2) {
-        let ret = {ret: 0};
+        const ret = this._ret;
 
-        this.obs.fire(EVENTS.STEP, org, x1, y1, x2, y2, ret);
+        ret.ret = 0;
+        this.callbacks[EVENTS.STEP](org, x1, y1, x2, y2, ret);
         if (ret.ret > 0) {
             org.x = ret.x;
             org.y = ret.y;

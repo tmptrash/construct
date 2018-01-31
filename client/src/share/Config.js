@@ -45,11 +45,11 @@ ClientConfig.init({
     /**
      * {Number} World width
      */
-    worldWidth: 5760,
+    worldWidth: 1920,
     /**
      * {Number} World height
      */
-    worldHeight: 3240,
+    worldHeight: 1080,
     /**
      * {Number} Turns on cyclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
@@ -58,7 +58,7 @@ ClientConfig.init({
      * coordinate (height). It actual only for one instance mode (no distributed
      * calculations).
      */
-    worldCyclical: true,
+    worldCyclical: false,
     /**
      * {Number} Amount of energy blocks in a world. Blocks will be placed in a
      * random way...
@@ -68,7 +68,7 @@ ClientConfig.init({
      * {Number} Amount of energy in every block. See worldEnergyDots
      * config for details.
      */
-    worldEnergyInDot: 0xAAFF00,
+    worldEnergyInDot: 0x00ddff,
     /**
      * {Number} Minimum percent of energy in current world. Under percent i mean
      * percent from entire world area (100%). If the energy will be less
@@ -76,13 +76,13 @@ ClientConfig.init({
      * Should be less then 100.0 and more and equal to 0.0. 0.17 is a
      * normal percent for this system.
      */
-    worldEnergyCheckPercent: 0.3,
+    worldEnergyCheckPercent: 0.1,
     /**
      * {Number} An amount of iteration, after which we have to check world energy
      * amount. Works in pair with worldEnergyCheckPercent. May be 0 if
      * you want to disable it
      */
-    worldEnergyCheckPeriod: 200,
+    worldEnergyCheckPeriod: 1000,
     /**
      * {Boolean} Turns on/off scroll bars in a 2D canvas
      */
@@ -90,7 +90,7 @@ ClientConfig.init({
     /**
      * {Number} Zoom speed 0..1
      */
-    worldZoomSpeed: 0.05,
+    worldZoomSpeed: 0.1,
     /**
      * {Number} Mode for showing/suppressing of messages. Possible values:
      *   0 - all messages
