@@ -105,7 +105,6 @@ class Organism extends Observer {
     get mutationProbs()         {return this._mutationProbs}
     get mutationPeriod()        {return this._mutationPeriod}
     get mutationPercent()       {return this._mutationPercent}
-    get cloneEnergyPercent()    {return this._cloneEnergyPercent}
     get energy()                {return this._energy}
     get startEnergy()           {return this._startEnergy}
     get color()                 {return this._color}
@@ -116,7 +115,6 @@ class Organism extends Observer {
 
     set x(newX)                 {this._x = newX}
     set y(newY)                 {this._y = newY}
-    set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p}
     set mutationPeriod(m)       {this._mutationPeriod = m}
     set mutationPercent(p)      {this._mutationPercent = p}
     set energy(e)               {this._energy = e}
@@ -168,7 +166,6 @@ class Organism extends Observer {
             color               : this._color,
             colorIndex          : this._colorIndex,
             mutationProbs       : this._mutationProbs,
-            cloneEnergyPercent  : this._cloneEnergyPercent,
             mutationPeriod      : this._mutationPeriod,
             mutationPercent     : this._mutationPercent,
             mem                 : this.mem.slice()
@@ -200,16 +197,15 @@ class Organism extends Observer {
         this._color                = json.color;
         this._colorIndex           = json.colorIndex;
         this._mutationProbs        = json.mutationProbs;
-        this._cloneEnergyPercent   = json.cloneEnergyPercent;
         this._mutationPeriod       = json.mutationPeriod;
         this._mutationPercent      = json.mutationPercent;
         this._mem                  = json.mem.slice();
     }
 
     grabEnergy(amount) {
-        if (!IS_NUM(amount) || amount === 0) {return true}
+        if (!this._alive || !IS_NUM(amount) || amount === 0) {return true}
         const noEnergy = (this._energy -= amount) < 1;
-        this._callbacks && this._callbacks[GRAB_ENERGY](amount + (noEnergy ? -this._energy : 0));
+        this._callbacks[GRAB_ENERGY](amount + (noEnergy ? -this._energy : 0));
         noEnergy && this.destroy();
         return !noEnergy;
     }
@@ -248,7 +244,6 @@ class Organism extends Observer {
         this._colorIndex            = OConfig.orgStartColor * MAX_BITS;
         this._color                 = Organism._getColor(this._colorIndex);
         this._mutationProbs         = OConfig.orgMutationProbs.slice();
-        this._cloneEnergyPercent    = OConfig.orgCloneEnergyPercent;
         this._mutationPeriod        = OConfig.orgRainMutationPeriod;
         this._mutationPercent       = OConfig.orgRainMutationPercent;
         this._mem                   = new Array(Math.pow(2, OConfig.orgMemBits));
@@ -263,7 +258,6 @@ class Organism extends Observer {
         this._color                 = parent.color;
         this._colorIndex            = parent.colorIndex;
         this._mutationProbs         = parent.mutationProbs.slice();
-        this._cloneEnergyPercent    = parent.cloneEnergyPercent;
         this._mutationPeriod        = parent.mutationPeriod;
         this._mutationPercent       = parent.mutationPercent;
         this._mem                   = parent.mem.slice();

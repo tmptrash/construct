@@ -249,10 +249,10 @@ class OperatorsDos extends Operators {
 
     _eat(org, num, x, y) {
         const amount = this.vars[VAR1(num)];
-        if (!IS_NUM(amount) || amount === 0) {return 0}
+        if (!IS_NUM(amount) || amount <= 0) {return 0}
         const ret    = this._ret;
 
-        if ((ret.ret = amount) <= 0) {return 0}
+        ret.ret = amount;
         this.callbacks[EVENTS.EAT](org, x, y, ret);
         org.energy += ret.ret;
 

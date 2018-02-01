@@ -48,11 +48,6 @@ const Config = {
      */
     orgMutationPerOrg: false,
     /**
-     * {Number} Percent of energy, which will be given to the child. Set to 0.0
-     * to share the same amount of energy with child (energy duplication)
-     */
-    orgCloneEnergyPercent: 0.5,
-    /**
      * {Number} Minimum energy for one organism, which will be multiplied on
      * organism code size. This value permits organism to have a baby (clone).
      * If amount of energy less then orgCloneMinEnergy * vm.size, then clone
@@ -64,7 +59,7 @@ const Config = {
      * organism has cloned. If population is less then orgMaxOrgs, then no killing
      * will be provided. Killing of organism will be done using tournament approach
      */
-    orgKillOnClone: false,
+    orgKillOnClone: true,
     /**
      * {Number} Amount of iterations between tournament. During tournament one
      * organism (looser) will be killed
@@ -75,7 +70,7 @@ const Config = {
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 10000,
+    orgRainMutationPeriod: 12000,
     /**
      * {Number} Percent of mutations from code size. 0 is a possible value if
      * we want to disable mutations. Should be less then 1.0 (1.0 === 100%)
@@ -91,12 +86,12 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 10000,
+    orgCrossoverPeriod: 15000,
     /**
      * {Number} Period of iterations for creation of random organisms. Set it to 0
      * to turn off this feature
      */
-    orgRandomOrgPeriod: 10000,
+    orgRandomOrgPeriod: 15000,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
@@ -132,11 +127,11 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 1000,
+    orgMaxOrgs: 2000,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 1000,
+    orgStartAmount: 2000,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created
@@ -147,7 +142,7 @@ const Config = {
      * {Number} Begin color of "empty". It's just an index of color. Starts from
      * 0 and till Number.MAX_VALUE
      */
-    orgStartColor: 24,
+    orgStartColor: 50,
     /**
      * {Number} The value from -X/2 to X/2, which is used for setting
      * default value, while organism is delivering. So, if the value is

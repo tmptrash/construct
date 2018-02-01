@@ -23,7 +23,6 @@ describe("client/src/organism/OrganismDos", () => {
         expect(org.energy === OConfig.orgStartEnergy).toEqual(true);
         expect(org.color === OConfig.orgStartColor).toEqual(true);
         expect(org.mem.length === 0).toEqual(true);
-        expect(org.cloneEnergyPercent === OConfig.orgCloneEnergyPercent).toEqual(true);
         expect(org.iterations === 0).toEqual(true);
 
         org.destroy();
@@ -38,7 +37,6 @@ describe("client/src/organism/OrganismDos", () => {
         parent.cloneMutationPercent = 0.1;
         parent.mutationPeriod       = 145;
         parent.mutationPercent      = 0.2;
-        parent.cloneEnergyPercent   = 0.34;
         parent._mem                 = [1,2,4,3];
 
         let   org    = new OrganismDos(0, 1, 2, true, null, () => {}, parent);
@@ -51,7 +49,6 @@ describe("client/src/organism/OrganismDos", () => {
         expect(org.cloneMutationPercent === parent.cloneMutationPercent).toEqual(true);
         expect(org.mutationPeriod === parent.mutationPeriod).toEqual(true);
         expect(org.mutationPercent === parent.mutationPercent).toEqual(true);
-        expect(org.cloneEnergyPercent === parent.cloneEnergyPercent).toEqual(true);
         expect(eq(org.mem, parent.mem)).toEqual(true);
         expect(org.changes === 1).toEqual(true);
         expect(org.iterations === 0).toEqual(true);
