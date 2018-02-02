@@ -11,6 +11,8 @@ const QUIET_ALL               = 0;
 const QUIET_IMPORTANT         = 1;
 const QUIET_NO                = 2;
 
+const IS_NODE_JS              = typeof window === 'undefined';
+
 class ClientConfig extends Config {}
 
 ClientConfig.init({
@@ -23,6 +25,11 @@ ClientConfig.init({
     QUIET_IMPORTANT,
     QUIET_NO,
     /**
+     * {Boolean} Running mode. It's also possible to run construct only on
+     * server side without browser. For this it should be set to true.
+     */
+    MODE_NODE_JS: IS_NODE_JS,
+    /**
      * {Array} Array of paths to Manager's plugins. Root folder for plugins
      * should be './client/src/manager/plugins/'.
      */
@@ -33,7 +40,7 @@ ClientConfig.init({
         'client/Client',
         'Energy',
         'status/console/Console',
-        'status/charts/Charts',
+        IS_NODE_JS ? '' : 'status/charts/Charts',
         'ips/Ips',
         'backup/Backup'
     ],
@@ -98,11 +105,6 @@ ClientConfig.init({
      *   2 - no messages
      */
     modeQuiet: QUIET_IMPORTANT,
-    /**
-     * {Boolean} Running mode. It's also possible to run construct only on
-     * server side without browser. For this it should be set to true.
-     */
-    modeNodeJs: false,
     /**
      * {Number} Port number for connecting with server
      */

@@ -6,9 +6,5 @@
  */
 const Server = require('./server/Server').Server;
 const Config = require('./share/Config').Config;
-//
-// Server always run under Node.js
-//
-Config.modeNodeJs = true;
 const server = new Server(Config.port);
 server.run();

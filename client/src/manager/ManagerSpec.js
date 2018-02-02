@@ -3,8 +3,6 @@ describe("client/src/manager/Manager", () => {
     const Config       = require('./../../../client/src/share/Config').Config;
     const OConfig      = require('./../manager/plugins/organisms/Config');
     const SConfig      = require('./../../../server/src/share/Config').Config;
-    const OLD_MODE     = Config.modeNodeJs;
-    Config.modeNodeJs  = true;
     const Server       = require('./../../../server/src/server/Server').Server;
     const EVENTS       = require('./../../../client/src/share/Events').EVENTS;
     const SEVENTS      = require('./../../../server/src/server/Server').EVENTS;
@@ -33,17 +31,21 @@ describe("client/src/manager/Manager", () => {
     let dist;
     let timeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
 
-
-    beforeEach(() => {
+    function deletePluginConfigs() {
         delete Config.ips;
         delete Config.organisms;
         delete Config.status;
+        delete Config.charts;
+        delete Config.console;
+    }
+
+    beforeEach(() => {
+        deletePluginConfigs();
     });
     beforeAll(() => {
         jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
         Config.serverHost = SERVER_HOST;
         Config.plugIncluded.splice(Config.plugIncluded.indexOf('ips/Ips'));
-        Config.modeNodeJs = true;
         dist = SConfig.modeDistributed;
         SConfig.modeDistributed = false;
         SConfig.port = Config.serverPort;
@@ -73,7 +75,6 @@ describe("client/src/manager/Manager", () => {
         Console.error = error;
         Console.warn  = warn;
         Console.info  = info;
-        Config.modeNodeJs = OLD_MODE;
         Config.plugIncluded.push('ips/Ips');
         jasmine.DEFAULT_TIMEOUT_INTERVAL = timeout;
         Config.serverHost = host;
@@ -104,8 +105,7 @@ describe("client/src/manager/Manager", () => {
     });
     it("Checking creation of two managers", (done) => {
         const man1 = new Manager(false);
-        delete Config.organisms;
-        delete Config.status;
+        deletePluginConfigs();
         const man2 = new Manager(false);
 
         waitEvent(man1, EVENTS.DESTROY, () => man1.destroy(), () => {
@@ -122,7 +122,7 @@ describe("client/src/manager/Manager", () => {
 
         Config.worldWidth  = 10;
         Config.worldHeight = 10;
-        for (let i = 0; i < amount; i++) {delete Config.organisms;delete Config.status; mans.push(new Manager(false))}
+        for (let i = 0; i < amount; i++) {deletePluginConfigs(); mans.push(new Manager(false))}
         for (let i = 0; i < amount; i++) {mans[i].destroy(() => ++destroyed === amount && (waitObj.done = true))}
 
         if (waitObj.done) {
@@ -258,8 +258,7 @@ describe("client/src/manager/Manager", () => {
         const max       = OConfig.orgMaxOrgs;
         const server    = new Server();
         const man1      = new Manager(false);
-        delete Config.organisms;
-        delete Config.status;
+        deletePluginConfigs();
         const man2      = new Manager(false);
         let   iterated1 = false;
         let   iterated2 = false;
@@ -331,8 +330,7 @@ describe("client/src/manager/Manager", () => {
         Config.worldWidth               = 400;
         Config.worldHeight              = 400;
         const man1      = new Manager(false);
-        delete Config.organisms;
-        delete Config.status;
+        deletePluginConfigs();
         const man2      = new Manager(false);
         let   iterated1 = 0;
         let   iterated2 = 0;
@@ -370,7 +368,7 @@ describe("client/src/manager/Manager", () => {
         man1.on(EVENTS.LOOP, () => {
             if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
                 org1 = man1.organisms.first.val;
-                org1.vm.code.push(0b00001010000000000000000000000000); // onStepRight()
+                org1.vm.code.push(0b00001011000000000000000000000000); // onStepRight()
             } else if (man2.organisms.size === 2) {
                 destroy();
             }
@@ -399,8 +397,7 @@ describe("client/src/manager/Manager", () => {
         Config.worldHeight = 400;
         Config.worldWidth  = 400;
         const man1      = new Manager(false);
-        delete Config.organisms;
-        delete Config.status;
+        deletePluginConfigs();
         const man2      = new Manager(false);
         let   iterated1 = 0;
         let   iterated2 = 0;
@@ -440,7 +437,7 @@ describe("client/src/manager/Manager", () => {
         man1.on(EVENTS.LOOP, () => {
             if (iterated1 > 0 && iterated2 > 0 && org1 === null && org2 !== null) {
                 org1 = man1.organisms.first.val;
-                org1.vm.code.push(0b00001010000000000000000000000000); // onStepRight()
+                org1.vm.code.push(0b00001011000000000000000000000000); // onStepRight()
                 man1.on(EVENTS.STEP_OUT, () => {
                     expect(doneInc < 3).toBe(true);
                     ++doneInc;
@@ -487,8 +484,7 @@ describe("client/src/manager/Manager", () => {
 
         waitEvent(server, server.EVENTS.RUN, () => server.run(), () => {
             for (let i = 0; i < CLIENTS; i++) {
-                delete Config.organisms;
-                delete Config.status;
+                deletePluginConfigs();
                 mans.push(man = new Manager(false));
                 man.run(() => ++amount === CLIENTS && (waitObj.done = true));
             }
@@ -526,8 +522,7 @@ describe("client/src/manager/Manager", () => {
         Config.worldHeight     = 100;
         SConfig.maxConnections = CLIENTS;
         man1 = new Manager(false);
-        delete Config.organisms;
-        delete Config.status;
+        deletePluginConfigs();
         man2 = new Manager(false);
 
         testQ(done,
@@ -586,8 +581,7 @@ describe("client/src/manager/Manager", () => {
         Config.worldHeight     = 10;
         SConfig.maxConnections = CLIENTS;
         man1 = new Manager(false);
-        delete Config.organisms;
-        delete Config.status;
+        deletePluginConfigs();
         man2 = new Manager(false);
 
         waitEvent(server, server.EVENTS.RUN, () => server.run(), () => {
@@ -640,8 +634,7 @@ describe("client/src/manager/Manager", () => {
         cfg.set('serverPort',             3000);
         cfg.set('serverHost',             SERVER_HOST);
         const man1                      = new Manager(false);
-        delete Config.organisms;
-        delete Config.status;
+        deletePluginConfigs();
         cfg.set('serverPort',             3001);
         const man2                      = new Manager(false);
         ocfg.set('orgStartAmount',        1);
@@ -657,7 +650,7 @@ describe("client/src/manager/Manager", () => {
             if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
                 expect(man2.organisms.size).toBe(1);
                 org1 = man1.organisms.first.val;
-                org1.vm.code.push(0b00001010000000000000000000000000); // onStepRight()
+                org1.vm.code.push(0b00001011000000000000000000000000); // onStepRight()
             } else if (man2.organisms.size === 2) {
                 destroy();
             }
@@ -719,8 +712,7 @@ describe("client/src/manager/Manager", () => {
         cfg.set('serverPort',             3000);
         cfg.set('serverHost',             SERVER_HOST);
         const man1                      = new Manager(false);
-        delete Config.organisms;
-        delete Config.status;
+        deletePluginConfigs();
         cfg.set('serverPort',             3001);
         const man2                      = new Manager(false);
         ocfg.set('orgStartAmount',        1);
@@ -736,7 +728,7 @@ describe("client/src/manager/Manager", () => {
             if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
                 expect(man2.organisms.size).toBe(1);
                 org1 = man1.organisms.first.val;
-                org1.vm.code.push(0b00001010000000000000000000000000); // onStepRight()
+                org1.vm.code.push(0b00001011000000000000000000000000); // onStepRight()
                 man1.on(EVENTS.KILL, () => destroyFlag = true);
                 man1.on(EVENTS.STEP_IN,       () => stepInBack  = true);
                 man2.on(EVENTS.STEP_IN,       () => stepInFlag  = true);
@@ -811,7 +803,7 @@ describe("client/src/manager/Manager", () => {
         man1.on(EVENTS.LOOP, () => {
             if (iterated1 > 0 && org1 === null) {
                 org1 = man1.organisms.first.val;
-                org1.vm.code.push(0b00001010000000000000000000000000); // onStepRight()
+                org1.vm.code.push(0b00001011000000000000000000000000); // onStepRight()
                 man1.on(EVENTS.KILL, () => destroyFlag = true);
                 man1.on(EVENTS.STEP_IN,       () => stepInBack  = true);
             } else if (destroyFlag && stepInBack) {
@@ -835,11 +827,9 @@ describe("client/src/manager/Manager", () => {
         cfg.set('worldWidth',   10);
         cfg.set('worldHeight',  10);
         const man1      = new Manager(false);
-        delete Config.organisms;
-        delete Config.status;
+        deletePluginConfigs();
         const man2      = new Manager(false);
-        delete Config.organisms;
-        delete Config.status;
+        deletePluginConfigs();
         const man3      = new Manager(false);
         let   freePos   = World.prototype.getFreePos;
         let   waitObj   = {done: false};
@@ -870,7 +860,7 @@ describe("client/src/manager/Manager", () => {
         testQ(done,
             [server, SEVENTS.RUN, () => server.run(), () => {man1.run(() => man2.run(() => man3.run(() => waitObj.done = true)))}],
             [waitObj],
-            [man1, EVENTS.LOOP, () => {}, () => man1.organisms.first.val.vm.code.push(0b00001010000000000000000000000000)], // onStepRight()
+            [man1, EVENTS.LOOP, () => {}, () => man1.organisms.first.val.vm.code.push(0b00001011000000000000000000000000)], // onStepRight()
             [man3, EVENTS.STEP_IN, () => {}, () => destroy()]
         );
     });

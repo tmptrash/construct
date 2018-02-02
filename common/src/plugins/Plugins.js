@@ -88,6 +88,7 @@ class Plugins {
 
         for (let p of cfg.plugins) {
             const path      = p.path || p;
+            if (!path) {continue}
             const name      = path.split('/').slice(-1)[0];
             let   pluginCls = this.require(path);
 

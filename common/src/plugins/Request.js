@@ -9,7 +9,7 @@ const WebSocket = require('ws');
 const Helper    = require('./../Helper');
 const Config    = require('./../../../client/src/share/Config').Config;
 const MASKS     = require('./../net/Requests').MASKS;
-const Console   = require(`./../../../${Config.modeNodeJs ? 'server' : 'client'}/src/share/Console`);
+const Console   = require(`./../../../${Config.MODE_NODE_JS ? 'server' : 'client'}/src/share/Console`);
 
 class Request {
     /**

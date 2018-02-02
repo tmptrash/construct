@@ -29,7 +29,7 @@ const CLIENT_EVENTS = Object.assign({
 
 class Client extends BaseClient {
     constructor(manager) {
-        super(Config.serverHost, Config.serverPort, Config.modeNodeJs, CLIENT_EVENTS);
+        super(Config.serverHost, Config.serverPort, Config.MODE_NODE_JS, CLIENT_EVENTS);
         this.EVENTS       = CLIENT_EVENTS;
         this._manager     = manager;
         this._onStepOutCb = this._onStepOut.bind(this);

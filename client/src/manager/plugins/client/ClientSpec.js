@@ -14,7 +14,6 @@ describe("client/src/manager/plugins/Client", () => {
     const host       = Config.serverHost;
     const port       = SConfig.port;
     const maxConns   = SConfig.maxConnections;
-    let isNodeJs;
     let Client;
     let CEVENTS;
     let Server;
@@ -28,11 +27,6 @@ describe("client/src/manager/plugins/Client", () => {
     let dist;
 
     beforeAll(() => {
-        //
-        // These two lines set modeNodeJs mode to Node.js as running environment
-        //
-        isNodeJs = Config.modeNodeJs;
-        Config.modeNodeJs = true;
         Config.serverHost = 'ws://127.0.0.1';
         dist = SConfig.modeDistributed;
         SConfig.modeDistributed = false;
@@ -59,7 +53,6 @@ describe("client/src/manager/plugins/Client", () => {
         SConsole.info  = () => {};
     });
     afterAll(() => {
-        api.set('modeNodeJs', isNodeJs);
         SConsole.error = serror;
         SConsole.warn  = swarn;
         SConsole.info  = sinfo;

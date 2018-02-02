@@ -100,7 +100,7 @@ class Status extends Configurable {
         man.off(EVENTS.KILL,           this._onKillOrgCb);
         man.off(EVENTS.EAT_ENERGY,     this._onEatEnergyCb);
         man.off(EVENTS.IPS,            this._onIpsCb);
-        Helper.unoverride(manager, 'onLoop', this._onLoopCb);
+        Helper.unoverride(man, 'onLoop', this._onLoopCb);
 
         this._onKillOrgCb    = null;
         this._onKillTourCb   = null;

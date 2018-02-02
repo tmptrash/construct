@@ -92,7 +92,7 @@ class Manager extends Observer {
             plugins  : Config.plugIncluded,
             async    : true,
             run      : this._onDone.bind(this),
-            isBrowser: !Config.modeNodeJs
+            isBrowser: !Config.MODE_NODE_JS
         });
     }
 
@@ -217,7 +217,7 @@ class Manager extends Observer {
         (() => {
             let callback;
 
-            if (Config.modeNodeJs) {
+            if (Config.MODE_NODE_JS) {
                 this.zeroTimeout = (fn) => setTimeout(callback = fn);
                 return;
             }

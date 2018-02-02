@@ -6,6 +6,8 @@ describe("client/src/organism/OperatorsDos", () => {
     let EVENT_AMOUNT = require('./../../../../share/Events').EVENT_AMOUNT;
     let Config       = require('./../../../../share/Config').Config;
     let OConfig      = require('./../../organisms/Config');
+    let OrganismDos  = require('./../../organisms/dos/Organism');
+    let OEvents      = require('./../../organisms/Organism').EVENTS;
     let api          = require('./../../../../share/Config').api;
     let cbpv         = null;
 
@@ -14,23 +16,25 @@ describe("client/src/organism/OperatorsDos", () => {
 
     it("Checking onVar() method", () => {
         let ops = new OperatorsDos([], [0, 0, 0, 0], new Observer());
+        let org = new OrganismDos(0, 0, 0, true, {}, {[OEvents.GRAB_ENERGY]: ()=>{}});
 
-        expect(ops.onVar(0x00ffffff, 0)).toEqual(1);
+        expect(ops.onVar(0x00ffffff, 0, org)).toEqual(1);
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 0).toEqual(true);
         expect(ops.vars[2] === 0).toEqual(true);
         expect(ops.vars[3] === 0).toEqual(true);
-        expect(ops.onVar(0x000fffff, 0)).toEqual(1);
+        expect(ops.onVar(0x000fffff, 0, org)).toEqual(1);
         expect(ops.vars[0] === 0).toEqual(true);
         expect(ops.vars[1] === 0).toEqual(true);
         expect(ops.vars[2] === 0).toEqual(true);
         expect(ops.vars[3] === 0).toEqual(true);
-        expect(ops.onVar(0x0000ffff, 0)).toEqual(1);
+        expect(ops.onVar(0x0000ffff, 0, org)).toEqual(1);
         expect(ops.vars[0] === 0x3fff).toEqual(true);
         expect(ops.vars[1] === 0).toEqual(true);
         expect(ops.vars[2] === 0).toEqual(true);
         expect(ops.vars[3] === 0).toEqual(true);
 
+        org.destroy();
         ops.destroy();
     });
 
