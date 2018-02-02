@@ -29,7 +29,6 @@ const BITS_AFTER_ONE_VAR    = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR;
 const FOUR_BITS             = 4;
 const BITS_FOR_NUMBER       = 16;
 const IS_NUM                = Helper.isNumeric;
-const HALF_OF_VAR           = Num.MAX_VAR / 2;
 const CONDITION_BITS        = 2;
 const BITS                  = Num.getBits;
 
@@ -52,6 +51,7 @@ class OperatorsDos extends Operators {
          */
         this._OPERATORS_CB = [
             this.onVar.bind(this),
+            this.onConst.bind(this),
             //this.onFunc.bind(this),
             this.onCondition.bind(this),
             this.onLoop.bind(this),
@@ -107,7 +107,13 @@ class OperatorsDos extends Operators {
      * @return {Number} Parsed vm line string
      */
     onVar(num, line, org) {
-        this.vars[VAR0(num)] = VAR2(num) < HALF_OF_VAR ? BITS(num, BITS_AFTER_THREE_VARS, BITS_FOR_NUMBER) : this.vars[VAR1(num)];
+        this.vars[VAR0(num)] = this.vars[VAR1(num)];
+        org.grabEnergy(OConfig.orgOperatorWeights[0]);
+        return ++line;
+    }
+
+    onConst(num, line, org) {
+        this.vars[VAR0(num)] = BITS(num, BITS_AFTER_THREE_VARS, BITS_FOR_NUMBER);
         org.grabEnergy(OConfig.orgOperatorWeights[0]);
         return ++line;
     }
@@ -273,7 +279,7 @@ class OperatorsDos extends Operators {
     }
 
     /**
-     * Returns offset for closing bracket of blocked operators like
+     * Returns offset for closing bracket of block operators like
      * "if", "for" and so on. These operators shouldn't overlap each
      * other. for example:
      *
@@ -292,7 +298,7 @@ class OperatorsDos extends Operators {
      * @returns {Number}
      */
     _getOffs(line, lines, offs) {
-        let   offset  = line + offs < lines ? line + offs + 1 : lines;
+        const offset  = line + offs < lines ? line + offs + 1 : lines;
         const offsets = this.offs;
         const length  = offsets.length;
 

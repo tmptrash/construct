@@ -7,10 +7,11 @@
  *
  * @author flatline
  */
-const GoogleCharts = require('google-charts').GoogleCharts;
 const _get         = require('lodash/get');
 const Helper       = require('./../../../../../../common/src/Helper');
 const Config       = require('./Config');
+
+const GOOGLE_CHARTS_URL = 'https://www.gstatic.com/charts/loader.js';
 
 class Chart {
     constructor(title, cfg) {
@@ -27,7 +28,7 @@ class Chart {
         this._el      = null;
         this._cfg     = cfg;
 
-        GoogleCharts.load(cfg.active ? this._onReady.bind(this) : () => {}, 'corechart');
+        this._loadLib(this._onReady.bind(this));
     }
 
     /**
@@ -67,6 +68,33 @@ class Chart {
         this._options = null;
     }
 
+    _loadLib(cb) {
+        let   scriptEl;
+        const googleLib  = window.google;
+        const setReadyCb = () => {
+            window.google.charts.load('current', {'packages': ['corechart']});
+            window.google.charts.setOnLoadCallback(() => this._cfg.active && cb());
+        };
+        //
+        // Google charts library has already loaded
+        //
+        if (googleLib) {return setReadyCb()}
+        //
+        // Google charts library is loading now
+        //
+        if (scriptEl = document.querySelector(`script[src="${GOOGLE_CHARTS_URL}"]`)) {
+            return scriptEl.addEventListener('load', setReadyCb);
+        }
+        //
+        // Google charts library hasn't loaded yet
+        //
+        scriptEl        = document.createElement('SCRIPT');
+        scriptEl.type   = 'text/javascript';
+        scriptEl.src    = GOOGLE_CHARTS_URL;
+        scriptEl.onload = setReadyCb;
+        document.head.appendChild(scriptEl);
+    }
+
     _onReady() {
         document.body.appendChild(this._el = Helper.setStyles('DIV', {
             position: 'absolute',
@@ -75,7 +103,7 @@ class Chart {
         this._updatePos(this._cfg.pos);
 
         this._ready = true;
-        this._chart = new google.visualization.LineChart(this._el);
+        this._chart = new window.google.visualization.LineChart(this._el);
         !this._data && (this._data = this._createDataTable());
     }
 
@@ -154,7 +182,7 @@ class Chart {
     }
 
     _createDataTable() {
-        const data = new google.visualization.DataTable();
+        const data = new window.google.visualization.DataTable();
 
         data.addColumn('string', 'horizontal');
         data.addColumn('number', 'vertical');
