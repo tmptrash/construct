@@ -13,14 +13,66 @@ const Chart  = require('./Chart');
 const Config = require('./Config');
 
 const API = {
-    transparent: ['_transparent', 'Sets transparent level'         ],
-    pos        : ['_pos',         'Sets chart position'            ],
-    pos9       : ['_pos9',        'Sets chart position in 3x3 grid'],
-    pos16      : ['_pos16',       'Sets chart position in 4x4 grid'],
-    active     : ['_active',      'Activates/Deactivates chart'    ],
-    on         : ['_on',          'Activates/Deactivates chart'    ],
-    off        : ['_off',         'Deactivates chart'              ],
-    reset      : ['_reset',       'Resets chart data'              ]
+    transparent: ['_transparent', 'Sets transparent level'                ],
+    pos        : ['_pos',         'Sets chart position'                   ],
+    pos9       : ['_pos9',        'Sets chart position in 3x3 grid'       ],
+    pos16      : ['_pos16',       'Sets chart position in 4x4 grid'       ],
+    active     : ['_active',      'Activates/Deactivates chart'           ],
+    on         : ['_on',          'Activates/Deactivates chart'           ],
+    off        : ['_off',         'Deactivates chart'                     ],
+    reset      : ['_reset',       'Resets chart data'                     ],
+    preset     : ['_preset',      'Positioning charts according to preset']
+};
+
+const PRESETS = {
+    general  : {
+        lps       : 'topleft',
+        eenergy   : 'downleft',
+        changes   : 'topright',
+        code      : 'downright'
+    },
+    general9 : {
+        lps       : '0-0|9',
+        orgs      : '0-1|9',
+        eenergy   : '0-2|9',
+        changes   : '1-0|9',
+        age       : '1-1|9',
+        code      : '1-2|9',
+        kill      : '2-0|9',
+        ips       : '2-1|9',
+        fit       : '2-2|9'
+    },
+    general16: {
+        lps       : '0-0|16',
+        orgs      : '0-1|16',
+        energy    : '0-2|16',
+        eenergy   : '0-3|16',
+        penergy   : '1-0|16',
+        changes   : '1-1|16',
+        age       : '1-2|16',
+        code      : '1-3|16',
+        fit       : '2-0|16',
+        kill      : '2-1|16',
+        killeat   : '2-2|16',
+        killenergy: '2-3|16'
+    },
+    kill9    : {
+        kill      : '0-0|9',
+        killtour  : '0-1|9',
+        killenergy: '0-2|9',
+        killage   : '1-0|9',
+        killeat   : '1-1|9',
+        killover  : '1-2|9',
+        killout   : '2-0|9',
+        killin    : '2-1|9',
+        killclone : '2-2|9'
+    },
+    energy   : {
+        lps       : 'topleft',
+        energy    : 'downleft',
+        eenergy   : 'topright',
+        penergy   : 'downright'
+    }
 };
 
 class Charts extends Status {
@@ -221,6 +273,16 @@ class Charts extends Status {
         } else {
             _get(this, `_charts.${chart}`, {}).reset && this._charts[chart].reset();
         }
+    }
+
+    _preset(name) {
+        if (typeof(PRESETS[name]) === 'undefined') {return}
+
+        _each(this._charts, (inst, chart) => this._off(chart));
+        _each(PRESETS[name], (pos, chart) => {
+            this._pos(chart, pos);
+            this._on(chart);
+        });
     }
 
     _setProperty(chart, prop, val) {
