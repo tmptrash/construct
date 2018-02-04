@@ -15,14 +15,12 @@ const Num            = require('./../../../vm/Num');
 
 const MAX_BITS       = Num.MAX_BITS;
 
-const GRAB_ENERGY    = 0;
-const DESTROY        = 1;
-const CLONE          = 2;
-const KILL_NO_ENERGY = 3;
-const KILL_AGE       = 4;
-const ITERATION      = 5;
+const DESTROY        = 0;
+const CLONE          = 1;
+const KILL_NO_ENERGY = 2;
+const KILL_AGE       = 3;
+const ITERATION      = 4;
 const ORG_EVENTS     = {
-    GRAB_ENERGY,
     DESTROY,
     CLONE,
     KILL_NO_ENERGY,
@@ -205,7 +203,6 @@ class Organism extends Observer {
     grabEnergy(amount) {
         if (!this._alive || !IS_NUM(amount) || amount === 0) {return true}
         const noEnergy = (this._energy -= amount) < 1;
-        this._callbacks[GRAB_ENERGY](amount + (noEnergy ? -this._energy : 0));
         noEnergy && this.destroy();
         return !noEnergy;
     }

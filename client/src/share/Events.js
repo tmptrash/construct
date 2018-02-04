@@ -13,7 +13,6 @@ const EVENTS = {
     CODE_RUN        : 3,
     BACKUP          : 4,
     CLONE           : 5,
-    GRAB_ENERGY     : 6,
     UPDATE_ENERGY   : 7,
     KILL            : 8,  // general kill event
     KILL_TOUR       : 9,  // killed during organisms tournament

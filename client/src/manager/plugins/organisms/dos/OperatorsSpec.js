@@ -16,7 +16,7 @@ describe("client/src/organism/OperatorsDos", () => {
 
     it("Checking onVar() method", () => {
         let ops = new OperatorsDos([], [0, 0, 0, 0], new Observer());
-        let org = new OrganismDos(0, 0, 0, true, {}, {[OEvents.GRAB_ENERGY]: ()=>{}});
+        let org = new OrganismDos(0, 0, 0, true, {}, {});
 
         expect(ops.onVar(0x00ffffff, 0, org)).toEqual(1);
         expect(ops.vars[0] === 0).toEqual(true);

@@ -102,7 +102,6 @@ class Organisms extends Configurable {
         cbs[ORG_EVENTS.KILL_AGE]       = this._onKillAgeOrg.bind(this);
         cbs[ORG_EVENTS.ITERATION]      = this._onIterationOrg.bind(this);
         cbs[ORG_EVENTS.CLONE]          = this._onCloneOrg.bind(this);
-        cbs[ORG_EVENTS.GRAB_ENERGY]    = () => {};
 
     }
 
