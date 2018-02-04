@@ -57,7 +57,8 @@ const Config = {
     /**
      * {Boolean} true means, that one organism will be killed just after new
      * organism has cloned. If population is less then orgMaxOrgs, then no killing
-     * will be provided. Killing of organism will be done using tournament approach
+     * will be provided. Killing of organism will be done using random organism
+     * selection from population
      */
     orgKillOnClone: true,
     /**
@@ -70,7 +71,7 @@ const Config = {
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 12000,
+    orgRainMutationPeriod: 6000,
     /**
      * {Number} Percent of mutations from code size. 0 is a possible value if
      * we want to disable mutations. Should be less then 1.0 (1.0 === 100%)
@@ -86,12 +87,12 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 15000,
+    orgCrossoverPeriod: 100,
     /**
      * {Number} Period of iterations for creation of random organisms. Set it to 0
      * to turn off this feature
      */
-    orgRandomOrgPeriod: 15000,
+    orgRandomOrgPeriod: 0,
     /**
      * {Number} Amount of iterations within organism's life loop, after that we decrease
      * some amount of energy. If 0, then energy decreasing will be disabled.
@@ -101,7 +102,7 @@ const Config = {
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
      */
-    orgAlivePeriod: 0,
+    orgAlivePeriod: 20000,
     /**
      * {Number} Size of organism stack (internal memory) in bits. Real amount of
      * organism's internal memory will be 2^orgMemBits. Example: if orgMemBits=3,

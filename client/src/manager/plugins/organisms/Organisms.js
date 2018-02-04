@@ -208,7 +208,7 @@ class Organisms extends Configurable {
         return org1;
     }
 
-    _clone(org) {
+    _clone(org, isCrossover = false) {
         if (this.onBeforeClone(org) === false) {return false}
         let pos   = this.world.getNearFreePos(org.x, org.y);
         if (pos === false || this.createOrg(pos, org) === false) {return false}
@@ -216,13 +216,13 @@ class Organisms extends Configurable {
 
         this.onClone(org, child);
         if (!org.alive || !child.alive) {return false}
-        this.parent.fire(EVENTS.CLONE, org, child);
+        this.parent.fire(EVENTS.CLONE, org, child, isCrossover);
 
         return true;
     }
 
     _crossover(org1, org2) {
-        this._clone(org1);
+        this._clone(org1, true);
         const orgs  = this.organisms;
         let   child = orgs.last.val;
 
@@ -274,7 +274,8 @@ class Organisms extends Configurable {
         const orgAmount = this.organisms.size;
         const ret       = org.alive && (OConfig.orgKillOnClone || orgAmount < maxOrgs) && this._clone(org);
 
-        if (OConfig.orgKillOnClone && ret && orgAmount + 1 >= maxOrgs) {this._killInTour()}
+        //if (OConfig.orgKillOnClone && ret && orgAmount + 1 >= maxOrgs) {this._killInTour()}
+        if (OConfig.orgKillOnClone && ret && orgAmount + 1 >= maxOrgs) {this.randOrg().destroy()}
 
         return ret;
     }

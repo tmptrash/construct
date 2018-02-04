@@ -88,10 +88,10 @@ class Charts extends Status {
         if (!man.canvas) {return}
         const conns  = `${active[0] ? '^' : ''}${active[1] ? '>' : ''}${active[2] ? 'v' : ''}${active[3] ? '<' : ''}`;
         const ips    = `ips:${status.ips}`;
-        const pnrg   = `pnrg:${status.penergy}`;
+        const enrg   = `enrg:${status.eenergy}`;
         const code   = `cod:${status.code}`;
 
-        this._headerEl.textContent = `${man.clientId ? 'id:' + man.clientId : ''} ${conns === '' ? '' : 'con:' + conns} ${ips} ${pnrg} ${code}`;
+        this._headerEl.textContent = `${man.clientId ? 'id:' + man.clientId : ''} ${conns === '' ? '' : 'con:' + conns} ${ips} ${enrg} ${code}`;
     }
 
     _to12h(time) {

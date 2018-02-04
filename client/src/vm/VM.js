@@ -170,7 +170,7 @@ class VM extends Observer {
         if (this._code.length + adds >= OConfig.codeMaxSize) {
             return 0
         }
-        this._code.splice.apply(this._code, [start, end - start + 1].concat(vm.code.slice(start1, end1 + 1)));
+        this._code.splice(...[start, end - start + 1].concat(vm.code.slice(start1, end1 + 1)));
         this._reset();
 
         return adds;
