@@ -13,12 +13,14 @@ const Chart  = require('./Chart');
 const Config = require('./Config');
 
 const API = {
-    transparent: ['_transparent', 'Sets transparent level'     ],
-    pos        : ['_pos',         'Sets chart position'        ],
-    active     : ['_active',      'Activates/Deactivates chart'],
-    on         : ['_on',          'Activates/Deactivates chart'],
-    off        : ['_off',         'Deactivates chart'          ],
-    reset      : ['_reset',       'Resets chart data'          ]
+    transparent: ['_transparent', 'Sets transparent level'         ],
+    pos        : ['_pos',         'Sets chart position'            ],
+    pos9       : ['_pos9',        'Sets chart position in 3x3 grid'],
+    pos16      : ['_pos16',       'Sets chart position in 4x4 grid'],
+    active     : ['_active',      'Activates/Deactivates chart'    ],
+    on         : ['_on',          'Activates/Deactivates chart'    ],
+    off        : ['_off',         'Deactivates chart'              ],
+    reset      : ['_reset',       'Resets chart data'              ]
 };
 
 class Charts extends Status {
@@ -139,6 +141,28 @@ class Charts extends Status {
      * @api
      */
     _pos(chart, p) {this._setProperty(chart, 'pos', p)}
+
+    /**
+     * Positioning method, which position a chart in 3x3 grid.
+     * Positioning based on x,y coordinates. e.g.: pos('kill', 0,0)
+     * will be located in a left top corner
+     * @param {String} chart Chart name, e.g: 'energy', or 'lps'
+     * @param {Number} x X coordinate
+     * @param {Number} y Y coordinate
+     * @api
+     */
+    _pos9(chart, x, y) {this._setProperty(chart, 'pos', `${x > 2 ? 2 : x < 0 ? 0 : x}-${y > 2 ? 2 : y < 0 ? 0 : y}|9`)}
+
+    /**
+     * Positioning method, which position a chart in 4x4 grid.
+     * Positioning based on x,y coordinates. e.g.: pos('kill', 0,0)
+     * will be located in a left top corner
+     * @param {String} chart Chart name, e.g: 'energy', or 'lps'
+     * @param {Number} x X coordinate
+     * @param {Number} y Y coordinate
+     * @api
+     */
+    _pos16(chart, x, y) {this._setProperty(chart, 'pos', `${x > 3 ? 3 : x < 0 ? 0 : x}-${y > 3 ? 3 : y < 0 ? 0 : y}|16`)}
 
     /**
      * Sets current chart position. Available positions:

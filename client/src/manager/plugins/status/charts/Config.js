@@ -37,7 +37,7 @@ const Config = {
         killeat   : {pos: '2-2|16',    active: true,  transparent: 0.8},
         killover  : {pos: '2-3|16',    active: true,  transparent: 0.8},
         changes   : {pos: '3-0|16',    active: true,  transparent: 0.8},
-        killin    : {pos: 'topleft',   active: false, transparent: 0.8},
+        killin    : {pos: '3-1|16',    active: true,  transparent: 0.8},
         killclone : {pos: '3-2|16',    active: true,  transparent: 0.8},
         ips       : {pos: '3-3|16',    active: true,  transparent: 0.8}
     }
