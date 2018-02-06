@@ -37,7 +37,7 @@ class Organism extends Observer {
      * @returns {Number} RGB value
      */
     static _getColor(index) {
-        const frequency = 0.05;
+        const frequency = 0.01;
 
         const r = Math.sin(frequency * index    ) * 127 + 128;
         const g = Math.sin(frequency * index + 2) * 127 + 128;
@@ -266,8 +266,12 @@ class Organism extends Observer {
     }
 
     _updateClone() {
-        if ((this._energy > this._nextClone) && this.vm.size > 0 && this._callbacks[CLONE](this) && this._alive) {
-            this._nextClone = this._energy + OConfig.orgCloneMinEnergy * (this.vm.size || 1);
+        if ((this._energy > this._nextClone) && this.vm.size > 0) {
+            const ratio  = this._energy / this._nextClone;
+            const clones = Math.floor(ratio);
+            if (this._callbacks[CLONE](this, clones) && this._alive) {
+                this._nextClone = this._energy + OConfig.orgCloneMinEnergy * (this.vm.size || 1) * (ratio - clones);
+            }
         }
     }
 

@@ -268,15 +268,23 @@ class Organisms extends Configurable {
         this._parent.fire(EVENTS.CODE_RUN, lines, org);
     }
 
-    _onCloneOrg(org) {
-        const maxOrgs   = OConfig.orgMaxOrgs;
-        const orgAmount = this.organisms.size;
-        const ret       = org.alive && (OConfig.orgKillOnClone || orgAmount < maxOrgs) && this._clone(org);
+    _onCloneOrg(org, amount) {
+        const maxOrgs     = OConfig.orgMaxOrgs;
+        const killOnClone = OConfig.orgKillOnClone;
+
+        for (let i = 0; i < amount; i++) {
+            if (org.alive && (killOnClone || this.organisms.size < maxOrgs)) {
+                this._clone(org)
+            }
+        }
 
         //if (OConfig.orgKillOnClone && ret && orgAmount + 1 >= maxOrgs) {this._killInTour()}
-        if (OConfig.orgKillOnClone && ret && orgAmount + 1 >= maxOrgs) {this.randOrg().destroy()}
+        const orgAmount = this.organisms.size;
+        if (killOnClone && orgAmount >= maxOrgs) {
+            for (let i = maxOrgs; i < orgAmount; i++) {this.randOrg().destroy()}
+        }
 
-        return ret;
+        return true;
     }
 
     _killInTour() {
