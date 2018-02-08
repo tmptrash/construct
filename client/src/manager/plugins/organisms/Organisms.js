@@ -87,7 +87,6 @@ class Organisms extends Configurable {
         this.randOrgItem    = this.organisms.first;
         this.positions      = manager.positions;
         this.world          = manager.world;
-        const cbs           = this.callbacks = {};
 
         this._mutator       = new Mutator(manager, this);
         this._onIterationCb = this._onIteration.bind(this);
@@ -96,13 +95,6 @@ class Organisms extends Configurable {
         this.reset();
         Helper.override(manager, 'onIteration', this._onIterationCb);
         Helper.override(manager, 'onLoop', this._onLoopCb);
-
-        cbs[ORG_EVENTS.DESTROY]        = this._onKillOrg.bind(this);
-        cbs[ORG_EVENTS.KILL_NO_ENERGY] = this._onKillNoEnergyOrg.bind(this);
-        cbs[ORG_EVENTS.KILL_AGE]       = this._onKillAgeOrg.bind(this);
-        cbs[ORG_EVENTS.ITERATION]      = this._onIterationOrg.bind(this);
-        cbs[ORG_EVENTS.CLONE]          = this._onCloneOrg.bind(this);
-
     }
 
     destroy() {
@@ -116,9 +108,16 @@ class Organisms extends Configurable {
         this._mutator       = null;
         this._onIterationCb = null;
         this._onLoopCb      = null;
-        this.callbacks      = null;
 
         super.destroy();
+    }
+
+    addOrgHandlers(org) {
+        org.on(ORG_EVENTS.DESTROY,        this._onKillOrg.bind(this));
+        org.on(ORG_EVENTS.KILL_NO_ENERGY, this._onKillNoEnergyOrg.bind(this));
+        org.on(ORG_EVENTS.KILL_AGE,       this._onKillAgeOrg.bind(this));
+        org.on(ORG_EVENTS.ITERATION,      this._onIterationOrg.bind(this));
+        org.on(ORG_EVENTS.CLONE,          this._onCloneOrg.bind(this));
     }
 
     reset() {
@@ -142,9 +141,10 @@ class Organisms extends Configurable {
         const orgs = this.organisms;
         orgs.add(null);
         let   last = orgs.last;
-        let   org  = this.createEmptyOrg(++this._orgId + '', pos.x, pos.y, true, last, this.callbacks, parent);
+        let   org  = this.createEmptyOrg(++this._orgId + '', pos.x, pos.y, true, last, parent);
 
         last.val = org;
+        this.addOrgHandlers(org);
         this.move(-1, -1, pos.x, pos.y, org);
         this.parent.fire(EVENTS.BORN_ORGANISM, org);
         //Console.info(org.id, ' born');

@@ -71,14 +71,12 @@ class Organism extends Observer {
      * @param {Object} item Reference to the Queue item, where
      * this organism is located
      * @param {Function} operatorCls Class of operators
-     * @param {Object} callbacks Map of callback functions
      * @param {Organism} parent Parent organism if cloning is needed
      */
-    constructor(id, x, y, alive, item, operatorCls, callbacks, parent = null) {
+    constructor(id, x, y, alive, item, operatorCls, parent = null) {
         super(EVENT_AMOUNT);
 
         this._operatorCls = operatorCls;
-        this._callbacks   = callbacks;
 
         if (parent === null) {this._create()}
         else {this._clone(parent)}
@@ -109,7 +107,6 @@ class Organism extends Observer {
     get colorIndex()            {return this._colorIndex}
     get mem()                   {return this._mem}
     get posId()                 {return Helper.posId(this._x, this._y)}
-    get callbacks()             {return this._callbacks}
 
     set x(newX)                 {this._x = newX}
     set y(newY)                 {this._y = newY}
@@ -135,7 +132,7 @@ class Organism extends Observer {
         this._alive && this._updateClone();
         const lines = this._alive ? this.onRun() : 0;
         if (this._alive) {
-            this._callbacks[ITERATION](lines, this);
+            this.fire(ITERATION, lines, this);
             this._alive && this._updateAge();
             this._alive && this._updateEnergy();
         }
@@ -217,7 +214,7 @@ class Organism extends Observer {
     }
 
     destroy() {
-        this._callbacks[DESTROY](this);
+        this.fire(DESTROY, this);
         this._alive         = false;
         this._energy        = 0;
         this._startEnergy   = 0;
@@ -227,7 +224,6 @@ class Organism extends Observer {
         this.vm && this.vm.destroy();
         this.vm             = null;
         this._operatorCls   = null;
-        this._callbacks     = null;
         this._nextClone     = null;
         this._iterations    = -1;
 
@@ -235,7 +231,7 @@ class Organism extends Observer {
     }
 
     _create() {
-        this.vm                     = new VM(this._callbacks, this._operatorCls);
+        this.vm                     = new VM(this, this._operatorCls);
         this._energy                = OConfig.orgStartEnergy;
         this._startEnergy           = OConfig.orgStartEnergy;
         this._colorIndex            = OConfig.orgStartColor * MAX_BITS;
@@ -249,7 +245,7 @@ class Organism extends Observer {
     }
 
     _clone(parent) {
-        this.vm                     = new VM(this._callbacks, this._operatorCls, parent.vm);
+        this.vm                     = new VM(this, this._operatorCls, parent.vm);
         this._energy                = parent.energy;
         this._startEnergy           = parent.energy;
         this._color                 = parent.color;
@@ -269,8 +265,8 @@ class Organism extends Observer {
         if ((this._energy > this._nextClone) && this.vm.size > 0) {
             const ratio  = this._energy / this._nextClone;
             const clones = Math.floor(ratio);
-            if (this._callbacks[CLONE](this, clones) && this._alive) {
-                this._nextClone = this._energy + OConfig.orgCloneMinEnergy * (this.vm.size || 1) * (ratio - clones);
+            if (this.fire(CLONE, this, clones) && this._alive) {
+                this._nextClone = this._energy + OConfig.orgCloneMinEnergy * (this.vm.size || 1) * (1 - (ratio - clones));
             }
         }
     }
@@ -284,7 +280,7 @@ class Organism extends Observer {
         const needDestroy = this._iterations >= alivePeriod && alivePeriod > 0;
 
         if (needDestroy) {
-            this._callbacks[KILL_AGE](this);
+            this.fire(KILL_AGE, this);
             this.destroy();
         }
 
@@ -298,7 +294,7 @@ class Organism extends Observer {
      */
     _updateEnergy() {
         if (this._energy < 1) {
-            this._callbacks[KILL_NO_ENERGY](this);
+            this.fire(KILL_NO_ENERGY, this);
             this.destroy();
             return true;
         }
@@ -306,7 +302,7 @@ class Organism extends Observer {
         let grabSize = this.vm.size;
         if (grabSize < 1) {grabSize = 1}
 
-        (this._energy <= grabSize) && this._callbacks[KILL_NO_ENERGY](this);
+        (this._energy <= grabSize) && this.fire(KILL_NO_ENERGY, this);
         return this.grabEnergy(this._energy < grabSize ? this._energy : grabSize);
     }
 }

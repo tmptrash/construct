@@ -43,8 +43,8 @@ const CONDITIONS = [(a,b)=>a<b, (a,b)=>a>b, (a,b)=>a===b, (a,b)=>a!==b];
 const OPERATORS = [(a,b)=>a+b, (a,b)=>a-b, (a,b)=>a*b, (a,b)=>a/(b||1), (a,b)=>a%(b||1), (a,b)=>a&b, (a,b)=>a|b, (a,b)=>a^b, (a,b)=>a>>b, (a,b)=>a<<b, (a,b)=>a>>>b, (a,b)=>+(a<b), (a,b)=>+(a>b), (a,b)=>+(a===b), (a,b)=>+(a!==b), (a,b)=>+(a<=b)];
 
 class OperatorsDos extends Operators {
-    constructor(offs, vars, callbacks) {
-        super(offs, vars, callbacks);
+    constructor(offs, vars, obs) {
+        super(offs, vars, obs);
         /**
          * {Object} These operator handlers should return string, which
          * will be added to the final string script for evaluation.
@@ -78,7 +78,7 @@ class OperatorsDos extends Operators {
             this.onCheckDown.bind(this)
         ];
         /**
-         * {Object} Reusable object to pass it as a parameter to this.callbacks(..., ret)
+         * {Object} Reusable object to pass it as a parameter to this.fire(..., ret)
          */
         this._ret = {ret: 0, x: 0, y: 0};
         //this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
@@ -208,7 +208,7 @@ class OperatorsDos extends Operators {
 
         const ret = this._ret;
         ret.ret = 0;
-        this.callbacks[EVENTS.GET_ENERGY](org, x, y, ret);
+        this.obs.fire(EVENTS.GET_ENERGY, org, x, y, ret);
         vars[VAR0(num)] = ret.ret;
 
         org.energy -= OConfig.orgOperatorWeights[4];
@@ -248,7 +248,7 @@ class OperatorsDos extends Operators {
         const ret = this._ret;
 
         ret.ret = 0;
-        this.callbacks[EVENTS.CHECK_AT](x, y, ret);
+        this.obs.fire(EVENTS.CHECK_AT, x, y, ret);
         this.vars[VAR0(num)] = ret.ret;
         return ++line;
     }
@@ -259,7 +259,7 @@ class OperatorsDos extends Operators {
         const ret    = this._ret;
 
         ret.ret = amount;
-        this.callbacks[EVENTS.EAT](org, x, y, ret);
+        this.obs.fire(EVENTS.EAT, org, x, y, ret);
         org.energy += ret.ret;
 
         return ret.ret;
@@ -269,7 +269,7 @@ class OperatorsDos extends Operators {
         const ret = this._ret;
 
         ret.ret = 0;
-        this.callbacks[EVENTS.STEP](org, x1, y1, x2, y2, ret);
+        this.obs.fire(EVENTS.STEP, org, x1, y1, x2, y2, ret);
         if (ret.ret > 0) {
             org.x = ret.x;
             org.y = ret.y;

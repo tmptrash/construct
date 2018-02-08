@@ -34,12 +34,6 @@ class Organisms extends BaseOrganisms {
         this._onStepInCb = this._onStepIn.bind(this);
 
         this.parent.on(EVENTS.STEP_IN, this._onStepInCb);
-
-        const cbs = this.callbacks;
-        cbs[EVENTS.GET_ENERGY] = this._onGetEnergy.bind(this);
-        cbs[EVENTS.EAT]        = this._onEat.bind(this);
-        cbs[EVENTS.STEP]       = this._onStep.bind(this);
-        cbs[EVENTS.CHECK_AT]   = this._onCheckAt.bind(this);
     }
 
     destroy() {
@@ -95,6 +89,14 @@ class Organisms extends BaseOrganisms {
         child.grabEnergy(childEnergy - energy);
         org.alive   && (org.startEnergy   = org.energy);
         child.alive && (child.startEnergy = child.energy);
+    }
+
+    addOrgHandlers(org) {
+        super.addOrgHandlers(org);
+        org.on(EVENTS.GET_ENERGY, this._onGetEnergy.bind(this));
+        org.on(EVENTS.EAT, this._onEat.bind(this));
+        org.on(EVENTS.STEP, this._onStep.bind(this));
+        org.on(EVENTS.CHECK_AT, this._onCheckAt.bind(this));
     }
 
     /**

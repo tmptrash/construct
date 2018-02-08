@@ -5,7 +5,7 @@
  * @author flatline
  */
 class Operators {
-    constructor(offs, vars, callbacks) {
+    constructor(offs, vars, obs) {
         /**
          * {Array} Array of offsets for closing braces. For 'for', 'if'
          * and other operators.
@@ -16,15 +16,15 @@ class Operators {
          */
         this.vars      = vars;
         /**
-         * {Observer} Callbacks map for calling outside callbacks
+         * {Observer} Observer for sending external events
          */
-        this.callbacks = callbacks;
+        this.obs       = obs;
     }
 
     destroy() {
-        this.offs      = null;
-        this.vars      = null;
-        this.callbacks = null;
+        this.offs = null;
+        this.vars = null;
+        this.obs  = null;
     }
 
     /**

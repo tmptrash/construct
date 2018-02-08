@@ -6,7 +6,6 @@
  */
 const Organism  = require('./../Organism').Organism;
 const Operators = require('./Operators');
-const Config    = require('./../../../../share/Config').Config;
 const EVENTS    = require('./../../../../share/Events').EVENTS;
 const Fitness   = require('./Fitness');
 
@@ -20,11 +19,11 @@ class OrganismGarmin extends Organism {
      * @param {Boolean} alive true if organism is alive
      * @param {Object} item Reference to the Queue item, where
      * this organism is located
-     * @param {Object} callbacks Map of callback functions
+     * @param {Observer} obs Observer for sending external events
      * @param {Organism} parent Parent organism if cloning is needed
      */
-    constructor(id, x, y, alive, item, callbacks, parent = null) {
-        super(id, x, y, alive, item, Operators, callbacks, parent);
+    constructor(id, x, y, alive, item, obs, parent = null) {
+        super(id, x, y, alive, item, Operators, obs, parent);
 
         this._needRun = true;
 
@@ -36,7 +35,7 @@ class OrganismGarmin extends Organism {
     }
 
     onRun() {
-        if (Fitness.run(this)) {this.callbacks[EVENTS.STOP](this)}
+        if (Fitness.run(this)) {this.obs.fire(EVENTS.STOP, this)}
         this._needRun = false;
     }
 

@@ -9,7 +9,6 @@
 const Helper    = require('./../../../../../../common/src/Helper');
 const Operators = require('./../../../../vm/Operators');
 const Num       = require('./../../../../vm/Num');
-const Config    = require('./../../../../share/Config').Config;
 const OConfig   = require('./../Config');
 
 /**
@@ -25,8 +24,8 @@ const HALF_OF_VAR           = Num.MAX_VAR / 2;
 const CONDITION_BITS        = 2;
 
 class OperatorsGarmin extends  Operators {
-    constructor(offs, vars, callbacks) {
-        super(offs, vars, callbacks);
+    constructor(offs, vars, obs) {
+        super(offs, vars, obs);
         /**
          * {Object} These operator handlers should return string, which
          * will be added to the final string script for evaluation.
@@ -53,7 +52,7 @@ class OperatorsGarmin extends  Operators {
         this._OPERATORS = [
             (a,b)=>a+b, (a,b)=>a-b, (a,b)=>a*b, (a,b)=>a/b, (a,b)=>a%b, (a,b)=>a&b, (a,b)=>a|b, (a,b)=>a^b, (a,b)=>a>>b, (a,b)=>a<<b, (a,b)=>a>>>b, (a,b)=>+(a<b), (a,b)=>+(a>b), (a,b)=>+(a===b), (a,b)=>+(a!==b), (a,b)=>+(a<=b)
         ];
-        this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
+        //this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
         //
         // We have to set amount of available operators for correct
         // working of mutations of operators.

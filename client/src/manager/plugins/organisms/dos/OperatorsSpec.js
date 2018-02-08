@@ -16,7 +16,6 @@ describe("client/src/organism/OperatorsDos", () => {
 
     it("Checking onVar() method", () => {
         const cbs = {
-            [OEvents.GRAB_ENERGY]    : () => {},
             [OEvents.DESTROY]        : () => {},
             [OEvents.CLONE]          : () => {},
             [OEvents.KILL_NO_ENERGY] : () => {},
