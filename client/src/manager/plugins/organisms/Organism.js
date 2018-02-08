@@ -132,9 +132,9 @@ class Organism extends Observer {
         this._alive && this._updateClone();
         const lines = this._alive ? this.onRun() : 0;
         if (this._alive) {
-            this.fire(ITERATION, lines, this);
+            this._updateEnergy();
+            this._alive && this.fire(ITERATION, lines, this);
             this._alive && this._updateAge();
-            this._alive && this._updateEnergy();
         }
 
         return true;
@@ -195,11 +195,6 @@ class Organism extends Observer {
         this._mutationPeriod       = json.mutationPeriod;
         this._mutationPercent      = json.mutationPercent;
         this._mem                  = json.mem.slice();
-    }
-
-    grabEnergy(amount) {
-        if (!this._alive || !IS_NUM(amount) || amount === 0) {return true}
-        (this._energy -= amount) < 1 && this.destroy();
     }
 
     // TODO: describe fitness in details
@@ -301,7 +296,7 @@ class Organism extends Observer {
         if (grabSize < 1) {grabSize = 1}
 
         (this._energy <= grabSize) && this.fire(KILL_NO_ENERGY, this);
-        return this.grabEnergy(this._energy < grabSize ? this._energy : grabSize);
+        return this._energy -= (this._energy < grabSize ? this._energy : grabSize);
     }
 }
 

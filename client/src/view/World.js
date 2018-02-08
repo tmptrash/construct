@@ -63,7 +63,7 @@ class World extends Observer {
     }
 
     getDot(x, y) {
-        if (x < 0 || x >= this._width || y < 0 || y >= this._height) {return false}
+        if (x < 0 || x >= this._width || y < 0 || y >= this._height) {return 0}
         return this._data[x][y];
     }
 

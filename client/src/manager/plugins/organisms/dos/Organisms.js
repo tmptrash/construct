@@ -85,9 +85,9 @@ class Organisms extends BaseOrganisms {
             energy--;
         }
         orgEnergy <= energy && this.parent.fire(EVENTS.KILL_CLONE, org);
-        org.grabEnergy(energy);
+        org.energy -= energy;
         childEnergy <= (childEnergy - energy) && this.parent.fire(EVENTS.KILL_CLONE, child);
-        child.grabEnergy(childEnergy - energy);
+        child.energy -= (childEnergy - energy);
         org.alive   && (org.startEnergy   = org.energy);
         child.alive && (child.startEnergy = child.energy);
     }
@@ -172,7 +172,7 @@ class Organisms extends BaseOrganisms {
             const victimOrg = positions[posId];
             ret.ret = eat < 0 ? 0 : (eat > victimOrg.energy ? victimOrg.energy : eat);
             victimOrg.energy <= ret.ret && this.parent.fire(EVENTS.KILL_EAT, victimOrg);
-            victimOrg.grabEnergy(ret.ret);
+            victimOrg.energy -= ret.ret;
         }
     }
 
@@ -246,7 +246,7 @@ class Organisms extends BaseOrganisms {
             org.y = y;
             const energy = (((org.energy * OConfig.orgStepEnergySpendPercent) + 0.5) << 1) >>> 1;
             (org.energy <= energy) && this.parent.fire(EVENTS.KILL_STEP_IN, org);
-            org.grabEnergy(energy);
+            org.energy -= energy;
         }
     }
 

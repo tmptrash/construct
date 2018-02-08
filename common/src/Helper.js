@@ -182,7 +182,7 @@ class Helper {
      * @returns {Boolean}
      */
     static inWorld(x, y) {
-        return !(x < 0 || x >= Config.worldWidth || y < 0 || y >= Config.worldHeight);
+        return x >= 0 && x < Config.worldWidth && y >= 0 && y < Config.worldHeight;
     }
 
     /**

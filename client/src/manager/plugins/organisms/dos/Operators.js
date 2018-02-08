@@ -6,7 +6,6 @@
  *
  * @author flatline
  */
-const DIR       = require('./../../../../../../common/src/Directions').DIR;
 const Helper    = require('./../../../../../../common/src/Helper');
 const EVENTS    = require('./../../../../../src/share/Events').EVENTS;
 const OConfig   = require('./../Config');
@@ -18,7 +17,8 @@ const Num       = require('./../../../../vm/Num');
  * much faster, then Helper.normalize()
  */
 const IN_WORLD              = Helper.inWorld;
-/**
+const IS_FINITE             = Number.isFinite;
+    /**
  * {Function} Just a shortcuts
  */
 const VAR0                  = Num.getVar0;
@@ -30,7 +30,6 @@ const FOUR_BITS             = 4;
 const BITS_FOR_NUMBER       = 16;
 const CONDITION_BITS        = 2;
 const BITS                  = Num.getBits;
-
 /**
  * {Array} Available conditions for if operator. Amount should be
  * the same like (1 << BITS_PER_VAR)
@@ -39,7 +38,24 @@ const CONDITIONS = [(a,b)=>a<b, (a,b)=>a>b, (a,b)=>a===b, (a,b)=>a!==b];
 /**
  * {Array} Available operators for math calculations
  */
-const OPERATORS = [(a,b)=>a+b, (a,b)=>a-b, (a,b)=>a*b, (a,b)=>a/(b||1), (a,b)=>a%(b||1), (a,b)=>a&b, (a,b)=>a|b, (a,b)=>a^b, (a,b)=>a>>b, (a,b)=>a<<b, (a,b)=>a>>>b, (a,b)=>+(a<b), (a,b)=>+(a>b), (a,b)=>+(a===b), (a,b)=>+(a!==b), (a,b)=>+(a<=b)];
+const OPERATORS = [
+    (a,b) => {const v=a+b; return IS_FINITE(v)?v:0},
+    (a,b) => {const v=a-b; return IS_FINITE(v)?v:0},
+    (a,b) => {const v=a*b; return IS_FINITE(v)?v:0},
+    (a,b) => {const v=a/b; return IS_FINITE(v)?v:0},
+    (a,b) => {const v=a%b; return IS_FINITE(v)?v:0},
+    (a,b) => a&b,
+    (a,b) => a|b,
+    (a,b) => a^b,
+    (a,b) => a>>b,
+    (a,b) => a<<b,
+    (a,b) => a>>>b,
+    (a,b) => +(a<b),
+    (a,b) => +(a>b),
+    (a,b) => +(a===b),
+    (a,b) => +(a!==b),
+    (a,b) => +(a<=b)
+];
 
 class OperatorsDos extends Operators {
     constructor(offs, vars, obs) {

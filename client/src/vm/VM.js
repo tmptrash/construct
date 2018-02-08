@@ -99,7 +99,7 @@ class VM extends Observer {
         let   line   = this._line;
         let   ret    = false;
 
-        while (len > 0 && org.alive) {
+        while (len > 0 && org.energy > 0) {
             line = ops[code[line] >>> VAR_BITS_OFFS](code[line], line, org, lines, ret);
             //
             // We reach the end of the script and have to run it from the beginning

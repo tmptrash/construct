@@ -168,7 +168,7 @@ describe("client/src/organism/OrganismDos", () => {
         let   org    = new OrganismDos(0, 1, 2, true, null, () => {});
         const energy = org.energy;
 
-        org.grabEnergy(10);
+        org.energy -= 10;
         expect(org.energy).toEqual(energy - 10);
 
         org.destroy();
