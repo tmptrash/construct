@@ -199,9 +199,7 @@ class Organism extends Observer {
 
     grabEnergy(amount) {
         if (!this._alive || !IS_NUM(amount) || amount === 0) {return true}
-        const noEnergy = (this._energy -= amount) < 1;
-        noEnergy && this.destroy();
-        return !noEnergy;
+        (this._energy -= amount) < 1 && this.destroy();
     }
 
     // TODO: describe fitness in details
@@ -266,7 +264,7 @@ class Organism extends Observer {
             const ratio  = this._energy / this._nextClone;
             const clones = Math.floor(ratio);
             if (this.fire(CLONE, this, clones) && this._alive) {
-                this._nextClone = this._energy + OConfig.orgCloneMinEnergy * (this.vm.size || 1) * (1 - (ratio - clones));
+                this._nextClone = this._energy + OConfig.orgCloneMinEnergy * (this.vm.size || 1) * ((1 - (ratio - clones)) || 1);
             }
         }
     }

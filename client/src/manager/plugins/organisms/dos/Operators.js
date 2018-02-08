@@ -17,7 +17,7 @@ const Num       = require('./../../../../vm/Num');
  * {Function} Is created to speed up this function call. constants are run
  * much faster, then Helper.normalize()
  */
-const NORMALIZE     = Helper.normalize;
+const IN_WORLD              = Helper.inWorld;
 /**
  * {Function} Just a shortcuts
  */
@@ -28,7 +28,6 @@ const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
 const BITS_AFTER_ONE_VAR    = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR;
 const FOUR_BITS             = 4;
 const BITS_FOR_NUMBER       = 16;
-const IS_NUM                = Helper.isNumeric;
 const CONDITION_BITS        = 2;
 const BITS                  = Num.getBits;
 
@@ -200,17 +199,17 @@ class OperatorsDos extends Operators {
         let   x    = vars[VAR1(num)];
         let   y    = vars[VAR2(num)];
 
-        if (!IS_NUM(x) || !IS_NUM(y) || NORMALIZE(x, y)[2] !== DIR.NO) {
-            vars[VAR0(num)] = 0;
+        if (!IN_WORLD(x, y)) {
+            const ret = this._ret;
+            ret.ret = 0;
+            this.obs.fire(EVENTS.GET_ENERGY, org, x, y, ret);
+            vars[VAR0(num)] = ret.ret;
+
             org.energy -= OConfig.orgOperatorWeights[4];
             return ++line;
         }
 
-        const ret = this._ret;
-        ret.ret = 0;
-        this.obs.fire(EVENTS.GET_ENERGY, org, x, y, ret);
-        vars[VAR0(num)] = ret.ret;
-
+        vars[VAR0(num)] = 0;
         org.energy -= OConfig.orgOperatorWeights[4];
         return ++line;
     }
@@ -255,7 +254,7 @@ class OperatorsDos extends Operators {
 
     _eat(org, num, x, y) {
         const amount = this.vars[VAR1(num)];
-        if (!IS_NUM(amount) || amount <= 0) {return 0}
+        if (amount <= 0) {return 0}
         const ret    = this._ret;
 
         ret.ret = amount;

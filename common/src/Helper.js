@@ -154,6 +154,38 @@ class Helper {
     }
 
     /**
+     * Does normalization of X and Y coordinates. It's used
+     * in cyclical mode for checking if we out of bound (world).
+     * In non cyclical mode it just returns the same coordinates.
+     * Usage: [x, y] = Helper.normalizeNoDir(10, -1); // 10, 100 (height - 1)
+     * 'dir' parameter means 'direction' and will be set only if
+     * one or two coordinates are out of bounds (world). Otherwise
+     * 'dir' parameter will be set to DIR.NO value.
+     * @param {Number} x
+     * @param {Number} y
+     * @returns {[x,y]}
+     */
+    static normalizeNoDir(x, y) {
+        if (x < 0) {x = Config.worldWidth - 1}
+        else if (x >= Config.worldWidth)  {x = 0}
+
+        if (y < 0) {y = Config.worldHeight - 1}
+        else if (y >= Config.worldHeight) {y = 0}
+
+        return [x, y];
+    }
+
+    /**
+     * Checks if specified coordinates are within current world
+     * @param {Number} x
+     * @param {Number} y
+     * @returns {Boolean}
+     */
+    static inWorld(x, y) {
+        return !(x < 0 || x >= Config.worldWidth || y < 0 || y >= Config.worldHeight);
+    }
+
+    /**
      * Flips X or Y to the opposite coordinates. e.g:
      * width=10, height=10, x=0, y=1 -> x=9, y=1
      * width=10, height=10, x=3, y=9 -> x=3, y=0

@@ -21,7 +21,8 @@ const DIR           = require('./../../../../../../common/src/Directions').DIR;
  * {Function} Is created to speed up this function call. constants are run
  * much faster, then Helper.normalize()
  */
-const NORMALIZE     = Helper.normalize;
+const NORMALIZE        = Helper.normalize;
+const NORMALIZE_NO_DIR = Helper.normalizeNoDir;
 /**
  * {Function} Is created to speed up this function call. constants are run
  * much faster, then Helper.posId()
@@ -155,10 +156,9 @@ class Organisms extends BaseOrganisms {
         // Amount of eat energy depends on organism size. Small organisms
         // eat less, big - more
         //
-        const eat       = ret.ret / (OConfig.codeMaxSize / (org.vm.size || 1));
-        let   dir;
+        const eat       = ret.ret / ((OConfig.codeMaxSize / (org.vm.size || 1)) || 1);
 
-        [x, y, dir] = NORMALIZE(x, y);
+        [x, y] = NORMALIZE_NO_DIR(x, y);
 
         const posId = POSID(x, y);
         if (typeof(positions[posId]) === 'undefined') {
@@ -254,8 +254,7 @@ class Organisms extends BaseOrganisms {
         const org = this.positions[POSID(x, y)];
 
         if (typeof(org) === 'undefined') {
-            let dir;
-            [x, y, dir] = NORMALIZE(x, y);
+            [x, y] = NORMALIZE_NO_DIR(x, y);
             ret.ret = this.world.getDot(x, y);
         } else {
             ret.ret = org.energy;

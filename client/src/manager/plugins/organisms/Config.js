@@ -60,7 +60,7 @@ const Config = {
      * will be provided. Killing of organism will be done using random organism
      * selection from population
      */
-    orgKillOnClone: true,
+    orgKillOnClone: false,
     /**
      * {Number} Amount of iterations between tournament. During tournament one
      * organism (looser) will be killed
