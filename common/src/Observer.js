@@ -37,7 +37,7 @@ class Observer {
     off(event, handler) {
         let index    = -1;
         let handlers = this._handlers[event];
-        let len      = handlers.amount;
+        let len      = handlers && handlers.amount || 0;
 
         if (handlers) {
             for (let i = 0; i < len; i++) {
