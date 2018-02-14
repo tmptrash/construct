@@ -3,81 +3,74 @@ describe("client/src/organism/OperatorsDos", () => {
     let cbpv         = OConfig.codeBitsPerVar;
     OConfig.codeBitsPerVar = 2;
     let OperatorsDos = require('./Operators');
-    let Helper       = require('./../../../../../../common/src/Helper');
     let Observer     = require('./../../../../../../common/src/Observer');
     let EVENTS       = require('./../../../../share/Events').EVENTS;
     let EVENT_AMOUNT = require('./../../../../share/Events').EVENT_AMOUNT;
-    let Config       = require('./../../../../share/Config').Config;
+    //let Config       = require('./../../../../share/Config').Config;
     let OrganismDos  = require('./../../organisms/dos/Organism');
-    let OEvents      = require('./../../organisms/Organism').EVENTS;
-    let api          = require('./../../../../share/Config').api;
+    //let OEvents      = require('./../../organisms/Organism').EVENTS;
+    //let api          = require('./../../../../share/Config').api;
 
     afterAll(() => OConfig.codeBitsPerVar = cbpv);
 
-    it("Checking onVar() method", () => {
-        const cbs = {
-            [OEvents.DESTROY]        : () => {},
-            [OEvents.CLONE]          : () => {},
-            [OEvents.KILL_NO_ENERGY] : () => {},
-            [OEvents.KILL_AGE]       : () => {},
-            [OEvents.ITERATION]      : () => {}
-        };
-        let   ops = new OperatorsDos([], [0, 1, 2, 3], cbs);
-        let   org = new OrganismDos('0', 0, 0, true, {}, cbs);
+    describe('onVar() method', () => {
+        it("Checking onVar() method", () => {
+            let org = new OrganismDos('0', 0, 0, true, {});
+            let ops = new OperatorsDos([], [0, 1, 2, 3], org);
 
-        expect(ops.onVar(0x00dfffff, 0, org)).toEqual(1); // 0xd === 0b1101, var3 = var1
-        expect(ops.vars).toEqual([0, 1, 2, 1]);
-        expect(ops.onVar(0x000fffff, 0, org)).toEqual(1); // 0x0 === 0b0000, var0 = var0
-        expect(ops.vars).toEqual([0, 1, 2, 1]);
-        expect(ops.onVar(0x0000ffff, 0, org)).toEqual(1);
-        // expect(ops.vars[0] === 0x3fff).toEqual(true);
-        // expect(ops.vars[1] === 0).toEqual(true);
-        // expect(ops.vars[2] === 0).toEqual(true);
-        // expect(ops.vars[3] === 0).toEqual(true);
+            expect(ops.onVar(0x00dfffff, 0, org)).toEqual(1); // 0xd === 0b1101, var3 = var1
+            expect(ops.vars).toEqual([0, 1, 2, 1]);
+            expect(ops.onVar(0x000fffff, 0, org)).toEqual(1); // 0x0 === 0b0000, var0 = var0
+            expect(ops.vars).toEqual([0, 1, 2, 1]);
+            expect(ops.onVar(0x006fffff, 0, org)).toEqual(1); // 0x6 === 0b0110, var1 = var2
+            expect(ops.vars).toEqual([0, 2, 2, 1]);
+            expect(ops.onVar(0x00ffffff, 0, org)).toEqual(1); // 0xf === 0b1111, var3 = var3
+            expect(ops.vars).toEqual([0, 2, 2, 1]);
 
-        org.destroy();
-        ops.destroy();
-    });
+            org.destroy();
+            ops.destroy();
+        });
 
-    // it("Checking onVar() method with 3 bits per var config", () => {
-    //     let ops = new OperatorsDos([], [0, 1, 2, 3], new Observer());
-    //     let bpv = OConfig.codeBitsPerVar;
-    //
-    //     OConfig.codeBitsPerVar = 4;
-    //     expect(ops.onVar(0x00ffffff, 0)).toEqual(1);
-    //     expect(ops.vars[0] === 0).toEqual(true);
-    //     expect(ops.vars[1] === 1).toEqual(true);
-    //     expect(ops.vars[2] === 2).toEqual(true);
-    //     expect(ops.vars[3] === 3).toEqual(true);
-    //     expect(ops.onVar(0x000fffff, 0)).toEqual(1);
-    //     expect(ops.vars[0] === 3).toEqual(true);
-    //     expect(ops.vars[1] === 1).toEqual(true);
-    //     expect(ops.vars[2] === 2).toEqual(true);
-    //     expect(ops.vars[3] === 3).toEqual(true);
-    //     // expect(ops.onVar(0x0000ffff, 0)).toEqual(1);
-    //     // expect(ops.vars[0] === 0x3fff).toEqual(true);
-    //     // expect(ops.vars[1] === 0).toEqual(true);
-    //     // expect(ops.vars[2] === 0).toEqual(true);
-    //     // expect(ops.vars[3] === 0).toEqual(true);
-    //
-    //     OConfig.codeBitsPerVar = bpv;
-    //     ops.destroy();
-    // });
+        // it("Checking onVar() method with 3 bits per var config", () => {
+        //     let ops = new OperatorsDos([], [0, 1, 2, 3], new Observer());
+        //     let bpv = OConfig.codeBitsPerVar;
+        //
+        //     OConfig.codeBitsPerVar = 4;
+        //     expect(ops.onVar(0x00ffffff, 0)).toEqual(1);
+        //     expect(ops.vars[0] === 0).toEqual(true);
+        //     expect(ops.vars[1] === 1).toEqual(true);
+        //     expect(ops.vars[2] === 2).toEqual(true);
+        //     expect(ops.vars[3] === 3).toEqual(true);
+        //     expect(ops.onVar(0x000fffff, 0)).toEqual(1);
+        //     expect(ops.vars[0] === 3).toEqual(true);
+        //     expect(ops.vars[1] === 1).toEqual(true);
+        //     expect(ops.vars[2] === 2).toEqual(true);
+        //     expect(ops.vars[3] === 3).toEqual(true);
+        //     // expect(ops.onVar(0x0000ffff, 0)).toEqual(1);
+        //     // expect(ops.vars[0] === 0x3fff).toEqual(true);
+        //     // expect(ops.vars[1] === 0).toEqual(true);
+        //     // expect(ops.vars[2] === 0).toEqual(true);
+        //     // expect(ops.vars[3] === 0).toEqual(true);
+        //
+        //     OConfig.codeBitsPerVar = bpv;
+        //     ops.destroy();
+        // });
 
-    it("Checking onVar() method 2", () => {
-        let ops = new OperatorsDos([], [1, 2, 3, 4], new Observer());
+        it("Checking onVar() method 2", () => {
+            let ops = new OperatorsDos([], [1, 2, 3, 4], new Observer());
 
-        expect(ops.vars[0] === 1).toEqual(true);
-        expect(ops.vars[1] === 2).toEqual(true);
-        expect(ops.vars[2] === 3).toEqual(true);
-        expect(ops.vars[3] === 4).toEqual(true);
-        expect(ops.onVar(0x001fffff, 0)).toEqual(1);
-        expect(ops.vars[0] === 2).toEqual(true);
-        expect(ops.vars[1] === 2).toEqual(true);
-        expect(ops.vars[2] === 3).toEqual(true);
-        expect(ops.vars[3] === 4).toEqual(true);
+            expect(ops.vars[0] === 1).toEqual(true);
+            expect(ops.vars[1] === 2).toEqual(true);
+            expect(ops.vars[2] === 3).toEqual(true);
+            expect(ops.vars[3] === 4).toEqual(true);
+            expect(ops.onVar(0x001fffff, 0)).toEqual(1);
+            expect(ops.vars[0] === 2).toEqual(true);
+            expect(ops.vars[1] === 2).toEqual(true);
+            expect(ops.vars[2] === 3).toEqual(true);
+            expect(ops.vars[3] === 4).toEqual(true);
 
-        ops.destroy();
+            ops.destroy();
+        });
     });
 
     it("Checking onCondition() method", () => {
