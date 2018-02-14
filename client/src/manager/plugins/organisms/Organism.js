@@ -13,8 +13,6 @@ const EVENT_AMOUNT   = require('./../../../share/Events').EVENT_AMOUNT;
 const VM             = require('./../../../vm/VM');
 const Num            = require('./../../../vm/Num');
 
-const MAX_BITS       = Num.MAX_BITS;
-
 const DESTROY        = 0;
 const CLONE          = 1;
 const KILL_NO_ENERGY = 2;
@@ -27,8 +25,6 @@ const ORG_EVENTS     = {
     KILL_AGE,
     ITERATION
 };
-
-const IS_NUM = Helper.isNumeric;
 
 class Organism extends Observer {
     /**
@@ -227,7 +223,7 @@ class Organism extends Observer {
         this.vm                     = new VM(this, this._operatorCls);
         this._energy                = OConfig.orgStartEnergy;
         this._startEnergy           = OConfig.orgStartEnergy;
-        this._colorIndex            = OConfig.orgStartColor * MAX_BITS;
+        this._colorIndex            = OConfig.orgStartColor * Num.MAX_BITS;
         this._color                 = Organism._getColor(this._colorIndex);
         this._mutationProbs         = OConfig.orgMutationProbs.slice();
         this._mutationPeriod        = OConfig.orgRainMutationPeriod;
@@ -251,7 +247,7 @@ class Organism extends Observer {
 
     _updateColor(changes) {
         this._colorIndex += (changes - this._changes);
-        this._color       = Organism._getColor(Math.round(this._colorIndex / MAX_BITS));
+        this._color       = Organism._getColor(Math.round(this._colorIndex / Num.MAX_BITS));
     }
 
     _updateClone() {

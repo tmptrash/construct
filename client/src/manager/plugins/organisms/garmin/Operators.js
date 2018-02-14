@@ -18,7 +18,6 @@ const VAR0                  = Num.getVar;
 const VAR1                  = (n) => Num.getVar(n, 1);
 const VAR2                  = (n) => Num.getVar(n, 2);
 const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
-const BITS_OF_TWO_VARS      = Num.BITS_OF_TWO_VARS;
 const IS_NUM                = Helper.isNumeric;
 const HALF_OF_VAR           = Num.MAX_VAR / 2;
 const CONDITION_BITS        = 2;
@@ -43,7 +42,7 @@ class OperatorsGarmin extends  Operators {
         ];
         /**
          * {Array} Available conditions for if operator. Amount should be
-         * the same like (1 << BITS_PER_VAR)
+         * the same like (1 << Num.BITS_PER_VAR)
          */
         this._CONDITIONS = [(a,b)=>a<b, (a,b)=>a>b, (a,b)=>a===b, (a,b)=>a!==b];
         /**
@@ -52,19 +51,17 @@ class OperatorsGarmin extends  Operators {
         this._OPERATORS = [
             (a,b)=>a+b, (a,b)=>a-b, (a,b)=>a*b, (a,b)=>a/(b||1), (a,b)=>a%(b||1), (a,b)=>a&b, (a,b)=>a|b, (a,b)=>a^b, (a,b)=>a>>b, (a,b)=>a<<b, (a,b)=>a>>>b, (a,b)=>+(a<b), (a,b)=>+(a>b), (a,b)=>+(a===b), (a,b)=>+(a!==b), (a,b)=>+(a<=b)
         ];
-        //this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
         //
         // We have to set amount of available operators for correct
         // working of mutations of operators.
         //
-        Num.setOperatorAmount(this._OPERATORS_CB.length);
+        Num.init(this._OPERATORS_CB.length);
     }
 
     destroy() {
         this._OPERATORS_CB = null;
         this._CONDITIONS   = null;
         this._OPERATORS    = null;
-        //this._TRIGS        = null;
 
         super.destroy();
     }
@@ -73,10 +70,10 @@ class OperatorsGarmin extends  Operators {
 
     /**
      * Parses variable operator. Format: let = const|number. Num bits format:
-     *   BITS_PER_OPERATOR bits - operator id
-     *   BITS_PER_VAR bits  - destination var index
-     *   BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
-     *   BITS_PER_VAR bits  - variable index or all bits till the end for constant
+     *   Num.BITS_PER_OPERATOR bits - operator id
+     *   Num.BITS_PER_VAR bits  - destination var index
+     *   Num.BITS_PER_VAR bits  - assign type (const (half of bits) or variable (half of bits))
+     *   Num.BITS_PER_VAR bits  - variable index or all bits till the end for constant
      *
      * @param {Num} num Packed into number vm line
      * @param {Number} line Current line in vm
@@ -85,13 +82,13 @@ class OperatorsGarmin extends  Operators {
     onVar(num, line) {
         const vars = this.vars;
         const var1 = VAR1(num);
-        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS) : vars[var1];
+        vars[VAR0(num)] = var1 >= HALF_OF_VAR ? Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS) : vars[var1];
 
         return line + 1;
     }
 
     onCondition(num, line, org, lines) {
-        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
+        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
         const offs = line + val3 < lines ? line + val3 + 1 : lines;
         const cond = VAR2(num) >>> (OConfig.codeBitsPerVar - CONDITION_BITS);
 
@@ -105,7 +102,7 @@ class OperatorsGarmin extends  Operators {
 //    onLoop(num, line, org, lines, ret) {
 //        const vars = this.vars;
 //        const var0 = VAR0(num);
-//        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS);
+//        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
 //        const offs = line + val3 < lines ? line + val3 + 1 : lines;
 //
 //        if (ret) {
@@ -127,7 +124,7 @@ class OperatorsGarmin extends  Operators {
 
     onOperator(num, line) {
         const vars = this.vars;
-        vars[VAR0(num)] = this._OPERATORS[Num.getBits(num, BITS_AFTER_THREE_VARS, BITS_OF_TWO_VARS)](vars[VAR1(num)], vars[VAR2(num)]);
+        vars[VAR0(num)] = this._OPERATORS[Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS)](vars[VAR1(num)], vars[VAR2(num)]);
         return line + 1;
     }
 
@@ -135,16 +132,6 @@ class OperatorsGarmin extends  Operators {
         this.vars[VAR0(num)] = +!this.vars[VAR1(num)];
         return line + 1;
     }
-
-//    onPi(num, line) {
-//        this.vars[VAR0(num)] = Math.PI;
-//        return line + 1;
-//    }
-//
-//    onTrig(num, line) {
-//        this.vars[VAR0(num)] = this._TRIGS[VAR2(num)](this.vars[VAR1(num)]);
-//        return line + 1;
-//    }
 
     onFromMem(num, line, org) {this.vars[VAR0(num)] = org.mem.pop() || 0; return line + 1}
 

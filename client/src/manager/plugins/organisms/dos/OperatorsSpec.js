@@ -14,10 +14,13 @@ describe("client/src/organism/OperatorsDos", () => {
     afterAll(() => OConfig.codeBitsPerVar = cbpv);
 
     describe('onVar() method', () => {
-        it("Checking onVar() method", () => {
-            let org = new OrganismDos('0', 0, 0, true, {});
-            let ops = new OperatorsDos([], [0, 1, 2, 3], org);
+        let org;
+        let ops;
 
+        beforeEach(() => {org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([], [0, 1, 2, 3], org)});
+        afterEach (() => {ops.destroy(); org.destroy()});
+
+        it("Checking variables working", () => {
             expect(ops.onVar(0x00dfffff, 0, org)).toEqual(1); // 0xd === 0b1101, var3 = var1
             expect(ops.vars).toEqual([0, 1, 2, 1]);
             expect(ops.onVar(0x000fffff, 0, org)).toEqual(1); // 0x0 === 0b0000, var0 = var0
@@ -26,51 +29,49 @@ describe("client/src/organism/OperatorsDos", () => {
             expect(ops.vars).toEqual([0, 2, 2, 1]);
             expect(ops.onVar(0x00ffffff, 0, org)).toEqual(1); // 0xf === 0b1111, var3 = var3
             expect(ops.vars).toEqual([0, 2, 2, 1]);
-
-            org.destroy();
-            ops.destroy();
         });
 
-        // it("Checking onVar() method with 3 bits per var config", () => {
-        //     let ops = new OperatorsDos([], [0, 1, 2, 3], new Observer());
-        //     let bpv = OConfig.codeBitsPerVar;
-        //
-        //     OConfig.codeBitsPerVar = 4;
-        //     expect(ops.onVar(0x00ffffff, 0)).toEqual(1);
-        //     expect(ops.vars[0] === 0).toEqual(true);
-        //     expect(ops.vars[1] === 1).toEqual(true);
-        //     expect(ops.vars[2] === 2).toEqual(true);
-        //     expect(ops.vars[3] === 3).toEqual(true);
-        //     expect(ops.onVar(0x000fffff, 0)).toEqual(1);
-        //     expect(ops.vars[0] === 3).toEqual(true);
-        //     expect(ops.vars[1] === 1).toEqual(true);
-        //     expect(ops.vars[2] === 2).toEqual(true);
-        //     expect(ops.vars[3] === 3).toEqual(true);
-        //     // expect(ops.onVar(0x0000ffff, 0)).toEqual(1);
-        //     // expect(ops.vars[0] === 0x3fff).toEqual(true);
-        //     // expect(ops.vars[1] === 0).toEqual(true);
-        //     // expect(ops.vars[2] === 0).toEqual(true);
-        //     // expect(ops.vars[3] === 0).toEqual(true);
-        //
-        //     OConfig.codeBitsPerVar = bpv;
-        //     ops.destroy();
-        // });
+        it("Checking onVar() method with 3 bits per var config", () => {
+            let bpv = OConfig.codeBitsPerVar;
+            OConfig.codeBitsPerVar = 3;
+            let OperatorsDos = require('./Operators');
+            let ops1 = new OperatorsDos([], [0, 1, 2, 3, 4, 5, 6, 7, 8], org);
 
-        it("Checking onVar() method 2", () => {
-            let ops = new OperatorsDos([], [1, 2, 3, 4], new Observer());
+            expect(ops1.onVar(0x00ffffff, 0, org)).toEqual(1); // 0xff === 0b[111111]11, var8 = var8
+            expect(ops1.vars).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+            expect(ops1.onVar(0x005dffff, 0, org)).toEqual(1); // 0x5d === 0b[010111]01, var2 = var7
+            expect(ops1.vars).toEqual([0, 1, 7, 3, 4, 5, 6, 7, 8]);
+            expect(ops1.onVar(0x005fffff, 0, org)).toEqual(1); // 0x5f === 0b[010111]11, var2 = var7
+            expect(ops1.vars).toEqual([0, 1, 7, 3, 4, 5, 6, 7, 8]);
+            expect(ops1.onVar(0x0000ffff, 0, org)).toEqual(1); // 0x00 === 0b[000000]00, var0 = var0
+            expect(ops1.vars).toEqual([0, 1, 7, 3, 4, 5, 6, 7, 8]);
 
-            expect(ops.vars[0] === 1).toEqual(true);
-            expect(ops.vars[1] === 2).toEqual(true);
-            expect(ops.vars[2] === 3).toEqual(true);
-            expect(ops.vars[3] === 4).toEqual(true);
-            expect(ops.onVar(0x001fffff, 0)).toEqual(1);
-            expect(ops.vars[0] === 2).toEqual(true);
-            expect(ops.vars[1] === 2).toEqual(true);
-            expect(ops.vars[2] === 3).toEqual(true);
-            expect(ops.vars[3] === 4).toEqual(true);
-
-            ops.destroy();
+            OConfig.codeBitsPerVar = bpv;
+            ops1.destroy();
         });
+
+        it("Checking onVar() energy decrease", () => {
+            const energy   = org.energy;
+            const decrease = OConfig.orgOperatorWeights[0];
+            expect(ops.onVar(0x000fffff, 0, org)).toEqual(1); // 0x0 === 0b0000, var0 = var0
+            expect(org.energy).toBe(energy - decrease);
+            expect(ops.onVar(0x000fffff, 0, org)).toEqual(1); // 0x0 === 0b0000, var0 = var0
+            expect(org.energy).toBe(energy - decrease * 2);
+        });
+
+        it('Checking line increase', () => {
+            expect(ops.onVar(0x000fffff, 0, org)).toEqual(1); // 0x0 === 0b0000, var0 = var0
+            expect(ops.onVar(0x000fffff, 1, org)).toEqual(2); // 0x0 === 0b0000, var0 = var0
+            expect(ops.onVar(0x000fffff, 100, org)).toEqual(101); // 0x0 === 0b0000, var0 = var0
+        });
+    });
+
+    describe('onConst() method', () => {
+        let org;
+        let ops;
+
+        beforeEach(() => {org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([], [0, 1, 2, 3], org)});
+        afterEach (() => {ops.destroy(); org.destroy()});
     });
 
     it("Checking onCondition() method", () => {

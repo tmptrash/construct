@@ -14,24 +14,18 @@ const OConfig  = require('./../../../manager/plugins/organisms/Config');
 const Helper   = require('./../../../../../common/src/Helper');
 const Num      = require('./../../../vm/Num');
 
-const VAR_BITS_OFFS = Num.VAR_BITS_OFFS - 1;
-const VARS          = Num.VARS;
-const MAX_VAR       = Num.MAX_VAR;
-const MAX_BITS      = Num.MAX_BITS;
-const BITS_PER_VAR  = Num.BITS_PER_VAR;
-
 const ADD_MUTAION_INDEX = 6;
 
 class Mutator {
     static _onChange(org) {
         const vm = org.vm;
         vm.updateLine(Helper.rand(vm.size), Num.get());
-        org.changes += MAX_BITS;
+        org.changes += Num.MAX_BITS;
     }
 
     static _onDel(org) {
         org.vm.removeLine();
-        org.changes += MAX_BITS;
+        org.changes += Num.MAX_BITS;
     }
 
     /**
@@ -46,13 +40,13 @@ class Mutator {
 
         if (rnd === 0) {
             vm.updateLine(index, Num.setOperator(vm.getLine(index), rand(vm.operators.operators.length)));
-            org.changes += MAX_BITS;
+            org.changes += Num.MAX_BITS;
         } else if (rnd === 1) {
-            vm.updateLine(index, Num.setVar(vm.getLine(index), rand(VARS), rand(MAX_VAR)));
-            org.changes += BITS_PER_VAR;
+            vm.updateLine(index, Num.setVar(vm.getLine(index), rand(Num.VARS), rand(Num.MAX_VAR)));
+            org.changes += Num.BITS_PER_VAR;
         } else {
             // toggle specified bit
-            vm.updateLine(index, vm.getLine(index) ^ (1 << rand(VAR_BITS_OFFS)));
+            vm.updateLine(index, vm.getLine(index) ^ (1 << rand(Num.VAR_BITS_OFFS - 1)));
             org.changes++;
         }
     }
@@ -77,11 +71,11 @@ class Mutator {
 
     static _onAdd(org) {
         org.vm.insertLine();
-        org.changes += MAX_BITS;
+        org.changes += Num.MAX_BITS;
     }
 
     static _onCopy(org) {
-        org.changes += (org.vm.copyLines() * MAX_BITS);
+        org.changes += (org.vm.copyLines() * Num.MAX_BITS);
     }
 
     constructor(manager, owner) {

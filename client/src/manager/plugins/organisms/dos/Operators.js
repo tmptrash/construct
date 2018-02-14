@@ -18,21 +18,14 @@ const Num       = require('./../../../../vm/Num');
  */
 const IN_WORLD              = Helper.inWorld;
 const IS_FINITE             = Number.isFinite;
-    /**
+/**
  * {Function} Just a shortcuts
  */
-const VAR0                  = Num.getVar0;
-const VAR1                  = Num.getVar1;
-const VAR2                  = Num.getVar2;
-const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
-const BITS_AFTER_ONE_VAR    = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR;
 const FOUR_BITS             = 4;
-const BITS_FOR_NUMBER       = 16;
 const CONDITION_BITS        = 2;
-const BITS                  = Num.getBits;
 /**
  * {Array} Available conditions for if operator. Amount should be
- * the same like (1 << BITS_PER_VAR)
+ * the same like (1 << Num.BITS_PER_VAR)
  */
 const CONDITIONS = [(a,b)=>a<b, (a,b)=>a>b, (a,b)=>a===b, (a,b)=>a!==b];
 /**
@@ -60,6 +53,8 @@ const OPERATORS = [
 class OperatorsDos extends Operators {
     constructor(offs, vars, obs) {
         super(offs, vars, obs);
+        this.BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
+        this.BITS_AFTER_ONE_VAR    = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR;
         /**
          * {Object} These operator handlers should return string, which
          * will be added to the final string script for evaluation.
@@ -67,13 +62,9 @@ class OperatorsDos extends Operators {
         this._OPERATORS_CB = [
             this.onVar.bind(this),
             this.onConst.bind(this),
-            //this.onFunc.bind(this),
             this.onCondition.bind(this),
             this.onLoop.bind(this),
             this.onOperator.bind(this),
-            //this.onNot.bind(this),
-            //this.onPi.bind(this),
-            //this.onTrig.bind(this),
             this.onLookAt.bind(this),
             this.onEatLeft.bind(this),
             this.onEatRight.bind(this),
@@ -96,18 +87,16 @@ class OperatorsDos extends Operators {
          * {Object} Reusable object to pass it as a parameter to this.fire(..., ret)
          */
         this._ret = {ret: 0, x: 0, y: 0};
-        //this._TRIGS = [(a)=>Math.sin(a), (a)=>Math.cos(a), (a)=>Math.tan(a), (a)=>Math.abs(a)];
         //
         // We have to set amount of available operators for correct
         // working of mutations of operators.
         //
-        Num.setOperatorAmount(this._OPERATORS_CB.length);
+        Num.init(this._OPERATORS_CB.length);
     }
 
     destroy() {
         super.destroy();
         this._OPERATORS_CB = null;
-        //this._TRIGS        = null;
     }
 
     get operators() {return this._OPERATORS_CB}
@@ -122,27 +111,23 @@ class OperatorsDos extends Operators {
      * @return {Number} Parsed vm line string
      */
     onVar(num, line, org) {
-        this.vars[VAR0(num)] = this.vars[VAR1(num)];
+        this.vars[Num.getVar0(num)] = this.vars[Num.getVar1(num)];
         org.energy -= OConfig.orgOperatorWeights[0];
         return ++line;
     }
 
     onConst(num, line, org) {
-        this.vars[VAR0(num)] = BITS(num, BITS_AFTER_THREE_VARS, BITS_FOR_NUMBER);
+        this.vars[Num.getVar0(num)] = Num.getBits(num, this.BITS_AFTER_ONE_VAR, Num.MAX_BITS);
         org.energy -= OConfig.orgOperatorWeights[0];
         return ++line;
     }
 
-    //onFunc(num, line) {
-    //    return ++line;
-    //}
-
     onCondition(num, line, org, lines) {
-        const val3 = BITS(num, BITS_AFTER_THREE_VARS, OConfig.codeBitsPerBlock);
+        const val3 = Num.getBits(num, this.BITS_AFTER_THREE_VARS, OConfig.codeBitsPerBlock);
         const offs = this._getOffs(line, lines, val3);
-        const cond = VAR2(num) >>> (OConfig.codeBitsPerVar - CONDITION_BITS);
+        const cond = Num.getVar2(num) >>> (OConfig.codeBitsPerVar - CONDITION_BITS);
 
-        if (CONDITIONS[cond](this.vars[VAR0(num)], this.vars[VAR1(num)])) {
+        if (CONDITIONS[cond](this.vars[Num.getVar0(num)], this.vars[Num.getVar1(num)])) {
             org.energy -= OConfig.orgOperatorWeights[1];
             return ++line;
         }
@@ -156,15 +141,15 @@ class OperatorsDos extends Operators {
      */
     onLoop(num, line, org, lines, afterIteration = false) {
         const vars = this.vars;
-        const var0 = VAR0(num);
-        const val3 = BITS(num, BITS_AFTER_THREE_VARS, OConfig.codeBitsPerBlock);
+        const var0 = Num.getVar0(num);
+        const val3 = Num.getBits(num, this.BITS_AFTER_THREE_VARS, OConfig.codeBitsPerBlock);
         const offs = this._getOffs(line, lines, val3);
         //
         // If last iteration has done and we've returned to the line,
         // where "for" operator is located
         //
         if (afterIteration === true) {
-            if (++vars[var0] < vars[VAR2(num)]) {
+            if (++vars[var0] < vars[Num.getVar2(num)]) {
                 this.offs.push(line, offs);
                 org.energy -= OConfig.orgOperatorWeights[2];
                 return ++line;
@@ -177,8 +162,8 @@ class OperatorsDos extends Operators {
         // This is first time we are running "for" operator. No
         // iterations have done, yet
         //
-        vars[var0] = vars[VAR1(num)];
-        if (vars[var0] < vars[VAR2(num)]) {
+        vars[var0] = vars[Num.getVar1(num)];
+        if (vars[var0] < vars[Num.getVar2(num)]) {
             this.offs.push(line, offs);
             org.energy -= OConfig.orgOperatorWeights[2];
             return ++line;
@@ -190,69 +175,54 @@ class OperatorsDos extends Operators {
 
     onOperator(num, line, org) {
         const vars = this.vars;
-        vars[VAR0(num)] = OPERATORS[BITS(num, BITS_AFTER_THREE_VARS, FOUR_BITS)](vars[VAR1(num)], vars[VAR2(num)]);
+        vars[Num.getVar0(num)] = OPERATORS[Num.getBits(num, this.BITS_AFTER_THREE_VARS, FOUR_BITS)](vars[Num.getVar1(num)], vars[Num.getVar2(num)]);
         org.energy -= OConfig.orgOperatorWeights[3];
         return ++line;
     }
 
-    // onNot(num, line) {
-    //     this.vars[VAR0(num)] = +!this.vars[VAR1(num)];
-    //     return ++line;
-    // }
-
-    //onPi(num, line) {
-    //    this.vars[VAR0(num)] = Math.PI;
-    //    return ++line;
-    //}
-
-    //onTrig(num, line) {
-    //    this.vars[VAR0(num)] = this._TRIGS[VAR2(num)](this.vars[VAR1(num)]);
-    //    return ++line;
-    //}
-
     onLookAt(num, line, org) {
         const vars = this.vars;
-        let   x    = vars[VAR1(num)];
-        let   y    = vars[VAR2(num)];
+        let   x    = vars[Num.getVar1(num)];
+        let   y    = vars[Num.getVar2(num)];
 
         if (!IN_WORLD(x, y)) {
             const ret = this._ret;
             ret.ret = 0;
             this.obs.fire(EVENTS.GET_ENERGY, org, x, y, ret);
-            vars[VAR0(num)] = ret.ret;
+            vars[Num.getVar0(num)] = ret.ret;
 
             org.energy -= OConfig.orgOperatorWeights[4];
             return ++line;
         }
 
-        vars[VAR0(num)] = 0;
+        vars[Num.getVar0(num)] = 0;
         org.energy -= OConfig.orgOperatorWeights[4];
         return ++line;
     }
 
-    onEatLeft(num, line, org)   {this.vars[VAR0(num)] = this._eat(org, num, org.x - 1, org.y); org.energy -= OConfig.orgOperatorWeights[5]; return ++line}
-    onEatRight(num, line, org)  {this.vars[VAR0(num)] = this._eat(org, num, org.x + 1, org.y); org.energy -= OConfig.orgOperatorWeights[6]; return ++line}
-    onEatUp(num, line, org)     {this.vars[VAR0(num)] = this._eat(org, num, org.x, org.y - 1); org.energy -= OConfig.orgOperatorWeights[7]; return ++line}
-    onEatDown(num, line, org)   {this.vars[VAR0(num)] = this._eat(org, num, org.x, org.y + 1); org.energy -= OConfig.orgOperatorWeights[8]; return ++line}
+    onEatLeft(num, line, org)   {this.vars[Num.getVar0(num)] = this._eat(org, num, org.x - 1, org.y); org.energy -= OConfig.orgOperatorWeights[5]; return ++line}
+    onEatRight(num, line, org)  {this.vars[Num.getVar0(num)] = this._eat(org, num, org.x + 1, org.y); org.energy -= OConfig.orgOperatorWeights[6]; return ++line}
+    onEatUp(num, line, org)     {this.vars[Num.getVar0(num)] = this._eat(org, num, org.x, org.y - 1); org.energy -= OConfig.orgOperatorWeights[7]; return ++line}
+    onEatDown(num, line, org)   {this.vars[Num.getVar0(num)] = this._eat(org, num, org.x, org.y + 1); org.energy -= OConfig.orgOperatorWeights[8]; return ++line}
 
-    onStepLeft(num, line, org)  {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x - 1, org.y).x; org.energy -= OConfig.orgOperatorWeights[9];  return ++line}
-    onStepRight(num, line, org) {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x + 1, org.y).x; org.energy -= OConfig.orgOperatorWeights[10]; return ++line}
-    onStepUp(num, line, org)    {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y - 1).y; org.energy -= OConfig.orgOperatorWeights[11]; return ++line}
-    onStepDown(num, line, org)  {this.vars[VAR0(num)] = this._step(org, org.x, org.y, org.x, org.y + 1).y; org.energy -= OConfig.orgOperatorWeights[12]; return ++line}
+    onStepLeft(num, line, org)  {this.vars[Num.getVar0(num)] = this._step(org, org.x, org.y, org.x - 1, org.y).x; org.energy -= OConfig.orgOperatorWeights[9];  return ++line}
+    onStepRight(num, line, org) {this.vars[Num.getVar0(num)] = this._step(org, org.x, org.y, org.x + 1, org.y).x; org.energy -= OConfig.orgOperatorWeights[10]; return ++line}
+    onStepUp(num, line, org)    {this.vars[Num.getVar0(num)] = this._step(org, org.x, org.y, org.x, org.y - 1).y; org.energy -= OConfig.orgOperatorWeights[11]; return ++line}
+    onStepDown(num, line, org)  {this.vars[Num.getVar0(num)] = this._step(org, org.x, org.y, org.x, org.y + 1).y; org.energy -= OConfig.orgOperatorWeights[12]; return ++line}
 
     onFromMem(num, line, org) {
-        this.vars[VAR0(num)] = org.mem[BITS(num, BITS_AFTER_ONE_VAR, OConfig.orgMemBits)];
+        this.vars[Num.getVar0(num)] = org.mem[Num.getBits(num, this.BITS_AFTER_ONE_VAR, OConfig.orgMemBits)];
         org.energy -= OConfig.orgOperatorWeights[13];
         return ++line;
     }
     onToMem(num, line, org) {
-        org.mem[BITS(num, BITS_AFTER_ONE_VAR, OConfig.orgMemBits)] = this.vars[VAR0(num)];
+        org.mem[Num.getBits(num, this.BITS_AFTER_ONE_VAR, OConfig.orgMemBits)] = this.vars[Num.getVar0(num)];
         org.energy -= OConfig.orgOperatorWeights[14];
         return ++line;
     }
 
-    onMyX(num, line, org) {this.vars[VAR0(num)] = org.x; org.energy -= OConfig.orgOperatorWeights[15]; return ++line}
-    onMyY(num, line, org) {this.vars[VAR0(num)] = org.y; org.energy -= OConfig.orgOperatorWeights[16]; return ++line}
+    onMyX(num, line, org) {this.vars[Num.getVar0(num)] = org.x; org.energy -= OConfig.orgOperatorWeights[15]; return ++line}
+    onMyY(num, line, org) {this.vars[Num.getVar0(num)] = org.y; org.energy -= OConfig.orgOperatorWeights[16]; return ++line}
 
     onCheckLeft(num, line, org)  {const energy = this._checkAt(num, line, org, org.x - 1, org.y); org.energy -= OConfig.orgOperatorWeights[17]; return energy}
     onCheckRight(num, line, org) {const energy = this._checkAt(num, line, org, org.x + 1, org.y); org.energy -= OConfig.orgOperatorWeights[18]; return energy}
@@ -264,12 +234,12 @@ class OperatorsDos extends Operators {
 
         ret.ret = 0;
         this.obs.fire(EVENTS.CHECK_AT, x, y, ret);
-        this.vars[VAR0(num)] = ret.ret;
+        this.vars[Num.getVar0(num)] = ret.ret;
         return ++line;
     }
 
     _eat(org, num, x, y) {
-        const amount = this.vars[VAR1(num)];
+        const amount = this.vars[Num.getVar1(num)];
         if (amount <= 0) {return 0}
         const ret    = this._ret;
 

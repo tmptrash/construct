@@ -18,7 +18,6 @@ const Mutator      = require('./Mutator');
 const Num          = require('./../../../vm/Num');
 
 const RAND_OFFS = 3;
-const MAX_BITS  = Num.MAX_BITS;
 // TODO: inherit this class from Configurable
 class Organisms extends Configurable {
     /**
@@ -226,7 +225,7 @@ class Organisms extends Configurable {
         let   child = orgs.last.val;
 
         if (child.alive && org2.alive) {
-            child.changes += (Math.abs(child.vm.crossover(org2.vm)) * MAX_BITS);
+            child.changes += (Math.abs(child.vm.crossover(org2.vm)) * Num.MAX_BITS);
         }
     }
 

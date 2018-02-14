@@ -18,10 +18,6 @@ const Num          = require('./Num');
  * {Number} Maximum stack size, which may be used for recursion or function parameters
  */
 const MAX_STACK_SIZE = 30000;
-/**
- * {Number} Index of first bit after operator bits
- */
-const VAR_BITS_OFFS  = Num.VAR_BITS_OFFS;
 
 class VM extends Observer {
     /**
@@ -95,16 +91,17 @@ class VM extends Observer {
         const ops    = this._ops;
         const offs   = this._offsets;
         const period = OConfig.codeYieldPeriod;
+        const OFFS   = Num.VAR_BITS_OFFS;
         let   len    = period;
         let   line   = this._line;
         let   ret    = false;
 
         while (len > 0 && org.energy > 0) {
-            line = ops[code[line] >>> VAR_BITS_OFFS](code[line], line, org, lines, ret);
+            line = ops[code[line] >>> OFFS](code[line], line, org, lines, ret);
             //
             // We reach the end of the script and have to run it from the beginning
             //
-            if (line >= lines && org.alive) {
+            if (line >= lines && org.energy > 0) {
                 line = 0;
                 this._operators.offsets = this._offsets = [];
                 len--;
