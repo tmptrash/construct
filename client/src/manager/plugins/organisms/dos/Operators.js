@@ -126,45 +126,26 @@ class OperatorsDos extends Operators {
 
     onCondition(num, line, org) {
         const cond = Num.getBits(num, this.BITS_AFTER_TWO_VARS, CONDITION_BITS);
+        const offs = this._getOffs(line, Num.getBits(num, this.BITS_AFTER_TWO_VARS + CONDITION_BITS, OConfig.codeBitsPerBlock));
 
         if (CONDITIONS[cond](this.vars[Num.getVar0(num)], this.vars[Num.getVar1(num)])) {
+            this.offs.push(offs, offs);
             org.energy -= OConfig.orgOperatorWeights[2];
             return ++line;
         }
 
-        const blockOffs = Num.getBits(num, this.BITS_AFTER_TWO_VARS + CONDITION_BITS, OConfig.codeBitsPerBlock);
         org.energy -= OConfig.orgOperatorWeights[2];
-        return this._getOffs(line, blockOffs);
+        return offs;
     }
 
     /**
-     * for(v0=v1; v0<v2; v0++)
+     * while(v0 op v2) goto offs
      */
-    onLoop(num, line, org, lines, afterIteration = false) {
-        const vars      = this.vars;
-        const var0      = Num.getVar0(num);
-        const blockOffs = Num.getBits(num, this.BITS_AFTER_THREE_VARS, OConfig.codeBitsPerBlock);
-        const offs      = this._getOffs(line, blockOffs);
-        //
-        // If last iteration has done and we've returned to the line,
-        // where "for" operator is located
-        //
-        if (afterIteration === true) {
-            if (++vars[var0] < vars[Num.getVar2(num)]) {
-                this.offs.push(line, offs);
-                org.energy -= OConfig.orgOperatorWeights[3];
-                return ++line;
-            }
+    onLoop(num, line, org) {
+        const cond = Num.getBits(num, this.BITS_AFTER_TWO_VARS, CONDITION_BITS);
+        const offs = this._getOffs(line, Num.getBits(num, this.BITS_AFTER_TWO_VARS + CONDITION_BITS, OConfig.codeBitsPerBlock));
 
-            org.energy -= OConfig.orgOperatorWeights[3];
-            return offs;
-        }
-        //
-        // This is first time we are running "for" operator. No
-        // iterations have done, yet
-        //
-        vars[var0] = vars[Num.getVar1(num)];
-        if (vars[var0] < vars[Num.getVar2(num)]) {
+        if (CONDITIONS[cond](this.vars[Num.getVar0(num)], this.vars[Num.getVar1(num)])) {
             this.offs.push(line, offs);
             org.energy -= OConfig.orgOperatorWeights[3];
             return ++line;
@@ -283,8 +264,8 @@ class OperatorsDos extends Operators {
      * @returns {Number}
      */
     _getOffs(line, offs) {
-        const offsets = this.offs;
-        return line + offs > offsets[offsets.length - 1] ? offsets[offsets.length - 1] : line + offs;
+        const offsets = this.offs || [];
+        return line + offs > offsets[offsets.length - 1] ? offsets[offsets.length - 1] : line + offs + 1;
     }
 }
 

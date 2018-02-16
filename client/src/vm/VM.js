@@ -37,11 +37,6 @@ class VM extends Observer {
          */
         this._operatorCls  = operatorCls;
         this._vars         = parent && parent.vars && parent.vars.slice() || this._getVars();
-        /**
-         * {Function} Class, which implement all supported operators
-         */
-        this._operators    = new operatorCls(this._offsets, this._vars, obs);
-        this._ops          = this._operators.operators;
         this._code         = parent && parent.code.slice() || [];
         /**
          * {Array} Array of two numbers. first - line number where we have
@@ -49,6 +44,11 @@ class VM extends Observer {
          * closing block '}' of block operator (e.g. for, if,...).
          */
         this._offsets      = [this._code.length];
+        /**
+         * {Function} Class, which implement all supported operators
+         */
+        this._operators    = new operatorCls(this._offsets, this._vars, obs);
+        this._ops          = this._operators.operators;
         this._line         = 0;
     }
 
@@ -94,26 +94,23 @@ class VM extends Observer {
         const OFFS   = Num.VAR_BITS_OFFS;
         let   len    = period;
         let   line   = this._line;
-        let   ret    = false;
 
         while (len > 0 && org.energy > 0) {
-            line = ops[code[line] >>> OFFS](code[line], line, org, lines, ret);
+            line = ops[code[line] >>> OFFS](code[line], line, org, lines);
+            //
+            // We found closing bracket '}' of some loop and have to return
+            // to the beginning of operator (e.g.: for)
+            //
+            if (line === offs[offs.length - 1]) {
+                offs.pop();
+                line = offs.pop();
+            }
             //
             // We reach the end of the script and have to run it from the beginning
             //
             if (line >= lines && org.energy > 0) {
                 line = 0;
-                this._operators.offsets = this._offsets = [];
-                len--;
-                continue;
-            }
-            //
-            // We found closing bracket '}' of some loop and have to return
-            // to the beginning of operator (e.g.: for)
-            //
-            if ((ret = (offs.length > 0 && line === offs[offs.length - 1]))) {
-                offs.pop();
-                line = offs.pop();
+                this._operators.offsets = this._offsets = [code.length];
             }
             len--;
         }
@@ -126,7 +123,7 @@ class VM extends Observer {
         this._operators.destroy && this._operators.destroy();
         this._operators   = null;
         this._operatorCls = null;
-        this._offsets     = null;
+        this._offsets     = [];
         this._vars        = null;
         this._code        = null;
         this._obs         = null;

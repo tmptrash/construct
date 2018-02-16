@@ -125,8 +125,11 @@ describe("client/src/organism/OperatorsDos", () => {
 
         it("Checking conditions", () => {
             expect(ops.onCondition(0x02ffffff, 0, org)).toEqual(1);   //if(v3!==v3)');
+            ops.offsets = [1];
             expect(ops.onCondition(0x021fffff, 0, org)).toEqual(1);   //if(v0!==v1)');
+            ops.offsets = [1];
             expect(ops.onCondition(0x021abfff, 0, org)).toEqual(1);   //if(v0===v1)');
+            ops.offsets = [1];
             expect(ops.onCondition(0x0213ffff, 0, org)).toEqual(1);   //if(v0 < v1)');
         });
 
@@ -159,6 +162,7 @@ describe("client/src/organism/OperatorsDos", () => {
 
             expect(ops.onCondition(0x02ffffff, 0, org)).toEqual(1);   //if(v3!==v3)');
             expect(org.energy).toBe(energy - decrease);
+            ops.offsets = [1];
             expect(ops.onCondition(0x02ffffff, 0, org)).toEqual(1);   //if(v3!==v3)');
             expect(org.energy).toBe(energy - decrease * 2);
         });

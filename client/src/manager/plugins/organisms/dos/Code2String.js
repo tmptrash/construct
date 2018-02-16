@@ -139,17 +139,18 @@ class Code2String {
 
     _onCondition(num, line, lines) {
         const cond      = Num.getBits(num, this.BITS_AFTER_TWO_VARS, CONDITION_BITS);
-        const blockOffs = Num.getBits(num, this.BITS_AFTER_THREE_VARS + CONDITION_BITS, OConfig.codeBitsPerBlock);
+        const blockOffs = Num.getBits(num, this.BITS_AFTER_TWO_VARS + CONDITION_BITS, OConfig.codeBitsPerBlock);
 
         this._offsets.push(this._getOffs(line, lines, blockOffs));
         return `if(v${Num.getVar0(num)}${this._CONDITIONS[cond]}v${Num.getVar1(num)}){`;
     }
 
     _onLoop(num, line, lines) {
-        const var0    = Num.getVar0(num);
-        const val3    = Num.getBits(num, this.BITS_AFTER_THREE_VARS, OConfig.codeBitsPerBlock);
-        this._offsets.push(this._getOffs(line, lines, val3));
-        return `for(v${var0}=v${Num.getVar1(num)};v${var0}<v${Num.getVar2(num)};v${var0}++){`;
+        const cond      = Num.getBits(num, this.BITS_AFTER_TWO_VARS, CONDITION_BITS);
+        const blockOffs = Num.getBits(num, this.BITS_AFTER_TWO_VARS + CONDITION_BITS, OConfig.codeBitsPerBlock);
+
+        this._offsets.push(this._getOffs(line, lines, blockOffs));
+        return `while(v${Num.getVar0(num)}${this._CONDITIONS[cond]}v${Num.getVar1(num)}){`;
     }
 
     _onOperator(num) {
