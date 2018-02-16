@@ -124,7 +124,7 @@ class OperatorsDos extends Operators {
         return ++line;
     }
 
-    onCondition(num, line, org, lines) {
+    onCondition(num, line, org) {
         const cond = Num.getBits(num, this.BITS_AFTER_TWO_VARS, CONDITION_BITS);
 
         if (CONDITIONS[cond](this.vars[Num.getVar0(num)], this.vars[Num.getVar1(num)])) {
@@ -134,7 +134,7 @@ class OperatorsDos extends Operators {
 
         const blockOffs = Num.getBits(num, this.BITS_AFTER_TWO_VARS + CONDITION_BITS, OConfig.codeBitsPerBlock);
         org.energy -= OConfig.orgOperatorWeights[2];
-        return this._getOffs(line, lines, blockOffs);
+        return this._getOffs(line, blockOffs);
     }
 
     /**
@@ -144,7 +144,7 @@ class OperatorsDos extends Operators {
         const vars      = this.vars;
         const var0      = Num.getVar0(num);
         const blockOffs = Num.getBits(num, this.BITS_AFTER_THREE_VARS, OConfig.codeBitsPerBlock);
-        const offs      = this._getOffs(line, lines, blockOffs);
+        const offs      = this._getOffs(line, blockOffs);
         //
         // If last iteration has done and we've returned to the line,
         // where "for" operator is located
@@ -279,20 +279,12 @@ class OperatorsDos extends Operators {
      * So it's possible to set it to one of  1...3. So we change it in
      * real time to fix the overlap problem.
      * @param {Number} line Current line index
-     * @param {Number} lines Amount of lines
      * @param {Number} offs Local offset of closing bracket we want to set
      * @returns {Number}
      */
-    _getOffs(line, lines, offs) {
-        const offset  = line + offs < lines ? line + offs + 1 : lines;
+    _getOffs(line, offs) {
         const offsets = this.offs;
-        const length  = offsets.length;
-
-        if (length > 0 && offset >= offsets[length - 1]) {
-            return offsets[length - 1];
-        }
-
-        return offset;
+        return line + offs > offsets[offsets.length - 1] ? offsets[offsets.length - 1] : line + offs;
     }
 }
 

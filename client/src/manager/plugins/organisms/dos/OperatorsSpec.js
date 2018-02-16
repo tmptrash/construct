@@ -120,30 +120,46 @@ describe("client/src/organism/OperatorsDos", () => {
         let org;
         let ops;
 
-        beforeEach(() => {org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([], [0, 1, 2, 3], org)});
+        beforeEach(() => {org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
         afterEach (() => {ops.destroy(); org.destroy()});
 
         it("Checking conditions", () => {
-            expect(ops.onCondition(0x02ffffff, 0, org, 0)).toEqual(0);   //if(v3!==v3)');
-            expect(ops.onCondition(0x021fffff, 0, org, 0)).toEqual(1);   //if(v0!==v1)');
-            expect(ops.onCondition(0x021abfff, 0, org, 0)).toEqual(0);   //if(v0===v1)');
-            expect(ops.onCondition(0x0213ffff, 0, org, 0)).toEqual(1);   //if(v0 < v1)');
+            expect(ops.onCondition(0x02ffffff, 0, org)).toEqual(1);   //if(v3!==v3)');
+            expect(ops.onCondition(0x021fffff, 0, org)).toEqual(1);   //if(v0!==v1)');
+            expect(ops.onCondition(0x021abfff, 0, org)).toEqual(1);   //if(v0===v1)');
+            expect(ops.onCondition(0x0213ffff, 0, org)).toEqual(1);   //if(v0 < v1)');
         });
 
         it('Checking closing bracket offset', () => {
-            expect(ops.onCondition(0x02ffffff, 0, org, 2)).toEqual(2);   //if(v3!==v3)');
-            expect(ops.onCondition(0x02ffffff, 0, org, 1)).toEqual(1);   //if(v3!==v3)');
-            expect(ops.onCondition(0x0213ffff, 0, org, 2)).toEqual(1);   //if(v0 < v1)');
+            ops.offsets = [2];
+            expect(ops.onCondition(0x02ffffff, 0, org)).toEqual(2);   //if(v3!==v3)');
+            ops.offsets = [1];
+            expect(ops.onCondition(0x02ffffff, 0, org)).toEqual(1);   //if(v3!==v3)');
+            ops.offsets = [1];
+            expect(ops.onCondition(0x0213ffff, 0, org)).toEqual(1);   //if(v0 < v1)');
         });
 
-        // it() with 3 bits per var
+        it("Checking onCondition() method with 3 bits per var config", () => {
+            let bpv = OConfig.codeBitsPerVar;
+            OConfig.codeBitsPerVar = 3;
+            let ops1 = new OperatorsDos([], [0, 1, 2, 3, 4, 5, 6, 7], org);
+
+            ops.offsets = [2];
+            expect(ops.onCondition(0x02ffffff, 0, org)).toEqual(2);   //if(v3!==v3)');
+            ops.offsets = [2];
+            expect(ops.onCondition(0x021fffff, 0, org)).toEqual(1);   //if(v0!==v7)');
+
+            OConfig.codeBitsPerVar = bpv;
+            ops1.destroy();
+        });
+
         it('Checking energy decrease', () => {
             const energy   = org.energy;
             const decrease = OConfig.orgOperatorWeights[2];
 
-            expect(ops.onCondition(0x02ffffff, 0, org, 2)).toEqual(2);   //if(v3!==v3)');
+            expect(ops.onCondition(0x02ffffff, 0, org)).toEqual(1);   //if(v3!==v3)');
             expect(org.energy).toBe(energy - decrease);
-            expect(ops.onCondition(0x02ffffff, 0, org, 2)).toEqual(2);   //if(v3!==v3)');
+            expect(ops.onCondition(0x02ffffff, 0, org)).toEqual(1);   //if(v3!==v3)');
             expect(org.energy).toBe(energy - decrease * 2);
         });
     });

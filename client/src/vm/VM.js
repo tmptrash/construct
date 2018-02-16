@@ -36,12 +36,6 @@ class VM extends Observer {
          * script parts for current VM instance
          */
         this._operatorCls  = operatorCls;
-        /**
-         * {Array} Array of two numbers. first - line number where we have
-         * to return if first line appears. second - line number, where ends
-         * closing block '}' of block operator (e.g. for, if,...).
-         */
-        this._offsets      = [];
         this._vars         = parent && parent.vars && parent.vars.slice() || this._getVars();
         /**
          * {Function} Class, which implement all supported operators
@@ -49,6 +43,12 @@ class VM extends Observer {
         this._operators    = new operatorCls(this._offsets, this._vars, obs);
         this._ops          = this._operators.operators;
         this._code         = parent && parent.code.slice() || [];
+        /**
+         * {Array} Array of two numbers. first - line number where we have
+         * to return if first line appears. second - line number, where ends
+         * closing block '}' of block operator (e.g. for, if,...).
+         */
+        this._offsets      = [this._code.length];
         this._line         = 0;
     }
 
@@ -253,7 +253,7 @@ class VM extends Observer {
     _reset() {
         this.fire(EVENTS.RESET_CODE);
         this._line = 0;
-        this._operators.offsets = (this._offsets = []);
+        this._operators.offsets = (this._offsets = [this._code.length]);
     }
 
     /**
