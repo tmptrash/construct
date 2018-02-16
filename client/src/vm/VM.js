@@ -101,7 +101,7 @@ class VM extends Observer {
             // We found closing bracket '}' of some loop and have to return
             // to the beginning of operator (e.g.: for)
             //
-            if (line === offs[offs.length - 1]) {
+            if (offs.length > 1 && line === offs[offs.length - 1]) {
                 offs.pop();
                 line = offs.pop();
             }

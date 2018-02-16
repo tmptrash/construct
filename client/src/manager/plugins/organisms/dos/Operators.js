@@ -264,7 +264,7 @@ class OperatorsDos extends Operators {
      * @returns {Number}
      */
     _getOffs(line, offs) {
-        const offsets = this.offs || [];
+        const offsets = this.offs || [0];
         return line + offs > offsets[offsets.length - 1] ? offsets[offsets.length - 1] : line + offs + 1;
     }
 }
