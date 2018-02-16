@@ -15,12 +15,12 @@ const Config = {
      * implemented. See Operators.operators getter for details. Values may be float.
      * Values titles:
      * [
-     *   onVar,onCondition,onLoop,omOperator,onLookAt,onEatLeft,onEatRight,onEatUp,
+     *   onVar,onConst,onCondition,onLoop,omOperator,onLookAt,onEatLeft,onEatRight,onEatUp,
      *   onEatDown,onStepLeft,onStepRight,onStepUp,onStepDown,onFromMem,onToMem,
      *   onMyX,onMyY,onCheckLeft,onCheckRight,onCheckUp,onCheckDown
      * ]
      */
-    orgOperatorWeights: [.1,.1,.001,.1,.01,2.,2.,2.,2.,2.,2.,2.,2.,.1,.1,.1,.1,.1,.1,.1,.1],
+    orgOperatorWeights: [.1,.1,.1,.001,.1,.01,2.,2.,2.,2.,2.,2.,2.,2.,.1,.1,.1,.1,.1,.1,.1,.1],
     /**
      * {Array} Probabilities which used, when mutator decides what to do:
      * add, change, delete code line inside the vm; change amount of
@@ -144,6 +144,10 @@ const Config = {
      * 0 and till Number.MAX_VALUE
      */
     orgStartColor: 50,
+    /**
+     * {Number} Amount of bits for storing a numeric constant inside byte code
+     */
+    codeConstBits: 16,
     /**
      * {Number} The value from -X/2 to X/2, which is used for setting
      * default value, while organism is delivering. So, if the value is

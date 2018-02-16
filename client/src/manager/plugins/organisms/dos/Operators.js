@@ -53,8 +53,6 @@ const OPERATORS = [
 class OperatorsDos extends Operators {
     constructor(offs, vars, obs) {
         super(offs, vars, obs);
-        this.BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
-        this.BITS_AFTER_ONE_VAR    = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR;
         /**
          * {Object} These operator handlers should return string, which
          * will be added to the final string script for evaluation.
@@ -92,6 +90,9 @@ class OperatorsDos extends Operators {
         // working of mutations of operators.
         //
         Num.init(this._OPERATORS_CB.length);
+
+        this.BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
+        this.BITS_AFTER_ONE_VAR    = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR;
     }
 
     destroy() {
@@ -117,8 +118,8 @@ class OperatorsDos extends Operators {
     }
 
     onConst(num, line, org) {
-        this.vars[Num.getVar0(num)] = Num.getBits(num, this.BITS_AFTER_ONE_VAR, Num.MAX_BITS);
-        org.energy -= OConfig.orgOperatorWeights[0];
+        this.vars[Num.getVar0(num)] = Num.getBits(num, this.BITS_AFTER_ONE_VAR, OConfig.codeConstBits);
+        org.energy -= OConfig.orgOperatorWeights[1];
         return ++line;
     }
 
@@ -128,11 +129,11 @@ class OperatorsDos extends Operators {
         const cond = Num.getVar2(num) >>> (OConfig.codeBitsPerVar - CONDITION_BITS);
 
         if (CONDITIONS[cond](this.vars[Num.getVar0(num)], this.vars[Num.getVar1(num)])) {
-            org.energy -= OConfig.orgOperatorWeights[1];
+            org.energy -= OConfig.orgOperatorWeights[2];
             return ++line;
         }
 
-        org.energy -= OConfig.orgOperatorWeights[1];
+        org.energy -= OConfig.orgOperatorWeights[2];
         return offs;
     }
 
@@ -151,11 +152,11 @@ class OperatorsDos extends Operators {
         if (afterIteration === true) {
             if (++vars[var0] < vars[Num.getVar2(num)]) {
                 this.offs.push(line, offs);
-                org.energy -= OConfig.orgOperatorWeights[2];
+                org.energy -= OConfig.orgOperatorWeights[3];
                 return ++line;
             }
 
-            org.energy -= OConfig.orgOperatorWeights[2];
+            org.energy -= OConfig.orgOperatorWeights[3];
             return offs;
         }
         //
@@ -165,18 +166,18 @@ class OperatorsDos extends Operators {
         vars[var0] = vars[Num.getVar1(num)];
         if (vars[var0] < vars[Num.getVar2(num)]) {
             this.offs.push(line, offs);
-            org.energy -= OConfig.orgOperatorWeights[2];
+            org.energy -= OConfig.orgOperatorWeights[3];
             return ++line;
         }
 
-        org.energy -= OConfig.orgOperatorWeights[2];
+        org.energy -= OConfig.orgOperatorWeights[3];
         return offs;
     }
 
     onOperator(num, line, org) {
         const vars = this.vars;
         vars[Num.getVar0(num)] = OPERATORS[Num.getBits(num, this.BITS_AFTER_THREE_VARS, FOUR_BITS)](vars[Num.getVar1(num)], vars[Num.getVar2(num)]);
-        org.energy -= OConfig.orgOperatorWeights[3];
+        org.energy -= OConfig.orgOperatorWeights[4];
         return ++line;
     }
 
@@ -191,43 +192,43 @@ class OperatorsDos extends Operators {
             this.obs.fire(EVENTS.GET_ENERGY, org, x, y, ret);
             vars[Num.getVar0(num)] = ret.ret;
 
-            org.energy -= OConfig.orgOperatorWeights[4];
+            org.energy -= OConfig.orgOperatorWeights[5];
             return ++line;
         }
 
         vars[Num.getVar0(num)] = 0;
-        org.energy -= OConfig.orgOperatorWeights[4];
+        org.energy -= OConfig.orgOperatorWeights[5];
         return ++line;
     }
 
-    onEatLeft(num, line, org)   {this.vars[Num.getVar0(num)] = this._eat(org, num, org.x - 1, org.y); org.energy -= OConfig.orgOperatorWeights[5]; return ++line}
-    onEatRight(num, line, org)  {this.vars[Num.getVar0(num)] = this._eat(org, num, org.x + 1, org.y); org.energy -= OConfig.orgOperatorWeights[6]; return ++line}
-    onEatUp(num, line, org)     {this.vars[Num.getVar0(num)] = this._eat(org, num, org.x, org.y - 1); org.energy -= OConfig.orgOperatorWeights[7]; return ++line}
-    onEatDown(num, line, org)   {this.vars[Num.getVar0(num)] = this._eat(org, num, org.x, org.y + 1); org.energy -= OConfig.orgOperatorWeights[8]; return ++line}
+    onEatLeft(num, line, org)   {this.vars[Num.getVar0(num)] = this._eat(org, num, org.x - 1, org.y); org.energy -= OConfig.orgOperatorWeights[6]; return ++line}
+    onEatRight(num, line, org)  {this.vars[Num.getVar0(num)] = this._eat(org, num, org.x + 1, org.y); org.energy -= OConfig.orgOperatorWeights[7]; return ++line}
+    onEatUp(num, line, org)     {this.vars[Num.getVar0(num)] = this._eat(org, num, org.x, org.y - 1); org.energy -= OConfig.orgOperatorWeights[8]; return ++line}
+    onEatDown(num, line, org)   {this.vars[Num.getVar0(num)] = this._eat(org, num, org.x, org.y + 1); org.energy -= OConfig.orgOperatorWeights[9]; return ++line}
 
-    onStepLeft(num, line, org)  {this.vars[Num.getVar0(num)] = this._step(org, org.x, org.y, org.x - 1, org.y).x; org.energy -= OConfig.orgOperatorWeights[9];  return ++line}
-    onStepRight(num, line, org) {this.vars[Num.getVar0(num)] = this._step(org, org.x, org.y, org.x + 1, org.y).x; org.energy -= OConfig.orgOperatorWeights[10]; return ++line}
-    onStepUp(num, line, org)    {this.vars[Num.getVar0(num)] = this._step(org, org.x, org.y, org.x, org.y - 1).y; org.energy -= OConfig.orgOperatorWeights[11]; return ++line}
-    onStepDown(num, line, org)  {this.vars[Num.getVar0(num)] = this._step(org, org.x, org.y, org.x, org.y + 1).y; org.energy -= OConfig.orgOperatorWeights[12]; return ++line}
+    onStepLeft(num, line, org)  {this.vars[Num.getVar0(num)] = this._step(org, org.x, org.y, org.x - 1, org.y).x; org.energy -= OConfig.orgOperatorWeights[10]; return ++line}
+    onStepRight(num, line, org) {this.vars[Num.getVar0(num)] = this._step(org, org.x, org.y, org.x + 1, org.y).x; org.energy -= OConfig.orgOperatorWeights[11]; return ++line}
+    onStepUp(num, line, org)    {this.vars[Num.getVar0(num)] = this._step(org, org.x, org.y, org.x, org.y - 1).y; org.energy -= OConfig.orgOperatorWeights[12]; return ++line}
+    onStepDown(num, line, org)  {this.vars[Num.getVar0(num)] = this._step(org, org.x, org.y, org.x, org.y + 1).y; org.energy -= OConfig.orgOperatorWeights[13]; return ++line}
 
     onFromMem(num, line, org) {
         this.vars[Num.getVar0(num)] = org.mem[Num.getBits(num, this.BITS_AFTER_ONE_VAR, OConfig.orgMemBits)];
-        org.energy -= OConfig.orgOperatorWeights[13];
+        org.energy -= OConfig.orgOperatorWeights[14];
         return ++line;
     }
     onToMem(num, line, org) {
         org.mem[Num.getBits(num, this.BITS_AFTER_ONE_VAR, OConfig.orgMemBits)] = this.vars[Num.getVar0(num)];
-        org.energy -= OConfig.orgOperatorWeights[14];
+        org.energy -= OConfig.orgOperatorWeights[15];
         return ++line;
     }
 
-    onMyX(num, line, org) {this.vars[Num.getVar0(num)] = org.x; org.energy -= OConfig.orgOperatorWeights[15]; return ++line}
-    onMyY(num, line, org) {this.vars[Num.getVar0(num)] = org.y; org.energy -= OConfig.orgOperatorWeights[16]; return ++line}
+    onMyX(num, line, org) {this.vars[Num.getVar0(num)] = org.x; org.energy -= OConfig.orgOperatorWeights[16]; return ++line}
+    onMyY(num, line, org) {this.vars[Num.getVar0(num)] = org.y; org.energy -= OConfig.orgOperatorWeights[17]; return ++line}
 
-    onCheckLeft(num, line, org)  {const energy = this._checkAt(num, line, org, org.x - 1, org.y); org.energy -= OConfig.orgOperatorWeights[17]; return energy}
-    onCheckRight(num, line, org) {const energy = this._checkAt(num, line, org, org.x + 1, org.y); org.energy -= OConfig.orgOperatorWeights[18]; return energy}
-    onCheckUp(num, line, org)    {const energy = this._checkAt(num, line, org, org.x, org.y - 1); org.energy -= OConfig.orgOperatorWeights[19]; return energy}
-    onCheckDown(num, line, org)  {const energy = this._checkAt(num, line, org, org.x, org.y + 1); org.energy -= OConfig.orgOperatorWeights[20]; return energy}
+    onCheckLeft(num, line, org)  {const energy = this._checkAt(num, line, org, org.x - 1, org.y); org.energy -= OConfig.orgOperatorWeights[18]; return energy}
+    onCheckRight(num, line, org) {const energy = this._checkAt(num, line, org, org.x + 1, org.y); org.energy -= OConfig.orgOperatorWeights[19]; return energy}
+    onCheckUp(num, line, org)    {const energy = this._checkAt(num, line, org, org.x, org.y - 1); org.energy -= OConfig.orgOperatorWeights[20]; return energy}
+    onCheckDown(num, line, org)  {const energy = this._checkAt(num, line, org, org.x, org.y + 1); org.energy -= OConfig.orgOperatorWeights[21]; return energy}
 
     _checkAt(num, line, org, x, y) {
         const ret = this._ret;

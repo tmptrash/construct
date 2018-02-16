@@ -133,7 +133,7 @@ class Code2String {
     }
 
     _onConst(num) {
-        return `v${Num.getVar0(num)}=${Num.getBits(num, this.BITS_AFTER_THREE_VARS, Num.MAX_BITS)}`;
+        return `v${Num.getVar0(num)}=${Num.getBits(num, this.BITS_AFTER_THREE_VARS, OConfig.codeConstBits)}`;
     }
 
     _onCondition(num, line, lines) {
