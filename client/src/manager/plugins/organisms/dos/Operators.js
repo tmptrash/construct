@@ -91,8 +91,9 @@ class OperatorsDos extends Operators {
         //
         Num.init(this._OPERATORS_CB.length);
 
-        this.BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
         this.BITS_AFTER_ONE_VAR    = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR;
+        this.BITS_AFTER_TWO_VARS   = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 2;
+        this.BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
     }
 
     destroy() {
@@ -124,27 +125,26 @@ class OperatorsDos extends Operators {
     }
 
     onCondition(num, line, org, lines) {
-        const val3 = Num.getBits(num, this.BITS_AFTER_THREE_VARS, OConfig.codeBitsPerBlock);
-        const offs = this._getOffs(line, lines, val3);
-        const cond = Num.getVar2(num) >>> (OConfig.codeBitsPerVar - CONDITION_BITS);
+        const cond = Num.getBits(num, this.BITS_AFTER_TWO_VARS, CONDITION_BITS);
 
         if (CONDITIONS[cond](this.vars[Num.getVar0(num)], this.vars[Num.getVar1(num)])) {
             org.energy -= OConfig.orgOperatorWeights[2];
             return ++line;
         }
 
+        const blockOffs = Num.getBits(num, this.BITS_AFTER_TWO_VARS + CONDITION_BITS, OConfig.codeBitsPerBlock);
         org.energy -= OConfig.orgOperatorWeights[2];
-        return offs;
+        return this._getOffs(line, lines, blockOffs);
     }
 
     /**
      * for(v0=v1; v0<v2; v0++)
      */
     onLoop(num, line, org, lines, afterIteration = false) {
-        const vars = this.vars;
-        const var0 = Num.getVar0(num);
-        const val3 = Num.getBits(num, this.BITS_AFTER_THREE_VARS, OConfig.codeBitsPerBlock);
-        const offs = this._getOffs(line, lines, val3);
+        const vars      = this.vars;
+        const var0      = Num.getVar0(num);
+        const blockOffs = Num.getBits(num, this.BITS_AFTER_THREE_VARS, OConfig.codeBitsPerBlock);
+        const offs      = this._getOffs(line, lines, blockOffs);
         //
         // If last iteration has done and we've returned to the line,
         // where "for" operator is located

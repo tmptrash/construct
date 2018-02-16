@@ -110,24 +110,42 @@ describe("client/src/organism/OperatorsDos", () => {
         });
 
         it('Checking line increase', () => {
-            expect(ops.onConst(0x01ffffff, 0, org)).toEqual(1);  // 0xfffff === 0b[111][1111111111111111]1, var7 = 0xffff
-            expect(ops.onConst(0x015dffff, 1, org)).toEqual(2);  // 0x5dfff === 0b[010][1110111111111111]1, var2 = 0xefff
-            expect(ops.onConst(0x0100ffff, 700, org)).toEqual(701);  // 0x00fff === 0b[000][0000011111111111]1, var0 = 0x07ff
+            expect(ops.onConst(0x01ffffff, 0, org)).toEqual(1);     // 0xfffff === 0b[111][1111111111111111]1, var7 = 0xffff
+            expect(ops.onConst(0x015dffff, 1, org)).toEqual(2);     // 0x5dfff === 0b[010][1110111111111111]1, var2 = 0xefff
+            expect(ops.onConst(0x0100ffff, 700, org)).toEqual(701); // 0x00fff === 0b[000][0000011111111111]1, var0 = 0x07ff
         });
     });
 
-    it("Checking onCondition() method", () => {
-        let ops = new OperatorsDos([], [0, 1, 2, 3], new Observer());
+    describe('onCondition() method', () => {
+        let org;
+        let ops;
 
-        expect(ops.onCondition(0x01ffffff, 0, {}, 0)).toEqual(0);   //if(v3!=v3)');
-        expect(ops.onCondition(0x011fffff, 0, {}, 0)).toEqual(1);   //if(v0!=v1)');
-        expect(ops.onCondition(0x011abfff, 0, {}, 0)).toEqual(0);   //if(v0==v1)');
-        expect(ops.onCondition(0x01ffffff, 0, {}, 0)).toEqual(0);   //if(v3!=v3)');
-        expect(ops.onCondition(0x011fffff, 0, {}, 2)).toEqual(1);   //if(v0!=v1)');
-        expect(ops.onCondition(0x01ffffff, 0, {}, 2)).toEqual(2);   //if(v3!=v3)');
-        expect(ops.onCondition(0x01ffffff, 0, {}, 20)).toEqual(16); //if(v3!=v3)');
+        beforeEach(() => {org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([], [0, 1, 2, 3], org)});
+        afterEach (() => {ops.destroy(); org.destroy()});
 
-        ops.destroy();
+        it("Checking conditions", () => {
+            expect(ops.onCondition(0x02ffffff, 0, org, 0)).toEqual(0);   //if(v3!==v3)');
+            expect(ops.onCondition(0x021fffff, 0, org, 0)).toEqual(1);   //if(v0!==v1)');
+            expect(ops.onCondition(0x021abfff, 0, org, 0)).toEqual(0);   //if(v0===v1)');
+            expect(ops.onCondition(0x0213ffff, 0, org, 0)).toEqual(1);   //if(v0 < v1)');
+        });
+
+        it('Checking closing bracket offset', () => {
+            expect(ops.onCondition(0x02ffffff, 0, org, 2)).toEqual(2);   //if(v3!==v3)');
+            expect(ops.onCondition(0x02ffffff, 0, org, 1)).toEqual(1);   //if(v3!==v3)');
+            expect(ops.onCondition(0x0213ffff, 0, org, 2)).toEqual(1);   //if(v0 < v1)');
+        });
+
+        // it() with 3 bits per var
+        it('Checking energy decrease', () => {
+            const energy   = org.energy;
+            const decrease = OConfig.orgOperatorWeights[2];
+
+            expect(ops.onCondition(0x02ffffff, 0, org, 2)).toEqual(2);   //if(v3!==v3)');
+            expect(org.energy).toBe(energy - decrease);
+            expect(ops.onCondition(0x02ffffff, 0, org, 2)).toEqual(2);   //if(v3!==v3)');
+            expect(org.energy).toBe(energy - decrease * 2);
+        });
     });
 
     it("Checking onLoop() method",   () => {

@@ -15,9 +15,6 @@ const CONDITION_BITS        = 2;
 
 class Code2String {
     constructor(manager) {
-        this.BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
-        this.BITS_AFTER_ONE_VAR    = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR;
-
         this._manager = manager;
         /**
          * {Object} These operator handlers should return string representation
@@ -65,6 +62,10 @@ class Code2String {
         this._offsets = [];
 
         Num.init(this._OPERATORS_CB_LEN);
+
+        this.BITS_AFTER_ONE_VAR    = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR;
+        this.BITS_AFTER_TWO_VARS   = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 2;
+        this.BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
         //
         // API of the Manager for accessing outside. (e.g. from Console)
         //
@@ -137,10 +138,10 @@ class Code2String {
     }
 
     _onCondition(num, line, lines) {
-        const val3 = Num.getBits(num, this.BITS_AFTER_THREE_VARS, OConfig.codeBitsPerBlock);
-        const cond = Num.getVar2(num) >>> (OConfig.codeBitsPerVar - CONDITION_BITS);
+        const cond      = Num.getBits(num, this.BITS_AFTER_TWO_VARS, CONDITION_BITS);
+        const blockOffs = Num.getBits(num, this.BITS_AFTER_THREE_VARS + CONDITION_BITS, OConfig.codeBitsPerBlock);
 
-        this._offsets.push(this._getOffs(line, lines, val3));
+        this._offsets.push(this._getOffs(line, lines, blockOffs));
         return `if(v${Num.getVar0(num)}${this._CONDITIONS[cond]}v${Num.getVar1(num)}){`;
     }
 
