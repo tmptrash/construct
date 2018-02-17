@@ -140,7 +140,6 @@ class Organisms extends BaseOrganisms {
     }
 
     _onGetEnergy(org, x, y, ret) {
-        if (x < 0 || y < 0 || !Number.isInteger(x) || !Number.isInteger(y)) {return}
         const posId = POSID(x, y);
 
         if (typeof(this.positions[posId]) === 'undefined') {

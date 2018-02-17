@@ -158,14 +158,12 @@ class OperatorsDos extends Operators {
 
     onLookAt(num, line, org) {
         const vars = this.vars;
-        let   x    = vars[Num.getVar1(num)];
-        let   y    = vars[Num.getVar2(num)];
+        const x    = vars[Num.getVar1(num)];
+        const y    = vars[Num.getVar2(num)];
 
-        if (!IN_WORLD(x, y)) {
-            const ret = this._ret;
-            ret.ret = 0;
-            this.obs.fire(EVENTS.GET_ENERGY, org, x, y, ret);
-            vars[Num.getVar0(num)] = ret.ret;
+        if (IN_WORLD(x, y)) {
+            this.obs.fire(EVENTS.GET_ENERGY, org, x, y, this._ret);
+            vars[Num.getVar0(num)] = this._ret.ret;
 
             return ++line;
         }

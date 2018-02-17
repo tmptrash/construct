@@ -6,7 +6,7 @@ describe("client/src/organism/OperatorsDos", () => {
     let Observer     = require('./../../../../../../common/src/Observer');
     let EVENTS       = require('./../../../../share/Events').EVENTS;
     let EVENT_AMOUNT = require('./../../../../share/Events').EVENT_AMOUNT;
-    //let Config       = require('./../../../../share/Config').Config;
+    let Config       = require('./../../../../share/Config').Config;
     let OrganismDos  = require('./../../organisms/dos/Organism');
     //let OEvents      = require('./../../organisms/Organism').EVENTS;
     //let api          = require('./../../../../share/Config').api;
@@ -248,50 +248,61 @@ describe("client/src/organism/OperatorsDos", () => {
         });
     });
 
-    it("Checking onLookAt() in a complex way", () => {
-        let obs = new Observer(EVENT_AMOUNT);
-        let ops = new OperatorsDos([], [1, 1, 2, 3], obs);
+    describe('onLookAt() method', () => {
+        let   org;
+        let   ops;
+        const w = Config.worldWidth;
+        const h = Config.worldHeight;
 
-        expect(ops.onLookAt(0x041bffff, 0, {}, 1)).toEqual(1);//v0=org.lookAt(v1,v2);
-        expect(ops.vars[0] === 0).toEqual(true);
-        expect(ops.vars[1] === 1).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
+        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
+        afterEach (() => {ops.destroy(); org.destroy(); Config.worldHeight = h; Config.worldWidth = w});
 
-        obs.on(EVENTS.GET_ENERGY, (org, x, y, ret) => {
-            ret.ret = 7;
-            expect(x === 1 && y === 2).toEqual(true);
+        it("Checking onLookAt() is found nothing", () => {
+            org.on(EVENTS.GET_ENERGY, (o, x, y, ret) => {
+                expect(x).toBe(2);
+                expect(y).toBe(3);
+                ret.ret = 0;
+            });
+            expect(ops.onLookAt(0x056fffff, 0, org)).toEqual(1); //v1=lookAt(v2,v3);
+            expect(ops.vars).toEqual([0,0,2,3]);
         });
-        expect(ops.onLookAt(0x041bffff, 0, {}, 1)).toEqual(1);//v0=org.lookAt(v1,v2);
-        expect(ops.vars[0] === 7).toEqual(true);
-        expect(ops.vars[1] === 1).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
 
-        obs.clear();
-        obs.on(EVENTS.GET_ENERGY, (org, x, y, ret) => {
-            ret.ret = 8;
-            expect(x === 2 && y === 3).toEqual(true);
+        it("Checking onLookAt() looking outside of the world", () => {
+            ops.vars = [0, 1, 20, 30];
+            expect(ops.onLookAt(0x056fffff, 0, org)).toEqual(1); //v1=lookAt(v2,v3);
+            expect(ops.vars).toEqual([0,0,20,30]);
+
+            ops.vars = [0, 1, -20, -30];
+            expect(ops.onLookAt(0x056fffff, 0, org)).toEqual(1); //v1=lookAt(v2,v3);
+            expect(ops.vars).toEqual([0,0,-20,-30]);
         });
-        expect(ops.onLookAt(0x046fffff, 1, {}, 1)).toEqual(2);//v1=org.lookAt(v2,v3);
-        expect(ops.vars[0] === 7).toEqual(true);
-        expect(ops.vars[1] === 8).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
 
-        obs.clear();
-        obs.on(EVENTS.GET_ENERGY, (org, x, y, ret) => {
-            ret.ret = 9;
-            expect(x === 3 && y === 3).toEqual(true);
+        it('Checking onLookAt() found an energy', () => {
+            org.on(EVENTS.GET_ENERGY, (o, x, y, ret) => {
+                expect(x).toBe(2);
+                expect(y).toBe(3);
+                ret.ret = 13;
+            });
+            expect(ops.onLookAt(0x056fffff, 0, org)).toEqual(1); //v1=lookAt(v2,v3);
+            expect(ops.vars).toEqual([0,13,2,3]);
         });
-        expect(ops.onLookAt(0x04ffffff, 3, {}, 1)).toEqual(4);//v3=org.lookAt(v3,v3);
-        expect(ops.vars[0] === 7).toEqual(true);
-        expect(ops.vars[1] === 8).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 9).toEqual(true);
 
-        obs.clear();
-        ops.destroy();
+        it('Checking onLookAt() with 4 bits per var', () => {
+            let bpv = OConfig.codeBitsPerVar;
+            OConfig.codeBitsPerVar = 4;
+            let ops1 = new OperatorsDos([1], [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,7], org);
+
+            org.on(EVENTS.GET_ENERGY, (o, x, y, ret) => {
+                expect(x).toBe(7);
+                expect(y).toBe(7);
+                ret.ret = 13;
+            });
+            expect(ops1.onLookAt(0x056fffff, 0, org)).toEqual(1); //v6=lookAt(v15,v15);
+            expect(ops1.vars).toEqual([0,1,2,3,4,5,13,7,8,9,10,11,12,13,14,7]);
+
+            OConfig.codeBitsPerVar = bpv;
+            ops1.destroy();
+        });
     });
 
     it("Checking onEatLeft() method", () => {
