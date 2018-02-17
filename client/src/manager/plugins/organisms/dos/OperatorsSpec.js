@@ -196,6 +196,21 @@ describe("client/src/organism/OperatorsDos", () => {
             expect(ops.vars).toEqual([0, 1, 2, 3]);
             expect(ops.onOperator(0x04ffffff, 7)).toEqual(8); //v3=v3<=v3;
             expect(ops.vars).toEqual([0, 1, 2, 1]);
+            expect(ops.onOperator(0x046d3fff, 0)).toEqual(1); //v1=v2%v3;
+            expect(ops.vars).toEqual([0, 0, 2, 1]);
+
+            expect(ops.onOperator(0x046c3fff, 0)).toEqual(1); //v1=v2+v3;
+            expect(ops.vars).toEqual([0, 3, 2, 1]);
+            expect(ops.onOperator(0x046c7fff, 0)).toEqual(1); //v1=v2-v3;
+            expect(ops.vars).toEqual([0, 1, 2, 1]);
+            expect(ops.onOperator(0x046cbfff, 0)).toEqual(1); //v1=v2*v3;
+            expect(ops.vars).toEqual([0, 2, 2, 1]);
+            ops.vars = [0, 1, 2, 4];
+            expect(ops.onOperator(0x046cffff, 0)).toEqual(1); //v1=v2/v3;
+            expect(ops.vars).toEqual([0, .5, 2, 4]);
+            ops.vars = [0, 1, 2, 3];
+            expect(ops.onOperator(0x046d3fff, 0)).toEqual(1); //v1=v2%v3;
+            expect(ops.vars).toEqual([0, 2, 2, 3]);
         });
 
         it('Checking onOperator() with 4 bits per var', () => {
@@ -210,6 +225,26 @@ describe("client/src/organism/OperatorsDos", () => {
 
             OConfig.codeBitsPerVar = bpv;
             ops1.destroy();
+        });
+
+        it("Checking overflows", () => {
+            const max =  Number.MAX_VALUE;
+
+            ops.vars = [0, 1, max, max];
+            expect(ops.onOperator(0x046c3fff, 0)).toEqual(1); //v1=v2+v3;
+            expect(ops.vars).toEqual([0, max, max, max]);
+            ops.vars = [0, 1, -max, max];
+            expect(ops.onOperator(0x046c7fff, 0)).toEqual(1); //v1=v2-v3;
+            expect(ops.vars).toEqual([0, -max, -max, max]);
+            ops.vars = [0, 1, max, max];
+            expect(ops.onOperator(0x046cbfff, 0)).toEqual(1); //v1=v2*v3;
+            expect(ops.vars).toEqual([0, max, max, max]);
+            ops.vars = [0, 1, max, 0];
+            expect(ops.onOperator(0x046cffff, 0)).toEqual(1); //v1=v2/v3;
+            expect(ops.vars).toEqual([0, max, max, 0]);
+            ops.vars = [0, 1, 2, 0];
+            expect(ops.onOperator(0x046d3fff, 0)).toEqual(1); //v1=v2%v3;
+            expect(ops.vars).toEqual([0, 0, 2, 0]);
         });
     });
 

@@ -18,11 +18,13 @@ const Num       = require('./../../../../vm/Num');
  */
 const IN_WORLD              = Helper.inWorld;
 const IS_FINITE             = Number.isFinite;
+const IS_NAN                = Number.isNaN;
 /**
  * {Function} Just a shortcuts
  */
 const FOUR_BITS             = 4;
 const CONDITION_BITS        = 2;
+const MAX_VAL               = Number.MAX_VALUE;
 /**
  * {Array} Available conditions for if operator. Amount should be
  * the same like (1 << Num.BITS_PER_VAR)
@@ -32,11 +34,11 @@ const CONDITIONS = [(a,b)=>a<b, (a,b)=>a>b, (a,b)=>a===b, (a,b)=>a!==b];
  * {Array} Available operators for math calculations
  */
 const OPERATORS = [
-    (a,b) => {const v=a+b; return IS_FINITE(v)?v:0},
-    (a,b) => {const v=a-b; return IS_FINITE(v)?v:0},
-    (a,b) => {const v=a*b; return IS_FINITE(v)?v:0},
-    (a,b) => {const v=a/b; return IS_FINITE(v)?v:0},
-    (a,b) => {const v=a%b; return IS_FINITE(v)?v:0},
+    (a,b) => {const v=a+b; return IS_FINITE(v)?v:MAX_VAL},
+    (a,b) => {const v=a-b; return IS_FINITE(v)?v:-MAX_VAL},
+    (a,b) => {const v=a*b; return IS_FINITE(v)?v:MAX_VAL},
+    (a,b) => {const v=a/b; return IS_FINITE(v)?v:MAX_VAL},
+    (a,b) => {const v=a%b; return IS_NAN(v)?0:v},
     (a,b) => a&b,
     (a,b) => a|b,
     (a,b) => a^b,
