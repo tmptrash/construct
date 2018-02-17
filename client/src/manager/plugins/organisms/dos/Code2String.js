@@ -63,9 +63,9 @@ class Code2String {
 
         Num.init(this._OPERATORS_CB_LEN);
 
-        this.BITS_AFTER_ONE_VAR    = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR;
-        this.BITS_AFTER_TWO_VARS   = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 2;
-        this.BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
+        this._BITS_AFTER_ONE_VAR    = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR;
+        this._BITS_AFTER_TWO_VARS   = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 2;
+        this._BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
         //
         // API of the Manager for accessing outside. (e.g. from Console)
         //
@@ -134,27 +134,27 @@ class Code2String {
     }
 
     _onConst(num) {
-        return `v${Num.getVar0(num)}=${Num.getBits(num, this.BITS_AFTER_THREE_VARS, OConfig.codeConstBits)}`;
+        return `v${Num.getVar0(num)}=${Num.getBits(num, this._BITS_AFTER_THREE_VARS, OConfig.codeConstBits)}`;
     }
 
     _onCondition(num, line, lines) {
-        const cond      = Num.getBits(num, this.BITS_AFTER_TWO_VARS, CONDITION_BITS);
-        const blockOffs = Num.getBits(num, this.BITS_AFTER_TWO_VARS + CONDITION_BITS, OConfig.codeBitsPerBlock);
+        const cond      = Num.getBits(num, this._BITS_AFTER_TWO_VARS, CONDITION_BITS);
+        const blockOffs = Num.getBits(num, this._BITS_AFTER_TWO_VARS + CONDITION_BITS, OConfig.codeBitsPerBlock);
 
         this._offsets.push(this._getOffs(line, lines, blockOffs));
         return `if(v${Num.getVar0(num)}${this._CONDITIONS[cond]}v${Num.getVar1(num)}){`;
     }
 
     _onLoop(num, line, lines) {
-        const cond      = Num.getBits(num, this.BITS_AFTER_TWO_VARS, CONDITION_BITS);
-        const blockOffs = Num.getBits(num, this.BITS_AFTER_TWO_VARS + CONDITION_BITS, OConfig.codeBitsPerBlock);
+        const cond      = Num.getBits(num, this._BITS_AFTER_TWO_VARS, CONDITION_BITS);
+        const blockOffs = Num.getBits(num, this._BITS_AFTER_TWO_VARS + CONDITION_BITS, OConfig.codeBitsPerBlock);
 
         this._offsets.push(this._getOffs(line, lines, blockOffs));
         return `while(v${Num.getVar0(num)}${this._CONDITIONS[cond]}v${Num.getVar1(num)}){`;
     }
 
     _onOperator(num) {
-        return `v${Num.getVar0(num)}=v${Num.getVar1(num)}${this._OPERATORS[Num.getBits(num, this.BITS_AFTER_THREE_VARS, FOUR_BITS)]}v${Num.getVar2(num)}`;
+        return `v${Num.getVar0(num)}=v${Num.getVar1(num)}${this._OPERATORS[Num.getBits(num, this._BITS_AFTER_THREE_VARS, FOUR_BITS)]}v${Num.getVar2(num)}`;
     }
 
     _onLookAt(num) {
@@ -194,11 +194,11 @@ class Code2String {
     }
 
     _onFromMem(num) {
-        return `v${Num.getVar0(num)}=fromMem(${Num.getBits(num, this.BITS_AFTER_ONE_VAR, OConfig.orgMemBits)})`;
+        return `v${Num.getVar0(num)}=fromMem(${Num.getBits(num, this._BITS_AFTER_ONE_VAR, OConfig.orgMemBits)})`;
     }
 
     _onToMem(num) {
-        return `toMem(v${Num.getVar0(num)},${Num.getBits(num, this.BITS_AFTER_ONE_VAR, OConfig.orgMemBits)})`;
+        return `toMem(v${Num.getVar0(num)},${Num.getBits(num, this._BITS_AFTER_ONE_VAR, OConfig.orgMemBits)})`;
     }
 
     _onMyX(num) {

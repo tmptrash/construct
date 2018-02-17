@@ -220,7 +220,7 @@ class Organism extends Observer {
     }
 
     _create() {
-        this.vm                     = new VM(this, this._operatorCls);
+        this.vm                     = new VM(this, this._operatorCls, OConfig.orgOperatorWeights);
         this._energy                = OConfig.orgStartEnergy;
         this._startEnergy           = OConfig.orgStartEnergy;
         this._colorIndex            = OConfig.orgStartColor * Num.MAX_BITS;
@@ -234,7 +234,7 @@ class Organism extends Observer {
     }
 
     _clone(parent) {
-        this.vm                     = new VM(this, this._operatorCls, parent.vm);
+        this.vm                     = new VM(this, this._operatorCls, OConfig.orgOperatorWeights, parent.vm);
         this._energy                = parent.energy;
         this._startEnergy           = parent.energy;
         this._color                 = parent.color;

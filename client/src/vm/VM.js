@@ -25,12 +25,14 @@ class VM extends Observer {
      * cloning mode and we have to create a copy of it.
      * @param {Observer} obs observer for external events firing
      * @param {Function} operatorCls Class of operators
+     * @param {Array} weights Weights of operations
      * @param {VM} parent Parent VM instance in case of cloning
      */
-    constructor(obs, operatorCls, parent = null) {
+    constructor(obs, operatorCls, weights, parent = null) {
         super(EVENT_AMOUNT);
 
         this._obs          = obs;
+        this._weights      = weights;
         /**
          * {Function} Class of operators, with implementation of all available
          * script parts for current VM instance
@@ -94,9 +96,12 @@ class VM extends Observer {
         const OFFS   = Num.VAR_BITS_OFFS;
         let   len    = period;
         let   line   = this._line;
+        let   operator;
 
         while (len > 0 && org.energy > 0) {
-            line = ops[code[line] >>> OFFS](code[line], line, org, lines);
+            operator    = code[line] >>> OFFS;
+            line        = ops[operator](code[line], line, org, lines);
+            org.energy -= this._weights[operator];
             //
             // We found closing bracket '}' of some loop and have to return
             // to the beginning of operator (e.g.: for)

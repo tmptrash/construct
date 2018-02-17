@@ -102,7 +102,7 @@ class OperatorsGarmin extends  Operators {
 //    onLoop(num, line, org, lines, ret) {
 //        const vars = this.vars;
 //        const var0 = VAR0(num);
-//        const val3 = Num.getBits(num, BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
+//        const val3 = Num.getBits(num, _BITS_AFTER_THREE_VARS, Num.BITS_OF_TWO_VARS);
 //        const offs = line + val3 < lines ? line + val3 + 1 : lines;
 //
 //        if (ret) {
