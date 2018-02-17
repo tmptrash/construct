@@ -158,8 +158,8 @@ class OperatorsDos extends Operators {
 
     onLookAt(num, line, org) {
         const vars = this.vars;
-        const x    = vars[Num.getVar1(num)];
-        const y    = vars[Num.getVar2(num)];
+        const x    = (vars[Num.getVar1(num)] + .5) << 0;
+        const y    = (vars[Num.getVar2(num)] + .5) << 0;
 
         if (IN_WORLD(x, y)) {
             this.obs.fire(EVENTS.GET_ENERGY, org, x, y, this._ret);
@@ -200,17 +200,14 @@ class OperatorsDos extends Operators {
     onCheckDown(num, line, org)  {return this._checkAt(num, line, org, org.x, org.y + 1)}
 
     _checkAt(num, line, org, x, y) {
-        const ret = this._ret;
-
-        ret.ret = 0;
-        this.obs.fire(EVENTS.CHECK_AT, x, y, ret);
-        this.vars[Num.getVar0(num)] = ret.ret;
+        this.obs.fire(EVENTS.CHECK_AT, x, y, this._ret);
+        this.vars[Num.getVar0(num)] = this._ret.ret;
         return ++line;
     }
 
     _eat(org, num, x, y) {
         const amount = this.vars[Num.getVar1(num)];
-        if (amount <= 0) {return 0}
+        if (amount === 0) {return 0}
         const ret    = this._ret;
 
         ret.ret = amount;

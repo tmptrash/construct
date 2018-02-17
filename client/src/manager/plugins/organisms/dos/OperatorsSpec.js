@@ -303,6 +303,17 @@ describe("client/src/organism/OperatorsDos", () => {
             OConfig.codeBitsPerVar = bpv;
             ops1.destroy();
         });
+
+        it('Checking onLookAt() with floating coordinates', () => {
+            org.on(EVENTS.GET_ENERGY, (o, x, y, ret) => {
+                expect(x).toBe(0);
+                expect(y).toBe(4);
+                ret.ret = 13;
+            });
+            ops.vars = [0, 1, .1, 3.6];
+            expect(ops.onLookAt(0x056fffff, 0, org)).toEqual(1); //v1=lookAt(v2,v3);
+            expect(ops.vars).toEqual([0,13,.1,3.6]);
+        });
     });
 
     it("Checking onEatLeft() method", () => {

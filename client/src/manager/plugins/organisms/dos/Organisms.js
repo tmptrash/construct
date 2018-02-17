@@ -156,8 +156,9 @@ class Organisms extends BaseOrganisms {
         // eat less, big - more
         //
         const eat       = ret.ret / ((OConfig.codeMaxSize / (org.vm.size || 1)) || 1);
+        let   dir;
 
-        [x, y] = NORMALIZE_NO_DIR(x, y);
+        [x, y, dir] = NORMALIZE(x, y);
 
         const posId = POSID(x, y);
         if (typeof(positions[posId]) === 'undefined') {
@@ -165,7 +166,10 @@ class Organisms extends BaseOrganisms {
                 ret.ret = this.world.grabDot(x, y, eat);
                 this.parent.fire(EVENTS.EAT_ENERGY, ret.ret);
             } else {
-                ret.ret = 0;
+                if (dir !== DIR.NO) {ret.ret = 0;return}
+                ret.ret = eat;
+                this.world.setDot(x, y, (-eat + .5) << 0);
+                this.parent.fire(EVENTS.EAT_ENERGY, eat);
             }
         } else {
             const victimOrg = positions[posId];
