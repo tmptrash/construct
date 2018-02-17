@@ -258,7 +258,7 @@ describe("client/src/organism/OperatorsDos", () => {
         afterEach (() => {ops.destroy(); org.destroy(); Config.worldHeight = h; Config.worldWidth = w});
 
         it("Checking onLookAt() is found nothing", () => {
-            org.on(EVENTS.GET_ENERGY, (o, x, y, ret) => {
+            org.on(EVENTS.GET_ENERGY, (x, y, ret) => {
                 expect(x).toBe(2);
                 expect(y).toBe(3);
                 ret.ret = 0;
@@ -278,7 +278,7 @@ describe("client/src/organism/OperatorsDos", () => {
         });
 
         it('Checking onLookAt() found an energy', () => {
-            org.on(EVENTS.GET_ENERGY, (o, x, y, ret) => {
+            org.on(EVENTS.GET_ENERGY, (x, y, ret) => {
                 expect(x).toBe(2);
                 expect(y).toBe(3);
                 ret.ret = 13;
@@ -292,7 +292,7 @@ describe("client/src/organism/OperatorsDos", () => {
             OConfig.codeBitsPerVar = 4;
             let ops1 = new OperatorsDos([1], [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,7], org);
 
-            org.on(EVENTS.GET_ENERGY, (o, x, y, ret) => {
+            org.on(EVENTS.GET_ENERGY, (x, y, ret) => {
                 expect(x).toBe(7);
                 expect(y).toBe(7);
                 ret.ret = 13;
@@ -305,7 +305,7 @@ describe("client/src/organism/OperatorsDos", () => {
         });
 
         it('Checking onLookAt() with floating coordinates', () => {
-            org.on(EVENTS.GET_ENERGY, (o, x, y, ret) => {
+            org.on(EVENTS.GET_ENERGY, (x, y, ret) => {
                 expect(x).toBe(0);
                 expect(y).toBe(4);
                 ret.ret = 13;
@@ -316,65 +316,65 @@ describe("client/src/organism/OperatorsDos", () => {
         });
     });
 
-    it("Checking onEatLeft() method", () => {
-        let obs = new Observer(EVENT_AMOUNT);
-        let ops = new OperatorsDos([], [1, 1, 2, 3], obs);
-        let org = {x:4, y:5, energy:0};
+    describe('onEatLeft() method', () => {
+        let   org;
+        let   ops;
+        const w = Config.worldWidth;
+        const h = Config.worldHeight;
 
-        obs.on(EVENTS.EAT, (org, x, y, ret) => {
-            expect(ret.ret === 1).toEqual(true);
-            ret.ret = 5;
-            expect(x === 3 && y === 5).toEqual(true);
+        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
+        afterEach (() => {ops.destroy(); org.destroy(); Config.worldHeight = h; Config.worldWidth = w});
+
+        it("Checking eating nothing", () => {
+            ops.vars = [1, 0, 1, 2];
+            expect(ops.onEatLeft(0x061fffff, 0, org)).toEqual(1); // v0=eatLeft(v1);
+            expect(ops.vars).toEqual([0, 0, 1, 2]);
         });
-        expect(ops.onEatLeft(0x051fffff, 0, org, 1)).toEqual(1); // v0=org.eatLeft(v1);
-        expect(ops.vars[0] === 5).toEqual(true);
-        expect(ops.vars[1] === 1).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
-        expect(org.energy === 5).toEqual(true);
-
-        obs.clear();
-        ops.destroy();
-    });
-    it("Checking onEatLeft() method 2", () => {
-        let obs = new Observer(EVENT_AMOUNT);
-        let ops = new OperatorsDos([], [1, 1, 2, 3], obs);
-        let org = {x:5, y:6, energy:0};
-
-        obs.on(EVENTS.EAT, (org, x, y, ret) => {
-            expect(ret.ret === 2).toEqual(true);
-            ret.ret = 5;
-            expect(x === 4 && y === 6).toEqual(true);
+        it("Checking eating nothing 2", () => {
+            org.on(EVENTS.EAT, (org, x, y, ret) => {
+                expect(ret.ret).toBe(1);
+                expect(x).toBe(1);
+                expect(y).toBe(3);
+                ret.ret = 0;
+            });
+            org.x = 2;
+            org.y = 3;
+            expect(ops.onEatLeft(0x061fffff, 0, org)).toEqual(1); // v0=eatLeft(v1);
+            expect(ops.vars).toEqual([0,1,2,3]);
         });
-        expect(ops.onEatLeft(0x056fffff, 0, org, 1)).toEqual(1); // v1=org.eatLeft(v2);
-        expect(ops.vars[0] === 1).toEqual(true);
-        expect(ops.vars[1] === 5).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
-        expect(org.energy === 5).toEqual(true);
 
-        obs.clear();
-        ops.destroy();
-    });
-    it("Checking onEatLeft() method 3", () => {
-        let obs = new Observer(EVENT_AMOUNT);
-        let ops = new OperatorsDos([], [1, 1, 2, 3], obs);
-        let org = {x:3, y:4, energy:0};
-
-        obs.on(EVENTS.EAT, (org, x, y, ret) => {
-            expect(ret.ret === 3).toEqual(true);
-            ret.ret = 1;
-            expect(x === 2 && y === 4).toEqual(true);
+        it("Checking eating energy", () => {
+            org.on(EVENTS.EAT, (org, x, y, ret) => {
+                expect(ret.ret).toBe(1);
+                expect(x).toBe(1);
+                expect(y).toBe(3);
+                ret.ret = 5;
+            });
+            org.x = 2;
+            org.y = 3;
+            expect(ops.onEatLeft(0x061fffff, 0, org)).toEqual(1); // v0=eatLeft(v1);
+            expect(ops.vars).toEqual([5,1,2,3]);
         });
-        expect(ops.onEatLeft(0x05ffffff, 0, org, 1)).toEqual(1); // v3=org.eatLeft(v3);
-        expect(ops.vars[0] === 1).toEqual(true);
-        expect(ops.vars[1] === 1).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 1).toEqual(true);
-        expect(org.energy === 1).toEqual(true);
 
-        obs.clear();
-        ops.destroy();
+        it('Checking eating with 3bits per var', () => {
+            let bpv = OConfig.codeBitsPerVar;
+            OConfig.codeBitsPerVar = 3;
+            let ops1 = new OperatorsDos([1], [0,1,2,3,4,5,6,7], org);
+
+            org.on(EVENTS.EAT, (org, x, y, ret) => {
+                expect(ret.ret).toBe(4);
+                expect(x).toBe(1);
+                expect(y).toBe(3);
+                ret.ret = 5;
+            });
+            org.x = 2;
+            org.y = 3;
+            expect(ops1.onEatLeft(0x0633ffff, 0, org)).toEqual(1); // v1=eatLeft(v4);
+            expect(ops1.vars).toEqual([0,5,2,3,4,5,6,7]);
+
+            OConfig.codeBitsPerVar = bpv;
+            ops1.destroy();
+        })
     });
 
     it("Checking onEatRight() method", () => {
@@ -903,178 +903,6 @@ describe("client/src/organism/OperatorsDos", () => {
         expect(ops.onMyY(0x0fffffff, 0, org, 1)).toEqual(1); // v3=org.myY();
         expect(ops.vars[0] === 2).toEqual(true);
         expect(ops.vars[1] === 2).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 2).toEqual(true);
-
-        ops.destroy();
-    });
-
-    it("Checking onCheckLeft() method", () => {
-        let org = new Observer(EVENT_AMOUNT);
-        let obs = new Observer();
-        let ops = new OperatorsDos([], [1, 7, 2, 3], obs);
-
-        org.x = 1;
-        org.y = 2;
-
-        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
-            expect(x === 0 && y === 2).toEqual(true);
-            ret.ret = 0;
-        });
-        expect(ops.onCheckLeft(0x111fffff, 0, org)).toEqual(1); // v0=org.onCheckLeft();
-        expect(ops.vars[0] === 0).toEqual(true);
-        expect(ops.vars[1] === 7).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
-
-        org.clear();
-        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
-            expect(x === 0 && y === 2).toEqual(true);
-            ret.ret = 1;
-        });
-        expect(ops.onCheckLeft(0x116fffff, 0, org)).toEqual(1); // v1=org.onCheckLeft();
-        expect(ops.vars[0] === 0).toEqual(true);
-        expect(ops.vars[1] === 1).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
-
-        org.clear();
-        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
-            expect(x === 0 && y === 2).toEqual(true);
-            ret.ret = 2;
-        });
-        expect(ops.onCheckLeft(0x11ffffff, 0, org)).toEqual(1); // v3=org.onCheckLeft();
-        expect(ops.vars[0] === 0).toEqual(true);
-        expect(ops.vars[1] === 1).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 2).toEqual(true);
-
-        ops.destroy();
-    });
-
-    it("Checking onCheckRight() method", () => {
-        let org = new Observer(EVENT_AMOUNT);
-        let obs = new Observer();
-        let ops = new OperatorsDos([], [1, 7, 2, 3], obs);
-
-        org.x = 1;
-        org.y = 2;
-
-        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
-            expect(x === 2 && y === 2).toEqual(true);
-            ret.ret = 0;
-        });
-        expect(ops.onCheckRight(0x121fffff, 0, org)).toEqual(1); // v0=org.onCheckRight();
-        expect(ops.vars[0] === 0).toEqual(true);
-        expect(ops.vars[1] === 7).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
-
-        org.clear();
-        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
-            expect(x === 2 && y === 2).toEqual(true);
-            ret.ret = 1;
-        });
-        expect(ops.onCheckRight(0x126fffff, 0, org)).toEqual(1); // v1=org.onCheckRight();
-        expect(ops.vars[0] === 0).toEqual(true);
-        expect(ops.vars[1] === 1).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
-
-        org.clear();
-        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
-            expect(x === 2 && y === 2).toEqual(true);
-            ret.ret = 2;
-        });
-        expect(ops.onCheckRight(0x12ffffff, 0, org)).toEqual(1); // v3=org.onCheckRight();
-        expect(ops.vars[0] === 0).toEqual(true);
-        expect(ops.vars[1] === 1).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 2).toEqual(true);
-
-        ops.destroy();
-    });
-
-    it("Checking onCheckUp() method", () => {
-        let org = new Observer(EVENT_AMOUNT);
-        let obs = new Observer();
-        let ops = new OperatorsDos([], [1, 7, 2, 3], obs);
-
-        org.x = 1;
-        org.y = 2;
-
-        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
-            expect(x === 1 && y === 1).toEqual(true);
-            ret.ret = 0;
-        });
-        expect(ops.onCheckUp(0x131fffff, 0, org)).toEqual(1); // v0=org.onCheckUp();
-        expect(ops.vars[0] === 0).toEqual(true);
-        expect(ops.vars[1] === 7).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
-
-        org.clear();
-        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
-            expect(x === 1 && y === 1).toEqual(true);
-            ret.ret = 1;
-        });
-        expect(ops.onCheckUp(0x136fffff, 0, org)).toEqual(1); // v1=org.onCheckUp();
-        expect(ops.vars[0] === 0).toEqual(true);
-        expect(ops.vars[1] === 1).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
-
-        org.clear();
-        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
-            expect(x === 1 && y === 1).toEqual(true);
-            ret.ret = 2;
-        });
-        expect(ops.onCheckUp(0x13ffffff, 0, org)).toEqual(1); // v3=org.onCheckUp();
-        expect(ops.vars[0] === 0).toEqual(true);
-        expect(ops.vars[1] === 1).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 2).toEqual(true);
-
-        ops.destroy();
-    });
-
-    it("Checking onCheckDown() method", () => {
-        let org = new Observer(EVENT_AMOUNT);
-        let obs = new Observer();
-        let ops = new OperatorsDos([], [1, 7, 2, 3], obs);
-
-        org.x = 1;
-        org.y = 2;
-
-        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
-            expect(x === 1 && y === 3).toEqual(true);
-            ret.ret = 0;
-        });
-        expect(ops.onCheckDown(0x141fffff, 0, org)).toEqual(1); // v0=org.onCheckDown();
-        expect(ops.vars[0] === 0).toEqual(true);
-        expect(ops.vars[1] === 7).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
-
-        org.clear();
-        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
-            expect(x === 1 && y === 3).toEqual(true);
-            ret.ret = 1;
-        });
-        expect(ops.onCheckDown(0x146fffff, 0, org)).toEqual(1); // v1=org.onCheckDown();
-        expect(ops.vars[0] === 0).toEqual(true);
-        expect(ops.vars[1] === 1).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
-
-        org.clear();
-        org.on(EVENTS.CHECK_AT, (x, y, ret) => {
-            expect(x === 1 && y === 3).toEqual(true);
-            ret.ret = 2;
-        });
-        expect(ops.onCheckDown(0x14ffffff, 0, org)).toEqual(1); // v3=org.onCheckDown();
-        expect(ops.vars[0] === 0).toEqual(true);
-        expect(ops.vars[1] === 1).toEqual(true);
         expect(ops.vars[2] === 2).toEqual(true);
         expect(ops.vars[3] === 2).toEqual(true);
 

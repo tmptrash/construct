@@ -97,7 +97,6 @@ class Organisms extends BaseOrganisms {
         org.on(EVENTS.GET_ENERGY, this._onGetEnergy.bind(this));
         org.on(EVENTS.EAT, this._onEat.bind(this));
         org.on(EVENTS.STEP, this._onStep.bind(this));
-        org.on(EVENTS.CHECK_AT, this._onCheckAt.bind(this));
     }
 
     /**
@@ -139,7 +138,7 @@ class Organisms extends BaseOrganisms {
         return true;
     }
 
-    _onGetEnergy(org, x, y, ret) {
+    _onGetEnergy(x, y, ret) {
         const posId = POSID(x, y);
 
         if (typeof(this.positions[posId]) === 'undefined') {
@@ -156,17 +155,14 @@ class Organisms extends BaseOrganisms {
         // eat less, big - more
         //
         const eat       = ret.ret / ((OConfig.codeMaxSize / (org.vm.size || 1)) || 1);
-        let   dir;
+        [x, y]          = NORMALIZE_NO_DIR(x, y);
+        const posId     = POSID(x, y);
 
-        [x, y, dir] = NORMALIZE(x, y);
-
-        const posId = POSID(x, y);
         if (typeof(positions[posId]) === 'undefined') {
             if (eat > 0) {
                 ret.ret = this.world.grabDot(x, y, eat);
                 this.parent.fire(EVENTS.EAT_ENERGY, ret.ret);
             } else {
-                if (dir !== DIR.NO) {ret.ret = 0;return}
                 ret.ret = eat;
                 this.world.setDot(x, y, (-eat + .5) << 0);
                 this.parent.fire(EVENTS.EAT_ENERGY, eat);
@@ -250,17 +246,6 @@ class Organisms extends BaseOrganisms {
             const energy = (((org.energy * OConfig.orgStepEnergySpendPercent) + 0.5) << 1) >>> 1;
             (org.energy <= energy) && this.parent.fire(EVENTS.KILL_STEP_IN, org);
             org.energy -= energy;
-        }
-    }
-
-    _onCheckAt(x, y, ret) {
-        const org = this.positions[POSID(x, y)];
-
-        if (typeof(org) === 'undefined') {
-            [x, y] = NORMALIZE_NO_DIR(x, y);
-            ret.ret = this.world.getDot(x, y);
-        } else {
-            ret.ret = org.energy;
         }
     }
 }
