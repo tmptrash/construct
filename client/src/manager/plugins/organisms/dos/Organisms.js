@@ -164,7 +164,7 @@ class Organisms extends BaseOrganisms {
                 this.parent.fire(EVENTS.EAT_ENERGY, ret.ret);
             } else {
                 ret.ret = eat;
-                this.world.setDot(x, y, (-eat + .5) << 0);
+                this.world.setDot(x, y, ((-eat + .5) << 0) + this.world.getDot(x, y));
                 this.parent.fire(EVENTS.EAT_ENERGY, eat);
             }
         } else {

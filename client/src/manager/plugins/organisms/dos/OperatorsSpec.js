@@ -560,133 +560,68 @@ describe("client/src/organism/OperatorsDos", () => {
         })
     });
 
-    it("Checking onStepLeft() method", () => {
-        let obs = new Observer(EVENT_AMOUNT);
-        let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
-        let org = {x:3, y:4};
+    describe('onStepLeft() method', () => {
+        let   org;
+        let   ops;
+        const w = Config.worldWidth;
+        const h = Config.worldHeight;
 
-        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
-            ret.ret = 1;
-            ret.x   = 2;
-            ret.y   = 4;
-            expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
+        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
+        afterEach (() => {ops.destroy(); org.destroy(); Config.worldHeight = h; Config.worldWidth = w});
+
+        it("Checking step left", () => {
+            org.x = 3;
+            org.y = 4;
+            org.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
+                ret.ret = 1;
+                ret.x   = x2;
+                ret.y   = y2;
+                expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toBe(true);
+            });
+            expect(ops.onStepLeft(0x0a1fffff, 0, org)).toEqual(1); // v0=stepLeft();
+            expect(ops.vars).toEqual([2,1,2,3]);
+            expect(org.x).toBe(2);
+            expect(org.y).toBe(4);
         });
-        expect(ops.onStepLeft(0x091fffff, 0, org, 1)).toEqual(1); // v0=org.stepLeft();
-        expect(ops.vars[0] === 1).toEqual(true);
-        expect(ops.vars[1] === 1).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
-        expect(org.x === 2 && org.y === 4).toEqual(true);
 
-        obs.clear();
-        ops.destroy();
-    });
-    it("Checking onStepLeft() method with no free space on the left", () => {
-        let obs = new Observer(EVENT_AMOUNT);
-        let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
-        let org = {x:3, y:4};
-
-        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
-            ret.ret = 0;
-            ret.x   = 3;
-            ret.y   = 4;
-            expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
+        it("Checking step left() with no free space on the left", () => {
+            org.x = 3;
+            org.y = 4;
+            org.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
+                ret.ret = 0;
+                ret.x   = x1;
+                ret.y   = y1;
+                expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toBe(true);
+            });
+            expect(ops.onStepLeft(0x0a1fffff, 0, org)).toEqual(1); // v0=stepLeft();
+            expect(ops.vars).toEqual([3,1,2,3]);
+            expect(org.x).toBe(3);
+            expect(org.y).toBe(4);
         });
-        expect(ops.onStepLeft(0x091fffff, 0, org, 1)).toEqual(1); // v0=org.stepLeft();
-        expect(ops.vars[0] === 0).toEqual(true);
-        expect(ops.vars[1] === 1).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
-        expect(org.x === 3 && org.y === 4).toEqual(true);
 
-        obs.clear();
-        ops.destroy();
-    });
-    it("Checking onStepLeft() method 2", () => {
-        let obs = new Observer(EVENT_AMOUNT);
-        let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
-        let org = {x:3, y:4};
+        it("Checking step left with 4 bits per var", () => {
+            let bpv = OConfig.codeBitsPerVar;
+            OConfig.codeBitsPerVar = 4;
+            let ops1 = new OperatorsDos([1], [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], org);
 
-        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
-            ret.ret = 1;
-            ret.x   = 2;
-            ret.y   = 4;
-            expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
+            org.x = 3;
+            org.y = 4;
+            org.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
+                ret.ret = 1;
+                ret.x   = x2;
+                ret.y   = y2;
+                expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toBe(true);
+            });
+            expect(ops1.onStepLeft(0x0a1fffff, 0, org)).toEqual(1); // v1=stepLeft();
+            expect(ops1.vars).toEqual([0,2,2,3,4,5,6,7,8,9,10,11,12,13,14,15]);
+            expect(org.x).toBe(2);
+            expect(org.y).toBe(4);
+
+            OConfig.codeBitsPerVar = bpv;
+            ops1.destroy();
         });
-        expect(ops.onStepLeft(0x096fffff, 0, org, 1)).toEqual(1); // v1=org.stepLeft();
-        expect(ops.vars[0] === 0).toEqual(true);
-        expect(ops.vars[1] === 1).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
-        expect(org.x === 2 && org.y === 4).toEqual(true);
-        //expect(ops.onStepLeft(0x08ffffff), 0, org, 1)).toEqual()  // v3=org.stepLeft();
-
-        obs.clear();
-        ops.destroy();
     });
-    it("Checking onStepLeft() method 2 with no free space on the left", () => {
-        let obs = new Observer(EVENT_AMOUNT);
-        let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
-        let org = {x:3, y:4};
 
-        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
-            ret.ret = 0;
-            ret.x   = 3;
-            ret.y   = 4;
-            expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
-        });
-        expect(ops.onStepLeft(0x096fffff, 0, org, 1)).toEqual(1); // v1=org.stepLeft();
-        expect(ops.vars[0] === 0).toEqual(true);
-        expect(ops.vars[1] === 0).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
-        expect(org.x === 3 && org.y === 4).toEqual(true);
-
-        obs.clear();
-        ops.destroy();
-    });
-    it("Checking onStepLeft() method 3", () => {
-        let obs = new Observer(EVENT_AMOUNT);
-        let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
-        let org = {x:3, y:4};
-
-        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
-            ret.ret = 1;
-            ret.x   = 2;
-            ret.y   = 4;
-            expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
-        });
-        expect(ops.onStepLeft(0x09ffffff, 0, org, 1)).toEqual(1); // v3=org.stepLeft();
-        expect(ops.vars[0] === 0).toEqual(true);
-        expect(ops.vars[1] === 1).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 1).toEqual(true);
-        expect(org.x === 2 && org.y === 4).toEqual(true);
-
-        obs.clear();
-        ops.destroy();
-    });
-    it("Checking onStepLeft() method 3 with no free space on the left", () => {
-        let obs = new Observer(EVENT_AMOUNT);
-        let ops = new OperatorsDos([], [0, 1, 2, 3], obs);
-        let org = {x:3, y:4};
-
-        obs.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
-            ret.ret = 0;
-            ret.x   = 3;
-            ret.y   = 4;
-            expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toEqual(true);
-        });
-        expect(ops.onStepLeft(0x09ffffff, 0, org, 1)).toEqual(1); // v3=org.stepLeft();
-        expect(ops.vars[0] === 0).toEqual(true);
-        expect(ops.vars[1] === 1).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 0).toEqual(true);
-        expect(org.x === 3 && org.y === 4).toEqual(true);
-
-        obs.clear();
-        ops.destroy();
-    });
 
     it("Checking onStepRight() method", () => {
         let obs = new Observer(EVENT_AMOUNT);
