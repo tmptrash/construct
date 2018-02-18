@@ -849,6 +849,23 @@ describe("client/src/organism/OperatorsDos", () => {
             expect(ops.onFromMem(0x0b58ffff, 0, org)).toEqual(1); //v1=fromMem();
             expect(ops.vars).toEqual([.1,3,.3,.4]);
         });
+
+        it("Checking getting value by variable value with 4 bits per var", () => {
+            let bpv = OConfig.codeBitsPerVar;
+            OConfig.codeBitsPerVar = 4;
+            let ops1 = new OperatorsDos([1], [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], org);
+
+            org.mem.splice(0, org.mem.length, ...[1,2,3,4]);
+            expect(ops1.onFromMem(0x0b0fffff, 0, org)).toEqual(1); //v1=fromMem();
+            expect(ops1.vars).toEqual([1,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]);
+
+            org.mem.splice(0, org.mem.length, ...[0,7,2,3]);
+            expect(ops1.onFromMem(0x0b51ffff, 0, org)).toEqual(1); //v5=fromMem();
+            expect(ops1.vars).toEqual([1,1,2,3,4,7,6,7,8,9,10,11,12,13,14,15]);
+
+            OConfig.codeBitsPerVar = bpv;
+            ops1.destroy();
+        });
     });
 
     it("Checking onToMem() method", () => {
