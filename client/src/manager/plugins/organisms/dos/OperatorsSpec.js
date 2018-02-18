@@ -811,12 +811,12 @@ describe("client/src/organism/OperatorsDos", () => {
     describe('onFromMem() method', () => {
         let   org;
         let   ops;
-        const mbits = OConfig.orgMemBits;
-        OConfig.orgMemBits = 2;
+        let   mbits;
 
         beforeEach(() => {org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
         afterEach (() => {ops.destroy(); org.destroy()});
-        afterAll(() => OConfig.orgMemBits = mbits);
+        beforeAll(()  => {mbits = OConfig.orgMemBits; OConfig.orgMemBits = 2});
+        afterAll(()   => OConfig.orgMemBits = mbits);
 
         it("Checking getting value by constant", () => {
             org.mem.splice(0, org.mem.length, ...[1,2,3,4]);
@@ -868,19 +868,43 @@ describe("client/src/organism/OperatorsDos", () => {
         });
     });
 
-    it("Checking onToMem() method", () => {
-        let org = {mem: []};
-        let ops = new OperatorsDos([], [0, 1, 2, 3], new Observer());
+    describe('onToMem() method', () => {
+        let   org;
+        let   ops;
+        let   mbits;
 
-        expect(ops.onToMem(0x0effffff, 0, org, 1)).toEqual(1); //'v3 = org.toMem(v3)');
-        expect(org.mem[0]).toEqual(3);
-        expect(ops.onToMem(0x0e6fffff, 0, org, 1)).toEqual(1); //'v1 = org.toMem(v2)');
-        expect(org.mem[1]).toEqual(2);
-        expect(ops.onToMem(0x0e1fffff, 0, org, 1)).toEqual(1); //'v0 = org.toMem(v1)');
-        expect(org.mem[2]).toEqual(2);
+        beforeEach(() => {org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
+        afterEach (() => {ops.destroy(); org.destroy()});
+        beforeAll(()  => {mbits = OConfig.orgMemBits; OConfig.orgMemBits = 2});
+        afterAll(()   => OConfig.orgMemBits = mbits);
 
-        ops.destroy();
+        it("Checking setting value by constant", () => {
+            org.mem.splice(0, org.mem.length, ...[1,2,3,4]);
+            expect(ops.onToMem(0x0b17ffff, 0, org)).toEqual(1); //toMem(v0, 3);
+            expect(org.mem).toEqual([1,2,3,0]);
+        });
+
+        it("Checking setting value by variable value", () => {
+            org.mem.splice(0, org.mem.length, ...[0,2,3,4]);
+            expect(ops.onToMem(0x0b1fffff, 0, org)).toEqual(1); //toMem(v0, v0);
+            expect(org.mem).toEqual([1,2,3,4]);
+        });
+
+        it("Checking setting value by variable value with 4 bits per var", () => {
+            let bpv = OConfig.codeBitsPerVar;
+            OConfig.codeBitsPerVar = 4;
+            let ops1 = new OperatorsDos([1], [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], org);
+
+            org.mem.splice(0, org.mem.length, ...[0,2,3,4]);
+            expect(ops1.onToMem(0x0b1fffff, 0, org)).toEqual(1); //toMem(v0, v0);
+            expect(org.mem).toEqual([0,15,3,4]);
+
+            OConfig.codeBitsPerVar = bpv;
+            ops1.destroy();
+        });
     });
+
+
 
     it("Checking onMyX() method", () => {
         let org = {x: 1, y:2};
