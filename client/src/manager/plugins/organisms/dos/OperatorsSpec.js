@@ -905,49 +905,81 @@ describe("client/src/organism/OperatorsDos", () => {
     });
 
 
+    describe('onMyX() method', () => {
+        let org;
+        let ops;
 
-    it("Checking onMyX() method", () => {
-        let org = {x: 1, y:2};
-        let ops = new OperatorsDos([], [0, 7, 2, 3], new Observer());
+        beforeEach(() => {org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([], [0, 1, 2, 3], org)});
+        afterEach (() => {ops.destroy(); org.destroy()});
 
-        expect(ops.onMyX(0x0f1fffff, 0, org, 1)).toEqual(1); // v0=org.myX();
-        expect(ops.vars[0] === 1).toEqual(true);
-        expect(ops.vars[1] === 7).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
-        expect(ops.onMyX(0x0f6fffff, 0, org, 1)).toEqual(1); // v1=org.myX();
-        expect(ops.vars[0] === 1).toEqual(true);
-        expect(ops.vars[1] === 1).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
-        expect(ops.onMyX(0x0fffffff, 0, org, 1)).toEqual(1); // v3=org.myX();
-        expect(ops.vars[0] === 1).toEqual(true);
-        expect(ops.vars[1] === 1).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 1).toEqual(true);
+        it("Checking simple values", () => {
+            org.x = 1;
+            expect(ops.onMyX(0x0c1fffff, 0, org)).toEqual(1); // v0=myX()
+            expect(ops.vars).toEqual([1,1,2,3]);
+            org.x = 3;
+            expect(ops.onMyX(0x0c6fffff, 0, org)).toEqual(1); // v1=myX()
+            expect(ops.vars).toEqual([1,3,2,3]);
+            org.x = 0;
+            expect(ops.onMyX(0x0cffffff, 0, org)).toEqual(1); // v3=myX()
+            expect(ops.vars).toEqual([1,3,2,0]);
+        });
 
-        ops.destroy();
+        it('Checking simple values with 4 bits per var', () => {
+            let bpv = OConfig.codeBitsPerVar;
+            OConfig.codeBitsPerVar = 4;
+            let ops1 = new OperatorsDos([1], [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], org);
+
+            org.x = 3;
+            expect(ops1.onMyX(0x0c1fffff, 0, org)).toEqual(1); // v1=myX()
+            expect(ops1.vars).toEqual([0,3,2,3,4,5,6,7,8,9,10,11,12,13,14,15]);
+            org.x = 3;
+            expect(ops1.onMyX(0x0c6fffff, 0, org)).toEqual(1); // v6=myX()
+            expect(ops1.vars).toEqual([0,3,2,3,4,5,3,7,8,9,10,11,12,13,14,15]);
+            org.x = 0;
+            expect(ops1.onMyX(0x0cffffff, 0, org)).toEqual(1); // v15=myX()
+            expect(ops1.vars).toEqual([0,3,2,3,4,5,3,7,8,9,10,11,12,13,14,0]);
+
+            OConfig.codeBitsPerVar = bpv;
+            ops1.destroy();
+        });
     });
-    it("Checking onMyX() method", () => {
-        let org = {x: 1, y:2};
-        let ops = new OperatorsDos([], [0, 7, 2, 3], new Observer());
 
-        expect(ops.onMyY(0x0f1fffff, 0, org, 1)).toEqual(1); // v0=org.myY();
-        expect(ops.vars[0] === 2).toEqual(true);
-        expect(ops.vars[1] === 7).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
-        expect(ops.onMyY(0x0f6fffff, 0, org, 1)).toEqual(1); // v1=org.myY();
-        expect(ops.vars[0] === 2).toEqual(true);
-        expect(ops.vars[1] === 2).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
-        expect(ops.onMyY(0x0fffffff, 0, org, 1)).toEqual(1); // v3=org.myY();
-        expect(ops.vars[0] === 2).toEqual(true);
-        expect(ops.vars[1] === 2).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 2).toEqual(true);
+    describe('onMyY() method', () => {
+        let org;
+        let ops;
 
-        ops.destroy();
+        beforeEach(() => {org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([], [0, 1, 2, 3], org)});
+        afterEach (() => {ops.destroy(); org.destroy()});
+
+        it("Checking simple values", () => {
+            org.y = 1;
+            expect(ops.onMyY(0x0c1fffff, 0, org)).toEqual(1); // v0=myY()
+            expect(ops.vars).toEqual([1,1,2,3]);
+            org.y = 3;
+            expect(ops.onMyY(0x0c6fffff, 0, org)).toEqual(1); // v1=myY()
+            expect(ops.vars).toEqual([1,3,2,3]);
+            org.y = 0;
+            expect(ops.onMyY(0x0cffffff, 0, org)).toEqual(1); // v3=myY()
+            expect(ops.vars).toEqual([1,3,2,0]);
+        });
+
+        it('Checking simple values with 4 bits per var', () => {
+            let bpv = OConfig.codeBitsPerVar;
+            OConfig.codeBitsPerVar = 4;
+            let ops1 = new OperatorsDos([1], [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], org);
+
+            org.y = 3;
+            expect(ops1.onMyY(0x0c1fffff, 0, org)).toEqual(1); // v1=myX()
+            expect(ops1.vars).toEqual([0,3,2,3,4,5,6,7,8,9,10,11,12,13,14,15]);
+            org.y = 3;
+            expect(ops1.onMyY(0x0c6fffff, 0, org)).toEqual(1); // v6=myX()
+            expect(ops1.vars).toEqual([0,3,2,3,4,5,3,7,8,9,10,11,12,13,14,15]);
+            org.y = 0;
+            expect(ops1.onMyY(0x0cffffff, 0, org)).toEqual(1); // v15=myX()
+            expect(ops1.vars).toEqual([0,3,2,3,4,5,3,7,8,9,10,11,12,13,14,0]);
+
+            OConfig.codeBitsPerVar = bpv;
+            ops1.destroy();
+        });
     });
 });
