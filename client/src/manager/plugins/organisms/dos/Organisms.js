@@ -12,6 +12,7 @@
  */
 const BaseOrganisms    = require('./../Organisms');
 const Organism         = require('./Organism');
+const OEVENTS          = require('./../Organism').EVENTS;
 const Config           = require('./../../../../share/Config').Config;
 const OConfig          = require('./../Config');
 const EVENTS           = require('./../../../../share/Events').EVENTS;
@@ -104,6 +105,7 @@ class Organisms extends BaseOrganisms {
         org.on(EVENTS.EAT, this._onEat.bind(this));
         org.on(EVENTS.STEP, this._onStep.bind(this));
         org.on(EVENTS.CHECK_AT, this._onCheckAt.bind(this));
+        org.on(OEVENTS.DESTROY, this._onOrgDestroy.bind(this));
     }
 
     /**
@@ -238,6 +240,12 @@ class Organisms extends BaseOrganisms {
             ret.ret = this.parent.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
         } else {
             ret.ret = ORGANISM;
+        }
+    }
+
+    _onOrgDestroy(org) {
+        if (org.energy > 0) {
+            this.parent.world.setDot(org.x, org.y, org.energy);
         }
     }
 

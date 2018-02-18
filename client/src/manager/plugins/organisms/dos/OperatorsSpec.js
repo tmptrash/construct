@@ -646,7 +646,7 @@ describe("client/src/organism/OperatorsDos", () => {
             expect(org.y).toBe(4);
         });
 
-        it("Checking step right with no free space on the left", () => {
+        it("Checking step right with no free space on the right", () => {
             org.x = 3;
             org.y = 4;
             org.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
@@ -678,6 +678,68 @@ describe("client/src/organism/OperatorsDos", () => {
             expect(ops1.vars).toEqual([0,4,2,3,4,5,6,7,8,9,10,11,12,13,14,15]);
             expect(org.x).toBe(4);
             expect(org.y).toBe(4);
+
+            OConfig.codeBitsPerVar = bpv;
+            ops1.destroy();
+        });
+    });
+
+    describe('onStepUp() method', () => {
+        let   org;
+        let   ops;
+        const w = Config.worldWidth;
+        const h = Config.worldHeight;
+
+        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
+        afterEach (() => {ops.destroy(); org.destroy(); Config.worldHeight = h; Config.worldWidth = w});
+
+        it("Checking step up", () => {
+            org.x = 3;
+            org.y = 4;
+            org.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
+                ret.ret = 1;
+                ret.x   = x2;
+                ret.y   = y2;
+                expect(x1 === 3 && y1 === 4 && x2 === 3 && y2 === 3).toBe(true);
+            });
+            expect(ops.onStepUp(0x0a1fffff, 0, org)).toEqual(1); // v0=stepUp();
+            expect(ops.vars).toEqual([3,1,2,3]);
+            expect(org.x).toBe(3);
+            expect(org.y).toBe(3);
+        });
+
+        it("Checking step up with no free space on above", () => {
+            org.x = 3;
+            org.y = 4;
+            org.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
+                ret.ret = 0;
+                ret.x   = x1;
+                ret.y   = y1;
+                expect(x1 === 3 && y1 === 4 && x2 === 3 && y2 === 3).toBe(true);
+            });
+            expect(ops.onStepUp(0x0a1fffff, 0, org)).toEqual(1); // v0=stepUp();
+            expect(ops.vars).toEqual([4,1,2,3]);
+            expect(org.x).toBe(3);
+            expect(org.y).toBe(4);
+        });
+
+        it("Checking step up with 4 bits per var", () => {
+            let bpv = OConfig.codeBitsPerVar;
+            OConfig.codeBitsPerVar = 4;
+            let ops1 = new OperatorsDos([1], [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], org);
+
+            org.x = 3;
+            org.y = 4;
+            org.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
+                ret.ret = 1;
+                ret.x   = x2;
+                ret.y   = y2;
+                expect(x1 === 3 && y1 === 4 && x2 === 3 && y2 === 3).toBe(true);
+            });
+            expect(ops1.onStepUp(0x0a1fffff, 0, org)).toEqual(1); // v1=stepUp();
+            expect(ops1.vars).toEqual([0,3,2,3,4,5,6,7,8,9,10,11,12,13,14,15]);
+            expect(org.x).toBe(3);
+            expect(org.y).toBe(3);
 
             OConfig.codeBitsPerVar = bpv;
             ops1.destroy();
