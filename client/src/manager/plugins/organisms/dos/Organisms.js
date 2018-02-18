@@ -10,13 +10,19 @@
  *
  * @author flatline
  */
-const BaseOrganisms = require('./../Organisms');
-const Organism      = require('./Organism');
-const Config        = require('./../../../../share/Config').Config;
-const OConfig       = require('./../Config');
-const EVENTS        = require('./../../../../share/Events').EVENTS;
-const Helper        = require('./../../../../../../common/src/Helper');
-const DIR           = require('./../../../../../../common/src/Directions').DIR;
+const BaseOrganisms    = require('./../Organisms');
+const Organism         = require('./Organism');
+const Config           = require('./../../../../share/Config').Config;
+const OConfig          = require('./../Config');
+const EVENTS           = require('./../../../../share/Events').EVENTS;
+const Helper           = require('./../../../../../../common/src/Helper');
+const DIR              = require('./../../../../../../common/src/Directions').DIR;
+/**
+ * {Number} World object types
+ */
+const EMPTY            = 0;
+const ENERGY           = 1;
+const ORGANISM         = 2;
 /**
  * {Function} Is created to speed up this function call. constants are run
  * much faster, then Helper.normalize()
@@ -27,7 +33,7 @@ const NORMALIZE_NO_DIR = Helper.normalizeNoDir;
  * {Function} Is created to speed up this function call. constants are run
  * much faster, then Helper.posId()
  */
-const POSID         = Helper.posId;
+const POSID            = Helper.posId;
 
 class Organisms extends BaseOrganisms {
     constructor(manager) {
@@ -97,6 +103,7 @@ class Organisms extends BaseOrganisms {
         org.on(EVENTS.GET_ENERGY, this._onGetEnergy.bind(this));
         org.on(EVENTS.EAT, this._onEat.bind(this));
         org.on(EVENTS.STEP, this._onStep.bind(this));
+        org.on(EVENTS.CHECK_AT, this._onCheckAt.bind(this));
     }
 
     /**
@@ -222,6 +229,16 @@ class Organisms extends BaseOrganisms {
         ret.x = x2;
         ret.y = y2;
         ret.ret = +this.move(x1, y1, x2, y2, org);
+    }
+
+    _onCheckAt(x, y, ret) {
+        [x, y] = NORMALIZE_NO_DIR(x, y);
+
+        if (typeof(this.parent.positions[POSID(x, y)]) === 'undefined') {
+            ret.ret = this.parent.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
+        } else {
+            ret.ret = ORGANISM;
+        }
     }
 
     /**

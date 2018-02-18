@@ -38,11 +38,11 @@ class Code2String {
             this._onFromMem.bind(this),
             this._onToMem.bind(this),
             this._onMyX.bind(this),
-            this._onMyY.bind(this)
-            // this._onCheckLeft.bind(this),
-            // this._onCheckRight.bind(this),
-            // this._onCheckUp.bind(this),
-            // this._onCheckDown.bind(this)
+            this._onMyY.bind(this),
+            this._onCheckLeft.bind(this),
+            this._onCheckRight.bind(this),
+            this._onCheckUp.bind(this),
+            this._onCheckDown.bind(this)
         ];
         this._OPERATORS_CB_LEN = this._OPERATORS_CB.length;
         /**
@@ -209,21 +209,21 @@ class Code2String {
         return `v${Num.getVar0(num)}=myY()`;
     }
 
-    // _onCheckLeft(num) {
-    //     return `v${Num.getVar0(num)}=checkLeft()`;
-    // }
-    //
-    // _onCheckRight(num) {
-    //     return `v${Num.getVar0(num)}=checkRight()`;
-    // }
-    //
-    // _onCheckUp(num) {
-    //     return `v${Num.getVar0(num)}=checkUp()`;
-    // }
-    //
-    // _onCheckDown(num) {
-    //     return `v${Num.getVar0(num)}=checkDown()`;
-    // }
+    _onCheckLeft(num) {
+        return `v${Num.getVar0(num)}=checkLeft()`;
+    }
+
+    _onCheckRight(num) {
+        return `v${Num.getVar0(num)}=checkRight()`;
+    }
+
+    _onCheckUp(num) {
+        return `v${Num.getVar0(num)}=checkUp()`;
+    }
+
+    _onCheckDown(num) {
+        return `v${Num.getVar0(num)}=checkDown()`;
+    }
 
     /**
      * Returns offset for closing bracket of blocked operators like

@@ -77,11 +77,11 @@ class OperatorsDos extends Operators {
             this.onFromMem.bind(this),
             this.onToMem.bind(this),
             this.onMyX.bind(this),
-            this.onMyY.bind(this)
-            //this.onCheckLeft.bind(this),
-            //this.onCheckRight.bind(this),
-            //this.onCheckUp.bind(this),
-            //this.onCheckDown.bind(this)
+            this.onMyY.bind(this),
+            this.onCheckLeft.bind(this),
+            this.onCheckRight.bind(this),
+            this.onCheckUp.bind(this),
+            this.onCheckDown.bind(this)
         ];
         /**
          * {Object} Reusable object to pass it as a parameter to this.fire(..., ret)
@@ -161,7 +161,11 @@ class OperatorsDos extends Operators {
         const x    = (vars[Num.getVar1(num)] + .5) << 0;
         const y    = (vars[Num.getVar2(num)] + .5) << 0;
 
-        if (IN_WORLD(x, y)) {return this._checkAt(num, line, x, y)}
+        if (IN_WORLD(x, y)) {
+            this.obs.fire(EVENTS.GET_ENERGY, x, y, this._ret);
+            this.vars[Num.getVar0(num)] = this._ret.ret;
+            return ++line;
+        }
 
         vars[Num.getVar0(num)] = 0;
         return ++line;
@@ -189,13 +193,13 @@ class OperatorsDos extends Operators {
     onMyX(num, line, org) {this.vars[Num.getVar0(num)] = org.x; return ++line}
     onMyY(num, line, org) {this.vars[Num.getVar0(num)] = org.y; return ++line}
 
-    // onCheckLeft(num, line, org)  {return this._checkAt(num, line, org.x - 1, org.y)}
-    // onCheckRight(num, line, org) {return this._checkAt(num, line, org.x + 1, org.y)}
-    // onCheckUp(num, line, org)    {return this._checkAt(num, line, org.x, org.y - 1)}
-    // onCheckDown(num, line, org)  {return this._checkAt(num, line, org.x, org.y + 1)}
+    onCheckLeft(num, line, org)  {return this._checkAt(num, line, org.x - 1, org.y)}
+    onCheckRight(num, line, org) {return this._checkAt(num, line, org.x + 1, org.y)}
+    onCheckUp(num, line, org)    {return this._checkAt(num, line, org.x, org.y - 1)}
+    onCheckDown(num, line, org)  {return this._checkAt(num, line, org.x, org.y + 1)}
 
     _checkAt(num, line, x, y) {
-        this.obs.fire(EVENTS.GET_ENERGY, x, y, this._ret);
+        this.obs.fire(EVENTS.CHECK_AT, x, y, this._ret);
         this.vars[Num.getVar0(num)] = this._ret.ret;
         return ++line;
     }
