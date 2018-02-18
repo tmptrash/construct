@@ -194,11 +194,19 @@ class Code2String {
     }
 
     _onFromMem(num) {
-        return `v${Num.getVar0(num)}=fromMem(${Num.getBits(num, this._BITS_AFTER_ONE_VAR, OConfig.orgMemBits)})`;
+        if (Num.getBits(num, this._BITS_AFTER_TWO_VARS, 1)) {
+            return `v${Num.getVar0(num)}=fromMem(v${Num.getVar1(num)})`;
+        }
+
+        const offs = Num.getBits(num, this._BITS_AFTER_TWO_VARS + 1, OConfig.orgMemBits);
+        return `v${Num.getVar0(num)}=fromMem(${offs})`;
     }
 
     _onToMem(num) {
-        return `toMem(v${Num.getVar0(num)},${Num.getBits(num, this._BITS_AFTER_ONE_VAR, OConfig.orgMemBits)})`;
+        if (Num.getBits(num, this._BITS_AFTER_TWO_VARS, 1)) {
+            return `toMem(v${Num.getVar0(num)},v${Num.getVar1(num)})`;
+        }
+        return `toMem(v${Num.getVar0(num)},${Num.getBits(num, this._BITS_AFTER_TWO_VARS, OConfig.orgMemBits)})`;
     }
 
     _onMyX(num) {

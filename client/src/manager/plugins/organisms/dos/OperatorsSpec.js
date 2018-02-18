@@ -746,39 +746,109 @@ describe("client/src/organism/OperatorsDos", () => {
         });
     });
 
-    it("Checking onFromMem() method", () => {
-        let org = {mem: [1,2,3]};
-        let ops = new OperatorsDos([], [0, 1, 2, 3], new Observer());
+    describe('onStepDown() method', () => {
+        let   org;
+        let   ops;
+        const w = Config.worldWidth;
+        const h = Config.worldHeight;
 
-        expect(ops.onFromMem(0x0d1fffff, 0, org, 1)).toEqual(1); //v0=org.fromMem();
-        expect(ops.vars[0] === 3).toEqual(true);
-        expect(ops.vars[1] === 1).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
-        expect(ops.onFromMem(0x0d6fffff, 1, org, 2)).toEqual(2); //v1=org.fromMem();
-        expect(ops.vars[0] === 3).toEqual(true);
-        expect(ops.vars[1] === 2).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
-        expect(ops.onFromMem(0x0dffffff, 2, org, 3)).toEqual(3); //v3=org.fromMem();
-        expect(ops.vars[0] === 3).toEqual(true);
-        expect(ops.vars[1] === 2).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 1).toEqual(true);
+        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
+        afterEach (() => {ops.destroy(); org.destroy(); Config.worldHeight = h; Config.worldWidth = w});
 
-        ops.destroy();
+        it("Checking step down", () => {
+            org.x = 3;
+            org.y = 4;
+            org.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
+                ret.ret = 1;
+                ret.x   = x2;
+                ret.y   = y2;
+                expect(x1 === 3 && y1 === 4 && x2 === 3 && y2 === 5).toBe(true);
+            });
+            expect(ops.onStepDown(0x0a1fffff, 0, org)).toEqual(1); // v0=stepDown();
+            expect(ops.vars).toEqual([5,1,2,3]);
+            expect(org.x).toBe(3);
+            expect(org.y).toBe(5);
+        });
+
+        it("Checking step down with no free space below", () => {
+            org.x = 3;
+            org.y = 4;
+            org.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
+                ret.ret = 0;
+                ret.x   = x1;
+                ret.y   = y1;
+                expect(x1 === 3 && y1 === 4 && x2 === 3 && y2 === 5).toBe(true);
+            });
+            expect(ops.onStepDown(0x0a1fffff, 0, org)).toEqual(1); // v0=stepDown();
+            expect(ops.vars).toEqual([4,1,2,3]);
+            expect(org.x).toBe(3);
+            expect(org.y).toBe(4);
+        });
+
+        it("Checking step down with 4 bits per var", () => {
+            let bpv = OConfig.codeBitsPerVar;
+            OConfig.codeBitsPerVar = 4;
+            let ops1 = new OperatorsDos([1], [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], org);
+
+            org.x = 3;
+            org.y = 4;
+            org.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
+                ret.ret = 1;
+                ret.x   = x2;
+                ret.y   = y2;
+                expect(x1 === 3 && y1 === 4 && x2 === 3 && y2 === 5).toBe(true);
+            });
+            expect(ops1.onStepDown(0x0a1fffff, 0, org)).toEqual(1); // v1=stepDown();
+            expect(ops1.vars).toEqual([0,5,2,3,4,5,6,7,8,9,10,11,12,13,14,15]);
+            expect(org.x).toBe(3);
+            expect(org.y).toBe(5);
+
+            OConfig.codeBitsPerVar = bpv;
+            ops1.destroy();
+        });
     });
-    it("Checking onFromMem() method without memory", () => {
-        let org = {mem: []};
-        let ops = new OperatorsDos([], [7, 1, 2, 3], new Observer());
 
-        expect(ops.onFromMem(0x0d1fffff, 0, org, 1)).toEqual(1); //v0=org.fromMem();
-        expect(ops.vars[0] === 0).toEqual(true);
-        expect(ops.vars[1] === 1).toEqual(true);
-        expect(ops.vars[2] === 2).toEqual(true);
-        expect(ops.vars[3] === 3).toEqual(true);
+    describe('onFromMem() method', () => {
+        let   org;
+        let   ops;
+        const mbits = OConfig.orgMemBits;
+        OConfig.orgMemBits = 2;
 
-        ops.destroy();
+        beforeEach(() => {org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
+        afterEach (() => {ops.destroy(); org.destroy()});
+        afterAll(() => OConfig.orgMemBits = mbits);
+
+        it("Checking getting value by constant", () => {
+            org.mem.splice(0, org.mem.length, ...[1,2,3,4]);
+            expect(ops.onFromMem(0x0b10ffff, 0, org)).toEqual(1); //v0=fromMem();
+            expect(ops.vars).toEqual([1,1,2,3]);
+
+            org.mem.splice(0, org.mem.length, ...[0,1,2,3]);
+            expect(ops.onFromMem(0x0b50ffff, 0, org)).toEqual(1); //v1=fromMem();
+            expect(ops.vars).toEqual([1,0,2,3]);
+        });
+
+        it("Checking getting value by variable value", () => {
+            org.mem.splice(0, org.mem.length, ...[1,2,3,4]);
+            expect(ops.onFromMem(0x0b1fffff, 0, org)).toEqual(1); //v0=fromMem();
+            expect(ops.vars).toEqual([2,1,2,3]);
+
+            org.mem.splice(0, org.mem.length, ...[0,1,2,3]);
+            expect(ops.onFromMem(0x0b58ffff, 0, org)).toEqual(1); //v1=fromMem();
+            expect(ops.vars).toEqual([2,1,2,3]);
+        });
+
+        it("Checking getting value by variable floating value", () => {
+            ops.vars.splice(0, ops.vars.length, ...[.1,3.2,.3,.4]);
+            org.mem.splice(0, org.mem.length, ...[1,2,3,4]);
+            expect(ops.onFromMem(0x0b1fffff, 0, org)).toEqual(1); //v0=fromMem();
+            expect(ops.vars).toEqual([4,3.2,.3,.4]);
+
+            ops.vars.splice(0, ops.vars.length, ...[.1,3.2,.3,.4]);
+            org.mem.splice(0, org.mem.length, ...[0,1,2,3]);
+            expect(ops.onFromMem(0x0b58ffff, 0, org)).toEqual(1); //v1=fromMem();
+            expect(ops.vars).toEqual([.1,3,.3,.4]);
+        });
     });
 
     it("Checking onToMem() method", () => {

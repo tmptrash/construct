@@ -120,7 +120,7 @@ class Mutator {
         const probIndex = Helper.probIndex;
         const mTypes    = this._MUTATION_TYPES;
         const maxSize   = OConfig.codeMaxSize;
-        let   mutations = Math.round(vm.size * org.mutationPercent) || 1;
+        let   mutations = ((vm.size * org.mutationPercent + .5) << 0) || 1;
         let   type;
 
         for (let i = 0; i < mutations; i++) {

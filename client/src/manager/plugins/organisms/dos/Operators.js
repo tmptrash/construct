@@ -182,11 +182,23 @@ class OperatorsDos extends Operators {
     onStepDown(num, line, org)  {this.vars[Num.getVar0(num)] = this._step(org, org.x, org.y, org.x, org.y + 1).y; return ++line}
 
     onFromMem(num, line, org) {
-        this.vars[Num.getVar0(num)] = org.mem[Num.getBits(num, this._BITS_AFTER_ONE_VAR, OConfig.orgMemBits)];
+        if (Num.getBits(num, this._BITS_AFTER_TWO_VARS, 1)) {
+            const offs = (this.vars[Num.getVar1(num)] + .5) << 0;
+            this.vars[Num.getVar0(num)] = org.mem[offs >= org.mem.length || offs < 0 ? 0 : offs];
+            return ++line;
+        }
+
+        this.vars[Num.getVar0(num)] = org.mem[Num.getBits(num, this._BITS_AFTER_TWO_VARS + 1, OConfig.orgMemBits)];
         return ++line;
     }
     onToMem(num, line, org) {
-        org.mem[Num.getBits(num, this._BITS_AFTER_ONE_VAR, OConfig.orgMemBits)] = this.vars[Num.getVar0(num)];
+        if (Num.getBits(num, this._BITS_AFTER_TWO_VARS, 1)) {
+            const offs = (this.vars[Num.getVar0(num)] + .5) << 0;
+            org.mem[offs >= org.mem.length || offs < 0 ? 0 : offs] = this.vars[Num.getVar1(num)];
+            return ++line;
+        }
+
+        org.mem[Num.getBits(num, this._BITS_AFTER_TWO_VARS + 1, OConfig.orgMemBits)] = this.vars[Num.getVar0(num)];
         return ++line;
     }
 

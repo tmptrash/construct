@@ -247,7 +247,7 @@ class Organism extends Observer {
 
     _updateColor(changes) {
         this._colorIndex += (changes - this._changes);
-        this._color       = Organism._getColor(Math.round(this._colorIndex / Num.MAX_BITS));
+        this._color       = Organism._getColor((this._colorIndex / Num.MAX_BITS + .5) << 0);
     }
 
     _updateClone() {

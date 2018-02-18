@@ -82,7 +82,7 @@ class Organisms extends BaseOrganisms {
         //
         // Clone percent is always 0.5
         //
-        let   energy      = (((orgEnergy * 0.5) + 0.5) << 1) >>> 1;  // analog of Math.round()
+        let   energy      = (orgEnergy * .5 + .5) << 0;  // analog of Math.round()
         //
         // This is very special/rare case, when organisms cheating by creating
         // ancestors and put all energy into them at the same time resetting
@@ -268,7 +268,7 @@ class Organisms extends BaseOrganisms {
             //
             org.x = x;
             org.y = y;
-            const energy = (((org.energy * OConfig.orgStepEnergySpendPercent) + 0.5) << 1) >>> 1;
+            const energy = (org.energy * OConfig.orgStepEnergySpendPercent + .5) << 0;
             (org.energy <= energy) && this.parent.fire(EVENTS.KILL_STEP_IN, org);
             org.energy -= energy;
         }
