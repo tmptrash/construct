@@ -75,6 +75,9 @@ class Energy {
         const positions = this._manager.positions;
         const dot       = world.getDot(x, y);
 
+        if (x < 0 || x >= Config.worldWidth)  {this._lastX = -1; return}
+        if (y < 0 || y >= Config.worldHeight) {this._lastY = -1; return}
+
         if (typeof(positions[POSID(x, y)]) === 'undefined') {
             dot === 0 && world.setDot(x, y, Config.worldEnergyInDot);
             this._lastX = x + Helper.rand(3) - 1;
