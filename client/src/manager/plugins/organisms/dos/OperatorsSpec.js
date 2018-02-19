@@ -904,7 +904,6 @@ describe("client/src/organism/OperatorsDos", () => {
         });
     });
 
-
     describe('onMyX() method', () => {
         let org;
         let ops;

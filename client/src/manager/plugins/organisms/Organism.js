@@ -252,10 +252,14 @@ class Organism extends Observer {
 
     _updateClone() {
         if ((this._energy > this._nextClone) && this.vm.size > 0) {
-            const ratio  = this._energy / this._nextClone;
-            const clones = Math.floor(ratio);
-            if (this.fire(CLONE, this, clones) && this._alive) {
-                this._nextClone = this._energy + OConfig.orgCloneMinEnergy * (this.vm.size || 1) * ((1 - (ratio - clones)) || 1);
+            const minEnergy = OConfig.orgCloneMinEnergy * (this.vm.size || 1);
+            const clones    = Math.ceil((this._energy - this._nextClone) / minEnergy);
+            const prob      = (this._energy / this._nextClone) - 1.0;
+            const ret       = {ret: false};
+
+            this.fire(CLONE, this, clones, prob, ret);
+            if (ret.ret && this._alive) {
+                this._nextClone = this._energy + minEnergy;
             }
         }
     }

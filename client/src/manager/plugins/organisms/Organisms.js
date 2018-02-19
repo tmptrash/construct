@@ -267,13 +267,15 @@ class Organisms extends Configurable {
         this._parent.fire(EVENTS.CODE_RUN, lines, org);
     }
 
-    _onCloneOrg(org, amount) {
+    _onCloneOrg(org, amount, prob, ret) {
         const maxOrgs     = OConfig.orgMaxOrgs;
-        const killOnClone = OConfig.orgKillOnClone;
+        const killOnClone = OConfig.orgKillOnClone || Math.random() < prob;
+        const orgsAvail   = Math.min(killOnClone ? amount : maxOrgs - this.organisms.size, amount);
 
-        for (let i = 0; i < amount; i++) {
+        ret.ret = false;
+        for (let i = 0; i < orgsAvail; i++) {
             if (org.alive && (killOnClone || this.organisms.size < maxOrgs)) {
-                this._clone(org)
+                ret.ret = this._clone(org);
             }
         }
 
@@ -282,8 +284,6 @@ class Organisms extends Configurable {
         if (killOnClone && orgAmount >= maxOrgs) {
             for (let i = maxOrgs; i < orgAmount; i++) {this.randOrg().destroy()}
         }
-
-        return true;
     }
 
     _killInTour() {
