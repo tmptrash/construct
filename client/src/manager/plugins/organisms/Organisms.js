@@ -73,13 +73,6 @@ class Organisms extends Configurable {
      */
     createEmptyOrg(...args) {}
 
-    /**
-     * Is called at the end of run() method
-     * @param {Organism} org Current organism
-     * @abstract
-     */
-    onOrganism(org) {}
-
     constructor(manager) {
         super(manager, {Config, cfg: OConfig}, {getAmount: ['_apiGetAmount', 'Shows amount of organisms within current Client(Manager)']});
         this.organisms      = manager.organisms;
@@ -88,6 +81,8 @@ class Organisms extends Configurable {
         this.world          = manager.world;
 
         this._mutator       = new Mutator(manager, this);
+        this._maxEnergy     = 0;
+        this._oldMaxEnergy  = 0;
         this._onIterationCb = this._onIteration.bind(this);
         this._onLoopCb      = this._onLoop.bind(this);
 
@@ -109,6 +104,20 @@ class Organisms extends Configurable {
         this._onLoopCb      = null;
 
         super.destroy();
+    }
+
+    /**
+     * Is called at the end of run() method
+     * @param {Organism} org Current organism
+     * @abstract
+     */
+    onOrganism(org) {
+        if (org.energy > this._oldMaxEnergy) {this._oldMaxEnergy = org.energy}
+
+        if (org === this.organisms.last.val) {
+            this._maxEnergy    = this._oldMaxEnergy;
+            this._oldMaxEnergy = 0;
+        }
     }
 
     addOrgHandlers(org) {
@@ -175,13 +184,12 @@ class Organisms extends Configurable {
      * @param {Number} stamp Time stamp of current iteration
      */
     _onIteration(counter, stamp) {
-        const onOrganism = this.onOrganism.bind(this);
-        let   item       = this.organisms.first;
+        let   item = this.organisms.first;
         let   org;
 
         while (org = item && item.val) {
             org.run();
-            onOrganism(org);
+            this.onOrganism(org);
             item = item.next;
         }
 
@@ -254,7 +262,7 @@ class Organisms extends Configurable {
             }
         }
         this.organisms.del(org.item);
-        this.world.setDot(org.x, org.y, 0);
+        this.world.setDot(org.x, org.y, org.energy > 0 ? org.energy : 0);
         this.onAfterKillOrg(org);
         this.parent.fire(EVENTS.KILL, org);
         //Console.info(org.id, ' die');
@@ -267,23 +275,13 @@ class Organisms extends Configurable {
         this._parent.fire(EVENTS.CODE_RUN, lines, org);
     }
 
-    _onCloneOrg(org, amount, prob, ret) {
-        const maxOrgs     = OConfig.orgMaxOrgs;
-        const killOnClone = OConfig.orgKillOnClone || Math.random() < prob;
-        const orgsAvail   = Math.min(killOnClone ? amount : maxOrgs - this.organisms.size, amount);
-
-        ret.ret = false;
-        for (let i = 0; i < orgsAvail; i++) {
-            if (org.alive && (killOnClone || this.organisms.size < maxOrgs)) {
-                ret.ret = this._clone(org);
-            }
-        }
-
-        //if (OConfig.orgKillOnClone && ret && orgAmount + 1 >= maxOrgs) {this._killInTour()}
+    _onCloneOrg(org) {
+        const maxOrgs   = OConfig.orgMaxOrgs;
         const orgAmount = this.organisms.size;
-        if (killOnClone && orgAmount >= maxOrgs) {
-            for (let i = maxOrgs; i < orgAmount; i++) {this.randOrg().destroy()}
-        }
+
+        //if (OConfig.orgKillOnClone && orgAmount >= maxOrgs) {this._killInTour()}
+        if ((OConfig.orgKillOnClone || Math.random() <= org.energy / (this._maxEnergy * orgAmount)) && orgAmount >= maxOrgs) {this.randOrg().destroy()}
+        if (org.alive && this.organisms.size < maxOrgs) {this._clone(org)}
     }
 
     _killInTour() {

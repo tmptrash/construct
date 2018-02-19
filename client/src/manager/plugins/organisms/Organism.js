@@ -80,7 +80,6 @@ class Organism extends Observer {
         this._x           = x;
         this._y           = y;
         this._iterations  = -1;
-        this._nextClone   = this._energy + OConfig.orgCloneMinEnergy;
         this._changes     = 0;
         this._alive       = alive;
         this._item        = item;
@@ -149,7 +148,6 @@ class Organism extends Observer {
             alive               : this._alive,
             // 'item' will be added after insertion
             iterations          : this._iterations,
-            nextClone           : this._nextClone,
             fnId                : this._fnId,
             vm                  : this.vm.serialize(),
             energy              : this._energy,
@@ -180,7 +178,6 @@ class Organism extends Observer {
         this._alive                = json.alive;
         // 'item' will be added after insertion
         this._iterations           = json.iterations;
-        this._nextClone            = json.nextClone;
         this._fnId                 = json.fnId;
         this.vm.unserialize(json.vm);
         this._energy               = json.energy;
@@ -213,7 +210,6 @@ class Organism extends Observer {
         this.vm && this.vm.destroy();
         this.vm             = null;
         this._operatorCls   = null;
-        this._nextClone     = null;
         this._iterations    = -1;
 
         super.destroy();
@@ -251,16 +247,8 @@ class Organism extends Observer {
     }
 
     _updateClone() {
-        if ((this._energy > this._nextClone) && this.vm.size > 0) {
-            const minEnergy = OConfig.orgCloneMinEnergy * (this.vm.size || 1);
-            const clones    = Math.ceil((this._energy - this._nextClone) / minEnergy);
-            const prob      = (this._energy / this._nextClone) - 1.0;
-            const ret       = {ret: false};
-
-            this.fire(CLONE, this, clones, prob, ret);
-            if (ret.ret && this._alive) {
-                this._nextClone = this._energy + minEnergy;
-            }
+        if ((this._energy > OConfig.orgCloneMinEnergy * (this.vm.size || 1)) && this.vm.size > 0) {
+            this.fire(CLONE, this);
         }
     }
 

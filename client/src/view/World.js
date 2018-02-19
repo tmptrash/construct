@@ -103,7 +103,7 @@ class World extends Observer {
         ];
 
         for (let i = 0, j = 0; i < 8; i++) {
-            if (this.getDot(positions[j], positions[j + 1]) === 0) {
+            if (this.getDot(positions[j], positions[j + 1]) === 0 && x >= 0 && x < this._width && y >= 0 && y < this._height) {
                 return {x: positions[j], y: positions[j + 1]};
             }
             j += 2;
