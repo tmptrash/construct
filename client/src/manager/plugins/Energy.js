@@ -8,9 +8,13 @@ const Config  = require('./../../share/Config').Config;
 const Console = require('./../../share/Console');
 const EVENTS  = require('./../../share/Events').EVENTS;
 
+const POSID   = Helper.posId;
+
 class Energy {
     constructor(manager) {
         this._manager       = manager;
+        this._lastX         = -1;
+        this._lastY         = -1;
         this._onIterationCb = this._onIteration.bind(this);
 
         Helper.override(manager, 'onIteration', this._onIterationCb);
@@ -23,6 +27,7 @@ class Energy {
     }
 
     _onIteration(counter) {
+        this._updateAliveEnergy();
         if (counter % Config.worldEnergyCheckPeriod !== 0 || Config.worldEnergyCheckPeriod === 0) {return}
         if (counter === 0) {
             this._updateEnergy(Config.worldEnergyDots, Config.worldEnergyInDot);
@@ -61,6 +66,23 @@ class Energy {
             }
         }
         this._manager.fire(EVENTS.UPDATE_ENERGY);
+    }
+
+    _updateAliveEnergy() {
+        const x         = this._lastX >= 0 ? this._lastX : Helper.rand(Config.worldWidth);
+        const y         = this._lastY >= 0 ? this._lastY : Helper.rand(Config.worldHeight);
+        const world     = this._manager.world;
+        const positions = this._manager.positions;
+        const dot       = world.getDot(x, y);
+
+        if (typeof(positions[POSID(x, y)]) === 'undefined') {
+            dot === 0 && world.setDot(x, y, Config.worldEnergyInDot);
+            this._lastX = x + Helper.rand(3) - 1;
+            this._lastY = y + Helper.rand(3) - 1;
+            if (world.getDot(this._lastX, this._lastY) === 0) {world.setDot(this._lastX, this._lastY, dot)}
+            return;
+        }
+        this._lastX = this._lastY = -1;
     }
 }
 
