@@ -2,58 +2,61 @@
 // This spec covers two classes "Organism" and "OrganismDos"
 //
 describe("client/src/organism/OrganismDos", () => {
-    const eq          = require('lodash/isEqual');
+    const _fill       = require('lodash/fill');
     const OrganismDos = require('./Organism');
     const OConfig     = require('./../../../../manager/plugins/organisms/Config');
-    const api         = require('./../../../../share/Config').api;
 
     it("Checking organism creation", () => {
-        let   org  = new OrganismDos(0, 1, 2, true, null, () => {});
+        let org = new OrganismDos('0', 1, 2, true, null);
 
-        expect(org.id).toEqual(0);
+        expect(org.id).toEqual('0');
         expect(org.x).toEqual(1);
         expect(org.y).toEqual(2);
         expect(org.item).toEqual(null);
         expect(org.alive).toEqual(true);
-        expect(eq(org.mutationProbs, OConfig.orgMutationProbs)).toEqual(true);
+        expect(org.mutationProbs).toEqual(OConfig.orgMutationProbs);
+        expect(org.mutationProbs !== OConfig.orgMutationProbs).toEqual(true);
         expect(org.mutationPeriod === OConfig.orgRainMutationPeriod).toEqual(true);
         expect(org.mutationPercent === OConfig.orgRainMutationPercent).toEqual(true);
-        expect(org.cloneMutationPercent === OConfig.orgCloneMutationPercent).toEqual(true);
-        expect(org.changes === 1).toEqual(true);
-        expect(org.energy === OConfig.orgStartEnergy).toEqual(true);
-        expect(org.color === OConfig.orgStartColor).toEqual(true);
-        expect(org.mem.length === 0).toEqual(true);
-        expect(org.iterations === 0).toEqual(true);
+        expect(org.mem.length).toBe(Math.pow(2, OConfig.orgMemBits));
+        expect(org.mem).toEqual(_fill(new Array(Math.pow(2, OConfig.orgMemBits)), 0));
+        expect(org.changes).toBe(0);
+        expect(org.energy).toBe(OConfig.orgStartEnergy);
+        expect(org.iterations).toBe(-1);
 
         org.destroy();
     });
 
     it("Checking organism creation from parent", () => {
-        const parent = new OrganismDos(1, 3, 4, true, null, () => {});
+        const memSize = OConfig.orgMemBits;
+        const parent  = new OrganismDos('1', 3, 4, true, null);
+
+        OConfig.orgMemBits = 2;
         parent.vm.insertLine();
         parent.energy               = 123;
         parent.changes              = 0xaabbcc;
-        parent._mutationProbs       = [5,8,1,10,1,2,32,7];
-        parent.cloneMutationPercent = 0.1;
+        parent.mutationProbs.splice(0, parent.mutationProbs.length, ...[5,8,1,10,1,2,32,7]);
         parent.mutationPeriod       = 145;
         parent.mutationPercent      = 0.2;
-        parent._mem                 = [1,2,4,3];
+        parent.mem.splice(0, parent.mem.length, ...[1,2,4,3]);
 
-        let   org    = new OrganismDos(0, 1, 2, true, null, () => {}, parent);
+        let org = new OrganismDos('0', 1, 2, true, null, parent);
 
-        expect(org.vm.code[0] === parent.vm.code[0]).toEqual(true);
-        expect(org.vm.size === parent.vm.size).toEqual(true);
-        expect(org.energy === parent.energy).toEqual(true);
-        expect(org.color === parent.color).toEqual(true);
-        expect(eq(org.mutationProbs, parent.mutationProbs)).toEqual(true);
-        expect(org.cloneMutationPercent === parent.cloneMutationPercent).toEqual(true);
-        expect(org.mutationPeriod === parent.mutationPeriod).toEqual(true);
-        expect(org.mutationPercent === parent.mutationPercent).toEqual(true);
-        expect(eq(org.mem, parent.mem)).toEqual(true);
-        expect(org.changes === 1).toEqual(true);
-        expect(org.iterations === 0).toEqual(true);
+        expect(org.vm.code).toEqual(parent.vm.code);
+        expect(org.vm.size).toEqual(parent.vm.size);
+        expect(org.energy).toEqual(parent.energy);
+        expect(org.color).toEqual(parent.color);
+        expect(org.mutationProbs).toEqual(parent.mutationProbs);
+        expect(org.mutationPeriod).toEqual(parent.mutationPeriod);
+        expect(org.mutationPercent).toEqual(parent.mutationPercent);
+        expect(org.mem).toEqual(parent.mem);
+        expect(org.changes).toEqual(0);
+        expect(org.iterations).toEqual(-1);
+        expect(org.alive).toEqual(true);
+        expect(org.item).toEqual(null);
 
         org.destroy();
+        OConfig.orgMemBits = memSize;
     });
 
     it("Checking organism coordinates", () => {
