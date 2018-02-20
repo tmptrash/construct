@@ -67,7 +67,7 @@ class Manager extends Observer {
         this._codeRuns     = 0;
 
         this._world        = new World(Config.worldWidth, Config.worldHeight);
-        this._canvas       = hasView && new Canvas(Config.worldWidth, Config.worldHeight, Config.worldNoScrolls) || null;
+        this._canvas       = hasView && new Canvas(Config.worldWidth, Config.worldHeight) || null;
         this._visualized   = true;
         this._running      = false;
         this._active       = false;

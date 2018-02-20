@@ -77,23 +77,24 @@ ClientConfig.init({
      */
     worldEnergyInDot: 0x00ddff,
     /**
+     * {Boolean} Analog of trees. This type of energy is growing all the time
+     * using random walk algorithm.
+     */
+    worldCleverEnergy: true,
+    /**
      * {Number} Minimum percent of energy in current world. Under percent i mean
      * percent from entire world area (100%). If the energy will be less
      * or equal then this percent, then new random energy should be added.
      * Should be less then 100.0 and more and equal to 0.0. 0.17 is a
      * normal percent for this system.
      */
-    worldEnergyCheckPercent: 0.1,
+    worldEnergyCheckPercent: 0.05,
     /**
      * {Number} An amount of iteration, after which we have to check world energy
      * amount. Works in pair with worldEnergyCheckPercent. May be 0 if
      * you want to disable it
      */
-    worldEnergyCheckPeriod: 1000,
-    /**
-     * {Boolean} Turns on/off scroll bars in a 2D canvas
-     */
-    worldNoScrolls: true,
+    worldEnergyCheckPeriod: 5000,
     /**
      * {Number} Zoom speed 0..1
      */

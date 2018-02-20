@@ -8,7 +8,7 @@ const Helper  = require('./../../../common/src/Helper');
 const Config  = require('./../share/Config').Config;
 
 class Canvas {
-    constructor(width, height, noScrolls = false) {
+    constructor(width, height) {
         const id  = 'world';
         const doc = document;
 
@@ -26,7 +26,7 @@ class Canvas {
         this._panZoom   = null;
         this._fullEl    = this._createFullScreen();
 
-        this._prepareDom(noScrolls);
+        this._prepareDom();
         this._initPanZoomLib();
         this.clear();
         window.requestAnimationFrame(this._animate);
@@ -118,7 +118,7 @@ class Canvas {
         }
     }
 
-    _prepareDom(noScrolls) {
+    _prepareDom() {
         const bodyEl = document.body;
         const htmlEl = document.querySelector('html');
 
@@ -139,7 +139,7 @@ class Canvas {
         //
         // This style hides scroll bars on full screen 2d canvas
         //
-        if (noScrolls) {document.querySelector('html').style.overflow = 'hidden'}
+        document.querySelector('html').style.overflow = 'hidden';
     }
 
     /**
