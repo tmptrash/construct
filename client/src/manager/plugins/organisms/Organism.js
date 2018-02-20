@@ -32,8 +32,8 @@ class Organism extends Observer {
      * @param {Number} index Color index. Starts from 0 till Number.MAX_VALUE
      * @returns {Number} RGB value
      */
-    static _getColor(index) {
-        const frequency = 0.01;
+    static getColor(index) {
+        const frequency = 0.0001;
 
         const r = Math.sin(frequency * index    ) * 127 + 128;
         const g = Math.sin(frequency * index + 2) * 127 + 128;
@@ -215,7 +215,7 @@ class Organism extends Observer {
         this._energy                = OConfig.orgStartEnergy;
         this._startEnergy           = OConfig.orgStartEnergy;
         this._colorIndex            = OConfig.orgStartColor * Num.MAX_BITS;
-        this._color                 = Organism._getColor(this._colorIndex);
+        this._color                 = Organism.getColor(this._colorIndex);
         this._mutationProbs         = OConfig.orgMutationProbs.slice();
         this._mutationPeriod        = OConfig.orgRainMutationPeriod;
         this._mutationPercent       = OConfig.orgRainMutationPercent;
@@ -238,7 +238,7 @@ class Organism extends Observer {
 
     _updateColor(changes) {
         this._colorIndex += (changes - this._changes);
-        this._color       = Organism._getColor((this._colorIndex / Num.MAX_BITS + .5) << 0);
+        this._color       = Organism.getColor((this._colorIndex / Num.MAX_BITS + .5) << 0);
     }
 
     _updateClone() {
