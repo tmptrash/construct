@@ -109,10 +109,10 @@ class Organisms extends Configurable {
     /**
      * Is called at the end of run() method
      * @param {Organism} org Current organism
-     * @abstract
      */
     onOrganism(org) {
-        if (org.energy > this._oldMaxEnergy) {this._oldMaxEnergy = org.energy}
+        const energy = org.energy / org.vm.size;
+        if (energy > this._oldMaxEnergy) {this._oldMaxEnergy = energy}
 
         if (org === this.organisms.last.val) {
             this._maxEnergy    = this._oldMaxEnergy;
@@ -189,7 +189,7 @@ class Organisms extends Configurable {
 
         while (org = item && item.val) {
             org.run();
-            this.onOrganism(org);
+            org.alive && this.onOrganism(org);
             item = item.next;
         }
 
@@ -276,12 +276,18 @@ class Organisms extends Configurable {
     }
 
     _onCloneOrg(org) {
-        const maxOrgs   = OConfig.orgMaxOrgs;
-        const orgAmount = this.organisms.size;
+        //const maxOrgs   = OConfig.orgMaxOrgs;
+        //const orgAmount = this.organisms.size;
 
         //if (OConfig.orgKillOnClone && orgAmount >= maxOrgs) {this._killInTour()}
-        if ((OConfig.orgKillOnClone || Math.random() <= org.energy / (this._maxEnergy * orgAmount)) && orgAmount >= maxOrgs) {this.randOrg().destroy()}
-        if (org.alive && this.organisms.size < maxOrgs) {this._clone(org)}
+        //if (orgAmount >= maxOrgs && (OConfig.orgKillOnClone || Math.random() <= (org.energy / org.vm.size) / this._maxEnergy)) {this.randOrg().destroy()}
+        if (this.organisms.size < OConfig.orgMaxOrgs && this._clone(org)) {
+            //
+            // Decrease amount of energy after clone from parent and child
+            //
+            org.energy *= (1 - OConfig.orgCloneGrabEnergyPercent);
+            this.organisms.last.val.energy *= (1 - OConfig.orgCloneGrabEnergyPercent);
+        }
     }
 
     _killInTour() {

@@ -55,6 +55,10 @@ const Config = {
      */
     orgCloneMinEnergy: 10000,
     /**
+     * {Number} Percent of energy, which will be grabbed from organism after clone
+     */
+    orgCloneGrabEnergyPercent: .8,
+    /**
      * {Boolean} true means, that one organism will be killed just after new
      * organism has cloned. If population is less then orgMaxOrgs, then no killing
      * will be provided. Killing of organism will be done using random organism
@@ -128,11 +132,11 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 500,
+    orgMaxOrgs: 2000,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 500,
+    orgStartAmount: 2000,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created

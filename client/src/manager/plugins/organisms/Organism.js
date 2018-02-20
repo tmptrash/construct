@@ -119,15 +119,10 @@ class Organism extends Observer {
     run() {
         this._iterations++;
         if (this.onBeforeRun() === false) {return true}
-        //
-        // IMPORTANT: cloning must be before onRun() to prevent
-        // IMPORTANT: app hang (very long loops), when organism
-        // IMPORTANT: eats itself)
-        //
-        this._alive && this._updateClone();
         const lines = this._alive ? this.onRun() : 0;
         if (this._alive) {
-            this._updateEnergy();
+            this._updateClone();
+            this._alive && this._updateEnergy();
             this._alive && this.fire(ITERATION, lines, this);
             this._alive && this._updateAge();
         }
@@ -247,7 +242,7 @@ class Organism extends Observer {
     }
 
     _updateClone() {
-        if ((this._energy > OConfig.orgCloneMinEnergy * (this.vm.size || 1)) && this.vm.size > 0) {
+        if ((this._energy > OConfig.orgCloneMinEnergy * (this.vm.size || 1)) && this.vm.size > 0 && this._alive) {
             this.fire(CLONE, this);
         }
     }

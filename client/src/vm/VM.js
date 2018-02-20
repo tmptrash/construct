@@ -101,7 +101,7 @@ class VM extends Observer {
         while (len > 0 && org.energy > 0) {
             operator    = code[line] >>> OFFS;
             line        = ops[operator](code[line], line, org, lines);
-            org.energy -= this._weights[operator];
+            org.energy -= (this._weights[operator] * lines);
             //
             // We found closing bracket '}' of some loop and have to return
             // to the beginning of operator (e.g.: for)
