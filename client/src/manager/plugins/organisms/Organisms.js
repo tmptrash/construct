@@ -262,7 +262,7 @@ class Organisms extends Configurable {
             }
         }
         this.organisms.del(org.item);
-        this.world.setDot(org.x, org.y, org.energy > 0 ? org.energy : 0);
+        this.world.setDot(org.x, org.y, 0);
         this.onAfterKillOrg(org);
         this.parent.fire(EVENTS.KILL, org);
         //Console.info(org.id, ' die');

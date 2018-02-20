@@ -144,8 +144,8 @@ const Config = {
      */
     orgStartEnergy: 10000000,
     /**
-     * {Number} Begin color of "empty". It's just an index of color. Starts from
-     * 0 and till Number.MAX_VALUE
+     * {Number} Begin color of "empty" organism. It's just an index of color.
+     * Starts from0 and till Number.MAX_VALUE
      */
     orgStartColor: 50,
     /**
