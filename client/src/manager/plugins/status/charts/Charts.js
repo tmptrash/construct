@@ -290,8 +290,8 @@ class Charts extends Status {
 
     _setProperty(chart, prop, val) {
         if (typeof(this._charts[chart]) === 'undefined') {return}
-        this._charts[chart][prop] = val;
         _has(this.cfg, `charts.${chart}.${prop}`) && (this.cfg.charts[chart][prop] = val);
+        this._charts[chart][prop] = val;
     }
 }
 

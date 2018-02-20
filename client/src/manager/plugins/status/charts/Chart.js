@@ -1,7 +1,7 @@
 /**
  * Draws one line chart using Google charts library. The purpose of
  * this class is to show dynamics of changing for some property. For
- * example: energy, iq or code size. update() method should obtain
+ * example: energy, age or code size. update() method should obtain
  * new portion of property data to draw on chart. Works only in browser.
  * Requires internet connection for google charts dynamic load.
  *
@@ -51,7 +51,7 @@ class Chart {
 
     set transparent(t) {this._el && (this._el.style.opacity = t)}
     set pos(p)         {this._updatePos(p)}
-    set active(a)      {this._cfg.active !== a && this._updateActive(a)}
+    set active(a)      {this._updateActive(a)}
 
     reset() {
         if (!this._ready) {return false}
@@ -73,7 +73,7 @@ class Chart {
         const googleLib  = window.google;
         const setReadyCb = () => {
             window.google.charts.load('current', {'packages': ['corechart']});
-            window.google.charts.setOnLoadCallback(() => this._cfg.active && cb());
+            window.google.charts.setOnLoadCallback(() => cb());
         };
         //
         // Google charts library has already loaded
@@ -96,15 +96,17 @@ class Chart {
     }
 
     _onReady() {
+        this._ready = true;
+        !this._data && (this._data = this._createDataTable());
+        if (!this._cfg.active || this._el) {return}
+
         document.body.appendChild(this._el = Helper.setStyles('DIV', {
             position: 'absolute',
             opacity : this._cfg.transparent
         }));
         this._updatePos(this._cfg.pos);
 
-        this._ready = true;
         this._chart = new window.google.visualization.LineChart(this._el);
-        !this._data && (this._data = this._createDataTable());
     }
 
     /**

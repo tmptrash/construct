@@ -27,7 +27,7 @@ class Energy {
     }
 
     _onIteration(counter) {
-        Config.worldCleverEnergy && this._updateAliveEnergy();
+        Config.worldCleverEnergy && this._updateCleverEnergy();
         if (counter % Config.worldEnergyCheckPeriod !== 0 || Config.worldEnergyCheckPeriod === 0) {return}
         if (counter === 0) {
             this._updateEnergy(Config.worldEnergyDots, Config.worldEnergyInDot);
@@ -68,7 +68,7 @@ class Energy {
         this._manager.fire(EVENTS.UPDATE_ENERGY);
     }
 
-    _updateAliveEnergy() {
+    _updateCleverEnergy() {
         const x         = this._lastX >= 0 ? this._lastX : Helper.rand(Config.worldWidth);
         const y         = this._lastY >= 0 ? this._lastY : Helper.rand(Config.worldHeight);
         const world     = this._manager.world;
