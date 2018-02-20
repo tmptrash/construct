@@ -144,8 +144,11 @@ class Charts extends Status {
         const ips    = `ips:${status.ips}`;
         const enrg   = `enrg:${status.eenergy}`;
         const code   = `cod:${status.code}`;
+        const age    = `age:${status.age}`;
+        const kill   = `kil:${status.kill}`;
+        const orgs   = `org:${status.orgs}`;
 
-        this._headerEl.textContent = `${man.clientId ? 'id:' + man.clientId : ''} ${conns === '' ? '' : 'con:' + conns} ${ips} ${enrg} ${code}`;
+        this._headerEl.textContent = `${man.clientId ? 'id:' + man.clientId : ''} ${conns === '' ? '' : 'con:' + conns} ${ips} ${enrg} ${code} ${age} ${kill} ${orgs}`;
     }
 
     _to12h(time) {

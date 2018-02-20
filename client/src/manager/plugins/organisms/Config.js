@@ -57,7 +57,7 @@ const Config = {
     /**
      * {Number} Percent of energy, which will be grabbed from organism after clone
      */
-    orgCloneGrabEnergyPercent: .8,
+    orgCloneGrabEnergyPercent: .5,
     /**
      * {Boolean} true means, that one organism will be killed just after new
      * organism has cloned. If population is less then orgMaxOrgs, then no killing
@@ -117,7 +117,7 @@ const Config = {
      * {Number} Percent of energy, which will be minused from organism after
      * stepping from one instance to another.
      */
-    orgStepEnergySpendPercent: 0.1,
+    orgStepEnergySpendPercent: .0,
     /**
      * {Number} Percent from orgMaxOrgs config, which is used for crossing borders
      * between clients/Managers. Entire amount of organisms within one client =
@@ -126,7 +126,7 @@ const Config = {
      * the border (every organism will be returned back, but there will not be free
      * space at that time). In this situation crossing organism just die during crossing.
      */
-    orgStepOverflowPercent: 0.1,
+    orgStepOverflowPercent: 0.2,
     /**
      * {Number} Maximum amount of organisms in a world. If some organism will
      * try to clone itself, when entire amount of organisms are equal
