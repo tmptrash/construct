@@ -140,7 +140,7 @@ class Organisms extends Configurable {
         const orgs = this.organisms;
         orgs.add(null);
         let   last = orgs.last;
-        let   org  = this.createEmptyOrg(++this._orgId + '', pos.x, pos.y, true, last, parent);
+        let   org  = this.createEmptyOrg(++this._orgId + '', pos.x, pos.y, last, parent);
 
         last.val = org;
         this.addOrgHandlers(org);
@@ -276,11 +276,13 @@ class Organisms extends Configurable {
     }
 
     _killInTour() {
-        let org1 = this.randOrg();
-        let org2 = this.randOrg();
+        let org1     = this.randOrg();
+        let org2     = this.randOrg();
         if (org1.energy < 1 || org2.energy < 1 || org1 === org2 || this.organisms.size < 1) {return false}
+        const winner = this._tournament(org1, org2);
+        if (winner === false) {return false}
 
-        if (this._tournament(org1, org2) === org2) {[org1, org2] = [org2, org1]}
+        if (winner === org2) {[org1, org2] = [org2, org1]}
         this.parent.fire(EVENTS.KILL_TOUR, org2);
         org2.destroy();
 
@@ -319,10 +321,12 @@ class Organisms extends Configurable {
         let org1 = Helper.rand(2) === 0 ? this._tournament() : this.randOrg();
         let org2 = Helper.rand(2) === 0 ? this._tournament() : this.randOrg();
 
-        if (org1.energy < 1 || org2.energy < 1) {return false}
+        if (org1 === false || org2 === false || org1.energy < 1 || org2.energy < 1) {return false}
         this._crossover(org1, org2);
         if (orgAmount + 1 >= OConfig.orgMaxOrgs) {
-            if (this._tournament(org1, org2) === org2) {[org1, org2] = [org2, org1]}
+            const winner = this._tournament(org1, org2);
+            if (winner === false) {return false}
+            if (winner === org2) {[org1, org2] = [org2, org1]}
             this.parent.fire(EVENTS.KILL_OVERFLOW, org2);
             org2.destroy();
         }

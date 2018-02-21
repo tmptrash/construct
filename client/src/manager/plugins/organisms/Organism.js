@@ -124,9 +124,9 @@ class Organism extends Observer {
         this._iterations++;
         if (this.onBeforeRun() === false) {return true}
         const lines = this._energy > 0 ? this.onRun() : 0;
+        this._updateEnergy();
         if (this._energy > 0) {
             this._updateClone();
-            this._energy > 0 && this._updateEnergy();
             this._energy > 0 && this.fire(ITERATION, lines, this);
             this._energy > 0 && this._updateAge();
         }
@@ -271,8 +271,13 @@ class Organism extends Observer {
      */
     _updateEnergy() {
         if (this._energy < 1) {
-            this.fire(KILL_NO_ENERGY, this);
-            this.destroy();
+            //
+            // We have to destroy organism only if he hasn't destroyed yet
+            //
+            if (this.vm) {
+                this.fire(KILL_NO_ENERGY, this);
+                this.destroy();
+            }
             return true;
         }
         if (this._iterations % OConfig.orgEnergySpendPeriod !== 0 || OConfig.orgEnergySpendPeriod === 0) {return true}
