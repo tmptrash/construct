@@ -53,7 +53,7 @@ const Config = {
      * If amount of energy less then orgCloneMinEnergy * vm.size, then clone
      * is not possible
      */
-    orgCloneMinEnergy: 10000,
+    orgCloneMinEnergy: 500000,
     /**
      * {Boolean} true means, that one organism will be killed just after new
      * organism has cloned. If population is less then orgMaxOrgs, then no killing
