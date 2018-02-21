@@ -9,14 +9,13 @@ const Organism = require('./../../manager/plugins/organisms/Organism').Organism;
 const Console  = require('./../../share/Console');
 const EVENTS   = require('./../../share/Events').EVENTS;
 
-const MAX_INDEX  = 40000; // depends on Organism.getColor.frequency constant
-
 class Energy {
     constructor(manager) {
         this._manager       = manager;
         this._lastX         = -1;
         this._lastY         = -1;
-        this._energy        = MAX_INDEX;
+        this._colorIndex    = Helper.rand(Organism.getMaxColors());
+        this._amount        = Config.worldWidth * Config.worldHeight * Config.worldCleverEnergyPercent;
         this._onIterationCb = this._onIteration.bind(this);
 
         Helper.override(manager, 'onIteration', this._onIterationCb);
@@ -71,19 +70,20 @@ class Energy {
     }
 
     _updateCleverEnergy() {
-        const x         = this._lastX >= 0 ? this._lastX : Helper.rand(Config.worldWidth);
-        const y         = this._lastY >= 0 ? this._lastY : Helper.rand(Config.worldHeight);
-        const world     = this._manager.world;
+        const x = this._lastX >= 0 ? this._lastX : Helper.rand(Config.worldWidth);
+        const y = this._lastY >= 0 ? this._lastY : Helper.rand(Config.worldHeight);
 
-        if (x < 0 || x >= Config.worldWidth || y < 0 || y >= Config.worldHeight || --this._energy < 0)  {
-            this._lastX  = this._lastY = -1;
-            this._energy = MAX_INDEX;
+        if (x < 0 || x >= Config.worldWidth || y < 0 || y >= Config.worldHeight || --this._amount < 0)  {
+            this._lastX      = this._lastY = -1;
+            this._colorIndex = Helper.rand(Organism.getMaxColors());
+            this._amount     = Config.worldWidth * Config.worldHeight * Config.worldCleverEnergyPercent;
             return;
         }
 
+        const world  = this._manager.world;
         this._lastX  = x + Helper.rand(3) - 1;
         this._lastY  = y + Helper.rand(3) - 1;
-        if (world.getDot(this._lastX, this._lastY) === 0) {world.setDot(this._lastX, this._lastY, Organism.getColor(this._energy))}
+        if (world.getDot(this._lastX, this._lastY) === 0) {world.setDot(this._lastX, this._lastY, Organism.getColor(this._colorIndex))}
     }
 }
 

@@ -26,6 +26,8 @@ const ORG_EVENTS     = {
     ITERATION
 };
 
+const MAX_COLORS = 40000;
+
 class Organism extends Observer {
     /**
      * Returns color by index. Index may be increased without limit
@@ -33,6 +35,9 @@ class Organism extends Observer {
      * @returns {Number} RGB value
      */
     static getColor(index) {
+        //
+        // Maximum possible colors for this value is MAX_COLORS
+        //
         const frequency = 0.0001;
 
         const r = Math.sin(frequency * index    ) * 127 + 128;
@@ -41,6 +46,8 @@ class Organism extends Observer {
 
         return r << 16 | g << 8 | b;
     }
+
+    static getMaxColors() {return MAX_COLORS}
 
     /**
      * Is called before every run. Should return true, if everything
