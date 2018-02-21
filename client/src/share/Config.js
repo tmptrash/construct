@@ -85,7 +85,7 @@ ClientConfig.init({
      * {Number} size of one clever energy block (percent from world size). Calculates
      * in this way amountOfDotsInBlock = worldWidth * worldHeight * worldCleverEnergyPercent
      */
-    worldCleverEnergyPercent: 0.01,
+    worldCleverEnergyPercent: 0.005,
     /**
      * {Number} Minimum percent of energy in current world. Under percent i mean
      * percent from entire world area (100%). If the energy will be less
