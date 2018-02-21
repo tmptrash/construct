@@ -180,16 +180,23 @@ describe("client/src/organism/OrganismDos", () => {
         });
     });
 
-    it("Checking organism changes", () => {
-        let   org     = new OrganismDos(0, 1, 2, null, () => {});
+    describe('Changes check', () => {
+        it("Checking organism changes", () => {
+            expect(org.changes).toBe(0);
+            org.changes = 10;
+            expect(org.changes).toBe(10);
+            org.changes += 12;
+            expect(org.changes).toBe(22);
+        });
 
-        expect(org.changes).toEqual(1);
-        org.changes = 10;
-        expect(org.changes).toEqual(10);
-        org.changes += 12;
-        expect(org.changes).toEqual(22);
-
-        org.destroy();
+        it("Checking if changes affect color", () => {
+            const color      = org.color;
+            const colorIndex = org.colorIndex;
+            expect(org.changes).toBe(0);
+            org.changes = 10;
+            expect(org.color).not.toBe(color);
+            expect(org.colorIndex).not.toBe(colorIndex);
+        });
     });
 
     it("Checking run() method", () => {
