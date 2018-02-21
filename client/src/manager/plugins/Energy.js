@@ -15,7 +15,8 @@ class Energy {
         this._lastX         = -1;
         this._lastY         = -1;
         this._colorIndex    = Helper.rand(Organism.getMaxColors());
-        this._amount        = Config.worldWidth * Config.worldHeight * Config.worldCleverEnergyPercent;
+        this._amount        = Config.worldWidth * Config.worldHeight * Config.worldCleverEnergyBlockPercent;
+        this._cleverActive  = true;
         this._onIterationCb = this._onIteration.bind(this);
 
         Helper.override(manager, 'onIteration', this._onIterationCb);
@@ -28,24 +29,19 @@ class Energy {
     }
 
     _onIteration(counter) {
-        Config.worldCleverEnergy && this._updateCleverEnergy();
+        Config.worldCleverEnergy && this._cleverActive && this._updateCleverEnergy();
+
         if (counter % Config.worldEnergyCheckPeriod !== 0 || Config.worldEnergyCheckPeriod === 0) {return}
         if (counter === 0) {
             this._updateEnergy(Config.worldEnergyDots, Config.worldEnergyInDot);
             return;
         }
-        let   energy = 0;
-        const world  = this._manager.world;
-        const width  = Config.worldWidth;
-        const height = Config.worldHeight;
 
-        for (let x = 0; x < width; x++) {
-            for (let y = 0; y < height; y++) {
-                if (world.getDot(x, y) > 0) {energy++}
-            }
-        }
+        const energyPercent = this._getEnergyPercent();
+        if (energyPercent <= Config.worldCleverEnergyMinPercent)      {this._cleverActive = true}
+        else if (energyPercent >= Config.worldCleverEnergyMaxPercent) {this._cleverActive = false}
 
-        if (energy / (width * height) <= Config.worldEnergyCheckPercent) {
+        if (energyPercent <= Config.worldEnergyCheckPercent) {
             this._updateEnergy(Config.worldEnergyDots, Config.worldEnergyInDot);
         }
     }
@@ -76,7 +72,7 @@ class Energy {
         if (x < 0 || x >= Config.worldWidth || y < 0 || y >= Config.worldHeight || --this._amount < 0)  {
             this._lastX      = this._lastY = -1;
             this._colorIndex = Helper.rand(Organism.getMaxColors());
-            this._amount     = Config.worldWidth * Config.worldHeight * Config.worldCleverEnergyPercent;
+            this._amount     = Config.worldWidth * Config.worldHeight * Config.worldCleverEnergyBlockPercent;
             return;
         }
 
@@ -84,6 +80,21 @@ class Energy {
         this._lastX  = x + Helper.rand(3) - 1;
         this._lastY  = y + Helper.rand(3) - 1;
         if (world.getDot(this._lastX, this._lastY) === 0) {world.setDot(this._lastX, this._lastY, Organism.getColor(this._colorIndex))}
+    }
+
+    _getEnergyPercent() {
+        let   energy = 0;
+        const world  = this._manager.world;
+        const width  = Config.worldWidth;
+        const height = Config.worldHeight;
+
+        for (let x = 0; x < width; x++) {
+            for (let y = 0; y < height; y++) {
+                if (world.getDot(x, y) > 0) {energy++}
+            }
+        }
+
+        return energy / (width * height);
     }
 }
 
