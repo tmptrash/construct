@@ -272,7 +272,12 @@ class Organisms extends Configurable {
 
         //if (OConfig.orgKillOnClone && orgAmount >= maxOrgs) {this._killInTour()}
         //if (orgAmount >= maxOrgs && (OConfig.orgKillOnClone || Math.random() <= (org.energy / org.vm.size) / this._maxEnergy)) {this.randOrg().destroy()}
-        this.organisms.size < OConfig.orgMaxOrgs && this._clone(org);
+        // if (this.organisms.size >= OConfig.orgMaxOrgs && Math.random() <= ((org.energy / 10000000000000) * (org.iterations / OConfig.orgAlivePeriod))) {
+        //     this.randOrg().destroy();
+        // }
+        if (this.organisms.size < OConfig.orgMaxOrgs) {
+            this._clone(org);
+        }
     }
 
     _killInTour() {
