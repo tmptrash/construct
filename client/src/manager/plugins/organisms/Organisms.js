@@ -180,7 +180,7 @@ class Organisms extends Configurable {
 
         while (org = item && item.val) {
             org.run();
-            org.alive && this.onOrganism(org);
+            org.energy > 0 && this.onOrganism(org);
             item = item.next;
         }
 
@@ -197,8 +197,8 @@ class Organisms extends Configurable {
         org1 = org1 || this.randOrg();
         org2 = org2 || this.randOrg();
 
-        if (!org1.alive && !org2.alive) {return false}
-        if ((org2.alive && !org1.alive) || this.compare(org2, org1)) {
+        if (org1.energy  < 1 && org2.energy < 1) {return false}
+        if ((org2.energy > 0 && org1.energy < 1) || this.compare(org2, org1)) {
             return org2;
         }
 
@@ -212,7 +212,7 @@ class Organisms extends Configurable {
         let child = this.organisms.last.val;
 
         this.onClone(org, child);
-        if (!org.alive || !child.alive) {return false}
+        if (org.energy < 1 || child.energy < 1) {return false}
         this.parent.fire(EVENTS.CLONE, org, child, isCrossover);
 
         return true;
@@ -223,7 +223,7 @@ class Organisms extends Configurable {
         const orgs  = this.organisms;
         let   child = orgs.last.val;
 
-        if (child.alive && org2.alive) {
+        if (child.energy > 0 && org2.energy > 0) {
             child.changes += (Math.abs(child.vm.crossover(org2.vm)) * Num.MAX_BITS);
         }
     }
@@ -278,7 +278,7 @@ class Organisms extends Configurable {
     _killInTour() {
         let org1 = this.randOrg();
         let org2 = this.randOrg();
-        if (!org1.alive || !org2.alive || org1 === org2 || this.organisms.size < 1) {return false}
+        if (org1.energy < 1 || org2.energy < 1 || org1 === org2 || this.organisms.size < 1) {return false}
 
         if (this._tournament(org1, org2) === org2) {[org1, org2] = [org2, org1]}
         this.parent.fire(EVENTS.KILL_TOUR, org2);
@@ -319,7 +319,7 @@ class Organisms extends Configurable {
         let org1 = Helper.rand(2) === 0 ? this._tournament() : this.randOrg();
         let org2 = Helper.rand(2) === 0 ? this._tournament() : this.randOrg();
 
-        if (!org1.alive || !org2.alive) {return false}
+        if (org1.energy < 1 || org2.energy < 1) {return false}
         this._crossover(org1, org2);
         if (orgAmount + 1 >= OConfig.orgMaxOrgs) {
             if (this._tournament(org1, org2) === org2) {[org1, org2] = [org2, org1]}
