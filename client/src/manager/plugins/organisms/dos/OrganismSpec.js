@@ -63,60 +63,32 @@ describe("client/src/organism/OrganismDos", () => {
     });
 
     describe('Checking organism alive', () => {
+        it("Organism should not be dead it he doesn't contain code", () => {
+            const period  = OConfig.orgAlivePeriod;
+            const energy  = OConfig.orgStartEnergy;
+            OConfig.orgAlivePeriod = 100;
+            OConfig.orgStartEnergy = 100;
+            const org1    = new OrganismDos('0', 1, 2, null);
+
+            expect(org1.energy).toBe(100);
+            org1.run();
+            expect(org1.energy).toBe(100);
+            org1.destroy();
+            expect(org1.energy < 1).toBe(true);
+
+            OConfig.orgAlivePeriod = period;
+            OConfig.orgStartEnergy = energy;
+        });
+
+
         it("Organism should not be dead after loosing some energy", () => {
-            const period  = OConfig.orgAlivePeriod;
-            const energy  = OConfig.orgStartEnergy;
-            const speriod = OConfig.orgEnergySpendPeriod;
-            OConfig.orgAlivePeriod       = 100;
-            OConfig.orgStartEnergy       = 100;
-            OConfig.orgEnergySpendPeriod = 100;
-            const org1    = new OrganismDos('0', 1, 2, null);
-
-            expect(org1.energy).toBe(100);
-            org1.run();
-            expect(org1.energy).toBe(99);
-            org1.run();
-            expect(org1.energy).toBe(99);
-            org1.destroy();
-            expect(org1.energy < 1).toBe(true);
-
-            OConfig.orgAlivePeriod       = period;
-            OConfig.orgStartEnergy       = energy;
-            OConfig.orgEnergySpendPeriod = speriod;
-        });
-
-        it("Organism should not be dead after loosing some energy 2", () => {
-            const period  = OConfig.orgAlivePeriod;
-            const energy  = OConfig.orgStartEnergy;
-            const speriod = OConfig.orgEnergySpendPeriod;
-            OConfig.orgAlivePeriod       = 100;
-            OConfig.orgStartEnergy       = 100;
-            OConfig.orgEnergySpendPeriod = 1;
-            const org1    = new OrganismDos('0', 1, 2, null);
-
-            expect(org1.energy).toBe(100);
-            org1.run();
-            expect(org1.energy).toBe(99);
-            org1.run();
-            expect(org1.energy).toBe(98);
-            org1.destroy();
-            expect(org1.energy < 1).toBe(true);
-
-            OConfig.orgAlivePeriod       = period;
-            OConfig.orgStartEnergy       = energy;
-            OConfig.orgEnergySpendPeriod = speriod;
-        });
-
-        it("Organism should not be dead after loosing some energy 3", () => {
             const period      = OConfig.orgAlivePeriod;
             const energy      = OConfig.orgStartEnergy;
-            const speriod     = OConfig.orgEnergySpendPeriod;
             const weights     = OConfig.orgOperatorWeights.slice();
             const yieldPeriod = OConfig.codeYieldPeriod;
             const newWeights = [.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1];
             OConfig.orgAlivePeriod       = 100;
             OConfig.orgStartEnergy       = 100;
-            OConfig.orgEnergySpendPeriod = 1;
             OConfig.orgOperatorWeights.splice(0, OConfig.orgOperatorWeights.length, ...newWeights);
             OConfig.codeYieldPeriod      = 1;
             const org1    = new OrganismDos('0', 1, 2, null);
@@ -132,7 +104,6 @@ describe("client/src/organism/OrganismDos", () => {
 
             OConfig.orgAlivePeriod       = period;
             OConfig.orgStartEnergy       = energy;
-            OConfig.orgEnergySpendPeriod = speriod;
             OConfig.orgOperatorWeights.splice(0, OConfig.orgOperatorWeights.length, ...weights);
             OConfig.codeYieldPeriod      = yieldPeriod;
         });

@@ -265,27 +265,19 @@ class Organism extends Observer {
     }
 
     /**
-     * This is how our system grabs an energy from organism every OConfig.orgEnergySpendPeriod
-     * period. If organism has zero energy, it will be killed also.
+     * This method destroys organisms with zero energy
      * @return {Boolean} false means that organism was destroyed.
      */
     _updateEnergy() {
-        if (this._energy < 1) {
-            //
-            // We have to destroy organism only if he hasn't destroyed yet
-            //
-            if (this.vm) {
-                this.fire(KILL_NO_ENERGY, this);
-                this.destroy();
-            }
-            return true;
+        //
+        // this.vm === null means, that organism has already destroyed
+        //
+        if (this._energy < 1 && this.vm) {
+            this.fire(KILL_NO_ENERGY, this);
+            this.destroy();
         }
-        if (this._iterations % OConfig.orgEnergySpendPeriod !== 0 || OConfig.orgEnergySpendPeriod === 0) {return true}
-        let grabSize = this.vm.size;
-        if (grabSize < 1) {grabSize = 1}
 
-        (this._energy <= grabSize) && this.fire(KILL_NO_ENERGY, this);
-        return this._energy -= (this._energy < grabSize ? this._energy : grabSize);
+        return true;
     }
 }
 

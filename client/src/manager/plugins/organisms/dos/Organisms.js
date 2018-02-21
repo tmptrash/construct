@@ -161,7 +161,7 @@ class Organisms extends BaseOrganisms {
         // Amount of eat energy depends on organism size. Small organisms
         // eat less, big - more
         //
-        const eat       = ret.ret / ((OConfig.codeMaxSize / (org.vm.size || 1)) || 1);
+        const eat       = ret.ret;
         [x, y]          = NORMALIZE_NO_DIR(x, y);
         const posId     = POSID(x, y);
 

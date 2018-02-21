@@ -103,10 +103,9 @@ class VM extends Observer {
             line        = ops[operator](code[line], line, org, lines);
             //
             // This is very important peace of logic. As big the organism is
-            // as more energy he spends and as small his code is as less energy
-            // he spends
+            // as more energy he spends
             //
-            org.energy -= (this._weights[operator] * org.energy * (lines || 1));
+            org.energy -= (this._weights[operator] * org.energy);
             //
             // We found closing bracket '}' of some loop and have to return
             // to the beginning of operator (e.g.: for)
