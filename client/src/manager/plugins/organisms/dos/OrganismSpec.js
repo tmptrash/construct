@@ -159,7 +159,7 @@ describe("client/src/organism/OrganismDos", () => {
             OConfig.orgEnergySpendPeriod = speriod;
         });
 
-        it("Organism should do nothing if energy is set to zero", () => {
+        it("Organism should be destroyed on run if energy is set to zero", () => {
             const period  = OConfig.orgAlivePeriod;
             const energy  = OConfig.orgStartEnergy;
             const speriod = OConfig.orgEnergySpendPeriod;
@@ -171,8 +171,8 @@ describe("client/src/organism/OrganismDos", () => {
             expect(org1.energy).toBe(100);
             org1.energy = 0;
             org1.run();
-            expect(org1.energy).toBe(0);
-            org1.destroy();
+            expect(org1.vm).toBe(null);
+            org1.run();
 
             OConfig.orgAlivePeriod       = period;
             OConfig.orgStartEnergy       = energy;
@@ -189,7 +189,7 @@ describe("client/src/organism/OrganismDos", () => {
             expect(org.changes).toBe(22);
         });
 
-        it("Checking if changes affect color", () => {
+        it("Checking if changes affects color", () => {
             const color      = org.color;
             const colorIndex = org.colorIndex;
             expect(org.changes).toBe(0);
