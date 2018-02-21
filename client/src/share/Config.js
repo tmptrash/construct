@@ -73,7 +73,7 @@ ClientConfig.init({
      * Should be less then 100.0 and more and equal to 0.0. 0.17 is a
      * normal percent for this system.
      */
-    worldEnergyCheckPercent: 0.01,
+    worldEnergyCheckPercent: 0.001,
     /**
      * {Number} An amount of iteration, after which we have to check world energy
      * amount. Works in pair with worldEnergyCheckPercent. May be 0 if
@@ -99,20 +99,20 @@ ClientConfig.init({
      * {Number} size of one clever energy block (percent from world size). Calculates
      * in this way amountOfDotsInBlock = worldWidth * worldHeight * worldCleverEnergyBlockPercent
      */
-    worldCleverEnergyBlockPercent: 0.00001,
+    worldCleverEnergyBlockPercent: 0.00004,
     /**
      * {Number} Percent from all energy in a world until clever energy will be added.
      * After this value clever energy will be stopped to add until it's amount will
      * be less then worldCleverEnergyMinPercent. These two configs create cyclical
      * energy adding to the world.
      */
-    worldCleverEnergyMaxPercent: 0.1,
+    worldCleverEnergyMaxPercent: 0.04,
     /**
      * {Number} Opposite to worldCleverEnergyMaxPercent. Sets minimum percent from
      * all energy in a world after which clever energy will turn on (be added to the
      * world again).
      */
-    worldCleverEnergyMinPercent: 0.01,
+    worldCleverEnergyMinPercent: 0.02,
     /**
      * {Number} Zoom speed 0..1
      */

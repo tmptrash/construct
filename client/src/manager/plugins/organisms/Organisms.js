@@ -73,6 +73,13 @@ class Organisms extends Configurable {
      */
     createEmptyOrg(...args) {}
 
+    /**
+     * Is called at the end of run() method
+     * @param {Organism} org Current organism
+     * @abstract
+     */
+    onOrganism(org) {}
+
     constructor(manager) {
         super(manager, {Config, cfg: OConfig}, {getAmount: ['_apiGetAmount', 'Shows amount of organisms within current Client(Manager)']});
         this.organisms      = manager.organisms;
@@ -81,8 +88,6 @@ class Organisms extends Configurable {
         this.world          = manager.world;
 
         this._mutator       = new Mutator(manager, this);
-        this._maxEnergy     = 0;
-        this._oldMaxEnergy  = 0;
         this._onIterationCb = this._onIteration.bind(this);
         this._onLoopCb      = this._onLoop.bind(this);
 
@@ -104,20 +109,6 @@ class Organisms extends Configurable {
         this._onLoopCb      = null;
 
         super.destroy();
-    }
-
-    /**
-     * Is called at the end of run() method
-     * @param {Organism} org Current organism
-     */
-    onOrganism(org) {
-        const energy = org.energy / org.vm.size;
-        if (energy > this._oldMaxEnergy) {this._oldMaxEnergy = energy}
-
-        if (org === this.organisms.last.val) {
-            this._maxEnergy    = this._oldMaxEnergy;
-            this._oldMaxEnergy = 0;
-        }
     }
 
     addOrgHandlers(org) {
