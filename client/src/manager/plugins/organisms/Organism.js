@@ -197,6 +197,7 @@ class Organism extends Observer {
     }
 
     destroy() {
+        if (this.vm === null) {return}
         this.fire(DESTROY, this);
         this._energy        = 0;
         this._startEnergy   = 0;

@@ -4,7 +4,9 @@
 describe("client/src/organism/OrganismDos", () => {
     const _fill       = require('lodash/fill');
     const OrganismDos = require('./Organism');
+    const OEvents     = require('./../Organism').EVENTS;
     const OConfig     = require('./../../../../manager/plugins/organisms/Config');
+    const Helper      = require('./../../../../../../common/src/Helper');
 
     let org;
 
@@ -96,9 +98,9 @@ describe("client/src/organism/OrganismDos", () => {
 
             expect(org1.energy).toBe(100);
             org1.run();
-            expect(org1.energy).toBe(89);   // 100 - 100 * .1 - 1 = 89
+            expect(org1.energy).toBe(90); // 100 - 100 * .1 = 90
             org1.run();
-            expect(org1.energy).toBe(79.1); // 89 - 89 * .1 - 1 = 79.1
+            expect(org1.energy).toBe(81); // 90 - 90 * .1 = 81
             org1.destroy();
             expect(org1.energy < 1).toBe(true);
 
@@ -111,10 +113,8 @@ describe("client/src/organism/OrganismDos", () => {
         it("Organism should not be dead if loosing energy is turned off", () => {
             const period  = OConfig.orgAlivePeriod;
             const energy  = OConfig.orgStartEnergy;
-            const speriod = OConfig.orgEnergySpendPeriod;
-            OConfig.orgAlivePeriod       = 100;
-            OConfig.orgStartEnergy       = 100;
-            OConfig.orgEnergySpendPeriod = 0;
+            OConfig.orgAlivePeriod = 100;
+            OConfig.orgStartEnergy = 100;
             const org1    = new OrganismDos('0', 1, 2, null);
 
             expect(org1.energy).toBe(100);
@@ -125,18 +125,15 @@ describe("client/src/organism/OrganismDos", () => {
             org1.destroy();
             expect(org1.energy < 1).toBe(true);
 
-            OConfig.orgAlivePeriod       = period;
-            OConfig.orgStartEnergy       = energy;
-            OConfig.orgEnergySpendPeriod = speriod;
+            OConfig.orgAlivePeriod = period;
+            OConfig.orgStartEnergy = energy;
         });
 
         it("Organism should be destroyed on run if energy is set to zero", () => {
             const period  = OConfig.orgAlivePeriod;
             const energy  = OConfig.orgStartEnergy;
-            const speriod = OConfig.orgEnergySpendPeriod;
-            OConfig.orgAlivePeriod       = 100;
-            OConfig.orgStartEnergy       = 100;
-            OConfig.orgEnergySpendPeriod = 0;
+            OConfig.orgAlivePeriod = 100;
+            OConfig.orgStartEnergy = 100;
             const org1    = new OrganismDos('0', 1, 2, null);
 
             expect(org1.energy).toBe(100);
@@ -145,9 +142,8 @@ describe("client/src/organism/OrganismDos", () => {
             expect(org1.vm).toBe(null);
             org1.run();
 
-            OConfig.orgAlivePeriod       = period;
-            OConfig.orgStartEnergy       = energy;
-            OConfig.orgEnergySpendPeriod = speriod;
+            OConfig.orgAlivePeriod = period;
+            OConfig.orgStartEnergy = energy;
         });
     });
 
@@ -170,82 +166,87 @@ describe("client/src/organism/OrganismDos", () => {
         });
     });
 
-    it("Checking run() method", () => {
-        let   org     = new OrganismDos(0, 1, 2, null, () => {});
+    describe('Checks coordinates', () => {
+        it('posId() should return unique hash', () => {
+            org.x = 2;
+            org.y = 3;
+            expect(org.posId).toBe(Helper.posId(2, 3));
+            org.x = 0;
+            org.y = 3;
+            expect(org.posId).toBe(Helper.posId(0, 3));
+        });
 
-        expect(org.iterations).toEqual(0);
-        org.run();
-        expect(org.iterations).toEqual(1);
-        org.run();
-        expect(org.iterations).toEqual(2);
-
-        org.destroy();
+        it('Checks coordinates setters getters', () => {
+            org.x = 1;
+            org.y = 2;
+            expect(org.x).toBe(1);
+            expect(org.y).toBe(2);
+            org.x = 0;
+            org.y = 0;
+            expect(org.x).toBe(0);
+            expect(org.y).toBe(0);
+            org.x = -1;
+            org.y = -2;
+            expect(org.x).toBe(-1);
+            expect(org.y).toBe(-2);
+        })
     });
 
-    it("Checking organism destroy because of age", () => {
-        const period = OConfig.orgAlivePeriod;
-        let   org    = new OrganismDos(0, 1, 2, null, () => {});
+    describe('run() method', () => {
+        it("Organism's age should be changed through iterations", () => {
+            const period  = OConfig.orgAlivePeriod;
+            const energy  = OConfig.orgStartEnergy;
+            OConfig.orgAlivePeriod = 100;
+            OConfig.orgStartEnergy = 100;
 
-        OConfig.orgAlivePeriod = 30000;
-        for (let i = 0; i < OConfig.orgAlivePeriod; i++) {
-            expect(org.energy > 0).toEqual(true);
+            expect(org.iterations).toEqual(-1);
             org.run();
-        }
-        expect(org.energy > 0).toEqual(false);
-        // we don't need to call destroy, because organism
-        // should be dead at this moment
-        OConfig.orgAlivePeriod = period;
+            expect(org.iterations).toEqual(0);
+            org.run();
+            expect(org.iterations).toEqual(1);
+
+            OConfig.orgAlivePeriod = period;
+            OConfig.orgStartEnergy = energy;
+        });
+
+        it("Checking organism destroy because of age", () => {
+            const period = OConfig.orgAlivePeriod;
+
+            OConfig.orgAlivePeriod = 3000;
+            for (let i = 0; i < OConfig.orgAlivePeriod + 1; i++) {
+                expect(org.energy > 0).toBe(true);
+                org.run();
+            }
+            expect(org.energy < 1).toEqual(true);
+            // we don't need to call destroy, because organism
+            // should be dead at this moment
+            OConfig.orgAlivePeriod = period;
+        });
     });
 
-    it("Checking organism destroy because of zero energy", () => {
-        const period = OConfig.orgAlivePeriod;
-        let   org    = new OrganismDos(0, 1, 2, null, () => {});
+    describe('Clonning', () => {
+        it('Organism should fire CLONE event if enough energy', () => {
+            let   flag        = false;
+            const minEnergy   = OConfig.orgCloneMinEnergy;
+            const yieldPeriod = OConfig.codeYieldPeriod;
+            const weights     = OConfig.orgOperatorWeights.slice();
+            const newWeights  = [.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1];
+            OConfig.orgCloneMinEnergy = 100;
+            OConfig.codeYieldPeriod   = 1;
+            OConfig.orgOperatorWeights.splice(0, OConfig.orgOperatorWeights.length, ...newWeights);
+            const org1 = new OrganismDos('0', 1, 2, null);
 
-        OConfig.orgAlivePeriod = 30000;
-        expect(org.energy).toEqual(OConfig.orgStartEnergy);
-        org.energy = 0;
-        expect(org.energy > 0).toEqual(true);
-        org.run();
-        expect(org.energy > 0).toEqual(false);
-        // we don't need to call destroy, because organism
-        // should be dead at this moment
-        OConfig.orgAlivePeriod = period;
-    });
+            org1.vm.insertLine();
+            org1.energy = OConfig.orgCloneMinEnergy * 2;
+            org1.on(OEvents.CLONE, () => flag = true);
+            org1.run();
+            expect(flag).toBe(true);
 
-    it("Checking organism destroy because of grab energy", () => {
-        const period = OConfig.orgEnergySpendPeriod;
-        let   org    = new OrganismDos(0, 1, 2, null, () => {});
-
-        OConfig.orgEnergySpendPeriod = 1;
-        org.energy = 1;
-        expect(org.energy > 0).toEqual(true);
-        org.run();
-        expect(org.energy > 0).toEqual(false);
-        //
-        // we don't need to call destroy, because organism
-        // should be dead at this moment
-        //
-        OConfig.orgEnergySpendPeriod = period;
-    });
-
-    it("Checking grabbing energy", () => {
-        let   org    = new OrganismDos(0, 1, 2, null, () => {});
-        const energy = org.energy;
-
-        org.energy -= 10;
-        expect(org.energy).toEqual(energy - 10);
-
-        org.destroy();
-    });
-
-    it("Checking organism color change", () => {
-        let   org    = new OrganismDos(0, 1, 2, null, () => {});
-        const color  = org.color;
-
-        org.changes = 10;
-        expect(org.color).toEqual(color + 10);
-
-        org.destroy();
+            org1.destroy();
+            OConfig.orgCloneMinEnergy = minEnergy;
+            OConfig.codeYieldPeriod   = yieldPeriod;
+            OConfig.orgOperatorWeights.splice(0, OConfig.orgOperatorWeights.length, ...weights);
+        })
     });
 
     it("Checking destroy() method", () => {
