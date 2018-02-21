@@ -70,13 +70,12 @@ class Organism extends Observer {
      * @param {String} id Unique identifier of organism
      * @param {Number} x Unique X coordinate
      * @param {Number} y Unique Y coordinate
-     * @param {Boolean} alive true if organism is alive
      * @param {Object} item Reference to the Queue item, where
      * this organism is located
      * @param {Function} operatorCls Class of operators
      * @param {Organism} parent Parent organism if cloning is needed
      */
-    constructor(id, x, y, alive, item, operatorCls, parent = null) {
+    constructor(id, x, y, item, operatorCls, parent = null) {
         super(EVENT_AMOUNT);
 
         this._operatorCls = operatorCls;
@@ -88,7 +87,6 @@ class Organism extends Observer {
         this._y           = y;
         this._iterations  = -1;
         this._changes     = 0;
-        this._alive       = alive;
         this._item        = item;
         this._fnId        = 0;
     }
@@ -96,7 +94,6 @@ class Organism extends Observer {
     get id()                    {return this._id}
     get x()                     {return this._x}
     get y()                     {return this._y}
-    get alive()                 {return this._alive}
     get item()                  {return this._item}
     get iterations()            {return this._iterations}
     get changes()               {return this._changes}
@@ -126,12 +123,12 @@ class Organism extends Observer {
     run() {
         this._iterations++;
         if (this.onBeforeRun() === false) {return true}
-        const lines = this._alive ? this.onRun() : 0;
-        if (this._alive) {
+        const lines = this._energy > 0 ? this.onRun() : 0;
+        if (this._energy > 0) {
             this._updateClone();
-            this._alive && this._updateEnergy();
-            this._alive && this.fire(ITERATION, lines, this);
-            this._alive && this._updateAge();
+            this._energy > 0 && this._updateEnergy();
+            this._energy > 0 && this.fire(ITERATION, lines, this);
+            this._energy > 0 && this._updateAge();
         }
 
         return true;
@@ -147,7 +144,6 @@ class Organism extends Observer {
             x                   : this._x,
             y                   : this._y,
             changes             : this._changes,
-            alive               : this._alive,
             // 'item' will be added after insertion
             iterations          : this._iterations,
             fnId                : this._fnId,
@@ -177,7 +173,6 @@ class Organism extends Observer {
         this._x                    = json.x;
         this._y                    = json.y;
         this._changes              = json.changes;
-        this._alive                = json.alive;
         // 'item' will be added after insertion
         this._iterations           = json.iterations;
         this._fnId                 = json.fnId;
@@ -203,7 +198,6 @@ class Organism extends Observer {
 
     destroy() {
         this.fire(DESTROY, this);
-        this._alive         = false;
         this._energy        = 0;
         this._startEnergy   = 0;
         this._item          = null;
@@ -249,7 +243,7 @@ class Organism extends Observer {
     }
 
     _updateClone() {
-        if ((this._energy > OConfig.orgCloneMinEnergy * (this.vm.size || 1)) && this.vm.size > 0 && this._alive) {
+        if ((this._energy > OConfig.orgCloneMinEnergy * (this.vm.size || 1)) && this.vm.size > 0 && this._energy > 0) {
             this.fire(CLONE, this);
         }
     }

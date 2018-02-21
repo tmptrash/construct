@@ -12,7 +12,6 @@
  */
 const BaseOrganisms    = require('./../Organisms');
 const Organism         = require('./Organism');
-const OEVENTS          = require('./../Organism').EVENTS;
 const Config           = require('./../../../../share/Config').Config;
 const OConfig          = require('./../Config');
 const EVENTS           = require('./../../../../share/Events').EVENTS;
@@ -95,8 +94,8 @@ class Organisms extends BaseOrganisms {
         org.energy -= energy;
         childEnergy <= (childEnergy - energy) && this.parent.fire(EVENTS.KILL_CLONE, child);
         child.energy -= (childEnergy - energy);
-        org.alive   && (org.startEnergy   = org.energy);
-        child.alive && (child.startEnergy = child.energy);
+        org.energy   > 0 && (org.startEnergy   = org.energy);
+        child.energy > 0 && (child.startEnergy = child.energy);
     }
 
     addOrgHandlers(org) {
@@ -184,7 +183,7 @@ class Organisms extends BaseOrganisms {
     }
 
     _onStep(org, x1, y1, x2, y2, ret) {
-        if (org.alive === false) {return}
+        if (org.energy < 1) {return}
         const man = this.parent;
         let   dir;
 

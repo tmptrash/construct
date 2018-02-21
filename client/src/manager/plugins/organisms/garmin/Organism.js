@@ -16,14 +16,13 @@ class OrganismGarmin extends Organism {
      * @param {String} id Unique identifier of organism
      * @param {Number} x Unique X coordinate
      * @param {Number} y Unique Y coordinate
-     * @param {Boolean} alive true if organism is alive
      * @param {Object} item Reference to the Queue item, where
      * this organism is located
      * @param {Observer} obs Observer for sending external events
      * @param {Organism} parent Parent organism if cloning is needed
      */
-    constructor(id, x, y, alive, item, obs, parent = null) {
-        super(id, x, y, alive, item, Operators, obs, parent);
+    constructor(id, x, y, item, obs, parent = null) {
+        super(id, x, y, item, Operators, obs, parent);
 
         this._needRun = true;
 

@@ -3,9 +3,7 @@ describe("client/src/organism/OperatorsDos", () => {
     let cbpv         = OConfig.codeBitsPerVar;
     OConfig.codeBitsPerVar = 2;
     let OperatorsDos = require('./Operators');
-    let Observer     = require('./../../../../../../common/src/Observer');
     let EVENTS       = require('./../../../../share/Events').EVENTS;
-    let EVENT_AMOUNT = require('./../../../../share/Events').EVENT_AMOUNT;
     let Config       = require('./../../../../share/Config').Config;
     let OrganismDos  = require('./../../organisms/dos/Organism');
     //let OEvents      = require('./../../organisms/Organism').EVENTS;
@@ -17,7 +15,7 @@ describe("client/src/organism/OperatorsDos", () => {
         let org;
         let ops;
 
-        beforeEach(() => {org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([], [0, 1, 2, 3], org)});
+        beforeEach(() => {org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([], [0, 1, 2, 3], org)});
         afterEach (() => {ops.destroy(); org.destroy()});
 
         it("Checking variables working", () => {
@@ -62,7 +60,7 @@ describe("client/src/organism/OperatorsDos", () => {
         let codeConstBits = OConfig.codeConstBits;
         OConfig.codeConstBits = 16;
 
-        beforeEach(() => {org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([], [0, 1, 2, 3], org)});
+        beforeEach(() => {org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([], [0, 1, 2, 3], org)});
         afterEach (() => {ops.destroy(); org.destroy()});
         afterAll  (() => OConfig.codeConstBits = codeConstBits);
 
@@ -102,7 +100,7 @@ describe("client/src/organism/OperatorsDos", () => {
         let org;
         let ops;
 
-        beforeEach(() => {org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
+        beforeEach(() => {org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
         afterEach (() => {ops.destroy(); org.destroy()});
 
         it("Checking conditions", () => {
@@ -143,7 +141,7 @@ describe("client/src/organism/OperatorsDos", () => {
         let org;
         let ops;
 
-        beforeEach(() => {org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
+        beforeEach(() => {org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
         afterEach (() => {ops.destroy(); org.destroy()});
 
         it("Checking conditions", () => {
@@ -184,7 +182,7 @@ describe("client/src/organism/OperatorsDos", () => {
         let org;
         let ops;
 
-        beforeEach(() => {org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
+        beforeEach(() => {org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
         afterEach (() => {ops.destroy(); org.destroy()});
 
         it("Checking onOperator() method", () => {
@@ -254,7 +252,7 @@ describe("client/src/organism/OperatorsDos", () => {
         const w = Config.worldWidth;
         const h = Config.worldHeight;
 
-        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
+        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
         afterEach (() => {ops.destroy(); org.destroy(); Config.worldHeight = h; Config.worldWidth = w});
 
         it("Checking onLookAt() is found nothing", () => {
@@ -322,7 +320,7 @@ describe("client/src/organism/OperatorsDos", () => {
         const w = Config.worldWidth;
         const h = Config.worldHeight;
 
-        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
+        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
         afterEach (() => {ops.destroy(); org.destroy(); Config.worldHeight = h; Config.worldWidth = w});
 
         it("Checking eating nothing", () => {
@@ -383,7 +381,7 @@ describe("client/src/organism/OperatorsDos", () => {
         const w = Config.worldWidth;
         const h = Config.worldHeight;
 
-        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
+        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
         afterEach (() => {ops.destroy(); org.destroy(); Config.worldHeight = h; Config.worldWidth = w});
 
         it("Checking eating nothing", () => {
@@ -444,7 +442,7 @@ describe("client/src/organism/OperatorsDos", () => {
         const w = Config.worldWidth;
         const h = Config.worldHeight;
 
-        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
+        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
         afterEach (() => {ops.destroy(); org.destroy(); Config.worldHeight = h; Config.worldWidth = w});
 
         it("Checking eating nothing", () => {
@@ -505,7 +503,7 @@ describe("client/src/organism/OperatorsDos", () => {
         const w = Config.worldWidth;
         const h = Config.worldHeight;
 
-        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
+        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
         afterEach (() => {ops.destroy(); org.destroy(); Config.worldHeight = h; Config.worldWidth = w});
 
         it("Checking eating nothing", () => {
@@ -566,7 +564,7 @@ describe("client/src/organism/OperatorsDos", () => {
         const w = Config.worldWidth;
         const h = Config.worldHeight;
 
-        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
+        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
         afterEach (() => {ops.destroy(); org.destroy(); Config.worldHeight = h; Config.worldWidth = w});
 
         it("Checking step left", () => {
@@ -628,7 +626,7 @@ describe("client/src/organism/OperatorsDos", () => {
         const w = Config.worldWidth;
         const h = Config.worldHeight;
 
-        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
+        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
         afterEach (() => {ops.destroy(); org.destroy(); Config.worldHeight = h; Config.worldWidth = w});
 
         it("Checking step right", () => {
@@ -690,7 +688,7 @@ describe("client/src/organism/OperatorsDos", () => {
         const w = Config.worldWidth;
         const h = Config.worldHeight;
 
-        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
+        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
         afterEach (() => {ops.destroy(); org.destroy(); Config.worldHeight = h; Config.worldWidth = w});
 
         it("Checking step up", () => {
@@ -752,7 +750,7 @@ describe("client/src/organism/OperatorsDos", () => {
         const w = Config.worldWidth;
         const h = Config.worldHeight;
 
-        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
+        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
         afterEach (() => {ops.destroy(); org.destroy(); Config.worldHeight = h; Config.worldWidth = w});
 
         it("Checking step down", () => {
@@ -813,7 +811,7 @@ describe("client/src/organism/OperatorsDos", () => {
         let   ops;
         let   mbits;
 
-        beforeEach(() => {org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
+        beforeEach(() => {org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
         afterEach (() => {ops.destroy(); org.destroy()});
         beforeAll(()  => {mbits = OConfig.orgMemBits; OConfig.orgMemBits = 2});
         afterAll(()   => OConfig.orgMemBits = mbits);
@@ -873,7 +871,7 @@ describe("client/src/organism/OperatorsDos", () => {
         let   ops;
         let   mbits;
 
-        beforeEach(() => {org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
+        beforeEach(() => {org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
         afterEach (() => {ops.destroy(); org.destroy()});
         beforeAll(()  => {mbits = OConfig.orgMemBits; OConfig.orgMemBits = 2});
         afterAll(()   => OConfig.orgMemBits = mbits);
@@ -908,7 +906,7 @@ describe("client/src/organism/OperatorsDos", () => {
         let org;
         let ops;
 
-        beforeEach(() => {org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([], [0, 1, 2, 3], org)});
+        beforeEach(() => {org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([], [0, 1, 2, 3], org)});
         afterEach (() => {ops.destroy(); org.destroy()});
 
         it("Checking simple values", () => {
@@ -947,7 +945,7 @@ describe("client/src/organism/OperatorsDos", () => {
         let org;
         let ops;
 
-        beforeEach(() => {org = new OrganismDos('0', 0, 0, true, {}); ops = new OperatorsDos([], [0, 1, 2, 3], org)});
+        beforeEach(() => {org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([], [0, 1, 2, 3], org)});
         afterEach (() => {ops.destroy(); org.destroy()});
 
         it("Checking simple values", () => {
