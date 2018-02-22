@@ -38,6 +38,7 @@ class Energy {
         }
 
         const energyPercent = this._getEnergyPercent();
+        this._manager.fire(EVENTS.WORLD_ENERGY, energyPercent);
         if (energyPercent <= Config.worldCleverEnergyMinPercent)      {this._cleverActive = true}
         else if (energyPercent >= Config.worldCleverEnergyMaxPercent) {this._cleverActive = false}
 

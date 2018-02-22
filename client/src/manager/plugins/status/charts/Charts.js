@@ -76,6 +76,27 @@ const PRESETS = {
 };
 
 class Charts extends Status {
+    static _to12h(time) {
+        let hours   = time.getHours();
+        let minutes = time.getMinutes();
+
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+
+        return hours + ':' + minutes;
+    }
+
+    static _createHeader() {
+        return document.body.appendChild(Helper.setStyles('DIV', {
+            position  : 'absolute',
+            top       : '7px',
+            left      : '35px',
+            color     : '#fff',
+            fontSize  : '18px',
+            fontFamily: 'Consolas'
+        }));
+    }
+
     constructor(manager) {
         super(manager, Config, API);
         const periodSec = Config.period / 1000;
@@ -143,33 +164,14 @@ class Charts extends Status {
         const conns  = `${active[0] ? '^' : ''}${active[1] ? '>' : ''}${active[2] ? 'v' : ''}${active[3] ? '<' : ''}`;
         const ips    = `ips:${status.ips}`;
         const enrg   = `enrg:${status.eenergy}`;
+        const wnrg   = `wnrg:${status.wenergy}`;
         const code   = `cod:${status.code}`;
         const age    = `age:${status.age}`;
         const kill   = `kil:${status.kill}`;
+        const kilo   = `kilo:${status.killeat}`;
         const orgs   = `org:${status.orgs}`;
 
-        this._headerEl.textContent = `${man.clientId ? 'id:' + man.clientId : ''} ${conns === '' ? '' : 'con:' + conns} ${ips} ${enrg} ${code} ${age} ${kill} ${orgs}`;
-    }
-
-    _to12h(time) {
-        let hours   = time.getHours();
-        let minutes = time.getMinutes();
-
-        hours = hours % 12;
-        hours = hours ? hours : 12;
-
-        return hours + ':' + minutes;
-    }
-
-    _createHeader() {
-        return document.body.appendChild(Helper.setStyles('DIV', {
-            position  : 'absolute',
-            top       : '7px',
-            left      : '35px',
-            color     : '#fff',
-            fontSize  : '18px',
-            fontFamily: 'Consolas'
-        }));
+        this._headerEl.textContent = `${man.clientId ? 'id:' + man.clientId : ''} ${conns === '' ? '' : 'con:' + conns} ${ips} ${wnrg} ${enrg} ${code} ${age} ${kill} ${kilo} ${orgs}`;
     }
 
     /**

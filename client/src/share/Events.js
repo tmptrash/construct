@@ -36,7 +36,8 @@ const EVENTS = {
     RUN             : 26,
     STOP            : 27,
     RESET_CODE      : 28,
-    CHECK_AT        : 29
+    CHECK_AT        : 29,
+    WORLD_ENERGY    : 30
 };
 
 const EVENT_AMOUNT = Object.keys(EVENTS).length;

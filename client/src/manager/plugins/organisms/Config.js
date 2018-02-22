@@ -54,7 +54,7 @@ const Config = {
      * If amount of energy less then orgCloneMinEnergy * vm.size, then clone
      * is not possible
      */
-    orgCloneMinEnergy: 10000,
+    orgCloneMinEnergy: 100000,
     /**
      * {Boolean} true means, that one organism will be killed just after new
      * organism has cloned. If population is less then orgMaxOrgs, then no killing
@@ -88,12 +88,12 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 1000,
+    orgCrossoverPeriod: 4000,
     /**
      * {Number} Period of iterations for creation of random organisms. Set it to 0
      * to turn off this feature
      */
-    orgRandomOrgPeriod: 3000,
+    orgRandomOrgPeriod: 8000,
     /**
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
@@ -124,11 +124,11 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 1000,
+    orgMaxOrgs: 3000,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 500,
+    orgStartAmount: 3000,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created
