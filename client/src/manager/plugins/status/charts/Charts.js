@@ -102,7 +102,7 @@ class Charts extends Status {
         const periodSec = Config.period / 1000;
 
         this._data     = new Array(2);
-        this._headerEl = this._createHeader();
+        this._headerEl = Charts._createHeader();
         this._charts   = {
             lps       : new Chart('LPS - Lines Per Second',                                         Config.charts.lps),
             ips       : new Chart('IPS - Iterations Per Second',                                    Config.charts.ips),
@@ -149,7 +149,7 @@ class Charts extends Status {
     _updateCharts(status) {
         const data   = this._data;
         const charts = this._charts;
-        data[0]      = this._to12h(new Date);
+        data[0]      = Charts._to12h(new Date);
 
         _each(charts, (chart, key) => {
             data[1] = status[key];

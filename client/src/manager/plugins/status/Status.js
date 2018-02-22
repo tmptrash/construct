@@ -184,7 +184,7 @@ class Status extends Configurable {
         status.killin     = fix(this._kill[7], 2);
         status.killclone  = fix(this._kill[8], 2);
 
-        status.wenergy    = fix(this._energyPercent, 2);
+        status.wenergy    = fix(this._energyPercent, 4);
 
         !this._firstCall && this.onStatus(status, orgs.size);
         this._onAfterLoop(stamp);
