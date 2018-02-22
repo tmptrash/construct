@@ -11,7 +11,6 @@ const Helper         = require('./../../../../../common/src/Helper');
 const OConfig        = require('./../../../manager/plugins/organisms/Config');
 const EVENT_AMOUNT   = require('./../../../share/Events').EVENT_AMOUNT;
 const VM             = require('./../../../vm/VM');
-const Num            = require('./../../../vm/Num');
 
 const DESTROY        = 0;
 const CLONE          = 1;
@@ -26,7 +25,7 @@ const ORG_EVENTS     = {
     ITERATION
 };
 
-const MAX_COLORS = 40000;
+const MAX_COLORS = 4000;
 
 class Organism extends Observer {
     /**
@@ -38,7 +37,7 @@ class Organism extends Observer {
         //
         // Maximum possible colors for this value is MAX_COLORS
         //
-        const frequency = 0.0001;
+        const frequency = 0.0005;
 
         const r = Math.sin(frequency * index    ) * 127 + 128;
         const g = Math.sin(frequency * index + 2) * 127 + 128;
@@ -88,6 +87,7 @@ class Organism extends Observer {
         this._iterations  = -1;
         this._changes     = 0;
         this._item        = item;
+        this._maxEnergy   = 0;
         this._fnId        = 0;
     }
 
@@ -103,7 +103,6 @@ class Organism extends Observer {
     get energy()                {return this._energy}
     get startEnergy()           {return this._startEnergy}
     get color()                 {return this._color}
-    get colorIndex()            {return this._colorIndex}
     get mem()                   {return this._mem}
     get posId()                 {return Helper.posId(this._x, this._y)}
 
@@ -111,9 +110,10 @@ class Organism extends Observer {
     set y(newY)                 {this._y = newY}
     set mutationPeriod(m)       {this._mutationPeriod = m}
     set mutationPercent(p)      {this._mutationPercent = p}
-    set energy(e)               {this._energy = e}
+    set energy(e)               {this._energy = e; this._updateColor()}
     set startEnergy(e)          {this._startEnergy = e}
-    set changes(c)              {this._updateColor(c); this._changes = c}
+    set changes(c)              {this._changes = c}
+    set maxEnergy(e)            {this._maxEnergy = e}
 
     /**
      * Runs one code iteration (amount of lines set in Config.codeYieldPeriod) and returns
@@ -151,7 +151,6 @@ class Organism extends Observer {
             energy              : this._energy,
             startEnergy         : this._startEnergy,
             color               : this._color,
-            colorIndex          : this._colorIndex,
             mutationProbs       : this._mutationProbs,
             mutationPeriod      : this._mutationPeriod,
             mutationPercent     : this._mutationPercent,
@@ -180,7 +179,6 @@ class Organism extends Observer {
         this._energy               = json.energy;
         this._startEnergy          = json.startEnergy;
         this._color                = json.color;
-        this._colorIndex           = json.colorIndex;
         this._mutationProbs        = json.mutationProbs;
         this._mutationPeriod       = json.mutationPeriod;
         this._mutationPercent      = json.mutationPercent;
@@ -216,8 +214,7 @@ class Organism extends Observer {
         this.vm                     = new VM(this, this._operatorCls, OConfig.orgOperatorWeights);
         this._energy                = OConfig.orgStartEnergy;
         this._startEnergy           = OConfig.orgStartEnergy;
-        this._colorIndex            = OConfig.orgStartColor * Num.MAX_BITS;
-        this._color                 = Organism.getColor(this._colorIndex);
+        this._color                 = Organism.getColor(MAX_COLORS);
         this._mutationProbs         = OConfig.orgMutationProbs.slice();
         this._mutationPeriod        = OConfig.orgRainMutationPeriod;
         this._mutationPercent       = OConfig.orgRainMutationPercent;
@@ -231,20 +228,18 @@ class Organism extends Observer {
         this._energy                = parent.energy;
         this._startEnergy           = parent.energy;
         this._color                 = parent.color;
-        this._colorIndex            = parent.colorIndex;
         this._mutationProbs         = parent.mutationProbs.slice();
         this._mutationPeriod        = parent.mutationPeriod;
         this._mutationPercent       = parent.mutationPercent;
         this._mem                   = parent.mem.slice();
     }
 
-    _updateColor(changes) {
-        this._colorIndex += (changes - this._changes);
-        this._color       = Organism.getColor((this._colorIndex / Num.MAX_BITS + .5) << 0);
+    _updateColor() {
+        this._color = Organism.getColor((this._energy * MAX_COLORS) / this._maxEnergy);
     }
 
     _updateClone() {
-        if (this._energy > OConfig.orgCloneMinEnergy * this.vm.size && this._energy > 0) {
+        if ((this._energy > OConfig.orgCloneMinEnergy * this.vm.size) && this._energy > 0) {
             this.fire(CLONE, this);
         }
     }

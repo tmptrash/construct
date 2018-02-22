@@ -158,11 +158,9 @@ describe("client/src/organism/OrganismDos", () => {
 
         it("Checking if changes affects color", () => {
             const color      = org.color;
-            const colorIndex = org.colorIndex;
             expect(org.changes).toBe(0);
             org.changes = 10;
             expect(org.color).not.toBe(color);
-            expect(org.colorIndex).not.toBe(colorIndex);
         });
     });
 

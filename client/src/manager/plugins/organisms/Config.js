@@ -54,14 +54,14 @@ const Config = {
      * If amount of energy less then orgCloneMinEnergy * vm.size, then clone
      * is not possible
      */
-    orgCloneMinEnergy: 500000,
+    orgCloneMinEnergy: 10000,
     /**
      * {Boolean} true means, that one organism will be killed just after new
      * organism has cloned. If population is less then orgMaxOrgs, then no killing
      * will be provided. Killing of organism will be done using random organism
      * selection from population
      */
-    orgKillOnClone: false,
+    //orgKillOnClone: false,
     /**
      * {Number} Amount of iterations between tournament. During tournament one
      * organism (looser) will be killed
@@ -72,7 +72,7 @@ const Config = {
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 6000,
+    orgRainMutationPeriod: 4000,
     /**
      * {Number} Percent of mutations from code size. 0 is a possible value if
      * we want to disable mutations. Should be less then 1.0 (1.0 === 100%)
@@ -88,17 +88,17 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 100,
+    orgCrossoverPeriod: 1000,
     /**
      * {Number} Period of iterations for creation of random organisms. Set it to 0
      * to turn off this feature
      */
-    orgRandomOrgPeriod: 0,
+    orgRandomOrgPeriod: 3000,
     /**
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
      */
-    orgAlivePeriod: 20000,
+    orgAlivePeriod: 40000,
     /**
      * {Number} Size of organism stack (internal memory) in bits. Real amount of
      * organism's internal memory will be 2^orgMemBits. Example: if orgMemBits=3,
@@ -124,7 +124,7 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 500,
+    orgMaxOrgs: 1000,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
@@ -135,11 +135,6 @@ const Config = {
      * by operator and not by evolution.
      */
     orgStartEnergy: 10000000,
-    /**
-     * {Number} Begin color of "empty" organism. It's just an index of color.
-     * Starts from0 and till Number.MAX_VALUE
-     */
-    orgStartColor: 50,
     /**
      * {Number} Amount of bits for storing a numeric constant inside byte code
      */
