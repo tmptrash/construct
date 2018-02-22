@@ -99,7 +99,7 @@ ClientConfig.init({
      * {Number} size of one clever energy block (percent from world size). Calculates
      * in this way amountOfDotsInBlock = worldWidth * worldHeight * worldCleverEnergyBlockPercent
      */
-    worldCleverEnergyBlockPercent: 0.00002,
+    worldCleverEnergyBlockPercent: 0.00001,
     /**
      * {Number} Percent from all energy in a world until clever energy will be added.
      * After this value clever energy will be stopped to add until it's amount will
@@ -112,7 +112,7 @@ ClientConfig.init({
      * all energy in a world after which clever energy will turn on (be added to the
      * world again).
      */
-    worldCleverEnergyMinPercent: 0.15,
+    worldCleverEnergyMinPercent: 0.015,
     /**
      * {Number} Zoom speed 0..1
      */

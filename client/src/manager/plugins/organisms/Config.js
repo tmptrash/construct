@@ -13,14 +13,15 @@ const Config = {
      * {Array} Array of operators weights in energy equivalent. Every value of this
      * array is bind to special operator run on VM. The same sequence should be
      * implemented. See Operators.operators getter for details. Values may be float.
-     * Values titles:
-     * [
-     *   onVar,onConst,onCondition,onLoop,omOperator,onLookAt,onEatLeft,onEatRight,onEatUp,
-     *   onEatDown,onStepLeft,onStepRight,onStepUp,onStepDown,onFromMem,onToMem,
-     *   onMyX,onMyY,onCheckLeft,onCheckRight,onCheckUp,onCheckDown
-     * ]
      */
-    orgOperatorWeights: [.00001,.00001,.00001,.0000001,.00001,.000001,.0002,.0002,.0002,.0002,.0002,.0002,.0002,.0002,.00001,.00001,.00001,.00001,.00001,.00001,.00001,.00001],
+    orgOperatorWeights: [
+        .000001,  .00001,  .000001, .00000001, .000001, // var, const, if, loop, operator,
+        .0000001, .0002,   .0002,   .0002,     .0002,   // lookAt, eatLeft, eatRight, eatUp, eatDown,
+        .002,     .002,    .002,    .002,               // stepLeft, stepRight, stepUp, stepDown,
+        .000001,  .000001,                              // fromMem, toMem,
+        .000001,  .000001,                              // myX, myY,
+        .000001,  .000001, .000001, .000001             // checkLeft, checkRight, checkUp, checkDown
+    ],
     /**
      * {Array} Probabilities which used, when mutator decides what to do:
      * add, change, delete code line inside the vm; change amount of
