@@ -124,11 +124,11 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 2000,
+    orgMaxOrgs: 1000,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 3000,
+    orgStartAmount: 1000,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created

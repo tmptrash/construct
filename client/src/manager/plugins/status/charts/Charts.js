@@ -171,7 +171,7 @@ class Charts extends Status {
         const kilo   = `kilo:${status.killeat}`;
         const orgs   = `org:${status.orgs}`;
 
-        this._headerEl.textContent = `${man.clientId ? 'id:' + man.clientId : ''} ${conns === '' ? '' : 'con:' + conns} ${ips} ${wnrg} ${enrg} ${code} ${age} ${kill} ${kilo} ${orgs}`;
+        this._headerEl.textContent = `${man.clientId ? 'id:' + man.clientId : ''} ${conns === '' ? '' : 'con:' + conns} ${ips} ${wnrg}% ${enrg} ${code} ${age} ${kill} ${kilo} ${orgs}`;
     }
 
     /**

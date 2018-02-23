@@ -9,13 +9,15 @@ const Organism = require('./../../manager/plugins/organisms/Organism').Organism;
 const Console  = require('./../../share/Console');
 const EVENTS   = require('./../../share/Events').EVENTS;
 
+const POSID    = Helper.posId;
+
 class Energy {
     constructor(manager) {
         this._manager       = manager;
         this._lastX         = -1;
         this._lastY         = -1;
         this._colorIndex    = Helper.rand(Organism.getMaxColors());
-        this._amount        = Config.worldWidth * Config.worldHeight * Config.worldCleverEnergyBlockPercent;
+        this._amount        = Config.worldCleverEnergyBlockSize;
         this._cleverActive  = true;
         this._onIterationCb = this._onIteration.bind(this);
 
@@ -37,12 +39,12 @@ class Energy {
             return;
         }
 
-        const energyPercent = this._getEnergyPercent();
-        this._manager.fire(EVENTS.WORLD_ENERGY, energyPercent);
-        if (energyPercent <= Config.worldCleverEnergyMinPercent)      {this._cleverActive = true}
-        else if (energyPercent >= Config.worldCleverEnergyMaxPercent) {this._cleverActive = false}
+        const energy = this._getWorldEnergy();
+        this._manager.fire(EVENTS.WORLD_ENERGY, energy);
+        if (energy <= Config.worldCleverEnergyMin)      {this._cleverActive = true}
+        else if (energy >= Config.worldCleverEnergyMax) {this._cleverActive = false}
 
-        if (energyPercent <= Config.worldEnergyCheckPercent) {
+        if (energy <= Config.worldEnergyCheckAmount) {
             this._updateEnergy(Config.worldEnergyDots, Config.worldEnergyInDot);
         }
     }
@@ -73,7 +75,7 @@ class Energy {
         if (x < 0 || x >= Config.worldWidth || y < 0 || y >= Config.worldHeight || --this._amount < 0)  {
             this._lastX      = this._lastY = -1;
             this._colorIndex = Helper.rand(Organism.getMaxColors());
-            this._amount     = Config.worldWidth * Config.worldHeight * Config.worldCleverEnergyBlockPercent;
+            this._amount     = Config.worldCleverEnergyBlockSize;
             return;
         }
 
@@ -83,19 +85,20 @@ class Energy {
         if (world.getDot(this._lastX, this._lastY) === 0) {world.setDot(this._lastX, this._lastY, Organism.getColor(this._colorIndex))}
     }
 
-    _getEnergyPercent() {
+    _getWorldEnergy() {
         let   energy = 0;
         const world  = this._manager.world;
         const width  = Config.worldWidth;
         const height = Config.worldHeight;
+        const man    = this._manager;
 
         for (let x = 0; x < width; x++) {
             for (let y = 0; y < height; y++) {
-                if (world.getDot(x, y) > 0) {energy++}
+                if (typeof man.organisms[POSID(x, y)] === 'undefined') {energy += world.getDot(x, y)}
             }
         }
 
-        return energy / (width * height);
+        return energy;
     }
 }
 

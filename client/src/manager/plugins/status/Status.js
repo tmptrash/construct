@@ -54,7 +54,7 @@ class Status extends Configurable {
         this._ageCount        = 0;
         this._times           = 0;
         this._kill            = new Array(9);
-        this._energyPercent   = 0.0;
+        this._worldEnergy   = 0.0;
         this._statusCfg       = statCfg;
         this._firstCall       = true;
 
@@ -184,7 +184,7 @@ class Status extends Configurable {
         status.killin     = fix(this._kill[7], 2);
         status.killclone  = fix(this._kill[8], 2);
 
-        status.wenergy    = fix(this._energyPercent, 4);
+        status.wenergy    = fix(this._worldEnergy / (Config.worldWidth * Config.worldHeight * 0xffffff), 4);
 
         !this._firstCall && this.onStatus(status, orgs.size);
         this._onAfterLoop(stamp);
@@ -229,7 +229,7 @@ class Status extends Configurable {
     }
 
     _onWorldEnergy(percent) {
-        this._energyPercent = percent;
+        this._worldEnergy = percent;
     }
 }
 

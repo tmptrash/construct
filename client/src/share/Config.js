@@ -67,16 +67,14 @@ ClientConfig.init({
      */
     worldCyclical: false,
     /**
-     * {Number} Minimum percent of energy in current world. Under percent i mean
-     * percent from entire world area (100%). If the energy will be less
-     * or equal then this percent, then new random energy should be added.
-     * Should be less then 100.0 and more and equal to 0.0. 0.17 is a
-     * normal percent for this system.
+     * {Number} Minimum amount of energy in current world. Under amount i mean
+     * sum from entire world area (100%). If the energy will be less
+     * or equal then this value, then new random energy should be added.
      */
-    worldEnergyCheckPercent: 0.0005,
+    worldEnergyCheckAmount: 10000000,
     /**
      * {Number} An amount of iteration, after which we have to check world energy
-     * amount. Works in pair with worldEnergyCheckPercent. May be 0 if
+     * amount. Works in pair with worldEnergyCheckAmount. May be 0 if
      * you want to disable it
      */
     worldEnergyCheckPeriod: 5000,
@@ -96,23 +94,22 @@ ClientConfig.init({
      */
     worldCleverEnergy: true,
     /**
-     * {Number} size of one clever energy block (percent from world size). Calculates
-     * in this way amountOfDotsInBlock = worldWidth * worldHeight * worldCleverEnergyBlockPercent
+     * {Number} size of one clever energy block in dots.
      */
-    worldCleverEnergyBlockPercent: 0.00001,
+    worldCleverEnergyBlockSize: 400,
     /**
      * {Number} Percent from all energy in a world until clever energy will be added.
      * After this value clever energy will be stopped to add until it's amount will
-     * be less then worldCleverEnergyMinPercent. These two configs create cyclical
+     * be less then worldCleverEnergyMin. These two configs create cyclical
      * energy adding to the world.
      */
-    worldCleverEnergyMaxPercent: 0.04,
+    worldCleverEnergyMax: 9123953878473,
     /**
-     * {Number} Opposite to worldCleverEnergyMaxPercent. Sets minimum percent from
+     * {Number} Opposite to worldCleverEnergyMax. Sets minimum percent from
      * all energy in a world after which clever energy will turn on (be added to the
      * world again).
      */
-    worldCleverEnergyMinPercent: 0.0005,
+    worldCleverEnergyMin: 91239538784,
     /**
      * {Number} Zoom speed 0..1
      */
