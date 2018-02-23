@@ -112,7 +112,7 @@ ClientConfig.init({
      * all energy in a world after which clever energy will turn on (be added to the
      * world again).
      */
-    worldCleverEnergyMinPercent: 0.001,
+    worldCleverEnergyMinPercent: 0.0005,
     /**
      * {Number} Zoom speed 0..1
      */
