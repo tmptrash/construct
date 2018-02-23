@@ -19,7 +19,6 @@
  */
 const Observer     = require('./../../../common/src/Observer');
 const Helper       = require('./../../../common/src/Helper');
-const EVENTS       = require('./../../src/share/Events').EVENTS;
 const EVENT_AMOUNT = require('./../../src/share/Events').EVENT_AMOUNT;
 
 const DOT     = 0;

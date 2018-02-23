@@ -67,11 +67,12 @@ ClientConfig.init({
      */
     worldCyclical: false,
     /**
-     * {Number} Minimum amount of energy in current world. Under amount i mean
-     * sum from entire world area (100%). If the energy will be less
-     * or equal then this value, then new random energy should be added.
+     * {Number} Minimum percent of energy in current world. Under percent i mean
+     * percent from possible world fulfilled by energy with value 0xffffffff. If
+     * the energy will be less or equal then this value, then new random energy
+     * should be added.
      */
-    worldEnergyCheckAmount: 10000000,
+    worldEnergyCheckAmount: .0001,
     /**
      * {Number} An amount of iteration, after which we have to check world energy
      * amount. Works in pair with worldEnergyCheckAmount. May be 0 if
@@ -100,16 +101,16 @@ ClientConfig.init({
     /**
      * {Number} Percent from all energy in a world until clever energy will be added.
      * After this value clever energy will be stopped to add until it's amount will
-     * be less then worldCleverEnergyMin. These two configs create cyclical
+     * be less then worldCleverEnergyMinPercent. These two configs create cyclical
      * energy adding to the world.
      */
-    worldCleverEnergyMax: 9123953878473,
+    worldCleverEnergyMaxPercent: .0008,
     /**
-     * {Number} Opposite to worldCleverEnergyMax. Sets minimum percent from
+     * {Number} Opposite to worldCleverEnergyMaxPercent. Sets minimum percent from
      * all energy in a world after which clever energy will turn on (be added to the
      * world again).
      */
-    worldCleverEnergyMin: 91239538784,
+    worldCleverEnergyMinPercent: .00008,
     /**
      * {Number} Zoom speed 0..1
      */

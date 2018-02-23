@@ -37,7 +37,9 @@ const EVENTS = {
     STOP            : 27,
     RESET_CODE      : 28,
     CHECK_AT        : 29,
-    WORLD_ENERGY    : 30
+    WORLD_ENERGY    : 30,
+    WORLD_ENERGY_UP : 31
+
 };
 
 const EVENT_AMOUNT = Object.keys(EVENTS).length;

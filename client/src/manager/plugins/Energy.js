@@ -41,8 +41,8 @@ class Energy {
 
         const energy = this._getWorldEnergy();
         this._manager.fire(EVENTS.WORLD_ENERGY, energy);
-        if (energy <= Config.worldCleverEnergyMin)      {this._cleverActive = true}
-        else if (energy >= Config.worldCleverEnergyMax) {this._cleverActive = false}
+        if (energy <= Config.worldCleverEnergyMinPercent)      {this._manager.fire(EVENTS.WORLD_ENERGY_UP, this._cleverActive = true)}
+        else if (energy >= Config.worldCleverEnergyMaxPercent) {this._manager.fire(EVENTS.WORLD_ENERGY_UP, this._cleverActive = false)}
 
         if (energy <= Config.worldEnergyCheckAmount) {
             this._updateEnergy(Config.worldEnergyDots, Config.worldEnergyInDot);
@@ -80,9 +80,13 @@ class Energy {
         }
 
         const world  = this._manager.world;
-        this._lastX  = x + Helper.rand(3) - 1;
-        this._lastY  = y + Helper.rand(3) - 1;
-        if (world.getDot(this._lastX, this._lastY) === 0) {world.setDot(this._lastX, this._lastY, Organism.getColor(this._colorIndex))}
+        for (let i = 0; i < 8; i++) {
+            this._lastX = x + Helper.rand(3) - 1;
+            this._lastY = y + Helper.rand(3) - 1;
+            if (world.getDot(this._lastX, this._lastY) === 0) {
+                world.setDot(this._lastX, this._lastY, Organism.getColor(this._colorIndex))
+            }
+        }
     }
 
     _getWorldEnergy() {
@@ -90,15 +94,15 @@ class Energy {
         const world  = this._manager.world;
         const width  = Config.worldWidth;
         const height = Config.worldHeight;
-        const man    = this._manager;
+        const orgs   = this._manager.organisms;
 
         for (let x = 0; x < width; x++) {
             for (let y = 0; y < height; y++) {
-                if (typeof man.organisms[POSID(x, y)] === 'undefined') {energy += world.getDot(x, y)}
+                if (typeof orgs[POSID(x, y)] === 'undefined') {energy += world.getDot(x, y)}
             }
         }
 
-        return energy;
+        return energy / (width * height * 0xffffffff);
     }
 }
 

@@ -50,7 +50,7 @@ class Console extends Status {
         const senergy   = format(status.energy,   'nrg',  19);
         const spenergy  = format(status.penergy,  'pnrg', 15);
         const seenergy  = format(status.eenergy,  'enrg', 16);
-        const wenergy   = format(status.wenergy,  'wnrg', 12);
+        const wenergy   = format(status.wenergy + (status.wenergyup ? '\u2191' : '\u2193'),  'wnrg', 14);
         const skill     = format(status.kill,     'kil',  12);
         const schanges  = format(status.changes,  'che',  12);
         const sfit      = format(status.fit,      'fit',  13);

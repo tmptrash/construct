@@ -164,21 +164,36 @@ class Organisms extends BaseOrganisms {
         const eat       = ret.ret;
         [x, y]          = NORMALIZE_NO_DIR(x, y);
         const posId     = POSID(x, y);
-
+        //
+        // Energy found
+        //
         if (typeof(positions[posId]) === 'undefined') {
             if (eat > 0) {
                 ret.ret = this.world.grabDot(x, y, eat);
                 this.parent.fire(EVENTS.EAT_ENERGY, ret.ret);
             } else {
                 ret.ret = eat;
-                this.world.setDot(x, y, ((-eat + .5) << 0) + this.world.getDot(x, y));
+                this.world.setDot(x, y, (((-eat + .5) << 0) >>> 0) + this.world.getDot(x, y));
                 this.parent.fire(EVENTS.EAT_ENERGY, eat);
             }
+        //
+        // Organism found
+        //
         } else {
             const victimOrg = positions[posId];
             ret.ret = eat < 0 ? 0 : (eat > victimOrg.energy ? victimOrg.energy : eat);
-            victimOrg.energy <= ret.ret && this.parent.fire(EVENTS.KILL_EAT, victimOrg);
-            victimOrg.energy -= ret.ret;
+            if (victimOrg.energy <= ret.ret) {
+                this.parent.fire(EVENTS.KILL_EAT, victimOrg);
+                //
+                // IMPORTANT:
+                // We have to do destroy here, to have a possibility for current
+                // (winner) organism to clone himself after eating other organism.
+                // This is how organisms compete for an ability to clone
+                //
+                victimOrg.destroy();
+            } else {
+                victimOrg.energy -= ret.ret;
+            }
         }
     }
 

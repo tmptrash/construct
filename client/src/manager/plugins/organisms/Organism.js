@@ -110,7 +110,7 @@ class Organism extends Observer {
     set y(newY)                 {this._y = newY}
     set mutationPeriod(m)       {this._mutationPeriod = m}
     set mutationPercent(p)      {this._mutationPercent = p}
-    set energy(e)               {this._energy = e; this._updateColor()}
+    set energy(e)               {if (this.vm !== null) { this._energy = e; this._updateColor()}}
     set startEnergy(e)          {this._startEnergy = e}
     set changes(c)              {this._changes = c}
     set maxEnergy(e)            {this._maxEnergy = e}

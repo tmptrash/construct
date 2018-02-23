@@ -275,7 +275,7 @@ class Organisms extends Configurable {
     }
 
     _onCloneOrg(org) {
-        //const maxOrgs   = OConfig.orgMaxOrgs;
+        const maxOrgs   = OConfig.orgMaxOrgs;
         //const orgAmount = this.organisms.size;
 
         //if (OConfig.orgKillOnClone && orgAmount >= maxOrgs) {this._killInTour()}
@@ -283,9 +283,17 @@ class Organisms extends Configurable {
         // if (this.organisms.size >= OConfig.orgMaxOrgs && Math.random() <= ((org.energy / 10000000000000) * (org.iterations / OConfig.orgAlivePeriod))) {
         //     this.randOrg().destroy();
         // }
-        //if (this.organisms.size >= maxOrgs && Math.random() <= org.energy / this._maxEnergy) {this.randOrg().destroy()}
         //if (this.organisms.size <  maxOrgs) {this._clone(org)}
-        if (this.organisms.size < OConfig.orgMaxOrgs && this._clone(org)) {
+        //if (this.organisms.size >= maxOrgs && Math.random() <= (org.energy / org.vm.size) / this._maxEnergy) {this.randOrg().destroy()}
+        //
+        // This is very important part of application! Cloning should be available only if
+        // amount of organisms is less then maximum or if current organism ate other right
+        // now (and free one slot in Organisms.organisms queue). It's not a good idea to
+        // kill organisms with small amount of energy or support more more energetic
+        // organisms before cloning. They should kill each other to have a possibility
+        // of cloning.
+        //
+        if (this.organisms.size <  maxOrgs && this._clone(org)) {
             org.energy -= (OConfig.orgCloneMinEnergy * org.vm.size / 2);
             this.organisms.last.val.energy -= (OConfig.orgCloneMinEnergy * this.organisms.last.val.vm.size / 2)
         }

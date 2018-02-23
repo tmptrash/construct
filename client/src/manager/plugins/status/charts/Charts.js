@@ -165,13 +165,14 @@ class Charts extends Status {
         const ips    = `ips:${status.ips}`;
         const enrg   = `enrg:${status.eenergy}`;
         const wnrg   = `wnrg:${status.wenergy}`;
+        const wnrgup = status.wenergyup ? '\u2191' : '\u2193';
         const code   = `cod:${status.code}`;
         const age    = `age:${status.age}`;
         const kill   = `kil:${status.kill}`;
         const kilo   = `kilo:${status.killeat}`;
         const orgs   = `org:${status.orgs}`;
 
-        this._headerEl.textContent = `${man.clientId ? 'id:' + man.clientId : ''} ${conns === '' ? '' : 'con:' + conns} ${ips} ${wnrg}% ${enrg} ${code} ${age} ${kill} ${kilo} ${orgs}`;
+        this._headerEl.textContent = `${man.clientId ? 'id:' + man.clientId : ''} ${conns === '' ? '' : 'con:' + conns} ${ips} ${wnrg} ${wnrgup} ${enrg} ${code} ${age} ${kill} ${kilo} ${orgs}`;
     }
 
     /**
