@@ -49,7 +49,8 @@ const Config = {
      */
     orgMutationPerOrg: false,
     /**
-     * {Number} Minimum age for cloning. Before that, cloning is impossible
+     * {Number} Minimum age for cloning. Before that, cloning is impossible. It should
+     * be less then orgAlivePeriod config
      */
     orgCloneMinAge: 5000,
     /**
