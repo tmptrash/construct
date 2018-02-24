@@ -94,6 +94,7 @@ describe("client/src/organism/OrganismDos", () => {
             OConfig.orgOperatorWeights.splice(0, OConfig.orgOperatorWeights.length, ...newWeights);
             OConfig.codeYieldPeriod      = 1;
             const org1    = new OrganismDos('0', 1, 2, null);
+            _fill(org1.vm.vars, 0);
             org1.vm.insertLine();
 
             expect(org1.energy).toBe(100);
@@ -234,6 +235,7 @@ describe("client/src/organism/OrganismDos", () => {
             OConfig.orgOperatorWeights.splice(0, OConfig.orgOperatorWeights.length, ...newWeights);
             const org1 = new OrganismDos('0', 1, 2, null);
 
+            _fill(org1.vm.vars, 0);
             org1.vm.insertLine();
             org1.energy = OConfig.orgCloneMinEnergy * 2;
             org1.on(OEvents.CLONE, () => flag = true);

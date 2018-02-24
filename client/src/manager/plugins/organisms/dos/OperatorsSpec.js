@@ -1030,4 +1030,55 @@ describe("client/src/organism/OperatorsDos", () => {
             ops1.destroy();
         });
     });
+
+    describe('onCheckRight() method', () => {
+        let org;
+        let ops;
+
+        beforeEach(() => {org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([], [0, 1, 2, 3], org)});
+        afterEach (() => {ops.destroy(); org.destroy()});
+
+        it('Checks right, but nothing there', () => {
+            org.on(EVENTS.CHECK_AT, (x, y, ret) => {
+                expect(x).toBe(2);
+                expect(y).toBe(2);
+                ret.ret = 0;
+            });
+            org.x = 1;
+            org.y = 2;
+            expect(ops.onCheckRight(0x0c7fffff, 0, org)).toEqual(1); // v1=checkLeft()
+            expect(ops.vars).toEqual([0,0,2,3]);
+        });
+
+        it('Checks right and energy there', () => {
+            org.on(EVENTS.CHECK_AT, (x, y, ret) => {
+                expect(x).toBe(2);
+                expect(y).toBe(2);
+                ret.ret = 9;
+            });
+            org.x = 1;
+            org.y = 2;
+            expect(ops.onCheckRight(0x0c7fffff, 1, org)).toEqual(2); // v1=checkLeft()
+            expect(ops.vars).toEqual([0,9,2,3]);
+        });
+
+        it('Checks right with 4 bits per var', () => {
+            let bpv = OConfig.codeBitsPerVar;
+            OConfig.codeBitsPerVar = 4;
+            let ops1 = new OperatorsDos([1], [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], org);
+
+            org.on(EVENTS.CHECK_AT, (x, y, ret) => {
+                expect(x).toBe(2);
+                expect(y).toBe(2);
+                ret.ret = 9;
+            });
+            org.x = 1;
+            org.y = 2;
+            expect(ops1.onCheckRight(0x0c7fffff, 1, org)).toEqual(2); // v7=checkLeft()
+            expect(ops1.vars).toEqual([0,1,2,3,4,5,6,9,8,9,10,11,12,13,14,15]);
+
+            OConfig.codeBitsPerVar = bpv;
+            ops1.destroy();
+        });
+    });
 });
