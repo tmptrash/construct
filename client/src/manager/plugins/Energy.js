@@ -14,10 +14,6 @@ const POSID    = Helper.posId;
 class Energy {
     constructor(manager) {
         this._manager       = manager;
-        this._lastX         = -1;
-        this._lastY         = -1;
-        this._colorIndex    = Helper.rand(Organism.getMaxColors());
-        this._amount        = Config.worldCleverEnergyBlockSize;
         this._cleverActive  = true;
         this._onIterationCb = this._onIteration.bind(this);
 
@@ -31,7 +27,7 @@ class Energy {
     }
 
     _onIteration(counter) {
-        Config.worldCleverEnergy && this._cleverActive && this._updateCleverEnergy();
+        Config.worldCleverEnergy && this._cleverActive && this._addCleverBlock();
 
         if (counter % Config.worldEnergyCheckPeriod !== 0 || Config.worldEnergyCheckPeriod === 0) {return}
         if (counter === 0) {
@@ -68,23 +64,21 @@ class Energy {
         this._manager.fire(EVENTS.UPDATE_ENERGY);
     }
 
-    _updateCleverEnergy() {
-        const x = this._lastX >= 0 ? this._lastX : Helper.rand(Config.worldWidth);
-        const y = this._lastY >= 0 ? this._lastY : Helper.rand(Config.worldHeight);
-
-        if (x < 0 || x >= Config.worldWidth || y < 0 || y >= Config.worldHeight || --this._amount < 0)  {
-            this._lastX      = this._lastY = -1;
-            this._colorIndex = Helper.rand(Organism.getMaxColors());
-            this._amount     = Config.worldCleverEnergyBlockSize;
-            return;
-        }
-
+    _addCleverBlock() {
+        const width  = Config.worldWidth;
+        const height = Config.worldHeight;
+        const color  = Helper.rand(Organism.getMaxColors());
+        let   block  = Config.worldCleverEnergyBlockSize;
         const world  = this._manager.world;
-        for (let i = 0; i < 8; i++) {
-            this._lastX = x + Helper.rand(3) - 1;
-            this._lastY = y + Helper.rand(3) - 1;
-            if (world.getDot(this._lastX, this._lastY) === 0) {
-                world.setDot(this._lastX, this._lastY, Organism.getColor(this._colorIndex))
+        let   x      = Helper.rand(width);
+        let   y      = Helper.rand(height);
+
+        for (let i = 0; i < block; i++) {
+            x = x + Helper.rand(3) - 1;
+            y = y + Helper.rand(3) - 1;
+            if (x < 0 || x >= width || y < 0 || y >= height || --block < 0) {return}
+            if (world.getDot(x, y) === 0) {
+                world.setDot(x, y, Organism.getColor(color));
             }
         }
     }

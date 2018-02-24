@@ -110,6 +110,7 @@ class Charts extends Status {
             energy    : new Chart('Average organism energy',                                        Config.charts.energy),
             penergy   : new Chart('Average organism\'s picked energy (all)',                        Config.charts.penergy),
             eenergy   : new Chart('Average organism\'s picked energy (energy only)',                Config.charts.eenergy),
+            puenergy  : new Chart('Average organism\'s put energy to the world',                    Config.charts.puenergy),
             changes   : new Chart('Average organism\'s changes (Mutations)',                        Config.charts.changes),
             fit       : new Chart('Average organism\'s Fitness',                                    Config.charts.fit),
             age       : new Chart('Average organism\'s Age',                                        Config.charts.age),

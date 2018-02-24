@@ -46,6 +46,7 @@ class Status extends Configurable {
         this._energy          = 0;
         this._pickEnergy      = 0;
         this._eatEnergy       = 0;
+        this._putEnergy       = 0;
         this._fitness         = 0;
         this._changes         = 0;
         this._codeSize        = 0;
@@ -62,6 +63,7 @@ class Status extends Configurable {
         this._onLoopCb          = this._onLoop.bind(this);
         this._onIpsCb           = this._onIps.bind(this);
         this._onEatEnergyCb     = this._onEatEnergy.bind(this);
+        this._onPutEnergyCb     = this._onPutEnergy.bind(this);
         this._onKillOrgCb       = this._onKillOrg.bind(this);
         this._onKillEnergyCb    = this._onKillHandlerOrg.bind(this, 1);
         this._onKillTourCb      = this._onKillHandlerOrg.bind(this, 2);
@@ -77,6 +79,7 @@ class Status extends Configurable {
         Helper.override(manager, 'onLoop', this._onLoopCb);
         manager.on(EVENTS.IPS,             this._onIpsCb);
         manager.on(EVENTS.EAT_ENERGY,      this._onEatEnergyCb);
+        manager.on(EVENTS.PUT_ENERGY,      this._onPutEnergyCb);
         manager.on(EVENTS.KILL,            this._onKillOrgCb);
         manager.on(EVENTS.KILL_TOUR,       this._onKillTourCb);
         manager.on(EVENTS.KILL_NO_ENERGY,  this._onKillEnergyCb);
@@ -106,6 +109,7 @@ class Status extends Configurable {
         man.off(EVENTS.KILL_NO_ENERGY,  this._onKillEnergyCb);
         man.off(EVENTS.KILL_TOUR,       this._onKillTourCb);
         man.off(EVENTS.KILL,            this._onKillOrgCb);
+        man.off(EVENTS.PUT_ENERGY,      this._onPutEnergyCb);
         man.off(EVENTS.EAT_ENERGY,      this._onEatEnergyCb);
         man.off(EVENTS.IPS,             this._onIpsCb);
         Helper.unoverride(man, 'onLoop', this._onLoopCb);
@@ -114,6 +118,7 @@ class Status extends Configurable {
         this._onWorldEnergyCb   = null;
         this._onKillOrgCb       = null;
         this._onKillTourCb      = null;
+        this._onPutEnergyCb     = null;
         this._onEatEnergyCb     = null;
         this._onKillCloneCb     = null;
         this._onKillInCb        = null;
@@ -174,6 +179,7 @@ class Status extends Configurable {
         status.energy     = fix(this._energy, 2);
         status.penergy    = fix(this._pickEnergy * 1000, 2);
         status.eenergy    = fix(this._eatEnergy / orgAmount, 2);
+        status.puenergy   = fix(this._putEnergy / orgAmount, 2);
         status.changes    = +(this._changes).toFixed(1);
         status.fit        = fix(this._fitness / 100, 2);
         status.age        = fix(this._age / (this._ageCount || 1), 2);
@@ -221,6 +227,14 @@ class Status extends Configurable {
      */
     _onEatEnergy(eat) {
         this._eatEnergy += eat;
+    }
+
+    /**
+     * Calculates putting of energy by organisms to the world
+     * @param {Number} put Amount of put energy
+     */
+    _onPutEnergy(put) {
+        this._putEnergy += put;
     }
 
     _onKillOrg(org) {

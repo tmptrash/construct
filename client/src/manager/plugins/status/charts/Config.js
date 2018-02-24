@@ -27,19 +27,20 @@ const Config = {
         orgs      : {pos: '0-0|16',    active: false,  transparent: 0.8},
         penergy   : {pos: '0-1|16',    active: false,  transparent: 0.8},
         eenergy   : {pos: '0-2|16',    active: false,  transparent: 0.8},
-        fit       : {pos: '0-3|16',    active: false,  transparent: 0.8},
-        age       : {pos: '1-0|16',    active: false,  transparent: 0.8},
-        code      : {pos: '1-1|16',    active: false,  transparent: 0.8},
-        kill      : {pos: '1-2|16',    active: false,  transparent: 0.8},
-        killtour  : {pos: '1-3|16',    active: false,  transparent: 0.8},
-        killenergy: {pos: '2-0|16',    active: false,  transparent: 0.8},
-        killage   : {pos: '2-1|16',    active: false,  transparent: 0.8},
-        killeat   : {pos: '2-2|16',    active: false,  transparent: 0.8},
-        killover  : {pos: '2-3|16',    active: false,  transparent: 0.8},
-        changes   : {pos: '3-0|16',    active: false,  transparent: 0.8},
-        killin    : {pos: '3-1|16',    active: false,  transparent: 0.8},
-        killclone : {pos: '3-2|16',    active: false,  transparent: 0.8},
-        ips       : {pos: '3-3|16',    active: false,  transparent: 0.8}
+        puenergy  : {pos: '0-3|16',    active: false,  transparent: 0.8},
+        fit       : {pos: '1-0|16',    active: false,  transparent: 0.8},
+        age       : {pos: '1-1|16',    active: false,  transparent: 0.8},
+        code      : {pos: '1-2|16',    active: false,  transparent: 0.8},
+        kill      : {pos: '1-3|16',    active: false,  transparent: 0.8},
+        killtour  : {pos: '2-0|16',    active: false,  transparent: 0.8},
+        killenergy: {pos: '2-1|16',    active: false,  transparent: 0.8},
+        killage   : {pos: '2-2|16',    active: false,  transparent: 0.8},
+        killeat   : {pos: '2-3|16',    active: false,  transparent: 0.8},
+        killover  : {pos: '3-0|16',    active: false,  transparent: 0.8},
+        changes   : {pos: '3-1|16',    active: false,  transparent: 0.8},
+        killin    : {pos: '3-2|16',    active: false,  transparent: 0.8},
+        killclone : {pos: '3-3|16',    active: false,  transparent: 0.8},
+        ips       : {pos: 'downright', active: false,  transparent: 0.8}
     }
 };
 

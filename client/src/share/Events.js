@@ -27,18 +27,19 @@ const EVENTS = {
     EAT             : 17,
     EAT_ORG         : 18,
     EAT_ENERGY      : 19,
-    STEP            : 20,
-    STEP_OUT        : 21,
-    STEP_IN         : 22,
-    BORN_ORGANISM   : 23,
-    GET_ENERGY      : 24,
-    DESTROY         : 25,
-    RUN             : 26,
-    STOP            : 27,
-    RESET_CODE      : 28,
-    CHECK_AT        : 29,
-    WORLD_ENERGY    : 30,
-    WORLD_ENERGY_UP : 31
+    PUT_ENERGY      : 20,
+    STEP            : 21,
+    STEP_OUT        : 22,
+    STEP_IN         : 23,
+    BORN_ORGANISM   : 24,
+    GET_ENERGY      : 25,
+    DESTROY         : 26,
+    RUN             : 27,
+    STOP            : 28,
+    RESET_CODE      : 29,
+    CHECK_AT        : 30,
+    WORLD_ENERGY    : 31,
+    WORLD_ENERGY_UP : 32
 
 };
 
