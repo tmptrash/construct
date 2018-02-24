@@ -27,7 +27,7 @@ class Energy {
     }
 
     _onIteration(counter) {
-        Config.worldCleverEnergy && this._cleverActive && this._addCleverBlock();
+        Config.worldCleverEnergy && this._cleverActive && this._addCleverEnergyBlock();
 
         if (counter % Config.worldEnergyCheckPeriod !== 0 || Config.worldEnergyCheckPeriod === 0) {return}
         if (counter === 0) {
@@ -64,7 +64,7 @@ class Energy {
         this._manager.fire(EVENTS.UPDATE_ENERGY);
     }
 
-    _addCleverBlock() {
+    _addCleverEnergyBlock() {
         const width  = Config.worldWidth;
         const height = Config.worldHeight;
         const color  = Helper.rand(Organism.getMaxColors());

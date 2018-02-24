@@ -157,9 +157,9 @@ describe("client/src/organism/OrganismDos", () => {
         });
 
         it("Checking if changes affects color", () => {
-            const color      = org.color;
-            expect(org.changes).toBe(0);
-            org.changes = 10;
+            const color = org.color;
+            expect(org.color).toBe(color);
+            org.energy++;
             expect(org.color).not.toBe(color);
         });
     });
@@ -248,10 +248,15 @@ describe("client/src/organism/OrganismDos", () => {
     });
 
     it("Checking destroy() method", () => {
-        let   org    = new OrganismDos(0, 1, 2, null, () => {});
+        const org1 = new OrganismDos('0', 1, 2, null);
 
-        expect(org.energy > 0).toEqual(true);
-        org.destroy();
-        expect(org.energy > 0).toEqual(false);
+        expect(org1.energy > 0).toEqual(true);
+        org1.destroy();
+        expect(org1.vm).toBe(null);
+        expect(org1.energy).toBe(0);
+        expect(org1.item).toBe(null);
+        expect(org1.mem).toBe(null);
+        expect(org1.mutationProbs).toBe(null);
+        expect(org1.iterations).toBe(-1);
     });
 });

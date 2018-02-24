@@ -163,7 +163,7 @@ class OperatorsDos extends Operators {
 
         if (IN_WORLD(x, y)) {
             this.obs.fire(EVENTS.GET_ENERGY, x, y, this._ret);
-            this.vars[Num.getVar0(num)] = this._ret.ret;
+            vars[Num.getVar0(num)] = this._ret.ret;
             return ++line;
         }
 

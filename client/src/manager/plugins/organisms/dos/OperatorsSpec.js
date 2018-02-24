@@ -979,4 +979,24 @@ describe("client/src/organism/OperatorsDos", () => {
             ops1.destroy();
         });
     });
+
+    describe('onCheckLeft() method', () => {
+        let org;
+        let ops;
+
+        beforeEach(() => {org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([], [0, 1, 2, 3], org)});
+        afterEach (() => {ops.destroy(); org.destroy()});
+
+        it('Check left, but nothing there', () => {
+            org.on(EVENTS.CHECK_AT, (x, y, ret) => {
+                expect(x).toBe(0);
+                expect(y).toBe(2);
+                ret.ret = 0;
+            });
+            org.x = 1;
+            org.y = 2;
+            expect(ops.onCheckLeft(0x0c7fffff, 0, org)).toEqual(1); // v1=checkLeft()
+            expect(ops.vars).toEqual([0,0,2,3]);
+        });
+    });
 });
