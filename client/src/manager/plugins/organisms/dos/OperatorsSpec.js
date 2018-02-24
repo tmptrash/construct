@@ -1,3 +1,5 @@
+const _fill       = require('lodash/fill');
+
 describe("client/src/organism/OperatorsDos", () => {
     let OConfig      = require('./../../organisms/Config');
     let cbpv         = OConfig.codeBitsPerVar;
@@ -6,8 +8,6 @@ describe("client/src/organism/OperatorsDos", () => {
     let EVENTS       = require('./../../../../share/Events').EVENTS;
     let Config       = require('./../../../../share/Config').Config;
     let OrganismDos  = require('./../../organisms/dos/Organism');
-    //let OEvents      = require('./../../organisms/Organism').EVENTS;
-    //let api          = require('./../../../../share/Config').api;
 
     afterAll(() => OConfig.codeBitsPerVar = cbpv);
 
@@ -1181,6 +1181,38 @@ describe("client/src/organism/OperatorsDos", () => {
 
             OConfig.codeBitsPerVar = bpv;
             ops1.destroy();
+        });
+    });
+
+    describe('Checks complex DOS scripts for validness', () => {
+        let org;
+
+        beforeEach(() => org = new OrganismDos('0', 0, 0, {}));
+        afterEach (() => org.destroy());
+
+        /**
+         * if (v0===v1) { // true
+         *   v3=0x7fff
+         * }
+         */
+        it('Checks if operator', () => {
+            const yieldPeriod = OConfig.codeYieldPeriod;
+            const weights     = OConfig.orgOperatorWeights.slice();
+            const newWeights  = [.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1];
+            _fill(org.vm.vars, 0);
+            org.energy = 100;
+            OConfig.codeYieldPeriod = 2;
+            OConfig.orgOperatorWeights.splice(0, OConfig.orgOperatorWeights.length, ...newWeights);
+
+            org.vm.insertLine();
+            org.vm.insertLine();
+            org.vm.updateLine(0, 0x021abfff);
+            org.vm.updateLine(1, 0x01dfffff);
+            org.vm.run(org);
+            expect(org.vm.vars).toEqual([0,0,0,0x7fff]);
+
+            OConfig.codeYieldPeriod = yieldPeriod;
+            OConfig.orgOperatorWeights.splice(0, OConfig.orgOperatorWeights.length, ...weights);
         });
     });
 });
