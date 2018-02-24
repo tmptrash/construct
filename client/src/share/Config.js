@@ -52,11 +52,11 @@ ClientConfig.init({
     /**
      * {Number} World width
      */
-    worldWidth: 1920 * 2,
+    worldWidth: 1920 / 2,
     /**
      * {Number} World height
      */
-    worldHeight: 1080 * 2,
+    worldHeight: 1080 / 2,
     /**
      * {Number} Turns on cyclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
@@ -67,50 +67,27 @@ ClientConfig.init({
      */
     worldCyclical: false,
     /**
-     * {Number} Minimum percent of energy in current world. Under percent i mean
-     * percent from possible world fulfilled by energy with value 0xffffffff. If
-     * the energy will be less or equal then this value, then new random energy
-     * should be added.
-     */
-    worldEnergyCheckAmount: .0001,
-    /**
      * {Number} An amount of iteration, after which we have to check world energy
-     * amount. Works in pair with worldEnergyCheckAmount. May be 0 if
-     * you want to disable it
+     * percent. May be 0 if you want to disable energy generation
      */
     worldEnergyCheckPeriod: 5000,
     /**
-     * {Number} Amount of energy blocks in a world. Blocks will be placed in a
-     * random way...
-     */
-    worldEnergyDots: 10000,
-    /**
-     * {Number} Amount of energy in every block. See worldEnergyDots
-     * config for details.
-     */
-    worldEnergyInDot: 0x00ddff,
-    /**
-     * {Boolean} Analog of trees. This type of energy is growing all the time
-     * using random walk algorithm.
-     */
-    worldCleverEnergy: true,
-    /**
      * {Number} size of one clever energy block in dots.
      */
-    worldCleverEnergyBlockSize: 400,
+    worldEnergyBlockSize: 400,
     /**
      * {Number} Percent from all energy in a world until clever energy will be added.
      * After this value clever energy will be stopped to add until it's amount will
-     * be less then worldCleverEnergyMinPercent. These two configs create cyclical
+     * be less then worldEnergyMinPercent. These two configs create cyclical
      * energy adding to the world.
      */
-    worldCleverEnergyMaxPercent: .0008,
+    worldEnergyMaxPercent: .0008,
     /**
-     * {Number} Opposite to worldCleverEnergyMaxPercent. Sets minimum percent from
+     * {Number} Opposite to worldEnergyMaxPercent. Sets minimum percent from
      * all energy in a world after which clever energy will turn on (be added to the
      * world again).
      */
-    worldCleverEnergyMinPercent: .00008,
+    worldEnergyMinPercent: .00002,
     /**
      * {Number} Zoom speed 0..1
      */

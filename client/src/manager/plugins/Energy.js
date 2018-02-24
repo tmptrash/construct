@@ -27,48 +27,21 @@ class Energy {
     }
 
     _onIteration(counter) {
-        Config.worldCleverEnergy && this._cleverActive && this._addCleverEnergyBlock();
+        this._cleverActive && this._addEnergyBlock();
 
-        if (counter % Config.worldEnergyCheckPeriod !== 0 || Config.worldEnergyCheckPeriod === 0) {return}
-        if (counter === 0) {
-            this._updateEnergy(Config.worldEnergyDots, Config.worldEnergyInDot);
-            return;
-        }
+        if (Config.worldEnergyCheckPeriod === 0 || counter % Config.worldEnergyCheckPeriod !== 0) {return}
 
-        const energy = this._getWorldEnergy();
+        const energy = this._getEnergyPercent();
         this._manager.fire(EVENTS.WORLD_ENERGY, energy);
-        if (energy <= Config.worldCleverEnergyMinPercent)      {this._manager.fire(EVENTS.WORLD_ENERGY_UP, this._cleverActive = true)}
-        else if (energy >= Config.worldCleverEnergyMaxPercent) {this._manager.fire(EVENTS.WORLD_ENERGY_UP, this._cleverActive = false)}
-
-        if (energy <= Config.worldEnergyCheckAmount) {
-            this._updateEnergy(Config.worldEnergyDots, Config.worldEnergyInDot);
-        }
+        if (energy < Config.worldEnergyMinPercent)      {this._manager.fire(EVENTS.WORLD_ENERGY_UP, this._cleverActive = true)}
+        else if (energy > Config.worldEnergyMaxPercent) {this._manager.fire(EVENTS.WORLD_ENERGY_UP, this._cleverActive = false)}
     }
 
-    _updateEnergy(dotAmount, energyInDot) {
-        const world  = this._manager.world;
-        const width  = Config.worldWidth;
-        const height = Config.worldHeight;
-        const rand   = Helper.rand;
-        let   x;
-        let   y;
-
-        Console.info('Creating random energy');
-        for (let dot = 0; dot < dotAmount; dot++) {
-            x = rand(width);
-            y = rand(height);
-            if (world.getDot(x, y) < 1) {
-                world.setDot(x, y, energyInDot);
-            }
-        }
-        this._manager.fire(EVENTS.UPDATE_ENERGY);
-    }
-
-    _addCleverEnergyBlock() {
+    _addEnergyBlock() {
         const width  = Config.worldWidth;
         const height = Config.worldHeight;
         const color  = Helper.rand(Organism.getMaxColors());
-        let   block  = Config.worldCleverEnergyBlockSize;
+        let   block  = Config.worldEnergyBlockSize;
         const world  = this._manager.world;
         let   x      = Helper.rand(width);
         let   y      = Helper.rand(height);
@@ -83,7 +56,7 @@ class Energy {
         }
     }
 
-    _getWorldEnergy() {
+    _getEnergyPercent() {
         let   energy = 0;
         const world  = this._manager.world;
         const width  = Config.worldWidth;

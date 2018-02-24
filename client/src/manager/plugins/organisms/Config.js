@@ -49,19 +49,9 @@ const Config = {
      */
     orgMutationPerOrg: false,
     /**
-     * {Number} Minimum energy for one organism, which will be multiplied on
-     * organism code size. This value permits organism to have a baby (clone).
-     * If amount of energy less then orgCloneMinEnergy * vm.size, then clone
-     * is not possible
+     * {Number} Minimum age for cloning. Before that, cloning is impossible
      */
-    orgCloneMinEnergy: 100000,
-    /**
-     * {Boolean} true means, that one organism will be killed just after new
-     * organism has cloned. If population is less then orgMaxOrgs, then no killing
-     * will be provided. Killing of organism will be done using random organism
-     * selection from population
-     */
-    //orgKillOnClone: false,
+    orgCloneMinAge: 5000,
     /**
      * {Number} Amount of iterations between tournament. During tournament one
      * organism (looser) will be killed
@@ -124,11 +114,11 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 1000,
+    orgMaxOrgs: 500,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 1000,
+    orgStartAmount: 500,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created
@@ -178,7 +168,7 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 300
+    codeMaxSize: 1000
 };
 
 module.exports = Config;

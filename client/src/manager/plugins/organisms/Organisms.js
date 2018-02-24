@@ -275,7 +275,7 @@ class Organisms extends Configurable {
     }
 
     _onCloneOrg(org) {
-        const maxOrgs   = OConfig.orgMaxOrgs;
+        const maxOrgs = OConfig.orgMaxOrgs;
         //const orgAmount = this.organisms.size;
 
         //if (OConfig.orgKillOnClone && orgAmount >= maxOrgs) {this._killInTour()}
@@ -293,10 +293,7 @@ class Organisms extends Configurable {
         // organisms before cloning. They should kill each other to have a possibility
         // to clone them.
         //
-        if (this.organisms.size <  maxOrgs && this._clone(org)) {
-            org.energy -= (OConfig.orgCloneMinEnergy * org.vm.size / 2);
-            this.organisms.last.val.energy -= (OConfig.orgCloneMinEnergy * this.organisms.last.val.vm.size / 2)
-        }
+        this.organisms.size < maxOrgs && this._clone(org);
     }
 
     _killInTour() {
