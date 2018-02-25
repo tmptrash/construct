@@ -99,9 +99,9 @@ describe("client/src/organism/OrganismDos", () => {
 
             expect(org1.energy).toBe(100);
             org1.run();
-            expect(org1.energy).toBe(90); // 100 - 100 * .1 = 90
+            expect(org1.energy).toBe(89);   // 100 - (100 * .1 + 1) = 89
             org1.run();
-            expect(org1.energy).toBe(81); // 90 - 90 * .1 = 81
+            expect(org1.energy).toBe(79.1); // 90 - (90 * .1 + 1) = 79.1
             org1.destroy();
             expect(org1.energy < 1).toBe(true);
 

@@ -1,4 +1,5 @@
 const _fill       = require('lodash/fill');
+//const C2S         = require('./Code2String');
 
 describe("client/src/organism/OperatorsDos", () => {
     const OConfig      = require('./../../organisms/Config');
@@ -1199,8 +1200,12 @@ describe("client/src/organism/OperatorsDos", () => {
 
         beforeEach(() => {
             ocfg = new ConfigHelper(OConfig);
-            ocfg.set('codeYieldPeriod',  2);
-            ocfg.set('codeBitsPerBlock', 8);
+            ocfg.set('codeYieldPeriod',     2);
+            ocfg.set('codeBitsPerBlock',    8);
+            ocfg.set('codeBitsPerOperator', 8);
+            ocfg.set('codeBitsPerVar',      2);
+            ocfg.set('codeConstBits',       16);
+            ocfg.set('orgMemBits',          8);
             OConfig.orgOperatorWeights.splice(0, OConfig.orgOperatorWeights.length, ...newWeights);
 
             org  = new OrganismDos('0', 0, 0, {});
@@ -1262,7 +1267,7 @@ describe("client/src/organism/OperatorsDos", () => {
         /**
          * if (v0 !== v1) {    // false
          *   if (v0 === v1) {} // true
-         *     v0 = 1
+         *   v0 = 1
          * }
          * v1 = 1
          */
@@ -1276,5 +1281,48 @@ describe("client/src/organism/OperatorsDos", () => {
             org.vm.run(org);
             expect(org.vm.vars).toEqual([0,1,0,0]);
         });
+        /**
+         * if (v0 !== v1) {    // false
+         *   if (v0 === v1) {  // true
+         *     v0 = 3
+         *   }
+         *   v0 = 2
+         * }
+         * v1 = 1
+         */
+        it('Checks if inside if with false condition', () => {
+            script([
+                '10 00 01 11 00000011 1111111111',
+                '10 00 01 10 00000010 1111111111',
+                '01 00 0000000000000011 111111',
+                '01 00 0000000000000010 111111',
+                '01 01 0000000000000001 111111'
+            ]);
+            OConfig.codeYieldPeriod = 2;
+            org.vm.run(org);
+            expect(org.vm.vars).toEqual([0,1,0,0]);
+        });
+        /**
+         * if (v0 === v1) {    // true
+         *   if (v0 === v1) {  // true
+         *     v0 = 3
+         *   }
+         *   v0 = 2
+         * }
+         * v1 = 1
+         */
+        it('Checks if inside if with false condition', () => {
+            script([
+                '10 00 01 10 00000011 1111111111',
+                '10 00 01 10 00000010 1111111111',
+                '01 00 0000000000000011 111111',
+                '01 00 0000000000000010 111111',
+                '01 01 0000000000000001 111111'
+            ]);
+            org.vm.run(org);
+            expect(org.vm.vars).toEqual([2,1,0,0]);
+        });
+        //const c2s = new C2S({api: {}});
+        //c2s.format(org.vm.code);
     });
 });

@@ -86,16 +86,16 @@ class VM extends Observer {
      * @return {Number} Amount of run lines
      */
     run(org) {
-        const code    = this._code;
-        const lines   = code.length;
+        const code     = this._code;
+        const lines    = code.length;
         if (lines < 1) {return 0}
-        const ops     = this._ops;
-        const offs    = this._offsets;
-        const period  = OConfig.codeYieldPeriod;
-        const OFFS    = Num.VAR_BITS_OFFS;
-        const WEIGHTS = this._weights;
-        let   len     = period;
-        let   line    = this._line;
+        const ops      = this._ops;
+        const offs     = this._offsets;
+        const period   = OConfig.codeYieldPeriod;
+        const OFFS     = Num.VAR_BITS_OFFS;
+        const WEIGHTS  = this._weights;
+        let   len      = period;
+        let   line     = this._line;
         let   operator;
 
         while (len > 0 && org.energy > 0) {
@@ -105,7 +105,7 @@ class VM extends Observer {
             // This is very important peace of logic. As big the organism is
             // as more energy he spends
             //
-            org.energy -= (WEIGHTS[operator] * org.energy);
+            org.energy -= (WEIGHTS[operator] * org.energy + (org.vm ? org.vm.size : 0));
             //
             // We found closing bracket '}' of some loop and have to return
             // to the beginning of operator (e.g.: for)
