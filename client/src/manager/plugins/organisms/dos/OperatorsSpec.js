@@ -1,13 +1,14 @@
 const _fill       = require('lodash/fill');
 
 describe("client/src/organism/OperatorsDos", () => {
-    let OConfig      = require('./../../organisms/Config');
-    let cbpv         = OConfig.codeBitsPerVar;
+    const OConfig      = require('./../../organisms/Config');
+    const cbpv         = OConfig.codeBitsPerVar;
     OConfig.codeBitsPerVar = 2;
-    let OperatorsDos = require('./Operators');
-    let EVENTS       = require('./../../../../share/Events').EVENTS;
-    let Config       = require('./../../../../share/Config').Config;
-    let OrganismDos  = require('./../../organisms/dos/Organism');
+    const OperatorsDos = require('./Operators');
+    const EVENTS       = require('./../../../../share/Events').EVENTS;
+    const Config       = require('./../../../../share/Config').Config;
+    const OrganismDos  = require('./../../organisms/dos/Organism');
+    const ConfigHelper = require('./../../../../../../common/tests/Config');
 
     afterAll(() => OConfig.codeBitsPerVar = cbpv);
 
@@ -1185,34 +1186,95 @@ describe("client/src/organism/OperatorsDos", () => {
     });
 
     describe('Checks complex DOS scripts for validness', () => {
-        let org;
+        const newWeights = [.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1];
+        const weights    = OConfig.orgOperatorWeights.slice();
+        let   ocfg;
+        let   org;
+        const script     = code => {
+            for (let i = 0; i < code.length; i++) {org.vm.insertLine()}
+            for (let i = 0; i < code.length; i++) {org.vm.updateLine(i, typeof code[i] === 'string' ? parseInt(code[i].split(' ').join(''), 2) : code[i])}
+            OConfig.codeYieldPeriod = code.length;
+        };
 
-        beforeEach(() => org = new OrganismDos('0', 0, 0, {}));
-        afterEach (() => org.destroy());
 
-        /**
-         * if (v0===v1) { // true
-         *   v3=0x7fff
-         * }
-         */
-        it('Checks if operator', () => {
-            const yieldPeriod = OConfig.codeYieldPeriod;
-            const weights     = OConfig.orgOperatorWeights.slice();
-            const newWeights  = [.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1];
-            _fill(org.vm.vars, 0);
-            org.energy = 100;
-            OConfig.codeYieldPeriod = 2;
+        beforeEach(() => {
+            ocfg = new ConfigHelper(OConfig);
+            ocfg.set('codeYieldPeriod',  2);
+            ocfg.set('codeBitsPerBlock', 8);
             OConfig.orgOperatorWeights.splice(0, OConfig.orgOperatorWeights.length, ...newWeights);
 
-            org.vm.insertLine();
-            org.vm.insertLine();
-            org.vm.updateLine(0, 0x021abfff);
-            org.vm.updateLine(1, 0x01dfffff);
+            org  = new OrganismDos('0', 0, 0, {});
+            _fill(org.vm.vars, 0);
+            org.energy = 100;
+        });
+        afterEach (() => {
+            org.destroy();
+            ocfg.reset();
+            OConfig.orgOperatorWeights.splice(0, OConfig.orgOperatorWeights.length, ...weights);
+        });
+
+        /**
+         * if (v0 === v1) { // true
+         *   v3 = 0x7fff
+         * }
+         */
+        it('if should go inside the block, if condition is true', () => {
+            script([0x021abfff, 0x01dfffff]);
             org.vm.run(org);
             expect(org.vm.vars).toEqual([0,0,0,0x7fff]);
-
-            OConfig.codeYieldPeriod = yieldPeriod;
-            OConfig.orgOperatorWeights.splice(0, OConfig.orgOperatorWeights.length, ...weights);
+        });
+        /**
+         * if (v0 === v1) {} // true
+         * v3 = 0x7fff
+         */
+        it('if without body should go to the next row, if condition is true', () => {
+            script([0x021803ff, 0x01dfffff]);
+            org.vm.run(org);
+            expect(org.vm.vars).toEqual([0,0,0,0x7fff]);
+        });
+        /**
+         * v0 = 1
+         * if (v0 === v1) {} // true
+         * v0 = 0
+         */
+        it('Checks if operator without body and with other code around', () => {
+            script([0x0100007f, 0x021803ff, 0x0100003f]);
+            org.vm.run(org);
+            expect(org.vm.vars).toEqual([0,0,0,0]);
+        });
+        /**
+         * if (v0 === v1) {    // true
+         *   if (v0 === v1) {} // true
+         *     v0 = 1
+         * }
+         * v1 = 1
+         */
+        it('Checks if inside if with true condition', () => {
+            script([
+                '10 00 01 10 00000010 1111111111',
+                '10 00 01 10 00000001 1111111111',
+                '01 00 0000000000000001 111111',
+                '01 01 0000000000000001 111111'
+            ]);
+            org.vm.run(org);
+            expect(org.vm.vars).toEqual([1,1,0,0]);
+        });
+        /**
+         * if (v0 !== v1) {    // false
+         *   if (v0 === v1) {} // true
+         *     v0 = 1
+         * }
+         * v1 = 1
+         */
+        it('Checks if inside if with false condition', () => {
+            script([
+                '10 00 01 11 00000010 1111111111',
+                '10 00 01 10 00000001 1111111111',
+                '01 00 0000000000000001 111111',
+                '01 01 0000000000000001 111111'
+            ]);
+            org.vm.run(org);
+            expect(org.vm.vars).toEqual([0,1,0,0]);
         });
     });
 });

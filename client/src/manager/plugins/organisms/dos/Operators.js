@@ -118,11 +118,27 @@ class OperatorsDos extends Operators {
         return ++line;
     }
 
+    /**
+     * Handler of numeric constant assignment operator. 'xx' means, that amount of
+     * bits depends on configuration. Example:
+     * bits  :        8 xx xx
+     * number: 00000001 00 01...
+     * desc  :    const v0  1
+     * string: v0 = 1
+     */
     onConst(num, line) {
         this.vars[Num.getVar0(num)] = Num.getBits(num, this._BITS_AFTER_ONE_VAR, OConfig.codeConstBits);
         return ++line;
     }
 
+    /**
+     * Handler of 'if' operator. 'xx' means, that amount of bits depends on
+     * configuration. Example:
+     * bits  :        8 xx xx  2 xx
+     * number: 00000010 00 01 00 00...
+     * desc  :       if v0 v1  <  }
+     * string: if (v0 < v1) {}
+     */
     onCondition(num, line) {
         const cond = Num.getBits(num, this._BITS_AFTER_TWO_VARS, CONDITION_BITS);
         const offs = this._getOffs(line, Num.getBits(num, this._BITS_AFTER_TWO_VARS + CONDITION_BITS, OConfig.codeBitsPerBlock));
