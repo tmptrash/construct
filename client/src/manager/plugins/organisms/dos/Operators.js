@@ -136,7 +136,7 @@ class OperatorsDos extends Operators {
     }
 
     /**
-     * while(v0 op v2) goto offs
+     * while(v0 op v1) goto offs
      */
     onLoop(num, line) {
         const cond = Num.getBits(num, this._BITS_AFTER_TWO_VARS, CONDITION_BITS);

@@ -224,26 +224,30 @@ describe("client/src/organism/OrganismDos", () => {
     });
 
     describe('Clonning', () => {
-        it('Organism should fire CLONE event if enough energy', () => {
+        it('Organism should fire CLONE event if enough age', () => {
             let   flag        = false;
-            const minEnergy   = OConfig.orgCloneMinEnergy;
+            const minAge      = OConfig.orgCloneMinAge;
             const yieldPeriod = OConfig.codeYieldPeriod;
             const weights     = OConfig.orgOperatorWeights.slice();
             const newWeights  = [.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1];
-            OConfig.orgCloneMinEnergy = 100;
+            OConfig.orgCloneMinAge    = 1;
             OConfig.codeYieldPeriod   = 1;
             OConfig.orgOperatorWeights.splice(0, OConfig.orgOperatorWeights.length, ...newWeights);
             const org1 = new OrganismDos('0', 1, 2, null);
 
             _fill(org1.vm.vars, 0);
             org1.vm.insertLine();
-            org1.energy = OConfig.orgCloneMinEnergy * 2;
+            org1.energy = 100;
             org1.on(OEvents.CLONE, () => flag = true);
+            org1.run();
+            expect(flag).toBe(false);
+            org1.run();
+            expect(flag).toBe(false);
             org1.run();
             expect(flag).toBe(true);
 
             org1.destroy();
-            OConfig.orgCloneMinEnergy = minEnergy;
+            OConfig.orgCloneMinAge = minAge;
             OConfig.codeYieldPeriod   = yieldPeriod;
             OConfig.orgOperatorWeights.splice(0, OConfig.orgOperatorWeights.length, ...weights);
         })
