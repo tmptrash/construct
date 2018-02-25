@@ -19,6 +19,7 @@ const Helper       = require('./../../../../../common/src/Helper');
 const EVENTS       = require('./../../../share/Events').EVENTS;
 const Configurable = require('./../../../../../common/src/Configurable');
 const Config       = require('./../../../share/Config').Config;
+const OConfig      = require('./../../../manager/plugins/organisms/Config');
 
 class Status extends Configurable {
     static _toFixed(val, fixed) {
@@ -173,7 +174,7 @@ class Status extends Configurable {
 
         this._onBeforeLoop(orgs);
 
-        status.ips        = fix(this._ips / this._ipsTimes, 2);
+        status.ips        = fix(this._ips / this._ipsTimes * OConfig.codeYieldPeriod, 2);
         status.lps        = fix((this.parent.codeRuns - this._codeRuns) / ((stamp - this._stamp) / 1000), 0);
         status.orgs       = orgAmount;
         status.energy     = fix(this._energy, 2);

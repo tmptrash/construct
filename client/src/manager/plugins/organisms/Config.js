@@ -15,12 +15,12 @@ const Config = {
      * implemented. See Operators.operators getter for details. Values may be float.
      */
     orgOperatorWeights: [
-        .000001,  .00001,  .000001, .00000001, .000001, // var, const, if, loop, operator,
-        .0000001, .0002,   .0002,   .0002,     .0002,   // lookAt, eatLeft, eatRight, eatUp, eatDown,
-        .002,     .002,    .002,    .002,               // stepLeft, stepRight, stepUp, stepDown,
-        .000001,  .000001,                              // fromMem, toMem,
-        .000001,  .000001,                              // myX, myY,
-        .000001,  .000001, .000001, .000001             // checkLeft, checkRight, checkUp, checkDown
+        .000001,  .00001,  .000001, .000000001, .000001, // var, const, if, loop, operator,
+        .0000001, .0002,   .0002,   .0002,      .0002,   // lookAt, eatLeft, eatRight, eatUp, eatDown,
+        .002,     .002,    .002,    .002,                // stepLeft, stepRight, stepUp, stepDown,
+        .000001,  .000001,                               // fromMem, toMem,
+        .000001,  .000001,                               // myX, myY,
+        .000001,  .000001, .000001, .000001              // checkLeft, checkRight, checkUp, checkDown
     ],
     /**
      * {Array} Probabilities which used, when mutator decides what to do:
@@ -161,7 +161,7 @@ const Config = {
      * {Number} Amount of iterations between calls to V8 event loop. See
      * Manager._initLoop(), Manager.run() methods for details.
      */
-    codeIterationsPerOnce: 200,
+    codeIterationsPerOnce: 100,
     /**
      * {Number} If organism reach this limit of amount of vm lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
