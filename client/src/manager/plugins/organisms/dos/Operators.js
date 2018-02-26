@@ -106,12 +106,17 @@ class OperatorsDos extends Operators {
     get operators() {return this._OPERATORS_CB}
 
     /**
-     * Parses variable operator. Format: var = number|var. 'num' bits format:
-     * TODO:
+     * Handler of variable assignment operator. 'xx' means, that amount of
+     * bits depends on configuration. '...' means, that all other bits are
+     * ignored. Example:
+     * bits  :        8 xx xx
+     * number: 00000000 00 01...
+     * desc  :      var  v0 v1
+     * string: v0 = v1
      *
-     * @param {Number} num Packed into number vm line
-     * @param {Number} line Current line in vm
-     * @return {Number} Parsed vm line string
+     * @param {Number} num One bit packed byte code row
+     * @param {Number} line Current line in DOS code
+     * @return {Number} Next line number to proceed
      */
     onVar(num, line) {
         this.vars[Num.getVar0(num)] = this.vars[Num.getVar1(num)];
@@ -120,11 +125,16 @@ class OperatorsDos extends Operators {
 
     /**
      * Handler of numeric constant assignment operator. 'xx' means, that amount of
-     * bits depends on configuration. Example:
+     * bits depends on configuration. '...' means, that all other bits are
+     * ignored. Example:
      * bits  :        8 xx xx
      * number: 00000001 00 01...
      * desc  :    const v0  1
      * string: v0 = 1
+     *
+     * @param {Number} num One bit packed byte code row
+     * @param {Number} line Current line in DOS code
+     * @return {Number} Next line number to proceed
      */
     onConst(num, line) {
         this.vars[Num.getVar0(num)] = Num.getBits(num, this._BITS_AFTER_ONE_VAR, OConfig.codeConstBits);
@@ -133,11 +143,17 @@ class OperatorsDos extends Operators {
 
     /**
      * Handler of 'if' operator. 'xx' means, that amount of bits depends on
-     * configuration. Example:
+     * configuration. '...' means, that all other bits are
+     * ignored. Offset of closing bracket means row number after, which this
+     * bracket will be added. Example:
      * bits  :        8 xx xx  2 xx
      * number: 00000010 00 01 00 00...
      * desc  :       if v0 v1  <  }
      * string: if (v0 < v1) {}
+     *
+     * @param {Number} num One bit packed byte code row
+     * @param {Number} line Current line in DOS code
+     * @return {Number} Next line number to proceed
      */
     onCondition(num, line) {
         const cond = Num.getBits(num, this._BITS_AFTER_TWO_VARS, CONDITION_BITS);

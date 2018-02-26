@@ -1322,6 +1322,23 @@ describe("client/src/organism/OperatorsDos", () => {
             org.vm.run(org);
             expect(org.vm.vars).toEqual([2,1,0,0]);
         });
+        /**
+         * if (v0 === v1) {    // true
+         *   v0 = 2
+         *   if (v0 === v1) {} // false
+         * }
+         * v1 = 1
+         */
+        it('Checks if inside if with false condition', () => {
+            script([
+                '10 00 01 10 00000010 1111111111',
+                '01 00 0000000000000010 111111',
+                '10 00 01 10 00000010 1111111111',
+                '01 01 0000000000000001 111111',
+            ]);
+            org.vm.run(org);
+            expect(org.vm.vars).toEqual([2,1,0,0]);
+        });
         //const c2s = new C2S({api: {}});
         //c2s.format(org.vm.code);
     });
