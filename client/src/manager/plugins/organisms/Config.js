@@ -15,12 +15,12 @@ const Config = {
      * implemented. See Operators.operators getter for details. Values may be float.
      */
     orgOperatorWeights: [
-        .000001,  .00001,  .000001, .000000001, .000001, // var, const, if, loop, operator,
-        .0000001, .0002,   .0002,   .0002,      .0002,   // lookAt, eatLeft, eatRight, eatUp, eatDown,
-        .002,     .002,    .002,    .002,                // stepLeft, stepRight, stepUp, stepDown,
-        .000001,  .000001,                               // fromMem, toMem,
-        .000001,  .000001,                               // myX, myY,
-        .000001,  .000001, .000001, .000001              // checkLeft, checkRight, checkUp, checkDown
+        .000001,  .000001, .00000001, .00000000001, .0000001, // var, const, if, loop, operator,
+        .0000001, .0002,   .0002,     .0002,        .0002,    // lookAt, eatLeft, eatRight, eatUp, eatDown,
+        .002,     .002,    .002,      .002,                   // stepLeft, stepRight, stepUp, stepDown,
+        .000001,  .000001,                                    // fromMem, toMem,
+        .0000001, .0000001,                                   // myX, myY,
+        .000001,  .000001, .000001, .000001                   // checkLeft, checkRight, checkUp, checkDown
     ],
     /**
      * {Array} Probabilities which used, when mutator decides what to do:
