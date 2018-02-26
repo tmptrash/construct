@@ -145,7 +145,8 @@ class OperatorsDos extends Operators {
      * Handler of 'if' operator. 'xx' means, that amount of bits depends on
      * configuration. '...' means, that all other bits are
      * ignored. Offset of closing bracket means row number after, which this
-     * bracket will be added. Example:
+     * bracket will be added. Offset of closing bracket is calculating using
+     * formula: line + offs. Example:
      * bits  :        8 xx xx  2 xx
      * number: 00000010 00 01 00 00...
      * desc  :       if v0 v1  <  }
