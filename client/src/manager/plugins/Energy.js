@@ -6,7 +6,6 @@
 const Helper   = require('./../../../../common/src/Helper');
 const Config   = require('./../../share/Config').Config;
 const Organism = require('./../../manager/plugins/organisms/Organism').Organism;
-const Console  = require('./../../share/Console');
 const EVENTS   = require('./../../share/Events').EVENTS;
 
 const POSID    = Helper.posId;
@@ -61,7 +60,7 @@ class Energy {
         const world  = this._manager.world;
         const width  = Config.worldWidth;
         const height = Config.worldHeight;
-        const orgs   = this._manager.organisms;
+        const orgs   = this._manager.positions;
 
         for (let x = 0; x < width; x++) {
             for (let y = 0; y < height; y++) {
