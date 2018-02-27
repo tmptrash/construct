@@ -102,7 +102,7 @@ class Organisms extends Configurable {
     }
 
     addOrgHandlers(org) {
-        org.on(ORG_EVENTS.DESTROY,        this._onKillOrg.bind(this));
+        org.on(ORG_EVENTS.DESTROY,        this._onDestroyOrg.bind(this));
         org.on(ORG_EVENTS.KILL_NO_ENERGY, this._onKillNoEnergyOrg.bind(this));
         org.on(ORG_EVENTS.KILL_AGE,       this._onKillAgeOrg.bind(this));
         org.on(ORG_EVENTS.ITERATION,      this._onIterationOrg.bind(this));
@@ -129,15 +129,16 @@ class Organisms extends Configurable {
         return true;
     }
 
-    createOrg(pos, parent = null) {
-        if (pos === false) {return false}
+    createOrg(x, y, parent = null) {
+        if (x === -1) {return false}
         const orgs = this.organisms;
         orgs.add(null);
-        let   org  = this.createEmptyOrg(++this._orgId + '', pos.x, pos.y, orgs.last, parent);
+        let   org  = this.createEmptyOrg(++this._orgId + '', x, y, orgs.last, parent);
 
         orgs.last.val = org;
         this.addOrgHandlers(org);
-        this.move(-1, -1, pos.x, pos.y, org);
+        this.world.setDot(x, y, org.color);
+        this.positions[org.posId] = org;
         this.parent.fire(EVENTS.BORN_ORGANISM, org);
         //Console.info(org.id, ' born');
 
@@ -200,8 +201,10 @@ class Organisms extends Configurable {
 
     _clone(org, isCrossover = false) {
         if (this.onBeforeClone(org) === false) {return false}
-        let pos   = this.world.getNearFreePos(org.x, org.y);
-        if (pos === false || this.createOrg(pos, org) === false) {return false}
+        let x;
+        let y;
+        [x, y] = this.world.getNearFreePos(org.x, org.y);
+        if (x === -1 || this.createOrg(x, y, org) === false) {return false}
         let child = this.organisms.last.val;
 
         this.onClone(org, child);
@@ -226,7 +229,7 @@ class Organisms extends Configurable {
 
         this.reset();
         for (let i = 0, len = OConfig.orgStartAmount; i < len; i++) {
-            this.createOrg(world.getFreePos());
+            this.createOrg(...world.getFreePos());
         }
         Console.info('Population has created');
     }
@@ -239,7 +242,7 @@ class Organisms extends Configurable {
         return this.parent.organisms.size;
     }
 
-    _onKillOrg(org) {
+    _onDestroyOrg(org) {
         if (this.randOrgItem === org.item) {
             if ((this.randOrgItem = org.item.next) === null) {
                 this.randOrgItem = this.organisms.first;

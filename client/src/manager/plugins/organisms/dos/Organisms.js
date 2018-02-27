@@ -139,7 +139,7 @@ class Organisms extends BaseOrganisms {
         // Energy found
         //
         if (typeof(positions[posId]) === 'undefined') {
-            if (eat > 0) {
+            if (eat >= 0) {
                 ret.ret = this.world.grabDot(x, y, eat);
                 this.parent.fire(EVENTS.EAT_ENERGY, ret.ret);
             } else {
@@ -202,10 +202,11 @@ class Organisms extends BaseOrganisms {
         // activated client on that side. So this is a border for him.
         // In this case coordinates (x,y) should stay the same
         //
-        if (man.isDistributed() || Config.worldCyclical === false) {
-            return this.move(x1, y1, x1, y1, org);
-        }
-
+        if (man.isDistributed() || Config.worldCyclical === false) {return}
+        //
+        // The world is cyclical (worldCyclical). The organism will
+        // appear on the other side
+        //
         this.move(x1, y1, x2, y2, org);
     }
 
@@ -239,7 +240,7 @@ class Organisms extends BaseOrganisms {
             //
             org.x = x;
             org.y = y;
-            this.move(x, y, x, y, org);
+            this.world.setDot(x, y, org.color);
             org.energy <= energy && this.parent.fire(EVENTS.KILL_STEP_IN, org);
             org.energy -= energy;
         }
