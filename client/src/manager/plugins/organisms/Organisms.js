@@ -132,25 +132,24 @@ class Organisms extends Configurable {
     }
 
     move(x1, y1, x2, y2, org) {
-        let   moved = false;
         const world = this.world;
 
         if (world.isFree(x2, y2) === false) {return false}
-        if (x1 !== x2 || y1 !== y2) {moved = true; world.setDot(x1, y1, 0)}
         world.setDot(x2, y2, org.color);
+        if (x1 === x2 && y1 === y2) {return false}
+        world.setDot(x1, y1, 0);
         this.onAfterMove(x1, y1, x2, y2, org);
 
-        return moved;
+        return true;
     }
 
     createOrg(pos, parent = null) {
         if (pos === false) {return false}
         const orgs = this.organisms;
         orgs.add(null);
-        let   last = orgs.last;
-        let   org  = this.createEmptyOrg(++this._orgId + '', pos.x, pos.y, last, parent);
+        let   org  = this.createEmptyOrg(++this._orgId + '', pos.x, pos.y, orgs.last, parent);
 
-        last.val = org;
+        orgs.last.val = org;
         this.addOrgHandlers(org);
         this.move(-1, -1, pos.x, pos.y, org);
         this.parent.fire(EVENTS.BORN_ORGANISM, org);

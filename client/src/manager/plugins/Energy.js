@@ -48,10 +48,8 @@ class Energy {
         for (let i = 0; i < block; i++) {
             x = x + Helper.rand(3) - 1;
             y = y + Helper.rand(3) - 1;
-            if (x < 0 || x >= width || y < 0 || y >= height || --block < 0) {return}
-            if (world.getDot(x, y) === 0) {
-                world.setDot(x, y, Organism.getColor(color));
-            }
+            if (x < 0 || x >= width || y < 0 || y >= height) {return}
+            if (world.isFree(x, y)) {world.setDot(x, y, Organism.getColor(color))}
         }
     }
 
@@ -60,11 +58,11 @@ class Energy {
         const world  = this._manager.world;
         const width  = Config.worldWidth;
         const height = Config.worldHeight;
-        const orgs   = this._manager.positions;
+        const poses  = this._manager.positions;
 
         for (let x = 0; x < width; x++) {
             for (let y = 0; y < height; y++) {
-                if (typeof orgs[POSID(x, y)] === 'undefined') {energy += world.getDot(x, y)}
+                if (typeof poses[POSID(x, y)] === 'undefined') {energy += world.getDot(x, y)}
             }
         }
 

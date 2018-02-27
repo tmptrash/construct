@@ -133,16 +133,11 @@ class Organisms extends BaseOrganisms {
      * @param {Number} x2 End X position
      * @param {Number} y2 End Y position
      * @param {Organism} org Organism, which is moving
-     * @returns {Boolean}
      * @override
      */
     onAfterMove(x1, y1, x2, y2, org) {
-        if (x1 !== x2 || y1 !== y2) {
-            this.positions[POSID(x1, y1)] = undefined;
-            this.positions[POSID(x2, y2)] = org;
-        }
-
-        return true;
+        this.positions[POSID(x1, y1)] = undefined;
+        this.positions[POSID(x2, y2)] = org;
     }
 
     _onGetEnergy(x, y, ret) {
@@ -174,7 +169,7 @@ class Organisms extends BaseOrganisms {
             } else {
                 ret.ret = eat;
                 this.world.setDot(x, y, (((-eat + .5) << 0) >>> 0) + this.world.getDot(x, y));
-                this.parent.fire(EVENTS.PUT_ENERGY, eat);
+                this.parent.fire(EVENTS.PUT_ENERGY, -eat);
             }
         //
         // Organism found
