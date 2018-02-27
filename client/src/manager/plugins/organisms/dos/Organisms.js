@@ -116,30 +116,6 @@ class Organisms extends BaseOrganisms {
         return new Organism(...args);
     }
 
-    /**
-     * Is called after organism has killed
-     * @param {Organism} org Killed organism
-     * @override
-     */
-    onAfterKillOrg(org) {
-        this.positions[org.posId] = undefined;
-    }
-
-    /**
-     * Is called after moving of organism is done. Updates this.positions
-     * map with a new position of organism
-     * @param {Number} x1 Start X position
-     * @param {Number} y1 Start Y position
-     * @param {Number} x2 End X position
-     * @param {Number} y2 End Y position
-     * @param {Organism} org Organism, which is moving
-     * @override
-     */
-    onAfterMove(x1, y1, x2, y2, org) {
-        this.positions[POSID(x1, y1)] = undefined;
-        this.positions[POSID(x2, y2)] = org;
-    }
-
     _onGetEnergy(x, y, ret) {
         const posId = POSID(x, y);
 
@@ -192,7 +168,7 @@ class Organisms extends BaseOrganisms {
         }
     }
 
-    _onStep(org, x1, y1, x2, y2, ret) {
+    _onStep(org, x1, y1, x2, y2) {
         if (org.energy < 1) {return}
         const man = this.parent;
         let   dir;
@@ -202,10 +178,7 @@ class Organisms extends BaseOrganisms {
         // Organism has moved, but still is within the current world (client)
         //
         if (dir === DIR.NO) {
-            ret.x = x2;
-            ret.y = y2;
-            ret.ret = +this.move(x1, y1, x2, y2, org);
-            return;
+            return this.move(x1, y1, x2, y2, org);
         }
         //
         // Current organism try to move out of the world.
@@ -230,15 +203,10 @@ class Organisms extends BaseOrganisms {
         // In this case coordinates (x,y) should stay the same
         //
         if (man.isDistributed() || Config.worldCyclical === false) {
-            ret.x = x1;
-            ret.y = y1;
-            ret.ret = +this.move(x1, y1, x1, y1, org);
-            return;
+            return this.move(x1, y1, x1, y1, org);
         }
 
-        ret.x = x2;
-        ret.y = y2;
-        ret.ret = +this.move(x1, y1, x2, y2, org);
+        this.move(x1, y1, x2, y2, org);
     }
 
     _onCheckAt(x, y, ret) {
@@ -265,13 +233,14 @@ class Organisms extends BaseOrganisms {
         if (ret.ret = this.world.isFree(x, y) && this.organisms.size < (OConfig.orgMaxOrgs + OConfig.orgMaxOrgs * OConfig.orgStepOverflowPercent) && this.createOrg({x, y})) {
             const org = this.organisms.last.val;
             org.unserialize(orgJson);
+            const energy = (org.energy * OConfig.orgStepEnergySpendPercent + .5) << 0;
             //
-            // We have to update organism color and coordinates
+            // IMPORTANT: We have to update organism's coordinates
             //
             org.x = x;
             org.y = y;
-            const energy = (org.energy * OConfig.orgStepEnergySpendPercent + .5) << 0;
-            (org.energy <= energy) && this.parent.fire(EVENTS.KILL_STEP_IN, org);
+            this.move(x, y, x, y, org);
+            org.energy <= energy && this.parent.fire(EVENTS.KILL_STEP_IN, org);
             org.energy -= energy;
         }
     }

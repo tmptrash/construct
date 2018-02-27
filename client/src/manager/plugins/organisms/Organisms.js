@@ -18,6 +18,8 @@ const Mutator      = require('./Mutator');
 const Num          = require('./../../../vm/Num');
 
 const RAND_OFFS = 3;
+const POSID     = Helper.posId;
+
 // TODO: inherit this class from Configurable
 class Organisms extends Configurable {
     /**
@@ -28,19 +30,6 @@ class Organisms extends Configurable {
      * @abstract
      */
     compare(org1, org2) {}
-
-    /**
-     * Is called after moving of organism is done. Updates Manager.positions
-     * map with a new position of organism
-     * @param {Number} x1 Start X position
-     * @param {Number} y1 Start Y position
-     * @param {Number} x2 End X position
-     * @param {Number} y2 End Y position
-     * @param {Organism} org Organism, which is moving
-     * @returns {Boolean}
-     * @abstract
-     */
-    onAfterMove(x1, y1, x2, y2, org) {}
 
     /**
      * Is called before cloning of organism
@@ -56,13 +45,6 @@ class Organisms extends Configurable {
      * @abstract
      */
     onClone(org, child) {}
-
-    /**
-     * Is called after organism has killed
-     * @param {Organism} org Killed organism
-     * @abstract
-     */
-    onAfterKillOrg(org) {}
 
     /**
      * Creates one instance of organism. You have to override this
@@ -133,12 +115,16 @@ class Organisms extends Configurable {
 
     move(x1, y1, x2, y2, org) {
         const world = this.world;
-
         if (world.isFree(x2, y2) === false) {return false}
+
+        org.x = x2;
+        org.y = y2;
         world.setDot(x2, y2, org.color);
+
         if (x1 === x2 && y1 === y2) {return false}
         world.setDot(x1, y1, 0);
-        this.onAfterMove(x1, y1, x2, y2, org);
+        this.positions[POSID(x1, y1)] = undefined;
+        this.positions[POSID(x2, y2)] = org;
 
         return true;
     }
@@ -261,7 +247,7 @@ class Organisms extends Configurable {
         }
         this.organisms.del(org.item);
         this.world.setDot(org.x, org.y, 0);
-        this.onAfterKillOrg(org);
+        this.positions[org.posId] = undefined;
         this.parent.fire(EVENTS.KILL, org);
         //Console.info(org.id, ' die');
     }

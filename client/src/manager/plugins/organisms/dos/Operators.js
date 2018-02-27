@@ -209,10 +209,10 @@ class OperatorsDos extends Operators {
     onEatUp(num, line, org)     {this.vars[Num.getVar0(num)] = this._eat(org, num, org.x, org.y - 1); return ++line}
     onEatDown(num, line, org)   {this.vars[Num.getVar0(num)] = this._eat(org, num, org.x, org.y + 1); return ++line}
 
-    onStepLeft(num, line, org)  {this.vars[Num.getVar0(num)] = this._step(org, org.x, org.y, org.x - 1, org.y).x; return ++line}
-    onStepRight(num, line, org) {this.vars[Num.getVar0(num)] = this._step(org, org.x, org.y, org.x + 1, org.y).x; return ++line}
-    onStepUp(num, line, org)    {this.vars[Num.getVar0(num)] = this._step(org, org.x, org.y, org.x, org.y - 1).y; return ++line}
-    onStepDown(num, line, org)  {this.vars[Num.getVar0(num)] = this._step(org, org.x, org.y, org.x, org.y + 1).y; return ++line}
+    onStepLeft(num, line, org)  {this.vars[Num.getVar0(num)] = this._step(org, org.x, org.y, org.x - 1, org.y); return ++line}
+    onStepRight(num, line, org) {this.vars[Num.getVar0(num)] = this._step(org, org.x, org.y, org.x + 1, org.y); return ++line}
+    onStepUp(num, line, org)    {this.vars[Num.getVar0(num)] = this._step(org, org.x, org.y, org.x, org.y - 1); return ++line}
+    onStepDown(num, line, org)  {this.vars[Num.getVar0(num)] = this._step(org, org.x, org.y, org.x, org.y + 1); return ++line}
 
     onFromMem(num, line, org) {
         if (Num.getBits(num, this._BITS_AFTER_TWO_VARS, 1)) {
@@ -262,16 +262,8 @@ class OperatorsDos extends Operators {
     }
 
     _step(org, x1, y1, x2, y2) {
-        const ret = this._ret;
-
-        ret.ret = 0;
-        this.obs.fire(EVENTS.STEP, org, x1, y1, x2, y2, ret);
-        if (ret.ret > 0) {
-            org.x = ret.x;
-            org.y = ret.y;
-        }
-
-        return ret;
+        this.obs.fire(EVENTS.STEP, org, x1, y1, x2, y2);
+        return +(org.energy > 0);
     }
 
     /**
