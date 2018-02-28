@@ -86,7 +86,7 @@ class OperatorsDos extends Operators {
         /**
          * {Object} Reusable object to pass it as a parameter to this.fire(..., ret)
          */
-        this._ret = {ret: 0, x: 0, y: 0};
+        this._ret = {ret: 0};
         //
         // We have to set amount of available operators for correct
         // working of mutations of operators.
