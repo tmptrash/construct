@@ -572,10 +572,9 @@ describe("client/src/organism/OperatorsDos", () => {
         it("Checking step left", () => {
             org.x = 3;
             org.y = 4;
-            org.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
-                ret.ret = 1;
-                ret.x   = x2;
-                ret.y   = y2;
+            org.on(EVENTS.STEP, (org, x1, y1, x2, y2) => {
+                org.x = x2;
+                org.y = y2;
                 expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toBe(true);
             });
             expect(ops.onStepLeft(0x0a1fffff, 0, org)).toEqual(1); // v0=stepLeft();
@@ -587,14 +586,11 @@ describe("client/src/organism/OperatorsDos", () => {
         it("Checking step left with no free space on the left", () => {
             org.x = 3;
             org.y = 4;
-            org.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
-                ret.ret = 0;
-                ret.x   = x1;
-                ret.y   = y1;
+            org.on(EVENTS.STEP, (org, x1, y1, x2, y2) => {
                 expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toBe(true);
             });
             expect(ops.onStepLeft(0x0a1fffff, 0, org)).toEqual(1); // v0=stepLeft();
-            expect(ops.vars).toEqual([3,1,2,3]);
+            expect(ops.vars).toEqual([0,1,2,3]);
             expect(org.x).toBe(3);
             expect(org.y).toBe(4);
         });
@@ -606,10 +602,9 @@ describe("client/src/organism/OperatorsDos", () => {
 
             org.x = 3;
             org.y = 4;
-            org.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
-                ret.ret = 1;
-                ret.x   = x2;
-                ret.y   = y2;
+            org.on(EVENTS.STEP, (org, x1, y1, x2, y2) => {
+                org.x = x2;
+                org.y = y2;
                 expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toBe(true);
             });
             expect(ops1.onStepLeft(0x0a1fffff, 0, org)).toEqual(1); // v1=stepLeft();
@@ -634,10 +629,9 @@ describe("client/src/organism/OperatorsDos", () => {
         it("Checking step right", () => {
             org.x = 3;
             org.y = 4;
-            org.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
-                ret.ret = 1;
-                ret.x   = x2;
-                ret.y   = y2;
+            org.on(EVENTS.STEP, (org, x1, y1, x2, y2) => {
+                org.x = x2;
+                org.y = y2;
                 expect(x1 === 3 && y1 === 4 && x2 === 4 && y2 === 4).toBe(true);
             });
             expect(ops.onStepRight(0x0a1fffff, 0, org)).toEqual(1); // v0=stepRight();
@@ -649,14 +643,11 @@ describe("client/src/organism/OperatorsDos", () => {
         it("Checking step right with no free space on the right", () => {
             org.x = 3;
             org.y = 4;
-            org.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
-                ret.ret = 0;
-                ret.x   = x1;
-                ret.y   = y1;
+            org.on(EVENTS.STEP, (org, x1, y1, x2, y2) => {
                 expect(x1 === 3 && y1 === 4 && x2 === 4 && y2 === 4).toBe(true);
             });
             expect(ops.onStepRight(0x0a1fffff, 0, org)).toEqual(1); // v0=stepRight();
-            expect(ops.vars).toEqual([3,1,2,3]);
+            expect(ops.vars).toEqual([0,1,2,3]);
             expect(org.x).toBe(3);
             expect(org.y).toBe(4);
         });
@@ -668,10 +659,9 @@ describe("client/src/organism/OperatorsDos", () => {
 
             org.x = 3;
             org.y = 4;
-            org.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
-                ret.ret = 1;
-                ret.x   = x2;
-                ret.y   = y2;
+            org.on(EVENTS.STEP, (org, x1, y1, x2, y2) => {
+                org.x = x2;
+                org.y = y2;
                 expect(x1 === 3 && y1 === 4 && x2 === 4 && y2 === 4).toBe(true);
             });
             expect(ops1.onStepRight(0x0a1fffff, 0, org)).toEqual(1); // v1=stepRight();
@@ -696,10 +686,9 @@ describe("client/src/organism/OperatorsDos", () => {
         it("Checking step up", () => {
             org.x = 3;
             org.y = 4;
-            org.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
-                ret.ret = 1;
-                ret.x   = x2;
-                ret.y   = y2;
+            org.on(EVENTS.STEP, (org, x1, y1, x2, y2) => {
+                org.x = x2;
+                org.y = y2;
                 expect(x1 === 3 && y1 === 4 && x2 === 3 && y2 === 3).toBe(true);
             });
             expect(ops.onStepUp(0x0a1fffff, 0, org)).toEqual(1); // v0=stepUp();
@@ -711,14 +700,11 @@ describe("client/src/organism/OperatorsDos", () => {
         it("Checking step up with no free space on above", () => {
             org.x = 3;
             org.y = 4;
-            org.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
-                ret.ret = 0;
-                ret.x   = x1;
-                ret.y   = y1;
+            org.on(EVENTS.STEP, (org, x1, y1, x2, y2) => {
                 expect(x1 === 3 && y1 === 4 && x2 === 3 && y2 === 3).toBe(true);
             });
             expect(ops.onStepUp(0x0a1fffff, 0, org)).toEqual(1); // v0=stepUp();
-            expect(ops.vars).toEqual([4,1,2,3]);
+            expect(ops.vars).toEqual([0,1,2,3]);
             expect(org.x).toBe(3);
             expect(org.y).toBe(4);
         });
@@ -730,10 +716,9 @@ describe("client/src/organism/OperatorsDos", () => {
 
             org.x = 3;
             org.y = 4;
-            org.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
-                ret.ret = 1;
-                ret.x   = x2;
-                ret.y   = y2;
+            org.on(EVENTS.STEP, (org, x1, y1, x2, y2) => {
+                org.x = x2;
+                org.y = y2;
                 expect(x1 === 3 && y1 === 4 && x2 === 3 && y2 === 3).toBe(true);
             });
             expect(ops1.onStepUp(0x0a1fffff, 0, org)).toEqual(1); // v1=stepUp();
@@ -758,10 +743,9 @@ describe("client/src/organism/OperatorsDos", () => {
         it("Checking step down", () => {
             org.x = 3;
             org.y = 4;
-            org.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
-                ret.ret = 1;
-                ret.x   = x2;
-                ret.y   = y2;
+            org.on(EVENTS.STEP, (org, x1, y1, x2, y2) => {
+                org.x = x2;
+                org.y = y2;
                 expect(x1 === 3 && y1 === 4 && x2 === 3 && y2 === 5).toBe(true);
             });
             expect(ops.onStepDown(0x0a1fffff, 0, org)).toEqual(1); // v0=stepDown();
@@ -773,14 +757,11 @@ describe("client/src/organism/OperatorsDos", () => {
         it("Checking step down with no free space below", () => {
             org.x = 3;
             org.y = 4;
-            org.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
-                ret.ret = 0;
-                ret.x   = x1;
-                ret.y   = y1;
+            org.on(EVENTS.STEP, (org, x1, y1, x2, y2) => {
                 expect(x1 === 3 && y1 === 4 && x2 === 3 && y2 === 5).toBe(true);
             });
             expect(ops.onStepDown(0x0a1fffff, 0, org)).toEqual(1); // v0=stepDown();
-            expect(ops.vars).toEqual([4,1,2,3]);
+            expect(ops.vars).toEqual([0,1,2,3]);
             expect(org.x).toBe(3);
             expect(org.y).toBe(4);
         });
@@ -792,10 +773,9 @@ describe("client/src/organism/OperatorsDos", () => {
 
             org.x = 3;
             org.y = 4;
-            org.on(EVENTS.STEP, (org, x1, y1, x2, y2, ret) => {
-                ret.ret = 1;
-                ret.x   = x2;
-                ret.y   = y2;
+            org.on(EVENTS.STEP, (org, x1, y1, x2, y2) => {
+                org.x = x2;
+                org.y = y2;
                 expect(x1 === 3 && y1 === 4 && x2 === 3 && y2 === 5).toBe(true);
             });
             expect(ops1.onStepDown(0x0a1fffff, 0, org)).toEqual(1); // v1=stepDown();
