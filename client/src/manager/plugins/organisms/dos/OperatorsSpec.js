@@ -1251,7 +1251,7 @@ describe("client/src/organism/OperatorsDos", () => {
          * }
          * v1 = 1
          */
-        it('Checks if inside if with false condition', () => {
+        it('Checks if inside if with false condition outside', () => {
             script([
                 '10 00 01 11 00000010 1111111111',
                 '10 00 01 10 00000001 1111111111',
@@ -1270,7 +1270,7 @@ describe("client/src/organism/OperatorsDos", () => {
          * }
          * v1 = 1
          */
-        it('Checks if inside if with false condition', () => {
+        it('Checks if inside if with false condition outside 2', () => {
             script([
                 '10 00 01 11 00000011 1111111111',
                 '10 00 01 10 00000010 1111111111',
@@ -1291,7 +1291,7 @@ describe("client/src/organism/OperatorsDos", () => {
          * }
          * v1 = 1
          */
-        it('Checks if inside if with false condition', () => {
+        it('Checks if inside if with true condition and 3 assignments', () => {
             script([
                 '10 00 01 10 00000011 1111111111',
                 '10 00 01 10 00000010 1111111111',
@@ -1309,7 +1309,7 @@ describe("client/src/organism/OperatorsDos", () => {
          * }
          * v1 = 1
          */
-        it('Checks if inside if with false condition', () => {
+        it('Checks if inside if with var assign', () => {
             script([
                 '10 00 01 10 00000010 1111111111',
                 '01 00 0000000000000010 111111',
@@ -1327,7 +1327,7 @@ describe("client/src/organism/OperatorsDos", () => {
          * }
          * v1 = 1
          */
-        it('Checks if inside if with false condition', () => {
+        it('Checks if inside if with both true conditions', () => {
             script([
                 '10 00 01 10 00000010 1111111111',
                 '10 00 01 10 00000001 1111111111',
@@ -1345,13 +1345,63 @@ describe("client/src/organism/OperatorsDos", () => {
          * }
          * v1 = 1
          */
-        it('Checks if inside if with false condition', () => {
+        it('Checks while with true and then false conditions', () => {
             script([
                 '11 00 01 10 00000001 1111111111',
                 '01 00 0000000000000001 111111',
                 '01 01 0000000000000001 111111'
             ]);
             OConfig.codeYieldPeriod = 4;
+            org.vm.run(org);
+            expect(org.vm.vars).toEqual([1,1,0,0]);
+        });
+        /**
+         * while (v0 !== v1) {}   // false
+         * v0 = 1
+         */
+        it('Checks while with false condition', () => {
+            script([
+                '11 00 01 11 00000000 1111111111',
+                '01 00 0000000000000001 111111'
+            ]);
+            org.vm.run(org);
+            expect(org.vm.vars).toEqual([1,0,0,0]);
+        });
+        /**
+         * if (v0 === v1) {
+         *   while (v0 === v1) {    // true
+         *     v0 = 1
+         *   }
+         * }
+         * v1 = 1
+         */
+        it('Checks while with if outside', () => {
+            script([
+                '10 00 01 10 00000010 1111111111',
+                '11 00 01 10 00000001 1111111111',
+                '01 00 0000000000000001 111111',
+                '01 01 0000000000000001 111111'
+            ]);
+            OConfig.codeYieldPeriod = 5;
+            org.vm.run(org);
+            expect(org.vm.vars).toEqual([1,1,0,0]);
+        });
+        /**
+         * while (v0 === v1) {
+         *   while (v0 === v1) {    // true
+         *     v0 = 1
+         *   }
+         * }
+         * v1 = 1
+         */
+        it('Checks 2 whiles', () => {
+            script([
+                '11 00 01 10 00000010 1111111111',
+                '11 00 01 10 00000001 1111111111',
+                '01 00 0000000000000001 111111',
+                '01 01 0000000000000001 111111'
+            ]);
+            OConfig.codeYieldPeriod = 6;
             org.vm.run(org);
             expect(org.vm.vars).toEqual([1,1,0,0]);
         });
