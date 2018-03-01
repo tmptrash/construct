@@ -169,7 +169,19 @@ class OperatorsDos extends Operators {
     }
 
     /**
-     * while(v0 op v1) goto offs
+     * Handler of 'while' operator. 'xx' means, that amount of bits depends on
+     * configuration. '...' means, that all other bits are
+     * ignored. Offset of closing bracket means row number after, which this
+     * bracket will be added. Offset of closing bracket is calculating using
+     * formula: line + offs. Example:
+     * bits  :        8 xx xx  2 xx
+     * number: 00000011 00 01 00 00...
+     * desc  :    while v0 v1  <  }
+     * string: while (v0 < v1) {}
+     *
+     * @param {Number} num One bit packed byte code row
+     * @param {Number} line Current line in DOS code
+     * @return {Number} Next line number to proceed
      */
     onLoop(num, line) {
         const cond = Num.getBits(num, this._BITS_AFTER_TWO_VARS, CONDITION_BITS);
