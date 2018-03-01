@@ -10,15 +10,15 @@ class Operators {
          * {Array} Array of offsets for closing braces. For 'for', 'if'
          * and other operators.
          */
-        this.offs      = offs;
+        this.offs = offs;
         /**
          * {Array} Available variables
          */
-        this.vars      = vars;
+        this.vars = vars;
         /**
          * {Observer} Observer for sending external events
          */
-        this.obs       = obs;
+        this.obs  = obs;
     }
 
     destroy() {

@@ -101,6 +101,7 @@ class OperatorsDos extends Operators {
     destroy() {
         super.destroy();
         this._OPERATORS_CB = null;
+        this._ret          = null;
     }
 
     get operators() {return this._OPERATORS_CB}

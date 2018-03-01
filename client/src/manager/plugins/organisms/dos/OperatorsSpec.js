@@ -13,6 +13,38 @@ describe("client/src/organism/OperatorsDos", () => {
 
     afterAll(() => OConfig.codeBitsPerVar = cbpv);
 
+    describe('Checks creation, destroy and public API', () => {
+        it('Checking instance creation', () => {
+            let offs = [];
+            let vars = [];
+            let obs  = {};
+            let ops  = new OperatorsDos(offs, vars, obs);
+            expect(ops.offs).toBe(offs);
+            expect(ops.vars).toBe(vars);
+            expect(ops.obs).toBe(obs);
+            ops.destroy();
+        });
+        it('Checking destroy', () => {
+            let offs = [];
+            let vars = [];
+            let obs  = {};
+            let ops  = new OperatorsDos(offs, vars, obs);
+            ops.destroy();
+            expect(ops.offsets).not.toBe(offs);
+            expect(ops.vars).not.toBe(vars);
+            expect(ops.obs).not.toBe(obs);
+        });
+        it('Checking operators getter', () => {
+            let offs = [];
+            let vars = [];
+            let obs  = {};
+            let ops  = new OperatorsDos(offs, vars, obs);
+            expect(Array.isArray(ops.operators)).toBe(true);
+            expect(ops.operators.length > 0).toBe(true);
+            ops.destroy();
+        });
+    });
+
     describe('onVar() method', () => {
         let org;
         let ops;
