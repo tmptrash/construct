@@ -19,7 +19,7 @@ const ADD_MUTAION_INDEX = 6;
 class Mutator {
     static _onChange(org) {
         const vm = org.vm;
-        vm.updateLine(Helper.rand(vm.size), Num.get());
+        vm.updateLine(Helper.rand(vm.size), Num.rand());
         org.changes += Num.MAX_BITS;
     }
 
@@ -36,16 +36,17 @@ class Mutator {
         const rand  = Helper.rand;
         const vm  = org.vm;
         const index = rand(vm.size);
-        const rnd   = rand(3);
-
+        const rnd   = rand(2);
+        //
+        // Toggles operator bits only
+        //
         if (rnd === 0) {
             vm.updateLine(index, Num.setOperator(vm.getLine(index), rand(vm.operators.operators.length)));
-            org.changes += Num.MAX_BITS;
-        } else if (rnd === 1) {
-            vm.updateLine(index, Num.setVar(vm.getLine(index), rand(Num.VARS), rand(Num.MAX_VAR)));
-            org.changes += Num.BITS_PER_VAR;
+            org.changes += Num.BITS_PER_OPERATOR;
+        //
+        // Toggles specified bit, except operator bits
+        //
         } else {
-            // toggle specified bit
             vm.updateLine(index, vm.getLine(index) ^ (1 << rand(Num.VAR_BITS_OFFS - 1)));
             org.changes++;
         }

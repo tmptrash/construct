@@ -1,5 +1,4 @@
 const _fill       = require('lodash/fill');
-//const C2S         = require('./Code2String');
 
 describe("client/src/organism/OperatorsDos", () => {
     const OConfig      = require('./../../organisms/Config');
@@ -1437,7 +1436,5 @@ describe("client/src/organism/OperatorsDos", () => {
             org.vm.run(org);
             expect(org.vm.vars).toEqual([1,1,0,0]);
         });
-        //const c2s = new C2S({api: {}});
-        //c2s.format(org.vm.code);
     });
 });

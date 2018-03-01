@@ -3,7 +3,6 @@ describe("client/src/organism/VM", () => {
     const Observer   = require('./../../../common/src/Observer');
     const Helper     = require('./../../../common/src/Helper');
     const OConfig    = require('./../manager/plugins/organisms/Config');
-    const api        = require('./../share/Config').api;
     const VM         = require('./VM');
     const Num        = require('./Num');
     const Operators  = require('./Operators');
@@ -327,17 +326,17 @@ describe("client/src/organism/VM", () => {
     });
     it('Checking insertLine() method 2', () => {
         const obs  = new Observer(2);
-        const vm = new VM(() => {}, obs, () => {});
-        let   get  = Num.get;
+        const vm   = new VM(() => {}, obs, () => {});
+        let   rand = Num.rand;
 
-        Num.get = () => 0xabcdefff;
+        Num.rand = () => 0xabcdefff;
         expect(vm.size).toEqual(0);
         vm.insertLine();
         expect(vm.size).toEqual(1);
 
         expect(vm.code[0]).toEqual(0xabcdefff);
 
-        Num.get = get;
+        Num.rand = rand;
         vm.destroy();
     });
 
@@ -351,7 +350,7 @@ describe("client/src/organism/VM", () => {
         vm.insertLine();
         vm.insertLine();
         vm.insertLine();
-        Helper.rand = function (n) {
+        Helper.rand = function () {
             i++;
             if (i === 0) {        // start
                 return 1;
@@ -382,7 +381,7 @@ describe("client/src/organism/VM", () => {
         vm.insertLine();
         vm.insertLine();
         vm.insertLine();
-        Helper.rand = function (n) {
+        Helper.rand = function () {
             i++;
             if (i === 0) {        // start
                 return 1;
@@ -413,7 +412,7 @@ describe("client/src/organism/VM", () => {
         vm.insertLine();
         vm.insertLine();
         vm.insertLine();
-        Helper.rand = function (n) {
+        Helper.rand = function () {
             i++;
             if (i === 0) {        // start
                 return 1;
@@ -450,10 +449,10 @@ describe("client/src/organism/VM", () => {
 
     it('Checking updateLine() method', () => {
         const obs  = new Observer(2);
-        const vm = new VM(() => {}, obs, () => {});
-        let   get  = Num.get;
+        const vm   = new VM(() => {}, obs, () => {});
+        let   rand = Num.rand;
 
-        Num.get = () => 0xabcdefff;
+        Num.rand = () => 0xabcdefff;
         vm.insertLine();
         expect(vm.code[0]).toEqual(0xabcdefff);
 
@@ -463,7 +462,7 @@ describe("client/src/organism/VM", () => {
         vm.updateLine(0, 0x12345678);
         expect(vm.code[0]).toEqual(0x12345678);
 
-        Num.get = get;
+        Num.rand = rand;
         vm.destroy();
     });
 
@@ -494,9 +493,9 @@ describe("client/src/organism/VM", () => {
     it('Checking getLine()', () => {
         const obs  = new Observer(2);
         const vm = new VM(() => {}, obs, () => {});
-        let get  = Num.get;
+        let get  = Num.rand;
 
-        Num.get = () => 0xabcdefff;
+        Num.rand = () => 0xabcdefff;
         expect(vm.size).toEqual(0);
         expect(vm.getLine(0)).toEqual(undefined);
         expect(vm.getLine(1)).toEqual(undefined);
@@ -510,7 +509,7 @@ describe("client/src/organism/VM", () => {
         expect(vm.getLine(1)).toEqual(undefined);
         expect(vm.getLine(9)).toEqual(undefined);
 
-        Num.get = get;
+        Num.rand = get;
         vm.destroy();
     });
 });

@@ -1,5 +1,5 @@
 /**
- * Class - helper for working with with byte code numbers
+ * Class - helper for working with byte code numbers
  *
  * @author flatline
  */
@@ -14,9 +14,8 @@ class Num {
      * script implementation
      */
     static init(operatorAmount) {
-        this.setOperatorAmount(operatorAmount);
-
         this.MAX_BITS            = 32;
+        this.OPERATOR_AMOUNT     = operatorAmount;
         this.BITS_PER_VAR        = OConfig.codeBitsPerVar;
         this.BITS_PER_OPERATOR   = OConfig.codeBitsPerOperator;
         this.NO_OPERATOR_MASK    = 0xffffffff >>> this.BITS_PER_OPERATOR;
@@ -31,24 +30,14 @@ class Num {
         this.BITS_OF_VAR3        = this.BITS_PER_OPERATOR + 3 * this.BITS_PER_VAR;
     }
 
-    static get VARS() {return (this.MAX_BITS - this.BITS_PER_OPERATOR) / this.BITS_PER_VAR}
-
     /**
-     * Sets amount of available operators for first bits
-     * @param {Number} amount
-     */
-    static setOperatorAmount(amount) {
-        this._operatorsAmount = amount;
-    }
-
-    /**
-     * We have to use >>> 0 at the end, because << operator works
-     * with signed 32bit numbers, but not with unsigned like we need
+     * Returns random number for byte code. We have to use >>> 0 at
+     * the end, because << operator works with signed 32bit numbers,
+     * but not with unsigned like we need
      * @returns {number}
      */
-    static get() {
-        const rand = Helper.rand;
-        return (rand(this._operatorsAmount) << (this.VAR_BITS_OFFS) | rand(this.NO_OPERATOR_MASK)) >>> 0;
+    static rand() {
+        return (Helper.rand(this.OPERATOR_AMOUNT) << (this.VAR_BITS_OFFS) | Helper.rand(this.NO_OPERATOR_MASK)) >>> 0;
     }
 
     static getOperator(num) {

@@ -1,61 +1,94 @@
+let Num     = require('./Num');
+let OConfig = require('./../manager/plugins/organisms/Config');
+
 describe("client/src/organism/Num", () => {
-    let Num = require('./Num');
+    const bpo = OConfig.codeBitsPerOperator;
+    const bpv = OConfig.codeBitsPerVar;
 
-    it("Checking getting random zero operator", () => {
-        Num.setOperatorAmount(0);
-        const n = Num.get() >>> 24;
+    beforeEach(() => {OConfig.codeBitsPerOperator = 8;   OConfig.codeBitsPerVar = 2});
+    afterEach( () => {OConfig.codeBitsPerOperator = bpo; OConfig.codeBitsPerVar = bpv});
 
-        expect(n).toEqual(0);
-    });
-    it("Checking getting random operator (0..1)", () => {
-        Num.setOperatorAmount(1);
-        const n = Num.get() >>> 24;
-
-        expect(n === 0 || n === 1).toEqual(true);
-    });
-    it("Checking getting random operator with probability", () => {
-        Num.setOperatorAmount(3);
-        let n;
-
-        for (let i = 0; i < 10000; i++) {
-            n = Num.get() >>> 24;
-            expect(n >= 0 && n <= 2).toEqual(true);
-        }
+    describe('Checks initialization', () => {
+        it ('Checks init() method', () => {
+            Num.init(3);
+            expect(Num.OPERATOR_AMOUNT).toBe(3);
+            expect(Num.BITS_PER_VAR).toBe(OConfig.codeBitsPerVar);
+            expect(Num.BITS_PER_OPERATOR).toBe(OConfig.codeBitsPerOperator);
+        });
     });
 
-    it('Checking getOperator() method', () => {
-        const n = 0xabffffff;
-
-        expect(Num.getOperator(n)).toEqual(0xab);
+    describe('Checks rand() method', () => {
+        it('Checks if rand() generates a number', () => {
+            for (let i = 0; i < 10000; i++) {
+                const n = Num.rand();
+                expect(typeof n).toBe('number');
+                expect(n >= 0).toBe(true);
+            }
+        });
+        it('Checks if rand() generates correct operator', () => {
+            for (let i = 0; i < 10000; i++) {
+                expect(Num.getOperator(Num.rand()) < Num.OPERATOR_AMOUNT).toBe(true);
+            }
+        });
     });
 
-    it('Checking setOperator() method', () => {
-        const n = 0xabffffff;
+    describe('Checks operator', () => {
+        it("Checking getting random zero operator", () => {
+            Num.init(0);
+            expect(Num.getOperator(Num.rand())).toEqual(0);
+        });
+        it("Checking getting random operator (0..1)", () => {
+            Num.init(1);
+            const n = Num.getOperator(Num.rand());
+            expect(n === 0 || n === 1).toEqual(true);
+        });
+        it("Checking getting random operator with probability", () => {
+            Num.init(3);
+            let n;
 
-        expect(Num.setOperator(n, 0xbd)).toEqual(0xbdffffff);
-        expect(Num.setOperator(n, 0x00)).toEqual(0x00ffffff);
-        expect(Num.setOperator(n, 0x01)).toEqual(0x01ffffff);
-        expect(Num.setOperator(n, 0xff)).toEqual(0xffffffff);
+            for (let i = 0; i < 10000; i++) {
+                n = Num.getOperator(Num.rand());
+                expect(n >= 0 && n <= 2).toEqual(true);
+            }
+        });
+
+        it('Checking getOperator() method', () => {
+            const n = 0xabffffff;
+            Num.init(0xbb);
+            expect(Num.getOperator(n)).toEqual(0xab);
+        });
+
+        it('Checking setOperator() method', () => {
+            const n = 0xabffffff;
+
+            Num.init(0xff);
+            expect(Num.setOperator(n, 0xbd)).toEqual(0xbdffffff);
+            expect(Num.setOperator(n, 0x00)).toEqual(0x00ffffff);
+            expect(Num.setOperator(n, 0x01)).toEqual(0x01ffffff);
+            expect(Num.setOperator(n, 0xff)).toEqual(0xffffffff);
+        });
     });
 
-    it('Checking getVar() method', () => {
-        let n = 0xabffffff;
+    describe('Checks getVar() method', () => {
+        it('Checking getVar() method', () => {
+            let n = 0xabffffff;
 
-        expect(Num.getVar(n, 0)).toEqual(3);
-        expect(Num.getVar(n, 1)).toEqual(3);
-        expect(Num.getVar(n, 3)).toEqual(3);
+            expect(Num.getVar(n, 0)).toEqual(3);
+            expect(Num.getVar(n, 1)).toEqual(3);
+            expect(Num.getVar(n, 3)).toEqual(3);
 
-        n = 0xbcbfffff;
-        expect(Num.getVar(n, 0)).toEqual(2);
-        expect(Num.getVar(n, 1)).toEqual(3);
+            n = 0xbcbfffff;
+            expect(Num.getVar(n, 0)).toEqual(2);
+            expect(Num.getVar(n, 1)).toEqual(3);
 
-        n = 0xbc9fffff;
-        expect(Num.getVar(n, 0)).toEqual(2);
-        expect(Num.getVar(n, 1)).toEqual(1);
+            n = 0xbc9fffff;
+            expect(Num.getVar(n, 0)).toEqual(2);
+            expect(Num.getVar(n, 1)).toEqual(1);
 
-        n = 0xbc00ffff;
-        expect(Num.getVar(n, 0)).toEqual(0);
-        expect(Num.getVar(n, 1)).toEqual(0);
+            n = 0xbc00ffff;
+            expect(Num.getVar(n, 0)).toEqual(0);
+            expect(Num.getVar(n, 1)).toEqual(0);
+        });
     });
 
     it('Checking setVar() method', () => {

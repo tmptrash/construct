@@ -220,7 +220,7 @@ class VM extends Observer {
      * Inserts random generated number into the byte code at random position
      */
     insertLine() {
-        this._code.splice(Helper.rand(this._code.length), 0, Num.get());
+        this._code.splice(Helper.rand(this._code.length), 0, Num.rand());
         this._reset();
     }
 
@@ -252,7 +252,7 @@ class VM extends Observer {
         const orgCode = this._code;
 
         size = pos + size;
-        while (pos < size) {orgCode[pos++] = Num.get()}
+        while (pos < size) {orgCode[pos++] = Num.rand()}
         this._reset();
     }
 
