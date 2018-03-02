@@ -7,63 +7,71 @@ describe("client/src/organism/VM", () => {
     const Num        = require('./Num');
     const Operators  = require('./Operators');
 
-    it("Checking vm creation", () => {
-        let   flag = false;
-        const obs  = new Observer(1);
-        const vm = new VM(() => flag = true, obs, () => {});
+    describe('Checking creation', () => {
+        it("Checking vm creation", () => {
+            let   flag = false;
+            const obs  = new Observer(1);
+            const vm   = new VM(obs, () => flag = true, []);
 
-        vm.run();
-        expect(flag).toEqual(false);
+            expect(flag).toEqual(true);
+            expect(vm.size).toEqual(0);
+            expect(vm.line).toEqual(0);
 
-        vm.destroy();
-    });
+            obs.destroy();
+            vm.destroy();
+        });
 
-    it("Checking parent argument and 'cloning' mode", () => {
-        const obs    = new Observer(1);
-        const parent = new VM(() => {}, obs, () => {});
+        it("Checking parent argument and 'cloning' mode", () => {
+            const obs    = new Observer(1);
+            const parent = new VM(obs, () => {}, []);
 
-        parent.insertLine();
-        const vm   = new VM(() => {}, obs, () => {}, parent);
+            parent.insertLine();
+            const vm     = new VM(obs, () => {}, [], parent);
 
-        expect(vm.code[0] === parent.code[0]).toEqual(true);
-        expect(vm.size === parent.size).toEqual(true);
-        expect(vm.vars[0] === parent.vars[0]).toEqual(true);
+            expect(vm.code).toEqual(parent.code);
+            expect(vm.size).toEqual(parent.size);
+            expect(vm.vars).toEqual(parent.vars);
 
-        parent.destroy();
-        vm.destroy();
-    });
+            obs.destroy();
+            parent.destroy();
+            vm.destroy();
+        });
 
-    it("Checking 'vars' getter for non 'cloning' mode", () => {
-        const obs  = new Observer(2);
-        const vm = new VM(() => {}, obs, () => {});
+        it("Checking 'vars' getter for non 'cloning' mode", () => {
+            const obs = new Observer(2);
+            const vm  = new VM(obs, () => {}, []);
 
-        expect(vm.vars.length === Math.pow(2, OConfig.codeBitsPerVar)).toEqual(true);
+            expect(vm.vars.length === Math.pow(2, OConfig.codeBitsPerVar)).toEqual(true);
 
-        vm.destroy();
-    });
+            obs.destroy();
+            vm.destroy();
+        });
 
-    it("Checking no code size", () => {
-        const obs  = new Observer(2);
-        const vm = new VM(() => {}, obs, () => {});
+        it("Checking no code size", () => {
+            const obs = new Observer(2);
+            const vm  = new VM(obs, () => {}, []);
 
-        expect(vm.size).toEqual(0);
-        vm.run();
-        expect(vm.size).toEqual(0);
+            expect(vm.size).toEqual(0);
+            vm.run();
+            expect(vm.size).toEqual(0);
 
-        vm.destroy();
-    });
+            obs.destroy();
+            vm.destroy();
+        });
 
-    it("Checking destroy", () => {
-        const obs  = new Observer(2);
-        const vm = new VM(() => {}, obs, () => {});
+        it("Checking destroy", () => {
+            const obs = new Observer(2);
+            const vm  = new VM(obs, () => {}, []);
 
-        vm.destroy();
-        expect(vm.code).toEqual(null);
+            vm.destroy();
+            expect(vm.code).toEqual(null);
+            obs.destroy();
+        });
     });
 
     it("Checking 'code' and 'size' properties", () => {
-        const obs  = new Observer(2);
-        const vm = new VM(() => {}, obs, () => {});
+        const obs = new Observer(2);
+        const vm  = new VM(() => {}, obs, () => {});
 
         expect(vm.code instanceof Array).toEqual(true);
         expect(vm.size).toEqual(0);
@@ -80,6 +88,7 @@ describe("client/src/organism/VM", () => {
         expect(vm.size).toEqual(0);
 
         vm.destroy();
+        obs.destroy();
     });
 
     it("Checking 'operators' property", () => {
@@ -89,6 +98,7 @@ describe("client/src/organism/VM", () => {
         expect(vm.operators instanceof Operators).toEqual(true);
 
         vm.destroy();
+        obs.destroy();
     });
 
     // it("Checking run method", () => {
@@ -116,6 +126,7 @@ describe("client/src/organism/VM", () => {
     //     api.set('codeOperatorsCls', coc);
     //
     //     vm.destroy();
+    //     obs.destroy();
     // });
 
     it("Checking crossover with increasing child code", () => {
@@ -158,6 +169,7 @@ describe("client/src/organism/VM", () => {
         Helper.rand = rand;
         jsvm1.destroy();
         jsvm2.destroy();
+        obs.destroy();
     });
     it("Checking crossover with decreasing child code", () => {
         const obs   = new Observer(1);
@@ -197,6 +209,7 @@ describe("client/src/organism/VM", () => {
         Helper.rand = rand;
         jsvm1.destroy();
         jsvm2.destroy();
+        obs.destroy();
     });
     it("Checking crossover with the same child code size", () => {
         const obs   = new Observer(1);
@@ -237,6 +250,7 @@ describe("client/src/organism/VM", () => {
         Helper.rand = rand;
         jsvm1.destroy();
         jsvm2.destroy();
+        obs.destroy();
     });
     it("Checking crossover with no code size in parents", () => {
         const obs   = new Observer(1);
@@ -249,6 +263,7 @@ describe("client/src/organism/VM", () => {
 
         jsvm1.destroy();
         jsvm2.destroy();
+        obs.destroy();
     });
     it("Checking crossover with no code size for one parent and twp lines of code for other", () => {
         const obs   = new Observer(1);
@@ -279,6 +294,7 @@ describe("client/src/organism/VM", () => {
         Helper.rand = rand;
         jsvm1.destroy();
         jsvm2.destroy();
+        obs.destroy();
     });
     it("Checking crossover with no code size for one parent and twp lines of code for other 2", () => {
         const obs   = new Observer(1);
@@ -310,11 +326,12 @@ describe("client/src/organism/VM", () => {
         Helper.rand = rand;
         jsvm1.destroy();
         jsvm2.destroy();
+        obs.destroy();
     });
 
     it('Checking insertLine() method', () => {
-        const obs  = new Observer(2);
-        const vm = new VM(() => {}, obs, () => {});
+        const obs = new Observer(2);
+        const vm  = new VM(() => {}, obs, () => {});
 
         expect(vm.size).toEqual(0);
         vm.insertLine();
@@ -323,6 +340,7 @@ describe("client/src/organism/VM", () => {
         expect(vm.size).toEqual(2);
 
         vm.destroy();
+        obs.destroy();
     });
     it('Checking insertLine() method 2', () => {
         const obs  = new Observer(2);
@@ -338,11 +356,12 @@ describe("client/src/organism/VM", () => {
 
         Num.rand = rand;
         vm.destroy();
+        obs.destroy();
     });
 
     it('Checking copyLines() method', () => {
         const obs  = new Observer(2);
-        const vm = new VM(() => {}, obs, () => {});
+        const vm   = new VM(() => {}, obs, () => {});
         let   rand = Helper.rand;
         let   i    = -1;
 
@@ -370,10 +389,11 @@ describe("client/src/organism/VM", () => {
 
         Helper.rand = rand;
         vm.destroy();
+        obs.destroy();
     });
     it('Checking copyLines() method 2', () => {
         const obs  = new Observer(2);
-        const vm = new VM(() => {}, obs, () => {});
+        const vm   = new VM(() => {}, obs, () => {});
         let   rand = Helper.rand;
         let   i    = -1;
 
@@ -401,10 +421,11 @@ describe("client/src/organism/VM", () => {
 
         Helper.rand = rand;
         vm.destroy();
+        obs.destroy();
     });
     it('Checking copyLines() method 3', () => {
         const obs  = new Observer(2);
-        const vm = new VM(() => {}, obs, () => {});
+        const vm   = new VM(() => {}, obs, () => {});
         let   rand = Helper.rand;
         let   i    = -1;
 
@@ -432,10 +453,11 @@ describe("client/src/organism/VM", () => {
 
         Helper.rand = rand;
         vm.destroy();
+        obs.destroy();
     });
     it('Checking copyLines() method with no code', () => {
         const obs  = new Observer(2);
-        const vm = new VM(() => {}, obs, () => {});
+        const vm   = new VM(() => {}, obs, () => {});
         let   rand = Helper.rand;
 
         Helper.rand = () => 0;
@@ -445,6 +467,7 @@ describe("client/src/organism/VM", () => {
 
         Helper.rand = rand;
         vm.destroy();
+        obs.destroy();
     });
 
     it('Checking updateLine() method', () => {
@@ -464,11 +487,12 @@ describe("client/src/organism/VM", () => {
 
         Num.rand = rand;
         vm.destroy();
+        obs.destroy();
     });
 
     it('Checking removeLine() method', () => {
-        const obs  = new Observer(2);
-        const vm = new VM(() => {}, obs, () => {});
+        const obs = new Observer(2);
+        const vm  = new VM(() => {}, obs, () => {});
 
         vm.insertLine();
         expect(vm.size).toEqual(1);
@@ -476,10 +500,11 @@ describe("client/src/organism/VM", () => {
         expect(vm.size).toEqual(0);
 
         vm.destroy();
+        obs.destroy();
     });
     it('Checking removeLine() for empty code', () => {
-        const obs  = new Observer(2);
-        const vm = new VM(() => {}, obs, () => {});
+        const obs = new Observer(2);
+        const vm  = new VM(() => {}, obs, () => {});
 
         expect(vm.size).toEqual(0);
         vm.removeLine();
@@ -488,12 +513,13 @@ describe("client/src/organism/VM", () => {
         expect(vm.size).toEqual(0);
 
         vm.destroy();
+        obs.destroy();
     });
 
     it('Checking getLine()', () => {
-        const obs  = new Observer(2);
-        const vm = new VM(() => {}, obs, () => {});
-        let get  = Num.rand;
+        const obs = new Observer(2);
+        const vm  = new VM(() => {}, obs, () => {});
+        let   get = Num.rand;
 
         Num.rand = () => 0xabcdefff;
         expect(vm.size).toEqual(0);
@@ -511,5 +537,6 @@ describe("client/src/organism/VM", () => {
 
         Num.rand = get;
         vm.destroy();
+        obs.destroy();
     });
 });
