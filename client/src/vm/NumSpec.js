@@ -89,6 +89,25 @@ describe("client/src/organism/Num", () => {
             expect(Num.getVar(n, 0)).toEqual(0);
             expect(Num.getVar(n, 1)).toEqual(0);
         });
+        it('Checking getVarX() methods', () => {
+            let n = 0xabffffff;
+
+            expect(Num.getVar0(n)).toEqual(3);
+            expect(Num.getVar1(n)).toEqual(3);
+            expect(Num.getVar2(n)).toEqual(3);
+
+            n = 0xbcbfffff;
+            expect(Num.getVar0(n)).toEqual(2);
+            expect(Num.getVar1(n)).toEqual(3);
+
+            n = 0xbc9fffff;
+            expect(Num.getVar0(n)).toEqual(2);
+            expect(Num.getVar1(n)).toEqual(1);
+
+            n = 0xbc00ffff;
+            expect(Num.getVar0(n)).toEqual(0);
+            expect(Num.getVar1(n)).toEqual(0);
+        });
     });
 
     it('Checking setVar() method', () => {
