@@ -71,6 +71,7 @@ describe("client/src/organism/Num", () => {
 
     describe('Checks getVar() method', () => {
         it('Checking getVar() method', () => {
+            Num.init(0xff);
             let n = 0xabffffff;
 
             expect(Num.getVar(n, 0)).toEqual(3);
@@ -90,6 +91,7 @@ describe("client/src/organism/Num", () => {
             expect(Num.getVar(n, 1)).toEqual(0);
         });
         it('Checking getVarX() methods', () => {
+            Num.init(0xff);
             let n = 0xabffffff;
 
             expect(Num.getVar0(n)).toEqual(3);
@@ -103,27 +105,43 @@ describe("client/src/organism/Num", () => {
             n = 0xbc9fffff;
             expect(Num.getVar0(n)).toEqual(2);
             expect(Num.getVar1(n)).toEqual(1);
+            expect(Num.getVar2(n)).toEqual(3);
+            expect(Num.getVar3(n)).toEqual(3);
 
             n = 0xbc00ffff;
             expect(Num.getVar0(n)).toEqual(0);
             expect(Num.getVar1(n)).toEqual(0);
+            expect(Num.getVar2(n)).toEqual(0);
+            expect(Num.getVar3(n)).toEqual(0);
+
+            n = 0x00000000;
+            expect(Num.getVar0(n)).toEqual(0);
+            expect(Num.getVar1(n)).toEqual(0);
+            expect(Num.getVar2(n)).toEqual(0);
+            expect(Num.getVar3(n)).toEqual(0);
         });
     });
 
-    it('Checking setVar() method', () => {
-        expect(Num.setVar(0xabffffff, 0, 2)).toEqual(0xabbfffff);
-        expect(Num.setVar(0xabffffff, 0, 3)).toEqual(0xabffffff);
-        expect(Num.setVar(0xabffffff, 0, 0)).toEqual(0xab3fffff);
-        expect(Num.setVar(0xabffffff, 2, 0)).toEqual(0xabf3ffff);
-        expect(Num.setVar(0xabffffff, 2, 2)).toEqual(0xabfbffff);
+    describe('Checks setVar() method', () => {
+        it('Checking setVar() method', () => {
+            Num.init(0xff);
+            expect(Num.setVar(0xabffffff, 0, 2)).toEqual(0xabbfffff);
+            expect(Num.setVar(0xabffffff, 0, 3)).toEqual(0xabffffff);
+            expect(Num.setVar(0xabffffff, 0, 0)).toEqual(0xab3fffff);
+            expect(Num.setVar(0xabffffff, 2, 0)).toEqual(0xabf3ffff);
+            expect(Num.setVar(0xabffffff, 2, 2)).toEqual(0xabfbffff);
+        });
     });
 
-    it('Checking getBits() method', () => {
-        expect(Num.getBits(0xabffffff, 0, 8)).toEqual(0xab);
-        expect(Num.getBits(0xabffffff, 0, 4)).toEqual(0xa);
-        expect(Num.getBits(0xabffffff, 4, 4)).toEqual(0xb);
-        expect(Num.getBits(0xabfbffff, 12, 2)).toEqual(0x2);
-        expect(Num.getBits(0xabcdffff, 8, 8)).toEqual(0xcd);
-        expect(Num.getBits(0xabcdffff, 16, 8)).toEqual(0xff);
+    describe('Checks getBits() method', () => {
+        it('Checking getBits() method', () => {
+            Num.init(0xff);
+            expect(Num.getBits(0xabffffff, 0, 8)).toEqual(0xab);
+            expect(Num.getBits(0xabffffff, 0, 4)).toEqual(0xa);
+            expect(Num.getBits(0xabffffff, 4, 4)).toEqual(0xb);
+            expect(Num.getBits(0xabfbffff, 12, 2)).toEqual(0x2);
+            expect(Num.getBits(0xabcdffff, 8, 8)).toEqual(0xcd);
+            expect(Num.getBits(0xabcdffff, 16, 8)).toEqual(0xff);
+        });
     });
 });
