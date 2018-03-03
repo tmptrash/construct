@@ -7,7 +7,7 @@ describe("client/src/organism/VM", () => {
     const Num        = require('./Num');
     const Operators  = require('./Operators');
 
-    describe('Checking creation', () => {
+    describe('Checking creation and destroy', () => {
         it("Checking vm creation", () => {
             let   flag = false;
             const obs  = new Observer(1);
@@ -31,6 +31,7 @@ describe("client/src/organism/VM", () => {
             expect(vm.code).toEqual(parent.code);
             expect(vm.size).toEqual(parent.size);
             expect(vm.vars).toEqual(parent.vars);
+            expect(vm.line).toEqual(parent.line);
 
             obs.destroy();
             parent.destroy();
@@ -69,36 +70,38 @@ describe("client/src/organism/VM", () => {
         });
     });
 
-    it("Checking 'code' and 'size' properties", () => {
-        const obs = new Observer(2);
-        const vm  = new VM(() => {}, obs, () => {});
+    describe('Checking properties and getters', () => {
+        it("Checking 'code' and 'size' properties", () => {
+            const obs = new Observer(2);
+            const vm  = new VM(obs, () => {}, []);
 
-        expect(vm.code instanceof Array).toEqual(true);
-        expect(vm.size).toEqual(0);
+            expect(vm.code instanceof Array).toEqual(true);
+            expect(vm.size).toEqual(0);
 
-        vm.insertLine();
-        expect(vm.code instanceof Array).toEqual(true);
-        expect(vm.size).toEqual(1);
+            vm.insertLine();
+            expect(vm.code instanceof Array).toEqual(true);
+            expect(vm.size).toEqual(1);
 
-        vm.insertLine();
-        expect(vm.size).toEqual(2);
-        vm.removeLine();
-        expect(vm.size).toEqual(1);
-        vm.removeLine();
-        expect(vm.size).toEqual(0);
+            vm.insertLine();
+            expect(vm.size).toEqual(2);
+            vm.removeLine();
+            expect(vm.size).toEqual(1);
+            vm.removeLine();
+            expect(vm.size).toEqual(0);
 
-        vm.destroy();
-        obs.destroy();
-    });
+            vm.destroy();
+            obs.destroy();
+        });
 
-    it("Checking 'operators' property", () => {
-        const obs  = new Observer(2);
-        const vm = new VM(() => {}, obs, Operators);
+        it("Checking 'operators' property", () => {
+            const obs  = new Observer(2);
+            const vm = new VM(obs, Operators, []);
 
-        expect(vm.operators instanceof Operators).toEqual(true);
+            expect(vm.operators instanceof Operators).toEqual(true);
 
-        vm.destroy();
-        obs.destroy();
+            vm.destroy();
+            obs.destroy();
+        });
     });
 
     // it("Checking run method", () => {

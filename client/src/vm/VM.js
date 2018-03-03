@@ -4,7 +4,6 @@
  * TODO: explain here code one number format,...
  *
  * @author flatline
- * TODO: may be this module is redundant
  * TODO: think about custom operators callbacks from outside. This is how
  * TODO: we may solve custom tasks
  */
@@ -40,6 +39,7 @@ class VM extends Observer {
         this._operatorCls  = operatorCls;
         this._vars         = parent && parent.vars && parent.vars.slice() || this._getVars();
         this._code         = parent && parent.code.slice() || [];
+        this._line         = parent && parent.line || 0;
         /**
          * {Array} Array of two numbers. first - line number where we have
          * to return if first line appears. second - line number, where ends
@@ -51,7 +51,6 @@ class VM extends Observer {
          */
         this._operators    = new operatorCls(this._offsets, this._vars, obs);
         this._ops          = this._operators.operators;
-        this._line         = 0;
     }
 
     get code()      {return this._code}
@@ -129,14 +128,15 @@ class VM extends Observer {
     }
 
     destroy() {
+        this._ops         = null;
         this._operators.destroy && this._operators.destroy();
         this._operators   = null;
-        this._operatorCls = null;
         this._offsets     = [];
-        this._vars        = null;
         this._code        = null;
+        this._vars        = null;
+        this._operatorCls = null;
+        this._weights     = null;
         this._obs         = null;
-        this._ops         = null;
 
         super.destroy();
     }
