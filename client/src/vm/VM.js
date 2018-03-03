@@ -146,7 +146,7 @@ class VM extends Observer {
 
     /**
      * Does crossover between two parent byte codes. Takes second vm's code part
-     * (from start1 to end1 offset) and inserts it instead first vm code part (start...end).
+     * (from start1 to end1 offset) and inserts it into first vm code part (start...end).
      * For example:
      *   code1 : [1,2,3]
      *   code2 : [4,5,6]
@@ -154,7 +154,7 @@ class VM extends Observer {
      *   end   : 2
      *   start1: 0
      *   end1  : 2
-     *   jsvm1.crossover(jsvm2) // [4,5,6] instead [2,3] ->, jsvm1 === [1,4,5,6]
+     *   vm1.crossover(vm2) // [4,5,6] instead [2,3] ->, vm1 === [1,4,5,6]
      *
      * @param {VM} vm VM instance, from where we have to cut code part
      * @returns {Number} Amount of changes in current (this) vm

@@ -136,6 +136,43 @@ describe("client/src/organism/VM", () => {
             vm.destroy();
             obs.destroy();
         });
+
+        it('Checks deserialization', () => {
+            const obs = new Observer(1);
+            const vm  = new VM(obs, Operators, []);
+
+            vm.unserialize({
+                offsets: [0],
+                vars   : [0,1,2,3],
+                code   : [],
+                line   : 1
+            });
+            expect(vm.operators.offs).toEqual([0]);
+            expect(vm.vars).toEqual([0,1,2,3]);
+            expect(vm.code).toEqual([]);
+            expect(vm.line).toEqual(1);
+
+            vm.destroy();
+            obs.destroy();
+        });
+        it('Checks deserialization 2', () => {
+            const obs = new Observer(1);
+            const vm  = new VM(obs, Operators, []);
+
+            vm.unserialize({
+                offsets: [3],
+                vars   : [4,1,2,3],
+                code   : [0xaabbccdd],
+                line   : 0
+            });
+            expect(vm.operators.offs).toEqual([3]);
+            expect(vm.vars).toEqual([4,1,2,3]);
+            expect(vm.code).toEqual([0xaabbccdd]);
+            expect(vm.line).toEqual(0);
+
+            vm.destroy();
+            obs.destroy();
+        });
     });
 
     // it("Checking run method", () => {
