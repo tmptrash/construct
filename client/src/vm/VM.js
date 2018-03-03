@@ -61,9 +61,12 @@ class VM extends Observer {
 
     serialize() {
         return {
+            // 'obs' field will be added after deserialization
+            // 'operatorsCls' field will be added after deserialization
+            // 'operators' field will be added after deserialization
+            // 'weights' field will be added after deserialization
             offsets: this._offsets.slice(),
             vars   : this._vars.slice(),
-            // 'operators' field will be added after insertion
             code   : this._code.slice(),
             line   : this._line
         };

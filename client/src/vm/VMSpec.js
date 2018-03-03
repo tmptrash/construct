@@ -94,10 +94,44 @@ describe("client/src/organism/VM", () => {
         });
 
         it("Checking 'operators' property", () => {
-            const obs  = new Observer(2);
-            const vm = new VM(obs, Operators, []);
+            const obs = new Observer(2);
+            const vm  = new VM(obs, Operators, []);
 
             expect(vm.operators instanceof Operators).toEqual(true);
+
+            vm.destroy();
+            obs.destroy();
+        });
+    });
+
+    describe('Checking serialization/deserialization', () => {
+        it('Checks serialization', () => {
+            const obs = new Observer(1);
+            const vm  = new VM(obs, () => {}, []);
+
+            vm.vars.splice(0, vm.vars.length, ...[0,1,2,3]);
+            expect(vm.serialize()).toEqual({
+                offsets: [0],
+                vars   : [0,1,2,3],
+                code   : [],
+                line   : 0
+            });
+
+            vm.destroy();
+            obs.destroy();
+        });
+        it('Checks serialization 2', () => {
+            const obs = new Observer(1);
+            const vm  = new VM(obs, () => {}, []);
+
+            vm.vars.splice(0, vm.vars.length, ...[4,3,2,1]);
+            vm.insertLine();
+            expect(vm.serialize()).toEqual({
+                offsets: [1],
+                vars   : [4,3,2,1],
+                code   : [vm.code[0]],
+                line   : 0
+            });
 
             vm.destroy();
             obs.destroy();
