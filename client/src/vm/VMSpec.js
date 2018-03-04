@@ -194,10 +194,27 @@ describe("client/src/organism/VM", () => {
             let   flag = false;
 
             vm.insertLine();
-            vm.updateLine(0, 0x00100000);
+            vm.updateLine(0, 0x00000000);
             vm.operators.operators[0] = () => flag = true;
             vm.run(org);
             expect(flag).toEqual(true);
+
+            org.destroy();
+            vm.destroy();
+            OConfig.codeYieldPeriod = period;
+        });
+        it('Should run the same amount as codeYieldPeriod', () => {
+            const period = OConfig.codeYieldPeriod;
+            OConfig.codeYieldPeriod = 3;
+            const vm   = new VM(obs, OperatorsDos, OConfig.orgOperatorWeights);
+            const org  = new OrganismDos('0', 0, 0, {});
+            let   flag = 0;
+
+            vm.insertLine();
+            vm.updateLine(0, 0x00000000);
+            vm.operators.operators[0] = () => {flag++; return 1};
+            vm.run(org);
+            expect(flag).toEqual(3);
 
             org.destroy();
             vm.destroy();
