@@ -35,22 +35,19 @@ class Observer {
     }
 
     off(event, handler) {
-        let index    = -1;
         let handlers = this._handlers[event];
         let len      = handlers && handlers.amount;
 
-        if (handlers) {
-            for (let i = 0; i < len; i++) {
-                if (handlers[i] === handler) {
-                    index = i;
-                    handlers.amount = --len;
-                }
-                index > -1 && (handlers[i] = handlers[i+1]);
+        for (let i = 0; i < len; i++) {
+            if (handlers[i] === handler) {
+                handlers.amount = len - 1;
+                handlers[i] = handlers[i+1];
+                delete handlers[handlers.amount];
+                return true;
             }
-            delete handlers[handlers.amount];
         }
 
-        return true;
+        return false;
     }
 
     /**
@@ -61,8 +58,8 @@ class Observer {
      * @param args
      */
     fire(event, ...args) {
-        const handlers = this._handlers[event];
-        const len      = handlers.amount;
+        const handlers = this._handlers[event] || {};
+        const len      = +handlers.amount;
         for (let i = 0; i < len; i++) {
             handlers[i](...args);
         }
