@@ -2,6 +2,7 @@ const _fill       = require('lodash/fill');
 
 describe("client/src/organism/OperatorsDos", () => {
     const OConfig      = require('./../../organisms/Config');
+    const THelper      = require('./../../../../../../common/tests/Helper');
     const cbpv         = OConfig.codeBitsPerVar;
     OConfig.codeBitsPerVar = 2;
     const OperatorsDos = require('./Operators');
@@ -1202,9 +1203,8 @@ describe("client/src/organism/OperatorsDos", () => {
         const weights    = OConfig.orgOperatorWeights.slice();
         let   ocfg;
         let   org;
-        const script     = code => {
-            for (let i = 0; i < code.length; i++) {org.vm.insertLine()}
-            for (let i = 0; i < code.length; i++) {org.vm.updateLine(i, typeof code[i] === 'string' ? parseInt(code[i].split(' ').join(''), 2) : code[i])}
+        const script     = (code) => {
+            THelper.script(org.vm, code);
             OConfig.codeYieldPeriod = code.length;
         };
 

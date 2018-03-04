@@ -3,8 +3,6 @@
  *
  * @author flatline
  */
-const each = require('lodash/each');
-
 class Helper {
     /**
      * Waiting for obj.done property to be true and calls cb() callback
@@ -83,6 +81,19 @@ class Helper {
         };
 
         len && iterate(queue[i++]) || done();
+    }
+
+    /**
+     * Inserts script into specified organism. Code may be presented
+     * as an array of numbers (native format) or as a binary string
+     * of bits, e.g.: '10 00 01 10 00000010 1111111111'. Spaces will
+     * be cut from this string.
+     * @param {VM} vm Destination virtual machine
+     * @param {Array} code Code we are inserting in
+     */
+    static script(vm, code) {
+        for (let i = 0; i < code.length; i++) {vm.insertLine()}
+        for (let i = 0; i < code.length; i++) {vm.updateLine(i, typeof code[i] === 'string' ? parseInt(code[i].split(' ').join(''), 2) : code[i])}
     }
 }
 
