@@ -183,8 +183,8 @@ class VM extends Observer {
     }
 
     /**
-     * Takes few lines from itself and makes a copy of them. After that inserts
-     * them before or after copied part. All positions are random
+     * Takes few lines from itself and inserts them before or after copied
+     * part. All positions are random.
      * @return {Number} Amount of added/copied lines
      */
     copyLines() {

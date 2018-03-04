@@ -401,107 +401,112 @@ describe("client/src/organism/VM", () => {
         });
     });
 
-    it('Checking copyLines() method', () => {
-        const vm   = new VM(obs, OperatorsDos, []);
-        let   rand = Helper.rand;
-        let   i    = -1;
+    describe('copyLines() method', () => {
+        it('Checking copyLines() method', () => {
+            const vm   = new VM(obs, OperatorsDos, []);
+            let   rand = Helper.rand;
+            let   i    = -1;
 
-        vm.insertLine();
-        vm.insertLine();
-        vm.insertLine();
-        vm.insertLine();
-        Helper.rand = function () {
-            i++;
-            if (i === 0) {        // start
-                return 1;
-            } else if (i === 1) { // end
-                return 2;
-            } else if (i === 2) { // rand(2)
-                return 0;
-            } else if (i === 3) { // rand(start)
-                return 0;
-            }
-        };
-        expect(vm.size).toEqual(4);
-        vm.copyLines();
-        expect(vm.size).toEqual(6);
-        expect(vm.code[0]).toEqual(vm.code[3]);
-        expect(vm.code[1]).toEqual(vm.code[4]);
+            vm.insertLine();
+            vm.insertLine();
+            vm.insertLine();
+            vm.insertLine();
+            Helper.rand = function () {
+                i++;
+                if (i === 0) {        // start
+                    return 1;
+                } else if (i === 1) { // end
+                    return 2;
+                } else if (i === 2) { // rand(2)
+                    return 0;
+                } else if (i === 3) { // rand(start)
+                    return 0;
+                }
+            };
+            i = -1;
+            expect(vm.size).toEqual(4);
+            vm.copyLines();
+            expect(vm.size).toEqual(6);
+            expect(vm.code[0]).toEqual(vm.code[3]);
+            expect(vm.code[1]).toEqual(vm.code[4]);
 
-        Helper.rand = rand;
-        vm.destroy();
-    });
-    it('Checking copyLines() method 2', () => {
-        const vm   = new VM(obs, OperatorsDos, []);
-        let   rand = Helper.rand;
-        let   i    = -1;
+            Helper.rand = rand;
+            vm.destroy();
+        });
+        it('Checking copyLines() method 2', () => {
+            const vm   = new VM(obs, OperatorsDos, []);
+            let   rand = Helper.rand;
+            let   i    = -1;
 
-        vm.insertLine();
-        vm.insertLine();
-        vm.insertLine();
-        vm.insertLine();
-        Helper.rand = function () {
-            i++;
-            if (i === 0) {        // start
-                return 1;
-            } else if (i === 1) { // end
-                return 2;
-            } else if (i === 2) { // rand(2)
-                return 1;
-            } else if (i === 3) { // rand(codeLen - end)
-                return 0;
-            }
-        };
-        expect(vm.size).toEqual(4);
-        vm.copyLines();
-        expect(vm.size).toEqual(6);
-        expect(vm.code[1]).toEqual(vm.code[3]);
-        expect(vm.code[2]).toEqual(vm.code[4]);
+            vm.insertLine();
+            vm.insertLine();
+            vm.insertLine();
+            vm.insertLine();
+            Helper.rand = function () {
+                i++;
+                if (i === 0) {        // start
+                    return 1;
+                } else if (i === 1) { // end
+                    return 2;
+                } else if (i === 2) { // rand(2)
+                    return 1;
+                } else if (i === 3) { // rand(codeLen - end)
+                    return 0;
+                }
+            };
+            i = -1;
+            expect(vm.size).toEqual(4);
+            vm.copyLines();
+            expect(vm.size).toEqual(6);
+            expect(vm.code[1]).toEqual(vm.code[3]);
+            expect(vm.code[2]).toEqual(vm.code[4]);
 
-        Helper.rand = rand;
-        vm.destroy();
-    });
-    it('Checking copyLines() method 3', () => {
-        const vm   = new VM(obs, OperatorsDos, []);
-        let   rand = Helper.rand;
-        let   i    = -1;
+            Helper.rand = rand;
+            vm.destroy();
+        });
+        it('Checking copyLines() method 3', () => {
+            const vm   = new VM(obs, OperatorsDos, []);
+            let   rand = Helper.rand;
+            let   i    = -1;
 
-        vm.insertLine();
-        vm.insertLine();
-        vm.insertLine();
-        vm.insertLine();
-        Helper.rand = function () {
-            i++;
-            if (i === 0) {        // start
-                return 1;
-            } else if (i === 1) { // end
-                return 2;
-            } else if (i === 2) { // rand(2)
-                return 1;
-            } else if (i === 3) { // rand(codeLen - end)
-                return 1;
-            }
-        };
-        expect(vm.size).toEqual(4);
-        vm.copyLines();
-        expect(vm.size).toEqual(6);
-        expect(vm.code[1]).toEqual(vm.code[4]);
-        expect(vm.code[2]).toEqual(vm.code[5]);
+            vm.insertLine();
+            vm.insertLine();
+            vm.insertLine();
+            vm.insertLine();
+            Helper.rand = function () {
+                i++;
+                if (i === 0) {        // start
+                    return 1;
+                } else if (i === 1) { // end
+                    return 2;
+                } else if (i === 2) { // rand(2)
+                    return 1;
+                } else if (i === 3) { // rand(codeLen - end)
+                    return 1;
+                }
+            };
+            i = -1;
+            expect(vm.size).toEqual(4);
+            vm.copyLines();
+            expect(vm.size).toEqual(6);
+            expect(vm.code[1]).toEqual(vm.code[4]);
+            expect(vm.code[2]).toEqual(vm.code[5]);
 
-        Helper.rand = rand;
-        vm.destroy();
-    });
-    it('Checking copyLines() method with no code', () => {
-        const vm   = new VM(obs, OperatorsDos, []);
-        let   rand = Helper.rand;
+            Helper.rand = rand;
+            vm.destroy();
+        });
+        it('Checking copyLines() method with no code', () => {
+            const vm   = new VM(obs, OperatorsDos, []);
+            let   rand = Helper.rand;
 
-        Helper.rand = () => 0;
-        expect(vm.size).toEqual(0);
-        vm.copyLines();
-        expect(vm.size).toEqual(0);
+            Helper.rand = () => 0;
+            expect(vm.size).toEqual(0);
+            vm.copyLines();
+            expect(vm.size).toEqual(0);
 
-        Helper.rand = rand;
-        vm.destroy();
+            Helper.rand = rand;
+            vm.destroy();
+        });
     });
 
     describe('insertLine() method', () => {
@@ -532,65 +537,71 @@ describe("client/src/organism/VM", () => {
         });
     });
 
-    it('Checking updateLine() method', () => {
-        const vm   = new VM(obs, OperatorsDos, []);
-        let   rand = Num.rand;
+    describe('updateLine() method', () => {
+        it('Checking updateLine() method', () => {
+            const vm   = new VM(obs, OperatorsDos, []);
+            let   rand = Num.rand;
 
-        Num.rand = () => 0xabcdefff;
-        vm.insertLine();
-        expect(vm.code[0]).toEqual(0xabcdefff);
+            Num.rand = () => 0xabcdefff;
+            vm.insertLine();
+            expect(vm.code[0]).toEqual(0xabcdefff);
 
-        vm.updateLine(0, 0xffffffff);
-        expect(vm.code[0]).toEqual(0xffffffff);
+            vm.updateLine(0, 0xffffffff);
+            expect(vm.code[0]).toEqual(0xffffffff);
 
-        vm.updateLine(0, 0x12345678);
-        expect(vm.code[0]).toEqual(0x12345678);
+            vm.updateLine(0, 0x12345678);
+            expect(vm.code[0]).toEqual(0x12345678);
 
-        Num.rand = rand;
-        vm.destroy();
+            Num.rand = rand;
+            vm.destroy();
+        });
     });
 
-    it('Checking removeLine() method', () => {
-        const vm  = new VM(obs, OperatorsDos, []);
+    describe('removeLine() method', () => {
+        it('Checking removeLine() method', () => {
+            const vm  = new VM(obs, OperatorsDos, []);
 
-        vm.insertLine();
-        expect(vm.size).toEqual(1);
-        vm.removeLine();
-        expect(vm.size).toEqual(0);
+            vm.insertLine();
+            expect(vm.size).toEqual(1);
+            vm.removeLine();
+            expect(vm.size).toEqual(0);
 
-        vm.destroy();
+            vm.destroy();
+        });
+        it('Checking removeLine() for empty code', () => {
+            const vm  = new VM(obs, OperatorsDos, []);
+
+            expect(vm.size).toEqual(0);
+            vm.removeLine();
+            expect(vm.size).toEqual(0);
+            vm.removeLine();
+            expect(vm.size).toEqual(0);
+
+            vm.destroy();
+        });
     });
-    it('Checking removeLine() for empty code', () => {
-        const vm  = new VM(obs, OperatorsDos, []);
 
-        expect(vm.size).toEqual(0);
-        vm.removeLine();
-        expect(vm.size).toEqual(0);
-        vm.removeLine();
-        expect(vm.size).toEqual(0);
+    describe('getLine() method', () => {
+        it('Checking getLine()', () => {
+            const vm  = new VM(obs, OperatorsDos, []);
+            let   get = Num.rand;
 
-        vm.destroy();
-    });
+            Num.rand = () => 0xabcdefff;
+            expect(vm.size).toEqual(0);
+            expect(vm.getLine(0)).toEqual(undefined);
+            expect(vm.getLine(1)).toEqual(undefined);
+            vm.insertLine();
+            expect(vm.size).toEqual(1);
+            expect(vm.getLine(0)).toEqual(0xabcdefff);
 
-    it('Checking getLine()', () => {
-        const vm  = new VM(obs, OperatorsDos, []);
-        let   get = Num.rand;
+            vm.removeLine();
+            expect(vm.size).toEqual(0);
+            expect(vm.getLine(0)).toEqual(undefined);
+            expect(vm.getLine(1)).toEqual(undefined);
+            expect(vm.getLine(9)).toEqual(undefined);
 
-        Num.rand = () => 0xabcdefff;
-        expect(vm.size).toEqual(0);
-        expect(vm.getLine(0)).toEqual(undefined);
-        expect(vm.getLine(1)).toEqual(undefined);
-        vm.insertLine();
-        expect(vm.size).toEqual(1);
-        expect(vm.getLine(0)).toEqual(0xabcdefff);
-
-        vm.removeLine();
-        expect(vm.size).toEqual(0);
-        expect(vm.getLine(0)).toEqual(undefined);
-        expect(vm.getLine(1)).toEqual(undefined);
-        expect(vm.getLine(9)).toEqual(undefined);
-
-        Num.rand = get;
-        vm.destroy();
+            Num.rand = get;
+            vm.destroy();
+        });
     });
 });
