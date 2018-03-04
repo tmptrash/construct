@@ -206,9 +206,9 @@ describe("client/src/organism/VM", () => {
         it('Should run the same amount as codeYieldPeriod', () => {
             const period = OConfig.codeYieldPeriod;
             OConfig.codeYieldPeriod = 3;
-            const vm   = new VM(obs, OperatorsDos, OConfig.orgOperatorWeights);
-            const org  = new OrganismDos('0', 0, 0, {});
-            let   flag = 0;
+            const vm     = new VM(obs, OperatorsDos, OConfig.orgOperatorWeights);
+            const org    = new OrganismDos('0', 0, 0, {});
+            let   flag   = 0;
 
             vm.insertLine();
             vm.updateLine(0, 0x00000000);
@@ -219,6 +219,32 @@ describe("client/src/organism/VM", () => {
             org.destroy();
             vm.destroy();
             OConfig.codeYieldPeriod = period;
+        });
+        it('Should decrease energy', () => {
+            const alive      = OConfig.orgAlivePeriod;
+            const period     = OConfig.codeYieldPeriod;
+            const energy     = OConfig.orgStartEnergy;
+            const weights    = OConfig.orgOperatorWeights.slice();
+            const newWeights = [.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1];
+            OConfig.orgOperatorWeights.splice(0, OConfig.orgOperatorWeights.length, ...newWeights);
+            OConfig.codeYieldPeriod = 1;
+            OConfig.orgStartEnergy  = 100;
+            OConfig.orgAlivePeriod  = 100;
+            const vm   = new VM(obs, OperatorsDos, OConfig.orgOperatorWeights);
+            const org  = new OrganismDos('0', 0, 0, {});
+
+            vm.insertLine();
+            vm.updateLine(0, 0x00000000);
+            expect(org.energy).toEqual(100);
+            vm.run(org);
+            expect(org.energy).toEqual(90); // 100 - (100 * .1 + 0) = 90
+
+            org.destroy();
+            vm.destroy();
+            OConfig.orgStartEnergy  = energy;
+            OConfig.codeYieldPeriod = period;
+            OConfig.orgAlivePeriod  = alive;
+            OConfig.orgOperatorWeights.splice(0, OConfig.orgOperatorWeights.length, ...weights);
         });
     });
 
