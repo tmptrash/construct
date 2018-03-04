@@ -1,5 +1,4 @@
 describe("client/src/organism/VM", () => {
-    const eq           = require('lodash/isEqual');
     const Observer     = require('./../../../common/src/Observer');
     const EVENT_AMOUNT = require('./../../../client/src/share/Events').EVENT_AMOUNT;
     const OrganismDos  = require('./../manager/plugins/organisms/dos/Organism');
@@ -317,8 +316,8 @@ describe("client/src/organism/VM", () => {
             vm2.destroy();
         });
         it("Checking crossover with the same child code size", () => {
-            const vm1 = new VM(obs, OperatorsDos, []);
-            const vm2 = new VM(obs, OperatorsDos, []);
+            const vm1   = new VM(obs, OperatorsDos, []);
+            const vm2   = new VM(obs, OperatorsDos, []);
             const rand  = Helper.rand;
             let   i     = -1;
 
@@ -330,27 +329,12 @@ describe("client/src/organism/VM", () => {
                 if (i === 3) {return 3}
             };
 
-            vm1._code.push(16000000);
-            vm1._code.push(16000001);
-            vm1._code.push(16000002);
-            vm1._code.push(16000003);
-            vm1._code.push(16000004);
+            THelper.script(vm1, [16000000, 16000001, 16000002, 16000003, 16000004]);
+            THelper.script(vm2, [17000000, 17000001, 17000002, 17000003, 17000004]);
 
-            vm2._code.push(17000000);
-            vm2._code.push(17000001);
-            vm2._code.push(17000002);
-            vm2._code.push(17000003);
-            vm2._code.push(17000004);
-
+            i = -1;
             vm1.crossover(vm2);
-            expect(eq(vm1.code, [
-                16000000,
-                17000001,
-                17000002,
-                17000003,
-                16000004
-            ])).toEqual(true);
-
+            expect(vm1.code).toEqual([16000000, 17000001, 17000002, 17000003, 16000004]);
             Helper.rand = rand;
             vm1.destroy();
             vm2.destroy();
@@ -367,8 +351,8 @@ describe("client/src/organism/VM", () => {
             vm2.destroy();
         });
         it("Checking crossover with no code size for one parent and twp lines of code for other", () => {
-            const vm1 = new VM(obs, OperatorsDos, []);
-            const vm2 = new VM(obs, OperatorsDos, []);
+            const vm1   = new VM(obs, OperatorsDos, []);
+            const vm2   = new VM(obs, OperatorsDos, []);
             const rand  = Helper.rand;
             let   i     = -1;
 
@@ -380,24 +364,19 @@ describe("client/src/organism/VM", () => {
                 if (i === 3) {return 2}
             };
 
-            vm2._code.push(17000000);
-            vm2._code.push(17000001);
-            vm2._code.push(17000002);
-            vm2._code.push(17000003);
+            THelper.script(vm2, [17000000, 17000001, 17000002, 17000003]);
 
+            i = -1;
             vm1.crossover(vm2);
-            expect(eq(vm1.code, [
-                17000001,
-                17000002
-            ])).toEqual(true);
+            expect(vm1.code).toEqual([17000001, 17000002]);
 
             Helper.rand = rand;
             vm1.destroy();
             vm2.destroy();
         });
         it("Checking crossover with no code size for one parent and twp lines of code for other 2", () => {
-            const vm1 = new VM(obs, OperatorsDos, []);
-            const vm2 = new VM(obs, OperatorsDos, []);
+            const vm1   = new VM(obs, OperatorsDos, []);
+            const vm2   = new VM(obs, OperatorsDos, []);
             const rand  = Helper.rand;
             let   i     = -1;
 
@@ -409,47 +388,16 @@ describe("client/src/organism/VM", () => {
                 if (i === 3) {return 0}
             };
 
-            vm1._code.push(16000000);
-            vm1._code.push(16000001);
-            vm1._code.push(16000002);
-            vm1._code.push(16000003);
+            THelper.script(vm1, [16000000, 16000001, 16000002, 16000003]);
 
+            i = -1;
             vm1.crossover(vm2);
-            expect(eq(vm1.code, [
-                16000000,
-                16000003,
-            ])).toEqual(true);
+            expect(vm1.code).toEqual([16000000, 16000003]);
             expect(vm2.size).toEqual(0);
 
             Helper.rand = rand;
             vm1.destroy();
             vm2.destroy();
-        });
-
-        it('Checking insertLine() method', () => {
-            const vm  = new VM(obs, OperatorsDos, []);
-
-            expect(vm.size).toEqual(0);
-            vm.insertLine();
-            expect(vm.size).toEqual(1);
-            vm.insertLine();
-            expect(vm.size).toEqual(2);
-
-            vm.destroy();
-        });
-        it('Checking insertLine() method 2', () => {
-            const vm   = new VM(obs, OperatorsDos, []);
-            let   rand = Num.rand;
-
-            Num.rand = () => 0xabcdefff;
-            expect(vm.size).toEqual(0);
-            vm.insertLine();
-            expect(vm.size).toEqual(1);
-
-            expect(vm.code[0]).toEqual(0xabcdefff);
-
-            Num.rand = rand;
-            vm.destroy();
         });
     });
 
@@ -554,6 +502,34 @@ describe("client/src/organism/VM", () => {
 
         Helper.rand = rand;
         vm.destroy();
+    });
+
+    describe('insertLine() method', () => {
+        it('Checking insertLine() method', () => {
+            const vm  = new VM(obs, OperatorsDos, []);
+
+            expect(vm.size).toEqual(0);
+            vm.insertLine();
+            expect(vm.size).toEqual(1);
+            vm.insertLine();
+            expect(vm.size).toEqual(2);
+
+            vm.destroy();
+        });
+        it('Checking insertLine() method 2', () => {
+            const vm   = new VM(obs, OperatorsDos, []);
+            let   rand = Num.rand;
+
+            Num.rand = () => 0xabcdefff;
+            expect(vm.size).toEqual(0);
+            vm.insertLine();
+            expect(vm.size).toEqual(1);
+
+            expect(vm.code[0]).toEqual(0xabcdefff);
+
+            Num.rand = rand;
+            vm.destroy();
+        });
     });
 
     it('Checking updateLine() method', () => {
