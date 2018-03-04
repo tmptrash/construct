@@ -62,8 +62,9 @@ describe("server/src/server/plugins/Api", () => {
                 this.activeAround = [false,false,false,false];
                 this._clientId = null;
             }
-            run()            {}
+            run()  {}
             stop() {}
+            resetActive() {}
             get clientId()   {return this._clientId}
             set clientId(id) {this._clientId = id}
         }
@@ -97,6 +98,7 @@ describe("server/src/server/plugins/Api", () => {
             }
             run()  {}
             stop() {}
+            resetActive() {}
             set clientId(id) {this._clientId = id}
         }
         let maxCon  = SConfig.maxConnections;

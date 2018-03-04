@@ -194,6 +194,7 @@ describe("server/src/server/Server", () => {
             server.stop();
             Helper.wait(waitObj, () => {
                 server.destroy();
+                ws.close();
                 done();
             });
         });
@@ -210,6 +211,8 @@ describe("server/src/server/Server", () => {
         Helper.wait(waitObj, () => {
             server.on(SEVENTS.STOP, () => waitObj.done = true);
             server.stop();
+            ws1.close();
+            ws2.close();
             Helper.wait(waitObj, () => {
                 server.destroy();
                 done();
@@ -231,6 +234,7 @@ describe("server/src/server/Server", () => {
             Helper.wait(waitObj, () => {
                 server.on(SEVENTS.STOP, () => waitObj.done = true);
                 server.stop();
+                ws1.close();
                 Helper.wait(waitObj, () => {
                     server.destroy();
                     done();
@@ -263,6 +267,7 @@ describe("server/src/server/Server", () => {
             expect(server.active).toEqual(true);
             server.on(SEVENTS.STOP, () => waitObj.done = true);
             server.destroy();
+            ws.close();
             Helper.wait(waitObj, () => {
                 expect(server.active).toEqual(false);
                 done();
@@ -279,6 +284,7 @@ describe("server/src/server/Server", () => {
             }
             run() {}
             stop() {}
+            resetActive() {}
             get clientId()   {return this._clientId}
             set clientId(id) {this._clientId = id}
         }

@@ -59,8 +59,7 @@ class Observer {
      */
     fire(event, ...args) {
         const handlers = this._handlers[event] || {};
-        const len      = +handlers.amount;
-        for (let i = 0; i < len; i++) {
+        for (let i = 0; i < +handlers.amount; i++) {
             handlers[i](...args);
         }
     }
