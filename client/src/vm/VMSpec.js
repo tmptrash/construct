@@ -1,12 +1,13 @@
 describe("client/src/organism/VM", () => {
-    const eq          = require('lodash/isEqual');
-    const Observer    = require('./../../../common/src/Observer');
-    const OrganismDos = require('./../manager/plugins/organisms/dos/Organism');
-    const Helper      = require('./../../../common/src/Helper');
-    const OConfig     = require('./../manager/plugins/organisms/Config');
-    const VM          = require('./VM');
-    const Num         = require('./Num');
-    const Operators   = require('./Operators');
+    const eq           = require('lodash/isEqual');
+    const Observer     = require('./../../../common/src/Observer');
+    const OrganismDos  = require('./../manager/plugins/organisms/dos/Organism');
+    const Helper       = require('./../../../common/src/Helper');
+    const OConfig      = require('./../manager/plugins/organisms/Config');
+    const VM           = require('./VM');
+    const Num          = require('./Num');
+    const Operators    = require('./Operators');
+    const OperatorsDos = require('./../manager/plugins/organisms/dos/Operators');
     let   obs;
 
     beforeEach(() => obs = new Observer(10));
@@ -170,6 +171,37 @@ describe("client/src/organism/VM", () => {
 
             org.destroy();
             vm.destroy();
+        });
+        it('Shouldn\'t work if no energy', () => {
+            const vm     = new VM(obs, Operators, []);
+            const org    = new OrganismDos('0', 0, 0, {});
+            const energy = -1;
+
+            org.energy = energy;
+            vm.insertLine();
+            vm.run(org);
+            expect(vm.line).toEqual(0);
+            expect(org.energy).toEqual(energy);
+
+            org.destroy();
+            vm.destroy();
+        });
+        it('Should run correct operator callbacks', () => {
+            const period = OConfig.codeYieldPeriod;
+            OConfig.codeYieldPeriod = 1;
+            const vm   = new VM(obs, OperatorsDos, []);
+            const org  = new OrganismDos('0', 0, 0, {});
+            let   flag = false;
+
+            vm.insertLine();
+            vm.updateLine(0, 0x00100000);
+            vm.operators.operators[0] = () => flag = true;
+            vm.run(org);
+            expect(flag).toEqual(true);
+
+            org.destroy();
+            vm.destroy();
+            OConfig.codeYieldPeriod = period;
         });
     });
 
