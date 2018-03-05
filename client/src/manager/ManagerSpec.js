@@ -12,7 +12,6 @@ describe("client/src/manager/Manager", () => {
     const ConfigHelper = require('./../../../common/tests/Config');
     const World        = require('./../../../client/src/view/World').World;
     const Manager      = require('./Manager');
-    const emptyFn      = () => {};
     const waitEvent    = THelper.waitEvent;
     const wait         = THelper.wait;
     const testQ        = THelper.testQ;
@@ -21,6 +20,7 @@ describe("client/src/manager/Manager", () => {
     const maxConns     = SConfig.maxConnections;
     const startOrgs    = OConfig.orgStartAmount;
     const energyCheck  = Config.worldEnergyCheckPeriod;
+    const emp          = () => {};
 
     let error;
     let warn;
@@ -54,16 +54,16 @@ describe("client/src/manager/Manager", () => {
         error = Console.error;
         warn  = Console.warn;
         info  = Console.info;
-        Console.error = emptyFn;
-        Console.warn  = emptyFn;
-        Console.info  = emptyFn;
+        Console.error = emp;
+        Console.warn  = emp;
+        Console.info  = emp;
 
         serror = SConsole.error;
         swarn  = SConsole.warn;
         sinfo  = SConsole.info;
-        SConsole.error = emptyFn;
-        SConsole.warn  = emptyFn;
-        SConsole.info  = emptyFn;
+        SConsole.error = emp;
+        SConsole.warn  = emp;
+        SConsole.info  = emp;
     });
     afterAll(()  => {
         SConsole.error = serror;
@@ -83,7 +83,7 @@ describe("client/src/manager/Manager", () => {
         Config.worldEnergyCheckPeriod = energyCheck;
     });
 
-    describe('Manager creation', () => {
+    describe('Manager creation/destroy', () => {
         it("Checking manager creation without view", (done) => {
             const man = new Manager(false);
             expect(man.canvas).toBe(null);
@@ -111,279 +111,296 @@ describe("client/src/manager/Manager", () => {
             const man2 = new Manager(false);
 
             testQ(done,
-                [man1, EVENTS.DESTROY, () => man1.destroy(), () => {}],
-                [man2, EVENTS.DESTROY, () => man2.destroy(), () => {}]
+                [man1, EVENTS.DESTROY, () => man1.destroy(), emp],
+                [man2, EVENTS.DESTROY, () => man2.destroy(), emp]
+            );
+        });
+        it("Checking creation 100 managers", (done) => {
+            const mans      = [];
+            const amount    = 100;
+            const width     = Config.worldWidth;
+            const height    = Config.worldHeight;
+            let   destroyed = 0;
+            let   waitObj   = {done: false};
+
+            Config.worldWidth  = 10;
+            Config.worldHeight = 10;
+            for (let i = 0; i < amount; i++) {deletePluginConfigs(); mans.push(new Manager(false))}
+            for (let i = 0; i < amount; i++) {mans[i].destroy(() => ++destroyed === amount && (waitObj.done = true))}
+
+            if (waitObj.done) {
+                Config.worldWidth  = width;
+                Config.worldHeight = height;
+                done();
+                return;
+            }
+            wait(waitObj, () => {
+                Config.worldWidth  = width;
+                Config.worldHeight = height;
+                done();
+            }, 31000);
+        });
+        it("Checking DESTROY event", (done) => {
+            const man = new Manager(false);
+            testQ(done,
+                [man, EVENTS.RUN,     () => man.run(),     emp],
+                [man, EVENTS.STOP,    () => man.stop(),    emp],
+                [man, EVENTS.DESTROY, () => man.destroy(), emp]
             );
         });
     });
 
-//     it("Checking creation 100 managers", (done) => {
-//         const mans      = [];
-//         const amount    = 100;
-//         const width     = Config.worldWidth;
-//         const height    = Config.worldHeight;
-//         let   destroyed = 0;
-//         let   waitObj   = {done: false};
-//
-//         Config.worldWidth  = 10;
-//         Config.worldHeight = 10;
-//         for (let i = 0; i < amount; i++) {deletePluginConfigs(); mans.push(new Manager(false))}
-//         for (let i = 0; i < amount; i++) {mans[i].destroy(() => ++destroyed === amount && (waitObj.done = true))}
-//
-//         if (waitObj.done) {
-//             Config.worldWidth  = width;
-//             Config.worldHeight = height;
-//             done();
-//             return;
-//         }
-//         wait(waitObj, () => {
-//             Config.worldWidth  = width;
-//             Config.worldHeight = height;
-//             done();
-//         }, 31000);
-//     });
-//
-//     it("Checking running manager", (done) => {
-//         const man = new Manager(false);
-//         man.run(() => man.on(EVENTS.ITERATION, () => man.destroy(done)));
-//     });
-//     it("Checking if manager runs main loop", (done) => {
-//         const man   = new Manager(false);
-//         let   count = 0;
-//         man.run(() => man.on(EVENTS.ITERATION, () => {
-//             ++count === 100 && man.destroy(done);
-//         }));
-//     });
-//
-//     it("Checking RUN event", (done) => {
-//         const man = new Manager(false);
-//         waitEvent(man, EVENTS.RUN, () => man.run(), () => man.destroy(done));
-//     });
-//     it("Checking STOP event", (done) => {
-//         const man = new Manager(false);
-//         waitEvent(man, EVENTS.RUN, () => man.run(), () => {
-//             waitEvent(man, EVENTS.STOP, () => man.stop(), () => man.destroy(done));
-//         });
-//     });
-//     it("Checking DESTROY event", (done) => {
-//         const man = new Manager(false);
-//         waitEvent(man, EVENTS.RUN, () => man.run(), () => {
-//             waitEvent(man, EVENTS.STOP, () => man.stop(), () => {
-//                 waitEvent(man, EVENTS.DESTROY, () => man.destroy(), done);
-//             });
-//         });
-//     });
-//     it("Checking ITERATION event", (done) => {
-//         const man = new Manager(false);
-//         let   ok  = false;
-//
-//         man.on(EVENTS.ITERATION, () => ok = true);
-//         waitEvent(man, EVENTS.RUN, () => man.run(), () => {
-//             expect(ok).toBe(true);
-//             waitEvent(man, EVENTS.STOP, () => man.stop(), () => man.destroy(done));
-//         });
-//     });
-//
-//     it("Checking isDistributed() method", (done) => {
-//         const man = new Manager(false);
-//
-//         expect(man.isDistributed()).toBe(false);
-//         waitEvent(man, EVENTS.RUN, () => man.run(), () => {
-//             expect(man.isDistributed()).toBe(false);
-//             waitEvent(man, EVENTS.STOP, () => man.stop(), () => {
-//                 expect(man.isDistributed()).toBe(false);
-//                 man.destroy(done);
-//             });
-//         });
-//     });
-//     it("Checking 'codeRuns' property", (done) => {
-//         const man = new Manager(false);
-//         let   ok  = false;
-//
-//         man.on(EVENTS.ITERATION, () => ok = true);
-//         expect(man.codeRuns).toBe(0);
-//         waitEvent(man, EVENTS.RUN, () => man.run(), () => {
-//             // codeRuns should be 0, because there is no code lines
-//             expect(man.codeRuns).toBe(0);
-//             waitEvent(man, EVENTS.STOP, () => man.stop(), () => man.destroy(done));
-//         });
-//     });
-//
-//     it("Checking running of manager with a server", (done) => {
-//         const server = new Server();
-//         const man    = new Manager(false);
-//
-//         expect(man.clientId).toBe(null);
-//         waitEvent(server, SEVENTS.RUN, () => server.run(), () => {
-//             man.run(() => {
-//                 expect(man.active).toBe(true);
-//                 expect(man.clientId !== null).toBe(true);
-//                 man.destroy(() => {
-//                     waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), done);
-//                 });
-//             });
-//         });
-//     });
-//
-//     it("Checking one organism creation in a manager", (done) => {
-//         const man      = new Manager(false);
-//         const amount   = OConfig.orgStartAmount;
-//         const period   = OConfig.orgRainMutationPeriod;
-//         const percent  = OConfig.orgCloneMutationPercent;
-//         const clone    = OConfig.orgClonePeriod;
-//         let   iterated = false;
-//
-//         OConfig.orgStartAmount          = 1;
-//         OConfig.orgRainMutationPeriod   = 0;
-//         OConfig.orgCloneMutationPercent = 0;
-//         OConfig.orgClonePeriod          = 0;
-//         expect(man.organisms.size).toBe(0);
-//         man.on(EVENTS.LOOP, () => {
-//             if (iterated) {return}
-//             expect(man.organisms.size).toBe(1);
-//             man.stop(() => {
-//                 man.destroy(() => {
-//                     OConfig.orgClonePeriod          = clone;
-//                     OConfig.orgCloneMutationPercent = percent;
-//                     OConfig.orgRainMutationPeriod   = period;
-//                     OConfig.orgStartAmount          = amount;
-//                     done();
-//                 });
-//             });
-//             iterated = true;
-//         });
-//         man.run();
-//     });
-//     it("Checking two managers with a server", (done) => {
-//         const amount    = OConfig.orgStartAmount;
-//         const period    = OConfig.orgRainMutationPeriod;
-//         const percent   = OConfig.orgCloneMutationPercent;
-//         const period1   = OConfig.orgEnergySpendPeriod;
-//         const clone     = OConfig.orgClonePeriod;
-//         const max       = OConfig.orgMaxOrgs;
-//         const server    = new Server();
-//         const man1      = new Manager(false);
-//         deletePluginConfigs();
-//         const man2      = new Manager(false);
-//         let   iterated1 = false;
-//         let   iterated2 = false;
-//         let   blocked   = false;
-//         const destroy   = () => {
-//             blocked = true;
-//             man1.destroy(() => {
-//                 man2.destroy(() => {
-//                     waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
-//                         OConfig.orgClonePeriod          = clone;
-//                         OConfig.orgEnergySpendPeriod    = period1;
-//                         OConfig.orgCloneMutationPercent = percent;
-//                         OConfig.orgRainMutationPeriod   = period;
-//                         OConfig.orgStartAmount          = amount;
-//                         OConfig.orgMaxOrgs              = max;
-//                         done();
-//                     });
-//                 });
-//             });
-//         };
-//
-//         OConfig.orgStartAmount          = 1;
-//         OConfig.orgRainMutationPeriod   = 0;
-//         OConfig.orgCloneMutationPercent = 0;
-//         OConfig.orgEnergySpendPeriod    = 0;
-//         OConfig.orgClonePeriod          = 0;
-//         OConfig.orgMaxOrgs              = 1;
-//         expect(man1.clientId).toBe(null);
-//         expect(man2.clientId).toBe(null);
-//         expect(man1.organisms.size).toBe(0);
-//         expect(man2.organisms.size).toBe(0);
-//
-//         man1.on(EVENTS.LOOP, () => {
-//             if (blocked) {return}
-//             expect(man1.organisms.size).toBe(1);
-//             if (iterated1 && iterated2) {destroy(); return}
-//             iterated1 = true;
-//         });
-//         man2.on(EVENTS.LOOP, () => {
-//             if (blocked) {return}
-//             expect(man2.organisms.size).toBe(1);
-//             if (iterated2 && iterated1) {destroy(); return}
-//             iterated2 = true;
-//         });
-//
-//         waitEvent(server, server.EVENTS.RUN, () => server.run(), () => {
-//             man1.run(() => {
-//                 expect(man1.active).toBe(true);
-//                 expect(man1.clientId !== null).toBe(true);
-//                 man2.run(() => {
-//                     expect(man2.active).toBe(true);
-//                     expect(man2.clientId !== null).toBe(true);
-//                 });
-//             });
-//         });
-//     });
-//
-//     it("Checking moving of organism from one Manager to another", (done) => {
-//         const amount    = OConfig.orgStartAmount;
-//         const period    = OConfig.orgRainMutationPeriod;
-//         const percent   = OConfig.orgCloneMutationPercent;
-//         const period1   = OConfig.orgEnergySpendPeriod;
-//         const clone     = OConfig.orgClonePeriod;
-//         const width     = Config.worldWidth;
-//         const height    = Config.worldHeight;
-//         const energy    = OConfig.orgStartEnergy;
-//         const max       = OConfig.orgMaxOrgs;
-//         const server    = new Server();
-//         Config.worldWidth               = 400;
-//         Config.worldHeight              = 400;
-//         const man1      = new Manager(false);
-//         deletePluginConfigs();
-//         const man2      = new Manager(false);
-//         let   iterated1 = 0;
-//         let   iterated2 = 0;
-//         let   freePos   = World.prototype.getFreePos;
-//         let   org1      = null;
-//         const destroy   = () => {
-//             man1.destroy(() => {
-//                 man2.destroy(() => {
-//                     waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
-//                         World.prototype.getFreePos      = freePos;
-//                         OConfig.orgStartEnergy          = energy;
-//                         OConfig.orgClonePeriod          = clone;
-//                         OConfig.orgEnergySpendPeriod    = period1;
-//                         OConfig.orgCloneMutationPercent = percent;
-//                         OConfig.orgRainMutationPeriod   = period;
-//                         OConfig.orgStartAmount          = amount;
-//                         Config.worldWidth               = width;
-//                         Config.worldHeight              = height;
-//                         OConfig.orgMaxOrgs              = max;
-//                         done();
-//                     });
-//                 });
-//             });
-//         };
-//
-//         OConfig.orgStartAmount          = 1;
-//         OConfig.orgRainMutationPeriod   = 0;
-//         OConfig.orgCloneMutationPercent = 0;
-//         OConfig.orgEnergySpendPeriod    = 0;
-//         OConfig.orgClonePeriod          = 0;
-//         OConfig.orgStartEnergy          = 10000;
-//         OConfig.orgMaxOrgs              = 2;
-//         World.prototype.getFreePos      = () => {return {x: 399, y: 1}};
-//
-//         man1.on(EVENTS.LOOP, () => {
-//             if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
-//                 org1 = man1.organisms.first.val;
-//                 org1.vm.code.push(0b00001011000000000000000000000000); // onStepRight()
-//             } else if (man2.organisms.size === 2) {
-//                 destroy();
-//             }
-//             if (iterated1 > 10000) {throw 'Error sending organism between Managers'}
-//             iterated1++;
-//         });
-//         man2.on(EVENTS.LOOP, () => iterated2++);
-//
-//         waitEvent(server, server.EVENTS.RUN, () => server.run(), () => man1.run(() => man2.run()));
-//     });
+    describe('Run/Stop manager', () => {
+        it("Checking running manager", (done) => {
+            const man = new Manager(false);
+            man.run(() => man.on(EVENTS.ITERATION, () => man.destroy(done)));
+        });
+        it("Checking RUN event", (done) => {
+            const man = new Manager(false);
+            waitEvent(man, EVENTS.RUN, () => man.run(), () => man.destroy(done));
+        });
+        it("Checking STOP event", (done) => {
+            const man = new Manager(false);
+            testQ(done,
+                [man, EVENTS.RUN,     () => man.run(),     emp],
+                [man, EVENTS.STOP,    () => man.stop(),    emp],
+                [man, EVENTS.DESTROY, () => man.destroy(), emp]
+            );
+        });
+    });
+
+    describe('Main loop checks', () => {
+        it("Checking if manager runs main loop", (done) => {
+            const man   = new Manager(false);
+            let   count = 0;
+            man.run(() => man.on(EVENTS.ITERATION, () => {
+                ++count === 100 && man.destroy(done);
+            }));
+        });
+        it("Checking ITERATION event", (done) => {
+            const man = new Manager(false);
+            let   ok  = false;
+
+            man.on(EVENTS.ITERATION, () => ok = true);
+            waitEvent(man, EVENTS.RUN, () => man.run(), () => {
+                expect(ok).toBe(true);
+                waitEvent(man, EVENTS.STOP, () => man.stop(), () => man.destroy(done));
+            });
+        });
+        it("Checking LOOP event", (done) => {
+            const man = new Manager(false);
+            let   ok  = false;
+
+            man.on(EVENTS.LOOP, () => ok = true);
+            waitEvent(man, EVENTS.RUN, () => man.run(), () => {
+                expect(ok).toBe(true);
+                waitEvent(man, EVENTS.STOP, () => man.stop(), () => man.destroy(done));
+            });
+        });
+    });
+
+    describe('isDistributed() method', () => {
+        it("Checking isDistributed() method", (done) => {
+            const man = new Manager(false);
+
+            expect(man.isDistributed()).toBe(false);
+            waitEvent(man, EVENTS.RUN, () => man.run(), () => {
+                expect(man.isDistributed()).toBe(false);
+                waitEvent(man, EVENTS.STOP, () => man.stop(), () => {
+                    expect(man.isDistributed()).toBe(false);
+                    man.destroy(done);
+                });
+            });
+        });
+    });
+
+    describe('codeRunc property', () => {
+        it("Checking 'codeRuns' property", (done) => {
+            const man = new Manager(false);
+            let   ok  = false;
+
+            man.on(EVENTS.ITERATION, () => ok = true);
+            expect(man.codeRuns).toBe(0);
+            waitEvent(man, EVENTS.RUN, () => man.run(), () => {
+                // codeRuns should be 0, because there is no code lines
+                expect(man.codeRuns).toBe(0);
+                waitEvent(man, EVENTS.STOP, () => man.stop(), () => man.destroy(done));
+            });
+        });
+    });
+
+    describe('Managers with a server', () => {
+        it("Checking running of manager with a server", (done) => {
+            const server = new Server();
+            const man    = new Manager(false);
+
+            expect(man.clientId).toBe(null);
+            waitEvent(server, SEVENTS.RUN, () => server.run(), () => {
+                man.run(() => {
+                    expect(man.active).toBe(true);
+                    expect(man.clientId !== null).toBe(true);
+                    man.destroy(() => {
+                        waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), done);
+                    });
+                });
+            });
+        });
+        it("Checking two managers with a server", (done) => {
+            const amount    = OConfig.orgStartAmount;
+            const period    = OConfig.orgRainMutationPeriod;
+            const percent   = OConfig.orgCloneMutationPercent;
+            const period1   = OConfig.orgEnergySpendPeriod;
+            const max       = OConfig.orgMaxOrgs;
+            const log       = console.log;
+            const server    = new Server();
+            const man1      = new Manager(false);
+            deletePluginConfigs();
+            const man2      = new Manager(false);
+            let   iterated1 = false;
+            let   iterated2 = false;
+            let   blocked   = false;
+            const destroy   = () => {
+                blocked = true;
+                man1.destroy(() => {
+                    man2.destroy(() => {
+                        waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
+                            OConfig.orgEnergySpendPeriod    = period1;
+                            OConfig.orgCloneMutationPercent = percent;
+                            OConfig.orgRainMutationPeriod   = period;
+                            OConfig.orgStartAmount          = amount;
+                            OConfig.orgMaxOrgs              = max;
+                            console.log                     = log;
+                            done();
+                        });
+                    });
+                });
+            };
+
+            OConfig.orgStartAmount          = 1;
+            OConfig.orgRainMutationPeriod   = 0;
+            OConfig.orgCloneMutationPercent = 0;
+            OConfig.orgEnergySpendPeriod    = 0;
+            OConfig.orgMaxOrgs              = 1;
+            console.log                     = () => {};
+            expect(man1.clientId).toBe(null);
+            expect(man2.clientId).toBe(null);
+            expect(man1.organisms.size).toBe(0);
+            expect(man2.organisms.size).toBe(0);
+
+            man1.on(EVENTS.LOOP, () => {
+                if (blocked) {return}
+                expect(man1.organisms.size).toBe(1);
+                if (iterated1 && iterated2) {destroy(); return}
+                iterated1 = true;
+            });
+            man2.on(EVENTS.LOOP, () => {
+                if (blocked) {return}
+                expect(man2.organisms.size).toBe(1);
+                if (iterated2 && iterated1) {destroy(); return}
+                iterated2 = true;
+            });
+
+            waitEvent(server, server.EVENTS.RUN, () => server.run(), () => {
+                man1.run(() => {
+                    expect(man1.active).toBe(true);
+                    expect(man1.clientId !== null).toBe(true);
+                    man2.run(() => {
+                        expect(man2.active).toBe(true);
+                        expect(man2.clientId !== null).toBe(true);
+                    });
+                });
+            });
+        });
+    });
+
+    describe('Organism related tests', () => {
+        it("Checking one organism creation in a manager", (done) => {
+            const man      = new Manager(false);
+            const amount   = OConfig.orgStartAmount;
+            const period   = OConfig.orgRainMutationPeriod;
+            const percent  = OConfig.orgCloneMutationPercent;
+            let   iterated = false;
+
+            OConfig.orgStartAmount          = 1;
+            OConfig.orgRainMutationPeriod   = 0;
+            OConfig.orgCloneMutationPercent = 0;
+            expect(man.organisms.size).toBe(0);
+            man.on(EVENTS.LOOP, () => {
+                if (iterated) {return}
+                expect(man.organisms.size).toBe(1);
+                man.stop(() => {
+                    man.destroy(() => {
+                        OConfig.orgCloneMutationPercent = percent;
+                        OConfig.orgRainMutationPeriod   = period;
+                        OConfig.orgStartAmount          = amount;
+                        done();
+                    });
+                });
+                iterated = true;
+            });
+            man.run();
+        });
+        // it("Checking moving of organism from one Manager to another", (done) => {
+        //     const amount    = OConfig.orgStartAmount;
+        //     const period    = OConfig.orgRainMutationPeriod;
+        //     const percent   = OConfig.orgCloneMutationPercent;
+        //     const period1   = OConfig.orgEnergySpendPeriod;
+        //     const width     = Config.worldWidth;
+        //     const height    = Config.worldHeight;
+        //     const energy    = OConfig.orgStartEnergy;
+        //     const max       = OConfig.orgMaxOrgs;
+        //     const server    = new Server();
+        //     Config.worldWidth               = 400;
+        //     Config.worldHeight              = 400;
+        //     const man1      = new Manager(false);
+        //     deletePluginConfigs();
+        //     const man2      = new Manager(false);
+        //     let   iterated1 = 0;
+        //     let   iterated2 = 0;
+        //     let   freePos   = World.prototype.getFreePos;
+        //     let   org1      = null;
+        //     const destroy   = () => {
+        //         man1.destroy(() => {
+        //             man2.destroy(() => {
+        //                 waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
+        //                     World.prototype.getFreePos      = freePos;
+        //                     OConfig.orgStartEnergy          = energy;
+        //                     OConfig.orgEnergySpendPeriod    = period1;
+        //                     OConfig.orgCloneMutationPercent = percent;
+        //                     OConfig.orgRainMutationPeriod   = period;
+        //                     OConfig.orgStartAmount          = amount;
+        //                     Config.worldWidth               = width;
+        //                     Config.worldHeight              = height;
+        //                     OConfig.orgMaxOrgs              = max;
+        //                     done();
+        //                 });
+        //             });
+        //         });
+        //     };
+        //
+        //     OConfig.orgStartAmount          = 1;
+        //     OConfig.orgRainMutationPeriod   = 0;
+        //     OConfig.orgCloneMutationPercent = 0;
+        //     OConfig.orgEnergySpendPeriod    = 0;
+        //     OConfig.orgStartEnergy          = 10000;
+        //     OConfig.orgMaxOrgs              = 2;
+        //     World.prototype.getFreePos      = () => {return {x: 399, y: 1}};
+        //
+        //     man1.on(EVENTS.LOOP, () => {
+        //         if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
+        //             org1 = man1.organisms.first.val;
+        //             org1.vm.code.push(0b00001011000000000000000000000000); // onStepRight()
+        //         } else if (man2.organisms.size === 2) {
+        //             destroy();
+        //         }
+        //         if (iterated1 > 10000) {throw 'Error sending organism between Managers'}
+        //         iterated1++;
+        //     });
+        //     man2.on(EVENTS.LOOP, () => iterated2++);
+        //
+        //     waitEvent(server, server.EVENTS.RUN, () => server.run(), () => man1.run(() => man2.run()));
+        // });
+    });
 //     /**
 //      * The meaning of this test is in checking if one organism from up manager
 //      * will go into the down manager, but there will be another organism. First
@@ -394,7 +411,6 @@ describe("client/src/manager/Manager", () => {
 //         const period    = OConfig.orgRainMutationPeriod;
 //         const percent   = OConfig.orgCloneMutationPercent;
 //         const period1   = OConfig.orgEnergySpendPeriod;
-//         const clone     = OConfig.orgClonePeriod;
 //         const height    = Config.worldHeight;
 //         const energy    = OConfig.orgStartEnergy;
 //         const max       = OConfig.orgMaxOrgs;
@@ -417,7 +433,6 @@ describe("client/src/manager/Manager", () => {
 //                     waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
 //                         World.prototype.getFreePos      = freePos;
 //                         OConfig.orgStartEnergy          = energy;
-//                         OConfig.orgClonePeriod          = clone;
 //                         OConfig.orgEnergySpendPeriod    = period1;
 //                         OConfig.orgCloneMutationPercent = percent;
 //                         OConfig.orgRainMutationPeriod   = period;
@@ -434,7 +449,6 @@ describe("client/src/manager/Manager", () => {
 //         OConfig.orgRainMutationPeriod   = 0;
 //         OConfig.orgCloneMutationPercent = 0;
 //         OConfig.orgEnergySpendPeriod    = 0;
-//         OConfig.orgClonePeriod          = 0;
 //         OConfig.orgStartEnergy          = 10000;
 //         OConfig.orgMaxOrgs              = 1;
 //         World.prototype.getFreePos      = () => {return inc++ === 0 && {x: 399, y: 1} || {x: 0, y: 1}};
@@ -535,8 +549,8 @@ describe("client/src/manager/Manager", () => {
 //             [waitObj],
 //             [man1,   EVENTS.STOP,     () => man1.stop(),      () => {expect(man1.clientId).toBe(null); oldId = man1.clientId}],
 //             [man1,   EVENTS.RUN,      () => man1.run(),       () => {expect(man1.clientId).not.toBe(null); amount = 0; waitObj.done = false}],
-//             [server, SEVENTS.CLOSE,   () => man1.destroy(),   () => {}],
-//             [server, SEVENTS.CLOSE,   () => man2.destroy(),   () => {}],
+//             [server, SEVENTS.CLOSE,   () => man1.destroy(),   emp],
+//             [server, SEVENTS.CLOSE,   () => man2.destroy(),   emp],
 //             [server, SEVENTS.DESTROY, () => server.destroy(), () => {
 //                 SConfig.maxConnections = maxCons;
 //                 Config.worldWidth      = width;
@@ -646,7 +660,6 @@ describe("client/src/manager/Manager", () => {
 //         ocfg.set('orgRainMutationPeriod', 0);
 //         ocfg.set('orgCloneMutationPercent',0);
 //         ocfg.set('orgEnergySpendPeriod',  0);
-//         ocfg.set('orgClonePeriod',        0);
 //         ocfg.set('orgStartEnergy',        10000);
 //         cfg.set('worldCyclical',          false);
 //         World.prototype.getFreePos      = () => {return {x: 1, y: 9}};
@@ -724,7 +737,6 @@ describe("client/src/manager/Manager", () => {
 //         ocfg.set('orgRainMutationPeriod', 0);
 //         ocfg.set('orgCloneMutationPercent',0);
 //         ocfg.set('orgEnergySpendPeriod',  0);
-//         ocfg.set('orgClonePeriod',        0);
 //         ocfg.set('orgStartEnergy',        10000);
 //         cfg.set('worldCyclical',          false);
 //         World.prototype.getFreePos      = () => {return {x: 0, y: 1}};
@@ -800,7 +812,6 @@ describe("client/src/manager/Manager", () => {
 //         ocfg.set('orgRainMutationPeriod', 0);
 //         ocfg.set('orgCloneMutationPercent',0);
 //         ocfg.set('orgEnergySpendPeriod',  0);
-//         ocfg.set('orgClonePeriod',        0);
 //         ocfg.set('orgStartEnergy',        10000);
 //         cfg.set('worldCyclical',          false);
 //         World.prototype.getFreePos      = () => {return {x: 5, y: 1}};
@@ -858,15 +869,14 @@ describe("client/src/manager/Manager", () => {
 //         ocfg.set('orgRainMutationPeriod',   0);
 //         ocfg.set('orgCloneMutationPercent', 0);
 //         ocfg.set('orgEnergySpendPeriod',    0);
-//         ocfg.set('orgClonePeriod',          0);
 //         ocfg.set('orgStartEnergy',          10000);
 //         World.prototype.getFreePos = () => {return {x: 5, y: ++i === 1 ? 1 : 2}};
 //
 //         testQ(done,
 //             [server, SEVENTS.RUN, () => server.run(), () => {man1.run(() => man2.run(() => man3.run(() => waitObj.done = true)))}],
 //             [waitObj],
-//             [man1, EVENTS.LOOP, () => {}, () => man1.organisms.first.val.vm.code.push(0b00001011000000000000000000000000)], // onStepRight()
-//             [man3, EVENTS.STEP_IN, () => {}, () => destroy()]
+//             [man1, EVENTS.LOOP, emp, () => man1.organisms.first.val.vm.code.push(0b00001011000000000000000000000000)], // onStepRight()
+//             [man3, EVENTS.STEP_IN, emp, () => destroy()]
 //         );
 //     });
 });
