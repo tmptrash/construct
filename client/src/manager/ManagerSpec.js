@@ -1,117 +1,122 @@
-// describe("client/src/manager/Manager", () => {
-//     const SERVER_HOST  = 'ws://127.0.0.1';
-//     const Config       = require('./../../../client/src/share/Config').Config;
-//     const OConfig      = require('./../manager/plugins/organisms/Config');
-//     const SConfig      = require('./../../../server/src/share/Config').Config;
-//     const Server       = require('./../../../server/src/server/Server').Server;
-//     const EVENTS       = require('./../../../client/src/share/Events').EVENTS;
-//     const SEVENTS      = require('./../../../server/src/server/Server').EVENTS;
-//     const Console      = require('./../../../client/src/share/Console');
-//     const SConsole     = require('./../../../server/src/share/Console');
-//     const THelper      = require('./../../../common/tests/Helper');
-//     const ConfigHelper = require('./../../../common/tests/Config');
-//     const World        = require('./../../../client/src/view/World').World;
-//     const Manager      = require('./Manager');
-//     const emptyFn      = () => {};
-//     const waitEvent    = THelper.waitEvent;
-//     const wait         = THelper.wait;
-//     const testQ        = THelper.testQ;
-//     const host         = Config.serverHost;
-//     const port         = SConfig.port;
-//     const maxConns     = SConfig.maxConnections;
-//     const startOrgs    = OConfig.orgStartAmount;
-//     const energyCheck  = Config.worldEnergyCheckPeriod;
-//
-//     let error;
-//     let warn;
-//     let info;
-//     let serror;
-//     let swarn;
-//     let sinfo;
-//     let dist;
-//     let timeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-//
-//     function deletePluginConfigs() {
-//         delete Config.ips;
-//         delete Config.organisms;
-//         delete Config.status;
-//         delete Config.charts;
-//         delete Config.console;
-//     }
-//
-//     beforeEach(() => {
-//         deletePluginConfigs();
-//     });
-//     beforeAll(() => {
-//         jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
-//         Config.serverHost = SERVER_HOST;
-//         Config.plugIncluded.splice(Config.plugIncluded.indexOf('ips/Ips'));
-//         dist = SConfig.modeDistributed;
-//         SConfig.modeDistributed = false;
-//         SConfig.port = Config.serverPort;
-//         SConfig.maxConnections = 100;
-//         OConfig.orgStartAmount = 0;
-//         Config.worldEnergyCheckPeriod = 0;
-//
-//         error = Console.error;
-//         warn  = Console.warn;
-//         info  = Console.info;
-//         Console.error = emptyFn;
-//         Console.warn  = emptyFn;
-//         Console.info  = emptyFn;
-//
-//         serror = SConsole.error;
-//         swarn  = SConsole.warn;
-//         sinfo  = SConsole.info;
-//         SConsole.error = emptyFn;
-//         SConsole.warn  = emptyFn;
-//         SConsole.info  = emptyFn;
-//     });
-//     afterAll(()  => {
-//         SConsole.error = serror;
-//         SConsole.warn  = swarn;
-//         SConsole.info  = sinfo;
-//
-//         Console.error = error;
-//         Console.warn  = warn;
-//         Console.info  = info;
-//         Config.plugIncluded.push('ips/Ips');
-//         jasmine.DEFAULT_TIMEOUT_INTERVAL = timeout;
-//         Config.serverHost = host;
-//         SConfig.modeDistributed = dist;
-//         SConfig.port = port;
-//         SConfig.maxConnections = maxConns;
-//         OConfig.orgStartAmount = startOrgs;
-//         Config.worldEnergyCheckPeriod = energyCheck;
-//     });
-//
-//     it("Checking manager creation", (done) => {
-//         const man = new Manager(false);
-//         expect(man.canvas).toBe(null);
-//         man.destroy(done);
-//     });
-//     it("Checking manager creation and it's properties", (done) => {
-//         const man = new Manager(false);
-//         expect(man.organisms.size).toBe(0);
-//         expect(Object.keys(man.positions).length).toBe(0);
-//         expect(man.codeRuns).toBe(0);
-//         expect(!!man.api.version).toBe(true);
-//         expect(man.api.visualize).toBe(undefined);
-//         expect(man.active).toBe(false);
-//         expect(man.clientId).toBe(null);
-//         expect(man.isDistributed()).toBe(false);
-//         expect(man.canvas).toBe(null);
-//         man.destroy(done);
-//     });
-//     it("Checking creation of two managers", (done) => {
-//         const man1 = new Manager(false);
-//         deletePluginConfigs();
-//         const man2 = new Manager(false);
-//
-//         waitEvent(man1, EVENTS.DESTROY, () => man1.destroy(), () => {
-//             waitEvent(man2, EVENTS.DESTROY, () => man2.destroy(), done);
-//         });
-//     });
+describe("client/src/manager/Manager", () => {
+    const SERVER_HOST  = 'ws://127.0.0.1';
+    const Config       = require('./../../../client/src/share/Config').Config;
+    const OConfig      = require('./../manager/plugins/organisms/Config');
+    const SConfig      = require('./../../../server/src/share/Config').Config;
+    const Server       = require('./../../../server/src/server/Server').Server;
+    const EVENTS       = require('./../../../client/src/share/Events').EVENTS;
+    const SEVENTS      = require('./../../../server/src/server/Server').EVENTS;
+    const Console      = require('./../../../client/src/share/Console');
+    const SConsole     = require('./../../../server/src/share/Console');
+    const THelper      = require('./../../../common/tests/Helper');
+    const ConfigHelper = require('./../../../common/tests/Config');
+    const World        = require('./../../../client/src/view/World').World;
+    const Manager      = require('./Manager');
+    const emptyFn      = () => {};
+    const waitEvent    = THelper.waitEvent;
+    const wait         = THelper.wait;
+    const testQ        = THelper.testQ;
+    const host         = Config.serverHost;
+    const port         = SConfig.port;
+    const maxConns     = SConfig.maxConnections;
+    const startOrgs    = OConfig.orgStartAmount;
+    const energyCheck  = Config.worldEnergyCheckPeriod;
+
+    let error;
+    let warn;
+    let info;
+    let serror;
+    let swarn;
+    let sinfo;
+    let dist;
+    let timeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+
+    function deletePluginConfigs() {
+        delete Config.ips;
+        delete Config.organisms;
+        delete Config.status;
+        delete Config.charts;
+        delete Config.console;
+    }
+
+    beforeEach(() => deletePluginConfigs());
+    beforeAll(() => {
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+        Config.serverHost = SERVER_HOST;
+        Config.plugIncluded.splice(Config.plugIncluded.indexOf('ips/Ips'));
+        dist = SConfig.modeDistributed;
+        SConfig.modeDistributed = false;
+        SConfig.port = Config.serverPort;
+        SConfig.maxConnections = 100;
+        OConfig.orgStartAmount = 0;
+        Config.worldEnergyCheckPeriod = 0;
+
+        error = Console.error;
+        warn  = Console.warn;
+        info  = Console.info;
+        Console.error = emptyFn;
+        Console.warn  = emptyFn;
+        Console.info  = emptyFn;
+
+        serror = SConsole.error;
+        swarn  = SConsole.warn;
+        sinfo  = SConsole.info;
+        SConsole.error = emptyFn;
+        SConsole.warn  = emptyFn;
+        SConsole.info  = emptyFn;
+    });
+    afterAll(()  => {
+        SConsole.error = serror;
+        SConsole.warn  = swarn;
+        SConsole.info  = sinfo;
+
+        Console.error = error;
+        Console.warn  = warn;
+        Console.info  = info;
+        Config.plugIncluded.push('ips/Ips');
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = timeout;
+        Config.serverHost = host;
+        SConfig.modeDistributed = dist;
+        SConfig.port = port;
+        SConfig.maxConnections = maxConns;
+        OConfig.orgStartAmount = startOrgs;
+        Config.worldEnergyCheckPeriod = energyCheck;
+    });
+
+    describe('Manager creation', () => {
+        it("Checking manager creation without view", (done) => {
+            const man = new Manager(false);
+            expect(man.canvas).toBe(null);
+            man.destroy(done);
+        });
+        it("Checking manager creation and it's properties", (done) => {
+            const man = new Manager(false);
+            expect(man.organisms.size).toBe(0);
+            expect(Object.keys(man.positions).length).toBe(0);
+            expect(man.codeRuns).toBe(0);
+            expect(!!man.api.version).toBe(true);
+            expect(man.api.visualize).toBe(undefined);
+            expect(man.active).toBe(false);
+            expect(man.clientId).toBe(null);
+            expect(man.isDistributed()).toBe(false);
+            expect(man.canvas).toBe(null);
+            expect(man.active).toBe(false);
+            expect(man.world instanceof World).toBe(true);
+            expect(man.activeAround).toEqual([false, false, false, false]);
+            man.destroy(done);
+        });
+        it("Checking creation of two managers", (done) => {
+            const man1 = new Manager(false);
+            deletePluginConfigs();
+            const man2 = new Manager(false);
+
+            testQ(done,
+                [man1, EVENTS.DESTROY, () => man1.destroy(), () => {}],
+                [man2, EVENTS.DESTROY, () => man2.destroy(), () => {}]
+            );
+        });
+    });
+
 //     it("Checking creation 100 managers", (done) => {
 //         const mans      = [];
 //         const amount    = 100;
@@ -864,4 +869,4 @@
 //             [man3, EVENTS.STEP_IN, () => {}, () => destroy()]
 //         );
 //     });
-// });
+});
