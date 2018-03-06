@@ -340,66 +340,67 @@ describe("client/src/manager/Manager", () => {
             });
             man.run();
         });
-        // it("Checking moving of organism from one Manager to another", (done) => {
-        //     const amount    = OConfig.orgStartAmount;
-        //     const period    = OConfig.orgRainMutationPeriod;
-        //     const percent   = OConfig.orgCloneMutationPercent;
-        //     const period1   = OConfig.orgEnergySpendPeriod;
-        //     const width     = Config.worldWidth;
-        //     const height    = Config.worldHeight;
-        //     const energy    = OConfig.orgStartEnergy;
-        //     const max       = OConfig.orgMaxOrgs;
-        //     const server    = new Server();
-        //     Config.worldWidth               = 400;
-        //     Config.worldHeight              = 400;
-        //     const man1      = new Manager(false);
-        //     deletePluginConfigs();
-        //     const man2      = new Manager(false);
-        //     let   iterated1 = 0;
-        //     let   iterated2 = 0;
-        //     let   freePos   = World.prototype.getFreePos;
-        //     let   org1      = null;
-        //     const destroy   = () => {
-        //         man1.destroy(() => {
-        //             man2.destroy(() => {
-        //                 waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
-        //                     World.prototype.getFreePos      = freePos;
-        //                     OConfig.orgStartEnergy          = energy;
-        //                     OConfig.orgEnergySpendPeriod    = period1;
-        //                     OConfig.orgCloneMutationPercent = percent;
-        //                     OConfig.orgRainMutationPeriod   = period;
-        //                     OConfig.orgStartAmount          = amount;
-        //                     Config.worldWidth               = width;
-        //                     Config.worldHeight              = height;
-        //                     OConfig.orgMaxOrgs              = max;
-        //                     done();
-        //                 });
-        //             });
-        //         });
-        //     };
-        //
-        //     OConfig.orgStartAmount          = 1;
-        //     OConfig.orgRainMutationPeriod   = 0;
-        //     OConfig.orgCloneMutationPercent = 0;
-        //     OConfig.orgEnergySpendPeriod    = 0;
-        //     OConfig.orgStartEnergy          = 10000;
-        //     OConfig.orgMaxOrgs              = 2;
-        //     World.prototype.getFreePos      = () => {return {x: 399, y: 1}};
-        //
-        //     man1.on(EVENTS.LOOP, () => {
-        //         if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
-        //             org1 = man1.organisms.first.val;
-        //             org1.vm.code.push(0b00001011000000000000000000000000); // onStepRight()
-        //         } else if (man2.organisms.size === 2) {
-        //             destroy();
-        //         }
-        //         if (iterated1 > 10000) {throw 'Error sending organism between Managers'}
-        //         iterated1++;
-        //     });
-        //     man2.on(EVENTS.LOOP, () => iterated2++);
-        //
-        //     waitEvent(server, server.EVENTS.RUN, () => server.run(), () => man1.run(() => man2.run()));
-        // });
+        it("Checking moving of organism from one Manager to another", (done) => {
+            const amount    = OConfig.orgStartAmount;
+            const period    = OConfig.orgRainMutationPeriod;
+            const percent   = OConfig.orgCloneMutationPercent;
+            const period1   = OConfig.orgEnergySpendPeriod;
+            const width     = Config.worldWidth;
+            const height    = Config.worldHeight;
+            const energy    = OConfig.orgStartEnergy;
+            const max       = OConfig.orgMaxOrgs;
+            const server    = new Server();
+            Config.worldWidth               = 400;
+            Config.worldHeight              = 400;
+            const man1      = new Manager(false);
+            deletePluginConfigs();
+            const man2      = new Manager(false);
+            let   iterated1 = 0;
+            let   iterated2 = 0;
+            let   freePos   = World.prototype.getFreePos;
+            let   org1      = null;
+            const destroy   = () => {
+                man1.destroy(() => {
+                    man2.destroy(() => {
+                        waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
+                            World.prototype.getFreePos      = freePos;
+                            OConfig.orgStartEnergy          = energy;
+                            OConfig.orgEnergySpendPeriod    = period1;
+                            OConfig.orgCloneMutationPercent = percent;
+                            OConfig.orgRainMutationPeriod   = period;
+                            OConfig.orgStartAmount          = amount;
+                            Config.worldWidth               = width;
+                            Config.worldHeight              = height;
+                            OConfig.orgMaxOrgs              = max;
+                            done();
+                        });
+                    });
+                });
+            };
+
+            OConfig.orgStartAmount          = 1;
+            OConfig.orgRainMutationPeriod   = 0;
+            OConfig.orgCloneMutationPercent = 0;
+            OConfig.orgEnergySpendPeriod    = 0;
+            OConfig.orgStartEnergy          = 10000;
+            OConfig.orgMaxOrgs              = 2;
+            World.prototype.getFreePos      = () => {return [399, 1]};
+
+            man1.on(EVENTS.LOOP, () => {
+                if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
+                    org1 = man1.organisms.first.val;
+                    org1.vm.insertLine();
+                    org1.vm.updateLine(0, 0b00001011000000000000000000000000); // onStepRight()
+                } else if (man2.organisms.size === 2) {
+                    destroy();
+                }
+                if (iterated1 > 10000) {throw 'Error sending organism between Managers'}
+                iterated1++;
+            });
+            man2.on(EVENTS.LOOP, () => iterated2++);
+
+            waitEvent(server, server.EVENTS.RUN, () => server.run(), () => man1.run(() => man2.run()));
+        });
     });
 //     /**
 //      * The meaning of this test is in checking if one organism from up manager
@@ -451,7 +452,7 @@ describe("client/src/manager/Manager", () => {
 //         OConfig.orgEnergySpendPeriod    = 0;
 //         OConfig.orgStartEnergy          = 10000;
 //         OConfig.orgMaxOrgs              = 1;
-//         World.prototype.getFreePos      = () => {return inc++ === 0 && {x: 399, y: 1} || {x: 0, y: 1}};
+//         World.prototype.getFreePos      = () => {return inc++ === 0 && [399, 1] || [0, 1]};
 //
 //         man1.on(EVENTS.LOOP, () => {
 //             if (iterated1 > 0 && iterated2 > 0 && org1 === null && org2 !== null) {
@@ -662,7 +663,7 @@ describe("client/src/manager/Manager", () => {
 //         ocfg.set('orgEnergySpendPeriod',  0);
 //         ocfg.set('orgStartEnergy',        10000);
 //         cfg.set('worldCyclical',          false);
-//         World.prototype.getFreePos      = () => {return {x: 1, y: 9}};
+//         World.prototype.getFreePos      = () => {return [1, 9]};
 //
 //         man1.on(EVENTS.LOOP, () => {
 //             if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
@@ -739,7 +740,7 @@ describe("client/src/manager/Manager", () => {
 //         ocfg.set('orgEnergySpendPeriod',  0);
 //         ocfg.set('orgStartEnergy',        10000);
 //         cfg.set('worldCyclical',          false);
-//         World.prototype.getFreePos      = () => {return {x: 0, y: 1}};
+//         World.prototype.getFreePos      = () => {return [0, 1]};
 //
 //         man1.on(EVENTS.LOOP, () => {
 //             if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
@@ -814,7 +815,7 @@ describe("client/src/manager/Manager", () => {
 //         ocfg.set('orgEnergySpendPeriod',  0);
 //         ocfg.set('orgStartEnergy',        10000);
 //         cfg.set('worldCyclical',          false);
-//         World.prototype.getFreePos      = () => {return {x: 5, y: 1}};
+//         World.prototype.getFreePos      = () => {return [5, 1]};
 //
 //         man1.on(EVENTS.LOOP, () => {
 //             if (iterated1 > 0 && org1 === null) {
@@ -870,7 +871,7 @@ describe("client/src/manager/Manager", () => {
 //         ocfg.set('orgCloneMutationPercent', 0);
 //         ocfg.set('orgEnergySpendPeriod',    0);
 //         ocfg.set('orgStartEnergy',          10000);
-//         World.prototype.getFreePos = () => {return {x: 5, y: ++i === 1 ? 1 : 2}};
+//         World.prototype.getFreePos = () => {return [5, ++i === 1 ? 1 : 2]};
 //
 //         testQ(done,
 //             [server, SEVENTS.RUN, () => server.run(), () => {man1.run(() => man2.run(() => man3.run(() => waitObj.done = true)))}],
