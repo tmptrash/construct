@@ -401,91 +401,91 @@ describe("client/src/manager/Manager", () => {
 
             waitEvent(server, server.EVENTS.RUN, () => server.run(), () => man1.run(() => man2.run()));
         });
+        /**
+         * The meaning of this test is in checking if one organism from left manager
+         * will go to the right manager, but there will be another organism. First
+         * organism should die in this case.
+         */
+        it("Checking moving of organism from one Manager to another 2", (done) => {
+            const amount    = OConfig.orgStartAmount;
+            const period    = OConfig.orgRainMutationPeriod;
+            const percent   = OConfig.orgCloneMutationPercent;
+            const period1   = OConfig.orgEnergySpendPeriod;
+            const height    = Config.worldHeight;
+            const energy    = OConfig.orgStartEnergy;
+            const max       = OConfig.orgMaxOrgs;
+            const server    = new Server();
+            Config.worldHeight = 400;
+            Config.worldWidth  = 400;
+            const man1      = new Manager(false);
+            deletePluginConfigs();
+            const man2      = new Manager(false);
+            let   iterated1 = 0;
+            let   iterated2 = 0;
+            let   freePos   = World.prototype.getFreePos;
+            let   org1      = null;
+            let   org2      = null;
+            let   inc       = 0;
+            let   doneInc   = 0;
+            const destroy   = () => {
+                man1.destroy(() => {
+                    man2.destroy(() => {
+                        waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
+                            World.prototype.getFreePos      = freePos;
+                            OConfig.orgStartEnergy          = energy;
+                            OConfig.orgEnergySpendPeriod    = period1;
+                            OConfig.orgCloneMutationPercent = percent;
+                            OConfig.orgRainMutationPeriod   = period;
+                            OConfig.orgStartAmount          = amount;
+                            Config.worldHeight              = height;
+                            OConfig.orgMaxOrgs              = max;
+                            done();
+                        });
+                    });
+                });
+            };
+
+            OConfig.orgStartAmount          = 1;
+            OConfig.orgRainMutationPeriod   = 0;
+            OConfig.orgCloneMutationPercent = 0;
+            OConfig.orgEnergySpendPeriod    = 0;
+            OConfig.orgStartEnergy          = 10000;
+            OConfig.orgMaxOrgs              = 1;
+            World.prototype.getFreePos      = () => {return inc++ === 0 && [399, 1] || [0, 1]};
+
+            man1.on(EVENTS.LOOP, () => {
+                if (iterated1 > 0 && iterated2 > 0 && org1 === null && org2 !== null) {
+                    org1 = man1.organisms.first.val;
+                    org1.vm.code.push(0b00001011000000000000000000000000); // onStepRight()
+                    man1.on(EVENTS.STEP_OUT, () => {
+                        expect(doneInc < 3).toBe(true);
+                        ++doneInc;
+                    });
+                    man2.on(EVENTS.STEP_IN, () => {
+                        ++doneInc;
+                        expect(man1.organisms.size).toBe(1);
+                        expect(man1.organisms.first.val.x).toBe(0);
+                    });
+                } else if (org1 !== null && org2 !== null && doneInc === 2) {
+                    expect(man1.organisms.size).toBe(1);
+                    expect(man1.organisms.first.val.x).toBe(0);
+                    expect(man2.organisms.size).toBe(1);
+                    expect(man2.organisms.first.val.x).toBe(0);
+                    destroy();
+                    doneInc++;
+                }
+                if (iterated1 > 10000) {throw 'Error sending organism between Managers'}
+                iterated1++;
+            });
+            man2.on(EVENTS.LOOP, () => {
+                !iterated2 && (org2 = man2.organisms.first.val);
+                iterated2++;
+            });
+
+            waitEvent(server, server.EVENTS.RUN, () => server.run(), () => man1.run(() => man2.run()));
+        });
     });
-//     /**
-//      * The meaning of this test is in checking if one organism from up manager
-//      * will go into the down manager, but there will be another organism. First
-//      * organism should die in this case.
-//      */
-//     it("Checking moving of organism from one Manager to another 2", (done) => {
-//         const amount    = OConfig.orgStartAmount;
-//         const period    = OConfig.orgRainMutationPeriod;
-//         const percent   = OConfig.orgCloneMutationPercent;
-//         const period1   = OConfig.orgEnergySpendPeriod;
-//         const height    = Config.worldHeight;
-//         const energy    = OConfig.orgStartEnergy;
-//         const max       = OConfig.orgMaxOrgs;
-//         const server    = new Server();
-//         Config.worldHeight = 400;
-//         Config.worldWidth  = 400;
-//         const man1      = new Manager(false);
-//         deletePluginConfigs();
-//         const man2      = new Manager(false);
-//         let   iterated1 = 0;
-//         let   iterated2 = 0;
-//         let   freePos   = World.prototype.getFreePos;
-//         let   org1      = null;
-//         let   org2      = null;
-//         let   inc       = 0;
-//         let   doneInc   = 0;
-//         const destroy   = () => {
-//             man1.destroy(() => {
-//                 man2.destroy(() => {
-//                     waitEvent(server, SEVENTS.DESTROY, () => server.destroy(), () => {
-//                         World.prototype.getFreePos      = freePos;
-//                         OConfig.orgStartEnergy          = energy;
-//                         OConfig.orgEnergySpendPeriod    = period1;
-//                         OConfig.orgCloneMutationPercent = percent;
-//                         OConfig.orgRainMutationPeriod   = period;
-//                         OConfig.orgStartAmount          = amount;
-//                         Config.worldHeight              = height;
-//                         OConfig.orgMaxOrgs              = max;
-//                         done();
-//                     });
-//                 });
-//             });
-//         };
-//
-//         OConfig.orgStartAmount          = 1;
-//         OConfig.orgRainMutationPeriod   = 0;
-//         OConfig.orgCloneMutationPercent = 0;
-//         OConfig.orgEnergySpendPeriod    = 0;
-//         OConfig.orgStartEnergy          = 10000;
-//         OConfig.orgMaxOrgs              = 1;
-//         World.prototype.getFreePos      = () => {return inc++ === 0 && [399, 1] || [0, 1]};
-//
-//         man1.on(EVENTS.LOOP, () => {
-//             if (iterated1 > 0 && iterated2 > 0 && org1 === null && org2 !== null) {
-//                 org1 = man1.organisms.first.val;
-//                 org1.vm.code.push(0b00001011000000000000000000000000); // onStepRight()
-//                 man1.on(EVENTS.STEP_OUT, () => {
-//                     expect(doneInc < 3).toBe(true);
-//                     ++doneInc;
-//                 });
-//                 man2.on(EVENTS.STEP_IN, () => {
-//                     ++doneInc;
-//                     expect(man1.organisms.size).toBe(1);
-//                     expect(man1.organisms.first.val.x).toBe(0);
-//                 });
-//             } else if (org1 !== null && org2 !== null && doneInc === 2) {
-//                 expect(man1.organisms.size).toBe(1);
-//                 expect(man1.organisms.first.val.x).toBe(0);
-//                 expect(man2.organisms.size).toBe(1);
-//                 expect(man2.organisms.first.val.x).toBe(0);
-//                 destroy();
-//                 doneInc++;
-//             }
-//             if (iterated1 > 10000) {throw 'Error sending organism between Managers'}
-//             iterated1++;
-//         });
-//         man2.on(EVENTS.LOOP, () => {
-//             !iterated2 && (org2 = man2.organisms.first.val);
-//             iterated2++;
-//         });
-//
-//         waitEvent(server, server.EVENTS.RUN, () => server.run(), () => man1.run(() => man2.run()));
-//     });
-//
+
 //     it("Testing hundred managers and one server", (done) => {
 //         jasmine.DEFAULT_TIMEOUT_INTERVAL = 35000;
 //         const maxCons   = SConfig.maxConnections;
