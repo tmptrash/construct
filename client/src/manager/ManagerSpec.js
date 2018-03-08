@@ -170,6 +170,10 @@ describe("client/src/manager/Manager", () => {
     });
 
     describe('Main loop checks', () => {
+        let log;
+        beforeAll(() => {log = console.log; console.log = () => {}});
+        afterAll (() => console.log = log);
+
         it("Checking if manager runs main loop", (done) => {
             const man   = new Manager(false);
             let   count = 0;
@@ -486,79 +490,89 @@ describe("client/src/manager/Manager", () => {
         });
     });
 
-//     it("Testing hundred managers and one server", (done) => {
-//         jasmine.DEFAULT_TIMEOUT_INTERVAL = 35000;
-//         const maxCons   = SConfig.maxConnections;
-//         const server    = new Server();
-//         const mans      = [];
-//         const CLIENTS   = 100;
-//         const width     = Config.worldWidth;
-//         const height    = Config.worldHeight;
-//         let   amount    = 0;
-//         let   waitObj   = {done: false};
-//         let   man;
-//
-//         Config.worldWidth      = 100;
-//         Config.worldHeight     = 100;
-//         SConfig.maxConnections = CLIENTS;
-//
-//         waitEvent(server, server.EVENTS.RUN, () => server.run(), () => {
-//             for (let i = 0; i < CLIENTS; i++) {
-//                 deletePluginConfigs();
-//                 mans.push(man = new Manager(false));
-//                 man.run(() => ++amount === CLIENTS && (waitObj.done = true));
-//             }
-//             wait(waitObj, () => {
-//                 amount = 0;
-//                 server.on(server.EVENTS.CLOSE, () => ++amount === CLIENTS && (waitObj.done = true));
-//                 for (let i = 0; i < CLIENTS; i++) {mans[i].destroy()}
-//                 wait(waitObj, () => {
-//                     waitEvent(server, server.EVENTS.DESTROY, () => server.destroy(), () => {
-//                         SConfig.maxConnections = maxCons;
-//                         Config.worldWidth      = width;
-//                         Config.worldHeight     = height;
-//                         done();
-//                     });
-//                 });
-//             }, 31000);
-//         });
-//     });
-//     it("Testing run/stop/run manager and one server", (done) => {
-//         jasmine.DEFAULT_TIMEOUT_INTERVAL = 35000;
-//         const maxCons   = SConfig.maxConnections;
-//         const server    = new Server();
-//         const CLIENTS   = 100;
-//         const width     = Config.worldWidth;
-//         const height    = Config.worldHeight;
-//         let   amount    = 0;
-//         let   waitObj   = {done: false};
-//         let   count     = 0;
-//         const onDone    = () => ++count === 2 && (waitObj.done = true);
-//         let   man1;
-//         let   man2;
-//         let   oldId;
-//
-//         Config.worldWidth      = 100;
-//         Config.worldHeight     = 100;
-//         SConfig.maxConnections = CLIENTS;
-//         man1 = new Manager(false);
-//         deletePluginConfigs();
-//         man2 = new Manager(false);
-//
-//         testQ(done,
-//             [server, SEVENTS.RUN,     () => server.run(),     () => {man1.run(onDone); man2.run(onDone)}],
-//             [waitObj],
-//             [man1,   EVENTS.STOP,     () => man1.stop(),      () => {expect(man1.clientId).toBe(null); oldId = man1.clientId}],
-//             [man1,   EVENTS.RUN,      () => man1.run(),       () => {expect(man1.clientId).not.toBe(null); amount = 0; waitObj.done = false}],
-//             [server, SEVENTS.CLOSE,   () => man1.destroy(),   emp],
-//             [server, SEVENTS.CLOSE,   () => man2.destroy(),   emp],
-//             [server, SEVENTS.DESTROY, () => server.destroy(), () => {
-//                 SConfig.maxConnections = maxCons;
-//                 Config.worldWidth      = width;
-//                 Config.worldHeight     = height;
-//             }]
-//         );
-//     });
+    describe('Client/Server tests', () => {
+        let originalTimeout;
+        beforeEach(() => {
+            originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+            jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
+        });
+        afterEach(() => jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout);
+
+        it("Testing hundred managers and one server", (done) => {
+            const log       = console.log;
+            const maxCons   = SConfig.maxConnections;
+            const server    = new Server();
+            const mans      = [];
+            const CLIENTS   = 100;
+            const width     = Config.worldWidth;
+            const height    = Config.worldHeight;
+            let   amount    = 0;
+            let   waitObj   = {done: false};
+            let   man;
+
+            console.log            = () => {};
+            Config.worldWidth      = 100;
+            Config.worldHeight     = 100;
+            SConfig.maxConnections = CLIENTS;
+
+            waitEvent(server, server.EVENTS.RUN, () => server.run(), () => {
+                for (let i = 0; i < CLIENTS; i++) {
+                    deletePluginConfigs();
+                    mans.push(man = new Manager(false));
+                    man.run(() => ++amount === CLIENTS && (waitObj.done = true));
+                }
+                wait(waitObj, () => {
+                    amount = 0;
+                    server.on(server.EVENTS.CLOSE, () => ++amount === CLIENTS && (waitObj.done = true));
+                    for (let i = 0; i < CLIENTS; i++) {mans[i].destroy()}
+                    wait(waitObj, () => {
+                        waitEvent(server, server.EVENTS.DESTROY, () => server.destroy(), () => {
+                            SConfig.maxConnections = maxCons;
+                            Config.worldWidth      = width;
+                            Config.worldHeight     = height;
+                            console.log            = log;
+                            done();
+                        });
+                    });
+                }, 61000);
+            });
+        });
+        it("Testing run/stop/run manager and one server", (done) => {
+            const maxCons   = SConfig.maxConnections;
+            const server    = new Server();
+            const CLIENTS   = 100;
+            const width     = Config.worldWidth;
+            const height    = Config.worldHeight;
+            let   amount    = 0;
+            let   waitObj   = {done: false};
+            let   count     = 0;
+            const onDone    = () => ++count === 2 && (waitObj.done = true);
+            let   man1;
+            let   man2;
+            let   oldId;
+
+            Config.worldWidth      = 100;
+            Config.worldHeight     = 100;
+            SConfig.maxConnections = CLIENTS;
+            man1 = new Manager(false);
+            deletePluginConfigs();
+            man2 = new Manager(false);
+
+            testQ(done,
+                [server, SEVENTS.RUN,     () => server.run(),     () => {man1.run(onDone); man2.run(onDone)}],
+                [waitObj],
+                [man1,   EVENTS.STOP,     () => man1.stop(),      () => {expect(man1.clientId).toBe(null); oldId = man1.clientId}],
+                [man1,   EVENTS.RUN,      () => man1.run(),       () => {expect(man1.clientId).not.toBe(null); amount = 0; waitObj.done = false}],
+                [server, SEVENTS.CLOSE,   () => man1.destroy(),   emp],
+                [server, SEVENTS.CLOSE,   () => man2.destroy(),   emp],
+                [server, SEVENTS.DESTROY, () => server.destroy(), () => {
+                    SConfig.maxConnections = maxCons;
+                    Config.worldWidth      = width;
+                    Config.worldHeight     = height;
+                }]
+            );
+        });
+    });
 //
 //     it("Tests many connections/disconnections of Manager to the server", (done) => {
 //         jasmine.DEFAULT_TIMEOUT_INTERVAL = 35000;
