@@ -318,6 +318,13 @@ describe("client/src/manager/Manager", () => {
     });
 
     describe('Organism related tests', () => {
+        let originalTimeout;
+        beforeEach(() => {
+            originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+            jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
+        });
+        afterEach(() => jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout);
+
         it("Checking one organism creation in a manager", (done) => {
             const man      = new Manager(false);
             const amount   = OConfig.orgStartAmount;
@@ -488,6 +495,87 @@ describe("client/src/manager/Manager", () => {
 
             waitEvent(server, server.EVENTS.RUN, () => server.run(), () => man1.run(() => man2.run()));
         });
+        it('Tests organism moving from client of one server to client of other server', (done) => {
+            const log                       = console.log;
+            const ocfg                      = new ConfigHelper(OConfig);
+            const cfg                       = new ConfigHelper(Config);
+            const scfg                      = new ConfigHelper(SConfig);
+            const freePos                   = World.prototype.getFreePos;
+            let   iterated1                 = 0;
+            let   iterated2                 = 0;
+            let   org1                      = null;
+            const destroy                   = () => {
+                man1.destroy(() => {
+                    man2.destroy(() => {
+                        waitEvent(server1, SEVENTS.DESTROY, () => server1.destroy(), () => {
+                            waitEvent(server2, SEVENTS.DESTROY, () => server2.destroy(), () => {
+                                World.prototype.getFreePos = freePos;
+                                ocfg.reset();
+                                scfg.reset();
+                                cfg.reset();
+                                console.log = log;
+                                done();
+                            });
+                        });
+                    });
+                });
+            };
+
+            console.log                       = () => {};
+            scfg.set('upHost',                SERVER_HOST);
+            scfg.set('rightHost',             SERVER_HOST);
+            scfg.set('downHost',              SERVER_HOST);
+            scfg.set('leftHost',              SERVER_HOST);
+            ocfg.set('codeIterationsPerOnce', 1);
+            scfg.set('modeDistributed',       true);
+            scfg.set('maxConnections',        1);
+            scfg.set('port',                  3000);
+            scfg.set('rightPort',             3001);
+            const server1                   = new Server(); // left server
+            scfg.set('port',                  3001);
+            scfg.set('leftPort',              3000);
+            scfg.set('rightPort',             1001);
+            const server2                   = new Server(); // right server
+            cfg.set('worldWidth',             10);
+            cfg.set('worldHeight',            10);
+            cfg.set('serverPort',             3000);
+            cfg.set('serverHost',             SERVER_HOST);
+            const man1                      = new Manager(false);
+            deletePluginConfigs();
+            cfg.set('serverPort',             3001);
+            const man2                      = new Manager(false);
+            ocfg.set('orgStartAmount',        1);
+            ocfg.set('orgRainMutationPeriod', 0);
+            ocfg.set('orgCloneMutationPercent',0);
+            ocfg.set('orgEnergySpendPeriod',  0);
+            ocfg.set('orgStartEnergy',        10000);
+            cfg.set('worldCyclical',          false);
+            World.prototype.getFreePos      = () => {return [9, 1]};
+
+            man1.on(EVENTS.LOOP, () => {
+                if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
+                    log('loop');
+                    expect(man2.organisms.size).toBe(1);
+                    org1 = man1.organisms.first.val;
+                    org1.vm.code.push(0b00001011000000000000000000000000); // onStepRight()
+                } else if (man2.organisms.size === 2) {
+                    log('destroy');
+                    destroy();
+                }
+                if (iterated1 > 10000) {throw 'Error sending organism between Servers'}
+                iterated1++;
+            });
+            man2.on(EVENTS.LOOP, () => iterated2++);
+
+            waitEvent(server1, server1.EVENTS.RUN, () => server1.run(), () => {
+                log('server1 run');
+                waitEvent(server2, server2.EVENTS.RUN, () => server2.run(), () => {
+                    log('server2 run');
+                    man1.run(() => man2.run());
+                });
+            });
+        });
+
     });
 
     describe('Client/Server tests', () => {
@@ -622,82 +710,6 @@ describe("client/src/manager/Manager", () => {
             });
         });
     });
-
-//
-//     it('Tests organism moving from client of one server to client of other server', (done) => {
-//         const ocfg                      = new ConfigHelper(OConfig);
-//         const cfg                       = new ConfigHelper(Config);
-//         const scfg                      = new ConfigHelper(SConfig);
-//         const freePos                   = World.prototype.getFreePos;
-//         let   iterated1                 = 0;
-//         let   iterated2                 = 0;
-//         let   org1                      = null;
-//         const destroy                   = () => {
-//             man1.destroy(() => {
-//                 man2.destroy(() => {
-//                     waitEvent(server1, SEVENTS.DESTROY, () => server1.destroy(), () => {
-//                         waitEvent(server2, SEVENTS.DESTROY, () => server2.destroy(), () => {
-//                             World.prototype.getFreePos = freePos;
-//                             ocfg.reset();
-//                             scfg.reset();
-//                             cfg.reset();
-//                             done();
-//                         });
-//                     });
-//                 });
-//             });
-//         };
-//
-//         scfg.set('upHost',                SERVER_HOST);
-//         scfg.set('rightHost',             SERVER_HOST);
-//         scfg.set('downHost',              SERVER_HOST);
-//         scfg.set('leftHost',              SERVER_HOST);
-//         ocfg.set('codeIterationsPerOnce', 1);
-//         scfg.set('modeDistributed',       true);
-//         scfg.set('maxConnections',        1);
-//         scfg.set('port',                  3000);
-//         scfg.set('rightPort',             3001);
-//         const server1                   = new Server(); // up server
-//         scfg.set('port',                  3001);
-//         scfg.set('leftPort',              3000);
-//         scfg.set('rightPort',             1001);
-//         const server2                   = new Server(); // down server
-//         cfg.set('worldWidth',             10);
-//         cfg.set('worldHeight',            10);
-//         cfg.set('serverPort',             3000);
-//         cfg.set('serverHost',             SERVER_HOST);
-//         const man1                      = new Manager(false);
-//         deletePluginConfigs();
-//         cfg.set('serverPort',             3001);
-//         const man2                      = new Manager(false);
-//         ocfg.set('orgStartAmount',        1);
-//         ocfg.set('orgRainMutationPeriod', 0);
-//         ocfg.set('orgCloneMutationPercent',0);
-//         ocfg.set('orgEnergySpendPeriod',  0);
-//         ocfg.set('orgStartEnergy',        10000);
-//         cfg.set('worldCyclical',          false);
-//         World.prototype.getFreePos      = () => {return [1, 9]};
-//
-//         man1.on(EVENTS.LOOP, () => {
-//             if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
-//                 expect(man2.organisms.size).toBe(1);
-//                 org1 = man1.organisms.first.val;
-//                 org1.vm.code.push(0b00001011000000000000000000000000); // onStepRight()
-//             } else if (man2.organisms.size === 2) {
-//                 destroy();
-//             }
-//             if (iterated1 > 10000) {throw 'Error sending organism between Servers'}
-//             iterated1++;
-//         });
-//         man2.on(EVENTS.LOOP, () => iterated2++);
-//
-//         waitEvent(server1, server1.EVENTS.RUN, () => server1.run(), () => {
-//             waitEvent(server2, server2.EVENTS.RUN, () => server2.run(), () => {
-//                 man1.run(man2.run);
-//             });
-//         });
-//     });
-//
 //     it('Tests organism moving back from client of near server', (done) => {
 //         const ocfg                      = new ConfigHelper(OConfig);
 //         const cfg                       = new ConfigHelper(Config);
