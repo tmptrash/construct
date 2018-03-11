@@ -8,6 +8,7 @@
  *
  * @author flatline
  */
+const DIR = require('./../../../common/src/Directions').DIR;
 /**
  * {String} Separator string, which separates id parts. Like
  * 'X' + ID_SEPARATOR + 'X'
@@ -31,17 +32,13 @@ class Connections {
      * @returns {Array} Array of numbers (region)
      */
     static toRegion(id) {
-        return id.split(ID_SEPARATOR).map(Number);
+        return id && id.split(ID_SEPARATOR).map(Number);
     }
 
     constructor(amount) {
-        /**
-         * {Number} amount Maximum amount of connections for current server. Should
-         * be quadratic (x^2) e.g.: 4, 9, 16,... This value will be extended
-         * with additional "around" rows and columns for connecting with sibling
-         * servers. So, result amount will be e.g.: 100 + 2 rows + 2 columns.
-         */
-        this._amount = amount;
+        const side = +Math.sqrt(amount).toFixed();
+        if (amount < 1) {throw `Incorrect amount of connections in class Connections - ${amount}`}
+        if (side * side !== amount) {throw `Incorrect amount of connections in class Connections - ${amount}. Should be a pow of two`}
         /**
          * {Number} Size of one side of MAX_CONNECTIONS qub. Contains additional
          * "around" rows and columns. For qub == 16, it's 4.
@@ -50,16 +47,21 @@ class Connections {
         /**
          * {Number} Size of one full side of the connections squire
          */
-        this._side   = +Math.sqrt(amount).toFixed() + 2;
+        this._side   = side;
 
-        for (let col = 0, conns = this.conns; col < this._side; col++) {
-            conns[col] = (new Array(this._side)).fill(null);
-            conns[col].forEach((v, i, a) => a[i] = {sock: null});
+        for (let row = 0, conns = this.conns; row < this._side; row++) {
+            conns[row] = (new Array(this._side)).fill(null);
+            conns[row].forEach((v, i, a) => a[i] = {sock: null});
         }
+    }
+
+    get side() {
+        return this._side;
     }
 
     destroy() {
         this.conns = null;
+        this._side = null;
     }
 
     /**
@@ -68,8 +70,8 @@ class Connections {
      * @returns {Array|null}
      */
     upRegion(region) {
-        region = region.slice();
-        return --region[1] < 0 ? null : region;
+        (region = region.slice())[1]--;
+        return this._validRegion(region) && region || null;
     }
 
     /**
@@ -78,8 +80,8 @@ class Connections {
      * @returns {Array|null}
      */
     rightRegion(region) {
-        region = region.slice();
-        return ++region[0] > this._amount + 1 ? null : region;
+        (region = region.slice())[0]++;
+        return this._validRegion(region) && region || null;
     }
 
     /**
@@ -88,8 +90,8 @@ class Connections {
      * @returns {Array|null}
      */
     downRegion(region) {
-        region = region.slice();
-        return ++region[1] > this._amount + 1 ? null : region;
+        (region = region.slice())[1]++;
+        return this._validRegion(region) && region || null;
     }
 
     /**
@@ -98,8 +100,26 @@ class Connections {
      * @returns {Array|null}
      */
     leftRegion(region) {
-        region = region.slice();
-        return --region[0] < 0 ? null : region;
+        (region = region.slice())[0]--;
+        return this._validRegion(region) && region || null;
+    }
+
+    /**
+     * Returns opposite region. It means the region on the diagonally
+     * other side related to specified. up -> down, right -> left,...
+     * @param {Array} region
+     * @param {Number} dir Direction
+     * @return {Array} Opposite region
+     */
+    oppositeRegion(region, dir) {
+        const side = this._side - 1;
+
+        if (dir === DIR.UP)    {region[1] = side; return region}
+        if (dir === DIR.RIGHT) {region[0] = 0;    return region}
+        if (dir === DIR.DOWN)  {region[1] = 0;    return region}
+        if (dir === DIR.LEFT)  {region[0] = side; return region}
+
+        return region;
     }
 
     /**
@@ -108,7 +128,7 @@ class Connections {
      * @returns {Object|null}
      */
     getConnection(region) {
-        return region && this.conns[region[0]][region[1]];
+        return this._validRegion(region) && this.conns[region[0]][region[1]] || null;
     }
 
     /**
@@ -129,17 +149,21 @@ class Connections {
 
     getFreeRegion() {
         const conns = this.conns;
-        const side  = this._side - 1;
+        const side  = this._side;
 
-        for (let col = 1; col < side; col++) {
-            for (let row = 1; row < side; row++) {
-                if (conns[col][row].sock === null) {
-                    return [col, row];
+        for (let y = 0; y < side; y++) {
+            for (let x = 0; x < side; x++) {
+                if (conns[x][y].sock === null) {
+                    return [x, y];
                 }
             }
         }
 
         return null;
+    }
+
+    _validRegion(region) {
+        return region && region[0] > -1 && region[0] < this._side && region[1] > -1 && region[1] < this._side;
     }
 }
 

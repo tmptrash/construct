@@ -4,7 +4,7 @@
  * TODO:   -
  * @author flatline
  */
-const Organism  = require('./../Organism');
+const Organism  = require('./../Organism').Organism;
 const Operators = require('./Operators');
 
 class OrganismDos extends Organism {
@@ -14,19 +14,16 @@ class OrganismDos extends Organism {
      * @param {String} id Unique identifier of organism
      * @param {Number} x Unique X coordinate
      * @param {Number} y Unique Y coordinate
-     * @param {Boolean} alive true if organism is alive
      * @param {Object} item Reference to the Queue item, where
      * this organism is located
-     * @param {Function} codeEndCb Callback, which is called at the
-     * end of every code iteration.
      * @param {Organism} parent Parent organism if cloning is needed
      */
-    constructor(id, x, y, alive, item, codeEndCb, parent = null) {
-        super(id, x, y, alive, item, codeEndCb, Operators, parent);
+    constructor(id, x, y, item, parent = null) {
+        super(id, x, y, item, Operators, parent);
     }
 
     onRun() {
-        this.jsvm.run(this);
+        return this.vm.run(this);
     }
 }
 

@@ -4,8 +4,6 @@ describe("server/src/server/Server", () => {
     const SConfig      = require('./../../../server/src/share/Config').Config;
     const Observer     = require('./../../../common/src/Observer');
     const Server       = require('./Server').Server;
-    const OLD_MODE     = Config.modeNodeJs;
-    Config.modeNodeJs  = true;
     const Client       = require('./../../../client/src/manager/plugins/client/Client').Client;
     const SEVENTS      = require('./Server').EVENTS;
     const CEVENTS      = require('./../../../client/src/manager/plugins/client/Client').EVENTS;
@@ -13,11 +11,9 @@ describe("server/src/server/Server", () => {
     const SConsole     = require('./../share/Console');
     const Console      = require('./../../../client/src/share/Console');
     const Helper       = require('./../../../common/tests/Helper');
-    const TYPES        = require('./../../../common/src/net/Requests').TYPES;
-    const Api          = require('./plugins/Api');
-    const Request      = require('./../../../common/src/plugins/Request');
     const waitEvent    = Helper.waitEvent;
     const host         = Config.serverHost;
+    const port         = SConfig.port;
 
     const CLIENT_URL = `ws://127.0.0.1:${Config.serverPort}`;
 
@@ -27,9 +23,13 @@ describe("server/src/server/Server", () => {
     let serror;
     let swarn;
     let sinfo;
+    let dist;
 
     beforeAll(() => {
         Config.serverHost = 'ws://127.0.0.1';
+        dist = SConfig.modeDistributed;
+        SConfig.modeDistributed = false;
+        SConfig.port = Config.serverPort;
         error = Console.error;
         warn  = Console.warn;
         info  = Console.info;
@@ -52,8 +52,9 @@ describe("server/src/server/Server", () => {
         Console.error = error;
         Console.warn  = warn;
         Console.info  = info;
-        Config.modeNodeJs = OLD_MODE;
         Config.serverHost = host;
+        SConfig.modeDistributed = dist;
+        SConfig.port = port;
     });
 
     it("Checking server creation", () => {
@@ -193,6 +194,7 @@ describe("server/src/server/Server", () => {
             server.stop();
             Helper.wait(waitObj, () => {
                 server.destroy();
+                ws.close();
                 done();
             });
         });
@@ -209,6 +211,8 @@ describe("server/src/server/Server", () => {
         Helper.wait(waitObj, () => {
             server.on(SEVENTS.STOP, () => waitObj.done = true);
             server.stop();
+            ws1.close();
+            ws2.close();
             Helper.wait(waitObj, () => {
                 server.destroy();
                 done();
@@ -230,6 +234,7 @@ describe("server/src/server/Server", () => {
             Helper.wait(waitObj, () => {
                 server.on(SEVENTS.STOP, () => waitObj.done = true);
                 server.stop();
+                ws1.close();
                 Helper.wait(waitObj, () => {
                     server.destroy();
                     done();
@@ -262,6 +267,7 @@ describe("server/src/server/Server", () => {
             expect(server.active).toEqual(true);
             server.on(SEVENTS.STOP, () => waitObj.done = true);
             server.destroy();
+            ws.close();
             Helper.wait(waitObj, () => {
                 expect(server.active).toEqual(false);
                 done();
@@ -278,6 +284,7 @@ describe("server/src/server/Server", () => {
             }
             run() {}
             stop() {}
+            resetActive() {}
             get clientId()   {return this._clientId}
             set clientId(id) {this._clientId = id}
         }

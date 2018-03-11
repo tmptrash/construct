@@ -63,7 +63,6 @@ class Connection extends Observer {
      * @param {Number} type Request type (see Requests.TYPES)
      * @param {*} params Array of parameters
      * @return {Number} Unique request id
-     * @abstract
      */
     request(sock, type, ...params) {this.fire(REQUEST, sock, type, ...params)}
 
@@ -74,7 +73,6 @@ class Connection extends Observer {
      * @param {Number} type Request type (see Requests.TYPES)
      * @param {Number} reqId Unique request id, returned by send() method
      * @param {Array} params Custom parameters to send
-     * @abstract
      */
     response(sock, type, reqId, ...params) {this.fire(RESPONSE, sock, type, reqId, ...params)}
 
@@ -82,7 +80,6 @@ class Connection extends Observer {
      * Is called every time if server/client sends us a request or response (response).
      * @param {WebSocket} sock Socket, received the message
      * @param {Event} event Message event. Data is in 'data' property
-     * @abstract
      */
     onMessage(sock, event) {
         this.fire(MSG, sock, event);
@@ -91,7 +88,6 @@ class Connection extends Observer {
     /**
      * Is called on every error during web sockets work
      * @param {Event} event Error event
-     * @abstract
      */
     onError(event) {
         this.fire(ERR, event);

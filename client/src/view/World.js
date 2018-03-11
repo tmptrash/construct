@@ -19,7 +19,6 @@
  */
 const Observer     = require('./../../../common/src/Observer');
 const Helper       = require('./../../../common/src/Helper');
-const EVENTS       = require('./../../src/share/Events').EVENTS;
 const EVENT_AMOUNT = require('./../../src/share/Events').EVENT_AMOUNT;
 
 const DOT     = 0;
@@ -30,7 +29,7 @@ const WEVENTS = {
  * {Number} Amount of attempts for finding free place in a world.
  * The same like this.getDot(x, y) === 0
  */
-const FREE_DOT_ATTEMPTS = 300;
+const FREE_DOT_ATTEMPTS = 100;
 
 class World extends Observer {
     constructor (width, height) {
@@ -63,7 +62,7 @@ class World extends Observer {
     }
 
     getDot(x, y) {
-        if (x < 0 || x >= this._width || y < 0 || y >= this._height) {return false}
+        if (x < 0 || x >= this._width || y < 0 || y >= this._height) {return 0}
         return this._data[x][y];
     }
 
@@ -87,7 +86,7 @@ class World extends Observer {
 
         while (this.getDot(x = rand(width), y = rand(height)) > 0 && i-- > 0) {}
 
-        return i > 0 ? {x, y} : false
+        return i > 0 ? [x, y] : [-1, -1]
     }
 
     getNearFreePos(x, y) {
@@ -103,13 +102,15 @@ class World extends Observer {
         ];
 
         for (let i = 0, j = 0; i < 8; i++) {
-            if (this.getDot(positions[j], positions[j + 1]) === 0) {
-                return {x: positions[j], y: positions[j + 1]};
+            x = positions[j];
+            y = positions[j + 1];
+            if (this.getDot(x, y) === 0 && x >= 0 && x < this._width && y >= 0 && y < this._height) {
+                return [positions[j], positions[j + 1]];
             }
             j += 2;
         }
 
-        return false;
+        return [-1, -1];
     }
 
     isFree(x, y) {

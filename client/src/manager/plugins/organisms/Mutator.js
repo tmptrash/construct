@@ -10,129 +10,130 @@
  * @author flatline
  */
 const EVENTS   = require('./../../../share/Events').EVENTS;
-const Config   = require('./../../../share/Config').Config;
 const OConfig  = require('./../../../manager/plugins/organisms/Config');
 const Helper   = require('./../../../../../common/src/Helper');
-const Organism = require('./dos/Organism');
-const Num      = require('./../../../jsvm/Num');
+const Num      = require('./../../../vm/Num');
 
-const VAR_BITS_OFFS = Num.VAR_BITS_OFFS - 1;
-const VARS          = Num.VARS;
-const MAX_VAR       = Num.MAX_VAR;
+const ADD_MUTAION_INDEX = 6;
 
 class Mutator {
-    constructor(manager) {
-        this._manager = manager;
-        this._MUTATION_TYPES = [
-            this._onAdd,
-            this._onChange,
-            this._onDel,
-            this._onSmallChange,
-            this._onClone,
-            this._onCopy,
-            this._onPeriod,
-            this._onAmount,
-            this._onProbs,
-            this._onCloneEnergyPercent
-        ];
-        
-        manager.on(EVENTS.ORGANISM, this._onOrganism.bind(this));
-        manager.on(EVENTS.CLONE, this._onCloneOrg.bind(this));
+    static _onChange(org) {
+        const vm = org.vm;
+        vm.updateLine(Helper.rand(vm.size), Num.rand());
+        org.changes += Num.MAX_BITS;
     }
 
-    destroy() {
-        this._manager        = null;
-        this._MUTATION_TYPES = null;
-    }
-
-    _onOrganism(org) {
-        if (org.iterations % org.mutationPeriod === 0 && OConfig.orgRainMutationPeriod > 0 && org.mutationPeriod > 0 && org.alive) {
-            this._mutate(org, false);
-        }
-    }
-
-    _onCloneOrg(parent, child) {
-        if (child.energy > 0 && OConfig.orgCloneMutationPercent > 0) {this._mutate(child)}
-    }
-
-    _mutate(org, clone = true) {
-        const jsvm      = org.jsvm;
-        const probIndex = Helper.probIndex;
-        const mTypes    = this._MUTATION_TYPES;
-        const maxSize   = OConfig.codeMaxSize;
-        let   mutations = Math.round(jsvm.size * (clone ? org.cloneMutationPercent : org.mutationPercent)) || 1;
-        let   type;
-
-        for (let i = 0; i < mutations; i++) {
-            if (jsvm.size > maxSize) {
-                mutations = i;
-                break;
-            }
-            type = jsvm.size < 1 ? 0 : probIndex(org.mutationProbs);
-            mTypes[type](org);
-        }
-        org.changes += mutations;
-        this._manager.fire(EVENTS.MUTATIONS, org, mutations, clone);
-
-        return mutations;
-    }
-
-    _onAdd(org) {
-        org.jsvm.size <= OConfig.codeMaxSize && org.jsvm.insertLine();
-    }
-
-    _onChange(org) {
-        const jsvm = org.jsvm;
-        jsvm.updateLine(Helper.rand(jsvm.size), Num.get());
-    }
-
-    _onDel(org) {
-        org.jsvm.removeLine();
+    static _onDel(org) {
+        org.vm.removeLine();
+        org.changes += Num.MAX_BITS;
     }
 
     /**
      * Operator type or one variable may mutate
      * @param {Organism} org
-     * @private
      */
-    _onSmallChange(org) {
+    static _onSmallChange(org) {
         const rand  = Helper.rand;
-        const jsvm  = org.jsvm;
-        const index = rand(jsvm.size);
-        const rnd   = rand(3);
-
+        const vm  = org.vm;
+        const index = rand(vm.size);
+        const rnd   = rand(2);
+        //
+        // Toggles operator bits only
+        //
         if (rnd === 0) {
-            jsvm.updateLine(index, Num.setOperator(jsvm.getLine(index), rand(jsvm.operators.operators.length)));
-        } else if (rnd === 1) {
-            jsvm.updateLine(index, Num.setVar(jsvm.getLine(index), rand(VARS), rand(MAX_VAR)));
+            vm.updateLine(index, Num.setOperator(vm.getLine(index), rand(vm.operators.operators.length)));
+            org.changes += Num.BITS_PER_OPERATOR;
+        //
+        // Toggles specified bit, except operator bits
+        //
         } else {
-            // toggle specified bit
-            jsvm.updateLine(index, jsvm.getLine(index) ^ (1 << rand(VAR_BITS_OFFS)));
+            vm.updateLine(index, vm.getLine(index) ^ (1 << rand(Num.VAR_BITS_OFFS - 1)));
+            org.changes++;
         }
     }
 
-    _onClone(org) {
-        org.cloneMutationPercent = Math.random();
+    static _onMutationPeriod(org) {
+        if (!OConfig.orgRainPerOrg) {return}
+        org.mutationPeriod = Helper.rand(OConfig.orgAlivePeriod);
+        org.changes++;
     }
 
-    _onCopy(org) {
-        org.jsvm.copyLines();
-    }
-
-    _onPeriod(org) {
-        org.mutationPeriod = Helper.rand(OConfig.ORG_MAX_MUTATION_PERIOD);
-    }
-
-    _onAmount(org) {
+    static _onMutationPercent(org) {
+        if (!OConfig.orgRainPerOrg) {return}
         org.mutationPercent = Math.random();
+        org.changes++;
     }
 
-    _onProbs(org) {
-        org.mutationProbs[Helper.rand(org.mutationProbs.length)] = Helper.rand(OConfig.orgMutationProbsMaxValue) || 1;
+    static _onProbs(org) {
+        if (!OConfig.orgMutationPerOrg) {return}
+        org.mutationProbs[Helper.rand(org.mutationProbs.length)] = Helper.rand(OConfig.ORG_MUTATION_PROBS_MAX_VAL) || 1;
+        org.changes++;
     }
 
-    _onCloneEnergyPercent(org) {
-        org.cloneEnergyPercent = Math.random();
+    static _onAdd(org) {
+        org.vm.insertLine();
+        org.changes += Num.MAX_BITS;
+    }
+
+    static _onCopy(org) {
+        org.changes += (org.vm.copyLines() * Num.MAX_BITS);
+    }
+
+    constructor(manager, owner) {
+        this._manager = manager;
+        this._owner   = owner;
+        this._MUTATION_TYPES = [
+            Mutator._onChange,
+            Mutator._onDel,
+            Mutator._onSmallChange,
+            Mutator._onMutationPeriod,
+            Mutator._onMutationPercent,
+            Mutator._onProbs,
+            Mutator._onAdd,
+            Mutator._onCopy
+        ];
+
+        this._onOrganismCb = this._onOrganism.bind(this);
+
+        Helper.override(owner, 'onOrganism', this._onOrganismCb);
+    }
+
+    destroy() {
+        Helper.unoverride(this._owner, 'onOrganism', this._onOrganismCb);
+        this._onOrganismCb   = null;
+        this._manager        = null;
+        this._owner          = null;
+        this._MUTATION_TYPES = null;
+    }
+
+    _onOrganism(org) {
+        if (org.iterations % org.mutationPeriod !== 0 || OConfig.orgRainMutationPeriod === 0 || OConfig.orgRainMutationPercent === 0.0 || org.mutationPeriod === 0 || org.energy < 1) {return}
+        this._mutate(org);
+    }
+
+    /**
+     * IMPORTANT: mutations should be applied only after last line of organism's code
+     * has interpreted
+     * @param {Organism} org Current organism
+     */
+    _mutate(org) {
+        const vm        = org.vm;
+        const probIndex = Helper.probIndex;
+        const mTypes    = this._MUTATION_TYPES;
+        const maxSize   = OConfig.codeMaxSize;
+        let   mutations = ((vm.size * org.mutationPercent + .5) << 0) || 1;
+        let   type;
+
+        for (let i = 0; i < mutations; i++) {
+            //
+            // If we reach code size maximum, then only change and delete
+            // mutations may be applied to organism's code
+            //
+            type = vm.size < 1 ? ADD_MUTAION_INDEX : probIndex(org.mutationProbs);
+            if (vm.size >= maxSize && type >= ADD_MUTAION_INDEX) {mutations = i; break}
+            mTypes[type](org);
+        }
+        this._manager.fire(EVENTS.MUTATIONS, org, mutations);
     }
 }
 

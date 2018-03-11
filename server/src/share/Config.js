@@ -31,21 +31,50 @@ ServerConfig.init({
      * with additional "around" rows and columns for connecting with sibling
      * servers. So, result amount of cells will be e.g.: 16 + 2 rows + 2 cols.
      */
-    maxConnections: 100,
+    maxConnections: 4,
     /**
-     * {Number} Port number for connecting with server
+     * {Number} Port number for connecting with server. This value will be
+     * passed to the server during creation
      */
-    port: 8099,
+    port: 8301,
     /**
-     * TODO: this config should be obtained from Admin server or from command line
-     * TODO: parameters in future cmd line parser
+     * {Boolean} Means, that this server will be run in distributed mode. And
+     * will be connected with near servers (up...left). false, means, that
+     * server will be run in single server mode (no near servers).
+     */
+    modeDistributed: true,
+    /**
+     * {String} Host address of server above. Shouldn't contain port
      */
     upHost: 'ws://127.0.0.1',
     /**
-     * TODO: this config should be obtained from Admin server or from command line
-     * TODO: parameters in future cmd line parser
+     * {Number} Port number of server above.
      */
-    upPort: 8099
+    upPort: 8200,
+    /**
+     * {String} Host address of server on the right. Shouldn't contain port
+     */
+    rightHost: 'ws://127.0.0.1',
+    /**
+     * {Number} Port number of server on the right
+     */
+    rightPort: 8302,
+    /**
+     * {String} Host address of server below. Shouldn't contain port
+     */
+    downHost: 'ws://127.0.0.1',
+    /**
+     * {Number} Port number of server below
+     */
+    downPort: 8202,
+    /**
+     * {String} Host address of server on the left. Shouldn't contain port
+     */
+    leftHost: 'ws://127.0.0.1',
+    /**
+     * {Number} Port number of server on the left
+     */
+    leftPort: 8203
 });
 
 module.exports = {Config: ServerConfig.cfg(), api: ServerConfig};

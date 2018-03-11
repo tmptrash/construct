@@ -29,6 +29,7 @@
  *
  * @author flatline
  */
+const OS               = require('os');
 const WebSocket        = require('./../../../node_modules/ws/index');
 const Connection       = require('./../../../common/src/net/Connection').Connection;
 const EVENTS           = require('./../../../common/src/net/Connection').EVENTS;
@@ -37,6 +38,8 @@ const Config           = require('./../share/Config').Config;
 const Plugins          = require('./Plugins');
 const Console          = require('./../share/Console');
 const Connections      = require('./Connections');
+const DIR              = require('./../../../common/src/Directions').DIR;
+const NAMES            = require('./../../../common/src/Directions').NAMES;
 /**
  * {Number} Amount of base events. Is used to extend them by server related
  */
@@ -68,11 +71,9 @@ class Server extends Connection {
     constructor(port = Config.port) {
         super(SERVER_EVENTS_LEN);
         this.EVENTS         = SERVER_EVENTS;
+        this.cfg            = Config;
         this.conns          = new Connections(Config.maxConnections);
-        // TODO: This field should be used for connections with around servers.
-        // TODO: We have to connect with all available around servers on start
-        // TODO: and set them into aroundServers.setSocket()
-        this.aroundServers  = new AroundServers(this);
+        this.aroundServers  = Config.modeDistributed ? new AroundServers(this) : null;
 
         this._server        = null;
         this._port          = port;
@@ -107,14 +108,18 @@ class Server extends Connection {
         Server.ports[this._port] = true;
         try {
             this._server = new WebSocket.Server({port: this._port}, () => {
-                this._server.on('connection', this.onConnect.bind(this));
-                this.active = true;
-                this._running = false;
-                this.fire(RUN);
-                Console.info('Server is ready');
+                const onDone = () => {
+                    this._server.on('connection', this.onConnect.bind(this));
+                    this.active = true;
+                    this._running = false;
+                    this.fire(RUN);
+                    Console.info(`Server is ready on ${this._getIp()}:${this._port}`);
+                };
+                this.aroundServers && this.aroundServers.run(onDone) || onDone();
             });
+            this._server.on('error', (e) => Console.error(`Can\'t run server on port ${this._port}. Error: '${e.message}'`));
         } catch (e) {
-            Console.warn(`Can\'t run server on port ${this._port}. Error: ${e.message}`);
+            Console.error(`Can\'t run server on port ${this._port}. Error: '${e.message}'`);
             return false;
         }
 
@@ -148,14 +153,17 @@ class Server extends Connection {
         try {
             me._stopping = true;
             me._server.close(() => {
-                delete Server.ports[me._port];
-                me._server.removeAllListeners('connection');
-                me.active    = false;
-                me._stopping = false;
-                this._server = null;
-                me.fire(STOP);
-                Console.info('Server has stopped. All clients have disconnected');
-                if (me._destroying) {me.destroy()}
+                const onDone = () => {
+                    delete Server.ports[me._port];
+                    me._server.removeAllListeners('connection');
+                    me.active    = false;
+                    me._stopping = false;
+                    this._server = null;
+                    me.fire(STOP);
+                    Console.info('Server has stopped. All clients have disconnected');
+                    if (me._destroying) {me.destroy()}
+                };
+                this.aroundServers && this.aroundServers.stop(onDone) || onDone();
             });
         } catch(e) {
             Console.error('Server.stop() failed: ', e);
@@ -190,16 +198,23 @@ class Server extends Connection {
      * regions for new connections, then places current one in a connection
      * cub and sends unique id to the client.
      * @param {WebSocket} sock Client's socket
+     * @param {Object} req Request info object
      */
-    onConnect(sock) {
+    onConnect(sock, req) {
         const region   = this.conns.getFreeRegion();
         const clientId = Connections.toId(region);
-        if (region === null) {
+        if (region === null && this._server.clients.length > Config.maxConnections + 4) { // 4 extra connections for near servers
             sock.terminate();
             this.fire(OVERFLOW, sock);
             Console.warn('This server is overloaded by clients. Try another server to connect.');
             return;
         }
+        //
+        // This is small hack. We have to bind remote client address and
+        // it's socket. We use this info in a terminal to show remote
+        // connected client address
+        //
+        sock.remoteAddr = req.connection.remoteAddress;
 
         sock.on('message', this.onMessage.bind(this, sock));
         sock.on('error', this.onError.bind(this, clientId, sock));
@@ -217,12 +232,36 @@ class Server extends Connection {
      */
     onClose(clientId, sock, event) {
         super.onClose(event);
-        const region = Connections.toRegion(clientId);
-        this.conns.clearData(region);
+        const servers  = this.aroundServers;
+        const region   = Connections.toRegion(clientId);
+        const dir      = servers ? servers.getDirection(sock) : clientId;
+        const isServer = dir < DIR.NO;
+
+        !isServer && region && this.conns.clearData(region);
         sock.removeAllListeners('message');
         sock.removeAllListeners('error');
         sock.removeAllListeners('close');
-        Console.warn(`Server: client ${clientId} has disconnected by reason: ${this.closeReason}`);
+        servers && servers.setSocket(sock, dir);
+        Console.warn(`Client [${isServer ? NAMES[dir] : (clientId || sock.remoteAddr)}] has disconnected by reason: ${this.closeReason}`);
+    }
+
+    /**
+     * Returns local IP, which is used by clients to connect
+     * @return {String}
+     */
+    _getIp() {
+        const iFaces = OS.networkInterfaces();
+        let   ip     = '127.0.0.1';
+
+        Object.keys(iFaces).forEach(dev => {
+            iFaces[dev].filter(details => {
+                if (details.family === 'IPv4' && details.internal === false) {
+                    ip = details.address;
+                }
+            });
+        });
+
+        return ip;
     }
 }
 

@@ -5,10 +5,11 @@
  *
  * @author flatline
  */
-const Helper  = require('./../Helper');
-const Config  = require('./../../../client/src/share/Config').Config;
-const MASKS   = require('./../net/Requests').MASKS;
-const Console = require(`./../../../${Config.modeNodeJs ? 'server' : 'client'}/src/share/Console`);
+const WebSocket = require('ws');
+const Helper    = require('./../Helper');
+const Config    = require('./../../../client/src/share/Config').Config;
+const MASKS     = require('./../net/Requests').MASKS;
+const Console   = require(`./../../../${Config.MODE_NODE_JS ? 'server' : 'client'}/src/share/Console`);
 
 class Request {
     /**
@@ -73,9 +74,16 @@ class Request {
         const cb    = Helper.isFunc(params[params.length - 1]) ? params.pop() : null;
         const reqId = Helper.getId();
 
+        if (sock.readyState > WebSocket.OPEN) {
+            this._onSendErr('Request is interrupted, because connection has closed');
+            return reqId;
+        }
         cb && (this._requests[reqId] = cb);
-        sock.send(JSON.stringify([type, (reqId | MASKS.REQ_MASK) >>> 0].concat(params)), this._onSendErrCb);
-
+        try {
+            sock.send(JSON.stringify([type, (reqId | MASKS.REQ_MASK) >>> 0].concat(params)), this._onSendErrCb);
+        } catch (e) {
+            this._onSendErr(e);
+        }
         return reqId;
     }
 
@@ -90,7 +98,11 @@ class Request {
      * @override
      */
     _onResponse(sock, type, reqId, ...params) {
-        sock.send(JSON.stringify([type, (reqId & MASKS.RES_MASK) >>> 0].concat(params)), this._onSendErrCb);
+        try {
+            sock.send(JSON.stringify([type, (reqId & MASKS.RES_MASK) >>> 0].concat(params)), this._onSendErrCb);
+        } catch (e) {
+            this._onSendErr(e);
+        }
     }
 
     /**
@@ -112,7 +124,6 @@ class Request {
      * [type, reqId|null, ...params].
      * @param {WebSocket} sock Owner socket
      * @param {Event} event Event object with received data
-     * @private
      */
     _onMessage(sock, event) {
         const data  = JSON.parse(event.data || event);

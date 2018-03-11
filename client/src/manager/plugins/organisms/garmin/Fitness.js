@@ -1947,7 +1947,7 @@ class FitnessGarmin {
 
         org.energy = 0;
         for (let i = 0; i < len; i++) {
-            this._running(org, ACTIVITIES[i], i);
+            this._run(org, ACTIVITIES[i], i);
         }
         //
         // true means that result is found
@@ -1962,7 +1962,7 @@ class FitnessGarmin {
 
     static _run(org, data, index) {
         const len  = data.length;
-        const code = org.jsvm;
+        const code = org.vm;
         const vars = code.vars;
 
         for (let i = 0; i < len; i++) {

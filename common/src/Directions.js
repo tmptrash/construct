@@ -18,5 +18,10 @@ const NAMES = {
     3: 'Left',
     4: 'No'
 };
+/**
+ * {Array} Array of flipped directions. Is used for connecting with nearest
+ * servers: left -> right, up -> down, right -> left, down -> up
+ */
+const FLIP_DIR = [DIR.DOWN, DIR.LEFT, DIR.UP, DIR.RIGHT];
 
-module.exports = {DIR, NAMES};
+module.exports = {DIR, FLIP_DIR, NAMES};

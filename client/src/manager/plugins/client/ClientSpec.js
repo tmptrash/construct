@@ -9,12 +9,11 @@ describe("client/src/manager/plugins/Client", () => {
     let api          = require('./../../../share/Config').api;
     let Console      = require('./../../../share/Console');
     let SConsole     = require('./../../../../../server/src/share/Console');
-    const Api        = require('./../../../../../server/src/server/plugins/Api');
-    const Request    = require('./../../../../../common/src/plugins/Request');
     const waitEvent  = THelper.waitEvent;
     const wait       = THelper.wait;
     const host       = Config.serverHost;
-    let isNodeJs;
+    const port       = SConfig.port;
+    const maxConns   = SConfig.maxConnections;
     let Client;
     let CEVENTS;
     let Server;
@@ -25,14 +24,14 @@ describe("client/src/manager/plugins/Client", () => {
     let serror;
     let swarn;
     let sinfo;
+    let dist;
 
     beforeAll(() => {
-        //
-        // These two lines set modeNodeJs mode to Node.js as running environment
-        //
-        isNodeJs = Config.modeNodeJs;
-        Config.modeNodeJs = true;
         Config.serverHost = 'ws://127.0.0.1';
+        dist = SConfig.modeDistributed;
+        SConfig.modeDistributed = false;
+        SConfig.port = Config.serverPort;
+        SConfig.maxConnections = 100;
         Client   = require('./Client').Client;
         CEVENTS  = require('./Client').EVENTS;
         Server   = require('./../../../../../server/src/server/Server').Server;
@@ -54,7 +53,6 @@ describe("client/src/manager/plugins/Client", () => {
         SConsole.info  = () => {};
     });
     afterAll(() => {
-        api.set('modeNodeJs', isNodeJs);
         SConsole.error = serror;
         SConsole.warn  = swarn;
         SConsole.info  = sinfo;
@@ -64,6 +62,9 @@ describe("client/src/manager/plugins/Client", () => {
         Console.info  = info;
 
         Config.serverHost = host;
+        SConfig.modeDistributed = dist;
+        SConfig.port = port;
+        SConfig.maxConnections = maxConns;
     });
 
     it("Checking client creation without server", (done) => {
@@ -77,6 +78,7 @@ describe("client/src/manager/plugins/Client", () => {
             stop() {}
             get clientId()   {return this._clientId}
             set clientId(id) {this._clientId = id}
+            resetActive() {}
         }
         const man    = new Man0();
         const client = new Client(man);
@@ -97,6 +99,7 @@ describe("client/src/manager/plugins/Client", () => {
             stop() {}
             get clientId()   {return this._clientId}
             set clientId(id) {this._clientId = id}
+            resetActive() {}
         }
         const man       = new Man();
         const server    = new Server(SConfig.port);
@@ -129,6 +132,7 @@ describe("client/src/manager/plugins/Client", () => {
             stop() {}
             get clientId()   {return this._clientId}
             set clientId(id) {this._clientId = id; id && ++count === 2 && (waitObj.done = true)}
+            resetActive() {}
         }
         const man1    = new Man1();
         const man2    = new Man1();

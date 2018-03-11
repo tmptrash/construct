@@ -6,6 +6,5 @@
  */
 const Server = require('./server/Server').Server;
 const Config = require('./share/Config').Config;
-
 const server = new Server(Config.port);
 server.run();

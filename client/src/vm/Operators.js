@@ -16,9 +16,9 @@ class Operators {
          */
         this.vars = vars;
         /**
-         * {Observer} Observer for sending events outside
+         * {Observer} Observer for sending external events
          */
-        this.obs = obs;
+        this.obs  = obs;
     }
 
     destroy() {

@@ -1,7 +1,9 @@
 /**
  * Observer implementation. May fire, listen(on()) and clear all the event
  * handlers. This class is optimized for speed. This is why it works with
- * array of numbers as events instead of frequent strings.
+ * array of numbers as events instead of frequent strings and uses Object
+ * for storing event handlers. It fast on fire and slow on removing event
+ * handlers (off() method).
  *
  * Usage:
  *   import {EVENTS}       from '.../Events.js'
@@ -24,21 +26,28 @@ class Observer {
         this._resetEvents();
     }
 
-    on (event, handler) {
-        if (typeof(this._handlers[event]) === 'undefined') {return false}
-        this._handlers[event].push(handler);
+    on(event, handler) {
+        const eventObj = this._handlers[event];
+        if (typeof(eventObj) === 'undefined') {return false}
+        eventObj[eventObj.amount++] = handler;
 
         return true;
     }
 
-    off (event, handler) {
-        let index;
+    off(event, handler) {
         let handlers = this._handlers[event];
+        let len      = handlers && handlers.amount;
 
-        if ((index = handlers.indexOf(handler)) < 0) {return false}
-        handlers.splice(index, 1);
+        for (let i = 0; i < len; i++) {
+            if (handlers[i] === handler) {
+                handlers.amount = len - 1;
+                handlers[i] = handlers[i+1];
+                delete handlers[handlers.amount];
+                return true;
+            }
+        }
 
-        return true;
+        return false;
     }
 
     /**
@@ -48,9 +57,11 @@ class Observer {
      * @param {*} args List of arguments
      * @param args
      */
-    fire (event, ...args) {
-        let handlers = this._handlers[event] || [];
-        for (let handler of handlers) {handler(...args)}
+    fire(event, ...args) {
+        const handlers = this._handlers[event] || {};
+        for (let i = 0; i < +handlers.amount; i++) {
+            handlers[i](...args);
+        }
     }
 
     /**
@@ -58,18 +69,18 @@ class Observer {
      * to use on()/off() methods for working with events, but max
      * event index set in constructor will be the same.
      */
-    clear () {
+    clear() {
         this._resetEvents();
     }
 
     destroy() {
-        this.clear();
+        this._handlers = {};
     }
 
     _resetEvents() {
         const len      = this._maxIndex;
-        const handlers = this._handlers = new Array(len);
-        for (let i = 0; i < len; i++) {handlers[i] = []}
+        const handlers = this._handlers = {};
+        for (let i = 0; i < len; i++) {handlers[i] = {amount: 0}}
     }
 }
 

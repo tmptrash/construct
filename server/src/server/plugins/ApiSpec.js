@@ -4,18 +4,15 @@ describe("server/src/server/plugins/Api", () => {
     const Observer     = require('./../../../../common/src/Observer');
     const Server       = require('./../Server').Server;
     const SEVENTS      = require('./../Server').EVENTS;
-    const OLD_MODE     = Config.modeNodeJs;
-    Config.modeNodeJs  = true;
     const Client       = require('./../../../../client/src/manager/plugins/client/Client').Client;
     const CEVENTS      = require('./../../../../client/src/manager/plugins/client/Client').EVENTS;
     const EVENT_AMOUNT = require('./../../../../client/src/share/Events').EVENT_AMOUNT;
     const Console      = require('./../../../../client/src/share/Console');
     const SConsole     = require('./../../share/Console');
     const Helper       = require('./../../../../common/tests/Helper');
-    const Request      = require('./../../../../common/src/plugins/Request');
-    const Api          = require('./Api');
     const waitEvent    = Helper.waitEvent;
     const host         = Config.serverHost;
+    const port         = SConfig.port;
 
     let error;
     let warn;
@@ -23,9 +20,13 @@ describe("server/src/server/plugins/Api", () => {
     let serror;
     let swarn;
     let sinfo;
+    let dist;
 
     beforeAll(() => {
         Config.serverHost = 'ws://127.0.0.1';
+        dist = SConfig.modeDistributed;
+        SConfig.modeDistributed = false;
+        SConfig.port = Config.serverPort;
         error = Console.error;
         warn  = Console.warn;
         info  = Console.info;
@@ -48,8 +49,9 @@ describe("server/src/server/plugins/Api", () => {
         Console.error = error;
         Console.warn  = warn;
         Console.info  = info;
-        Config.modeNodeJs = OLD_MODE;
         Config.serverHost = host;
+        SConfig.modeDistributed = dist;
+        SConfig.port = port;
     });
 
     it("Checking unique id on client connect", (done) => {
@@ -60,8 +62,9 @@ describe("server/src/server/plugins/Api", () => {
                 this.activeAround = [false,false,false,false];
                 this._clientId = null;
             }
-            run()            {}
+            run()  {}
             stop() {}
+            resetActive() {}
             get clientId()   {return this._clientId}
             set clientId(id) {this._clientId = id}
         }
@@ -95,6 +98,7 @@ describe("server/src/server/plugins/Api", () => {
             }
             run()  {}
             stop() {}
+            resetActive() {}
             set clientId(id) {this._clientId = id}
         }
         let maxCon  = SConfig.maxConnections;

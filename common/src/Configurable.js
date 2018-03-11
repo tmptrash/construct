@@ -78,7 +78,6 @@ class Configurable {
      * using api like this: man.api.<className>.show(). 'description' will be shown
      * if user types like this: man.api.<className>.show.desc.
      * @param {Object} apiCfg Object of name for key and String or Array for value
-     * @private
      */
     _updateApi(apiCfg) {
         const api = this._parent.api;

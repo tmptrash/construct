@@ -5,17 +5,49 @@
  * TODO:   -
  * @author flatline
  */
-const Observer      = require('./../../../../../common/src/Observer');
-const Helper        = require('./../../../../../common/src/Helper');
-const Config        = require('./../../../share/Config').Config;
-const OConfig       = require('./../../../manager/plugins/organisms/Config');
-const EVENTS        = require('./../../../share/Events').EVENTS;
-const EVENT_AMOUNT  = require('./../../../share/Events').EVENT_AMOUNT;
-const JSVM          = require('./../../../jsvm/JSVM');
+const _fill          = require('lodash/fill');
+const Observer       = require('./../../../../../common/src/Observer');
+const Helper         = require('./../../../../../common/src/Helper');
+const OConfig        = require('./../../../manager/plugins/organisms/Config');
+const EVENT_AMOUNT   = require('./../../../share/Events').EVENT_AMOUNT;
+const VM             = require('./../../../vm/VM');
 
-const IS_NUM = Helper.isNumeric;
+const DESTROY        = 0;
+const CLONE          = 1;
+const KILL_NO_ENERGY = 2;
+const KILL_AGE       = 3;
+const ITERATION      = 4;
+const ORG_EVENTS     = {
+    DESTROY,
+    CLONE,
+    KILL_NO_ENERGY,
+    KILL_AGE,
+    ITERATION
+};
+
+const MAX_COLORS = 4000;
 
 class Organism extends Observer {
+    /**
+     * Returns color by index. Index may be increased without limit
+     * @param {Number} index Color index. Starts from 0 till Number.MAX_VALUE
+     * @returns {Number} RGB value
+     */
+    static getColor(index) {
+        //
+        // Maximum possible colors for this value is MAX_COLORS
+        //
+        const frequency = 0.0005;
+
+        const r = Math.sin(frequency * index    ) * 127 + 128;
+        const g = Math.sin(frequency * index + 2) * 127 + 128;
+        const b = Math.sin(frequency * index + 4) * 127 + 128;
+
+        return r << 16 | g << 8 | b;
+    }
+
+    static getMaxColors() {return MAX_COLORS}
+
     /**
      * Is called before every run. Should return true, if everything
      * is okay and we don't need to interrupt running. If true, then
@@ -26,6 +58,7 @@ class Organism extends Observer {
 
     /**
      * Is called as a running body (main) method
+     * @return {Number} Amount of run lines
      * @abstract
      */
     onRun() {}
@@ -36,71 +69,69 @@ class Organism extends Observer {
      * @param {String} id Unique identifier of organism
      * @param {Number} x Unique X coordinate
      * @param {Number} y Unique Y coordinate
-     * @param {Boolean} alive true if organism is alive
      * @param {Object} item Reference to the Queue item, where
      * this organism is located
-     * @param {Function} codeEndCb Callback, which is called at the
-     * end of every code iteration.
      * @param {Function} operatorCls Class of operators
      * @param {Organism} parent Parent organism if cloning is needed
      */
-    constructor(id, x, y, alive, item, codeEndCb, operatorCls, parent = null) {
+    constructor(id, x, y, item, operatorCls, parent = null) {
         super(EVENT_AMOUNT);
 
-        this._codeEndCb   = codeEndCb;
         this._operatorCls = operatorCls;
 
         if (parent === null) {this._create()}
         else {this._clone(parent)}
-
         this._id          = id;
         this._x           = x;
         this._y           = y;
-        this._changes     = 1;
-        this._alive       = alive;
+        this._iterations  = -1;
+        this._changes     = 0;
         this._item        = item;
-        this._iterations  = 0;
+        this._maxEnergy   = 0;
         this._fnId        = 0;
     }
 
     get id()                    {return this._id}
     get x()                     {return this._x}
     get y()                     {return this._y}
-    get alive()                 {return this._alive}
     get item()                  {return this._item}
     get iterations()            {return this._iterations}
     get changes()               {return this._changes}
     get mutationProbs()         {return this._mutationProbs}
     get mutationPeriod()        {return this._mutationPeriod}
     get mutationPercent()       {return this._mutationPercent}
-    get cloneMutationPercent()  {return this._cloneMutationPercent}
     get energy()                {return this._energy}
+    get startEnergy()           {return this._startEnergy}
     get color()                 {return this._color}
     get mem()                   {return this._mem}
-    get cloneEnergyPercent()    {return this._cloneEnergyPercent}
     get posId()                 {return Helper.posId(this._x, this._y)}
 
     set x(newX)                 {this._x = newX}
     set y(newY)                 {this._y = newY}
-    set cloneMutationPercent(m) {this._cloneMutationPercent = m}
     set mutationPeriod(m)       {this._mutationPeriod = m}
     set mutationPercent(p)      {this._mutationPercent = p}
-    set cloneEnergyPercent(p)   {this._cloneEnergyPercent = p}
-    set energy(e)               {this._energy = e}
-    set changes(c) {
-        this._changes = c;
-        this._updateColor(c);
-    }
+    set energy(e)               {if (this.vm !== null) { this._energy = e; this._updateColor()}}
+    set startEnergy(e)          {this._startEnergy = e}
+    set changes(c)              {this._changes = c}
+    set maxEnergy(e)            {this._maxEnergy = e}
 
     /**
-     * Runs one code iteration and returns
+     * Runs one code iteration (amount of lines set in Config.codeYieldPeriod) and returns
+     * organism destroy state
      * @return {Boolean} false means that organism was destroyed
      */
     run() {
         this._iterations++;
         if (this.onBeforeRun() === false) {return true}
-        this.onRun();
-        return this.alive && this._updateDestroy() && this._updateEnergy();
+        const lines = this._energy > 0 ? this.onRun() : 0;
+        this._updateEnergy();
+        if (this._energy > 0) {
+            this._updateClone();
+            this._energy > 0 && this.fire(ITERATION, lines, this);
+            this._energy > 0 && this._updateAge();
+        }
+
+        return true;
     }
 
     /**
@@ -108,23 +139,21 @@ class Organism extends Observer {
      * @return {String} JSON string
      */
     serialize() {
-        let   json = {
+        let json = {
             id                  : this._id,
             x                   : this._x,
             y                   : this._y,
             changes             : this._changes,
-            alive               : this._alive,
             // 'item' will be added after insertion
             iterations          : this._iterations,
             fnId                : this._fnId,
-            jsvm                : this.jsvm.serialize(),
+            vm                  : this.vm.serialize(),
             energy              : this._energy,
+            startEnergy         : this._startEnergy,
             color               : this._color,
             mutationProbs       : this._mutationProbs,
-            cloneMutationPercent: this._cloneMutationPercent,
             mutationPeriod      : this._mutationPeriod,
             mutationPercent     : this._mutationPercent,
-            cloneEnergyPercent  : this._cloneEnergyPercent,
             mem                 : this.mem.slice()
         };
 
@@ -143,106 +172,107 @@ class Organism extends Observer {
         this._x                    = json.x;
         this._y                    = json.y;
         this._changes              = json.changes;
-        this._alive                = json.alive;
         // 'item' will be added after insertion
         this._iterations           = json.iterations;
         this._fnId                 = json.fnId;
-        this.jsvm.unserialize(json.jsvm);
+        this.vm.unserialize(json.vm);
         this._energy               = json.energy;
+        this._startEnergy          = json.startEnergy;
         this._color                = json.color;
         this._mutationProbs        = json.mutationProbs;
-        this._cloneMutationPercent = json.cloneMutationPercent;
         this._mutationPeriod       = json.mutationPeriod;
         this._mutationPercent      = json.mutationPercent;
-        this._cloneEnergyPercent   = json.cloneEnergyPercent;
         this._mem                  = json.mem.slice();
     }
 
-    grabEnergy(amount) {
-        if (!IS_NUM(amount)) {return true}
-        const noEnergy = (this._energy -= amount) < 1;
-        noEnergy && this.destroy();
-        return !noEnergy;
-    }
-
+    // TODO: describe fitness in details
     fitness() {
-        return Math.abs(OConfig.codeMaxSize - this.jsvm.size) * this._energy * this._changes;
+        // TODO: check these variants
+        //return (OConfig.codeMaxSize + 1 - this.vm.size) * (this._energy - this._startEnergy) * (this._changes || 1);
+        //return (OConfig.codeMaxSize + 1 - this.vm.size) * (this._energy - this._startEnergy);
+        //return (OConfig.codeMaxSize + 1 - this.vm.size) * ((this._energy - this._startEnergy) / this._iterations);
+        return this._energy / (this.vm.size || 1);
     }
 
     destroy() {
-        this.fire(EVENTS.DESTROY, this);
-        this._alive      = false;
-        this._energy     = 0;
-        this._item       = null;
-        this._mem        = null;
-        this.jsvm && this.jsvm.destroy();
-        this.jsvm        = null;
-        this._codeEndCb  = null;
+        if (this.vm === null) {return}
+        this.fire(DESTROY, this);
+        this._energy        = 0;
+        this._startEnergy   = 0;
+        this._item          = null;
+        this._mem           = null;
+        this._mutationProbs = null;
+        this.vm && this.vm.destroy();
+        this.vm             = null;
+        this._operatorCls   = null;
+        this._iterations    = -1;
 
         super.destroy();
     }
 
-    _updateColor(changes) {
-        if ((this._color += changes) > OConfig.ORG_MAX_COLOR) {
-            this._color = OConfig.ORG_FIRST_COLOR;
-        }
-    }
-
     _create() {
-        this.jsvm                   = new JSVM(this._codeEndCb.bind(this, this), this, this._operatorCls);
+        this.vm                     = new VM(this, this._operatorCls, OConfig.orgOperatorWeights);
         this._energy                = OConfig.orgStartEnergy;
-        this._color                 = OConfig.orgStartColor;
+        this._startEnergy           = OConfig.orgStartEnergy;
+        this._color                 = Organism.getColor(MAX_COLORS);
         this._mutationProbs         = OConfig.orgMutationProbs.slice();
-        this._cloneMutationPercent  = OConfig.orgCloneMutationPercent;
         this._mutationPeriod        = OConfig.orgRainMutationPeriod;
         this._mutationPercent       = OConfig.orgRainMutationPercent;
-        this._cloneEnergyPercent    = OConfig.orgCloneEnergyPercent;
-        this._mem                   = [];
+        this._mem                   = new Array(Math.pow(2, OConfig.orgMemBits));
+
+        _fill(this._mem, 0);
     }
 
     _clone(parent) {
-        this.jsvm                   = new JSVM(this._codeEndCb.bind(this, this), this, this._operatorCls, parent.jsvm);
+        this.vm                     = new VM(this, this._operatorCls, OConfig.orgOperatorWeights, parent.vm);
         this._energy                = parent.energy;
+        this._startEnergy           = parent.energy;
         this._color                 = parent.color;
         this._mutationProbs         = parent.mutationProbs.slice();
-        this._cloneMutationPercent  = parent.cloneMutationPercent;
         this._mutationPeriod        = parent.mutationPeriod;
         this._mutationPercent       = parent.mutationPercent;
-        this._cloneEnergyPercent    = parent.cloneEnergyPercent;
         this._mem                   = parent.mem.slice();
     }
 
-    /**
-     * Checks if organism need to be killed/destroyed, because of age or zero energy
-     * @return {Boolean} false means that organism was destroyed.
-     * @private
-     */
-    _updateDestroy() {
-        const alivePeriod = OConfig.orgAlivePeriod;
-        const needDestroy = this._energy < 1 || this._iterations >= alivePeriod && alivePeriod > 0;
+    _updateColor() {
+        this._color = Organism.getColor((this._energy * MAX_COLORS) / this._maxEnergy);
+    }
 
-        needDestroy && this.destroy();
+    _updateClone() {
+        if (this._iterations > OConfig.orgCloneMinAge && this._energy > 0) {this.fire(CLONE, this)}
+    }
+
+    /**
+     * Checks if organism need to be killed, because of age
+     * @return {Boolean} false means that organism was killed.
+     */
+    _updateAge() {
+        const alivePeriod = OConfig.orgAlivePeriod;
+        const needDestroy = this._iterations >= alivePeriod && alivePeriod > 0;
+
+        if (needDestroy) {
+            this.fire(KILL_AGE, this);
+            this.destroy();
+        }
 
         return !needDestroy;
     }
 
     /**
-     * This is how our system grabs an energy= require(organism if it's age is
-     * divided into OConfig.orgEnergySpendPeriod.
+     * This method destroys organisms with zero energy
      * @return {Boolean} false means that organism was destroyed.
-     * @private
      */
     _updateEnergy() {
-        if (this._iterations % OConfig.orgEnergySpendPeriod !== 0 || OConfig.orgEnergySpendPeriod === 0) {return true}
-        const codeSize = this.jsvm.size;
-        let   grabSize = Math.floor(codeSize / OConfig.orgGarbagePeriod);
+        //
+        // this.vm === null means, that organism has already destroyed
+        //
+        if (this._energy < 1 && this.vm) {
+            this.fire(KILL_NO_ENERGY, this);
+            this.destroy();
+        }
 
-        if (grabSize < 1) {grabSize = 1}
-        grabSize = Math.min(this._energy, grabSize);
-        this.fire(EVENTS.GRAB_ENERGY, grabSize);
-
-        return this.grabEnergy(grabSize);
+        return true;
     }
 }
 
-module.exports = Organism;
+module.exports = {EVENTS: ORG_EVENTS, Organism};

@@ -31,7 +31,7 @@ class Plugins {
         if (cfg.async) {
             Helper.override(parent, 'run', this._onRunCb);
             Helper.override(parent, 'stop', this._onStopCb);
-            this._async = new AsyncParent(parent, {run: cfg.run});
+            this._async = new AsyncParent(parent, {run: cfg.run, isBrowser: cfg.isBrowser});
         }
     }
 
@@ -42,21 +42,6 @@ class Plugins {
      */
     require(path) {
         return require(path);
-    }
-
-    _onRun(done = () => {})  {this._async.run(done)}
-    _onStop(done = () => {}) {this._async.stop(done)}
-
-    _createPlugins(parent, cfg) {
-        const parentPlugins = parent.plugins = [];
-
-        for (let p of cfg.plugins) {
-            const path      = p.path || p;
-            const name      = path.split('/').slice(-1)[0];
-            let   pluginCls = this.require(path);
-
-            parentPlugins.push(new (pluginCls[name] || pluginCls)(parent, p.cfg || {}));
-        }
     }
 
     /**
@@ -93,6 +78,22 @@ class Plugins {
         // be later after success stopping
         //
         me._async ? me._async.stop(onAfterDestroy) : onAfterDestroy();
+    }
+
+    _onRun(done = () => {})  {this._async.run(done)}
+    _onStop(done = () => {}) {this._async.stop(done)}
+
+    _createPlugins(parent, cfg) {
+        const parentPlugins = parent.plugins = [];
+
+        for (let p of cfg.plugins) {
+            const path      = p.path || p;
+            if (!path) {continue}
+            const name      = path.split('/').slice(-1)[0];
+            let   pluginCls = this.require(path);
+
+            parentPlugins.push(new (pluginCls[name] || pluginCls)(parent, p.cfg || {}));
+        }
     }
 }
 

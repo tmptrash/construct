@@ -11,6 +11,8 @@ const QUIET_ALL               = 0;
 const QUIET_IMPORTANT         = 1;
 const QUIET_NO                = 2;
 
+const IS_NODE_JS              = typeof window === 'undefined';
+
 class ClientConfig extends Config {}
 
 ClientConfig.init({
@@ -23,6 +25,11 @@ ClientConfig.init({
     QUIET_IMPORTANT,
     QUIET_NO,
     /**
+     * {Boolean} Running mode. It's also possible to run construct only on
+     * server side without browser. For this it should be set to true.
+     */
+    MODE_NODE_JS: IS_NODE_JS,
+    /**
      * {Array} Array of paths to Manager's plugins. Root folder for plugins
      * should be './client/src/manager/plugins/'.
      */
@@ -32,7 +39,8 @@ ClientConfig.init({
         'Config',
         'client/Client',
         'Energy',
-        'Status',
+        'status/console/Console',
+        IS_NODE_JS ? '' : 'status/charts/Charts',
         'ips/Ips',
         'backup/Backup'
     ],
@@ -44,60 +52,57 @@ ClientConfig.init({
     /**
      * {Number} World width
      */
-    worldWidth: 1920,
+    worldWidth: 1920 / 2,
     /**
      * {Number} World height
      */
-    worldHeight: 1010,
+    worldHeight: 1080 / 2,
     /**
      * {Number} Turns on cyclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
-     * size and the organism has 10x5 position in it, one step right will move
-     * this organism at the position 1x5. The same scenario regarding Y
+     * size and the organism has 9x5 position in it, one step right will move
+     * this organism at the position 0x5. The same scenario regarding Y
      * coordinate (height). It actual only for one instance mode (no distributed
      * calculations).
      */
-    worldCyclical: true,
-    /**
-     * {Number} Amount of energy blocks in a world. Blocks will be placed in a
-     * random way...
-     */
-    worldEnergyDots: 1000,
-    /**
-     * {Number} Amount of energy in every block. See worldEnergyDots
-     * config for details.
-     */
-    worldEnergyInDot: 0x00FF00,
-    /**
-     * {Number} Minimum percent of energy in current world. Under percent i mean
-     * percent from entire world area (100%). If the energy will be less
-     * or equal then this percent, then new random energy should be added.
-     * Should be less then 100.0 and more and equal to 0.0. 0.17 is a
-     * normal percent for this system.
-     */
-    worldEnergyCheckPercent: 0.1,
+    worldCyclical: false,
     /**
      * {Number} An amount of iteration, after which we have to check world energy
-     * amount. Works in pair with worldEnergyCheckPercent. May be 0 if
-     * you want to disable it
+     * percent. May be 0 if you want to disable energy generation
      */
-    worldEnergyCheckPeriod: 10000,
+    worldEnergyCheckPeriod: 5000,
     /**
-     * {Number} Mode for showing/supressing of messages. Possible values:
+     * {Number} size of one clever energy block in dots.
+     */
+    worldEnergyBlockSize: 200,
+    /**
+     * {Number} Percent from all energy in a world until clever energy will be added.
+     * After this value clever energy will be stopped to add until it's amount will
+     * be less then worldEnergyMinPercent. These two configs create cyclical
+     * energy adding to the world.
+     */
+    worldEnergyMaxPercent: .0009,
+    /**
+     * {Number} Opposite to worldEnergyMaxPercent. Sets minimum percent from
+     * all energy in a world after which clever energy will turn on (be added to the
+     * world again).
+     */
+    worldEnergyMinPercent: .0001,
+    /**
+     * {Number} Zoom speed 0..1
+     */
+    worldZoomSpeed: 0.1,
+    /**
+     * {Number} Mode for showing/suppressing of messages. Possible values:
      *   0 - all messages
      *   1 - only important messages
      *   2 - no messages
      */
     modeQuiet: QUIET_IMPORTANT,
     /**
-     * {Boolean} Running mode. It's also possible to run construct only on
-     * server side without browser. For this it should be set to true.
-     */
-    modeNodeJs: false,
-    /**
      * {Number} Port number for connecting with server
      */
-    serverPort: 8099,
+    serverPort: 8301,
     /**
      * {String} Host for connecting with server
      */

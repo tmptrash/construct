@@ -12,10 +12,13 @@ const Config       = require('./../../../../src/share/Config').Config;
 const OConfig      = require('./Config');
 const Console      = require('./../../../../src/share/Console');
 const EVENTS       = require('./../../../../src/share/Events').EVENTS;
-const Backup       = require('./../backup/Backup');
+const ORG_EVENTS   = require('./../../../../src/manager/plugins/organisms/Organism').EVENTS;
+//const Backup       = require('./../backup/Backup');
 const Mutator      = require('./Mutator');
+const Num          = require('./../../../vm/Num');
 
-const RAND_OFFS = 4;
+const RAND_OFFS = 3;
+const POSID     = Helper.posId;
 
 // TODO: inherit this class from Configurable
 class Organisms extends Configurable {
@@ -27,26 +30,6 @@ class Organisms extends Configurable {
      * @abstract
      */
     compare(org1, org2) {}
-
-    /**
-     * Is called every time after organism's code was run
-     * @param {Organism} org
-     * @abstract
-     */
-    onOrganism(org) {}
-
-    /**
-     * Is called after moving of organism is done. Updates Manager.positions
-     * map with a new position of organism
-     * @param {Number} x1 Start X position
-     * @param {Number} y1 Start Y position
-     * @param {Number} x2 End X position
-     * @param {Number} y2 End Y position
-     * @param {Organism} org Organism, which is moving
-     * @returns {Boolean}
-     * @abstract
-     */
-    onAfterMove(x1, y1, x2, y2, org) {}
 
     /**
      * Is called before cloning of organism
@@ -64,20 +47,6 @@ class Organisms extends Configurable {
     onClone(org, child) {}
 
     /**
-     * Is called after organism has created
-     * @param {Organism} org
-     * @abstract
-     */
-    onAfterCreateOrg(org) {}
-
-    /**
-     * Is called after organism has killed
-     * @param {Organism} org Killed organism
-     * @abstract
-     */
-    onAfterKillOrg(org) {}
-
-    /**
      * Creates one instance of organism. You have to override this
      * method in your child class
      * @param {Array} args Custom organism arguments
@@ -89,13 +58,19 @@ class Organisms extends Configurable {
     constructor(manager) {
         super(manager, {Config, cfg: OConfig}, {getAmount: ['_apiGetAmount', 'Shows amount of organisms within current Client(Manager)']});
         this.organisms      = manager.organisms;
-        this.manager        = manager;
         this.randOrgItem    = this.organisms.first;
-        this._mutator       = new Mutator(manager);
-        this._onIterationCb = this.onIteration.bind(this);
+        this.positions      = manager.positions;
+        this.world          = manager.world;
+
+        this._mutator       = new Mutator(manager, this);
+        this._maxEnergy     = 0;
+        this._oldMaxEnergy  = 0;
+        this._onIterationCb = this._onIteration.bind(this);
+        this._onLoopCb      = this._onLoop.bind(this);
 
         this.reset();
         Helper.override(manager, 'onIteration', this._onIterationCb);
+        Helper.override(manager, 'onLoop', this._onLoopCb);
     }
 
     destroy() {
@@ -103,91 +78,79 @@ class Organisms extends Configurable {
         let org;
         while (item && (org = item.val)) {org.destroy(); item = item.next}
 
-        Helper.unoverride(this.manager, 'onIteration', this._onIterationCb);
+        Helper.unoverride(this.parent, 'onIteration', this._onIterationCb);
+        Helper.unoverride(this.parent, 'onLoop', this._onLoopCb);
         this._mutator.destroy();
         this._mutator       = null;
-        this.manager        = null;
         this._onIterationCb = null;
+        this._onLoopCb      = null;
 
         super.destroy();
     }
 
     /**
-     * Override of Manager.onIteration() method. Is called on every
-     * iteration of main loop. The counter is an analog of time.
-     * @param {Number} counter Value of main loop counter.
-     * @param {Number} stamp Time stamp of current iteration
-     * @private
+     * Is called at the end of run() method
+     * @param {Organism} org Current organism
      */
-    onIteration(counter, stamp) {
-        let item = this.organisms.first;
-        let org;
-
-        while (item && (org = item.val)) {
-            org.run();
-            this.onOrganism(org);
-            item = item.next;
+    onOrganism(org) {
+        if (org.energy > this._oldMaxEnergy) {this._oldMaxEnergy = org.energy}
+        if (org === this.organisms.last.val) {
+            this._maxEnergy    = this._oldMaxEnergy;
+            this._oldMaxEnergy = 0;
         }
-
-        this.updateClone(counter);
-        this.updateCrossover(counter);
-        this.updateCreate();
+        org.maxEnergy = this._maxEnergy;
     }
 
     addOrgHandlers(org) {
-        org.on(EVENTS.DESTROY, this._onKillOrg.bind(this));
+        org.on(ORG_EVENTS.DESTROY,        this._onDestroyOrg.bind(this));
+        org.on(ORG_EVENTS.KILL_NO_ENERGY, this._onKillNoEnergyOrg.bind(this));
+        org.on(ORG_EVENTS.KILL_AGE,       this._onKillAgeOrg.bind(this));
+        org.on(ORG_EVENTS.ITERATION,      this._onIterationOrg.bind(this));
+        org.on(ORG_EVENTS.CLONE,          this._onCloneOrg.bind(this));
+    }
+
+    reset() {
+        this._orgId = 0;
+    }
+
+    move(x1, y1, x2, y2, org) {
+        const world = this.world;
+        if (world.isFree(x2, y2) === false) {return false}
+
+        org.x = x2;
+        org.y = y2;
+        world.setDot(x2, y2, org.color);
+
+        if (x1 === x2 && y1 === y2) {return false}
+        world.setDot(x1, y1, 0);
+        this.positions[POSID(x1, y1)] = undefined;
+        this.positions[POSID(x2, y2)] = org;
+
+        return true;
+    }
+
+    createOrg(x, y, parent = null) {
+        if (x === -1) {return false}
+        const orgs = this.organisms;
+        orgs.add(null);
+        let   org  = this.createEmptyOrg(++this._orgId + '', x, y, orgs.last, parent);
+
+        orgs.last.val = org;
+        this.addOrgHandlers(org);
+        this.world.setDot(x, y, org.color);
+        this.positions[org.posId] = org;
+        this.parent.fire(EVENTS.BORN_ORGANISM, org);
+        //Console.info(org.id, ' born');
+
+        return true;
     }
 
     /**
-     * Cloning parents are chosen according to tournament principle
-     * @param {Number} counter Current counter
-     * @returns {boolean}
-     * @private
+     * Returns random organism of current population
+     * @return {Organism|null}
      */
-    updateClone(counter) {
-        const orgs      = this.organisms;
-        const needClone = counter % OConfig.orgClonePeriod === 0 && OConfig.orgClonePeriod !== 0;
-        let   orgAmount = orgs.size;
-        if (!needClone || orgAmount < 1) {return false}
-        let   org1      = this.getRandOrg();
-        let   org2      = this.getRandOrg();
-        if (!org1.alive && !org2.alive) {return false}
-
-        let tmpOrg = this._tournament(org1, org2);
-        if (tmpOrg === org2) {[org1, org2] = [org2, org1]}
-
-        if (orgAmount >= OConfig.orgMaxOrgs) {org2.destroy()}
-        if (org1.alive) {this._clone(org1)}
-
-        return true;
-    }
-
-    updateCrossover(counter) {
-        const orgs      = this.organisms;
-        const orgAmount = orgs.size;
-        const needCrossover = counter % OConfig.orgCrossoverPeriod === 0 && OConfig.orgCrossoverPeriod !== 0;
-        if (!needCrossover || orgAmount < 1) {return false}
-
-        let org1   = this._tournament();
-        let org2   = this._tournament();
-        let winner = this._tournament(org1, org2);
-        let looser = winner === org1 ? org2 : org1;
-
-        if (looser.alive) {
-            this._crossover(winner, looser);
-        }
-
-        return true;
-    }
-
-    updateCreate() {
-        if (this.organisms.size < 1) {
-            this._createPopulation();
-        }
-    }
-
-    getRandOrg() {
-        const offs = Helper.rand(RAND_OFFS);
+    randOrg() {
+        const offs = Helper.rand(RAND_OFFS) + 1;
         let   item = this.randOrgItem;
 
         for (let i = 0; i < offs; i++) {
@@ -199,101 +162,76 @@ class Organisms extends Configurable {
         return (this.randOrgItem = item).val;
     }
 
-    reset() {
-        this._orgId     = 0;
-        this._maxEnergy = 0;
+    /**
+     * Override of Manager.onIteration() method. Is called on every
+     * iteration of main loop. The counter is an analog of time.
+     * @param {Number} counter Value of main loop counter.
+     * @param {Number} stamp Time stamp of current iteration
+     */
+    _onIteration(counter, stamp) {
+        let   item = this.organisms.first;
+        let   org;
+
+        while (org = item && item.val) {
+            org.run();
+            org.energy > 0 && this.onOrganism(org);
+            item = item.next;
+        }
+
+        this._updateTournament(counter);
+        this._updateRandomOrgs(counter);
+        this._updateCrossover(counter);
     }
 
-    move(x1, y1, x2, y2, org) {
-        let   moved = false;
-        const world = this.manager.world;
-
-        if (world.isFree(x2, y2) === false) {return false}
-        if (x1 !== x2 || y1 !== y2) {moved = true; world.setDot(x1, y1, 0)}
-        world.setDot(x2, y2, org.color);
-        this.onAfterMove(x1, y1, x2, y2, org);
-
-        return moved;
-    }
-
-    createOrg(pos, parent = null) {
-        const orgs = this.organisms;
-        if (orgs.size >= OConfig.orgMaxOrgs || pos === false) {return false}
-        orgs.add(null);
-        let last = orgs.last;
-        let org  = this.createEmptyOrg(++this._orgId + '', pos.x, pos.y, true, last, this._onCodeEnd.bind(this), parent);
-
-        last.val = org;
-        this.addOrgHandlers(org);
-        this.move(pos.x, pos.y, pos.x, pos.y, org);
-        this.onAfterCreateOrg(org);
-        this.manager.fire(EVENTS.BORN_ORGANISM, org);
-        //Console.info(org.id, ' born');
-
-        return true;
+    _onLoop() {
+        this._updateCreate();
     }
 
     _tournament(org1 = null, org2 = null) {
-        org1 = org1 || this.getRandOrg();
-        org2 = org2 || this.getRandOrg();
+        org1 = org1 || this.randOrg();
+        org2 = org2 || this.randOrg();
 
-        if (!org1.alive && !org2.alive) {return false}
-        if ((org2.alive && !org1.alive) || this.compare(org2, org1)) {
+        if (org1.energy  < 1 && org2.energy < 1) {return false}
+        if ((org2.energy > 0 && org1.energy < 1) || this.compare(org2, org1)) {
             return org2;
         }
 
         return org1;
     }
 
-    _clone(org) {
+    _clone(org, isCrossover = false) {
         if (this.onBeforeClone(org) === false) {return false}
-        let pos = this.manager.world.getNearFreePos(org.x, org.y);
-        if (pos === false || this.createOrg(pos, org) === false) {return false}
-        let child  = this.organisms.last.val;
+        let x;
+        let y;
+        [x, y] = this.world.getNearFreePos(org.x, org.y);
+        if (x === -1 || this.createOrg(x, y, org) === false) {return false}
+        let child = this.organisms.last.val;
 
         this.onClone(org, child);
-        this.manager.fire(EVENTS.CLONE, org, child);
+        if (org.energy < 1 || child.energy < 1) {return false}
+        this.parent.fire(EVENTS.CLONE, org, child, isCrossover);
 
         return true;
     }
 
-    _crossover(winner, looser) {
-        this._clone(winner);
+    _crossover(org1, org2) {
+        this._clone(org1, true);
         const orgs  = this.organisms;
         let   child = orgs.last.val;
 
-        if (child.alive && looser.alive) {
-            child.changes += child.jsvm.crossover(looser.jsvm);
-            if (orgs.size >= OConfig.orgMaxOrgs) {looser.destroy()}
+        if (child.energy > 0 && org2.energy > 0) {
+            child.changes += (Math.abs(child.vm.crossover(org2.vm)) * Num.MAX_BITS);
         }
     }
 
     _createPopulation() {
-        const world = this.manager.world;
+        const world = this.world;
 
         this.reset();
-        for (let i = 0; i < OConfig.orgStartAmount; i++) {
-            this.createOrg(world.getFreePos());
+        for (let i = 0, len = OConfig.orgStartAmount; i < len; i++) {
+            this.createOrg(...world.getFreePos());
         }
         Console.info('Population has created');
-    }
-
-    _onCodeEnd(org, lines) {
-        this.manager.codeRuns++;
-        this.manager.fire(EVENTS.ORGANISM, org, lines);
-    }
-
-    _onKillOrg(org) {
-        if (this.randOrgItem === org.item) {
-            if ((this.randOrgItem = org.item.next) === null) {
-                this.randOrgItem = this.organisms.first;
-            }
-        }
-        this.organisms.del(org.item);
-        this.manager.world.setDot(org.x, org.y, 0);
-        this.onAfterKillOrg(org);
-        this.manager.fire(EVENTS.KILL_ORGANISM, org);
-        //Console.info(org.id, ' die');
     }
 
     /**
@@ -301,7 +239,112 @@ class Organisms extends Configurable {
      * @return {Number} Amount of organisms within current Manager
      */
     _apiGetAmount() {
-        return this.manager.organisms.size;
+        return this.parent.organisms.size;
+    }
+
+    _onDestroyOrg(org) {
+        if (this.randOrgItem === org.item) {
+            if ((this.randOrgItem = org.item.next) === null) {
+                this.randOrgItem = this.organisms.first;
+            }
+        }
+        this.organisms.del(org.item);
+        this.world.setDot(org.x, org.y, 0);
+        this.positions[org.posId] = undefined;
+        this.parent.fire(EVENTS.KILL, org);
+        //Console.info(org.id, ' die');
+    }
+
+    _onKillNoEnergyOrg(org) {this._parent.fire(EVENTS.KILL_NO_ENERGY, org)}
+    _onKillAgeOrg(org)      {this._parent.fire(EVENTS.KILL_AGE, org)}
+    _onIterationOrg(lines, org)    {
+        this._parent.codeRuns += lines;
+        this._parent.fire(EVENTS.CODE_RUN, lines, org);
+    }
+
+    _onCloneOrg(org) {
+        //const maxOrgs = OConfig.orgMaxOrgs;
+        //const orgAmount = this.organisms.size;
+
+        //if (OConfig.orgKillOnClone && orgAmount >= maxOrgs) {this._killInTour()}
+        //if (orgAmount >= maxOrgs && (OConfig.orgKillOnClone || Math.random() <= (org.energy / org.vm.size) / this._maxEnergy)) {this.randOrg().destroy()}
+        // if (this.organisms.size >= OConfig.orgMaxOrgs && Math.random() <= ((org.energy / 10000000000000) * (org.iterations / OConfig.orgAlivePeriod))) {
+        //     this.randOrg().destroy();
+        // }
+        //if (this.organisms.size <  maxOrgs) {this._clone(org)}
+        //if (this.organisms.size >= maxOrgs && Math.random() <= (org.energy / org.vm.size) / this._maxEnergy) {this.randOrg().destroy()}
+        //
+        // This is very important part of application! Cloning should be available only if
+        // amount of organisms is less then maximum or if current organism has ate other just
+        // now (and free one slot in Organisms.organisms queue). It's not a good idea to
+        // kill organisms here with small amount of energy or support more energetic
+        // organisms before cloning. They should kill each other to have a possibility
+        // to clone them.
+        //
+        this.organisms.size < OConfig.orgMaxOrgs && this._clone(org);
+    }
+
+    _killInTour() {
+        let org1     = this.randOrg();
+        let org2     = this.randOrg();
+        if (org1.energy < 1 || org2.energy < 1 || org1 === org2 || this.organisms.size < 1) {return false}
+        const winner = this._tournament(org1, org2);
+        if (winner === false) {return false}
+
+        if (winner === org2) {[org1, org2] = [org2, org1]}
+        this.parent.fire(EVENTS.KILL_TOUR, org2);
+        org2.destroy();
+
+        return true;
+    }
+
+    /**
+     * Does tournament between two random organisms and kill looser. In general
+     * this function is a natural selection in our system.
+     * @param {Number} counter Current value of global iterations counter
+     * @returns {Boolean} true - tournament occurred, false - otherwise
+     */
+    _updateTournament(counter) {
+        const period = OConfig.orgTournamentPeriod;
+        return counter % period === 0 && this.organisms.size > 0 || period !== 0 && this._killInTour();
+    }
+
+    _updateRandomOrgs(counter) {
+        if (counter % OConfig.orgRandomOrgPeriod !== 0 || OConfig.orgRandomOrgPeriod === 0 || this.organisms.size < 1) {return false}
+        const vm   = this.randOrg().vm;
+        const size = Helper.rand(vm.size) + 1;
+        const pos  = Helper.rand(vm.size - size);
+
+        vm.generate(pos, size);
+
+        return true;
+    }
+
+    _updateCrossover(counter) {
+        const orgAmount = this.organisms.size;
+        if (counter % OConfig.orgCrossoverPeriod !== 0 || OConfig.orgCrossoverPeriod === 0 || orgAmount < 1) {return false}
+        //
+        // We have to have a possibility to crossover not only with best
+        // organisms, but with low fit also
+        //
+        let org1 = Helper.rand(2) === 0 ? this._tournament() : this.randOrg();
+        let org2 = Helper.rand(2) === 0 ? this._tournament() : this.randOrg();
+
+        if (org1 === false || org2 === false || org1.energy < 1 || org2.energy < 1) {return false}
+        this._crossover(org1, org2);
+        if (orgAmount + 1 >= OConfig.orgMaxOrgs) {
+            const winner = this._tournament(org1, org2);
+            if (winner === false) {return false}
+            if (winner === org2) {[org1, org2] = [org2, org1]}
+            this.parent.fire(EVENTS.KILL_OVERFLOW, org2);
+            org2.destroy();
+        }
+
+        return true;
+    }
+
+    _updateCreate() {
+        if (this.organisms.size < 1) {this._createPopulation()}
     }
 }
 

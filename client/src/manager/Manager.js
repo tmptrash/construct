@@ -23,6 +23,10 @@ const Console          = require('./../share/Console');
 const World            = require('./../view/World').World;
 const WEVENTS          = require('./../view/World').EVENTS;
 const Canvas           = require('./../view/Canvas');
+/**
+ * {Function} Shortcut to the datetime stamp getter
+ */
+const TIMER            = Date.now;
 
 class Manager extends Observer {
     /**
@@ -48,7 +52,7 @@ class Manager extends Observer {
          * It may be used in a user console by the Operator of construct. Plugins
          * may add their methods to this map also.
          */
-        this.api           = {version: () => '0.2.0'};
+        this.api           = {version: () => '0.2.1'};
         hasView && (this.api.visualize = this._visualize.bind(this));
 
         /**
@@ -85,9 +89,10 @@ class Manager extends Observer {
         // have an ability access Manager's API from them
         //
         this._plugins      = new Plugins(this, {
-            plugins: Config.plugIncluded,
-            async  : true,
-            run    : this._onDone.bind(this)
+            plugins  : Config.plugIncluded,
+            async    : true,
+            run      : this._onDone.bind(this),
+            isBrowser: !Config.MODE_NODE_JS
         });
     }
 
@@ -97,9 +102,6 @@ class Manager extends Observer {
     get activeAround() {return this._activeAround}
     get active()       {return this._active}
     get codeRuns()     {return this._codeRuns}
-    // TODO: this getter will be removed when hasView will be
-    // TODO: removed from Status plugin
-    get hasView()      {return this._hasView}
 
     set codeRuns(cr)   {this._codeRuns = cr}
     set clientId(id)   {this._clientId = id}
@@ -142,12 +144,29 @@ class Manager extends Observer {
     }
 
     /**
+     * Is called after all iterations
+     * @param {Number} counter Global counter as an analog of time
+     * @param {Number} stamp UNIX time stamp
+     */
+    onLoop(counter, stamp) {
+        this.fire(EVENTS.LOOP);
+    }
+
+    /**
      * Returns true if at least one other Manager/client is around and is connected
      * to the current
      * @returns {Boolean}
      */
     isDistributed() {
         return this._activeAround.indexOf(true) !== -1;
+    }
+
+    /**
+     * Resets active around clients/Managers. It means, that connection with
+     * server has closed or interrupted
+     */
+    resetActive() {
+        for (let i = 0, active = this._activeAround, len = active.length; i < len; i++) {active[i] = false}
     }
 
     destroy(done = () => {}) {
@@ -198,7 +217,7 @@ class Manager extends Observer {
         (() => {
             let callback;
 
-            if (Config.modeNodeJs) {
+            if (Config.MODE_NODE_JS) {
                 this.zeroTimeout = (fn) => setTimeout(callback = fn);
                 return;
             }
@@ -232,20 +251,21 @@ class Manager extends Observer {
      * (onIteration()) inside by calling this.zeroTimeout().
      */
     _onLoop () {
+        if (!this._active) {return}
         //
         // This conditions id needed for turned on visualization mode to
         // prevent flickering of organisms in a canvas. It makes their
         // movement smooth
         //
-        const amount  = this._visualized ? 1 : OConfig.codeIterationsPerOnce;
-        const timer   = Date.now;
-        let   counter = this._counter;
+        let amount  = this._visualized ? 1 : OConfig.codeIterationsPerOnce;
+        let counter = this._counter;
+        let i;
 
-        for (let i = 0; i < amount; i++) {
-            this.onIteration(counter++, timer());
+        for (i = counter, amount = counter + amount; i < amount; i++) {
+            this.onIteration(i, TIMER());
         }
-        this._counter = counter;
-        this._active && this.zeroTimeout(this._onLoopCb);
+        this.onLoop(this._counter = i, TIMER());
+        this.zeroTimeout(this._onLoopCb);
     }
 
     _addHandlers() {

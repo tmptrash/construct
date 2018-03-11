@@ -31,10 +31,9 @@ class Api {
          */
         this.api          = {};
         this.parent       = parent;
-
         /**
          * {WebSocket} Currently active socket. It's available only during
-         * message is received
+         * message is received in _onMessage() method
          */
         this._sock        = null;
         this._onMessageCb = this._onMessage.bind(this);
@@ -59,7 +58,6 @@ class Api {
      * answers.
      * @param {WebSocket} sock Communication socket
      * @param {Event} event Event with parameters obtained from the client
-     * @private
      */
     _onMessage(sock, event) {
         const data  = JSON.parse(event.data || event);

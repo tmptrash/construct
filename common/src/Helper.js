@@ -3,6 +3,7 @@
  *
  * @author flatline
  */
+const _each  = require('lodash/each');
 const Config = require('./../../client/src/share/Config').Config;
 const DIR    = require('./Directions').DIR;
 
@@ -48,7 +49,22 @@ class Helper {
     }
 
     /**
-     * Sets first letter to lover case
+     * Apply styles packed in object. key: style name, val: style value
+     * @param {Element|String} el Element to apply styles or tag name to create
+     * @param {Object} styles Styles object
+     * @return {Element} Element with applied styles
+     */
+    static setStyles(el, styles) {
+        el = typeof el === 'string' ? document.createElement(el) : el;
+        const style = el.style;
+
+        _each(styles, (val, name) => style[name] = val);
+
+        return el;
+    }
+
+    /**
+     * Sets first letter to lower case
      * @param {String} s
      * @returns {String}
      */
@@ -66,12 +82,14 @@ class Helper {
         obj[fnName] = fn.fn;
         delete fn.fn;
     }
+
     /**
      * Generates random Int number in range 0:n-1
      * @param {Number} n Right number value in a range
      * @return {Number}
      */
     static rand(n) {return Math.trunc(Math.random() * n)}
+
     /**
      * It calculates probability index from variable amount of components.
      * Let's imagine we have two actions: one and two. We want
@@ -104,11 +122,13 @@ class Helper {
 
         return i;
     }
+
     /**
      * Checks if position is empty. x == y == 0 - this is empty
      * @param {Object} pos Position to check
      */
     static empty(pos) {return pos.x === 0 && pos.y === 0}
+
     /**
      * Does normalization of X and Y coordinates. It's used
      * in cyclical mode for checking if we out of bound (world).
@@ -134,6 +154,70 @@ class Helper {
     }
 
     /**
+     * Does normalization of X and Y coordinates. It's used
+     * in cyclical mode for checking if we out of bound (world).
+     * In non cyclical mode it just returns the same coordinates.
+     * Usage: [x, y] = Helper.normalizeNoDir(10, -1); // 10, 100 (height - 1)
+     * 'dir' parameter means 'direction' and will be set only if
+     * one or two coordinates are out of bounds (world). Otherwise
+     * 'dir' parameter will be set to DIR.NO value.
+     * @param {Number} x
+     * @param {Number} y
+     * @returns {[x,y]}
+     */
+    static normalizeNoDir(x, y) {
+        if (x < 0) {x = Config.worldWidth - 1}
+        else if (x >= Config.worldWidth)  {x = 0}
+
+        if (y < 0) {y = Config.worldHeight - 1}
+        else if (y >= Config.worldHeight) {y = 0}
+
+        return [x, y];
+    }
+
+    /**
+     * Checks if specified coordinates are within current world
+     * @param {Number} x
+     * @param {Number} y
+     * @returns {Boolean}
+     */
+    static inWorld(x, y) {
+        return x >= 0 && x < Config.worldWidth && y >= 0 && y < Config.worldHeight;
+    }
+
+    /**
+     * Flips X or Y to the opposite coordinates. e.g:
+     * width=10, height=10, x=0, y=1 -> x=9, y=1
+     * width=10, height=10, x=3, y=9 -> x=3, y=0
+     * @param {Number} x X coordinate
+     * @param {Number} y Y coordinate
+     * @param {Number} dir Moving direction
+     */
+    static flip(x, y, dir) {
+        const xMap = {0: Config.worldWidth  - 1, [Config.worldWidth  - 1]: 0};
+        const yMap = {0: Config.worldHeight - 1, [Config.worldHeight - 1]: 0};
+
+        return [(dir === DIR.LEFT || dir === DIR.RIGHT) && typeof(xMap[x]) !== 'undefined' ? xMap[x] : x, (dir === DIR.UP || dir === DIR.DOWN) && typeof(yMap[y]) !== 'undefined' ? yMap[y] : y];
+    }
+
+    /**
+     * Flips region according to moving direction
+     * @param {Array} region Old region
+     * @param {Number} dir Moving direction
+     * @returns {Array} New region
+     */
+    static flipRegion(region, dir) {
+        const newReg = [region[0], region[1]];
+
+        if      (dir === DIR.UP)    {newReg[1]--}
+        else if (dir === DIR.RIGHT) {newReg[0]++}
+        else if (dir === DIR.DOWN)  {newReg[1]++}
+        else if (dir === DIR.LEFT)  {newReg[0]--}
+
+        return newReg;
+    }
+
+    /**
      * Analog of jQuery.isNumeric()
      * @param {*} n Value to check
      * @returns {Boolean}
@@ -142,16 +226,16 @@ class Helper {
         return !isNaN(parseFloat(n)) && isFinite(n);
     }
 
+    static isFunc(v) {
+        return typeof v === 'function';
+    }
+
     /**
      * Generates unique numeric ids
      * @returns {Number}
      */
     static getId() {
         return ++this._id;
-    }
-
-    static isFunc(v) {
-        return typeof v === 'function';
     }
 
     // TODO: will be used later

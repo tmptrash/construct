@@ -5,11 +5,11 @@
  */
 const Config = {
     /**
-     * {Boolean} Shows/Hides IPS value on the left top corner of a canvas
+     * {Boolean} Shows/Hides title values on the left top corner of a canvas
      */
     show    : true,
     /**
-     * {Number} Period in milliseconds, which is used to update IPS
+     * {Number} Period in milliseconds, which is used to update titles
      */
     periodMs: 1000
 };
