@@ -127,8 +127,10 @@ class Organism extends Observer {
         this._updateEnergy();
         if (this._energy > 0) {
             this._updateClone();
-            this._energy > 0 && this.fire(ITERATION, lines, this);
-            this._energy > 0 && this._updateAge();
+            if (this._energy > 0) {
+                this.fire(ITERATION, lines, this);
+                this._energy > 0 && this._updateAge();
+            }
         }
 
         return true;

@@ -107,7 +107,7 @@ class VM extends Observer {
             // This is very important peace of logic. As big the organism is
             // as more energy he spends
             //
-            org.energy -= (WEIGHTS[operator] * org.energy + (org.vm ? org.vm.size : 0));
+            org.energy -= WEIGHTS[operator];
             //
             // We found closing bracket '}' of some loop and have to return
             // to the beginning of operator (e.g.: for)

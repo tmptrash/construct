@@ -59,7 +59,7 @@ class Code2String {
         /**
          * {Array} Contains closing bracket offset for "if", "loop",... operators
          */
-        this._offsets = [];
+        this._offsets = [0];
 
         Num.init(this._OPERATORS_CB_LEN);
 
@@ -86,35 +86,28 @@ class Code2String {
         const operators = this._OPERATORS_CB;
         const offs      = this._offsets;
         let   lines     = new Array(len);
-        let   needClose = 0;
-
+        //
+        // First number always amount of code lines
+        //
+        offs.splice(0, offs.length, len);
         for (let line = 0; line < len; line++) {
+            lines[line] = operators[Num.getOperator(code[line])](code[line], line);
             //
             // We found closing bracket '}' of some loop and have to add
             // it to output code array
             //
-            if (line === offs[offs.length - 1]) {
-                while (offs.length > 0 && offs[offs.length - 1] === line) {
-                    offs.pop();
-                    needClose++;
-                }
-            }
-            lines[line] = operators[Num.getOperator(code[line])](code[line], line, len);
-            if (needClose > 0) {
-                for (let i = 0; i < needClose; i++) {
-                    lines[line] = '}' + lines[line];
-                }
-                needClose = 0;
+            while (offs.length > 1 && line === offs[offs.length - 1]) {
+                line = offs.pop();
+                lines[line] += '}';
             }
         }
         //
         // All closing brackets st the end of JS script
         //
         const length = lines.length - 1;
-        for (let i = 0; i < offs.length; i++) {
+        for (let i = 1; i < offs.length; i++) {
             lines[length] += '}';
         }
-        offs.length = 0;
 
         return js_beautify(lines.join(separator), {indent_size: 4});
     }
@@ -134,22 +127,22 @@ class Code2String {
     }
 
     _onConst(num) {
-        return `v${Num.getVar0(num)}=${Num.getBits(num, this._BITS_AFTER_THREE_VARS, OConfig.codeConstBits)}`;
+        return `v${Num.getVar0(num)}=${Num.getBits(num, this._BITS_AFTER_ONE_VAR, OConfig.codeConstBits)}`;
     }
 
-    _onCondition(num, line, lines) {
+    _onCondition(num, line) {
         const cond      = Num.getBits(num, this._BITS_AFTER_TWO_VARS, CONDITION_BITS);
         const blockOffs = Num.getBits(num, this._BITS_AFTER_TWO_VARS + CONDITION_BITS, OConfig.codeBitsPerBlock);
 
-        this._offsets.push(this._getOffs(line, lines, blockOffs));
+        this._offsets.push(this._getOffs(line, blockOffs));
         return `if(v${Num.getVar0(num)}${this._CONDITIONS[cond]}v${Num.getVar1(num)}){`;
     }
 
-    _onLoop(num, line, lines) {
+    _onLoop(num, line) {
         const cond      = Num.getBits(num, this._BITS_AFTER_TWO_VARS, CONDITION_BITS);
         const blockOffs = Num.getBits(num, this._BITS_AFTER_TWO_VARS + CONDITION_BITS, OConfig.codeBitsPerBlock);
 
-        this._offsets.push(this._getOffs(line, lines, blockOffs));
+        this._offsets.push(this._getOffs(line, blockOffs));
         return `while(v${Num.getVar0(num)}${this._CONDITIONS[cond]}v${Num.getVar1(num)}){`;
     }
 
@@ -248,20 +241,12 @@ class Code2String {
      * So it's possible to set it to one of  1...3. So we change it in
      * real time to fix the overlap problem.
      * @param {Number} line Current line index
-     * @param {Number} lines Amount of lines
      * @param {Number} offs Local offset of closing bracket we want to set
      * @returns {Number}
      */
-    _getOffs(line, lines, offs) {
-        let   offset  = line + offs < lines ? line + offs + 1 : lines;
-        const offsets = this._offsets;
-        const length  = offsets.length;
-
-        if (length > 0 && offset >= offsets[length - 1]) {
-            return offsets[length - 1];
-        }
-
-        return offset;
+    _getOffs(line, offs) {
+        const offsets = this._offsets || [0];
+        return line + offs > offsets[offsets.length - 1] ? offsets[offsets.length - 1] : line + offs;
     }
 }
 

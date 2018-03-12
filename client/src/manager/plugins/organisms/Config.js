@@ -15,12 +15,12 @@ const Config = {
      * implemented. See Operators.operators getter for details. Values may be float.
      */
     orgOperatorWeights: [
-        .000001,  .000001, .00000001, .00000000001, .0000001, // var, const, if, loop, operator,
-        .0000001, .0002,   .0002,     .0002,        .0002,    // lookAt, eatLeft, eatRight, eatUp, eatDown,
-        .002,     .002,    .002,      .002,                   // stepLeft, stepRight, stepUp, stepDown,
-        .000001,  .000001,                                    // fromMem, toMem,
-        .0000001, .0000001,                                   // myX, myY,
-        .000001,  .000001, .000001, .000001                   // checkLeft, checkRight, checkUp, checkDown
+        .0001,  .0001, .000001, .000000001, .00001, // var, const, if, loop, operator,
+        .00001, .02,   .02,     .02,        .02,    // lookAt, eatLeft, eatRight, eatUp, eatDown,
+        .2,     .2,    .2,      .2,                 // stepLeft, stepRight, stepUp, stepDown,
+        .0001,  .0001,                              // fromMem, toMem,
+        .00001, .00001,                             // myX, myY,
+        .0001,  .0001, .0001,   .0001               // checkLeft, checkRight, checkUp, checkDown
     ],
     /**
      * {Array} Probabilities which used, when mutator decides what to do:
@@ -146,7 +146,7 @@ const Config = {
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain. This value shouldn't be less then 2.
      */
-    codeBitsPerVar: 4,
+    codeBitsPerVar: 2,
     /**
      * {Number} Amount of bits for storing operator. This is first XX bits
      * in a number.

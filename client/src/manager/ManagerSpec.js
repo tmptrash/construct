@@ -554,12 +554,10 @@ describe("client/src/manager/Manager", () => {
 
             man1.on(EVENTS.LOOP, () => {
                 if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
-                    log('loop');
                     expect(man2.organisms.size).toBe(1);
                     org1 = man1.organisms.first.val;
                     org1.vm.code.push(0b00001011000000000000000000000000); // onStepRight()
                 } else if (man2.organisms.size === 2) {
-                    log('destroy');
                     destroy();
                 }
                 if (iterated1 > 10000) {throw 'Error sending organism between Servers'}
@@ -568,9 +566,7 @@ describe("client/src/manager/Manager", () => {
             man2.on(EVENTS.LOOP, () => iterated2++);
 
             waitEvent(server1, server1.EVENTS.RUN, () => server1.run(), () => {
-                log('server1 run');
                 waitEvent(server2, server2.EVENTS.RUN, () => server2.run(), () => {
-                    log('server2 run');
                     man1.run(() => man2.run());
                 });
             });
