@@ -209,13 +209,17 @@ describe("server/src/server/Server", () => {
         const ws1 = new WebSocket(CLIENT_URL);
         const ws2 = new WebSocket(CLIENT_URL);
         Helper.wait(waitObj, () => {
-            server.on(SEVENTS.STOP, () => waitObj.done = true);
-            server.stop();
+            cons = 0;
+            server.on(SEVENTS.CLOSE, () => ++cons === 2 && (waitObj.done = true));
             ws1.close();
             ws2.close();
             Helper.wait(waitObj, () => {
-                server.destroy();
-                done();
+                server.on(SEVENTS.STOP, () => waitObj.done = true);
+                server.stop();
+                Helper.wait(waitObj, () => {
+                    server.destroy();
+                    done();
+                });
             });
         });
     });
@@ -232,12 +236,12 @@ describe("server/src/server/Server", () => {
             server.on(SEVENTS.CLOSE, () => waitObj.done = true);
             ws2.close();
             Helper.wait(waitObj, () => {
-                server.on(SEVENTS.STOP, () => waitObj.done = true);
-                server.stop();
+                server.on(SEVENTS.CLOSE, () => waitObj.done = true);
                 ws1.close();
                 Helper.wait(waitObj, () => {
+                    server.on(SEVENTS.DESTROY, () => waitObj.done = true);
                     server.destroy();
-                    done();
+                    Helper.wait(waitObj, done);
                 });
             })
         });
@@ -265,12 +269,15 @@ describe("server/src/server/Server", () => {
         const ws = new WebSocket(CLIENT_URL);
         Helper.wait(waitObj, () => {
             expect(server.active).toEqual(true);
-            server.on(SEVENTS.STOP, () => waitObj.done = true);
-            server.destroy();
+            server.on(SEVENTS.CLOSE, () => waitObj.done = true);
             ws.close();
             Helper.wait(waitObj, () => {
-                expect(server.active).toEqual(false);
-                done();
+                server.on(SEVENTS.DESTROY, () => waitObj.done = true);
+                server.destroy();
+                Helper.wait(waitObj, () => {
+                    expect(server.active).toEqual(false);
+                    done();
+                });
             });
         });
     });

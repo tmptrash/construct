@@ -238,7 +238,7 @@ describe("client/src/organism/VM", () => {
             vm.updateLine(0, 0x00000000);
             expect(org.energy).toEqual(100);
             vm.run(org);
-            expect(org.energy).toEqual(90); // 100 - (100 * .1 + 0) = 90
+            expect(org.energy).toEqual(99.9); // 100 - .1 = 99.9
 
             org.destroy();
             vm.destroy();

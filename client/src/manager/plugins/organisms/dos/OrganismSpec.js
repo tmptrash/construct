@@ -82,7 +82,6 @@ describe("client/src/organism/OrganismDos", () => {
             OConfig.orgStartEnergy = energy;
         });
 
-
         it("Organism should not be dead after loosing some energy", () => {
             const period      = OConfig.orgAlivePeriod;
             const energy      = OConfig.orgStartEnergy;
@@ -99,9 +98,9 @@ describe("client/src/organism/OrganismDos", () => {
 
             expect(org1.energy).toBe(100);
             org1.run();
-            expect(org1.energy).toBe(89);   // 100 - (100 * .1 + 1) = 89
+            expect(org1.energy).toBe(99.9);   // 100  - .1 = 99.9
             org1.run();
-            expect(org1.energy).toBe(79.1); // 90 - (90 * .1 + 1) = 79.1
+            expect(org1.energy).toBe(99.80000000000001);   // 99.9 - .1 = 99.8
             org1.destroy();
             expect(org1.energy < 1).toBe(true);
 

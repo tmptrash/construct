@@ -146,7 +146,7 @@ const Config = {
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain. This value shouldn't be less then 2.
      */
-    codeBitsPerVar: 2,
+    codeBitsPerVar: 4,
     /**
      * {Number} Amount of bits for storing operator. This is first XX bits
      * in a number.
