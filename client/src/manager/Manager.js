@@ -49,6 +49,10 @@ class Manager extends Observer {
          */
         this.positions     = {};
         /**
+         * {Object} Map of world objects like stones, water,...
+         */
+        this.objects       = {};
+        /**
          * {Object} This field is used as a container for public API of the Manager.
          * It may be used in a user console by the Operator of construct. Plugins
          * may add their methods to this map also.
@@ -193,6 +197,7 @@ class Manager extends Observer {
         this._world        = null;
         this.api           = null;
         this._codeRuns     = 0;
+        this.objects       = null;
         this.positions     = null;
         this.organisms.destroy();
         this.organisms     = null;

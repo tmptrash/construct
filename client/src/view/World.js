@@ -30,6 +30,7 @@ const WEVENTS = {
  * The same like this.getDot(x, y) === 0
  */
 const FREE_DOT_ATTEMPTS = 100;
+const OBJECT_TYPES      = {};
 
 class World extends Observer {
     constructor (width, height) {
@@ -118,4 +119,4 @@ class World extends Observer {
     }
 }
 
-module.exports = {World, EVENTS: WEVENTS};
+module.exports = {World, EVENTS: WEVENTS, OBJECT_TYPES};

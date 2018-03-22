@@ -39,7 +39,7 @@ class Energy {
     _addEnergyBlock() {
         const width  = Config.worldWidth;
         const height = Config.worldHeight;
-        const color  = Helper.rand(Organism.getMaxColors());
+        const color  = Organism.getColor(Config.worldEnergyColorIndex);
         let   block  = Config.worldEnergyBlockSize;
         const world  = this._manager.world;
         let   x      = Helper.rand(width);
@@ -49,7 +49,7 @@ class Energy {
             x = x + Helper.rand(3) - 1;
             y = y + Helper.rand(3) - 1;
             if (x < 0 || x >= width || y < 0 || y >= height) {return}
-            if (world.isFree(x, y)) {world.setDot(x, y, Organism.getColor(color))}
+            if (world.isFree(x, y)) {world.setDot(x, y, color)}
         }
     }
 

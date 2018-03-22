@@ -23,6 +23,7 @@ const DIR              = require('./../../../../../../common/src/Directions').DI
 const EMPTY            = 0;
 const ENERGY           = 1;
 const ORGANISM         = 2;
+const OBJECT           = 3;
 /**
  * {Function} Is created to speed up this function call. constants are run
  * much faster, then Helper.normalize()
@@ -136,6 +137,13 @@ class Organisms extends BaseOrganisms {
         [x, y]          = NORMALIZE_NO_DIR(x, y);
         const posId     = POSID(x, y);
         //
+        // World object found. We can't eat objects
+        //
+        if (typeof(this.parent.objects[posId]) !== 'undefined') {
+            ret.ret = 0;
+            return;
+        }
+        //
         // Energy found
         //
         if (typeof(positions[posId]) === 'undefined') {
@@ -211,9 +219,12 @@ class Organisms extends BaseOrganisms {
     }
 
     _onCheckAt(x, y, ret) {
-        [x, y] = NORMALIZE_NO_DIR(x, y);
+        const posId = POSID(x, y);
+        [x, y]      = NORMALIZE_NO_DIR(x, y);
 
-        if (typeof(this.parent.positions[POSID(x, y)]) === 'undefined') {
+        if (typeof(this.parent.objects[posId]) !== 'undefined') {
+            ret.ret = OBJECT + this.parent.objects[posId];
+        } else if (typeof(this.parent.positions[posId]) === 'undefined') {
             ret.ret = this.parent.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
         } else {
             ret.ret = ORGANISM;

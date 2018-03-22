@@ -17,7 +17,6 @@ const ORG_EVENTS   = require('./../../../../src/manager/plugins/organisms/Organi
 const Mutator      = require('./Mutator');
 const Num          = require('./../../../vm/Num');
 
-//const RAND_OFFS = 3;
 const POSID     = Helper.posId;
 
 // TODO: inherit this class from Configurable
@@ -153,7 +152,6 @@ class Organisms extends Configurable {
      * @return {Organism|null}
      */
     randOrg() {
-        //const offs = Helper.rand(RAND_OFFS) + 1;
         const offs = Helper.rand(this.organisms.size) + 1;
         let   item = this.randOrgItem;
 

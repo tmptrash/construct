@@ -39,6 +39,7 @@ ClientConfig.init({
         'Config',
         'client/Client',
         'Energy',
+        'Stones',
         'status/console/Console',
         IS_NODE_JS ? '' : 'status/charts/Charts',
         'ips/Ips',
@@ -72,9 +73,14 @@ ClientConfig.init({
      */
     worldEnergyCheckPeriod: 5000,
     /**
-     * {Number} size of one clever energy block in dots.
+     * {Number} size of one clever energy block in dots
      */
     worldEnergyBlockSize: 200,
+    /**
+     * {Number} Index of energy color. Starts from 0. Ends with 4000. See Organism.MAX_COLORS
+     * constant for details
+     */
+    worldEnergyColorIndex: 0,
     /**
      * {Number} Percent from all energy in a world until clever energy will be added.
      * After this value clever energy will be stopped to add until it's amount will
@@ -88,6 +94,15 @@ ClientConfig.init({
      * world again).
      */
     worldEnergyMinPercent: .0001,
+    /**
+     * {Number} Amount of random stones in a world
+     */
+    worldStonesAmount: 600,
+    /**
+     * {Number} Color index for stones in a world. See Organism.MAX_COLORS
+     * constant for details
+     */
+    worldStoneColorIndex: 1800,
     /**
      * {Number} Zoom speed 0..1
      */
