@@ -56,8 +56,8 @@ class OperatorsDos extends Operators {
     constructor(offs, vars, obs) {
         super(offs, vars, obs);
         /**
-         * {Object} These operator handlers should return string, which
-         * will be added to the final string script for evaluation.
+         * {Object} These operator handlers should return next script line
+         * number VM should step to
          */
         this._OPERATORS_CB = [
             this.onVar.bind(this),

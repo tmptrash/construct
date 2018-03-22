@@ -17,7 +17,7 @@ const ORG_EVENTS   = require('./../../../../src/manager/plugins/organisms/Organi
 const Mutator      = require('./Mutator');
 const Num          = require('./../../../vm/Num');
 
-const RAND_OFFS = 3;
+//const RAND_OFFS = 3;
 const POSID     = Helper.posId;
 
 // TODO: inherit this class from Configurable
@@ -56,7 +56,10 @@ class Organisms extends Configurable {
     createEmptyOrg(...args) {}
 
     constructor(manager) {
-        super(manager, {Config, cfg: OConfig}, {getAmount: ['_apiGetAmount', 'Shows amount of organisms within current Client(Manager)']});
+        super(manager, {Config, cfg: OConfig}, {
+            getAmount  : ['_apiGetAmount', 'Shows amount of organisms within current Client(Manager)'],
+            getOrganism: ['_apiGetOrganism', 'Returns organism instance by id or int\'s index in a Queue']
+        });
         this.organisms      = manager.organisms;
         this.randOrgItem    = this.organisms.first;
         this.positions      = manager.positions;
@@ -150,7 +153,8 @@ class Organisms extends Configurable {
      * @return {Organism|null}
      */
     randOrg() {
-        const offs = Helper.rand(RAND_OFFS) + 1;
+        //const offs = Helper.rand(RAND_OFFS) + 1;
+        const offs = Helper.rand(this.organisms.size) + 1;
         let   item = this.randOrgItem;
 
         for (let i = 0; i < offs; i++) {
@@ -215,13 +219,15 @@ class Organisms extends Configurable {
     }
 
     _crossover(org1, org2) {
-        this._clone(org1, true);
-        const orgs  = this.organisms;
-        let   child = orgs.last.val;
+        if (!this._clone(org1, true)) {return false}
+        let child = this.organisms.last.val;
 
         if (child.energy > 0 && org2.energy > 0) {
             child.changes += (Math.abs(child.vm.crossover(org2.vm)) * Num.MAX_BITS);
+            return true;
         }
+
+        return false;
     }
 
     _createPopulation() {
@@ -236,10 +242,33 @@ class Organisms extends Configurable {
 
     /**
      * API method, which will be added to Manager.api interface
+     * @api
      * @return {Number} Amount of organisms within current Manager
      */
     _apiGetAmount() {
         return this.parent.organisms.size;
+    }
+
+    /**
+     * Return organism instance by id or it's index in a Queue
+     * @param {Number|String} index Index or id
+     * @return {Organism} Organism instance or null
+     * @api
+     */
+    _apiGetOrganism(index) {
+        if (Helper.isNumeric(index)) {
+            return this.organisms.get(index);
+        }
+
+        let item = this.organisms.first;
+        let org;
+
+        while (org = item && item.val) {
+            if (org.id === index) {return org}
+            item = item.next;
+        }
+
+        return null;
     }
 
     _onDestroyOrg(org) {

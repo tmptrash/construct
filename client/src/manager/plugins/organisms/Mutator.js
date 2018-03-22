@@ -107,7 +107,7 @@ class Mutator {
     }
 
     _onOrganism(org) {
-        if (org.iterations % org.mutationPeriod !== 0 || OConfig.orgRainMutationPeriod === 0 || OConfig.orgRainMutationPercent === 0.0 || org.mutationPeriod === 0 || org.energy < 1) {return}
+        if (org.iterations % org.mutationPeriod !== 0 || org.iterations < 1 || OConfig.orgRainMutationPeriod === 0 || OConfig.orgRainMutationPercent === 0.0 || org.mutationPeriod === 0 || org.energy < 1) {return}
         this._mutate(org);
     }
 

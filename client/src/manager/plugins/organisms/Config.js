@@ -52,7 +52,11 @@ const Config = {
      * {Number} Minimum age for cloning. Before that, cloning is impossible. It should
      * be less then orgAlivePeriod config
      */
-    orgCloneMinAge: 5000,
+    orgCloneMinAge: 8000,
+    /**
+     * {Number} Minimum energy for cloning
+     */
+    orgCloneMinEnergy: 100000,
     /**
      * {Number} Amount of iterations between tournament. During tournament one
      * organism (looser) will be killed
@@ -63,12 +67,12 @@ const Config = {
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 10000,
+    orgRainMutationPeriod: 20000,
     /**
      * {Number} Percent of mutations from code size. 0 is a possible value if
      * we want to disable mutations. Should be less then 1.0 (1.0 === 100%)
      */
-    orgRainMutationPercent: 0.01,
+    orgRainMutationPercent: 0.001,
     /**
      * {Boolean} Turn this flag on to give organism a possibility to choose his
      * own mutations period and percent. false - mean, that these values will be
@@ -79,17 +83,17 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 1000,
+    orgCrossoverPeriod: 20000,
     /**
      * {Number} Period of iterations for creation of random organisms. Set it to 0
      * to turn off this feature
      */
-    orgRandomOrgPeriod: 8000,
+    orgRandomOrgPeriod: 30000,
     /**
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
      */
-    orgAlivePeriod: 30000,
+    orgAlivePeriod: 25000,
     /**
      * {Number} Size of organism stack (internal memory) in bits. Real amount of
      * organism's internal memory will be 2^orgMemBits. Example: if orgMemBits=3,
@@ -141,7 +145,7 @@ const Config = {
      * organism without interruption by one VM. Set this value to value bigger
      * then codeMaxSize, then entire code of organism will be run
      */
-    codeYieldPeriod: 4,
+    codeYieldPeriod: 10,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain. This value shouldn't be less then 2.
@@ -156,7 +160,7 @@ const Config = {
      * {Number} Amount of bits, which stores maximum block length. Under block
      * length we mean maximum amount of lines in one block like if, for,...
      */
-    codeBitsPerBlock: 8,
+    codeBitsPerBlock: 10,
     /**
      * {Number} Amount of iterations between calls to V8 event loop. See
      * Manager._initLoop(), Manager.run() methods for details.
@@ -169,7 +173,7 @@ const Config = {
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 1000
+    codeMaxSize: 300
 };
 
 module.exports = Config;

@@ -64,6 +64,18 @@ class Helper {
     }
 
     /**
+     * Sets API function, which may be used by users in Chrome console (in DevTools)
+     * @param {Object} obj Destination object
+     * @param {String} name Name of function/property
+     * @param {Function|*} fn Function or value (if property)
+     * @param {String} desc Description
+     */
+    static setApi(obj, name, fn, desc = '') {
+        obj[name]      = fn;
+        Helper.isFunc(fn) && (obj[name].desc = desc);
+    }
+
+    /**
      * Sets first letter to lower case
      * @param {String} s
      * @returns {String}

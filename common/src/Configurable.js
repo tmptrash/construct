@@ -97,8 +97,7 @@ class Configurable {
                 const isStr = typeof key === 'string';
                 let   desc  = isStr && 'No description' || key[1];
 
-                cfg[c] = (isStr && this[key] || this[key[0]]).bind(this);
-                cfg[c].desc = desc;
+                Helper.setApi(cfg, c, (isStr && this[key] || this[key[0]]).bind(this), desc);
             }
         }
 

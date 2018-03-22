@@ -226,10 +226,12 @@ describe("client/src/organism/OrganismDos", () => {
         it('Organism should fire CLONE event if enough age', () => {
             let   flag        = false;
             const minAge      = OConfig.orgCloneMinAge;
+            const minEnergy   = OConfig.orgCloneMinEnergy;
             const yieldPeriod = OConfig.codeYieldPeriod;
             const weights     = OConfig.orgOperatorWeights.slice();
             const newWeights  = [.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1];
             OConfig.orgCloneMinAge    = 1;
+            OConfig.orgCloneMinEnergy = 1;
             OConfig.codeYieldPeriod   = 1;
             OConfig.orgOperatorWeights.splice(0, OConfig.orgOperatorWeights.length, ...newWeights);
             const org1 = new OrganismDos('0', 1, 2, null);
@@ -246,7 +248,8 @@ describe("client/src/organism/OrganismDos", () => {
             expect(flag).toBe(true);
 
             org1.destroy();
-            OConfig.orgCloneMinAge = minAge;
+            OConfig.orgCloneMinAge    = minAge;
+            OConfig.orgCloneMinEnergy = minEnergy;
             OConfig.codeYieldPeriod   = yieldPeriod;
             OConfig.orgOperatorWeights.splice(0, OConfig.orgOperatorWeights.length, ...weights);
         })

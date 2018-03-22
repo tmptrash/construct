@@ -7,6 +7,7 @@
  */
 const Num     = require('./../../../../vm/Num');
 const OConfig = require('./../Config');
+const Helper  = require('./../../../../../../common/src/Helper');
 /**
  * {Function} Just a shortcuts
  */
@@ -69,7 +70,7 @@ class Code2String {
         //
         // API of the Manager for accessing outside. (e.g. from Console)
         //
-        manager.api.formatCode = (code) => this.format(code);
+        Helper.setApi(manager.api, 'formatCode', (code) => this.format(code), 'Converts byte code array into human readable JavaScript based code. This function is low level. For using it you have to get organism\'s virtual machine reference and then use it\'s code property. For example: man.api.formatCode(man.api.organisms.getOrganism(\'128\').vm.code). This example will find organism with id \'128\' and shows his byte code.');
     }
 
     destroy() {

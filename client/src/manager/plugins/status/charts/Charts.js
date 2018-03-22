@@ -18,7 +18,7 @@ const API = {
     pos9       : ['_pos9',        'Sets chart position in 3x3 grid'       ],
     pos16      : ['_pos16',       'Sets chart position in 4x4 grid'       ],
     active     : ['_active',      'Activates/Deactivates chart'           ],
-    on         : ['_on',          'Activates/Deactivates chart'           ],
+    on         : ['_on',          'Activates/Deactivates chart by name'   ],
     off        : ['_off',         'Deactivates chart'                     ],
     reset      : ['_reset',       'Resets chart data'                     ],
     preset     : ['_preset',      'Positioning charts according to preset']

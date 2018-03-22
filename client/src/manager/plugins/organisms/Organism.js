@@ -241,7 +241,7 @@ class Organism extends Observer {
     }
 
     _updateClone() {
-        if (this._iterations > OConfig.orgCloneMinAge && this._energy > 0) {this.fire(CLONE, this)}
+        if (this._iterations > OConfig.orgCloneMinAge && this._energy > OConfig.orgCloneMinEnergy) {this.fire(CLONE, this)}
     }
 
     /**

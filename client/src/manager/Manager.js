@@ -20,6 +20,7 @@ const Plugins          = require('./Plugins');
 const EVENTS           = require('./../share/Events').EVENTS;
 const EVENT_AMOUNT     = require('./../share/Events').EVENT_AMOUNT;
 const Console          = require('./../share/Console');
+const Helper           = require('./../../../common/src/Helper');
 const World            = require('./../view/World').World;
 const WEVENTS          = require('./../view/World').EVENTS;
 const Canvas           = require('./../view/Canvas');
@@ -52,8 +53,9 @@ class Manager extends Observer {
          * It may be used in a user console by the Operator of construct. Plugins
          * may add their methods to this map also.
          */
-        this.api           = {version: () => '0.2.1'};
-        hasView && (this.api.visualize = this._visualize.bind(this));
+        this.api = {};
+        Helper.setApi(this.api, 'version', '0.2.1.1', 'Shows construct version');
+        hasView && Helper.setApi(this.api, 'visualize', this._visualize.bind(this), 'Turns on/off visualization in browser for current instance (world). Turning visualization off, increases application speed.');
 
         /**
          * {Boolean} Means that this manager instance doesn't contain view(canvas).
