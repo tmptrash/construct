@@ -60,6 +60,7 @@ class Organisms extends Configurable {
             getOrganism: ['_apiGetOrganism', 'Returns organism instance by id or int\'s index in a Queue']
         });
         this.organisms      = manager.organisms;
+        this.objects        = manager.objects;
         this.randOrgItem    = this.organisms.first;
         this.positions      = manager.positions;
         this.world          = manager.world;
@@ -171,8 +172,8 @@ class Organisms extends Configurable {
      * @param {Number} stamp Time stamp of current iteration
      */
     _onIteration(counter, stamp) {
-        let   item = this.organisms.first;
-        let   org;
+        let item = this.organisms.first;
+        let org;
 
         while (org = item && item.val) {
             org.run();

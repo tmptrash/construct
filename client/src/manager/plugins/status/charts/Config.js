@@ -25,7 +25,7 @@ const Config = {
         killout   : {pos: 'topright',  active: false,  transparent: 0.8},
         energy    : {pos: 'downright', active: false,  transparent: 0.8},
         orgs      : {pos: '0-0|16',    active: false,  transparent: 0.8},
-        penergy   : {pos: '0-1|16',    active: false,  transparent: 0.8},
+        oenergy   : {pos: '0-1|16',    active: false,  transparent: 0.8},
         eenergy   : {pos: '0-2|16',    active: false,  transparent: 0.8},
         puenergy  : {pos: '0-3|16',    active: false,  transparent: 0.8},
         fit       : {pos: '1-0|16',    active: false,  transparent: 0.8},

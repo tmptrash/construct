@@ -48,17 +48,16 @@ class Console extends Status {
         const slps      = format(status.lps,      'lps',  14);
         const sorgs     = format(orgs,            'org',  10);
         const senergy   = format(status.energy,   'nrg',  19);
-        const spenergy  = format(status.penergy,  'pnrg', 15);
+        const spenergy  = format(status.oenergy,  'onrg', 15);
         const seenergy  = format(status.eenergy,  'enrg', 16);
         const wenergy   = format(status.wenergy + (status.wenergyup ? '\u2191' : '\u2193'),  'wnrg', 14);
         const skill     = format(status.kill,     'kil',  12);
         const schanges  = format(status.changes,  'che',  12);
-        const sfit      = format(status.fit,      'fit',  13);
         const sage      = format(status.age,      'age',  11);
         const scode     = format(status.code,     'cod',  12);
 
         // TODO: under Node.js should use Server/Console.xxx()
-        console.log(`%c${conns}${sips}${slps}${sorgs}%c${senergy}${spenergy}${seenergy}${wenergy}${skill}${schanges}${sfit}${sage}${scode}`, GREEN, RED);
+        console.log(`%c${conns}${sips}${slps}${sorgs}%c${senergy}${spenergy}${seenergy}${wenergy}${skill}${schanges}${sage}${scode}`, GREEN, RED);
     }
 }
 

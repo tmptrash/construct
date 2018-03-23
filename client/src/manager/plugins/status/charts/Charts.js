@@ -47,7 +47,7 @@ const PRESETS = {
         orgs      : '0-1|16',
         energy    : '0-2|16',
         eenergy   : '0-3|16',
-        penergy   : '1-0|16',
+        oenergy   : '1-0|16',
         changes   : '1-1|16',
         age       : '1-2|16',
         code      : '1-3|16',
@@ -71,7 +71,7 @@ const PRESETS = {
         lps       : 'topleft',
         energy    : 'downleft',
         eenergy   : 'topright',
-        penergy   : 'downright'
+        oenergy   : 'downright'
     }
 };
 
@@ -108,7 +108,7 @@ class Charts extends Status {
             ips       : new Chart('IPS - Iterations Per Second',                                    Config.charts.ips),
             orgs      : new Chart('Amount of organisms',                                            Config.charts.orgs),
             energy    : new Chart('Average organism energy',                                        Config.charts.energy),
-            penergy   : new Chart('Average organism\'s picked energy (all)',                        Config.charts.penergy),
+            oenergy   : new Chart('Average organism\'s eat energy from other organisms',            Config.charts.oenergy),
             eenergy   : new Chart('Average organism\'s picked energy (energy only)',                Config.charts.eenergy),
             puenergy  : new Chart('Average organism\'s put energy to the world',                    Config.charts.puenergy),
             changes   : new Chart('Average organism\'s changes (Mutations)',                        Config.charts.changes),
@@ -165,6 +165,7 @@ class Charts extends Status {
         const conns  = `${active[0] ? '^' : ''}${active[1] ? '>' : ''}${active[2] ? 'v' : ''}${active[3] ? '<' : ''}`;
         const ips    = `ips:${status.ips}`;
         const enrg   = `enrg:${status.eenergy}`;
+        const onrg   = `onrg:${status.oenergy}`;
         const wnrg   = `wnrg:${status.wenergy}`;
         const wnrgup = status.wenergyup ? '\u2191' : '\u2193';
         const code   = `cod:${status.code}`;
@@ -173,7 +174,7 @@ class Charts extends Status {
         const kilo   = `kilo:${status.killeat}`;
         const orgs   = `org:${status.orgs}`;
 
-        this._headerEl.textContent = `${man.clientId ? 'id:' + man.clientId : ''} ${conns === '' ? '' : 'con:' + conns} ${ips} ${wnrg} ${wnrgup} ${enrg} ${code} ${age} ${kill} ${kilo} ${orgs}`;
+        this._headerEl.textContent = `${man.clientId ? 'id:' + man.clientId : ''} ${conns === '' ? '' : 'con:' + conns} ${ips} ${wnrg} ${wnrgup} ${enrg} ${onrg} ${code} ${age} ${kill} ${kilo} ${orgs}`;
     }
 
     /**

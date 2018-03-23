@@ -128,7 +128,6 @@ class Organisms extends BaseOrganisms {
     }
 
     _onEat(org, x, y, ret) {
-        const positions = this.positions;
         //
         // Amount of eat energy depends on organism size. Small organisms
         // eat less, big - more
@@ -139,14 +138,14 @@ class Organisms extends BaseOrganisms {
         //
         // World object found. We can't eat objects
         //
-        if (typeof(this.parent.objects[posId]) !== 'undefined') {
+        if (typeof(this.objects[posId]) !== 'undefined') {
             ret.ret = 0;
             return;
         }
         //
         // Energy found
         //
-        if (typeof(positions[posId]) === 'undefined') {
+        if (typeof(this.positions[posId]) === 'undefined') {
             if (eat >= 0) {
                 ret.ret = this.world.grabDot(x, y, eat);
                 this.parent.fire(EVENTS.EAT_ENERGY, ret.ret);
@@ -159,7 +158,7 @@ class Organisms extends BaseOrganisms {
         // Organism found
         //
         } else {
-            const victimOrg = positions[posId];
+            const victimOrg = this.positions[posId];
             ret.ret = eat < 0 ? 0 : (eat > victimOrg.energy ? victimOrg.energy : eat);
             if (victimOrg.energy <= ret.ret) {
                 this.parent.fire(EVENTS.KILL_EAT, victimOrg);
@@ -171,6 +170,7 @@ class Organisms extends BaseOrganisms {
                 //
                 victimOrg.destroy();
             } else {
+                this.parent.fire(EVENTS.EAT_ORG, victimOrg, ret.ret);
                 victimOrg.energy -= ret.ret;
             }
         }
@@ -222,8 +222,8 @@ class Organisms extends BaseOrganisms {
         const posId = POSID(x, y);
         [x, y]      = NORMALIZE_NO_DIR(x, y);
 
-        if (typeof(this.parent.objects[posId]) !== 'undefined') {
-            ret.ret = OBJECT + this.parent.objects[posId];
+        if (typeof(this.objects[posId]) !== 'undefined') {
+            ret.ret = OBJECT + this.objects[posId];
         } else if (typeof(this.parent.positions[posId]) === 'undefined') {
             ret.ret = this.parent.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
         } else {

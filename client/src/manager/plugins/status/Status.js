@@ -19,7 +19,6 @@ const Helper       = require('./../../../../../common/src/Helper');
 const EVENTS       = require('./../../../share/Events').EVENTS;
 const Configurable = require('./../../../../../common/src/Configurable');
 const Config       = require('./../../../share/Config').Config;
-const OConfig      = require('./../../../manager/plugins/organisms/Config');
 
 class Status extends Configurable {
     static _toFixed(val, fixed) {
@@ -38,7 +37,7 @@ class Status extends Configurable {
         super(manager, {Config, cfg: statCfg}, apiCfg);
 
         this._status         = {
-            lps :0, ips       :0, orgs   :0, energy :0, penergy :0, eenergy:0, wenergy:0, wenergyup:true, changes:0, fit:0, age:0, code:0,
+            lps :0, ips       :0, orgs   :0, energy :0, oenergy :0, eenergy:0, wenergy:0, wenergyup:true, changes:0, fit:0, age:0, code:0,
             kill:0, killenergy:0, killage:0, killeat:0, killover:0, killout:0, killin :0, killclone:0
         };
         this._stamp           = 0;
@@ -64,6 +63,7 @@ class Status extends Configurable {
         this._onLoopCb          = this._onLoop.bind(this);
         this._onIpsCb           = this._onIps.bind(this);
         this._onEatEnergyCb     = this._onEatEnergy.bind(this);
+        this._onEatOrgCb        = this._onEatOrg.bind(this);
         this._onPutEnergyCb     = this._onPutEnergy.bind(this);
         this._onKillOrgCb       = this._onKillOrg.bind(this);
         this._onKillEnergyCb    = this._onKillHandlerOrg.bind(this, 1);
@@ -80,6 +80,7 @@ class Status extends Configurable {
         Helper.override(manager, 'onLoop', this._onLoopCb);
         manager.on(EVENTS.IPS,             this._onIpsCb);
         manager.on(EVENTS.EAT_ENERGY,      this._onEatEnergyCb);
+        manager.on(EVENTS.EAT_ORG,         this._onEatOrgCb);
         manager.on(EVENTS.PUT_ENERGY,      this._onPutEnergyCb);
         manager.on(EVENTS.KILL,            this._onKillOrgCb);
         manager.on(EVENTS.KILL_TOUR,       this._onKillTourCb);
@@ -111,6 +112,7 @@ class Status extends Configurable {
         man.off(EVENTS.KILL_TOUR,       this._onKillTourCb);
         man.off(EVENTS.KILL,            this._onKillOrgCb);
         man.off(EVENTS.PUT_ENERGY,      this._onPutEnergyCb);
+        man.off(EVENTS.EAT_ORG,         this._onEatOrgCb);
         man.off(EVENTS.EAT_ENERGY,      this._onEatEnergyCb);
         man.off(EVENTS.IPS,             this._onIpsCb);
         Helper.unoverride(man, 'onLoop', this._onLoopCb);
@@ -120,6 +122,7 @@ class Status extends Configurable {
         this._onKillOrgCb       = null;
         this._onKillTourCb      = null;
         this._onPutEnergyCb     = null;
+        this._onEatOrgCb        = null;
         this._onEatEnergyCb     = null;
         this._onKillCloneCb     = null;
         this._onKillInCb        = null;
@@ -155,7 +158,6 @@ class Status extends Configurable {
             item         = item.next;
         }
 
-        this._pickEnergy = ((energy - startEnergy) / iterations) / size;
         this._energy     = energy  / size;
         this._changes    = changes / size;
         this._fitness    = fitness / size;
@@ -174,11 +176,11 @@ class Status extends Configurable {
 
         this._onBeforeLoop(orgs);
 
-        status.ips        = fix(this._ips / this._ipsTimes * OConfig.codeYieldPeriod, 2);
+        status.ips        = fix(this._ips / this._ipsTimes, 2);
         status.lps        = fix((this.parent.codeRuns - this._codeRuns) / ((stamp - this._stamp) / 1000), 0);
         status.orgs       = orgAmount;
         status.energy     = fix(this._energy, 2);
-        status.penergy    = fix(this._pickEnergy * 1000, 2);
+        status.oenergy    = fix(this._pickEnergy / orgAmount, 2);
         status.eenergy    = fix(this._eatEnergy / orgAmount, 2);
         status.puenergy   = fix(this._putEnergy / orgAmount, 2);
         status.changes    = +(this._changes).toFixed(1);
@@ -230,6 +232,10 @@ class Status extends Configurable {
         this._eatEnergy += eat;
     }
 
+    _onEatOrg(org, eat) {
+        this._pickEnergy += eat;
+    }
+
     /**
      * Calculates putting of energy by organisms to the world
      * @param {Number} put Amount of put energy
@@ -245,8 +251,9 @@ class Status extends Configurable {
         this._kill[0] ++;
     }
 
-    _onKillHandlerOrg(index) {
+    _onKillHandlerOrg(index, org) {
         this._kill[index]++;
+        index === 4 && (this._pickEnergy += org.energy);
     }
 
     _onWorldEnergy(percent) {
