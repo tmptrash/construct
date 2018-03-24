@@ -25,7 +25,8 @@ const ORG_EVENTS     = {
     ITERATION
 };
 
-const MAX_COLORS = 4000;
+const MAX_COLORS          = 4000;
+const UPDATE_COLOR_PERIOD = 50;
 
 class Organism extends Observer {
     /**
@@ -81,14 +82,15 @@ class Organism extends Observer {
 
         if (parent === null) {this._create()}
         else {this._clone(parent)}
-        this._id          = id;
-        this._x           = x;
-        this._y           = y;
-        this._iterations  = -1;
-        this._changes     = 0;
-        this._item        = item;
-        this._maxEnergy   = 0;
-        this._fnId        = 0;
+        this._id            = id;
+        this._x             = x;
+        this._y             = y;
+        this._iterations    = -1;
+        this._changes       = 0;
+        this._item          = item;
+        this._maxEnergy     = 0;
+        this._energyChanges = 0;
+        this._fnId          = 0;
     }
 
     get id()                    {return this._id}
@@ -110,7 +112,7 @@ class Organism extends Observer {
     set y(newY)                 {this._y = newY}
     set mutationPeriod(m)       {this._mutationPeriod = m}
     set mutationPercent(p)      {this._mutationPercent = p}
-    set energy(e)               {if (this.vm !== null) { this._energy = e; this._updateColor()}}
+    set energy(e)               {if (this.vm !== null) { this._energy = e; ++this._energyChanges % UPDATE_COLOR_PERIOD === 0 && this._updateColor()}}
     set startEnergy(e)          {this._startEnergy = e}
     set changes(c)              {this._changes = c}
     set maxEnergy(e)            {this._maxEnergy = e}

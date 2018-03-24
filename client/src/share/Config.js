@@ -53,11 +53,11 @@ ClientConfig.init({
     /**
      * {Number} World width
      */
-    worldWidth: 1920,
+    worldWidth: 1920 / 2,
     /**
      * {Number} World height
      */
-    worldHeight: 1080,
+    worldHeight: 1080 / 2,
     /**
      * {Number} Turns on cyclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
@@ -97,7 +97,7 @@ ClientConfig.init({
     /**
      * {Number} Amount of random stones in a world
      */
-    worldStonesAmount: 4000,
+    worldStonesAmount: 1500,
     /**
      * {Number} Color index for stones in a world. See Organism.MAX_COLORS
      * constant for details

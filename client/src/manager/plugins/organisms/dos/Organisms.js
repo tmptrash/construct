@@ -224,8 +224,8 @@ class Organisms extends BaseOrganisms {
 
         if (typeof(this.objects[posId]) !== 'undefined') {
             ret.ret = OBJECT + this.objects[posId];
-        } else if (typeof(this.parent.positions[posId]) === 'undefined') {
-            ret.ret = this.parent.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
+        } else if (typeof(this.positions[posId]) === 'undefined') {
+            ret.ret = this.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
         } else {
             ret.ret = ORGANISM;
         }
