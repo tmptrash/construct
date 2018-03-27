@@ -37,7 +37,7 @@ class Status extends Configurable {
         super(manager, {Config, cfg: statCfg}, apiCfg);
 
         this._status         = {
-            lps :0, ips       :0, orgs   :0, energy :0, oenergy :0, eenergy:0, wenergy:0, wenergyup:true, changes:0, fit:0, age:0, code:0,
+            lps :0, ips       :0, orgs   :0, energy :0, oenergy :0, eenergy:0, wenergy:0, changes  :0, fit:0, age:0, code:0,
             kill:0, killenergy:0, killage:0, killeat:0, killover:0, killout:0, killin :0, killclone:0
         };
         this._stamp           = 0;
@@ -56,7 +56,6 @@ class Status extends Configurable {
         this._times           = 0;
         this._kill            = new Array(9);
         this._worldEnergy     = 0.0;
-        this._worldEnergyUp   = true;
         this._statusCfg       = statCfg;
         this._firstCall       = true;
 
@@ -75,7 +74,6 @@ class Status extends Configurable {
         this._onKillInCb        = this._onKillHandlerOrg.bind(this, 7);
         this._onKillCloneCb     = this._onKillHandlerOrg.bind(this, 8);
         this._onWorldEnergyCb   = this._onWorldEnergy.bind(this);
-        this._onWorldEnergyUpCb = this._onWorldEnergyUp.bind(this);
 
         Helper.override(manager, 'onLoop', this._onLoopCb);
         manager.on(EVENTS.IPS,             this._onIpsCb);
@@ -92,7 +90,6 @@ class Status extends Configurable {
         manager.on(EVENTS.KILL_STEP_IN,    this._onKillInCb);
         manager.on(EVENTS.KILL_CLONE,      this._onKillCloneCb);
         manager.on(EVENTS.WORLD_ENERGY,    this._onWorldEnergyCb);
-        manager.on(EVENTS.WORLD_ENERGY_UP, this._onWorldEnergyUpCb);
 
         _fill(this._kill, 0);
     }
@@ -100,7 +97,6 @@ class Status extends Configurable {
     destroy() {
         const man = this.parent;
 
-        man.off(EVENTS.WORLD_ENERGY_UP, this._onWorldEnergyUpCb);
         man.off(EVENTS.WORLD_ENERGY,    this._onWorldEnergyCb);
         man.off(EVENTS.KILL_CLONE,      this._onKillCloneCb);
         man.off(EVENTS.KILL_STEP_IN,    this._onKillInCb);
@@ -117,7 +113,6 @@ class Status extends Configurable {
         man.off(EVENTS.IPS,             this._onIpsCb);
         Helper.unoverride(man, 'onLoop', this._onLoopCb);
 
-        this._onWorldEnergyUpCb = null;
         this._onWorldEnergyCb   = null;
         this._onKillOrgCb       = null;
         this._onKillTourCb      = null;
@@ -199,7 +194,6 @@ class Status extends Configurable {
         status.killclone  = fix(this._kill[8], 2);
 
         status.wenergy    = fix(this._worldEnergy, 5);
-        status.wenergyup  = this._worldEnergyUp;
 
         !this._firstCall && this.onStatus(status, orgs.size);
         this._onAfterLoop(stamp);
@@ -258,10 +252,6 @@ class Status extends Configurable {
 
     _onWorldEnergy(percent) {
         this._worldEnergy = percent;
-    }
-
-    _onWorldEnergyUp(up) {
-        this._worldEnergyUp = up;
     }
 }
 
