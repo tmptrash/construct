@@ -59,10 +59,12 @@ class Energy {
         const width  = Config.worldWidth;
         const height = Config.worldHeight;
         const poses  = this._manager.positions;
+        const objs   = this._manager.objects;
 
         for (let x = 0; x < width; x++) {
             for (let y = 0; y < height; y++) {
-                if (typeof poses[POSID(x, y)] === 'undefined') {energy += world.getDot(x, y)}
+                const posId = POSID(x, y);
+                if (typeof poses[posId] === 'undefined' && typeof objs[posId] === 'undefined') {energy += world.getDot(x, y)}
             }
         }
 

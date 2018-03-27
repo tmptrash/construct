@@ -47,12 +47,19 @@ const Config = {
      * {Boolean} If turned on, then organism will be responsible for changing
      * mutations probabilities. Otherwise these probabilities will be constant
      */
-    orgMutationPerOrg: false,
+    orgMutationProbsPerOrg: true,
     /**
      * {Number} Minimum age for cloning. Before that, cloning is impossible. It should
      * be less then orgAlivePeriod config
      */
-    orgCloneMinAge: 8000,
+    orgCloneMinAge: 200,
+    /**
+     * {Boolean} If true, then random organism will be killed after new one has
+     * cloned and amount of organisms is greater then orgMaxOrgs config. false
+     * mean, that new organism will not be cloned, if amount of organisms is >=
+     * orgMaxOrgs config.
+     */
+    orgKillOnClone: false,
     /**
      * {Number} Minimum energy for cloning
      */
@@ -65,35 +72,35 @@ const Config = {
     /**
      * {Number} Amount of iterations within organism's life loop, after that we
      * do mutations according to orgRainMutationPercent config. If 0, then
-     * mutations will be disabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
+     * mutations wilsabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 9500,
+    orgRainMutationPeriod: 100,
     /**
      * {Number} Percent of mutations from code size. 0 is a possible value if
      * we want to disable mutations. Should be less then 1.0 (1.0 === 100%)
      */
-    orgRainMutationPercent: 0.001,
+    orgRainMutationPercent: 0.01,
     /**
      * {Boolean} Turn this flag on to give organism a possibility to choose his
      * own mutations period and percent. false - mean, that these values will be
      * constant for all organisms
      */
-    orgRainPerOrg: false,
+    orgRainPerOrg: true,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 10000,
+    orgCrossoverPeriod: 4000,
     /**
      * {Number} Period of iterations for creation of random organisms. Set it to 0
      * to turn off this feature
      */
-    orgRandomOrgPeriod: 20000,
+    orgRandomOrgPeriod: 5000,
     /**
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
      */
-    orgAlivePeriod: 10000,
+    orgAlivePeriod: 500,
     /**
      * {Number} Size of organism stack (internal memory) in bits. Real amount of
      * organism's internal memory will be 2^orgMemBits. Example: if orgMemBits=3,
@@ -119,17 +126,17 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 20000,
+    orgMaxOrgs: 1000,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 10000,
+    orgStartAmount: 1000,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created
      * by operator and not by evolution.
      */
-    orgStartEnergy: 10000000,
+    orgStartEnergy: 1000000,
     /**
      * {Number} Amount of bits for storing a numeric constant inside byte code
      */
@@ -145,7 +152,7 @@ const Config = {
      * organism without interruption by one VM. Set this value to value bigger
      * then codeMaxSize, then entire code of organism will be run
      */
-    codeYieldPeriod: 10,
+    codeYieldPeriod: 5,
     /**
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain. This value shouldn't be less then 2.

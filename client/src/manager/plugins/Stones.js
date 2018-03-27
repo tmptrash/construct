@@ -30,15 +30,16 @@ class Stones {
     }
 
     _onLoop(counter) {
-        if (counter > 1 || Config.worldStonesAmount === 0) {return}
+        if (counter > 1 || Config.worldStonesPercent === .0) {return}
 
-        const stones = Config.worldStonesAmount;
-        for (let i = 0; i < stones; i++) {
-            this._addStoneBlock();
+        const stones = Config.worldStonesPercent * Config.worldWidth * Config.worldHeight;
+        let   amount = 0;
+        while (amount < stones) {
+            amount = this._addStoneBlock(amount, stones);
         }
     }
 
-    _addStoneBlock() {
+    _addStoneBlock(amount, stones) {
         const width  = Config.worldWidth;
         const height = Config.worldHeight;
         const color  = Organism.getColor(Config.worldStoneColorIndex);
@@ -51,11 +52,16 @@ class Stones {
         for (let i = 0; i < STONE_BLOCK_SIZE; i++) {
             x = x + Helper.rand(3) - 1;
             y = y + Helper.rand(3) - 1;
-            if (x < 0 || x >= width || y < 0 || y >= height) {return}
+            if (x < 0 || x >= width || y < 0 || y >= height) {return amount}
             if (world.isFree(x, y)) {
-                world.setDot(x, y, color) && (man.objects[POSID(x, y)] = stone);
+                if (world.setDot(x, y, color)) {
+                    man.objects[POSID(x, y)] = stone;
+                    if (++amount >= stones) {return amount}
+                }
             }
         }
+
+        return amount;
     }
 }
 

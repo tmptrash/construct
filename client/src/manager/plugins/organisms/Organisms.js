@@ -92,7 +92,7 @@ class Organisms extends Configurable {
     }
 
     /**
-     * Is called at the end of run() method
+     * Is called at the end of run() method. Updates maxEnergy value for population
      * @param {Organism} org Current organism
      */
     onOrganism(org) {
@@ -309,7 +309,9 @@ class Organisms extends Configurable {
         // organisms before cloning. They should kill each other to have a possibility
         // to clone them.
         //
-        this.organisms.size < OConfig.orgMaxOrgs && this._clone(org);
+        if (org.energy < OConfig.orgCloneMinEnergy) {return}
+        if (OConfig.orgKillOnClone && this.organisms.size >= OConfig.orgMaxOrgs) {this.randOrg().destroy()}
+        if (this.organisms.size < OConfig.orgMaxOrgs) {this._clone(org)}
     }
 
     _killInTour() {

@@ -251,13 +251,23 @@ class OperatorsDos extends Operators {
     onMyX(num, line, org) {this.vars[Num.getVar0(num)] = org.x; return ++line}
     onMyY(num, line, org) {this.vars[Num.getVar0(num)] = org.y; return ++line}
 
-    onCheckLeft(num, line, org)  {return this._checkAt(num, line, org.x - 1, org.y)}
-    onCheckRight(num, line, org) {return this._checkAt(num, line, org.x + 1, org.y)}
-    onCheckUp(num, line, org)    {return this._checkAt(num, line, org.x, org.y - 1)}
-    onCheckDown(num, line, org)  {return this._checkAt(num, line, org.x, org.y + 1)}
-
-    _checkAt(num, line, x, y) {
-        this.obs.fire(EVENTS.CHECK_AT, x, y, this._ret);
+    onCheckLeft(num, line, org)  {
+        this.obs.fire(EVENTS.CHECK_AT, org.x - 1, org.y, this._ret);
+        this.vars[Num.getVar0(num)] = this._ret.ret;
+        return ++line;
+    }
+    onCheckRight(num, line, org) {
+        this.obs.fire(EVENTS.CHECK_AT, org.x + 1, org.y, this._ret);
+        this.vars[Num.getVar0(num)] = this._ret.ret;
+        return ++line;
+    }
+    onCheckUp(num, line, org)    {
+        this.obs.fire(EVENTS.CHECK_AT, org.x, org.y - 1, this._ret);
+        this.vars[Num.getVar0(num)] = this._ret.ret;
+        return ++line;
+    }
+    onCheckDown(num, line, org)  {
+        this.obs.fire(EVENTS.CHECK_AT, org.x, org.y + 1, this._ret);
         this.vars[Num.getVar0(num)] = this._ret.ret;
         return ++line;
     }

@@ -145,7 +145,8 @@ class Organisms extends BaseOrganisms {
         //
         // Energy found
         //
-        if (typeof(this.positions[posId]) === 'undefined') {
+        const victimOrg = this.positions[posId];
+        if (typeof victimOrg === 'undefined') {
             if (eat >= 0) {
                 ret.ret = this.world.grabDot(x, y, eat);
                 this.parent.fire(EVENTS.EAT_ENERGY, ret.ret);
@@ -154,25 +155,24 @@ class Organisms extends BaseOrganisms {
                 this.world.setDot(x, y, (((-eat + .5) << 0) >>> 0) + this.world.getDot(x, y));
                 this.parent.fire(EVENTS.PUT_ENERGY, -eat);
             }
+            return;
+        }
         //
         // Organism found
         //
+        ret.ret = eat < 0 ? 0 : (eat > victimOrg.energy ? victimOrg.energy : eat);
+        if (victimOrg.energy <= ret.ret) {
+            this.parent.fire(EVENTS.KILL_EAT, victimOrg);
+            //
+            // IMPORTANT:
+            // We have to do destroy here, to have a possibility for current
+            // (winner) organism to clone himself after eating other organism.
+            // This is how organisms compete for an ability to clone
+            //
+            victimOrg.destroy();
         } else {
-            const victimOrg = this.positions[posId];
-            ret.ret = eat < 0 ? 0 : (eat > victimOrg.energy ? victimOrg.energy : eat);
-            if (victimOrg.energy <= ret.ret) {
-                this.parent.fire(EVENTS.KILL_EAT, victimOrg);
-                //
-                // IMPORTANT:
-                // We have to do destroy here, to have a possibility for current
-                // (winner) organism to clone himself after eating other organism.
-                // This is how organisms compete for an ability to clone
-                //
-                victimOrg.destroy();
-            } else {
-                this.parent.fire(EVENTS.EAT_ORG, victimOrg, ret.ret);
-                victimOrg.energy -= ret.ret;
-            }
+            this.parent.fire(EVENTS.EAT_ORG, victimOrg, ret.ret);
+            victimOrg.energy -= ret.ret;
         }
     }
 

@@ -53,11 +53,11 @@ ClientConfig.init({
     /**
      * {Number} World width
      */
-    worldWidth: 1920 / 2,
+    worldWidth: 1920 / 4,
     /**
      * {Number} World height
      */
-    worldHeight: 1080 / 2,
+    worldHeight: 1080 / 4,
     /**
      * {Number} Turns on cyclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
@@ -75,7 +75,7 @@ ClientConfig.init({
     /**
      * {Number} size of one clever energy block in dots
      */
-    worldEnergyBlockSize: 200,
+    worldEnergyBlockSize: 20,
     /**
      * {Number} Index of energy color. Starts from 0. Ends with 4000. See Organism.MAX_COLORS
      * constant for details
@@ -95,9 +95,10 @@ ClientConfig.init({
      */
     worldEnergyMinPercent: .0002,
     /**
-     * {Number} Amount of random stones in a world
+     * {Number} Percent of stones in a world. Percent from world size:
+     * stoneAmount = worldStonesPercent * worldWidth * worldHeight
      */
-    worldStonesAmount: 1500,
+    worldStonesPercent: .1,
     /**
      * {Number} Color index for stones in a world. See Organism.MAX_COLORS
      * constant for details

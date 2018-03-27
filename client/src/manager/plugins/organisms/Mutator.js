@@ -54,7 +54,7 @@ class Mutator {
 
     static _onMutationPeriod(org) {
         if (!OConfig.orgRainPerOrg) {return}
-        org.mutationPeriod = Helper.rand(OConfig.orgAlivePeriod);
+        org.mutationPeriod = Helper.rand(OConfig.orgAlivePeriod - 1) + 1;
         org.changes++;
     }
 
@@ -65,7 +65,7 @@ class Mutator {
     }
 
     static _onProbs(org) {
-        if (!OConfig.orgMutationPerOrg) {return}
+        if (!OConfig.orgMutationProbsPerOrg) {return}
         org.mutationProbs[Helper.rand(org.mutationProbs.length)] = Helper.rand(OConfig.ORG_MUTATION_PROBS_MAX_VAL) || 1;
         org.changes++;
     }
