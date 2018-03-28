@@ -52,7 +52,11 @@ const Config = {
      * {Number} Minimum age for cloning. Before that, cloning is impossible. It should
      * be less then orgAlivePeriod config
      */
-    orgCloneMinAge: 200,
+    orgCloneMinAge: 700,
+    /**
+     * {Number} Minimum energy for cloning
+     */
+    orgCloneMinEnergy: 1000000,
     /**
      * {Boolean} If true, then random organism will be killed after new one has
      * cloned and amount of organisms is greater then orgMaxOrgs config. false
@@ -60,10 +64,6 @@ const Config = {
      * orgMaxOrgs config.
      */
     orgKillOnClone: false,
-    /**
-     * {Number} Minimum energy for cloning
-     */
-    orgCloneMinEnergy: 100000,
     /**
      * {Number} Amount of iterations between tournament. During tournament one
      * organism (looser) will be killed
@@ -100,7 +100,7 @@ const Config = {
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
      */
-    orgAlivePeriod: 500,
+    orgAlivePeriod: 1000,
     /**
      * {Number} Size of organism stack (internal memory) in bits. Real amount of
      * organism's internal memory will be 2^orgMemBits. Example: if orgMemBits=3,
