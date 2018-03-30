@@ -87,7 +87,7 @@ ClientConfig.init({
      * be less then worldEnergyMinPercent. These two configs create cyclical
      * energy adding to the world.
      */
-    worldEnergyMaxPercent: .5,
+    worldEnergyMaxPercent: .9,
     /**
      * {Number} Opposite to worldEnergyMaxPercent. Sets minimum percent from
      * all energy in a world after which clever energy will turn on (be added to the
@@ -98,7 +98,7 @@ ClientConfig.init({
      * {Number} Percent of stones in a world. Percent from world size:
      * stoneAmount = worldStonesPercent * worldWidth * worldHeight
      */
-    worldStonesPercent: .3,
+    worldStonesPercent: .25,
     /**
      * {Number} Color index for stones in a world. See Organism.MAX_COLORS
      * constant for details

@@ -217,7 +217,7 @@ class OperatorsDos extends Operators {
         return ++line;
     }
 
-    onEatLeft(num, line, org)   {
+    onEatLeft(num, line, org) {
         const amount = this.vars[Num.getVar1(num)];
         if (amount === 0) {this.vars[Num.getVar0(num)] = 0; return ++line}
         const ret    = this._ret;
@@ -229,7 +229,7 @@ class OperatorsDos extends Operators {
 
         return ++line;
     }
-    onEatRight(num, line, org)  {
+    onEatRight(num, line, org) {
         const amount = this.vars[Num.getVar1(num)];
         if (amount === 0) {this.vars[Num.getVar0(num)] = 0; return ++line}
         const ret    = this._ret;
@@ -241,7 +241,7 @@ class OperatorsDos extends Operators {
 
         return ++line;
     }
-    onEatUp(num, line, org)     {
+    onEatUp(num, line, org) {
         const amount = this.vars[Num.getVar1(num)];
         if (amount === 0) {this.vars[Num.getVar0(num)] = 0; return ++line}
         const ret    = this._ret;
@@ -253,7 +253,7 @@ class OperatorsDos extends Operators {
 
         return ++line;
     }
-    onEatDown(num, line, org)   {
+    onEatDown(num, line, org) {
         const amount = this.vars[Num.getVar1(num)];
         if (amount === 0) {this.vars[Num.getVar0(num)] = 0; return ++line}
         const ret    = this._ret;

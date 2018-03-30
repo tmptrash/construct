@@ -33,20 +33,19 @@ class Stones {
 
         const stones = Config.worldStonesPercent * Config.worldWidth * Config.worldHeight;
         let   amount = 0;
-        while (amount < stones) {
-            amount = this._addStoneBlock(amount, stones);
-        }
+        while ((amount = this._addStoneBlock(amount, stones)) < stones) {}
     }
 
     _addStoneBlock(amount, stones) {
-        const width  = Config.worldWidth;
-        const height = Config.worldHeight;
-        const color  = Organism.getColor(Config.worldStoneColorIndex);
-        const man    = this._manager;
-        const world  = man.world;
-        const stone  = OBJECT_TYPES.TYPE_STONE;
-        let   x      = Helper.rand(width);
-        let   y      = Helper.rand(height);
+        const startAmount = amount;
+        const width       = Config.worldWidth;
+        const height      = Config.worldHeight;
+        const color       = Organism.getColor(Config.worldStoneColorIndex);
+        const man         = this._manager;
+        const world       = man.world;
+        const stone       = OBJECT_TYPES.TYPE_STONE;
+        let   x           = Helper.rand(width);
+        let   y           = Helper.rand(height);
 
         for (let i = 0; i < STONE_BLOCK_SIZE; i++) {
             x = x + Helper.rand(3) - 1;
@@ -60,7 +59,7 @@ class Stones {
             }
         }
 
-        return amount;
+        return amount > startAmount ? amount : Infinity;
     }
 }
 
