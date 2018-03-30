@@ -100,7 +100,7 @@ const Config = {
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
      */
-    orgAlivePeriod: 1000,
+    orgAlivePeriod: 10000,
     /**
      * {Number} Size of organism stack (internal memory) in bits. Real amount of
      * organism's internal memory will be 2^orgMemBits. Example: if orgMemBits=3,

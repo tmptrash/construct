@@ -70,7 +70,7 @@ class Organism extends Observer {
      * @param {String} id Unique identifier of organism
      * @param {Number} x Unique X coordinate
      * @param {Number} y Unique Y coordinate
-     * @param {Object} item Reference to the Queue item, where
+     * @param {Number} item Reference to the item index, where
      * this organism is located
      * @param {Function} operatorCls Class of operators
      * @param {Organism} parent Parent organism if cloning is needed
@@ -88,7 +88,6 @@ class Organism extends Observer {
         this._iterations    = -1;
         this._changes       = 0;
         this._item          = item;
-        this._maxEnergy     = 0;
         this._energyChanges = 0;
         this._fnId          = 0;
     }
@@ -115,7 +114,6 @@ class Organism extends Observer {
     set energy(e)               {if (this.vm !== null) { this._energy = e; ++this._energyChanges % UPDATE_COLOR_PERIOD === 0 && this._updateColor()}}
     set startEnergy(e)          {this._startEnergy = e}
     set changes(c)              {this._changes = c}
-    set maxEnergy(e)            {this._maxEnergy = e}
 
     /**
      * Runs one code iteration (amount of lines set in Config.codeYieldPeriod) and returns
@@ -239,7 +237,8 @@ class Organism extends Observer {
     }
 
     _updateColor() {
-        this._color = Organism.getColor((this._energy * MAX_COLORS) / this._maxEnergy);
+        // TODO: implement organism update color logic here
+        //this._color = Organism.getColor(MAX_COLORS);
     }
 
     _updateClone() {

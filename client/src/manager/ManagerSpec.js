@@ -91,7 +91,7 @@ describe("client/src/manager/Manager", () => {
         });
         it("Checking manager creation and it's properties", (done) => {
             const man = new Manager(false);
-            expect(man.organisms.size).toBe(0);
+            expect(man.organisms.length).toBe(0);
             expect(Object.keys(man.positions).length).toBe(0);
             expect(man.codeRuns).toBe(0);
             expect(!!man.api.version).toBe(true);
@@ -288,18 +288,18 @@ describe("client/src/manager/Manager", () => {
             console.log                     = () => {};
             expect(man1.clientId).toBe(null);
             expect(man2.clientId).toBe(null);
-            expect(man1.organisms.size).toBe(0);
-            expect(man2.organisms.size).toBe(0);
+            expect(man1.organisms.length).toBe(0);
+            expect(man2.organisms.length).toBe(0);
 
             man1.on(EVENTS.LOOP, () => {
                 if (blocked) {return}
-                expect(man1.organisms.size).toBe(1);
+                expect(man1.organisms.length).toBe(1);
                 if (iterated1 && iterated2) {destroy(); return}
                 iterated1 = true;
             });
             man2.on(EVENTS.LOOP, () => {
                 if (blocked) {return}
-                expect(man2.organisms.size).toBe(1);
+                expect(man2.organisms.length).toBe(1);
                 if (iterated2 && iterated1) {destroy(); return}
                 iterated2 = true;
             });
@@ -335,10 +335,10 @@ describe("client/src/manager/Manager", () => {
             OConfig.orgStartAmount          = 1;
             OConfig.orgRainMutationPeriod   = 0;
             OConfig.orgCloneMutationPercent = 0;
-            expect(man.organisms.size).toBe(0);
+            expect(man.organisms.length).toBe(0);
             man.on(EVENTS.LOOP, () => {
                 if (iterated) {return}
-                expect(man.organisms.size).toBe(1);
+                expect(man.organisms.length).toBe(1);
                 man.stop(() => {
                     man.destroy(() => {
                         OConfig.orgCloneMutationPercent = percent;
@@ -399,10 +399,10 @@ describe("client/src/manager/Manager", () => {
 
             man1.on(EVENTS.LOOP, () => {
                 if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
-                    org1 = man1.organisms.first.val;
+                    org1 = man1.organisms.lastAdded();
                     org1.vm.insertLine();
                     org1.vm.updateLine(0, 0b00001011000000000000000000000000); // onStepRight()
-                } else if (man2.organisms.size === 2) {
+                } else if (man2.organisms.length === 2) {
                     destroy();
                 }
                 if (iterated1 > 10000) {throw 'Error sending organism between Managers'}
@@ -466,7 +466,7 @@ describe("client/src/manager/Manager", () => {
 
             man1.on(EVENTS.LOOP, () => {
                 if (iterated1 > 0 && iterated2 > 0 && org1 === null && org2 !== null) {
-                    org1 = man1.organisms.first.val;
+                    org1 = man1.organisms.lastAdded();
                     org1.vm.code.push(0b00001011000000000000000000000000); // onStepRight()
                     man1.on(EVENTS.STEP_OUT, () => {
                         expect(doneInc < 3).toBe(true);
@@ -474,14 +474,14 @@ describe("client/src/manager/Manager", () => {
                     });
                     man2.on(EVENTS.STEP_IN, () => {
                         ++doneInc;
-                        expect(man1.organisms.size).toBe(1);
-                        expect(man1.organisms.first.val.x).toBe(0);
+                        expect(man1.organisms.length).toBe(1);
+                        expect(man1.organisms.lastAdded().x).toBe(0);
                     });
                 } else if (org1 !== null && org2 !== null && doneInc === 2) {
-                    expect(man1.organisms.size).toBe(1);
-                    expect(man1.organisms.first.val.x).toBe(0);
-                    expect(man2.organisms.size).toBe(1);
-                    expect(man2.organisms.first.val.x).toBe(0);
+                    expect(man1.organisms.length).toBe(1);
+                    expect(man1.organisms.lastAdded().x).toBe(0);
+                    expect(man2.organisms.length).toBe(1);
+                    expect(man2.organisms.lastAdded().x).toBe(0);
                     destroy();
                     doneInc++;
                 }
@@ -489,7 +489,7 @@ describe("client/src/manager/Manager", () => {
                 iterated1++;
             });
             man2.on(EVENTS.LOOP, () => {
-                !iterated2 && (org2 = man2.organisms.first.val);
+                !iterated2 && (org2 = man2.organisms.lastAdded());
                 iterated2++;
             });
 
@@ -554,10 +554,10 @@ describe("client/src/manager/Manager", () => {
 
             man1.on(EVENTS.LOOP, () => {
                 if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
-                    expect(man2.organisms.size).toBe(1);
-                    org1 = man1.organisms.first.val;
+                    expect(man2.organisms.length).toBe(1);
+                    org1 = man1.organisms.lastAdded();
                     org1.vm.code.push(0b00001011000000000000000000000000); // onStepRight()
-                } else if (man2.organisms.size === 2) {
+                } else if (man2.organisms.length === 2) {
                     destroy();
                 }
                 if (iterated1 > 10000) {throw 'Error sending organism between Servers'}

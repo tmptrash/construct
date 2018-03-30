@@ -13,7 +13,7 @@
  * @author flatline
  */
 const Observer         = require('./../../../common/src/Observer');
-const Queue            = require('./../../../common/src/Queue');
+const FastArray        = require('./../../../common/src/FastArray');
 const Config           = require('./../share/Config').Config;
 const OConfig          = require('./plugins/organisms/Config');
 const Plugins          = require('./Plugins');
@@ -38,11 +38,11 @@ class Manager extends Observer {
     constructor(hasView = true) {
         super(EVENT_AMOUNT);
         /**
-         * {Queue} Queue of organisms in current Manager. Should be used by plugins.
-         * Organisms plugin walk through this queue and run organism's code all the
+         * {FastArray} Array of organisms in current Manager. Should be used by plugins.
+         * Organisms plugin walk through this array and run organism's code all the
          * time.
          */
-        this.organisms     = new Queue();
+        this.organisms     = new FastArray(OConfig.orgMaxOrgs);
         /**
          * {Object} positions of organisms in a world. Is used to prevent collisions
          * and track all world objects
@@ -50,6 +50,7 @@ class Manager extends Observer {
         this.positions     = {};
         /**
          * {Object} Map of world objects like stones, water,...
+         * TODO: it should be a part of positions object. Remove it!
          */
         this.objects       = {};
         /**
