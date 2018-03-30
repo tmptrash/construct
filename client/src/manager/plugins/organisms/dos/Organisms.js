@@ -30,11 +30,6 @@ const OBJECT           = 3;
  */
 const NORMALIZE        = Helper.normalize;
 const NORMALIZE_NO_DIR = Helper.normalizeNoDir;
-/**
- * {Function} Is created to speed up this function call. constants are run
- * much faster, then Helper.posId()
- */
-const POSID            = Helper.posId;
 
 class Organisms extends BaseOrganisms {
     constructor(manager) {
@@ -118,31 +113,25 @@ class Organisms extends BaseOrganisms {
     }
 
     _onGetEnergy(x, y, ret) {
-        const posId = POSID(x, y);
-
-        if (typeof(this.positions[posId]) === 'undefined') {
+        if (this.positions[x][y] <= 0) {
             ret.ret = this.world.getDot(x, y)
         } else {
-            ret.ret = this.positions[posId].energy;
+            ret.ret = this.positions[x][y].energy;
         }
     }
 
     _onEat(org, x, y, ret) {
         const eat       = ret.ret;
         [x, y]          = NORMALIZE_NO_DIR(x, y);
-        const posId     = POSID(x, y);
+        const victimOrg = this.positions[x][y];
         //
         // World object found. We can't eat objects
         //
-        if (typeof(this.objects[posId]) !== 'undefined') {
-            ret.ret = 0;
-            return;
-        }
+        if (victimOrg < 0) {ret.ret = 0; return}
         //
         // Energy found
         //
-        const victimOrg = this.positions[posId];
-        if (typeof victimOrg === 'undefined') {
+        if (victimOrg === 0) {
             if (eat >= 0) {
                 ret.ret = this.world.grabDot(x, y, eat);
                 this.parent.fire(EVENTS.EAT_ENERGY, ret.ret);
@@ -215,14 +204,13 @@ class Organisms extends BaseOrganisms {
     }
 
     _onCheckAt(x, y, ret) {
-        const posId = POSID(x, y);
-        [x, y]      = NORMALIZE_NO_DIR(x, y);
+        [x, y] = NORMALIZE_NO_DIR(x, y);
 
-        if (typeof(this.objects[posId]) !== 'undefined') {
-            ret.ret = OBJECT + this.objects[posId];
-        } else if (typeof(this.positions[posId]) === 'undefined') {
+        if (this.positions[x][y] < 0) {              // world object
+            ret.ret = OBJECT + -this.positions[x][y];
+        } else if (this.positions[x][y] === 0) {     // energy
             ret.ret = this.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
-        } else {
+        } else {                                     // organism
             ret.ret = ORGANISM;
         }
     }

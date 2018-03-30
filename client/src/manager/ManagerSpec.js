@@ -92,7 +92,7 @@ describe("client/src/manager/Manager", () => {
         it("Checking manager creation and it's properties", (done) => {
             const man = new Manager(false);
             expect(man.organisms.size).toBe(0);
-            expect(Object.keys(man.positions).length).toBe(0);
+            expect(man.positions.length).toBe(Config.worldWidth);
             expect(man.codeRuns).toBe(0);
             expect(!!man.api.version).toBe(true);
             expect(man.api.visualize).toBe(undefined);

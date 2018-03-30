@@ -9,11 +9,10 @@ const Organism     = require('./../../manager/plugins/organisms/Organism').Organ
 const OBJECT_TYPES = require('./../../view/World').OBJECT_TYPES;
 
 const STONE_BLOCK_SIZE  = 300;
-const POSID             = Helper.posId;
 //
 // We have to add stone type to global types storage
 //
-OBJECT_TYPES.TYPE_STONE = Object.keys(OBJECT_TYPES).length;
+OBJECT_TYPES.TYPE_STONE = -(Object.keys(OBJECT_TYPES).length + 1);
 
 class Stones {
     constructor(manager) {
@@ -55,7 +54,7 @@ class Stones {
             if (x < 0 || x >= width || y < 0 || y >= height) {return amount}
             if (world.isFree(x, y)) {
                 if (world.setDot(x, y, color)) {
-                    man.objects[POSID(x, y)] = stone;
+                    man.positions[x][y] = stone;
                     if (++amount >= stones) {return amount}
                 }
             }

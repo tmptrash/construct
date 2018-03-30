@@ -37,6 +37,8 @@ class Manager extends Observer {
      */
     constructor(hasView = true) {
         super(EVENT_AMOUNT);
+        const width  = Config.worldWidth;
+        const height = Config.worldHeight;
         /**
          * {Queue} Queue of organisms in current Manager. Should be used by plugins.
          * Organisms plugin walk through this queue and run organism's code all the
@@ -47,11 +49,8 @@ class Manager extends Observer {
          * {Object} positions of organisms in a world. Is used to prevent collisions
          * and track all world objects
          */
-        this.positions     = {};
-        /**
-         * {Object} Map of world objects like stones, water,...
-         */
-        this.objects       = {};
+        this.positions     = [];
+        for (let x = 0; x < width; x++) {this.positions[x] = (new Array(height)).fill(0)}
         /**
          * {Object} This field is used as a container for public API of the Manager.
          * It may be used in a user console by the Operator of construct. Plugins
@@ -197,7 +196,6 @@ class Manager extends Observer {
         this._world        = null;
         this.api           = null;
         this._codeRuns     = 0;
-        this.objects       = null;
         this.positions     = null;
         this.organisms.destroy();
         this.organisms     = null;

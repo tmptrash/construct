@@ -17,8 +17,6 @@ const ORG_EVENTS   = require('./../../../../src/manager/plugins/organisms/Organi
 const Mutator      = require('./Mutator');
 const Num          = require('./../../../vm/Num');
 
-const POSID     = Helper.posId;
-
 // TODO: inherit this class from Configurable
 class Organisms extends Configurable {
     /**
@@ -60,7 +58,6 @@ class Organisms extends Configurable {
             getOrganism: ['_apiGetOrganism', 'Returns organism instance by id or int\'s index in a Queue']
         });
         this.organisms      = manager.organisms;
-        this.objects        = manager.objects;
         this.randOrgItem    = this.organisms.first;
         this.positions      = manager.positions;
         this.world          = manager.world;
@@ -126,8 +123,8 @@ class Organisms extends Configurable {
 
         if (x1 === x2 && y1 === y2) {return false}
         world.setDot(x1, y1, 0);
-        this.positions[POSID(x1, y1)] = undefined;
-        this.positions[POSID(x2, y2)] = org;
+        this.positions[x1][y1] = 0;
+        this.positions[x2][y2] = org;
 
         return true;
     }
@@ -141,7 +138,7 @@ class Organisms extends Configurable {
         orgs.last.val = org;
         this.addOrgHandlers(org);
         this.world.setDot(x, y, org.color);
-        this.positions[org.posId] = org;
+        this.positions[x][y] = org;
         this.parent.fire(EVENTS.BORN_ORGANISM, org);
         //Console.info(org.id, ' born');
 
@@ -278,7 +275,7 @@ class Organisms extends Configurable {
         }
         this.organisms.del(org.item);
         this.world.setDot(org.x, org.y, 0);
-        this.positions[org.posId] = undefined;
+        this.positions[org.x][org.y] = 0;
         this.parent.fire(EVENTS.KILL, org);
         //Console.info(org.id, ' die');
     }

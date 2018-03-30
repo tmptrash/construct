@@ -8,8 +8,6 @@ const Config   = require('./../../share/Config').Config;
 const Organism = require('./../../manager/plugins/organisms/Organism').Organism;
 const EVENTS   = require('./../../share/Events').EVENTS;
 
-const POSID    = Helper.posId;
-
 class Energy {
     constructor(manager) {
         this._manager       = manager;
@@ -59,17 +57,15 @@ class Energy {
     }
 
     _getEnergyPercent() {
-        let energy = 0;
-        const world = this._manager.world;
-        const width = Config.worldWidth;
+        let   energy = 0;
+        const world  = this._manager.world;
+        const width  = Config.worldWidth;
         const height = Config.worldHeight;
-        const poses = this._manager.positions;
-        const objs = this._manager.objects;
+        const poses  = this._manager.positions;
 
         for (let x = 0; x < width; x++) {
             for (let y = 0; y < height; y++) {
-                const posId = POSID(x, y);
-                if (typeof poses[posId] === 'undefined' && typeof objs[posId] === 'undefined' && world.getDot(x, y) > 0) {++energy}
+                if (poses[x][y] === 0 && world.getDot(x, y) > 0) {++energy}
             }
         }
 
