@@ -62,11 +62,10 @@ class Energy {
         const world  = this._manager.world;
         const width  = Config.worldWidth;
         const height = Config.worldHeight;
-        const poses  = this._manager.positions;
 
         for (let x = 0; x < width; x++) {
             for (let y = 0; y < height; y++) {
-                if (poses[x][y] === 0 && world.getDot(x, y) > 0) {++energy}
+                if (world.getDot(x, y) > 0) {++energy}
             }
         }
 

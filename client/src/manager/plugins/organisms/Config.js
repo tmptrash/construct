@@ -56,7 +56,7 @@ const Config = {
     /**
      * {Number} Minimum energy for cloning
      */
-    orgCloneMinEnergy: 1000000,
+    orgCloneMinEnergy: 100000,
     /**
      * {Boolean} If true, then random organism will be killed after new one has
      * cloned and amount of organisms is greater then orgMaxOrgs config. false
@@ -126,11 +126,11 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 100,
+    orgMaxOrgs: 200,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 100,
+    orgStartAmount: 200,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created
