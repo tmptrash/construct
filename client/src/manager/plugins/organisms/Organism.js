@@ -70,7 +70,7 @@ class Organism extends Observer {
      * @param {String} id Unique identifier of organism
      * @param {Number} x Unique X coordinate
      * @param {Number} y Unique Y coordinate
-     * @param {Number} item Reference to the item index, where
+     * @param {Object} item Reference to the Queue item, where
      * this organism is located
      * @param {Function} operatorCls Class of operators
      * @param {Organism} parent Parent organism if cloning is needed
