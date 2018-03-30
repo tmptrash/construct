@@ -217,10 +217,54 @@ class OperatorsDos extends Operators {
         return ++line;
     }
 
-    onEatLeft(num, line, org)   {this.vars[Num.getVar0(num)] = this._eat(org, num, org.x - 1, org.y); return ++line}
-    onEatRight(num, line, org)  {this.vars[Num.getVar0(num)] = this._eat(org, num, org.x + 1, org.y); return ++line}
-    onEatUp(num, line, org)     {this.vars[Num.getVar0(num)] = this._eat(org, num, org.x, org.y - 1); return ++line}
-    onEatDown(num, line, org)   {this.vars[Num.getVar0(num)] = this._eat(org, num, org.x, org.y + 1); return ++line}
+    onEatLeft(num, line, org)   {
+        const amount = this.vars[Num.getVar1(num)];
+        if (amount === 0) {this.vars[Num.getVar0(num)] = 0; return ++line}
+        const ret    = this._ret;
+
+        ret.ret = amount;
+        this.obs.fire(EVENTS.EAT, org, org.x - 1, org.y, ret);
+        org.energy += ret.ret;
+        this.vars[Num.getVar0(num)] = ret.ret;
+
+        return ++line;
+    }
+    onEatRight(num, line, org)  {
+        const amount = this.vars[Num.getVar1(num)];
+        if (amount === 0) {this.vars[Num.getVar0(num)] = 0; return ++line}
+        const ret    = this._ret;
+
+        ret.ret = amount;
+        this.obs.fire(EVENTS.EAT, org, org.x + 1, org.y, ret);
+        org.energy += ret.ret;
+        this.vars[Num.getVar0(num)] = ret.ret;
+
+        return ++line;
+    }
+    onEatUp(num, line, org)     {
+        const amount = this.vars[Num.getVar1(num)];
+        if (amount === 0) {this.vars[Num.getVar0(num)] = 0; return ++line}
+        const ret    = this._ret;
+
+        ret.ret = amount;
+        this.obs.fire(EVENTS.EAT, org, org.x, org.y - 1, ret);
+        org.energy += ret.ret;
+        this.vars[Num.getVar0(num)] = ret.ret;
+
+        return ++line;
+    }
+    onEatDown(num, line, org)   {
+        const amount = this.vars[Num.getVar1(num)];
+        if (amount === 0) {this.vars[Num.getVar0(num)] = 0; return ++line}
+        const ret    = this._ret;
+
+        ret.ret = amount;
+        this.obs.fire(EVENTS.EAT, org, org.x, org.y + 1, ret);
+        org.energy += ret.ret;
+        this.vars[Num.getVar0(num)] = ret.ret;
+
+        return ++line;
+    }
 
     onStepLeft(num, line, org)  {this.vars[Num.getVar0(num)] = this._step(org, org.x, org.y, org.x - 1, org.y, org.x - 1); return ++line}
     onStepRight(num, line, org) {this.vars[Num.getVar0(num)] = this._step(org, org.x, org.y, org.x + 1, org.y, org.x + 1); return ++line}
@@ -270,18 +314,6 @@ class OperatorsDos extends Operators {
         this.obs.fire(EVENTS.CHECK_AT, org.x, org.y + 1, this._ret);
         this.vars[Num.getVar0(num)] = this._ret.ret;
         return ++line;
-    }
-
-    _eat(org, num, x, y) {
-        const amount = this.vars[Num.getVar1(num)];
-        if (amount === 0) {return 0}
-        const ret    = this._ret;
-
-        ret.ret = amount;
-        this.obs.fire(EVENTS.EAT, org, x, y, ret);
-        org.energy += ret.ret;
-
-        return ret.ret;
     }
 
     _step(org, x1, y1, x2, y2, step) {

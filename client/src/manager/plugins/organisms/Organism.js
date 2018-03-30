@@ -193,6 +193,7 @@ class Organism extends Observer {
     fitness() {
         // TODO: check these variants
         //return (OConfig.codeMaxSize + 1 - this.vm.size) * (this._energy - this._startEnergy) * (this._changes || 1);
+        //return (OConfig.codeMaxSize + 1 - this.vm.size) * (this._energy - this._startEnergy) * (this._changes || 1);
         //return (OConfig.codeMaxSize + 1 - this.vm.size) * (this._energy - this._startEnergy);
         //return (OConfig.codeMaxSize + 1 - this.vm.size) * ((this._energy - this._startEnergy) / this._iterations);
         return this._energy / (this.vm.size || 1);
@@ -239,7 +240,8 @@ class Organism extends Observer {
     }
 
     _updateColor() {
-        this._color = Organism.getColor((this._energy * MAX_COLORS) / this._maxEnergy);
+        // TODO: color update strategy will be here...
+        //this._color = Organism.getColor(MAX_COLORS));
     }
 
     _updateClone() {
