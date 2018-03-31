@@ -29,32 +29,45 @@ class Energy {
 
         this._manager.fire(EVENTS.WORLD_ENERGY, energy);
         if (energy > Config.worldEnergyMinPercent) {return}
+
         const maxEnergy = Config.worldEnergyMaxPercent * Config.worldWidth * Config.worldHeight;
-        let amount = 0;
-        while ((amount = this._addEnergyBlock(amount, maxEnergy)) < maxEnergy) {}
+        let   amount    = 0;
+        let   attempts  = 0;
+        while (amount < maxEnergy && attempts < 100) {
+            const startAmount = amount;
+            amount = this._addEnergyBlock(amount, maxEnergy);
+            if (amount === startAmount) {
+                attempts++;
+            } else {
+                attempts = 0;
+            }
+        }
     }
 
     _addEnergyBlock(amount, maxEnergy) {
-        const startAmount = amount;
-        const width       = Config.worldWidth;
-        const height      = Config.worldHeight;
-        const color       = Organism.getColor(Config.worldEnergyColorIndex);
-        let   block       = Config.worldEnergyBlockSize;
-        const world       = this._manager.world;
-        let   x           = Helper.rand(width);
-        let   y           = Helper.rand(height);
+        const width = Config.worldWidth;
+        const height = Config.worldHeight;
+        const color = Organism.getColor(Config.worldEnergyColorIndex);
+        let block = Config.worldEnergyBlockSize;
+        const world = this._manager.world;
+        let x = Helper.rand(width);
+        let y = Helper.rand(height);
 
         for (let i = 0; i < block; i++) {
             x = x + Helper.rand(3) - 1;
             y = y + Helper.rand(3) - 1;
-            if (x < 0 || x >= width || y < 0 || y >= height) {return amount}
+            if (x < 0 || x >= width || y < 0 || y >= height) {
+                return amount
+            }
             if (world.isFree(x, y)) {
                 world.setDot(x, y, color);
-                if (++amount > maxEnergy) {return amount}
+                if (++amount > maxEnergy) {
+                    return amount
+                }
             }
         }
 
-        return amount > startAmount ? amount : Infinity;
+        return amount;
     }
 
     _getEnergyPercent() {

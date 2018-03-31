@@ -87,7 +87,7 @@ ClientConfig.init({
      * be less then worldEnergyMinPercent. These two configs create cyclical
      * energy adding to the world.
      */
-    worldEnergyMaxPercent: .9,
+    worldEnergyMaxPercent: .7,
     /**
      * {Number} Opposite to worldEnergyMaxPercent. Sets minimum percent from
      * all energy in a world after which clever energy will turn on (be added to the

@@ -160,7 +160,7 @@ describe("client/src/organism/OrganismDos", () => {
             const color = org.color;
             expect(org.color).toBe(color);
             org.energy++;
-            expect(org.color).not.toBe(color);
+            expect(org.color).toBe(color);
         });
     });
 
