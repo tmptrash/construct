@@ -226,8 +226,10 @@ class Organisms extends BaseOrganisms {
      * @param {Object} ret Return object
      */
     _onStepIn(x, y, orgJson, ret) {
-        if (ret.ret = this.world.isFree(x, y) && this.organisms.size < (OConfig.orgMaxOrgs + OConfig.orgMaxOrgs * OConfig.orgStepOverflowPercent) && this.createOrg(x, y)) {
-            const org = this.organisms.last.val;
+        if (ret.ret = this.world.isFree(x, y) && this.organisms.size < (OConfig.orgMaxOrgs + OConfig.orgMaxOrgs * OConfig.orgStepOverflowPercent)) {
+            const item = this.createOrg(x, y);
+            if (item === false) {return}
+            const org  = item.val;
             org.unserialize(orgJson);
             const energy = (org.energy * OConfig.orgStepEnergySpendPercent + .5) << 0;
             //

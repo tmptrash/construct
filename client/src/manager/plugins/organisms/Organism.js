@@ -47,8 +47,6 @@ class Organism extends Observer {
         return r << 16 | g << 8 | b;
     }
 
-    static getMaxColors() {return MAX_COLORS}
-
     /**
      * Is called before every run. Should return true, if everything
      * is okay and we don't need to interrupt running. If true, then
@@ -238,8 +236,7 @@ class Organism extends Observer {
     }
 
     _updateColor() {
-        // TODO: color update strategy will be here...
-        //this._color = Organism.getColor(MAX_COLORS));
+        this._color = Organism.getColor(this._iterations * (MAX_COLORS / OConfig.orgAlivePeriod));
     }
 
     _updateClone() {

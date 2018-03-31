@@ -131,18 +131,17 @@ class Organisms extends Configurable {
 
     createOrg(x, y, parent = null) {
         if (x === -1) {return false}
-        const orgs = this.organisms;
-        orgs.add(null);
-        let   org  = this.createEmptyOrg(++this._orgId + '', x, y, orgs.last, parent);
+        const item = this.organisms.addAfter(this.randOrgItem, null);
+        let   org  = this.createEmptyOrg(++this._orgId + '', x, y, item, parent);
 
-        orgs.last.val = org;
+        item.val = org;
         this.addOrgHandlers(org);
         this.world.setDot(x, y, org.color);
         this.positions[x][y] = org;
         this.parent.fire(EVENTS.BORN_ORGANISM, org);
         //Console.info(org.id, ' born');
 
-        return true;
+        return item;
     }
 
     /**
@@ -203,20 +202,22 @@ class Organisms extends Configurable {
         if (this.onBeforeClone(org) === false) {return false}
         let x;
         let y;
+        let item;
         [x, y] = this.world.getNearFreePos(org.x, org.y);
-        if (x === -1 || this.createOrg(x, y, org) === false) {return false}
-        let child = this.organisms.last.val;
+        if (x === -1 || (item = this.createOrg(x, y, org)) === false) {return false}
+        let child = item.val;
 
         this.onClone(org, child);
         if (org.energy < 1 || child.energy < 1) {return false}
         this.parent.fire(EVENTS.CLONE, org, child, isCrossover);
 
-        return true;
+        return item;
     }
 
     _crossover(org1, org2) {
-        if (!this._clone(org1, true)) {return false}
-        let child = this.organisms.last.val;
+        const item = this._clone(org1, true);
+        if (item === false) {return false}
+        let child = item.val;
 
         if (child.energy > 0 && org2.energy > 0) {
             child.changes += (Math.abs(child.vm.crossover(org2.vm)) * Num.MAX_BITS);
@@ -306,7 +307,6 @@ class Organisms extends Configurable {
         // organisms before cloning. They should kill each other to have a possibility
         // to clone them.
         //
-        if (org.energy < OConfig.orgCloneMinEnergy) {return}
         if (OConfig.orgKillOnClone && this.organisms.size >= OConfig.orgMaxOrgs) {this.randOrg().destroy()}
         if (this.organisms.size < OConfig.orgMaxOrgs) {this._clone(org)}
     }

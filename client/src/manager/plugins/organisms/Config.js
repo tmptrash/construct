@@ -52,11 +52,11 @@ const Config = {
      * {Number} Minimum age for cloning. Before that, cloning is impossible. It should
      * be less then orgAlivePeriod config
      */
-    orgCloneMinAge: 700,
+    orgCloneMinAge: 300,
     /**
      * {Number} Minimum energy for cloning
      */
-    orgCloneMinEnergy: 100000,
+    orgCloneMinEnergy: 2000000,
     /**
      * {Boolean} If true, then random organism will be killed after new one has
      * cloned and amount of organisms is greater then orgMaxOrgs config. false
@@ -126,17 +126,17 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 200,
+    orgMaxOrgs: 1000,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 200,
+    orgStartAmount: 1000,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created
      * by operator and not by evolution.
      */
-    orgStartEnergy: 1000000,
+    orgStartEnergy: 90000000,
     /**
      * {Number} Amount of bits for storing a numeric constant inside byte code
      */

@@ -93,7 +93,7 @@ ClientConfig.init({
      * all energy in a world after which clever energy will turn on (be added to the
      * world again).
      */
-    worldEnergyMinPercent: .3,
+    worldEnergyMinPercent: .28,
     /**
      * {Number} Percent of stones in a world. Percent from world size:
      * stoneAmount = worldStonesPercent * worldWidth * worldHeight

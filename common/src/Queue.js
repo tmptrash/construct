@@ -51,6 +51,29 @@ class Queue {
     }
 
     /**
+     * The same like add(), but inserts after specified item in a queue
+     * @param {Object} item Item, after which val will be inserted
+     * @param {*} val Value to insert
+     * @return {Object} Inserted item
+     */
+    addAfter(item, val) {
+        if (item === this._last) {this.add(val); return this._last}
+        if (this._size++ > 0) {
+            const newItem = {
+                prev: item,
+                next: item.next,
+                val
+            };
+            item.next.prev = newItem;
+            item.next      = newItem;
+            return newItem;
+        }
+        this._first.val = val;
+
+        return this._first;
+    }
+
+    /**
      * Removes specified item from the queue. 'item' parameter is not
      * the same as value inside this item. Remember remove position may
      * be any in a queue.
