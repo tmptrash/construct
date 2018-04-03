@@ -75,7 +75,7 @@ ClientConfig.init({
     /**
      * {Number} size of one clever energy block in dots
      */
-    worldEnergyBlockSize: 20,
+    worldEnergyBlockSize: 10,
     /**
      * {Number} Index of energy color. Starts from 0. Ends with 4000. See Organism.MAX_COLORS
      * constant for details
@@ -87,7 +87,7 @@ ClientConfig.init({
      * be less then worldEnergyMinPercent. These two configs create cyclical
      * energy adding to the world.
      */
-    worldEnergyMaxPercent: .7,
+    worldEnergyMaxPercent: .3,
     /**
      * {Number} Opposite to worldEnergyMaxPercent. Sets minimum percent from
      * all energy in a world after which clever energy will turn on (be added to the

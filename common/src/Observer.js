@@ -53,9 +53,8 @@ class Observer {
     /**
      * This method is a most frequently called one. So we have to
      * optimize it as much as possible
-     * @param {Number} event Event number
+     * @param {Number} event Event number. Not string
      * @param {*} args List of arguments
-     * @param args
      */
     fire(event, ...args) {
         const handlers = this._handlers[event] || {};

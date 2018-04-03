@@ -236,7 +236,7 @@ class Organism extends Observer {
     }
 
     _updateColor() {
-        this._color = Organism.getColor(this._iterations * (MAX_COLORS / OConfig.orgAlivePeriod));
+        this._color = Organism.getColor(OConfig.orgAlivePeriod === 0 ? MAX_COLORS : this._iterations * (MAX_COLORS / OConfig.orgAlivePeriod));
     }
 
     _updateClone() {

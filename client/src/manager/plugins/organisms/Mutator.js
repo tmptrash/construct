@@ -15,6 +15,11 @@ const Helper   = require('./../../../../../common/src/Helper');
 const Num      = require('./../../../vm/Num');
 
 const ADD_MUTAION_INDEX = 6;
+/**
+ * {Number} Default alive period, which is used if orgAlivePeriod
+ * config is set to zero
+ */
+const MAX_ALIVE_PERIOD  = 10000;
 
 class Mutator {
     static _onChange(org) {
@@ -54,7 +59,7 @@ class Mutator {
 
     static _onMutationPeriod(org) {
         if (!OConfig.orgRainPerOrg) {return}
-        org.mutationPeriod = Helper.rand(OConfig.orgAlivePeriod - 1) + 1;
+        org.mutationPeriod = OConfig.orgAlivePeriod < 1 ? Helper.rand(MAX_ALIVE_PERIOD) + 1 : Helper.rand(OConfig.orgAlivePeriod - 1) + 1;
         org.changes++;
     }
 

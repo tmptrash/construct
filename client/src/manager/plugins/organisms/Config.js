@@ -15,12 +15,12 @@ const Config = {
      * implemented. See Operators.operators getter for details. Values may be float.
      */
     orgOperatorWeights: [
-        .001,  .001, .00001, .00000001, .0001, // var, const, if, loop, operator,
-        .0001, .2,   .2,     .2,        .2,    // lookAt, eatLeft, eatRight, eatUp, eatDown,
-        2,     2,    2,      2,                // stepLeft, stepRight, stepUp, stepDown,
-        .001,  .001,                           // fromMem, toMem,
-        .0001, .0001,                          // myX, myY,
-        .001,  .001, .001,   .001              // checkLeft, checkRight, checkUp, checkDown
+        .0001,  .0001, .00001, .00000001, .0001, // var, const, if, loop, operator,
+        .00001, 2,     2,      2,         2,     // lookAt, eatLeft, eatRight, eatUp, eatDown,
+        2,      2,     2,      2,                // stepLeft, stepRight, stepUp, stepDown,
+        .001,   .001,                            // fromMem, toMem,
+        .0001,  .0001,                           // myX, myY,
+        .001,   .001,  .001,   .001              // checkLeft, checkRight, checkUp, checkDown
     ],
     /**
      * {Array} Probabilities which used, when mutator decides what to do:
@@ -52,18 +52,18 @@ const Config = {
      * {Number} Minimum age for cloning. Before that, cloning is impossible. It should
      * be less then orgAlivePeriod config
      */
-    orgCloneMinAge: 300,
+    orgCloneMinAge: 3000,
     /**
      * {Number} Minimum energy for cloning
      */
-    orgCloneMinEnergy: 2000000,
+    orgCloneMinEnergy: 20000000,
     /**
      * {Boolean} If true, then random organism will be killed after new one has
      * cloned and amount of organisms is greater then orgMaxOrgs config. false
      * mean, that new organism will not be cloned, if amount of organisms is >=
      * orgMaxOrgs config.
      */
-    orgKillOnClone: false,
+    orgKillOnClone: true,
     /**
      * {Number} Amount of iterations between tournament. During tournament one
      * organism (looser) will be killed
@@ -100,7 +100,7 @@ const Config = {
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
      */
-    orgAlivePeriod: 1000,
+    orgAlivePeriod: 0,
     /**
      * {Number} Size of organism stack (internal memory) in bits. Real amount of
      * organism's internal memory will be 2^orgMemBits. Example: if orgMemBits=3,
