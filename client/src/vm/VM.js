@@ -39,7 +39,7 @@ class VM extends Observer {
          */
         this._operatorCls  = operatorCls;
         this._vars         = parent && parent.vars && parent.vars.slice() || this._getVars();
-        this._code         = parent && parent.code.slice() || [21490344, 4865568, 1105425628, 46244285, 1428694332, 42772605, 11546049, 117239988, 46244285, 1338608526, 20072550];
+        this._code         = parent && parent.code.slice() || [];
         this._line         = parent && parent.line || 0;
         /**
          * {Array} Array of two numbers. first - line number where we have
