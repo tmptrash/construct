@@ -47,16 +47,16 @@ const Config = {
      * {Boolean} If turned on, then organism will be responsible for changing
      * mutations probabilities. Otherwise these probabilities will be constant
      */
-    orgMutationProbsPerOrg: true,
+    orgMutationProbsPerOrg: false,
     /**
      * {Number} Minimum age for cloning. Before that, cloning is impossible. It should
      * be less then orgAlivePeriod config
      */
-    orgCloneMinAge: 3000,
+    orgCloneMinAge: 300,
     /**
      * {Number} Minimum energy for cloning
      */
-    orgCloneMinEnergy: 20000000,
+    orgCloneMinEnergy: 200000,
     /**
      * {Boolean} If true, then random organism will be killed after new one has
      * cloned and amount of organisms is greater then orgMaxOrgs config. false
@@ -74,7 +74,7 @@ const Config = {
      * do mutations according to orgRainMutationPercent config. If 0, then
      * mutations wilsabled. Should be less then ORGANISM_MAX_MUTATION_PERIOD
      */
-    orgRainMutationPeriod: 100,
+    orgRainMutationPeriod: 500,
     /**
      * {Number} Percent of mutations from code size. 0 is a possible value if
      * we want to disable mutations. Should be less then 1.0 (1.0 === 100%)
@@ -85,7 +85,7 @@ const Config = {
      * own mutations period and percent. false - mean, that these values will be
      * constant for all organisms
      */
-    orgRainPerOrg: true,
+    orgRainPerOrg: false,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
@@ -100,7 +100,7 @@ const Config = {
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
      */
-    orgAlivePeriod: 0,
+    orgAlivePeriod: 1000000,
     /**
      * {Number} Size of organism stack (internal memory) in bits. Real amount of
      * organism's internal memory will be 2^orgMemBits. Example: if orgMemBits=3,
@@ -157,12 +157,12 @@ const Config = {
      * {Number} Amount of bits per one variable. It affects maximum value,
      * which this variable may contain. This value shouldn't be less then 2.
      */
-    codeBitsPerVar: 4,
+    codeBitsPerVar: 3,
     /**
      * {Number} Amount of bits for storing operator. This is first XX bits
      * in a number.
      */
-    codeBitsPerOperator: 8,
+    codeBitsPerOperator: 5,
     /**
      * {Number} Amount of bits, which stores maximum block length. Under block
      * length we mean maximum amount of lines in one block like if, for,...

@@ -12,6 +12,7 @@ const Observer     = require('./../../../common/src/Observer');
 const OConfig      = require('./../manager/plugins/organisms/Config');
 const EVENTS       = require('./../../src/share/Events').EVENTS;
 const EVENT_AMOUNT = require('./../../src/share/Events').EVENT_AMOUNT;
+const Operators    = require('./Operators');
 const Num          = require('./Num');
 /**
  * {Number} Maximum stack size, which may be used for recursion or function parameters
@@ -38,14 +39,14 @@ class VM extends Observer {
          */
         this._operatorCls  = operatorCls;
         this._vars         = parent && parent.vars && parent.vars.slice() || this._getVars();
-        this._code         = parent && parent.code.slice() || [];
+        this._code         = parent && parent.code.slice() || [21490344, 4865568, 1105425628, 46244285, 1428694332, 42772605, 11546049, 117239988, 46244285, 1338608526, 20072550];
         this._line         = parent && parent.line || 0;
         /**
          * {Array} Array of two numbers. first - line number where we have
          * to return if first line appears. second - line number, where ends
          * closing block '}' of block operator (e.g. for, if,...).
          */
-        this._offsets      = [this._code.length];
+        this._offsets      = new Array(OConfig.codeMaxSize);
         /**
          * {Function} Class, which implement all supported operators
          */
@@ -88,41 +89,29 @@ class VM extends Observer {
      * @return {Number} Amount of run lines
      */
     run(org) {
-        const code     = this._code;
-        const lines    = code.length;
+        const code      = this._code;
+        const lines     = code.length;
         if (lines < 1) {return 0}
-        const ops      = this._ops;
-        const offs     = this._offsets;
-        const period   = OConfig.codeYieldPeriod;
-        const OFFS     = Num.VAR_BITS_OFFS;
-        const WEIGHTS  = this._weights;
-        let   len      = period;
-        let   line     = this._line;
-        let   operator;
+        const ops       = this._ops;
+        const operators = this._operators;
+        const period    = OConfig.codeYieldPeriod;
+        const OP_OFFS   = Num.VAR_BITS_OFFS;
+        const WEIGHTS   = this._weights;
+        const LENS      = Operators.LENS;
+        let   len       = period;
+        let   line      = this._line;
 
         while (len > 0 && org.energy > 0) {
-            operator    = code[line] >>> OFFS;
-            line        = ops[operator](code[line], line, org, lines);
+            const num = code[line];
+            line      = ops[num >>> LENS[num >>> OP_OFFS]].call(operators, line, num, org, lines);
             //
-            // This is very important peace of logic. As big the organism is
-            // as more energy he spends
+            // Every operator has it's own weight
             //
-            org.energy -= WEIGHTS[operator];
-            //
-            // We found closing bracket '}' of some loop and have to return
-            // to the beginning of operator (e.g.: for)
-            //
-            while (offs.length > 1 && line === offs[offs.length - 1]) {
-                offs.pop();
-                line = offs.pop();
-            }
+            org.energy -= WEIGHTS[num >>> OP_OFFS];
             //
             // We reach the end of the script and have to run it from the beginning
             //
-            if (line >= lines && org.energy > 0) {
-                line = 0;
-                this._operators.offsets = this._offsets = [code.length];
-            }
+            line >= lines && org.energy > 0 && (line = 0);
             len--;
         }
         this._line = line;
@@ -262,7 +251,7 @@ class VM extends Observer {
     _reset() {
         this.fire(EVENTS.RESET_CODE);
         this._line = 0;
-        this._operators.offsets = (this._offsets = [this._code.length]);
+        this._operators.updateIndexes(this._code);
     }
 
     /**

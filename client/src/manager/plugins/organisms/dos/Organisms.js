@@ -96,7 +96,6 @@ class Organisms extends BaseOrganisms {
 
     addOrgHandlers(org) {
         super.addOrgHandlers(org);
-        org.on(EVENTS.GET_ENERGY, this._onGetEnergy.bind(this));
         org.on(EVENTS.EAT, this._onEat.bind(this));
         org.on(EVENTS.STEP, this._onStep.bind(this));
         org.on(EVENTS.CHECK_AT, this._onCheckAt.bind(this));
@@ -110,14 +109,6 @@ class Organisms extends BaseOrganisms {
      */
     createEmptyOrg(...args) {
         return new Organism(...args);
-    }
-
-    _onGetEnergy(x, y, ret) {
-        if (this.positions[x][y] <= 0) {
-            ret.ret = this.world.getDot(x, y)
-        } else {
-            ret.ret = this.positions[x][y].energy;
-        }
     }
 
     _onEat(org, x, y, ret) {

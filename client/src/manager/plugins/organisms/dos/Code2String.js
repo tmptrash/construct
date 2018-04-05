@@ -62,7 +62,8 @@ class Code2String {
          */
         this._offsets = [0];
 
-        Num.init(this._OPERATORS_CB_LEN);
+        // TODO: fix this
+        Num.init(12);//this._OPERATORS_CB_LEN);
 
         this._BITS_AFTER_ONE_VAR    = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR;
         this._BITS_AFTER_TWO_VARS   = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 2;

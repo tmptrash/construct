@@ -177,7 +177,7 @@ class Organisms extends Configurable {
 
         while (org = item && item.val) {
             org.run();
-            this.onOrganism(org);
+            //this.onOrganism(org);
             item = item.next;
         }
 

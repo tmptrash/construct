@@ -17,94 +17,109 @@ const Num       = require('./../../../../vm/Num');
  * much faster, then Helper.normalize()
  */
 const IN_WORLD              = Helper.inWorld;
-const IS_FINITE             = Number.isFinite;
-const IS_NAN                = Number.isNaN;
-/**
- * {Function} Just a shortcuts
- */
-const FOUR_BITS             = 4;
-const CONDITION_BITS        = 2;
-const MAX_VAL               = Number.MAX_VALUE;
-/**
- * {Array} Available conditions for if operator. Amount should be
- * the same like (1 << Num.BITS_PER_VAR)
- */
-const CONDITIONS = [(a,b)=>a<b, (a,b)=>a>b, (a,b)=>a===b, (a,b)=>a!==b];
-/**
- * {Array} Available operators for math calculations
- */
-const OPERATORS = [
-    (a,b) => {const v=a+b; return IS_FINITE(v)?v:MAX_VAL},
-    (a,b) => {const v=a-b; return IS_FINITE(v)?v:-MAX_VAL},
-    (a,b) => {const v=a*b; return IS_FINITE(v)?v:MAX_VAL},
-    (a,b) => {const v=a/b; return IS_FINITE(v)?v:MAX_VAL},
-    (a,b) => {const v=a%b; return IS_NAN(v)?0:v},
-    (a,b) => a&b,
-    (a,b) => a|b,
-    (a,b) => a^b,
-    (a,b) => a>>b,
-    (a,b) => a<<b,
-    (a,b) => a>>>b,
-    (a,b) => +(a<b),
-    (a,b) => +(a>b),
-    (a,b) => +(a===b),
-    (a,b) => +(a!==b),
-    (a,b) => +(a<=b)
-];
 
 class OperatorsDos extends Operators {
+    static compile() {
+        const bitsPerOp = OConfig.codeBitsPerOperator;
+        //
+        // IMPORTANT: don't use super here, because it breaks Operators
+        // IMPORTANT: class internal logic. Operators.global will be point
+        // IMPORTANT: to the Window
+        //
+        Operators.compile(12);
+
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar * 3));
+
+        this._compileLookAt();
+    }
+
+    /**
+     * Compiles all variants of lookAt operator and stores they in
+     * this._compiledOperators map. 'xx' means, that amount of bits
+     * depends on configuration. '...' means, that all other bits are
+     * ignored. Example:
+     *
+     * bits  :     5     5 xx xx xx  4
+     * number: 01011 xxxxx 00 01 00 01...
+     * string: v0 = lookAt(v1, v0)
+     */
+    static _compileLookAt() {
+        const bpv    = OConfig.codeBitsPerVar;
+        const ops    = this._compiledOperators;
+        const h      = this._toHexNum;
+        const b      = this._toBinStr;
+        const vars   = Math.pow(2, bpv);
+
+        for (let v0 = 0; v0 < vars; v0++) {
+            for (let v1 = 0; v1 < vars; v1++) {
+                for (let v2 = 0; v2 < vars; v2++) {
+                    eval(`OperatorsDos.global.fn = function (line) {
+                        const vars  = this.vars;
+                        const x     = (vars[${v1}] + .5) << 0;
+                        const y     = (vars[${v2}] + .5) << 0;
+                        vars[${v0}] = (IN_WORLD(x, y) ? (this._positions[x][y] <= 0 ? this._world.data[x][y] : this._positions[x][y].energy) : 0);
+                        return ++line;
+                    }`);
+                    ops[h(`${'01011'}${b(v0, bpv)}${b(v1, bpv)}${b(v2, bpv)}`)] = this.global.fn;
+                }
+            }
+        }
+    }
+
     constructor(offs, vars, obs) {
         super(offs, vars, obs);
         /**
          * {Object} These operator handlers should return next script line
          * number VM should step to
+         * TODO: will be removed
          */
-        this._OPERATORS_CB = [
-            this.onVar.bind(this),
-            this.onConst.bind(this),
-            this.onCondition.bind(this),
-            this.onLoop.bind(this),
-            this.onOperator.bind(this),
-            this.onLookAt.bind(this),
-            this.onEatLeft.bind(this),
-            this.onEatRight.bind(this),
-            this.onEatUp.bind(this),
-            this.onEatDown.bind(this),
-            this.onStepLeft.bind(this),
-            this.onStepRight.bind(this),
-            this.onStepUp.bind(this),
-            this.onStepDown.bind(this),
-            this.onFromMem.bind(this),
-            this.onToMem.bind(this),
-            this.onMyX.bind(this),
-            this.onMyY.bind(this),
-            this.onCheckLeft.bind(this),
-            this.onCheckRight.bind(this),
-            this.onCheckUp.bind(this),
-            this.onCheckDown.bind(this)
-        ];
+        // this._OPERATORS_CB = [
+        //     this.onVar.bind(this),
+        //     this.onConst.bind(this),
+        //     this.onCondition.bind(this),
+        //     this.onLoop.bind(this),
+        //     this.onOperator.bind(this),
+        //     this.onLookAt.bind(this),
+        //     this.onEatLeft.bind(this),
+        //     this.onEatRight.bind(this),
+        //     this.onEatUp.bind(this),
+        //     this.onEatDown.bind(this),
+        //     this.onStepLeft.bind(this),
+        //     this.onStepRight.bind(this),
+        //     this.onStepUp.bind(this),
+        //     this.onStepDown.bind(this),
+        //     this.onFromMem.bind(this),
+        //     this.onToMem.bind(this),
+        //     this.onMyX.bind(this),
+        //     this.onMyY.bind(this),
+        //     this.onCheckLeft.bind(this),
+        //     this.onCheckRight.bind(this),
+        //     this.onCheckUp.bind(this),
+        //     this.onCheckDown.bind(this)
+        // ];
         /**
          * {Object} Reusable object to pass it as a parameter to this.fire(..., ret)
+         * TODO: should be removed, because this class should have references to world, organisms, positions,...
          */
-        this._ret = {ret: 0};
-        //
-        // We have to set amount of available operators for correct
-        // working of mutations of operators.
-        //
-        Num.init(this._OPERATORS_CB.length);
-
-        this._BITS_AFTER_ONE_VAR    = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR;
-        this._BITS_AFTER_TWO_VARS   = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 2;
-        this._BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
+        this._ret          = {ret: 0};
+        /**
+         * {Observer} Observer for sending external events
+         */
+        this._obs          = obs;
+        this._world        = man.world;
+        this._organisms    = man.organisms;
+        this._positions    = man.positions;
     }
 
     destroy() {
         super.destroy();
-        this._OPERATORS_CB = null;
+
+        this._world        = null;
+        this._organisms    = null;
+        this._positions    = null;
+        this._obs          = null;
         this._ret          = null;
     }
-
-    get operators() {return this._OPERATORS_CB}
 
     /**
      * Handler of variable assignment operator. 'xx' means, that amount of
@@ -112,7 +127,7 @@ class OperatorsDos extends Operators {
      * ignored. Example:
      * bits  :        8 xx xx
      * number: 00000000 00 01...
-     * desc  :      var  v0 v1
+     * desc  :      var v0 v1
      * string: v0 = v1
      *
      * @param {Number} num One bit packed byte code row
@@ -208,7 +223,7 @@ class OperatorsDos extends Operators {
         const y    = (vars[Num.getVar2(num)] + .5) << 0;
 
         if (IN_WORLD(x, y)) {
-            this.obs.fire(EVENTS.GET_ENERGY, x, y, this._ret);
+            this._obs.fire(EVENTS.GET_ENERGY, x, y, this._ret);
             vars[Num.getVar0(num)] = this._ret.ret;
             return ++line;
         }
@@ -223,7 +238,7 @@ class OperatorsDos extends Operators {
         const ret    = this._ret;
 
         ret.ret = amount;
-        this.obs.fire(EVENTS.EAT, org, org.x - 1, org.y, ret);
+        this._obs.fire(EVENTS.EAT, org, org.x - 1, org.y, ret);
         org.energy += ret.ret;
         this.vars[Num.getVar0(num)] = ret.ret;
 
@@ -235,7 +250,7 @@ class OperatorsDos extends Operators {
         const ret    = this._ret;
 
         ret.ret = amount;
-        this.obs.fire(EVENTS.EAT, org, org.x + 1, org.y, ret);
+        this._obs.fire(EVENTS.EAT, org, org.x + 1, org.y, ret);
         org.energy += ret.ret;
         this.vars[Num.getVar0(num)] = ret.ret;
 
@@ -247,7 +262,7 @@ class OperatorsDos extends Operators {
         const ret    = this._ret;
 
         ret.ret = amount;
-        this.obs.fire(EVENTS.EAT, org, org.x, org.y - 1, ret);
+        this._obs.fire(EVENTS.EAT, org, org.x, org.y - 1, ret);
         org.energy += ret.ret;
         this.vars[Num.getVar0(num)] = ret.ret;
 
@@ -259,7 +274,7 @@ class OperatorsDos extends Operators {
         const ret    = this._ret;
 
         ret.ret = amount;
-        this.obs.fire(EVENTS.EAT, org, org.x, org.y + 1, ret);
+        this._obs.fire(EVENTS.EAT, org, org.x, org.y + 1, ret);
         org.energy += ret.ret;
         this.vars[Num.getVar0(num)] = ret.ret;
 
@@ -296,28 +311,28 @@ class OperatorsDos extends Operators {
     onMyY(num, line, org) {this.vars[Num.getVar0(num)] = org.y; return ++line}
 
     onCheckLeft(num, line, org)  {
-        this.obs.fire(EVENTS.CHECK_AT, org.x - 1, org.y, this._ret);
+        this._obs.fire(EVENTS.CHECK_AT, org.x - 1, org.y, this._ret);
         this.vars[Num.getVar0(num)] = this._ret.ret;
         return ++line;
     }
     onCheckRight(num, line, org) {
-        this.obs.fire(EVENTS.CHECK_AT, org.x + 1, org.y, this._ret);
+        this._obs.fire(EVENTS.CHECK_AT, org.x + 1, org.y, this._ret);
         this.vars[Num.getVar0(num)] = this._ret.ret;
         return ++line;
     }
     onCheckUp(num, line, org)    {
-        this.obs.fire(EVENTS.CHECK_AT, org.x, org.y - 1, this._ret);
+        this._obs.fire(EVENTS.CHECK_AT, org.x, org.y - 1, this._ret);
         this.vars[Num.getVar0(num)] = this._ret.ret;
         return ++line;
     }
     onCheckDown(num, line, org)  {
-        this.obs.fire(EVENTS.CHECK_AT, org.x, org.y + 1, this._ret);
+        this._obs.fire(EVENTS.CHECK_AT, org.x, org.y + 1, this._ret);
         this.vars[Num.getVar0(num)] = this._ret.ret;
         return ++line;
     }
 
     _step(org, x1, y1, x2, y2, step) {
-        this.obs.fire(EVENTS.STEP, org, x1, y1, x2, y2);
+        this._obs.fire(EVENTS.STEP, org, x1, y1, x2, y2);
         return org.x === x2 && org.y === y2 ? step : 0;
     }
 
@@ -344,5 +359,7 @@ class OperatorsDos extends Operators {
         return line + offs > offsets[offsets.length - 1] ? offsets[offsets.length - 1] : line + offs + 1;
     }
 }
+
+OperatorsDos.compile();
 
 module.exports = OperatorsDos;
