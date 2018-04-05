@@ -133,29 +133,30 @@ class Status extends Configurable {
     }
 
     _onBeforeLoop(orgs) {
-        const size        = orgs.size || 1;
+        const len         = orgs.length || 1;
         let   energy      = 0;
         let   startEnergy = 0;
         let   iterations  = 0;
         let   fitness     = 0;
         let   changes     = 0;
         let   codeSize    = 0;
-        let   item        = orgs.first;
+        const size        = orgs.size;
         let   org;
 
-        while(item && (org = item.val)) {
+        for (let i = 0; i < size; i++) {
+            if ((org = orgs.get(i)) === null) {continue}
+
             energy      += org.energy;
             startEnergy += org.startEnergy;
             iterations  += org.iterations;
             changes     += org.changes;
             fitness     += org.fitness();
             codeSize    += org.vm.size;
-            item         = item.next;
         }
 
-        this._energy     = energy  / size;
-        this._changes    = changes / size;
-        this._fitness    = fitness / size;
+        this._energy     = energy  / len;
+        this._changes    = changes / len;
+        this._fitness    = fitness / len;
         this._codeSize   = codeSize;
     }
 
@@ -166,7 +167,7 @@ class Status extends Configurable {
         if (stamp - this._stamp < this._statusCfg.period) {return}
         const orgs      = this.parent.organisms;
         const status    = this._status;
-        const orgAmount = orgs.size || 1;
+        const orgAmount = orgs.length || 1;
         const fix       = Status._toFixed;
 
         this._onBeforeLoop(orgs);
@@ -195,7 +196,7 @@ class Status extends Configurable {
 
         status.wenergy    = fix(this._worldEnergy, 5);
 
-        !this._firstCall && this.onStatus(status, orgs.size);
+        !this._firstCall && this.onStatus(status, orgs.length);
         this._onAfterLoop(stamp);
         this._firstCall = false;
     }

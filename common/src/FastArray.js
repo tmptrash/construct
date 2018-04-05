@@ -3,7 +3,7 @@
  * size. Second that get() method will be called must more times, then set() or
  * del() or resize(). Resize is possible, but should be rare to keep it fast. Is
  * used for storing organisms population. This class doesn't check size overflow
- * due performance issue. Removing element means setting 0 to specified index.
+ * due performance issue. Removing element means setting null to specified index.
  * This class should not be used for storing numbers!
  *
  * @author flatline
@@ -32,7 +32,7 @@ class FastArray {
 
         for (let i = 0; i < size; i++) {
             this._freeIndexes[i] = i;
-            this._arr[i]         = 0;
+            this._arr[i]         = null;
         }
     }
 
@@ -82,9 +82,10 @@ class FastArray {
      * @param {Number} i Value index
      */
     del(i) {
-        if (this._arr !== 0)
-        this._arr[i] = 0;
-        this._freeIndexes[++this._index] = i;
+        if (this._arr !== null) {
+            this._arr[i] = null;
+            this._freeIndexes[++this._index] = i;
+        }
     }
 
     /**
@@ -106,7 +107,7 @@ class FastArray {
         this._index   = -1;
         arr.length    = indexes.length = (this._size = size);
         for (let i = 0; i < size; i++) {
-            (arr[i] === 0) && (indexes[++this._index] = i);
+            (arr[i] === null) && (indexes[++this._index] = i);
         }
     }
 }
