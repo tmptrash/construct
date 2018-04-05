@@ -16,10 +16,6 @@ const ORG_EVENTS   = require('./../../../../src/manager/plugins/organisms/Organi
 //const Backup       = require('./../backup/Backup');
 const Mutator      = require('./Mutator');
 const Num          = require('./../../../vm/Num');
-/**
- * {Number} Random range for selection of random organism from a Queue
- */
-const RAND_RANGE   = 5;
 
 // TODO: inherit this class from Configurable
 class Organisms extends Configurable {
@@ -132,7 +128,7 @@ class Organisms extends Configurable {
         const orgs = this.organisms;
         let   org  = this.createEmptyOrg(++this._orgId + '', x, y, orgs.freeIndex, parent);
 
-        orgs.set(org);
+        orgs.add(org);
         this.addOrgHandlers(org);
         this.world.setDot(x, y, org.color);
         this.positions[x][y] = org;
@@ -165,7 +161,7 @@ class Organisms extends Configurable {
         for (let i = 0, len = orgs.size; i < len; i++) {
             if ((org = orgs.get(i)) === null) {continue}
             org.run();
-            //this.onOrganism(org);
+            this.onOrganism(org);
         }
 
         this._updateTournament(counter);
@@ -199,7 +195,7 @@ class Organisms extends Configurable {
 
         [x, y] = this.world.getNearFreePos(org.x, org.y);
         if (x === -1 || this.createOrg(x, y, org) === false) {return false}
-        let child = this.organisms.lastAdded();
+        let child = this.organisms.last();
 
         this.onClone(org, child);
         if (org.energy < 1 || child.energy < 1) {return false}
@@ -210,7 +206,7 @@ class Organisms extends Configurable {
 
     _crossover(org1, org2) {
         if (!this._clone(org1, true)) {return false}
-        let child = this.organisms.lastAdded();
+        let child = this.organisms.last();
 
         if (child.energy > 0 && org2.energy > 0) {
             child.changes += (Math.abs(child.vm.crossover(org2.vm)) * Num.MAX_BITS);

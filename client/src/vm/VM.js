@@ -111,7 +111,7 @@ class VM extends Observer {
             //
             // We reach the end of the script and have to run it from the beginning
             //
-            line >= lines && org.energy > 0 && (line = 0);
+            line >= lines && (line = 0);
             len--;
         }
         this._line = line;
