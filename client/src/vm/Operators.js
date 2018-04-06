@@ -7,12 +7,14 @@
 const OConfig         = require('./../manager/plugins/organisms/Config');
 const Num             = require('./Num');
 
+const OPERATOR_AMOUNT = 11;
+
 class Operators {
     /**
      * Compiles all variants of bite-code to speed up the execution.
      * @param {Number} operators Amount of operators
      */
-    static compile(operators = 11) {
+    static compile(operators = OPERATOR_AMOUNT) {
         const bitsPerOp         = OConfig.codeBitsPerOperator;
         const MAX_BITS          = 32;
         /**
@@ -118,8 +120,8 @@ class Operators {
      * depends on configuration. '...' means, that all other bits are
      * ignored. Example:
      *
-     * bits  :     5     5  xx xx
-     * number: 00000 xxxxx  00 01...
+     * bits  :      6 xx xx
+     * number: 100000 00 01...
      * string: v0 = v1
      */
     static _compileVar() {
@@ -135,7 +137,7 @@ class Operators {
                     this.vars[${v0}] = this.vars[${v1}];
                     return ++line;
                 }`);
-                ops[h(`${'00000'}${b(v0, bpv)}${b(v1, bpv)}`)] = this.global.fn;
+                ops[h(`${'100000'}${b(v0, bpv)}${b(v1, bpv)}`)] = this.global.fn;
             }
         }
     }
@@ -146,8 +148,8 @@ class Operators {
      * depends on configuration. '...' means, that all other bits are
      * ignored. Example:
      *
-     * bits  :      5     5 xx xx
-     * number: 000001 xxxxx 00 01...
+     * bits  :      6 xx xx
+     * number: 100001 00 01...
      * string: v0 = 1
      */
     static _compileConst() {
@@ -164,7 +166,7 @@ class Operators {
                 this.vars[${v0}] = num << ${bits1var} >>> ${bits};
                 return ++line;
             }`);
-            ops[h(`${'00001'}${b(v0, bpv)}`)] = this.global.fn;
+            ops[h(`${'100001'}${b(v0, bpv)}`)] = this.global.fn;
         }
     }
 
@@ -174,8 +176,8 @@ class Operators {
      * depends on configuration. '...' means, that all other bits are
      * ignored. Example:
      *
-     * bits  :     5     5 xx xx  2
-     * number: 00010 xxxxx 00 01 00...
+     * bits  :      6 xx xx  2
+     * number: 100010 00 01 00...
      * string: if (v0 < v1) {
      */
     static _compileIf() {
@@ -190,9 +192,9 @@ class Operators {
                 for (let v1 = 0; v1 < vars; v1++) {
                     eval(`Operators.global.fn = function (line) {
                         if (this.vars[${v0}] ${this._CONDITIONS[c]} this.vars[${v1}]) {return ++line}
-                        return this.offs[line];
+                        return this.offs[line] === line ? ++line : this.offs[line];
                     }`);
-                    ops[h(`${'00010'}${b(v0, bpv)}${b(v1, bpv)}${b(c, this.CONDITION_BITS)}`)] = this.global.fn;
+                    ops[h(`${'100010'}${b(v0, bpv)}${b(v1, bpv)}${b(c, this.CONDITION_BITS)}`)] = this.global.fn;
                 }
             }
         }
@@ -204,8 +206,8 @@ class Operators {
      * depends on configuration. '...' means, that all other bits are
      * ignored. Example:
      *
-     * bits  :     5     5 xx xx  2
-     * number: 00011 xxxxx 00 01 00...
+     * bits  :      6 xx xx  2
+     * number: 100011 00 01 00...
      * string: while (v0 < v1) {
      */
     static _compileLoop() {
@@ -220,9 +222,9 @@ class Operators {
                 for (let v1 = 0; v1 < vars; v1++) {
                     eval(`Operators.global.fn = function (line) {
                         if (this.vars[${v0}] ${this._CONDITIONS[c]} this.vars[${v1}]) {return ++line}
-                        return this.offs[line];
+                        return this.offs[line] === line ? ++line : this.offs[line];
                     }`);
-                    ops[h(`${'00011'}${b(v0, bpv)}${b(v1, bpv)}${b(c, this.CONDITION_BITS)}`)] = this.global.fn;
+                    ops[h(`${'100011'}${b(v0, bpv)}${b(v1, bpv)}${b(c, this.CONDITION_BITS)}`)] = this.global.fn;
                 }
             }
         }
@@ -234,8 +236,8 @@ class Operators {
      * depends on configuration. '...' means, that all other bits are
      * ignored. Example:
      *
-     * bits  :     5     5 xx xx xx  4
-     * number: 00100 xxxxx 00 01 00 01...
+     * bits  :      6 xx xx xx  4
+     * number: 100100 00 01 00 01...
      * string: v0 = v1 - v0
      */
     static _compileOperator() {
@@ -253,7 +255,7 @@ class Operators {
                             ${this._OPERATORS[op](v0, v1, v2)}
                             return ++line;
                         }`);
-                        ops[h(`${'00100'}${b(v0, bpv)}${b(v1, bpv)}${b(v2, bpv)}${b(op, this.FOUR_BITS)}`)] = this.global.fn;
+                        ops[h(`${'100100'}${b(v0, bpv)}${b(v1, bpv)}${b(v2, bpv)}${b(op, this.FOUR_BITS)}`)] = this.global.fn;
                     }
                 }
             }
@@ -266,16 +268,16 @@ class Operators {
      * depends on configuration. '...' means, that all other bits are
      * ignored. Function name consists of 10 bits. Example:
      *
-     * bits  :     5     5         10
-     * number: 00101 xxxxx 0000000001...
+     * bits  :      6         10
+     * number: 100101 0000000001...
      * string: func n
      */
     static _compileFunc() {
         const ops    = this._compiledOperators;
         const h      = this._toHexNum;
 
-        eval(`Operators.global.fn = function (line) {return this.offs[line]}`);
-        ops[h(`${'00101'}`)] = this.global.fn;
+        eval(`Operators.global.fn = function (line) {return this.offs[line] === line ? ++line : this.offs[line]}`);
+        ops[h(`${'100101'}`)] = this.global.fn;
     }
 
     /**
@@ -284,8 +286,8 @@ class Operators {
      * depends on configuration. '...' means, that all other bits are
      * ignored. Function name consists of 10 bits. Example:
      *
-     * bits  :     5     5         10
-     * number: 00110 xxxxx 0000000001...
+     * bits  :      6         10
+     * number: 100110 0000000001...
      * string: call n
      */
     static _compileFuncCall() {
@@ -303,7 +305,7 @@ class Operators {
             }
             return ++line;
         }`);
-        ops[h(`${'00110'}`)] = this.global.fn;
+        ops[h(`${'100110'}`)] = this.global.fn;
     }
 
     /**
@@ -312,8 +314,8 @@ class Operators {
      * depends on configuration. '...' means, that all other bits are
      * ignored. Example:
      *
-     * bits  :     5     5
-     * number: 00111 xxxxx...
+     * bits  :      6
+     * number: 100111 ...
      * string: return
      */
     static _compileReturn() {
@@ -330,7 +332,7 @@ class Operators {
             }
             return 0;
         }`);
-        ops[h(`${'00111'}`)] = this.global.fn;
+        ops[h(`${'100111'}`)] = this.global.fn;
     }
 
     /**
@@ -339,8 +341,8 @@ class Operators {
      * depends on configuration. '...' means, that all other bits are
      * ignored. Example:
      *
-     * bits  :     5     5
-     * number: 01000 xxxxx...
+     * bits  :      6
+     * number: 101000...
      * string: }
      */
     static _compileBracket() {
@@ -359,7 +361,7 @@ class Operators {
             }
             return ++line;
         }`);
-        ops[h(`${'01000'}`)] = this.global.fn;
+        ops[h(`${'101000'}`)] = this.global.fn;
     }
 
     /**
@@ -368,8 +370,8 @@ class Operators {
      * depends on configuration. '...' means, that all other bits are
      * ignored. Example:
      *
-     * bits  :     5     5 xx xx
-     * number: 01001 xxxxx 00 01...
+     * bits  :      6 xx xx
+     * number: 101001 00 01...
      * string: toMem(v0, v1)
      */
     static _compileToMem() {
@@ -378,16 +380,16 @@ class Operators {
         const h      = this._toHexNum;
         const b      = this._toBinStr;
         const vars   = Math.pow(2, bpv);
-        const memLen = Math.pow(2, OConfig.orgMemBits);
+        const memLen = Math.pow(2, OConfig.orgMemBits) - 1;
 
         for (let v0 = 0; v0 < vars; v0++) {
             for (let v1 = 0; v1 < vars; v1++) {
                 eval(`Operators.global.fn = function (line, num, org) {
                     const offs = ((this.vars[${v0}] + .5) << 0) >>> 0;
-                    org.mem[offs >= ${memLen} ? ${memLen-1} : offs] = this.vars[${v1}];
+                    org.mem[offs > ${memLen} ? ${memLen} : offs] = this.vars[${v1}];
                     return ++line;
                 }`);
-                ops[h(`${'01001'}${b(v0, bpv)}${b(v1, bpv)}`)] = this.global.fn;
+                ops[h(`${'101001'}${b(v0, bpv)}${b(v1, bpv)}`)] = this.global.fn;
             }
         }
     }
@@ -398,8 +400,8 @@ class Operators {
      * depends on configuration. '...' means, that all other bits are
      * ignored. Example:
      *
-     * bits  :     5     5 xx xx
-     * number: 01010 xxxxx 00 01...
+     * bits  :      6 xx xx
+     * number: 101010 00 01...
      * string: v0 = fromMem(v1)
      */
     static _compileFromMem() {
@@ -417,7 +419,7 @@ class Operators {
                     this.vars[${v0}] = org.mem[offs >= ${memLen} ? ${memLen-1} : offs];
                     return ++line;
                 }`);
-                ops[h(`${'01010'}${b(v0, bpv)}${b(v1, bpv)}`)] = this.global.fn;
+                ops[h(`${'101010'}${b(v0, bpv)}${b(v1, bpv)}`)] = this.global.fn;
             }
         }
     }
@@ -436,7 +438,6 @@ class Operators {
          * {Object} Handlers map, which handle every variant of byte-code
          */
         this._OPERATORS_CB = Operators._compiledOperators;
-        this.lens          = Operators.LENS;
         this.stack         = [];
         this.funcs         = [];
     }
@@ -448,19 +449,21 @@ class Operators {
     updateIndexes(code) {
         const len     = code.length;
         const varOffs = Num.VAR_BITS_OFFS;
+        const opMask  = Num.OPERATOR_MASK_OFF;
         const offs    = this.offs;
         const funcs   = this.funcs = [];
         const blocks  = [];
 
+        this.stack = [];
         for (let i = 0; i < len; i++) {
-            const operator = code[i] >>> varOffs;
+            const operator = (code[i] & opMask) >>> varOffs;
             if (operator === 0x2 || operator === 0x3) { // if, while
-                offs[i] = i + 1;
+                offs[i] = i;
                 blocks.push(i);
                 continue;
             }
             if (operator === 0x5) {                     // func
-                offs[i] = i + 1;
+                offs[i] = i;
                 funcs.push(i + 1);
                 blocks.push(i);
                 continue;
@@ -486,6 +489,8 @@ class Operators {
      * Returns operators array. Should be overridden in child class
      * @abstract
      */
+    get length() {return OPERATOR_AMOUNT}
+
     get operators() {return this._OPERATORS_CB}
 
     /**

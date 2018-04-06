@@ -39,20 +39,20 @@ class Mutator {
      */
     static _onSmallChange(org) {
         const rand  = Helper.rand;
-        const vm  = org.vm;
+        const vm    = org.vm;
         const index = rand(vm.size);
         const rnd   = rand(2);
         //
         // Toggles operator bits only
         //
         if (rnd === 0) {
-            vm.updateLine(index, Num.setOperator(vm.getLine(index), rand(vm.operators.operators.length)));
+            vm.updateLine(index, Num.setOperator(vm.getLine(index), rand(vm.operators.length)));
             org.changes += Num.BITS_PER_OPERATOR;
         //
         // Toggles specified bit, except operator bits
         //
         } else {
-            vm.updateLine(index, vm.getLine(index) ^ (1 << rand(Num.VAR_BITS_OFFS - 1)));
+            vm.updateLine(index, (vm.getLine(index) ^ (1 << rand(Num.VAR_BITS_OFFS - 1))) >>> 0);
             org.changes++;
         }
     }

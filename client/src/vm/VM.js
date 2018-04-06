@@ -46,7 +46,7 @@ class VM extends Observer {
          * to return if first line appears. second - line number, where ends
          * closing block '}' of block operator (e.g. for, if,...).
          */
-        this._offsets      = new Array(OConfig.codeMaxSize);
+        this._offsets      = parent ? parent.offsets.slice() : new Array(OConfig.codeMaxSize);
         /**
          * {Function} Class, which implement all supported operators
          */
@@ -57,6 +57,7 @@ class VM extends Observer {
     get code()      {return this._code}
     get size()      {return this._code.length}
     get operators() {return this._operators}
+    get offsets()   {return this._offsets}
     get vars()      {return this._vars}
     get line()      {return this._line}
 
@@ -89,34 +90,35 @@ class VM extends Observer {
      * @return {Number} Amount of run lines
      */
     run(org) {
-        const code      = this._code;
-        const lines     = code.length;
-        if (lines < 1) {return 0}
-        const ops       = this._ops;
-        const operators = this._operators;
-        const period    = OConfig.codeYieldPeriod;
-        const OP_OFFS   = Num.VAR_BITS_OFFS;
-        const WEIGHTS   = this._weights;
-        const LENS      = Operators.LENS;
-        let   len       = period;
-        let   line      = this._line;
+        const code        = this._code;
+        const codeLen     = code.length;
+        if (codeLen < 1) {return 0}
+        const opHandlers  = this._ops;
+        const operators   = this._operators;
+        const yieldPeriod = OConfig.codeYieldPeriod;
+        const opOffs      = Num.VAR_BITS_OFFS;
+        const opMask      = Num.OPERATOR_MASK_OFF;
+        const weights     = this._weights;
+        const lens        = Operators.LENS;
+        let   linesRun    = yieldPeriod;
+        let   line        = this._line;
 
-        while (len > 0 && org.energy > 0) {
+        while (linesRun > 0 && org.energy > 0) {
             const num = code[line];
-            line      = ops[num >>> LENS[num >>> OP_OFFS]].call(operators, line, num, org, lines);
+            line      = opHandlers[num >>> lens[(num & opMask) >>> opOffs]].call(operators, line, num, org, code);
             //
             // Every operator has it's own weight
             //
-            org.energy -= WEIGHTS[num >>> OP_OFFS];
+            org.energy -= weights[(num & opMask) >>> opOffs];
             //
             // We reach the end of the script and have to run it from the beginning
             //
-            line >= lines && (line = 0);
-            len--;
+            line >= codeLen && (line = 0);
+            linesRun--;
         }
         this._line = line;
 
-        return period - len;
+        return yieldPeriod - linesRun;
     }
 
     destroy() {

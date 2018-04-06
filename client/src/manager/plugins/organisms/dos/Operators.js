@@ -21,12 +21,13 @@ const IN_WORLD              = Helper.inWorld;
 class OperatorsDos extends Operators {
     static compile() {
         const bitsPerOp = OConfig.codeBitsPerOperator;
+        this.OPERATOR_AMOUNT = 12;
         //
         // IMPORTANT: don't use super here, because it breaks Operators
         // IMPORTANT: class internal logic. Operators.global will be point
         // IMPORTANT: to the Window
         //
-        Operators.compile(12);
+        Operators.compile(this.OPERATOR_AMOUNT);
 
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar * 3));
 
@@ -39,8 +40,8 @@ class OperatorsDos extends Operators {
      * depends on configuration. '...' means, that all other bits are
      * ignored. Example:
      *
-     * bits  :     5     5 xx xx xx  4
-     * number: 01011 xxxxx 00 01 00 01...
+     * bits  :      6 xx xx xx  4
+     * number: 101011 00 01 00 01...
      * string: v0 = lookAt(v1, v0)
      */
     static _compileLookAt() {
@@ -60,7 +61,7 @@ class OperatorsDos extends Operators {
                         vars[${v0}] = (IN_WORLD(x, y) ? (this._positions[x][y] <= 0 ? this._world.data[x][y] : this._positions[x][y].energy) : 0);
                         return ++line;
                     }`);
-                    ops[h(`${'01011'}${b(v0, bpv)}${b(v1, bpv)}${b(v2, bpv)}`)] = this.global.fn;
+                    ops[h(`${'101011'}${b(v0, bpv)}${b(v1, bpv)}${b(v2, bpv)}`)] = this.global.fn;
                 }
             }
         }
@@ -110,6 +111,12 @@ class OperatorsDos extends Operators {
         this._organisms    = man.organisms;
         this._positions    = man.positions;
     }
+
+    /**
+     * Returns operators array. Should be overridden in child class
+     * @abstract
+     */
+    get length() {return OperatorsDos.OPERATOR_AMOUNT}
 
     destroy() {
         super.destroy();

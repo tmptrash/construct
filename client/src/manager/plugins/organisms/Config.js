@@ -162,7 +162,7 @@ const Config = {
      * {Number} Amount of bits for storing operator. This is first XX bits
      * in a number.
      */
-    codeBitsPerOperator: 5,
+    codeBitsPerOperator: 6,
     /**
      * {Number} Amount of bits, which stores maximum block length. Under block
      * length we mean maximum amount of lines in one block like if, for,...

@@ -14,38 +14,41 @@ class Num {
      * script implementation
      */
     static init(operatorAmount) {
-        this.MAX_BITS            = 32;
-        this.OPERATOR_AMOUNT     = operatorAmount;
-        this.BITS_PER_VAR        = OConfig.codeBitsPerVar;
-        this.BITS_PER_OPERATOR   = OConfig.codeBitsPerOperator;
-        this.NO_OPERATOR_MASK    = 0xffffffff >>> this.BITS_PER_OPERATOR;
-        this.BITS_OF_TWO_VARS    = this.BITS_PER_VAR * 2;
-        this.BITS_OF_FIRST_VAR   = this.MAX_BITS - this.BITS_PER_VAR;
-        this.MAX_VAR             = 1 << this.BITS_PER_VAR;
-        this.VAR_BITS_OFFS       = this.MAX_BITS - this.BITS_PER_OPERATOR;
+        this.MAX_BITS             = 32;
+        this.OPERATOR_AMOUNT      = operatorAmount;
+        this.BITS_PER_VAR         = OConfig.codeBitsPerVar;
+        this.BITS_PER_OPERATOR    = OConfig.codeBitsPerOperator;
+        this.NO_OPERATOR_MASK     = 0xffffffff >>> this.BITS_PER_OPERATOR;
+        this.OPERATOR_MASK_ON     = 0x80000000;
+        this.OPERATOR_MASK_OFF    = 0x7fffffff;
+        this.BITS_OF_TWO_VARS     = this.BITS_PER_VAR * 2;
+        this.BITS_OF_FIRST_VAR    = this.MAX_BITS - this.BITS_PER_VAR;
+        this.MAX_VAR              = 1 << this.BITS_PER_VAR;
+        this.VAR_BITS_OFFS        = this.MAX_BITS - this.BITS_PER_OPERATOR;
 
-        this.BITS_OF_VAR0        = this.BITS_PER_OPERATOR;
-        this.BITS_OF_VAR1        = this.BITS_PER_OPERATOR +     this.BITS_PER_VAR;
-        this.BITS_OF_VAR2        = this.BITS_PER_OPERATOR + 2 * this.BITS_PER_VAR;
-        this.BITS_OF_VAR3        = this.BITS_PER_OPERATOR + 3 * this.BITS_PER_VAR;
+        this.BITS_OF_VAR0         = this.BITS_PER_OPERATOR;
+        this.BITS_OF_VAR1         = this.BITS_PER_OPERATOR +     this.BITS_PER_VAR;
+        this.BITS_OF_VAR2         = this.BITS_PER_OPERATOR + 2 * this.BITS_PER_VAR;
+        this.BITS_OF_VAR3         = this.BITS_PER_OPERATOR + 3 * this.BITS_PER_VAR;
     }
 
     /**
      * Returns random number for byte code. We have to use >>> 0 at
      * the end, because << operator works with signed 32bit numbers,
-     * but not with unsigned like we need
+     * but not with unsigned like we need. We have to use mask - zero
+     * bit turned on to prevent duplication of operators+data values.
      * @returns {number}
      */
     static rand() {
-        return (Helper.rand(this.OPERATOR_AMOUNT) << (this.VAR_BITS_OFFS) | Helper.rand(this.NO_OPERATOR_MASK)) >>> 0;
+        return ((Helper.rand(this.OPERATOR_AMOUNT) << (this.VAR_BITS_OFFS) | Helper.rand(this.NO_OPERATOR_MASK)) | this.OPERATOR_MASK_ON) >>> 0;
     }
 
     static getOperator(num) {
-        return num >>> this.VAR_BITS_OFFS;
+        return (num & this.OPERATOR_MASK_OFF) >>> this.VAR_BITS_OFFS;
     }
 
     static setOperator(num, op) {
-        return (op << this.VAR_BITS_OFFS | (num & this.NO_OPERATOR_MASK)) >>> 0;
+        return ((op << this.VAR_BITS_OFFS | (num & this.NO_OPERATOR_MASK)) | this.OPERATOR_MASK_ON) >>> 0;
     }
 
     static getVar(num, index = 0) {
