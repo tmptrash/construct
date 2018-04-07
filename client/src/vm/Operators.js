@@ -81,17 +81,17 @@ class Operators {
         // arguments. This is how we dramatically speed up byte-code interpretation
         //
         Num.init(operators);
-        this._compileVar();
-        this._compileConst();
-        this._compileIf();
-        this._compileLoop();
-        this._compileOperator();
-        this._compileFunc();
-        this._compileFuncCall();
-        this._compileReturn();
-        this._compileBracket();
-        this._compileToMem();
-        this._compileFromMem();
+        this._compileVar();       // 0
+        this._compileConst();     // 1
+        this._compileIf();        // 2
+        this._compileLoop();      // 3
+        this._compileOperator();  // 4
+        this._compileFunc();      // 5
+        this._compileFuncCall();  // 6
+        this._compileReturn();    // 7
+        this._compileBracket();   // 8
+        this._compileToMem();     // 9
+        this._compileFromMem();   // 10
     }
 
     /**
@@ -284,23 +284,27 @@ class Operators {
      * Compiles all variants of function call operator and stores they in
      * this._compiledOperators map. 'xx' means, that amount of bits
      * depends on configuration. '...' means, that all other bits are
-     * ignored. Function name consists of 10 bits. Example:
+     * ignored. If condition bit is set to 0, then variable value will be
+     * used as function name. If 1 then hard coded functions name will be
+     * get from byte-code. Function name consists of 10 bits. Example:
      *
-     * bits  :      6         10
-     * number: 100110 0000000001...
-     * string: call n
+     * bits  :      6 1         10
+     * number: 100110 0 0000000001...
+     * string: call v1
      */
     static _compileFuncCall() {
-        const ops    = this._compiledOperators;
-        const h      = this._toHexNum;
-        const bits   = Num.MAX_BITS - this.FUNC_NAME_BITS;
-        const opBits = Num.BITS_PER_OPERATOR;
+        const ops     = this._compiledOperators;
+        const h       = this._toHexNum;
+        const ifBit   = Num.MAX_BITS - 1;
+        const fnBits  = Num.MAX_BITS - this.FUNC_NAME_BITS;
+        const varBits = Num.MAX_BITS - OConfig.codeBitsPerVar;
+        const opBits  = Num.BITS_PER_OPERATOR;
 
         eval(`Operators.global.fn = function (line, num) {
-            const offs = this.funcs[num << ${opBits} >>> ${bits}];
+            const data = num << ${opBits};
+            const offs = this.funcs[(data >>> ${ifBit}) & 1 === 0 ? this.vars[(data >>> ${varBits} * .5 + .5) << 0] : data >>> ${fnBits}];
             if (typeof offs !== 'undefined') {
-                this.stack.push(line + 1);
-                this.stack.push(this.vars.slice());
+                this.stack.push(line + 1, offs - 1, this.vars.slice());
                 return offs;
             }
             return ++line;
@@ -328,6 +332,7 @@ class Operators {
                 const stackVars = this.stack.pop();
                 const vars      = this.vars;
                 for (let i = 0; i < ${vars}; i++) {vars[i] = stackVars[i]}
+                stack.pop();
                 return this.stack.pop();
             }
             return 0;
@@ -349,15 +354,21 @@ class Operators {
         const ops     = this._compiledOperators;
         const h       = this._toHexNum;
         const vars    = Math.pow(2, OConfig.codeBitsPerVar);
+        const opMask  = Num.OPERATOR_MASK_OFF;
 
         eval(`Operators.global.fn = function (line, num, org, lines) {
-            const operator = lines[this.offs[line]] >>> Num.VAR_BITS_OFFS;
+            const startLine = this.offs[line];
+            const operator  = (lines[startLine] & ${opMask}) >>> Num.VAR_BITS_OFFS;
             if (operator === 0x3) {return this.offs[line]} // loop
             if (operator === 0x5) {                        // func
-                const stackVars = this.stack.pop();
-                const vars      = this.vars;
-                for (let i = 0; i < ${vars}; i++) {vars[i] = stackVars[i]}
-                return this.stack.pop();
+                const stack = this.stack;
+                if (stack[stack.length - 2] === startLine) {
+                    const stackVars = stack.pop();
+                    const vars      = this.vars;
+                    for (let i = 0; i < ${vars}; i++) {vars[i] = stackVars[i]}
+                    stack.pop();
+                    return this.stack.pop();
+                }
             }
             return ++line;
         }`);
@@ -425,6 +436,7 @@ class Operators {
     }
 
     constructor(offs, vars) {
+        this._MAX_FUNC_AMOUNT = Math.pow(2, Operators.FUNC_NAME_BITS);
         /**
          * {Array} Array of offsets for closing braces. For 'for', 'if'
          * and other operators.
@@ -439,7 +451,7 @@ class Operators {
          */
         this._OPERATORS_CB = Operators._compiledOperators;
         this.stack         = [];
-        this.funcs         = [];
+        this.funcs         = new Array(this._MAX_FUNC_AMOUNT);
     }
 
     /**
@@ -451,7 +463,7 @@ class Operators {
         const varOffs = Num.VAR_BITS_OFFS;
         const opMask  = Num.OPERATOR_MASK_OFF;
         const offs    = this.offs;
-        const funcs   = this.funcs = [];
+        const funcs   = this.funcs = new Array(this._MAX_FUNC_AMOUNT);
         const blocks  = [];
 
         this.stack = [];

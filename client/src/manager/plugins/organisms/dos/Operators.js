@@ -31,7 +31,7 @@ class OperatorsDos extends Operators {
 
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar * 3));
 
-        this._compileLookAt();
+        this._compileLookAt(); // 11
     }
 
     /**

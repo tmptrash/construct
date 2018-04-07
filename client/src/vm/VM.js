@@ -105,11 +105,12 @@ class VM extends Observer {
 
         while (linesRun > 0 && org.energy > 0) {
             const num = code[line];
-            line      = opHandlers[num >>> lens[(num & opMask) >>> opOffs]].call(operators, line, num, org, code);
+            const op  = (num & opMask) >>> opOffs;
+            line      = opHandlers[num >>> lens[op]].call(operators, line, num, org, code);
             //
             // Every operator has it's own weight
             //
-            org.energy -= weights[(num & opMask) >>> opOffs];
+            org.energy -= weights[op];
             //
             // We reach the end of the script and have to run it from the beginning
             //
