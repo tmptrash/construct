@@ -11,6 +11,8 @@ const EVENTS    = require('./../../../../../src/share/Events').EVENTS;
 const OConfig   = require('./../Config');
 const Operators = require('./../../../../vm/Operators');
 const Num       = require('./../../../../vm/Num');
+const OFFSX     = require('./../../../../../../common/src/Directions').OFFSX;
+const OFFSY     = require('./../../../../../../common/src/Directions').OFFSY;
 
 /**
  * {Function} Is created to speed up this function call. constants are run
@@ -21,7 +23,7 @@ const IN_WORLD              = Helper.inWorld;
 class OperatorsDos extends Operators {
     static compile() {
         const bitsPerOp = OConfig.codeBitsPerOperator;
-        this.OPERATOR_AMOUNT = 12;
+        this.OPERATOR_AMOUNT = 16;
         //
         // IMPORTANT: don't use super here, because it breaks Operators
         // IMPORTANT: class internal logic. Operators.global will be point
@@ -30,8 +32,16 @@ class OperatorsDos extends Operators {
         Operators.compile(this.OPERATOR_AMOUNT);
 
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar * 3));
+        this.LENS.push(Num.MAX_BITS - bitsPerOp);
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
 
         this._compileLookAt(); // 11
+        this._compileStep();   // 12
+        this._compileDir();    // 13
+        this._compileMyX();    // 14
+        this._compileMyY();    // 15
     }
 
     /**
@@ -64,6 +74,103 @@ class OperatorsDos extends Operators {
                     ops[h(`${'101011'}${b(v0, bpv)}${b(v1, bpv)}${b(v2, bpv)}`)] = this.global.fn;
                 }
             }
+        }
+    }
+
+    /**
+     * Compiles all variants of 'step' operator and stores they in
+     * this._compiledOperators map. '...' means, that all other bits are
+     * ignored. Step direction depends on active organism's direction.
+     * See Organism.dir property. Example:
+     *
+     * bits  :      6
+     * number: 101100...
+     * string: step
+     */
+    static _compileStep() {
+        eval(`OperatorsDos.global.fn = function (line, num, org) {
+            this._obs.fire(${EVENTS.STEP}, org, org.x, org.y, org.x + OFFSX[org.dir], org.y + OFFSY[org.dir]);
+            return ++line;
+        }`);
+        this._compiledOperators[this._toHexNum(`${'101100'}`)] = this.global.fn;
+    }
+
+    /**
+     * Compiles all variants of 'dir' operator and stores they in
+     * this._compiledOperators map. 'xx' means, that amount of bits
+     * depends on configuration. '...' means, that all other bits are
+     * ignored. Example:
+     *
+     * bits  :      6 xx
+     * number: 101101 11...
+     * string: dir(v3)
+     */
+    static _compileDir() {
+        const bpv      = OConfig.codeBitsPerVar;
+        const ops      = this._compiledOperators;
+        const h        = this._toHexNum;
+        const b        = this._toBinStr;
+        const vars     = Math.pow(2, bpv);
+        const dirs     = OFFSX.length;
+
+        for (let v0 = 0; v0 < vars; v0++) {
+            eval(`Operators.global.fn = function (line, num, org) {
+                org.dir = ((this.vars[${v0}] + .5) << 0 >>> 0) % ${dirs};
+                return ++line;
+            }`);
+            ops[h(`${'101101'}${b(v0, bpv)}`)] = this.global.fn;
+        }
+    }
+
+    /**
+     * Compiles all variants of 'myX' operator and stores they in
+     * this._compiledOperators map. 'xx' means, that amount of bits
+     * depends on configuration. '...' means, that all other bits are
+     * ignored. Example:
+     *
+     * bits  :      6 xx
+     * number: 101110 00...
+     * string: v0 = myX()
+     */
+    static _compileMyX() {
+        const bpv      = OConfig.codeBitsPerVar;
+        const ops      = this._compiledOperators;
+        const h        = this._toHexNum;
+        const b        = this._toBinStr;
+        const vars     = Math.pow(2, bpv);
+
+        for (let v0 = 0; v0 < vars; v0++) {
+            eval(`Operators.global.fn = function (line, num, org) {
+                this.vars[${v0}] = org.x;
+                return ++line;
+            }`);
+            ops[h(`${'101110'}${b(v0, bpv)}`)] = this.global.fn;
+        }
+    }
+
+    /**
+     * Compiles all variants of 'myY' operator and stores they in
+     * this._compiledOperators map. 'xx' means, that amount of bits
+     * depends on configuration. '...' means, that all other bits are
+     * ignored. Example:
+     *
+     * bits  :      6 xx
+     * number: 101111 00...
+     * string: v0 = myY()
+     */
+    static _compileMyY() {
+        const bpv      = OConfig.codeBitsPerVar;
+        const ops      = this._compiledOperators;
+        const h        = this._toHexNum;
+        const b        = this._toBinStr;
+        const vars     = Math.pow(2, bpv);
+
+        for (let v0 = 0; v0 < vars; v0++) {
+            eval(`Operators.global.fn = function (line, num, org) {
+                this.vars[${v0}] = org.y;
+                return ++line;
+            }`);
+            ops[h(`${'101111'}${b(v0, bpv)}`)] = this.global.fn;
         }
     }
 

@@ -302,7 +302,7 @@ class Operators {
 
         eval(`Operators.global.fn = function (line, num) {
             const data = num << ${opBits};
-            const offs = this.funcs[(data >>> ${ifBit}) & 1 === 0 ? this.vars[(data >>> ${varBits} * .5 + .5) << 0] : data >>> ${fnBits}];
+            const offs = this.funcs[(data >>> ${ifBit}) & 1 === 0 ? this.vars[(data >>> ${varBits} + .5) << 0] : data >>> ${fnBits}];
             if (typeof offs !== 'undefined') {
                 this.stack.push(line + 1, offs - 1, this.vars.slice());
                 return offs;

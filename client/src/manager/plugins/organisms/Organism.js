@@ -11,6 +11,8 @@ const Helper         = require('./../../../../../common/src/Helper');
 const OConfig        = require('./../../../manager/plugins/organisms/Config');
 const EVENT_AMOUNT   = require('./../../../share/Events').EVENT_AMOUNT;
 const VM             = require('./../../../vm/VM');
+const DIR            = require('./../../../../../common/src/Directions').DIR;
+const OFFSX          = require('./../../../../../common/src/Directions').OFFSX;
 
 const DESTROY        = 0;
 const CLONE          = 1;
@@ -93,6 +95,7 @@ class Organism extends Observer {
     get id()                    {return this._id}
     get x()                     {return this._x}
     get y()                     {return this._y}
+    get dir()                   {return this._dir}
     get item()                  {return this._item}
     get iterations()            {return this._iterations}
     get changes()               {return this._changes}
@@ -103,7 +106,6 @@ class Organism extends Observer {
     get startEnergy()           {return this._startEnergy}
     get color()                 {return this._color}
     get mem()                   {return this._mem}
-    get posId()                 {return Helper.posId(this._x, this._y)}
 
     set x(newX)                 {this._x = newX}
     set y(newY)                 {this._y = newY}
@@ -112,6 +114,7 @@ class Organism extends Observer {
     set energy(e)               {if (this.vm !== null) { this._energy = e; ++this._energyChanges % UPDATE_COLOR_PERIOD === 0 && this._updateColor()}}
     set startEnergy(e)          {this._startEnergy = e}
     set changes(c)              {this._changes = c}
+    set dir(d)                  {this._dir = d}
 
     /**
      * Runs one code iteration (amount of lines set in Config.codeYieldPeriod) and returns
@@ -220,6 +223,7 @@ class Organism extends Observer {
         this._mutationPeriod        = OConfig.orgRainMutationPeriod;
         this._mutationPercent       = OConfig.orgRainMutationPercent;
         this._mem                   = new Array(Math.pow(2, OConfig.orgMemBits));
+        this._dir                   = Helper.rand(OFFSX.length);
 
         _fill(this._mem, 0);
     }
@@ -233,6 +237,7 @@ class Organism extends Observer {
         this._mutationPeriod        = parent.mutationPeriod;
         this._mutationPercent       = parent.mutationPercent;
         this._mem                   = parent.mem.slice();
+        this._dir                   = parent.dir;
     }
 
     _updateColor() {

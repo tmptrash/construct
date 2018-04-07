@@ -165,15 +165,6 @@ describe("client/src/organism/OrganismDos", () => {
     });
 
     describe('Checks coordinates', () => {
-        it('posId() should return unique hash', () => {
-            org.x = 2;
-            org.y = 3;
-            expect(org.posId).toBe(Helper.posId(2, 3));
-            org.x = 0;
-            org.y = 3;
-            expect(org.posId).toBe(Helper.posId(0, 3));
-        });
-
         it('Checks coordinates setters getters', () => {
             org.x = 1;
             org.y = 2;
