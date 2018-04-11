@@ -6,13 +6,16 @@
  *
  * @author flatline
  */
-const Helper    = require('./../../../../../../common/src/Helper');
-const EVENTS    = require('./../../../../../src/share/Events').EVENTS;
-const OConfig   = require('./../Config');
-const Operators = require('./../../../../vm/Operators');
-const Num       = require('./../../../../vm/Num');
-const OFFSX     = require('./../../../../../../common/src/Directions').OFFSX;
-const OFFSY     = require('./../../../../../../common/src/Directions').OFFSY;
+const Helper       = require('./../../../../../../common/src/Helper');
+const EVENTS       = require('./../../../../../src/share/Events').EVENTS;
+const OConfig      = require('./../Config');
+const Operators    = require('./../../../../vm/Operators');
+const Num          = require('./../../../../vm/Num');
+const OFFSX        = require('./../../../../../../common/src/Directions').OFFSX;
+const OFFSY        = require('./../../../../../../common/src/Directions').OFFSY;
+const OBJECT_TYPES = require('./../../../../view/World').OBJECT_TYPES;
+
+const NORMALIZE_NO_DIR = Helper.normalizeNoDir;
 
 /**
  * {Function} Is created to speed up this function call. constants are run
@@ -23,7 +26,7 @@ const IN_WORLD              = Helper.inWorld;
 class OperatorsDos extends Operators {
     static compile() {
         const bitsPerOp = OConfig.codeBitsPerOperator;
-        this.OPERATOR_AMOUNT = 16;
+        this.OPERATOR_AMOUNT = 20;
         //
         // IMPORTANT: don't use super here, because it breaks Operators
         // IMPORTANT: class internal logic. Operators.global will be point
@@ -32,9 +35,13 @@ class OperatorsDos extends Operators {
         Operators.compile(this.OPERATOR_AMOUNT);
 
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar * 3));
-        this.LENS.push(Num.MAX_BITS - bitsPerOp);
+        this.LENS.push(Num.MAX_BITS -  bitsPerOp);
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
+        this.LENS.push(Num.MAX_BITS -  bitsPerOp);
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
 
         this._compileLookAt(); // 11
@@ -42,6 +49,10 @@ class OperatorsDos extends Operators {
         this._compileDir();    // 13
         this._compileMyX();    // 14
         this._compileMyY();    // 15
+        this._compileEat();    // 16
+        this._compilePut();    // 17
+        this._compileEnergy(); // 18
+        this._compilePick();   // 19
     }
 
     /**
@@ -64,7 +75,7 @@ class OperatorsDos extends Operators {
         for (let v0 = 0; v0 < vars; v0++) {
             for (let v1 = 0; v1 < vars; v1++) {
                 for (let v2 = 0; v2 < vars; v2++) {
-                    eval(`OperatorsDos.global.fn = function (line) {
+                    eval(`OperatorsDos.global.fn = function lookAt(line) {
                         const vars  = this.vars;
                         const x     = (vars[${v1}] + .5) << 0;
                         const y     = (vars[${v2}] + .5) << 0;
@@ -88,7 +99,7 @@ class OperatorsDos extends Operators {
      * string: step
      */
     static _compileStep() {
-        eval(`OperatorsDos.global.fn = function (line, num, org) {
+        eval(`OperatorsDos.global.fn = function step(line, num, org) {
             this._obs.fire(${EVENTS.STEP}, org, org.x, org.y, org.x + OFFSX[org.dir], org.y + OFFSY[org.dir]);
             return ++line;
         }`);
@@ -114,7 +125,7 @@ class OperatorsDos extends Operators {
         const dirs     = OFFSX.length;
 
         for (let v0 = 0; v0 < vars; v0++) {
-            eval(`Operators.global.fn = function (line, num, org) {
+            eval(`Operators.global.fn = function dir(line, num, org) {
                 org.dir = ((this.vars[${v0}] + .5) << 0 >>> 0) % ${dirs};
                 return ++line;
             }`);
@@ -140,7 +151,7 @@ class OperatorsDos extends Operators {
         const vars     = Math.pow(2, bpv);
 
         for (let v0 = 0; v0 < vars; v0++) {
-            eval(`Operators.global.fn = function (line, num, org) {
+            eval(`Operators.global.fn = function myX(line, num, org) {
                 this.vars[${v0}] = org.x;
                 return ++line;
             }`);
@@ -166,11 +177,177 @@ class OperatorsDos extends Operators {
         const vars     = Math.pow(2, bpv);
 
         for (let v0 = 0; v0 < vars; v0++) {
-            eval(`Operators.global.fn = function (line, num, org) {
+            eval(`Operators.global.fn = function myY(line, num, org) {
                 this.vars[${v0}] = org.y;
                 return ++line;
             }`);
             ops[h(`${'101111'}${b(v0, bpv)}`)] = this.global.fn;
+        }
+    }
+
+    /**
+     * Compiles all variants of 'eat' operator and stores they in
+     * this._compiledOperators map. '...' means, that all other bits are
+     * ignored. Step direction depends on active organism's direction.
+     * See Organism.dir property. Example:
+     *
+     * bits  :      6 xx
+     * number: 110000 01...
+     * string: eat(v1)
+     */
+    static _compileEat() {
+        const bpv      = OConfig.codeBitsPerVar;
+        const ops      = this._compiledOperators;
+        const h        = this._toHexNum;
+        const b        = this._toBinStr;
+        const vars     = Math.pow(2, bpv);
+
+        for (let v0 = 0; v0 < vars; v0++) {
+            eval(`Operators.global.fn = function eat(line, num, org) {
+                const eat    = this.vars[${v0}];
+                if (eat <= 0) {return ++line}
+                let   x;
+                let   y;
+                [x, y]       = NORMALIZE_NO_DIR(org.x + OFFSX[org.dir], org.y + OFFSY[org.dir]);
+                const victim = this._positions[x][y];
+                
+                if (victim < 0) {return ++line}      // World object found. We can't eat objects
+                if (victim === 0) {                  // Energy found
+                    org.energy += this._world.grabDot(x, y, eat);
+                    this._obs.fire(EVENTS.EAT_ENERGY, eat);
+                    return ++line;
+                }
+                if (victim.energy <= eat) {          // Organism found
+                    this._obs.fire(EVENTS.KILL_EAT, victim);
+                    org.energy += victim.energy;
+                    //
+                    // IMPORTANT:
+                    // We have to do destroy here, to have a possibility for current
+                    // (winner) organism to clone himself after eating other organism.
+                    // This is how organisms compete for an ability to clone
+                    //
+                    victim.destroy();
+                    return ++line;
+                }
+                
+                this._obs.fire(EVENTS.EAT_ORG, victim, eat);
+                org.energy    += eat;
+                victim.energy -= eat;
+        
+                return ++line;
+            }`);
+            ops[h(`${'110000'}${b(v0, bpv)}`)] = this.global.fn;
+        }
+    }
+
+    /**
+     * Compiles all variants of 'put' operator and stores they in
+     * this._compiledOperators map. '...' means, that all other bits are
+     * ignored. Step direction depends on active organism's direction.
+     * See Organism.dir property. Example:
+     *
+     * bits  :      6 xx
+     * number: 110001 01...
+     * string: put(v1)
+     */
+    static _compilePut() {
+        const bpv      = OConfig.codeBitsPerVar;
+        const ops      = this._compiledOperators;
+        const h        = this._toHexNum;
+        const b        = this._toBinStr;
+        const vars     = Math.pow(2, bpv);
+        const event    = EVENTS.PUT_ENERGY;
+
+        for (let v0 = 0; v0 < vars; v0++) {
+            eval(`Operators.global.fn = function put(line, num, org) {
+                const put    = this.vars[${v0}];
+                if (put <= 0) {return ++line}
+                let   x;
+                let   y;
+                [x, y]       = NORMALIZE_NO_DIR(org.x + OFFSX[org.dir], org.y + OFFSY[org.dir]);
+                const color  = this._world.data[x][y];
+                if (color > 0) {return ++line}
+                
+                this._world.setDot(x, y, put);
+                this._obs.fire(${event}, put);
+                org.energy -= put;
+                return ++line;
+            }`);
+            ops[h(`${'110001'}${b(v0, bpv)}`)] = this.global.fn;
+        }
+    }
+
+    /**
+     * Compiles all variants of 'energy' operator and stores they in
+     * this._compiledOperators map. '...' means, that all other bits are
+     * ignored. Step direction depends on active organism's direction.
+     * See Organism.dir property. Example:
+     *
+     * bits  :      6 xx
+     * number: 110010 01...
+     * string: energy(v1)
+     */
+    static _compileEnergy() {
+        const ops      = this._compiledOperators;
+        const h        = this._toHexNum;
+
+        eval(`Operators.global.fn = function energy(line, num, org) {
+            const poses = this._positions;
+            const world = this._world;
+            let   coef  = 0;
+            for (let x = org.x - 1, xlen = org.x + 2; x < xlen; x++) {
+                for (let y = org.y - 1, ylen = org.y + 2; y < ylen; y++) {
+                    if (IN_WORLD(x, y) && poses[x][y] <= OBJECT_TYPES.TYPE_ENERGY0 && poses[x][y] >= OBJECT_TYPES.TYPE_ENERGY4) {
+                        coef += -poses[x][y];
+                        world.setDot(x, y, 0);
+                        poses[x][y] = 0;
+                    }
+                }
+            }
+            org.energy += (coef * 0x00ff00);
+            return ++line;
+        }`);
+        ops[h(`${'110010'}`)] = this.global.fn;
+    }
+
+    /**
+     * Compiles all variants of 'pick' operator and stores they in
+     * this._compiledOperators map. '...' means, that all other bits are
+     * ignored. Step direction depends on active organism's direction.
+     * See Organism.dir property. Example:
+     *
+     * bits  :      6 xx
+     * number: 110011 01...
+     * string: pick(v1)
+     */
+    static _compilePick() {
+        const bpv      = OConfig.codeBitsPerVar;
+        const ops      = this._compiledOperators;
+        const h        = this._toHexNum;
+        const b        = this._toBinStr;
+        const vars     = Math.pow(2, bpv);
+        const dirs     = OFFSX.length;
+
+        for (let v0 = 0; v0 < vars; v0++) {
+            eval(`Operators.global.fn = function pick(line, num, org) {
+                const poses = this._positions;
+                const world = this._world;
+                const x     = org.x + OFFSX[org.dir];
+                const y     = org.y + OFFSY[org.dir];
+                if (IN_WORLD(x, y) && poses[x][y] <= OBJECT_TYPES.TYPE_ENERGY0 && poses[x][y] >= OBJECT_TYPES.TYPE_ENERGY4) {
+                    const dir = ((this.vars[${v0}] + .5) << 0 >>> 0) % ${dirs};
+                    const dx  = org.x + OFFSX[dir];
+                    const dy  = org.y + OFFSY[dir];
+                    if (IN_WORLD(dx, dy) && world.data[dx][dy] === 0) {
+                        poses[dx][dy] = poses[x][y];
+                        poses[x][y]   = 0;
+                        world.setDot(dx, dy, world.data[x][y]);
+                        world.setDot(x, y, 0);
+                    }
+                }
+                return ++line;
+            }`);
+            ops[h(`${'110011'}${b(v0, bpv)}`)] = this.global.fn;
         }
     }
 
@@ -215,7 +392,6 @@ class OperatorsDos extends Operators {
          */
         this._obs          = obs;
         this._world        = man.world;
-        this._organisms    = man.organisms;
         this._positions    = man.positions;
     }
 
@@ -229,7 +405,6 @@ class OperatorsDos extends Operators {
         super.destroy();
 
         this._world        = null;
-        this._organisms    = null;
         this._positions    = null;
         this._obs          = null;
         this._ret          = null;

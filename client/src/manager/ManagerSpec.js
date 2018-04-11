@@ -19,7 +19,7 @@ describe("client/src/manager/Manager", () => {
     const port         = SConfig.port;
     const maxConns     = SConfig.maxConnections;
     const startOrgs    = OConfig.orgStartAmount;
-    const energyCheck  = Config.worldEnergyCheckPeriod;
+    const energyCheck  = Config.checkPeriod;
     const emp          = () => {};
 
     let error;
@@ -49,7 +49,7 @@ describe("client/src/manager/Manager", () => {
         SConfig.port = Config.serverPort;
         SConfig.maxConnections = 100;
         OConfig.orgStartAmount = 0;
-        Config.worldEnergyCheckPeriod = 0;
+        Config.checkPeriod = 0;
 
         error = Console.error;
         warn  = Console.warn;
@@ -80,7 +80,7 @@ describe("client/src/manager/Manager", () => {
         SConfig.port = port;
         SConfig.maxConnections = maxConns;
         OConfig.orgStartAmount = startOrgs;
-        Config.worldEnergyCheckPeriod = energyCheck;
+        Config.checkPeriod = energyCheck;
     });
 
     describe('Manager creation/destroy', () => {

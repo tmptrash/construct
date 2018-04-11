@@ -15,12 +15,11 @@ const Config = {
      * implemented. See Operators.operators getter for details. Values may be float.
      */
     orgOperatorWeights: [
-        .0001,  .0001, .00001, .00000001, .0001, // var, const, if, loop, operator,
-        .00001, 2,     2,      2,         2,     // lookAt, eatLeft, eatRight, eatUp, eatDown,
-        2,      2,     2,      2,                // stepLeft, stepRight, stepUp, stepDown,
-        .001,   .001,                            // fromMem, toMem,
-        .0001,  .0001,                           // myX, myY,
-        .001,   .001,  .001,   .001              // checkLeft, checkRight, checkUp, checkDown
+        .001, .001,  .0001,  .001,  .001,   // var, const, if, loop, operator,
+        .001, .001,  .001,   .001,          // func, funcCall, return, bracket
+        .001, .001,                         // toMem, fromMem,
+        .001, 2,     .001,    .001,  .001,  // lookAt, step, dir, myX, myY,
+        1,    .001,  .00001,  .00001        // eat, put, energy, pick
     ],
     /**
      * {Array} Probabilities which used, when mutator decides what to do:
@@ -47,7 +46,7 @@ const Config = {
      * {Boolean} If turned on, then organism will be responsible for changing
      * mutations probabilities. Otherwise these probabilities will be constant
      */
-    orgMutationProbsPerOrg: false,
+    orgMutationProbsPerOrg: true,
     /**
      * {Number} Minimum age for cloning. Before that, cloning is impossible. It should
      * be less then orgAlivePeriod config
@@ -56,14 +55,14 @@ const Config = {
     /**
      * {Number} Minimum energy for cloning
      */
-    orgCloneMinEnergy: 200000,
+    orgCloneMinEnergy: 2000000,
     /**
      * {Boolean} If true, then random organism will be killed after new one has
      * cloned and amount of organisms is greater then orgMaxOrgs config. false
      * mean, that new organism will not be cloned, if amount of organisms is >=
      * orgMaxOrgs config.
      */
-    orgKillOnClone: true,
+    orgKillOnClone: false,
     /**
      * {Number} Amount of iterations between tournament. During tournament one
      * organism (looser) will be killed
@@ -85,7 +84,7 @@ const Config = {
      * own mutations period and percent. false - mean, that these values will be
      * constant for all organisms
      */
-    orgRainPerOrg: false,
+    orgRainPerOrg: true,
     /**
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
@@ -100,7 +99,7 @@ const Config = {
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
      */
-    orgAlivePeriod: 1000000,
+    orgAlivePeriod: 5000,
     /**
      * {Number} Size of organism stack (internal memory) in bits. Real amount of
      * organism's internal memory will be 2^orgMemBits. Example: if orgMemBits=3,
@@ -126,11 +125,11 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 1000,
+    orgMaxOrgs: 800,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 1000,
+    orgStartAmount: 800,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created
@@ -140,7 +139,7 @@ const Config = {
     /**
      * {Number} Amount of bits for storing a numeric constant inside byte code
      */
-    codeConstBits: 16,
+    codeConstBits: 8,
     /**
      * {Number} The value from -X/2 to X/2, which is used for setting
      * default value, while organism is delivering. So, if the value is
@@ -166,6 +165,7 @@ const Config = {
     /**
      * {Number} Amount of bits, which stores maximum block length. Under block
      * length we mean maximum amount of lines in one block like if, for,...
+     * TODO: remove this config
      */
     codeBitsPerBlock: 10,
     /**

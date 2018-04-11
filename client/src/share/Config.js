@@ -38,8 +38,9 @@ ClientConfig.init({
         'organisms/dos/Code2String',
         'Config',
         'client/Client',
-        'Energy',
-        'Stones',
+        'energy/Energy',
+        'stones/Stones',
+        'objects/Objects',
         'status/console/Console',
         IS_NODE_JS ? '' : 'status/charts/Charts',
         'ips/Ips',
@@ -67,43 +68,6 @@ ClientConfig.init({
      * calculations).
      */
     worldCyclical: true,
-    /**
-     * {Number} An amount of iteration, after which we have to check world energy
-     * percent. May be 0 if you want to disable energy generation
-     */
-    worldEnergyCheckPeriod: 5000,
-    /**
-     * {Number} size of one clever energy block in dots
-     */
-    worldEnergyBlockSize: 10,
-    /**
-     * {Number} Index of energy color. Starts from 0. Ends with 4000. See Organism.MAX_COLORS
-     * constant for details
-     */
-    worldEnergyColorIndex: 0,
-    /**
-     * {Number} Percent from all energy in a world until clever energy will be added.
-     * After this value clever energy will be stopped to add until it's amount will
-     * be less then worldEnergyMinPercent. These two configs create cyclical
-     * energy adding to the world.
-     */
-    worldEnergyMaxPercent: .3,
-    /**
-     * {Number} Opposite to worldEnergyMaxPercent. Sets minimum percent from
-     * all energy in a world after which clever energy will turn on (be added to the
-     * world again).
-     */
-    worldEnergyMinPercent: .28,
-    /**
-     * {Number} Percent of stones in a world. Percent from world size:
-     * stoneAmount = worldStonesPercent * worldWidth * worldHeight
-     */
-    worldStonesPercent: .25,
-    /**
-     * {Number} Color index for stones in a world. See Organism.MAX_COLORS
-     * constant for details
-     */
-    worldStoneColorIndex: 1800,
     /**
      * {Number} Zoom speed 0..1
      */

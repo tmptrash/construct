@@ -25,12 +25,12 @@ class Operators {
          * {Number} Bit related constants
          */
         this.FOUR_BITS          = 4;
-        this.CONDITION_BITS     = 2;
+        this.CONDITION_BITS     = 4;
         this.FUNC_NAME_BITS     = 10;
         /**
          * {Array} Available conditions for if operator
          */
-        this._CONDITIONS        = ['<', '>', '===', '!=='];
+        this._CONDITIONS        = ['+', '-', '*', '/', '%', '&', '|', '^', '>>', '<<', '>>>', '<', '>', '===', '!==', '<='];
         /**
          * {Array} Available operators for math calculations
          */
@@ -133,7 +133,7 @@ class Operators {
 
         for (let v0 = 0; v0 < vars; v0++) {
             for (let v1 = 0; v1 < vars; v1++) {
-                eval(`Operators.global.fn = function (line) {
+                eval(`Operators.global.fn = function vars(line) {
                     this.vars[${v0}] = this.vars[${v1}];
                     return ++line;
                 }`);
@@ -162,7 +162,7 @@ class Operators {
         const vars     = Math.pow(2, bpv);
 
         for (let v0 = 0; v0 < vars; v0++) {
-            eval(`Operators.global.fn = function (line, num) {
+            eval(`Operators.global.fn = function consts(line, num) {
                 this.vars[${v0}] = num << ${bits1var} >>> ${bits};
                 return ++line;
             }`);
@@ -176,9 +176,9 @@ class Operators {
      * depends on configuration. '...' means, that all other bits are
      * ignored. Example:
      *
-     * bits  :      6 xx xx  2
-     * number: 100010 00 01 00...
-     * string: if (v0 < v1) {
+     * bits  :      6 xx xx    4
+     * number: 100010 00 01 0000...
+     * string: if (v0 + v1) {
      */
     static _compileIf() {
         const bpv    = OConfig.codeBitsPerVar;
@@ -190,7 +190,7 @@ class Operators {
         for (let c = 0; c < Math.pow(2, this.CONDITION_BITS); c++) {
             for (let v0 = 0; v0 < vars; v0++) {
                 for (let v1 = 0; v1 < vars; v1++) {
-                    eval(`Operators.global.fn = function (line) {
+                    eval(`Operators.global.fn = function cond(line) {
                         if (this.vars[${v0}] ${this._CONDITIONS[c]} this.vars[${v1}]) {return ++line}
                         return this.offs[line] === line ? ++line : this.offs[line];
                     }`);
@@ -220,7 +220,7 @@ class Operators {
         for (let c = 0; c < Math.pow(2, this.CONDITION_BITS); c++) {
             for (let v0 = 0; v0 < vars; v0++) {
                 for (let v1 = 0; v1 < vars; v1++) {
-                    eval(`Operators.global.fn = function (line) {
+                    eval(`Operators.global.fn = function loop(line) {
                         if (this.vars[${v0}] ${this._CONDITIONS[c]} this.vars[${v1}]) {return ++line}
                         return this.offs[line] === line ? ++line : this.offs[line];
                     }`);
@@ -246,12 +246,13 @@ class Operators {
         const h      = this._toHexNum;
         const b      = this._toBinStr;
         const vars   = Math.pow(2, bpv);
+        const opsLen = Math.pow(2, this.FOUR_BITS);
 
-        for (let op = 0; op < Math.pow(2, this.FOUR_BITS); op++) {
+        for (let op = 0; op < opsLen; op++) {
             for (let v0 = 0; v0 < vars; v0++) {
                 for (let v1 = 0; v1 < vars; v1++) {
                     for (let v2 = 0; v2 < vars; v2++) {
-                        eval(`Operators.global.fn = function (line) {
+                        eval(`Operators.global.fn = function math(line) {
                             ${this._OPERATORS[op](v0, v1, v2)}
                             return ++line;
                         }`);
@@ -276,7 +277,7 @@ class Operators {
         const ops    = this._compiledOperators;
         const h      = this._toHexNum;
 
-        eval(`Operators.global.fn = function (line) {return this.offs[line] === line ? ++line : this.offs[line]}`);
+        eval(`Operators.global.fn = function func(line) {return this.offs[line] === line ? ++line : this.offs[line]}`);
         ops[h(`${'100101'}`)] = this.global.fn;
     }
 
@@ -300,7 +301,7 @@ class Operators {
         const varBits = Num.MAX_BITS - OConfig.codeBitsPerVar;
         const opBits  = Num.BITS_PER_OPERATOR;
 
-        eval(`Operators.global.fn = function (line, num) {
+        eval(`Operators.global.fn = function call(line, num) {
             const data = num << ${opBits};
             const offs = this.funcs[(data >>> ${ifBit}) & 1 === 0 ? this.vars[(data >>> ${varBits} + .5) << 0] : data >>> ${fnBits}];
             if (typeof offs !== 'undefined') {
@@ -327,7 +328,7 @@ class Operators {
         const h       = this._toHexNum;
         const vars    = Math.pow(2, OConfig.codeBitsPerVar);
 
-        eval(`Operators.global.fn = function (line) {
+        eval(`Operators.global.fn = function ret(line) {
             if (this.stack.length > 0) {
                 const stackVars = this.stack.pop();
                 const vars      = this.vars;
@@ -356,7 +357,7 @@ class Operators {
         const vars    = Math.pow(2, OConfig.codeBitsPerVar);
         const opMask  = Num.OPERATOR_MASK_OFF;
 
-        eval(`Operators.global.fn = function (line, num, org, lines) {
+        eval(`Operators.global.fn = function bracket(line, num, org, lines) {
             const startLine = this.offs[line];
             const operator  = (lines[startLine] & ${opMask}) >>> Num.VAR_BITS_OFFS;
             if (operator === 0x3) {return this.offs[line]} // loop
@@ -395,7 +396,7 @@ class Operators {
 
         for (let v0 = 0; v0 < vars; v0++) {
             for (let v1 = 0; v1 < vars; v1++) {
-                eval(`Operators.global.fn = function (line, num, org) {
+                eval(`Operators.global.fn = function toMem(line, num, org) {
                     const offs = ((this.vars[${v0}] + .5) << 0) >>> 0;
                     org.mem[offs > ${memLen} ? ${memLen} : offs] = this.vars[${v1}];
                     return ++line;
@@ -421,13 +422,13 @@ class Operators {
         const h      = this._toHexNum;
         const b      = this._toBinStr;
         const vars   = Math.pow(2, bpv);
-        const memLen = Math.pow(2, OConfig.orgMemBits);
+        const memLen = Math.pow(2, OConfig.orgMemBits) - 1;
 
         for (let v0 = 0; v0 < vars; v0++) {
             for (let v1 = 0; v1 < vars; v1++) {
-                eval(`Operators.global.fn = function (line, num, org) {
+                eval(`Operators.global.fn = function fromMem(line, num, org) {
                     const offs = ((this.vars[${v1}] + .5) << 0) >>> 0;
-                    this.vars[${v0}] = org.mem[offs >= ${memLen} ? ${memLen-1} : offs];
+                    this.vars[${v0}] = org.mem[offs > ${memLen} ? ${memLen} : offs];
                     return ++line;
                 }`);
                 ops[h(`${'101010'}${b(v0, bpv)}${b(v1, bpv)}`)] = this.global.fn;
