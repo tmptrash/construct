@@ -15,11 +15,11 @@ const Config = {
      * implemented. See Operators.operators getter for details. Values may be float.
      */
     orgOperatorWeights: [
-        .001, .001,  .0001,  .001,  .001,   // var, const, if, loop, operator,
-        .001, .001,  .001,   .001,          // func, funcCall, return, bracket
-        .001, .001,                         // toMem, fromMem,
-        .001, 2,     .001,    .001,  .001,  // lookAt, step, dir, myX, myY,
-        1,    .001,  .00001,  .00001        // eat, put, energy, pick
+        .01,   .01,   .01,   .0001, .01,   // var, const, if, loop, operator,
+        .01,   .01,   .01,   .01,          // func, funcCall, return, bracket
+        .01,   .01,                        // toMem, fromMem,
+        .01,   .1,    .01,   .01,   .01,   // lookAt, step, dir, myX, myY,
+        .1,    .01,   .0001, .0001         // eat, put, energy, pick
     ],
     /**
      * {Array} Probabilities which used, when mutator decides what to do:
@@ -51,18 +51,18 @@ const Config = {
      * {Number} Minimum age for cloning. Before that, cloning is impossible. It should
      * be less then orgAlivePeriod config
      */
-    orgCloneMinAge: 300,
+    orgCloneMinAge: 1000,
     /**
      * {Number} Minimum energy for cloning
      */
-    orgCloneMinEnergy: 2000000,
+    orgCloneMinEnergy: 200000,
     /**
      * {Boolean} If true, then random organism will be killed after new one has
      * cloned and amount of organisms is greater then orgMaxOrgs config. false
      * mean, that new organism will not be cloned, if amount of organisms is >=
      * orgMaxOrgs config.
      */
-    orgKillOnClone: false,
+    orgKillOnClone: true,
     /**
      * {Number} Amount of iterations between tournament. During tournament one
      * organism (looser) will be killed
@@ -125,11 +125,11 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 800,
+    orgMaxOrgs: 1000,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 800,
+    orgStartAmount: 1000,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created

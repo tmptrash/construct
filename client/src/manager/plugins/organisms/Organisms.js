@@ -308,7 +308,7 @@ class Organisms extends Configurable {
      */
     _updateTournament(counter) {
         const period = OConfig.orgTournamentPeriod;
-        return counter % period === 0 && this.organisms.length > 0 || period !== 0 && this._killInTour();
+        return counter % period === 0 && this.organisms.length > 0 && period !== 0 && this._killInTour();
     }
 
     _updateRandomOrgs(counter) {

@@ -9,7 +9,9 @@
 const Helper       = require('./../../../../../../common/src/Helper');
 const EVENTS       = require('./../../../../../src/share/Events').EVENTS;
 const OConfig      = require('./../Config');
+const EConfig      = require('./../../energy/Config');
 const Operators    = require('./../../../../vm/Operators');
+const Organism     = require('./../../../plugins/organisms/Organism').Organism;
 const Num          = require('./../../../../vm/Num');
 const OFFSX        = require('./../../../../../../common/src/Directions').OFFSX;
 const OFFSY        = require('./../../../../../../common/src/Directions').OFFSY;
@@ -290,6 +292,7 @@ class OperatorsDos extends Operators {
     static _compileEnergy() {
         const ops      = this._compiledOperators;
         const h        = this._toHexNum;
+        const energy   = Organism.getColor(EConfig.colorIndex);
 
         eval(`Operators.global.fn = function energy(line, num, org) {
             const poses = this._positions;
@@ -304,7 +307,7 @@ class OperatorsDos extends Operators {
                     }
                 }
             }
-            org.energy += (coef * 0x00ff00);
+            org.energy += (coef * ${energy});
             return ++line;
         }`);
         ops[h(`${'110010'}`)] = this.global.fn;

@@ -110,7 +110,7 @@ class VM extends Observer {
             //
             // Every operator has it's own weight
             //
-            org.energy -= weights[op];
+            org.energy -= (weights[op] * codeLen);
             //
             // We reach the end of the script and have to run it from the beginning
             //

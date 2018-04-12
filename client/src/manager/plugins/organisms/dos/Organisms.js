@@ -77,7 +77,7 @@ class Organisms extends BaseOrganisms {
         //
         // Clone percent is always 0.5
         //
-        let   energy      = (orgEnergy * .5 + .5) << 0;  // analog of Math.round()
+        let   energy      = (orgEnergy * .5 + .5) << 0 >>> 0;  // analog of Math.round()
         //
         // This is very special/rare case, when organisms cheating by creating
         // ancestors and put all energy into them at the same time resetting

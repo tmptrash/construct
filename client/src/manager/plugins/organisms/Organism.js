@@ -252,7 +252,7 @@ class Organism extends Observer {
     }
 
     _updateClone() {
-        if (this._iterations > OConfig.orgCloneMinAge && this._energy > OConfig.orgCloneMinEnergy) {this.fire(CLONE, this)}
+        if (this._iterations > OConfig.orgCloneMinAge && this._energy > OConfig.orgCloneMinEnergy * this.vm.size) {this.fire(CLONE, this)}
     }
 
     /**
@@ -276,9 +276,6 @@ class Organism extends Observer {
      * @return {Boolean} false means that organism was destroyed.
      */
     _updateEnergy() {
-        //
-        // this.vm === null means, that organism has already destroyed
-        //
         if (this._energy < 1 && this.vm) {
             this.fire(KILL_NO_ENERGY, this);
             this.destroy();
