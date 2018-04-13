@@ -28,7 +28,7 @@ const IN_WORLD              = Helper.inWorld;
 class OperatorsDos extends Operators {
     static compile() {
         const bitsPerOp = OConfig.codeBitsPerOperator;
-        this.OPERATOR_AMOUNT = 20;
+        this.OPERATOR_AMOUNT = 23;
         //
         // IMPORTANT: don't use super here, because it breaks Operators
         // IMPORTANT: class internal logic. Operators.global will be point
@@ -45,6 +45,9 @@ class OperatorsDos extends Operators {
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
         this.LENS.push(Num.MAX_BITS -  bitsPerOp);
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar * 2));
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
 
         this._compileLookAt(); // 11
         this._compileStep();   // 12
@@ -55,6 +58,10 @@ class OperatorsDos extends Operators {
         this._compilePut();    // 17
         this._compileEnergy(); // 18
         this._compilePick();   // 19
+        this._compileRand();   // 20
+        this._compileSay();    // 21
+        this._compileListen(); // 22
+
     }
 
     /**
@@ -283,7 +290,9 @@ class OperatorsDos extends Operators {
      * Compiles all variants of 'energy' operator and stores they in
      * this._compiledOperators map. '...' means, that all other bits are
      * ignored. Step direction depends on active organism's direction.
-     * See Organism.dir property. Example:
+     * See Organism.dir property. If organism calls energy command near
+     * only one energy object it will not be transformed to energy.
+     * Example:
      *
      * bits  :      6 xx
      * number: 110010 01...
@@ -295,19 +304,31 @@ class OperatorsDos extends Operators {
         const energy   = Organism.getColor(EConfig.colorIndex);
 
         eval(`Operators.global.fn = function energy(line, num, org) {
-            const poses = this._positions;
-            const world = this._world;
-            let   coef  = 0;
+            const poses  = this._positions;
+            const world  = this._world;
+            let   oldx   = -1;
+            let   oldy   = -1;
+            let   coef   = 0;
+            let   blocks = 0;
             for (let x = org.x - 1, xlen = org.x + 2; x < xlen; x++) {
                 for (let y = org.y - 1, ylen = org.y + 2; y < ylen; y++) {
                     if (IN_WORLD(x, y) && poses[x][y] <= OBJECT_TYPES.TYPE_ENERGY0 && poses[x][y] >= OBJECT_TYPES.TYPE_ENERGY4) {
                         coef += -poses[x][y];
+                        if (blocks++ ===     0) {
+                            oldx = x;
+                            oldy = y;
+                            continue;
+                        }
                         world.setDot(x, y, 0);
                         poses[x][y] = 0;
                     }
                 }
             }
-            org.energy += (coef * ${energy});
+            if (blocks > 1) {
+                org.energy += (coef * ${energy});
+                world.setDot(oldx, oldy, 0);
+                poses[oldx][oldy] = 0;
+            }
             return ++line;
         }`);
         ops[h(`${'110010'}`)] = this.global.fn;
@@ -351,6 +372,88 @@ class OperatorsDos extends Operators {
                 return ++line;
             }`);
             ops[h(`${'110011'}${b(v0, bpv)}`)] = this.global.fn;
+        }
+    }
+
+    /**
+     * Compiles all variants of 'rand' operator and stores they in
+     * this._compiledOperators map. '...' means, that all other bits are
+     * ignored. Step direction depends on active organism's direction.
+     * See Organism.dir property. Example:
+     *
+     * bits  :      6 xx xx
+     * number: 110100 01 11...
+     * string: v1 = rand(v3)
+     */
+    static _compileRand() {
+        const bpv      = OConfig.codeBitsPerVar;
+        const ops      = this._compiledOperators;
+        const h        = this._toHexNum;
+        const b        = this._toBinStr;
+        const vars     = Math.pow(2, bpv);
+
+        for (let v0 = 0; v0 < vars; v0++) {
+            for (let v1 = 0; v1 < vars; v1++) {
+                eval(`Operators.global.fn = function rand(line) {
+                    this.vars[${v0}] = Helper.rand(((this.vars[${v1}] + .5) << 0 >>> 0));
+                    return ++line;
+                }`);
+                ops[h(`${'110100'}${b(v0, bpv)}${b(v1, bpv)}`)] = this.global.fn;
+            }
+        }
+    }
+
+    /**
+     * Compiles all variants of 'say' operator and stores they in
+     * this._compiledOperators map. '...' means, that all other bits are
+     * ignored. Step direction depends on active organism's direction.
+     * See Organism.dir property. Example:
+     *
+     * bits  :      6 xx
+     * number: 110101 01...
+     * string: say(v1)
+     */
+    static _compileSay() {
+        const bpv      = OConfig.codeBitsPerVar;
+        const ops      = this._compiledOperators;
+        const h        = this._toHexNum;
+        const b        = this._toBinStr;
+        const vars     = Math.pow(2, bpv);
+
+        for (let v0 = 0; v0 < vars; v0++) {
+            eval(`Operators.global.fn = function rand(line, num, org) {
+                let x = org.x + OFFSX[org.dir];
+                let y = org.y + OFFSY[org.dir];
+                IN_WORLD(x, y) && !(this._positions[x][y] <= 0) && (this._positions[x][y].msg = this.vars[${v0}]);
+                return ++line;
+            }`);
+            ops[h(`${'110101'}${b(v0, bpv)}`)] = this.global.fn;
+        }
+    }
+
+    /**
+     * Compiles all variants of 'say' operator and stores they in
+     * this._compiledOperators map. '...' means, that all other bits are
+     * ignored. Step direction depends on active organism's direction.
+     * See Organism.dir property. Example:
+     *
+     * bits  :      6 xx
+     * number: 110110 01...
+     * string: v1 = listen()
+     */
+    static _compileListen() {
+        const bpv      = OConfig.codeBitsPerVar;
+        const ops      = this._compiledOperators;
+        const h        = this._toHexNum;
+        const b        = this._toBinStr;
+        const vars     = Math.pow(2, bpv);
+
+        for (let v0 = 0; v0 < vars; v0++) {
+            eval(`Operators.global.fn = function rand(line, num, org) {
+                this.vars[${v0}] = org.msg;
+                return ++line;
+            }`);
+            ops[h(`${'110110'}${b(v0, bpv)}`)] = this.global.fn;
         }
     }
 

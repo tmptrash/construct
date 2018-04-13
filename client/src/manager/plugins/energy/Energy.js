@@ -10,13 +10,8 @@ const EVENTS   = require('./../../../share/Events').EVENTS;
 class Energy extends Dots {
     constructor(manager) {
         super(manager, Config, {
-            addOnce    : false,
-            checkPeriod: Config.checkPeriod,
-            minPercent : Config.minPercent,
-            maxPercent : Config.maxPercent,
-            colorIndex : Config.colorIndex,
-            blockSize  : Config.blockSize,
-            compareCb  : (x,y) => manager.world.getDot(x, y) > 0 && manager.positions[x][y] === 0
+            addOnce  : false,
+            compareCb: (x,y) => manager.world.getDot(x, y) > 0 && manager.positions[x][y] === 0
         });
     }
 

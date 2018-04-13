@@ -107,6 +107,9 @@ class VM extends Observer {
             const num = code[line];
             const op  = (num & opMask) >>> opOffs;
             line      = opHandlers[num >>> lens[op]].call(operators, line, num, org, code);
+            if (Number.isNaN(org.energy)) {
+                debugger;
+            }
             //
             // Every operator has it's own weight
             //

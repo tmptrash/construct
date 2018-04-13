@@ -90,8 +90,8 @@ class Organism extends Observer {
         this._iterations    = -1;
         this._changes       = 0;
         this._item          = item;
+        this._msg           = 0;
         this._energyChanges = 0;
-        this._fnId          = 0;
     }
 
     get id()                    {return this._id}
@@ -108,6 +108,7 @@ class Organism extends Observer {
     get startEnergy()           {return this._startEnergy}
     get color()                 {return this._color}
     get mem()                   {return this._mem}
+    get msg()                   {return this._msg}
 
     set x(newX)                 {this._x = newX}
     set y(newY)                 {this._y = newY}
@@ -122,6 +123,7 @@ class Organism extends Observer {
     set startEnergy(e)          {this._startEnergy = e}
     set changes(c)              {this._changes = c}
     set dir(d)                  {this._dir = d}
+    set msg(m)                  {this._msg = m}
 
     /**
      * Runs one code iteration (amount of lines set in Config.codeYieldPeriod) and returns
@@ -156,7 +158,6 @@ class Organism extends Observer {
             changes             : this._changes,
             // 'item' will be added after insertion
             iterations          : this._iterations,
-            fnId                : this._fnId,
             vm                  : this.vm.serialize(),
             energy              : this._energy,
             startEnergy         : this._startEnergy,
@@ -184,7 +185,6 @@ class Organism extends Observer {
         this._changes              = json.changes;
         // 'item' will be added after insertion
         this._iterations           = json.iterations;
-        this._fnId                 = json.fnId;
         this.vm.unserialize(json.vm);
         this._energy               = json.energy;
         this._startEnergy          = json.startEnergy;

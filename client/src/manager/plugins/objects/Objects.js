@@ -24,10 +24,6 @@ class Objects extends Dots {
     constructor(manager) {
         super(manager, Config, {
             addOnce    : false,
-            checkPeriod: Config.checkPeriod,
-            minPercent : Config.minPercent,
-            maxPercent : Config.maxPercent,
-            blockSize  : Config.blockSize,
             compareCb  : (x, y) => manager.world.getDot(x, y) > 0 && manager.positions[x][y] >= OBJECT_TYPES.TYPE_ENERGY4 && manager.positions[x][y] <= OBJECT_TYPES.TYPE_ENERGY0,
             colorCb    : (    ) => {color = Helper.rand(5) - OBJECT_TYPES.TYPE_ENERGY0; return Organism.getColor(4500 + (color + OBJECT_TYPES.TYPE_ENERGY0) * 500)},
             setCb      : (x, y) => manager.positions[x][y] = -color

@@ -298,12 +298,13 @@ class Operators {
         const h       = this._toHexNum;
         const ifBit   = Num.MAX_BITS - 1;
         const fnBits  = Num.MAX_BITS - this.FUNC_NAME_BITS;
-        const varBits = Num.MAX_BITS - OConfig.codeBitsPerVar;
+        const funcs   = Math.pow(2, this.FUNC_NAME_BITS);
+        const varBits = Num.MAX_BITS - OConfig.codeBitsPerVar - 1;
         const opBits  = Num.BITS_PER_OPERATOR;
 
         eval(`Operators.global.fn = function call(line, num) {
             const data = num << ${opBits};
-            const offs = this.funcs[(data >>> ${ifBit}) & 1 === 0 ? this.vars[(data >>> ${varBits} + .5) << 0] : data >>> ${fnBits}];
+            const offs = this.funcs[(data >>> ${ifBit}) & 1 === 0 ? ((this.vars[data >>> ${varBits}] + .5) << 0 >>> 0) % ${funcs} : data >>> ${fnBits}];
             if (typeof offs !== 'undefined') {
                 this.stack.push(line + 1, offs - 1, this.vars.slice());
                 return offs;

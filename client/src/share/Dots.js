@@ -24,6 +24,7 @@ class Dots extends Configurable {
 
         this.manager        = manager;
         this._cfg           = cfg;
+        this._config        = config;
         this._onIterationCb = this.onIteration.bind(this);
 
         Helper.override(manager, 'onIteration', this._onIterationCb);
@@ -33,22 +34,24 @@ class Dots extends Configurable {
         Helper.unoverride(this.manager, 'onIteration', this._onIterationCb);
         this._onIterationCb = null;
         this._cfg           = null;
+        this._config        = null;
         this.manager        = null;
     }
 
     onIteration(counter) {
-        const cfg = this._cfg;
+        const cfg    = this._cfg;
+        const config = this._config;
         //
         // We have to add dots only once
         //
-        if (cfg.addOnce && counter < 1 && cfg.maxPercent !== .0) {this._addDots(); return false}
+        if (cfg.addOnce && counter < 1 && config.maxPercent !== .0) {this._addDots(); return false}
         //
         // We have to add dots every time, when minimum percent of dots is reached
         //
-        if (cfg.checkPeriod === 0 || counter % cfg.checkPeriod !== 0) {return false}
+        if (config.checkPeriod === 0 || counter % config.checkPeriod !== 0) {return false}
 
         const dotsPercent = this._getDotsPercent(cfg.compareCb);
-        if (dotsPercent > cfg.minPercent) {return dotsPercent}
+        if (dotsPercent > config.minPercent) {return dotsPercent}
         this._addDots();
 
         return dotsPercent;
@@ -75,7 +78,7 @@ class Dots extends Configurable {
     }
 
     _addDots() {
-        const dots     = this._cfg.maxPercent * Config.worldWidth * Config.worldHeight;
+        const dots     = this._config.maxPercent * Config.worldWidth * Config.worldHeight;
         let   amount   = 0;
         let   attempts = 0;
         while (amount < dots && attempts < 100) {
@@ -92,10 +95,10 @@ class Dots extends Configurable {
     _addDotsBlock(amount, dots) {
         const width       = Config.worldWidth;
         const height      = Config.worldHeight;
-        const color       = Organism.getColor(this._cfg.colorIndex);
+        const color       = Organism.getColor(this._config.colorIndex);
         const man         = this.manager;
         const world       = man.world;
-        const blockSize   = this._cfg.blockSize;
+        const blockSize   = this._config.blockSize;
         const setCb       = this._cfg.setCb;
         const colorCb     = this._cfg.colorCb;
         let   x           = Helper.rand(width);

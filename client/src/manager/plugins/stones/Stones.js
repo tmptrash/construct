@@ -14,11 +14,8 @@ OBJECT_TYPES.TYPE_STONE = -(Object.keys(OBJECT_TYPES).length + 1);
 class Stones extends Dots{
     constructor(manager) {
         super(manager, Config, {
-            addOnce    : true,
-            maxPercent : Config.maxPercent,
-            colorIndex : Config.colorIndex,
-            blockSize  : Config.blockSize,
-            setCb      : (x, y) => manager.positions[x][y] = OBJECT_TYPES.TYPE_STONE
+            addOnce: true,
+            setCb  : (x, y) => manager.positions[x][y] = OBJECT_TYPES.TYPE_STONE
         });
     }
 }
