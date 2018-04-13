@@ -29,58 +29,10 @@ class Objects extends Dots {
             maxPercent : Config.maxPercent,
             blockSize  : Config.blockSize,
             compareCb  : (x, y) => manager.world.getDot(x, y) > 0 && manager.positions[x][y] >= OBJECT_TYPES.TYPE_ENERGY4 && manager.positions[x][y] <= OBJECT_TYPES.TYPE_ENERGY0,
-            colorCb    : (    ) => {color = Helper.rand(5); return Organism.getColor(4500 + color * 500)},
+            colorCb    : (    ) => {color = Helper.rand(5) - OBJECT_TYPES.TYPE_ENERGY0; return Organism.getColor(4500 + (color + OBJECT_TYPES.TYPE_ENERGY0) * 500)},
             setCb      : (x, y) => manager.positions[x][y] = -color
         });
     }
-
-    // destroy() {
-    //     Helper.unoverride(this._manager, 'onLoop', this._onLoopCb);
-    //     this._manager  = null;
-    //     this._onLoopCb = null;
-    // }
-    //
-    // _onLoop(counter) {
-    //     if (counter > 1 || Config.worldStonesPercent === .0) {return}
-    //
-    //     const stones   = Config.worldStonesPercent * Config.worldWidth * Config.worldHeight;
-    //     let   amount   = 0;
-    //     let   attempts = 0;
-    //     while (amount < stones && attempts < 100) {
-    //         const startAmount = amount;
-    //         amount = this._addStoneBlock(amount, stones);
-    //         if (startAmount === amount) {
-    //             attempts++;
-    //         } else {
-    //             attempts = 0;
-    //         }
-    //     }
-    // }
-    //
-    // _addStoneBlock(amount, stones) {
-    //     const width       = Config.worldWidth;
-    //     const height      = Config.worldHeight;
-    //     const color       = Organism.getColor(Config.worldStoneColorIndex);
-    //     const man         = this._manager;
-    //     const world       = man.world;
-    //     const stone       = OBJECT_TYPES.TYPE_STONE;
-    //     let   x           = Helper.rand(width);
-    //     let   y           = Helper.rand(height);
-    //
-    //     for (let i = 0; i < STONE_BLOCK_SIZE; i++) {
-    //         x = x + Helper.rand(3) - 1;
-    //         y = y + Helper.rand(3) - 1;
-    //         if (x < 0 || x >= width || y < 0 || y >= height) {return amount}
-    //         if (world.isFree(x, y)) {
-    //             if (world.setDot(x, y, color)) {
-    //                 man.positions[x][y] = stone;
-    //                 if (++amount >= stones) {return amount}
-    //             }
-    //         }
-    //     }
-    //
-    //     return amount;
-    // }
 }
 
 module.exports = Objects;

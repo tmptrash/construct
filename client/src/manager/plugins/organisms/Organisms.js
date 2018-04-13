@@ -281,7 +281,7 @@ class Organisms extends Configurable {
         //
         if (OConfig.orgKillOnClone && this.organisms.length >= OConfig.orgMaxOrgs) {
             const randOrg = this._randOrg();
-            if (randOrg !== org && Math.random() <= org.iterations / OConfig.orgAlivePeriod) {randOrg.destroy()}
+            if (randOrg !== org && Math.random() <= randOrg.iterations / OConfig.orgAlivePeriod) {randOrg.destroy()}
         }
         if (this.organisms.length < OConfig.orgMaxOrgs) {this._clone(org)}
     }
