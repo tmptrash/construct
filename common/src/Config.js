@@ -5,8 +5,9 @@
  *
  * @author flatline
  */
-const _get = require('lodash/get');
-const _set = require('lodash/set');
+const _get   = require('lodash/get');
+const _set   = require('lodash/set');
+const EVENTS = require('./../../client/src/share/Events').EVENTS;
 
 class Config {
     static init(cfg) {
@@ -22,6 +23,7 @@ class Config {
      */
     static set(key, val) {
         _set(this._cfg, key, val);
+        man.fire(EVENTS.CONFIG_CHANGE, key, val);
         return this;
     }
 

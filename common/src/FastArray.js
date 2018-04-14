@@ -106,7 +106,8 @@ class FastArray {
         this._index   = -1;
         arr.length    = indexes.length = (this._size = size);
         for (let i = 0; i < size; i++) {
-            (arr[i] === null) && (indexes[++this._index] = i);
+            typeof arr[i] === 'undefined' && (arr[i] = null);
+            arr[i] === null && (indexes[++this._index] = i);
         }
     }
 }

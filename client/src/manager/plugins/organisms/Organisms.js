@@ -64,17 +64,19 @@ class Organisms extends Configurable {
             getAmount  : ['_apiGetAmount', 'Shows amount of organisms within current Client(Manager)'],
             getOrganism: ['_apiGetOrganism', 'Returns organism instance by id or int\'s index in an array']
         });
-        this.organisms      = manager.organisms;
-        this.positions      = manager.positions;
-        this.world          = manager.world;
+        this.organisms       = manager.organisms;
+        this.positions       = manager.positions;
+        this.world           = manager.world;
 
-        this._mutator       = new Mutator(manager, this);
-        this._onIterationCb = this._onIteration.bind(this);
-        this._onLoopCb      = this._onLoop.bind(this);
+        this._mutator        = new Mutator(manager, this);
+        this._onIterationCb  = this._onIteration.bind(this);
+        this._onLoopCb       = this._onLoop.bind(this);
+        this._onConfigChange = this._onConfigChange.bind(this);
 
         this.reset();
         Helper.override(manager, 'onIteration', this._onIterationCb);
         Helper.override(manager, 'onLoop', this._onLoopCb);
+        manager.on(EVENTS.CONFIG_CHANGE, this._onConfigChange);
     }
 
     destroy() {
@@ -84,13 +86,15 @@ class Organisms extends Configurable {
 
         Helper.unoverride(this.parent, 'onIteration', this._onIterationCb);
         Helper.unoverride(this.parent, 'onLoop', this._onLoopCb);
+        this.parent.off(EVENTS.CONFIG_CHANGE, this._onConfigChange);
         this._mutator.destroy();
-        this._mutator       = null;
-        this.world          = null;
-        this.positions      = null;
-        this.organisms      = null;
-        this._onIterationCb = null;
-        this._onLoopCb      = null;
+        this._mutator        = null;
+        this.world           = null;
+        this.positions       = null;
+        this.organisms       = null;
+        this._onConfigChange = null;
+        this._onIterationCb  = null;
+        this._onLoopCb       = null;
 
         super.destroy();
     }
@@ -173,6 +177,22 @@ class Organisms extends Configurable {
         this._updateCreate();
     }
 
+    /**
+     * Is called when global configuration has changed. Tracks if amount of
+     * organisms has changed and updated this.organisms array
+     * @param {String} key Unique config key
+     * @param {*} val New value
+     */
+    _onConfigChange(key, val) {
+        if (key === 'organisms.orgMaxOrgs') {
+            const orgs = this.organisms;
+            if (val < orgs.size) {
+                for (let i = orgs.size - 1; i >= val; i--) {orgs.get(i) !== null && orgs.get(i).destroy()}
+            }
+            orgs.resize(val);
+        }
+    }
+
     _tournament(org1 = null, org2 = null) {
         org1 = org1 || this._randOrg();
         org2 = org2 || this._randOrg();
@@ -196,6 +216,7 @@ class Organisms extends Configurable {
         [x, y] = this.world.getNearFreePos(org.x, org.y);
         if (x === -1 || this.createOrg(x, y, org) === false) {return false}
         let child = this.organisms.last();
+        if (!child) {return false}
 
         this.onClone(org, child);
         if (org.energy < 1 || child.energy < 1) {return false}
