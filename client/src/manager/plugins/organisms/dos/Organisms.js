@@ -18,13 +18,6 @@ const EVENTS           = require('./../../../../share/Events').EVENTS;
 const Helper           = require('./../../../../../../common/src/Helper');
 const DIR              = require('./../../../../../../common/src/Directions').DIR;
 /**
- * {Number} World object types
- */
-const EMPTY            = 0;
-const ENERGY           = 1;
-const ORGANISM         = 2;
-const OBJECT           = 3;
-/**
  * {Function} Is created to speed up this function call. constants are run
  * much faster, then Helper.normalize()
  */
@@ -96,9 +89,7 @@ class Organisms extends BaseOrganisms {
 
     addOrgHandlers(org) {
         super.addOrgHandlers(org);
-        org.on(EVENTS.EAT, this._onEat.bind(this));
         org.on(EVENTS.STEP, this._onStep.bind(this));
-        org.on(EVENTS.CHECK_AT, this._onCheckAt.bind(this));
     }
 
     /**
@@ -109,47 +100,6 @@ class Organisms extends BaseOrganisms {
      */
     createEmptyOrg(...args) {
         return new Organism(...args);
-    }
-
-    _onEat(org, x, y, ret) {
-        const eat       = ret.ret;
-        [x, y]          = NORMALIZE_NO_DIR(x, y);
-        const victimOrg = this.positions[x][y];
-        //
-        // World object found. We can't eat objects
-        //
-        if (victimOrg < 0) {ret.ret = 0; return}
-        //
-        // Energy found
-        //
-        if (victimOrg === 0) {
-            if (eat >= 0) {
-                ret.ret = this.world.grabDot(x, y, eat);
-                this.parent.fire(EVENTS.EAT_ENERGY, ret.ret);
-            } else {
-                ret.ret = eat;
-                this.world.setDot(x, y, (((-eat + .5) << 0) >>> 0) + this.world.getDot(x, y));
-                this.parent.fire(EVENTS.PUT_ENERGY, -eat);
-            }
-            return;
-        }
-        //
-        // Organism found
-        //
-        ret.ret = eat < 0 ? 0 : (eat > victimOrg.energy ? victimOrg.energy : eat);
-        if (victimOrg.energy <= ret.ret) {
-            this.parent.fire(EVENTS.KILL_EAT, victimOrg);
-            //
-            // IMPORTANT:
-            // We have to do destroy here, to have a possibility for current
-            // (winner) organism to clone himself after eating other organism.
-            // This is how organisms compete for an ability to clone
-            //
-            victimOrg.destroy();
-        } else {
-            this.parent.fire(EVENTS.EAT_ORG, victimOrg, ret.ret);
-            victimOrg.energy -= ret.ret;
-        }
     }
 
     _onStep(org, x1, y1, x2, y2) {
@@ -192,18 +142,6 @@ class Organisms extends BaseOrganisms {
         // appear on the other side
         //
         this.move(x1, y1, x2, y2, org);
-    }
-
-    _onCheckAt(x, y, ret) {
-        [x, y] = NORMALIZE_NO_DIR(x, y);
-
-        if (this.positions[x][y] < 0) {              // world object
-            ret.ret = OBJECT + -this.positions[x][y];
-        } else if (this.positions[x][y] === 0) {     // energy
-            ret.ret = this.world.getDot(x, y) > 0 ? ENERGY : EMPTY;
-        } else {                                     // organism
-            ret.ret = ORGANISM;
-        }
     }
 
     /**

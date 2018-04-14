@@ -18,7 +18,13 @@ const OFFSY        = require('./../../../../../../common/src/Directions').OFFSY;
 const OBJECT_TYPES = require('./../../../../view/World').OBJECT_TYPES;
 
 const NORMALIZE_NO_DIR = Helper.normalizeNoDir;
-
+/**
+ * {Number} World object types
+ */
+const EMPTY            = 0;
+const ENERGY           = 1;
+const ORGANISM         = 2;
+const OBJECT           = 3;
 /**
  * {Function} Is created to speed up this function call. constants are run
  * much faster, then Helper.normalize()
@@ -28,7 +34,7 @@ const IN_WORLD              = Helper.inWorld;
 class OperatorsDos extends Operators {
     static compile() {
         const bitsPerOp = OConfig.codeBitsPerOperator;
-        this.OPERATOR_AMOUNT = 23;
+        this.OPERATOR_AMOUNT = 24;
         //
         // IMPORTANT: don't use super here, because it breaks Operators
         // IMPORTANT: class internal logic. Operators.global will be point
@@ -48,6 +54,7 @@ class OperatorsDos extends Operators {
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar * 2));
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
 
         this._compileLookAt(); // 11
         this._compileStep();   // 12
@@ -61,7 +68,7 @@ class OperatorsDos extends Operators {
         this._compileRand();   // 20
         this._compileSay();    // 21
         this._compileListen(); // 22
-
+        this._compileCheck();  // 23
     }
 
     /**
@@ -421,7 +428,7 @@ class OperatorsDos extends Operators {
         const vars     = Math.pow(2, bpv);
 
         for (let v0 = 0; v0 < vars; v0++) {
-            eval(`Operators.global.fn = function rand(line, num, org) {
+            eval(`Operators.global.fn = function say(line, num, org) {
                 let x = org.x + OFFSX[org.dir];
                 let y = org.y + OFFSY[org.dir];
                 IN_WORLD(x, y) && !(this._positions[x][y] <= 0) && (this._positions[x][y].msg = this.vars[${v0}]);
@@ -432,7 +439,7 @@ class OperatorsDos extends Operators {
     }
 
     /**
-     * Compiles all variants of 'say' operator and stores they in
+     * Compiles all variants of 'listen' operator and stores they in
      * this._compiledOperators map. '...' means, that all other bits are
      * ignored. Step direction depends on active organism's direction.
      * See Organism.dir property. Example:
@@ -449,11 +456,48 @@ class OperatorsDos extends Operators {
         const vars     = Math.pow(2, bpv);
 
         for (let v0 = 0; v0 < vars; v0++) {
-            eval(`Operators.global.fn = function rand(line, num, org) {
+            eval(`Operators.global.fn = function listen(line, num, org) {
                 this.vars[${v0}] = org.msg;
                 return ++line;
             }`);
             ops[h(`${'110110'}${b(v0, bpv)}`)] = this.global.fn;
+        }
+    }
+
+    /**
+     * Compiles all variants of 'check' operator and stores they in
+     * this._compiledOperators map. '...' means, that all other bits are
+     * ignored. Step direction depends on active organism's direction.
+     * See Organism.dir property. Example:
+     *
+     * bits  :      6 xx
+     * number: 110111 00...
+     * string: v0 = check()
+     */
+    static _compileCheck() {
+        const bpv      = OConfig.codeBitsPerVar;
+        const ops      = this._compiledOperators;
+        const h        = this._toHexNum;
+        const b        = this._toBinStr;
+        const vars     = Math.pow(2, bpv);
+
+        for (let v0 = 0; v0 < vars; v0++) {
+            eval(`Operators.global.fn = function check(line, num, org) {
+                const x = org.x + OFFSX[org.dir];
+                const y = org.y + OFFSY[org.dir];
+                if (!IN_WORLD(x, y)) {return ++line}
+                
+                if (this._positions[x][y] < 0) {
+                    this.vars[${v0}] = this._positions[x][y];
+                } else if (this._positions[x][y] === 0) {
+                    this.vars[${v0}] = this._world.getDot(x, y) > 0 ? ENERGY : EMPTY;
+                } else {
+                    this.vars[${v0}] = ORGANISM;
+                }
+                
+                return ++line;
+            }`);
+            ops[h(`${'110111'}${b(v0, bpv)}`)] = this.global.fn;
         }
     }
 

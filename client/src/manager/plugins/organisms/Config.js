@@ -20,7 +20,7 @@ const Config = {
         .001,   .001,                           // toMem, fromMem,
         .0001,  .01,    .001,   .001,   .001,   // lookAt, step, dir, myX, myY,
         .01,    .001,   .01,    .00001,         // eat, put, energy, pick
-        .01,    .0001,  .0001                   // rand, say, listen
+        .01,    .0001,  .0001,  .001            // rand, say, listen, check
     ],
     /**
      * {Array} Probabilities which used, when mutator decides what to do:
