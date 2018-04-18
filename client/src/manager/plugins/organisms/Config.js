@@ -20,7 +20,7 @@ const Config = {
         .001,   .001,                           // toMem, fromMem,
         .0001,  .01,    .001,   .001,   .001,   // lookAt, step, dir, myX, myY,
         .01,    .001,   .01,    .00001,         // eat, put, energy, pick
-        .01,    .0001,  .0001,  .001            // rand, say, listen, check
+        .01,    .0001,  .0001,  .001,   .001    // rand, say, listen, check, myEnergy
     ],
     /**
      * {Array} Probabilities which used, when mutator decides what to do:
@@ -52,18 +52,18 @@ const Config = {
      * {Number} Minimum age for cloning. Before that, cloning is impossible. It should
      * be less then orgAlivePeriod config
      */
-    orgCloneMinAge: 300,
+    orgCloneMinAge: 500,
     /**
      * {Number} Minimum energy for cloning
      */
-    orgCloneMinEnergy: 20000,
+    orgCloneMinEnergy: 5000000,
     /**
      * {Boolean} If true, then random organism will be killed after new one has
      * cloned and amount of organisms is greater then orgMaxOrgs config. false
      * mean, that new organism will not be cloned, if amount of organisms is >=
      * orgMaxOrgs config.
      */
-    orgKillOnClone: false,
+    orgKillOnClone: true,
     /**
      * {Number} Amount of iterations between tournament. During tournament one
      * organism (looser) will be killed
@@ -90,7 +90,7 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 4000,
+    orgCrossoverPeriod: 1000,
     /**
      * {Number} Period of iterations for creation of random organisms. Set it to 0
      * to turn off this feature
@@ -100,7 +100,7 @@ const Config = {
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
      */
-    orgAlivePeriod: 5000,
+    orgAlivePeriod: 50000,
     /**
      * {Number} Size of organism stack (internal memory) in bits. Real amount of
      * organism's internal memory will be 2^orgMemBits. Example: if orgMemBits=3,

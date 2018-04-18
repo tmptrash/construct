@@ -51,13 +51,12 @@ class Organisms extends Configurable {
      * @abstract
      */
     createEmptyOrg(...args) {}
-	
+
     /**
      * Is called at the end of run() method
      * @abstract
      */
     onOrganism() {}
-
 
     constructor(manager) {
         super(manager, {Config, cfg: OConfig}, {
@@ -301,10 +300,12 @@ class Organisms extends Configurable {
         // to clone them.
         //
         if (OConfig.orgKillOnClone && this.organisms.length >= OConfig.orgMaxOrgs) {
-            const randOrg = this._randOrg();
-            if (randOrg !== org && Math.random() <= randOrg.iterations / OConfig.orgAlivePeriod) {randOrg.destroy()}
+            //const randOrg = this._randOrg();
+            //const rnd     = Math.random();
+            //if (randOrg !== org && (rnd >= (randOrg.energy / randOrg.vm.size) / this._maxEnergy || rnd <= randOrg.iterations / OConfig.orgAlivePeriod)) {randOrg.destroy()}
+            this._killInTour();
         }
-        if (this.organisms.length < OConfig.orgMaxOrgs) {this._clone(org)}
+        if (this.organisms.length < OConfig.orgMaxOrgs && org.vm !== null) {this._clone(org)}
     }
 
     _killInTour() {

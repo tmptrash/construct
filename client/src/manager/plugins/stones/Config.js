@@ -15,7 +15,7 @@ const Config = {
     /**
      * {Number} Percent from all dots in a world until stones will be added.
      */
-    maxPercent: .15
+    maxPercent: .05
 };
 
 module.exports = Config;

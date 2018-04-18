@@ -24,13 +24,13 @@ const Config = {
      * be less then minPercent. These two configs create cyclical
      * energy adding to the world.
      */
-    maxPercent: .2,
+    maxPercent: .1,
     /**
      * {Number} Opposite to maxPercent. Sets minimum percent from
      * all energy in a world after which clever energy will turn on (be added to the
      * world again).
      */
-    minPercent: .019
+    minPercent: .01
 };
 
 module.exports = Config;

@@ -19,12 +19,12 @@ const Config = {
      * amount will be less then minPercent. These two configs create cyclical
      * energy objects adding to the world.
      */
-    maxPercent: .1,
+    maxPercent: .3,
     /**
      * {Number} Opposite to maxPercent. Sets minimum percent from all energy objects
      * in a world after which energy objects will turn on (be added to the world again).
      */
-    minPercent: .019
+    minPercent: .0195
 };
 
 module.exports = Config;

@@ -34,7 +34,7 @@ const IN_WORLD              = Helper.inWorld;
 class OperatorsDos extends Operators {
     static compile() {
         const bitsPerOp = OConfig.codeBitsPerOperator;
-        this.OPERATOR_AMOUNT = 24;
+        this.OPERATOR_AMOUNT = 25;
         //
         // IMPORTANT: don't use super here, because it breaks Operators
         // IMPORTANT: class internal logic. Operators.global will be point
@@ -55,20 +55,22 @@ class OperatorsDos extends Operators {
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
 
-        this._compileLookAt(); // 11
-        this._compileStep();   // 12
-        this._compileDir();    // 13
-        this._compileMyX();    // 14
-        this._compileMyY();    // 15
-        this._compileEat();    // 16
-        this._compilePut();    // 17
-        this._compileEnergy(); // 18
-        this._compilePick();   // 19
-        this._compileRand();   // 20
-        this._compileSay();    // 21
-        this._compileListen(); // 22
-        this._compileCheck();  // 23
+        this._compileLookAt();   // 11
+        this._compileStep();     // 12
+        this._compileDir();      // 13
+        this._compileMyX();      // 14
+        this._compileMyY();      // 15
+        this._compileEat();      // 16
+        this._compilePut();      // 17
+        this._compileEnergy();   // 18
+        this._compilePick();     // 19
+        this._compileRand();     // 20
+        this._compileSay();      // 21
+        this._compileListen();   // 22
+        this._compileCheck();    // 23
+        this._compileMyEnergy(); // 24
     }
 
     /**
@@ -507,6 +509,32 @@ class OperatorsDos extends Operators {
         }
     }
 
+    /**
+     * Compiles all variants of 'check' operator and stores they in
+     * this._compiledOperators map. '...' means, that all other bits are
+     * ignored. Step direction depends on active organism's direction.
+     * See Organism.dir property. Example:
+     *
+     * bits  :      6 xx
+     * number: 111000 00...
+     * string: v0 = myEnergy()
+     */
+    static _compileMyEnergy() {
+        const bpv      = OConfig.codeBitsPerVar;
+        const ops      = this._compiledOperators;
+        const h        = this._toHexNum;
+        const b        = this._toBinStr;
+        const vars     = Math.pow(2, bpv);
+
+        for (let v0 = 0; v0 < vars; v0++) {
+            eval(`Operators.global.fn = function myEnergy(line, num, org) {
+                this.vars[${v0}] = org.energy;
+                return ++line;
+            }`);
+            ops[h(`${'111000'}${b(v0, bpv)}`)] = this.global.fn;
+        }
+    }
+
     constructor(offs, vars, obs) {
         super(offs, vars, obs);
         /**
@@ -529,7 +557,6 @@ class OperatorsDos extends Operators {
         this._world        = null;
         this._positions    = null;
         this._obs          = null;
-        this._ret          = null;
     }
 }
 

@@ -202,7 +202,7 @@ class Organism extends Observer {
         //return (OConfig.codeMaxSize + 1 - this.vm.size) * (this._energy - this._startEnergy) * (this._changes || 1);
         //return (OConfig.codeMaxSize + 1 - this.vm.size) * (this._energy - this._startEnergy);
         //return (OConfig.codeMaxSize + 1 - this.vm.size) * ((this._energy - this._startEnergy) / this._iterations);
-        return this._energy / (this.vm.size || 1);
+        return this._energy;
     }
 
     destroy() {
@@ -252,7 +252,7 @@ class Organism extends Observer {
     }
 
     _updateClone() {
-        if (this._iterations > OConfig.orgCloneMinAge && this._energy > OConfig.orgCloneMinEnergy * this.vm.size) {this.fire(CLONE, this)}
+        if (this._iterations > OConfig.orgCloneMinAge && this._energy > OConfig.orgCloneMinEnergy) {this.fire(CLONE, this)}
     }
 
     /**

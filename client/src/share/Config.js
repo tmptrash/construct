@@ -54,11 +54,11 @@ ClientConfig.init({
     /**
      * {Number} World width
      */
-    worldWidth: 1920,
+    worldWidth: 1920 / 4,
     /**
      * {Number} World height
      */
-    worldHeight: 1080,
+    worldHeight: 1080 / 4,
     /**
      * {Number} Turns on cyclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
@@ -68,6 +68,10 @@ ClientConfig.init({
      * calculations).
      */
     worldCyclical: true,
+    /**
+     * {Number} Speed coefficient. Between 0..1. 1 - max speed, 0 - min.
+     */
+    worldSpeed: 1,
     /**
      * {Number} Zoom speed 0..1
      */

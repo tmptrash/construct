@@ -9,6 +9,14 @@ const DIR    = require('./Directions').DIR;
 
 class Helper {
     /**
+     * Makes synchronous delay
+     * @param {Number} ms Amount of milliseconds to delay
+     */
+    static delay(ms) {
+        const ts = Date.now();
+        while (Date.now() - ts < ms) {}
+    }
+    /**
      * Calculates unique id for world's coordinates. For the same x,y
      * id will be the same.
      * @param {Number} x
