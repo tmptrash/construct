@@ -17,20 +17,24 @@ const Config = {
      * {Number} Index of energy color. Starts from 0. Ends with 4000. See Organism.MAX_COLORS
      * constant for details
      */
-    colorIndex: 9174,
+    colorIndex: 10000,
     /**
      * {Number} Percent from all energy in a world until clever energy will be added.
      * After this value clever energy will be stopped to add until it's amount will
      * be less then minPercent. These two configs create cyclical
      * energy adding to the world.
      */
-    maxPercent: .1,
+    maxPercent: .3,//.0107,
     /**
      * {Number} Opposite to maxPercent. Sets minimum percent from
      * all energy in a world after which clever energy will turn on (be added to the
      * world again).
      */
-    minPercent: .01
+    minPercent: .005,
+    /**
+     * {Number} Amount of energy in one dot
+     */
+    energyAmount: 1000,
 };
 
 module.exports = Config;

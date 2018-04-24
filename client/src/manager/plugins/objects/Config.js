@@ -24,7 +24,7 @@ const Config = {
      * {Number} Opposite to maxPercent. Sets minimum percent from all energy objects
      * in a world after which energy objects will turn on (be added to the world again).
      */
-    minPercent: .0195
+    minPercent: .1
 };
 
 module.exports = Config;

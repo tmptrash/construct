@@ -270,7 +270,7 @@ class Manager extends Observer {
             this.onIteration(i, TIMER());
         }
         this.onLoop(this._counter = i, TIMER());
-        Helper.delay((1 - Config.worldSpeed) * 100);
+        Helper.delay((1 - Config.worldSpeed) * 60);
         this.zeroTimeout(this._onLoopCb);
     }
 

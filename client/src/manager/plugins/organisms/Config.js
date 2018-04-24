@@ -15,12 +15,12 @@ const Config = {
      * implemented. See Operators.operators getter for details. Values may be float.
      */
     orgOperatorWeights: [
-        .001,   .001,   .001,   .00001, .001,   // var, const, if, loop, operator,
-        .001,   .001,   .001,   .001,           // func, funcCall, return, bracket
-        .001,   .001,                           // toMem, fromMem,
-        .0001,  .01,    .001,   .001,   .001,   // lookAt, step, dir, myX, myY,
-        .01,    .001,   .01,    .00001,         // eat, put, energy, pick
-        .01,    .0001,  .0001,  .001,   .001    // rand, say, listen, check, myEnergy
+        .001,    .001,    .001,    .001,    .001,    // var, const, if, loop, operator,
+        .0001,   .0001,   .0001,   .0001,            // func, funcCall, return, bracket
+        .001,    .001,                               // toMem, fromMem,
+        .00001,  .1,      .001,    .001,    .001,    // lookAt, step, dir, myX, myY,
+        .01,     .0001,   .001,    .0001,            // eat, put, energy, pick
+        .001,    .00001,  .00001,  .0001,   .001     // rand, say, listen, check, myEnergy
     ],
     /**
      * {Array} Probabilities which used, when mutator decides what to do:
@@ -52,18 +52,18 @@ const Config = {
      * {Number} Minimum age for cloning. Before that, cloning is impossible. It should
      * be less then orgAlivePeriod config
      */
-    orgCloneMinAge: 500,
+    orgCloneMinAge: 100,
     /**
      * {Number} Minimum energy for cloning
      */
-    orgCloneMinEnergy: 5000000,
+    orgCloneMinEnergy: 80000,
     /**
      * {Boolean} If true, then random organism will be killed after new one has
      * cloned and amount of organisms is greater then orgMaxOrgs config. false
      * mean, that new organism will not be cloned, if amount of organisms is >=
      * orgMaxOrgs config.
      */
-    orgKillOnClone: true,
+    orgKillOnClone: false,
     /**
      * {Number} Amount of iterations between tournament. During tournament one
      * organism (looser) will be killed
@@ -90,17 +90,27 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 1000,
+    orgCrossoverPeriod: 0,
     /**
      * {Number} Period of iterations for creation of random organisms. Set it to 0
      * to turn off this feature
      */
-    orgRandomOrgPeriod: 5000,
+    orgRandomOrgPeriod: 0,
     /**
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
      */
-    orgAlivePeriod: 50000,
+    orgAlivePeriod: 10000,
+    /**
+     * {Number} Maximum energy organism may reach collecting energy
+     */
+    orgMaxEnergy: 100000,
+    /**
+     * {Number} Amount of energy for first organisms. They are like Adam and
+     * Eve. It means that these empty (without vm) organism were created
+     * by operator and not by evolution.
+     */
+    orgStartEnergy: 1000000,
     /**
      * {Number} Size of organism stack (internal memory) in bits. Real amount of
      * organism's internal memory will be 2^orgMemBits. Example: if orgMemBits=3,
@@ -126,17 +136,19 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 500,
+    orgMaxOrgs: 200,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 500,
+    orgStartAmount: 200,
     /**
-     * {Number} Amount of energy for first organisms. They are like Adam and
-     * Eve. It means that these empty (without vm) organism were created
-     * by operator and not by evolution.
+     * {Number} If organism reach this limit of amount of vm lines, then codeSizeCoef
+     * will be used during it's energy grabbing by system. We use this approach,
+     * because our CPU's are slow and organisms with big codes are very slow. But
+     * it's possible for organisms to go outside the limit by inventing new
+     * effective mechanisms of energy obtaining.
      */
-    orgStartEnergy: 90000000,
+    codeMaxSize: 300,
     /**
      * {Number} Amount of bits for storing a numeric constant inside byte code
      */
@@ -173,15 +185,7 @@ const Config = {
      * {Number} Amount of iterations between calls to V8 event loop. See
      * Manager._initLoop(), Manager.run() methods for details.
      */
-    codeIterationsPerOnce: 100,
-    /**
-     * {Number} If organism reach this limit of amount of vm lines, then codeSizeCoef
-     * will be used during it's energy grabbing by system. We use this approach,
-     * because our CPU's are slow and organisms with big codes are very slow. But
-     * it's possible for organisms to go outside the limit by inventing new
-     * effective mechanisms of energy obtaining.
-     */
-    codeMaxSize: 300
+    codeIterationsPerOnce: 100
 };
 
 module.exports = Config;

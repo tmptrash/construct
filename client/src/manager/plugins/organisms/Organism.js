@@ -165,7 +165,8 @@ class Organism extends Observer {
             mutationProbs       : this._mutationProbs,
             mutationPeriod      : this._mutationPeriod,
             mutationPercent     : this._mutationPercent,
-            mem                 : this.mem.slice()
+            mem                 : this.mem.slice(),
+            dir                 : this._dir
         };
 
         return JSON.stringify(json);
@@ -193,6 +194,7 @@ class Organism extends Observer {
         this._mutationPeriod       = json.mutationPeriod;
         this._mutationPercent      = json.mutationPercent;
         this._mem                  = json.mem.slice();
+        this._dir                  = json.dir;
     }
 
     // TODO: describe fitness in details
@@ -252,7 +254,7 @@ class Organism extends Observer {
     }
 
     _updateClone() {
-        if (this._iterations > OConfig.orgCloneMinAge && this._energy > OConfig.orgCloneMinEnergy) {this.fire(CLONE, this)}
+        if (OConfig.orgCloneMinAge > 0 && OConfig.orgCloneMinEnergy > 0 && this._iterations > OConfig.orgCloneMinAge && this._energy > OConfig.orgCloneMinEnergy) {this.fire(CLONE, this)}
     }
 
     /**

@@ -11,6 +11,7 @@ const EVENTS       = require('./../../../../../src/share/Events').EVENTS;
 const OConfig      = require('./../Config');
 const EConfig      = require('./../../energy/Config');
 const Operators    = require('./../../../../vm/Operators');
+const Objects      = require('./../../objects/Objects');
 const Organism     = require('./../../../plugins/organisms/Organism').Organism;
 const Num          = require('./../../../../vm/Num');
 const OFFSX        = require('./../../../../../../common/src/Directions').OFFSX;
@@ -222,20 +223,23 @@ class OperatorsDos extends Operators {
 
         for (let v0 = 0; v0 < vars; v0++) {
             eval(`Operators.global.fn = function eat(line, num, org) {
-                const eat    = this.vars[${v0}];
+                let eat      = this.vars[${v0}];
                 if (eat <= 0) {return ++line}
-                let   x;
-                let   y;
+                let x;
+                let y;
                 [x, y]       = NORMALIZE_NO_DIR(org.x + OFFSX[org.dir], org.y + OFFSY[org.dir]);
                 const victim = this._positions[x][y];
                 
                 if (victim < 0) {return ++line}      // World object found. We can't eat objects
                 if (victim === 0) {                  // Energy found
-                    org.energy += this._world.grabDot(x, y, eat);
-                    this._obs.fire(EVENTS.EAT_ENERGY, eat);
+                    if ((eat = this._world.grabDot(x, y, eat)) > 0 && org.energy + eat <= OConfig.orgMaxEnergy) {
+                        org.energy += eat;
+                        this._obs.fire(EVENTS.EAT_ENERGY, eat);
+                    }
                     return ++line;
                 }
                 if (victim.energy <= eat) {          // Organism found
+                    if (org.energy + victim.energy > OConfig.orgMaxEnergy) {return ++line}
                     this._obs.fire(EVENTS.KILL_EAT, victim);
                     org.energy += victim.energy;
                     //
@@ -248,6 +252,7 @@ class OperatorsDos extends Operators {
                     return ++line;
                 }
                 
+                if (org.energy + eat > OConfig.orgMaxEnergy) {return ++line}
                 this._obs.fire(EVENTS.EAT_ORG, victim, eat);
                 org.energy    += eat;
                 victim.energy -= eat;
@@ -321,28 +326,43 @@ class OperatorsDos extends Operators {
         eval(`Operators.global.fn = function energy(line, num, org) {
             const poses  = this._positions;
             const world  = this._world;
-            let   oldx   = -1;
-            let   oldy   = -1;
-            let   coef   = 0;
-            let   blocks = 0;
+            const energy = {0:[], 1:[], 2:[], 3:[], 4:[]};
+            let   e      = 0;
+            
             for (let x = org.x - 1, xlen = org.x + 2; x < xlen; x++) {
                 for (let y = org.y - 1, ylen = org.y + 2; y < ylen; y++) {
-                    if (IN_WORLD(x, y) && poses[x][y] <= OBJECT_TYPES.TYPE_ENERGY0 && poses[x][y] >= OBJECT_TYPES.TYPE_ENERGY4) {
-                        coef += -poses[x][y];
-                        if (blocks++ ===     0) {
-                            oldx = x;
-                            oldy = y;
-                            continue;
+                    if (IN_WORLD(x, y) && poses[x][y] <= ${OBJECT_TYPES.TYPE_ENERGY0} && poses[x][y] >= ${OBJECT_TYPES.TYPE_ENERGY4}) {
+                        e = -poses[x][y];
+                        energy[e].push(x, y);
+                        if (energy[e].length === 6) {
+                            const xy = energy[e];
+                            
+                            world.setDot(xy[0], xy[1], Objects.getColor(e));
+                            poses[xy[0]][xy[1]] = -(e+1);
+                            world.setDot(xy[2], xy[3], 0);
+                            poses[xy[2]][xy[3]] = 0;
+                            world.setDot(xy[4], xy[5], 0);
+                            poses[xy[4]][xy[5]] = 0;
+                            return ++line;
                         }
-                        world.setDot(x, y, 0);
-                        poses[x][y] = 0;
                     }
                 }
             }
-            if (blocks > 1) {
-                org.energy += (coef * ${energy});
-                world.setDot(oldx, oldy, 0);
-                poses[oldx][oldy] = 0;
+            
+            for (let e = 0; e < 5; e++) {
+                if (energy[e].length === 4) {
+                    const xy  = energy[e];
+                    const eat = (2**e) * EConfig.energyAmount;
+                    
+                    if (org.energy + eat <= OConfig.orgMaxEnergy) {
+                        org.energy += eat;
+                        world.setDot(xy[0], xy[1], 0);
+                        poses[xy[0]][xy[1]] = 0;
+                        world.setDot(xy[2], xy[3], 0);
+                        poses[xy[2]][xy[3]] = 0;
+                    }
+                    return ++line;
+                }
             }
             return ++line;
         }`);
@@ -373,7 +393,7 @@ class OperatorsDos extends Operators {
                 const world = this._world;
                 const x     = org.x + OFFSX[org.dir];
                 const y     = org.y + OFFSY[org.dir];
-                if (IN_WORLD(x, y) && poses[x][y] <= OBJECT_TYPES.TYPE_ENERGY0 && poses[x][y] >= OBJECT_TYPES.TYPE_ENERGY4) {
+                if (IN_WORLD(x, y) && poses[x][y] <= ${OBJECT_TYPES.TYPE_ENERGY0} && poses[x][y] >= ${OBJECT_TYPES.TYPE_ENERGY4}) {
                     const dir = ((this.vars[${v0}] + .5) << 0 >>> 0) % ${dirs};
                     const dx  = org.x + OFFSX[dir];
                     const dy  = org.y + OFFSY[dir];

@@ -300,10 +300,10 @@ class Organisms extends Configurable {
         // to clone them.
         //
         if (OConfig.orgKillOnClone && this.organisms.length >= OConfig.orgMaxOrgs) {
-            //const randOrg = this._randOrg();
-            //const rnd     = Math.random();
-            //if (randOrg !== org && (rnd >= (randOrg.energy / randOrg.vm.size) / this._maxEnergy || rnd <= randOrg.iterations / OConfig.orgAlivePeriod)) {randOrg.destroy()}
-            this._killInTour();
+            const randOrg = this._randOrg();
+            const rnd     = Math.random();
+            if (randOrg !== org && rnd <= randOrg.iterations / OConfig.orgAlivePeriod) {randOrg.destroy()}
+            //this._killInTour();
         }
         if (this.organisms.length < OConfig.orgMaxOrgs && org.vm !== null) {this._clone(org)}
     }
@@ -336,7 +336,7 @@ class Organisms extends Configurable {
     _updateRandomOrgs(counter) {
         if (counter % OConfig.orgRandomOrgPeriod !== 0 || OConfig.orgRandomOrgPeriod === 0 || this.organisms.length < 1) {return false}
         const vm   = this._randOrg().vm;
-        if (typeof vm === 'undefined') {return false}
+        if (!vm) {return false}
         const size = Helper.rand(vm.size) + 1;
         const pos  = Helper.rand(vm.size - size);
 
@@ -352,8 +352,8 @@ class Organisms extends Configurable {
         // We have to have a possibility to crossover not only with best
         // organisms, but with low fit also
         //
-        let org1 = Helper.rand(2) === 0 ? this._tournament() : this._randOrg();
-        let org2 = Helper.rand(2) === 0 ? this._tournament() : this._randOrg();
+        let org1 = this._tournament();
+        let org2 = this._tournament();
 
         if (org1 === false || org2 === false || org1.energy < 1 || org2.energy < 1) {return false}
         this._crossover(org1, org2);
