@@ -40,7 +40,7 @@ ClientConfig.init({
         'client/Client',
         'energy/Energy',
         'stones/Stones',
-        'objects/Objects',
+        //'objects/Objects',
         'status/console/Console',
         IS_NODE_JS ? '' : 'status/charts/Charts',
         'ips/Ips',
@@ -54,11 +54,11 @@ ClientConfig.init({
     /**
      * {Number} World width
      */
-    worldWidth: 1920 / 4,
+    worldWidth: 1920 * 2,
     /**
      * {Number} World height
      */
-    worldHeight: 1080 / 4,
+    worldHeight: 1080 * 2,
     /**
      * {Number} Turns on cyclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10
@@ -67,7 +67,7 @@ ClientConfig.init({
      * coordinate (height). It actual only for one instance mode (no distributed
      * calculations).
      */
-    worldCyclical: true,
+    worldCyclical: false,
     /**
      * {Number} Speed coefficient. Between 0..1. 1 - max speed, 0 - min.
      */

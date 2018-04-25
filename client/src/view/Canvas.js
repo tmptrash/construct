@@ -120,7 +120,6 @@ class Canvas {
 
     _onAnimate() {
         this._ctx.putImageData(this._imgData, 0, 0, this._xDataOffs, this._yDataOffs, this._visibleWidth, this._visibleHeight);
-        //this._ctx.putImageData(this._imgData, 0, 0);
 
         if (this._visualize === true) {
             window.requestAnimationFrame(this._animate);
@@ -176,7 +175,9 @@ class Canvas {
     }
 
     /**
-     * Is called on canvas zoom/move change
+     * Is called on canvas zoom/move change. This method improves rendering
+     * speed of big canvases. It copies only visible part of the canvas from
+     * memory (see this._imgData).
      */
     _onZoom() {
         const transform     = window.getComputedStyle(this._canvasEl, null).getPropertyValue('transform');

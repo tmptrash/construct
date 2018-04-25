@@ -101,8 +101,13 @@ class Dots extends Configurable {
         const blockSize   = this._config.blockSize;
         const setCb       = this._cfg.setCb;
         const colorCb     = this._cfg.colorCb;
-        let   x           = Helper.rand(width);
-        let   y           = Helper.rand(height);
+        const groups      = this._config.groups;
+        const rand        = Helper.rand;
+        const groupAmount = groups ? groups.length : 0;
+        const xCoord      = rand(groupAmount / 4) * 4;
+        const yCoord      = rand(groupAmount / 4) * 4;
+        let   x           = groups ? groups[xCoord]     - rand(groups[xCoord + 2] / 2) + rand(groups[xCoord + 2] / 2) : rand(width);
+        let   y           = groups ? groups[yCoord + 1] - rand(groups[yCoord + 3] / 2) + rand(groups[yCoord + 3] / 2) : rand(height);
 
         for (let i = 0; i < blockSize; i++) {
             x = x + Helper.rand(3) - 1;

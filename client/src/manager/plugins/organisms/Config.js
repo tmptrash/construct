@@ -15,13 +15,19 @@ const Config = {
      * implemented. See Operators.operators getter for details. Values may be float.
      */
     orgOperatorWeights: [
-        .001,    .001,    .001,    .001,    .001,    // var, const, if, loop, operator,
-        .0001,   .0001,   .0001,   .0001,            // func, funcCall, return, bracket
-        .001,    .001,                               // toMem, fromMem,
-        .00001,  .1,      .001,    .001,    .001,    // lookAt, step, dir, myX, myY,
-        .01,     .0001,   .001,    .0001,            // eat, put, energy, pick
-        .001,    .00001,  .00001,  .0001,   .001     // rand, say, listen, check, myEnergy
+        .0001,    .0001,    .0001,    .0001,    .0001,    // var, const, if, loop, operator,
+        .00001,   .00001,   .00001,   .00001,             // func, funcCall, return, bracket
+        .0001,    .0001,                                  // toMem, fromMem,
+        .000001,  .01,      .0001,    .0001,    .0001,    // lookAt, step, dir, myX, myY,
+        .01,      .00001,   .0001,    .00001,             // eat, put, energy, pick
+        .0001,    .000001,  .000001,  .00001,   .0001     // rand, say, listen, check, myEnergy
     ],
+    /**
+     * {Number} Amount of populations in a world. This parameter affects maximum
+     * amount of organisms within one population. Size of sub population is equal
+     * to orgMaxOrgs / orgPopulations.
+     */
+    orgPopulations: 2,
     /**
      * {Array} Probabilities which used, when mutator decides what to do:
      * add, change, delete code line inside the vm; change amount of
@@ -104,7 +110,7 @@ const Config = {
     /**
      * {Number} Maximum energy organism may reach collecting energy
      */
-    orgMaxEnergy: 100000,
+    orgMaxEnergy: 100000000,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created
@@ -136,11 +142,11 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 200,
+    orgMaxOrgs: 500,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 200,
+    orgStartAmount: 500,
     /**
      * {Number} If organism reach this limit of amount of vm lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
