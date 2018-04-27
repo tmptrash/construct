@@ -12,6 +12,7 @@ const OConfig        = require('./../../../manager/plugins/organisms/Config');
 const EVENT_AMOUNT   = require('./../../../share/Events').EVENT_AMOUNT;
 const VM             = require('./../../../vm/VM');
 const OFFSX          = require('./../../../../../common/src/Directions').OFFSX;
+const OFFSY          = require('./../../../../../common/src/Directions').OFFSY;
 
 const DESTROY        = 0;
 const CLONE          = 1;
@@ -75,15 +76,14 @@ class Organism extends Observer {
      * @param {Object} item Reference to the Queue item, where
      * this organism is located
      * @param {Function} operatorCls Class of operators
-     * @param {Number} population Index of population this organism is belong to
      * @param {Organism} parent Parent organism if cloning is needed
      */
-    constructor(id, x, y, item, operatorCls, population, parent = null) {
+    constructor(id, x, y, item, operatorCls, parent = null) {
         super(EVENT_AMOUNT);
 
         this._operatorCls = operatorCls;
 
-        if (parent === null) {this._create(population)}
+        if (parent === null) {this._create()}
         else {this._clone(parent)}
         this._id            = id;
         this._x             = x;
@@ -110,7 +110,8 @@ class Organism extends Observer {
     get color()                 {return this._color}
     get mem()                   {return this._mem}
     get msg()                   {return this._msg}
-    get population()            {return this._population}
+    get dirX()                  {return this._x + OFFSX[this._dir]}
+    get dirY()                  {return this._y + OFFSY[this._dir]}
 
     set x(newX)                 {this._x = newX}
     set y(newY)                 {this._y = newY}
@@ -126,7 +127,6 @@ class Organism extends Observer {
     set changes(c)              {this._changes = c}
     set dir(d)                  {this._dir = d}
     set msg(m)                  {this._msg = m}
-    set population(p)           {this._population = p}
 
     /**
      * Runs one code iteration (amount of lines set in Config.codeYieldPeriod) and returns
@@ -170,7 +170,6 @@ class Organism extends Observer {
             mutationPercent     : this._mutationPercent,
             mem                 : this.mem.slice(),
             dir                 : this._dir
-            // population should not be serialized
         };
 
         return JSON.stringify(json);
@@ -199,7 +198,6 @@ class Organism extends Observer {
         this._mutationPercent      = json.mutationPercent;
         this._mem                  = json.mem.slice();
         this._dir                  = json.dir;
-        // population should not be de-serialized
     }
 
     // TODO: describe fitness in details
@@ -228,7 +226,7 @@ class Organism extends Observer {
         super.destroy();
     }
 
-    _create(population) {
+    _create() {
         this.vm                     = new VM(this, this._operatorCls, OConfig.orgOperatorWeights);
         this._energy                = OConfig.orgStartEnergy;
         this._startEnergy           = OConfig.orgStartEnergy;
@@ -238,7 +236,6 @@ class Organism extends Observer {
         this._mutationPercent       = OConfig.orgRainMutationPercent;
         this._mem                   = new Array(Math.pow(2, OConfig.orgMemBits));
         this._dir                   = Helper.rand(OFFSX.length);
-        this._population            = population;
 
         _fill(this._mem, 0);
     }
@@ -253,7 +250,6 @@ class Organism extends Observer {
         this._mutationPercent       = parent.mutationPercent;
         this._mem                   = parent.mem.slice();
         this._dir                   = parent.dir;
-        this._population            = parent.population;
     }
 
     _updateColor() {

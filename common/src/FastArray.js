@@ -1,9 +1,8 @@
 /**
- * Implementation of fast array. First assumption of this class is in fixed array
- * size. Second that get() method will be called must more times, then set() or
- * del() or resize(). Resize is possible, but should be rare to keep it fast. Is
- * used for storing organisms population. This class doesn't check size overflow
- * due performance issue. Removing element means setting null to specified index.
+ * Implementation of fast array. This class uses fixed array size. Second that
+ * get() method will be called must of the time, then set() or del() or resize().
+ * Resize is possible, but should be rare to keep it fast. Is used for storing
+ * organisms population. Removing element means setting null to specified index.
  *
  * @author flatline
  */

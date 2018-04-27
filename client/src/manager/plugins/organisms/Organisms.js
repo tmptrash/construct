@@ -52,12 +52,6 @@ class Organisms extends Configurable {
      */
     createEmptyOrg(...args) {}
 
-    /**
-     * Is called at the end of run() method
-     * @abstract
-     */
-    onOrganism() {}
-
     constructor(manager) {
         super(manager, {Config, cfg: OConfig}, {
             getAmount  : ['_apiGetAmount', 'Shows amount of organisms within current Client(Manager)'],
@@ -68,7 +62,8 @@ class Organisms extends Configurable {
         this.world           = manager.world;
 
         this._mutator        = new Mutator(manager, this);
-        this._populations    = new Array(OConfig.orgPopulations);
+        this._oldOrg         = null;
+        this._curOldOrg      = null;
         this._onIterationCb  = this._onIteration.bind(this);
         this._onLoopCb       = this._onLoop.bind(this);
         this._onConfigChange = this._onConfigChange.bind(this);
@@ -99,6 +94,19 @@ class Organisms extends Configurable {
         super.destroy();
     }
 
+    /**
+     * Is called at the end of run() method
+     * @param {Organism} org Current organism
+     * @param {Number} i Current organism index/id
+     */
+    onOrganism(org, i) {
+        if (i === 0) {
+            this._oldOrg    = this._curOldOrg;
+            this._curOldOrg = org;
+        }
+        if (this._curOldOrg.iterations < org.iterations) {this._curOldOrg = org}
+    }
+
     addOrgHandlers(org) {
         org.on(ORG_EVENTS.DESTROY,        this._onDestroyOrg.bind(this));
         org.on(ORG_EVENTS.KILL_NO_ENERGY, this._onKillNoEnergyOrg.bind(this));
@@ -109,7 +117,6 @@ class Organisms extends Configurable {
 
     reset() {
         this._orgId = 0;
-        this._populations.fill(0);
     }
 
     move(x1, y1, x2, y2, org) {
@@ -128,13 +135,12 @@ class Organisms extends Configurable {
         return true;
     }
 
-    createOrg(x, y, population, parent = null) {
+    createOrg(x, y, parent = null) {
         if (x === -1) {return false}
         const orgs = this.organisms;
-        let   org  = this.createEmptyOrg(++this._orgId + '', x, y, orgs.freeIndex, population, parent);
+        let   org  = this.createEmptyOrg(++this._orgId + '', x, y, orgs.freeIndex, parent);
 
         orgs.add(org);
-        this._populations[population]++;
         this.addOrgHandlers(org);
         this.world.setDot(x, y, org.color);
         this.positions[x][y] = org;
@@ -167,7 +173,7 @@ class Organisms extends Configurable {
         for (let i = 0, len = orgs.size; i < len; i++) {
             if ((org = orgs.get(i)) === null) {continue}
             org.run();
-            this.onOrganism(org);
+            this.onOrganism(org, i);
         }
 
         this._updateTournament(counter);
@@ -216,7 +222,7 @@ class Organisms extends Configurable {
         let y;
 
         [x, y] = this.world.getNearFreePos(org.x, org.y);
-        if (x === -1 || this.createOrg(x, y, org.population, org) === false) {return false}
+        if (x === -1 || this.createOrg(x, y, org) === false) {return false}
         let child = this.organisms.last();
         if (!child) {return false}
 
@@ -240,20 +246,11 @@ class Organisms extends Configurable {
     }
 
     _createPopulation() {
-        const world          = this.world;
-        const populationSize = Math.floor(OConfig.orgMaxOrgs / OConfig.orgPopulations);
-        let   population     = 0;
-        let   orgs           = 0;
+        const world = this.world;
 
         this.reset();
         for (let i = 0, len = OConfig.orgStartAmount; i < len; i++) {
-            const pos = world.getFreePos();
-            this.createOrg(pos[0], pos[1], population);
-            if (++orgs >= populationSize) {
-                this._populations[population] = orgs;
-                orgs = 0;
-                population++;
-            }
+            this.createOrg(...world.getFreePos());
         }
         Console.info('Population has created');
     }
@@ -278,16 +275,6 @@ class Organisms extends Configurable {
     }
 
     _onDestroyOrg(org) {
-        if (--this._populations[org.population] < 1) {
-            const orgs = this.organisms;
-            for (let i = 0, len = orgs.size; i < len; i++) {
-                const o = orgs.get(i);
-                if (o) {
-                    o.population = org.population;
-                    break;
-                }
-            }
-        }
         this.organisms.del(org.item);
         this.world.setDot(org.x, org.y, 0);
         this.positions[org.x][org.y] = 0;
@@ -322,13 +309,12 @@ class Organisms extends Configurable {
         // organisms before cloning. They should kill each other to have a possibility
         // to clone them.
         //
-        if (OConfig.orgKillOnClone && this.organisms.length >= OConfig.orgMaxOrgs) {
-            const rnd     = Math.random();
-            const randOrg = this._randOrg();
-            if (randOrg !== org && rnd <= randOrg.iterations / OConfig.orgAlivePeriod) {randOrg.destroy()}
+        if (OConfig.orgKillOnClone && this.organisms.length >= OConfig.orgMaxOrgs && this._oldOrg) {
+            this._oldOrg.destroy();
+            this._oldOrg = null;
             //this._killInTour();
         }
-        if (this._populations[org.population] < Math.floor(OConfig.orgMaxOrgs / OConfig.orgPopulations) && org.vm !== null) {this._clone(org)}
+        if (this.organisms.length < OConfig.orgMaxOrgs && org.vm !== null) {this._clone(org)}
     }
 
     _killInTour() {

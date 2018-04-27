@@ -17,12 +17,16 @@ const OConfig          = require('./../Config');
 const EVENTS           = require('./../../../../share/Events').EVENTS;
 const Helper           = require('./../../../../../../common/src/Helper');
 const DIR              = require('./../../../../../../common/src/Directions').DIR;
+const OBJECT_TYPES     = require('./../../../../view/World').OBJECT_TYPES;
+//
+// We have to add object types to global types storage
+//
+OBJECT_TYPES.POISON = -(Object.keys(OBJECT_TYPES).length + 1);
 /**
  * {Function} Is created to speed up this function call. constants are run
  * much faster, then Helper.normalize()
  */
 const NORMALIZE        = Helper.normalize;
-const NORMALIZE_NO_DIR = Helper.normalizeNoDir;
 
 class Organisms extends BaseOrganisms {
     constructor(manager) {
@@ -155,10 +159,8 @@ class Organisms extends BaseOrganisms {
      * @param {Object} ret Return object
      */
     _onStepIn(x, y, orgJson, ret) {
-        const population = this._getPopulation();
-
-        if (ret.ret = this.world.isFree(x, y) && this.organisms.length < (OConfig.orgMaxOrgs + OConfig.orgMaxOrgs * OConfig.orgStepOverflowPercent) && population !== null) {
-            const item = this.createOrg(x, y, population);
+        if (ret.ret = this.world.isFree(x, y) && this.organisms.length < (OConfig.orgMaxOrgs + OConfig.orgMaxOrgs * OConfig.orgStepOverflowPercent)) {
+            const item = this.createOrg(x, y);
             if (item === false) {return}
             const org  = item.val;
             org.unserialize(orgJson);
@@ -172,21 +174,6 @@ class Organisms extends BaseOrganisms {
             org.energy <= energy && this.parent.fire(EVENTS.KILL_STEP_IN, org);
             org.energy -= energy;
         }
-    }
-
-    /**
-     * Returns population index, where at least one available free place exists
-     * @returns {Number|null}
-     */
-    _getPopulation() {
-        const maxOrgs     = Math.floor(OConfig.orgMaxOrgs / OConfig.orgPopulations);
-        const populations = this._populations;
-
-        for (let i = 0, len = OConfig.orgPopulations; i < len; i++) {
-            if (populations[i] < maxOrgs) {return i}
-        }
-
-        return null;
     }
 }
 

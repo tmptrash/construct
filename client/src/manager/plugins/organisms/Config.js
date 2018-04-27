@@ -19,15 +19,9 @@ const Config = {
         .00001,   .00001,   .00001,   .00001,             // func, funcCall, return, bracket
         .0001,    .0001,                                  // toMem, fromMem,
         .000001,  .01,      .0001,    .0001,    .0001,    // lookAt, step, dir, myX, myY,
-        .01,      .00001,   .0001,    .00001,             // eat, put, energy, pick
-        .0001,    .000001,  .000001,  .00001,   .0001     // rand, say, listen, check, myEnergy
+        .01,      .00001,   .0001,    .00001,   .0001,    // eat, put, energy, pick, poison,
+        .0001,    .000001,  .000001,  .00001,   .0001,    // rand, say, listen, check, myEnergy
     ],
-    /**
-     * {Number} Amount of populations in a world. This parameter affects maximum
-     * amount of organisms within one population. Size of sub population is equal
-     * to orgMaxOrgs / orgPopulations.
-     */
-    orgPopulations: 2,
     /**
      * {Array} Probabilities which used, when mutator decides what to do:
      * add, change, delete code line inside the vm; change amount of
@@ -58,7 +52,7 @@ const Config = {
      * {Number} Minimum age for cloning. Before that, cloning is impossible. It should
      * be less then orgAlivePeriod config
      */
-    orgCloneMinAge: 100,
+    orgCloneMinAge: 1000,
     /**
      * {Number} Minimum energy for cloning
      */
@@ -69,7 +63,7 @@ const Config = {
      * mean, that new organism will not be cloned, if amount of organisms is >=
      * orgMaxOrgs config.
      */
-    orgKillOnClone: false,
+    orgKillOnClone: true,
     /**
      * {Number} Amount of iterations between tournament. During tournament one
      * organism (looser) will be killed
@@ -96,27 +90,35 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 0,
+    orgCrossoverPeriod: 1100,
     /**
      * {Number} Period of iterations for creation of random organisms. Set it to 0
      * to turn off this feature
      */
-    orgRandomOrgPeriod: 0,
+    orgRandomOrgPeriod: 1000,
     /**
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
      */
-    orgAlivePeriod: 10000,
+    orgAlivePeriod: 30000,
     /**
      * {Number} Maximum energy organism may reach collecting energy
      */
-    orgMaxEnergy: 100000000,
+    orgMaxEnergy: 100000,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created
      * by operator and not by evolution.
      */
-    orgStartEnergy: 1000000,
+    orgStartEnergy: 100000,
+    /**
+     * {Number} Amount of energy, that grabs from organism in case of eating poison
+     */
+    orgPoisonValue: 10000,
+    /**
+     * {Number} Color index of poison dot
+     */
+    orgPoisonColor: 6645,
     /**
      * {Number} Size of organism stack (internal memory) in bits. Real amount of
      * organism's internal memory will be 2^orgMemBits. Example: if orgMemBits=3,

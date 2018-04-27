@@ -54,11 +54,11 @@ ClientConfig.init({
     /**
      * {Number} World width
      */
-    worldWidth: 1920 * 2,
+    worldWidth: 1920 * 4,
     /**
      * {Number} World height
      */
-    worldHeight: 1080 * 2,
+    worldHeight: 1080 * 4,
     /**
      * {Number} Turns on cyclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10

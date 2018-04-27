@@ -25,13 +25,13 @@ const Config = {
      * energy adding to the world. Energy <= orgsAmount * orgMaxEnergy. Formula:
      * (orgMaxOrgs * orgCloneMinEnergy) / (worldWidth * worldHeight * energyAmount)
      */
-    maxPercent: .006028,
+    maxPercent: .0007535,
     /**
      * {Number} Opposite to maxPercent. Sets minimum percent from
      * all energy in a world after which clever energy will turn on (be added to the
      * world again).
      */
-    minPercent: .004,
+    minPercent: .0004,
     /**
      * {Number} Amount of energy in one dot
      */
@@ -43,7 +43,7 @@ const Config = {
      * example all the screen will be filled by energy. As many values by four, you set as
      * many places with energy will be created. In case of null, grouping will be disabled.
      */
-    groups: null //[1920 / 2, 1080, 500, 500 1920 + 1920 / 2, 1080, 500, 500]
+    groups: [3000, 1080 * 2, 2000, 500, 1920 * 2.5, 1080 * 2, 2000, 500]
 };
 
 module.exports = Config;

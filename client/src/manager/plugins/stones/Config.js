@@ -23,7 +23,7 @@ const Config = {
      * example all the screen will be filled by stones. As many values by four, you set as
      * many places with stones will be created. In case of null, grouping will be disabled.
      */
-    groups: [2880, 1080, 1920, 1080 * 2]
+    groups: [1920 * 3, 1080 * 2, 1920 * 2, 1080 * 4]
 };
 
 module.exports = Config;

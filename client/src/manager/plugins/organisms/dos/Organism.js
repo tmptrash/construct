@@ -16,11 +16,10 @@ class OrganismDos extends Organism {
      * @param {Number} y Unique Y coordinate
      * @param {Object} item Reference to the item index, where
      * this organism is located
-     * @param {Number} population Index of population this organism is belong to
      * @param {Organism} parent Parent organism if cloning is needed
      */
-    constructor(id, x, y, item, population, parent = null) {
-        super(id, x, y, item, Operators, population, parent);
+    constructor(id, x, y, item, parent = null) {
+        super(id, x, y, item, Operators, parent);
     }
 
     onRun() {

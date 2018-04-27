@@ -35,7 +35,7 @@ const IN_WORLD              = Helper.inWorld;
 class OperatorsDos extends Operators {
     static compile() {
         const bitsPerOp = OConfig.codeBitsPerOperator;
-        this.OPERATOR_AMOUNT = 25;
+        this.OPERATOR_AMOUNT = 26;
         //
         // IMPORTANT: don't use super here, because it breaks Operators
         // IMPORTANT: class internal logic. Operators.global will be point
@@ -57,6 +57,7 @@ class OperatorsDos extends Operators {
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
+        this.LENS.push(Num.MAX_BITS -  bitsPerOp);
 
         this._compileLookAt();   // 11
         this._compileStep();     // 12
@@ -72,6 +73,7 @@ class OperatorsDos extends Operators {
         this._compileListen();   // 22
         this._compileCheck();    // 23
         this._compileMyEnergy(); // 24
+        this._compilePoison();   // 25
     }
 
     /**
@@ -119,7 +121,7 @@ class OperatorsDos extends Operators {
      */
     static _compileStep() {
         eval(`OperatorsDos.global.fn = function step(line, num, org) {
-            this._obs.fire(${EVENTS.STEP}, org, org.x, org.y, org.x + OFFSX[org.dir], org.y + OFFSY[org.dir]);
+            this._obs.fire(${EVENTS.STEP}, org, org.x, org.y, org.dirX, org.dirY);
             return ++line;
         }`);
         this._compiledOperators[this._toHexNum(`${'101100'}`)] = this.global.fn;
@@ -227,18 +229,24 @@ class OperatorsDos extends Operators {
                 if (eat <= 0) {return ++line}
                 let x;
                 let y;
-                [x, y]       = NORMALIZE_NO_DIR(org.x + OFFSX[org.dir], org.y + OFFSY[org.dir]);
+                [x, y]       = NORMALIZE_NO_DIR(org.dirX, org.dirY);
                 const victim = this._positions[x][y];
                 
-                if (victim < 0) {return ++line}      // World object found. We can't eat objects
-                if (victim === 0) {                  // Energy found
+                if (victim === OBJECT_TYPES.POISON) {    // Poison found
+                    this._positions[x][y] = 0;
+                    this._world.setDot(x, y, 0);
+                    org.destroy();
+                    return ++line;
+                }
+                if (victim < 0) {return ++line}          // World object found. We can't eat objects
+                if (victim === 0) {                      // Energy found
                     if ((eat = this._world.grabDot(x, y, eat)) > 0 && org.energy + eat <= OConfig.orgMaxEnergy) {
                         org.energy += eat;
                         this._obs.fire(EVENTS.EAT_ENERGY, eat);
                     }
                     return ++line;
                 }
-                if (victim.energy <= eat) {          // Organism found
+                if (victim.energy <= eat) {              // Organism found
                     if (org.energy + victim.energy > OConfig.orgMaxEnergy) {return ++line}
                     this._obs.fire(EVENTS.KILL_EAT, victim);
                     org.energy += victim.energy;
@@ -285,10 +293,10 @@ class OperatorsDos extends Operators {
             eval(`Operators.global.fn = function put(line, num, org) {
                 let put      = this.vars[${v0}];
                 if (put <= 0) {return ++line}
-                let   x      = org.x + OFFSX[org.dir];
-                let   y      = org.y + OFFSY[org.dir];
+                let   x      = org.dirX;
+                let   y      = org.dirY;
                 if (!IN_WORLD(x, y)) {return ++line}
-                if (this._world.data[x][y] > 0) {return ++line}
+                if (this._world.data[x][y] !== 0) {return ++line}
                 if (org.energy <= put) {
                     put = org.energy;
                     this._world.setDot(x, y, put);
@@ -321,7 +329,6 @@ class OperatorsDos extends Operators {
     static _compileEnergy() {
         const ops      = this._compiledOperators;
         const h        = this._toHexNum;
-        const energy   = Organism.getColor(EConfig.colorIndex);
 
         eval(`Operators.global.fn = function energy(line, num, org) {
             const poses  = this._positions;
@@ -331,7 +338,7 @@ class OperatorsDos extends Operators {
             
             for (let x = org.x - 1, xlen = org.x + 2; x < xlen; x++) {
                 for (let y = org.y - 1, ylen = org.y + 2; y < ylen; y++) {
-                    if (IN_WORLD(x, y) && poses[x][y] <= ${OBJECT_TYPES.TYPE_ENERGY0} && poses[x][y] >= ${OBJECT_TYPES.TYPE_ENERGY4}) {
+                    if (IN_WORLD(x, y) && poses[x][y] <= OBJECT_TYPES.TYPE_ENERGY0 && poses[x][y] >= OBJECT_TYPES.TYPE_ENERGY4) {
                         e = -poses[x][y];
                         energy[e].push(x, y);
                         if (energy[e].length === 6) {
@@ -391,9 +398,9 @@ class OperatorsDos extends Operators {
             eval(`Operators.global.fn = function pick(line, num, org) {
                 const poses = this._positions;
                 const world = this._world;
-                const x     = org.x + OFFSX[org.dir];
-                const y     = org.y + OFFSY[org.dir];
-                if (IN_WORLD(x, y) && poses[x][y] <= ${OBJECT_TYPES.TYPE_ENERGY0} && poses[x][y] >= ${OBJECT_TYPES.TYPE_ENERGY4}) {
+                const x     = org.dirX;
+                const y     = org.dirY;
+                if (IN_WORLD(x, y) && (poses[x][y] <= OBJECT_TYPES.TYPE_ENERGY0 && poses[x][y] >= OBJECT_TYPES.TYPE_ENERGY4 || poses[x][y] === 0 && world.data[x][y] > 0)) {
                     const dir = ((this.vars[${v0}] + .5) << 0 >>> 0) % ${dirs};
                     const dx  = org.x + OFFSX[dir];
                     const dy  = org.y + OFFSY[dir];
@@ -457,8 +464,8 @@ class OperatorsDos extends Operators {
 
         for (let v0 = 0; v0 < vars; v0++) {
             eval(`Operators.global.fn = function say(line, num, org) {
-                let x = org.x + OFFSX[org.dir];
-                let y = org.y + OFFSY[org.dir];
+                let x = org.dirX;
+                let y = org.dirY;
                 IN_WORLD(x, y) && !(this._positions[x][y] <= 0) && (this._positions[x][y].msg = this.vars[${v0}]);
                 return ++line;
             }`);
@@ -511,8 +518,8 @@ class OperatorsDos extends Operators {
 
         for (let v0 = 0; v0 < vars; v0++) {
             eval(`Operators.global.fn = function check(line, num, org) {
-                const x = org.x + OFFSX[org.dir];
-                const y = org.y + OFFSY[org.dir];
+                const x = org.dirX;
+                const y = org.dirY;
                 if (!IN_WORLD(x, y)) {return ++line}
                 
                 if (this._positions[x][y] < 0) {
@@ -553,6 +560,33 @@ class OperatorsDos extends Operators {
             }`);
             ops[h(`${'111000'}${b(v0, bpv)}`)] = this.global.fn;
         }
+    }
+
+    /**
+     * Compiles all variants of 'poison' operator and stores they in
+     * this._compiledOperators map. '...' means, that all other bits are
+     * ignored. Poison direction depends on active organism's direction.
+     * See Organism.dir property. Example:
+     *
+     * bits  :      6
+     * number: 111001...
+     * string: poison
+     */
+    static _compilePoison() {
+        const ops      = this._compiledOperators;
+        const h        = this._toHexNum;
+
+        eval(`Operators.global.fn = function poison(line, num, org) {
+            let   x = org.dirX;
+            let   y = org.dirY;
+            if (!IN_WORLD(x, y) || this._world.data[x][y] !== 0 || org.energy <= OConfig.orgPoisonValue) {return ++line}
+            
+            this._world.setDot(x, y, Organism.getColor(OConfig.orgPoisonColor));
+            this._positions[x][y] = OBJECT_TYPES.POISON;
+            if ((org.energy -= OConfig.orgPoisonValue) < 0) {org.destroy()}
+            return ++line;
+        }`);
+        ops[h(`${'111001'}`)] = this.global.fn;
     }
 
     constructor(offs, vars, obs) {
