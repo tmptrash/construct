@@ -15,12 +15,12 @@ const Config = {
      * implemented. See Operators.operators getter for details. Values may be float.
      */
     orgOperatorWeights: [
-        .0001,    .0001,    .0001,    .0001,    .0001,    // var, const, if, loop, operator,
-        .00001,   .00001,   .00001,   .00001,             // func, funcCall, return, bracket
-        .0001,    .0001,                                  // toMem, fromMem,
-        .000001,  .01,      .0001,    .0001,    .0001,    // lookAt, step, dir, myX, myY,
-        .01,      .00001,   .0001,    .00001,   .0001,    // eat, put, energy, pick, poison,
-        .0001,    .000001,  .000001,  .00001,   .0001,    // rand, say, listen, check, myEnergy
+        .01,    .01,    .01,    .01,    .01,    // var, const, if, loop, operator,
+        .001,   .001,   .001,   .001,           // func, funcCall, return, bracket
+        .01,    .01,                            // toMem, fromMem,
+        .0001,  .1,     .01,    .01,    .01,    // lookAt, step, dir, myX, myY,
+        .1,     .001,   .01,    .01,    .01,    // eat, put, energy, pick, poison,
+        .01,    .0001,  .0001,  .001,   .01     // rand, say, listen, check, myEnergy
     ],
     /**
      * {Array} Probabilities which used, when mutator decides what to do:
@@ -56,7 +56,7 @@ const Config = {
     /**
      * {Number} Minimum energy for cloning
      */
-    orgCloneMinEnergy: 80000,
+    orgCloneMinEnergy: .8 * 0x6d3b4,
     /**
      * {Boolean} If true, then random organism will be killed after new one has
      * cloned and amount of organisms is greater then orgMaxOrgs config. false
@@ -90,12 +90,12 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 1100,
+    orgCrossoverPeriod: 0,
     /**
      * {Number} Period of iterations for creation of random organisms. Set it to 0
      * to turn off this feature
      */
-    orgRandomOrgPeriod: 1000,
+    orgRandomOrgPeriod: 0,
     /**
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
@@ -104,17 +104,17 @@ const Config = {
     /**
      * {Number} Maximum energy organism may reach collecting energy
      */
-    orgMaxEnergy: 100000,
+    orgMaxEnergy: 1 * 0x6d3b4,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created
      * by operator and not by evolution.
      */
-    orgStartEnergy: 100000,
+    orgStartEnergy: 1 * 0x6d3b4,
     /**
      * {Number} Amount of energy, that grabs from organism in case of eating poison
      */
-    orgPoisonValue: 10000,
+    orgPoisonValue: .5 * 0x6d3b4,
     /**
      * {Number} Color index of poison dot
      */
@@ -144,11 +144,11 @@ const Config = {
      * try to clone itself, when entire amount of organisms are equal
      * this value, the cloning will not happen.
      */
-    orgMaxOrgs: 500,
+    orgMaxOrgs: 4000,
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 500,
+    orgStartAmount: 1000,
     /**
      * {Number} If organism reach this limit of amount of vm lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
@@ -166,7 +166,7 @@ const Config = {
      * default value, while organism is delivering. So, if the value is
      * 1000, then range will be: -500..500
      */
-    codeVarInitRange: 500,
+    codeVarInitRange: 10000000,
     /**
      * {Number} This value is amount of code lines, which will be run for one
      * organism without interruption by one VM. Set this value to value bigger

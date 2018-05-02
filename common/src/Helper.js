@@ -9,6 +9,23 @@ const DIR    = require('./Directions').DIR;
 
 class Helper {
     /**
+     * Returns color by index. Index may be increased without limit
+     * @param {Number} index Color index. Starts from 0 till 10000
+     * @returns {Number} RGB value
+     */
+    static getColor(index) {
+        //
+        // Maximum possible colors for this value is MAX_COLORS
+        //
+        const frequency = 0.0005;
+
+        const r = Math.sin(frequency * index    ) * 127 + 128;
+        const g = Math.sin(frequency * index + 2) * 127 + 128;
+        const b = Math.sin(frequency * index + 4) * 127 + 128;
+
+        return r << 16 | g << 8 | b;
+    }
+    /**
      * Makes synchronous delay
      * @param {Number} ms Amount of milliseconds to delay
      */

@@ -35,24 +35,6 @@ const UPDATE_COLOR_PERIOD = 50;
 
 class Organism extends Observer {
     /**
-     * Returns color by index. Index may be increased without limit
-     * @param {Number} index Color index. Starts from 0 till MAX_COLORS
-     * @returns {Number} RGB value
-     */
-    static getColor(index) {
-        //
-        // Maximum possible colors for this value is MAX_COLORS
-        //
-        const frequency = 0.0005;
-
-        const r = Math.sin(frequency * index    ) * 127 + 128;
-        const g = Math.sin(frequency * index + 2) * 127 + 128;
-        const b = Math.sin(frequency * index + 4) * 127 + 128;
-
-        return r << 16 | g << 8 | b;
-    }
-
-    /**
      * Is called before every run. Should return true, if everything
      * is okay and we don't need to interrupt running. If true, then
      * onRun() method will be called as well
@@ -230,7 +212,7 @@ class Organism extends Observer {
         this.vm                     = new VM(this, this._operatorCls, OConfig.orgOperatorWeights);
         this._energy                = OConfig.orgStartEnergy;
         this._startEnergy           = OConfig.orgStartEnergy;
-        this._color                 = Organism.getColor(ORG_END_COLOR);
+        this._color                 = Helper.getColor(ORG_END_COLOR);
         this._mutationProbs         = OConfig.orgMutationProbs.slice();
         this._mutationPeriod        = OConfig.orgRainMutationPeriod;
         this._mutationPercent       = OConfig.orgRainMutationPercent;
@@ -253,7 +235,7 @@ class Organism extends Observer {
     }
 
     _updateColor() {
-        this._color = Organism.getColor(OConfig.orgAlivePeriod === 0 ? ORG_END_COLOR : this._iterations * (ORG_COLORS / OConfig.orgAlivePeriod) + ORG_START_COLOR);
+        this._color = Helper.getColor(OConfig.orgAlivePeriod === 0 ? ORG_END_COLOR : this._iterations * (ORG_COLORS / OConfig.orgAlivePeriod) + ORG_START_COLOR);
     }
 
     _updateClone() {

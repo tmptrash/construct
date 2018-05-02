@@ -399,7 +399,7 @@ describe("client/src/manager/Manager", () => {
 
             man1.on(EVENTS.LOOP, () => {
                 if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
-                    org1 = man1.organisms.last();
+                    org1 = man1.organisms.added();
                     org1.vm.insertLine();
                     org1.vm.updateLine(0, 0b00001011000000000000000000000000); // onStepRight()
                 } else if (man2.organisms.length === 2) {
@@ -466,7 +466,7 @@ describe("client/src/manager/Manager", () => {
 
             man1.on(EVENTS.LOOP, () => {
                 if (iterated1 > 0 && iterated2 > 0 && org1 === null && org2 !== null) {
-                    org1 = man1.organisms.last();
+                    org1 = man1.organisms.added();
                     org1.vm.code.push(0b00001011000000000000000000000000); // onStepRight()
                     man1.on(EVENTS.STEP_OUT, () => {
                         expect(doneInc < 3).toBe(true);
@@ -475,13 +475,13 @@ describe("client/src/manager/Manager", () => {
                     man2.on(EVENTS.STEP_IN, () => {
                         ++doneInc;
                         expect(man1.organisms.length).toBe(1);
-                        expect(man1.organisms.last().x).toBe(0);
+                        expect(man1.organisms.added().x).toBe(0);
                     });
                 } else if (org1 !== null && org2 !== null && doneInc === 2) {
                     expect(man1.organisms.length).toBe(1);
-                    expect(man1.organisms.last().x).toBe(0);
+                    expect(man1.organisms.added().x).toBe(0);
                     expect(man2.organisms.length).toBe(1);
-                    expect(man2.organisms.last().x).toBe(0);
+                    expect(man2.organisms.added().x).toBe(0);
                     destroy();
                     doneInc++;
                 }
@@ -489,7 +489,7 @@ describe("client/src/manager/Manager", () => {
                 iterated1++;
             });
             man2.on(EVENTS.LOOP, () => {
-                !iterated2 && (org2 = man2.organisms.last());
+                !iterated2 && (org2 = man2.organisms.added());
                 iterated2++;
             });
 
@@ -555,7 +555,7 @@ describe("client/src/manager/Manager", () => {
             man1.on(EVENTS.LOOP, () => {
                 if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
                     expect(man2.organisms.length).toBe(1);
-                    org1 = man1.organisms.last();
+                    org1 = man1.organisms.added();
                     org1.vm.code.push(0b00001011000000000000000000000000); // onStepRight()
                 } else if (man2.organisms.length === 2) {
                     destroy();
@@ -766,7 +766,7 @@ describe("client/src/manager/Manager", () => {
 //         man1.on(EVENTS.LOOP, () => {
 //             if (iterated1 > 0 && iterated2 > 0 && org1 === null) {
 //                 expect(man2.organisms.length).toBe(1);
-//                 org1 = man1.organisms.last();
+//                 org1 = man1.organisms.added();
 //                 org1.vm.code.push(0b00001011000000000000000000000000); // onStepRight()
 //                 man1.on(EVENTS.KILL, () => destroyFlag = true);
 //                 man1.on(EVENTS.STEP_IN,       () => stepInBack  = true);
@@ -840,7 +840,7 @@ describe("client/src/manager/Manager", () => {
 //
 //         man1.on(EVENTS.LOOP, () => {
 //             if (iterated1 > 0 && org1 === null) {
-//                 org1 = man1.organisms.last();
+//                 org1 = man1.organisms.added();
 //                 org1.vm.code.push(0b00001011000000000000000000000000); // onStepRight()
 //                 man1.on(EVENTS.KILL, () => destroyFlag = true);
 //                 man1.on(EVENTS.STEP_IN,       () => stepInBack  = true);
@@ -897,7 +897,7 @@ describe("client/src/manager/Manager", () => {
 //         testQ(done,
 //             [server, SEVENTS.RUN, () => server.run(), () => {man1.run(() => man2.run(() => man3.run(() => waitObj.done = true)))}],
 //             [waitObj],
-//             [man1, EVENTS.LOOP, emp, () => man1.organisms.last().vm.code.push(0b00001011000000000000000000000000)], // onStepRight()
+//             [man1, EVENTS.LOOP, emp, () => man1.organisms.added().vm.code.push(0b00001011000000000000000000000000)], // onStepRight()
 //             [man3, EVENTS.STEP_IN, emp, () => destroy()]
 //         );
 //     });

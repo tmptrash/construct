@@ -240,7 +240,8 @@ class OperatorsDos extends Operators {
                 }
                 if (victim < 0) {return ++line}          // World object found. We can't eat objects
                 if (victim === 0) {                      // Energy found
-                    if ((eat = this._world.grabDot(x, y, eat)) > 0 && org.energy + eat <= OConfig.orgMaxEnergy) {
+                    if ((eat = this._world.grabDot(x, y, eat)) > 0) {
+                        if (org.energy + eat > OConfig.orgMaxEnergy) {eat = OConfig.orgMaxEnergy - org.energy}
                         org.energy += eat;
                         this._obs.fire(EVENTS.EAT_ENERGY, eat);
                     }
@@ -291,8 +292,10 @@ class OperatorsDos extends Operators {
 
         for (let v0 = 0; v0 < vars; v0++) {
             eval(`Operators.global.fn = function put(line, num, org) {
+            return ++line;
                 let put      = this.vars[${v0}];
                 if (put <= 0) {return ++line}
+                if (put > 0xffffff) {put = 0xffffff}
                 let   x      = org.dirX;
                 let   y      = org.dirY;
                 if (!IN_WORLD(x, y)) {return ++line}
@@ -359,7 +362,7 @@ class OperatorsDos extends Operators {
             for (let e = 0; e < 5; e++) {
                 if (energy[e].length === 4) {
                     const xy  = energy[e];
-                    const eat = (2**e) * EConfig.energyAmount;
+                    const eat = (2**e) * Helper.getColor(EConfig.colorIndex);
                     
                     if (org.energy + eat <= OConfig.orgMaxEnergy) {
                         org.energy += eat;
@@ -581,7 +584,7 @@ class OperatorsDos extends Operators {
             let   y = org.dirY;
             if (!IN_WORLD(x, y) || this._world.data[x][y] !== 0 || org.energy <= OConfig.orgPoisonValue) {return ++line}
             
-            this._world.setDot(x, y, Organism.getColor(OConfig.orgPoisonColor));
+            this._world.setDot(x, y, Helper.getColor(OConfig.orgPoisonColor));
             this._positions[x][y] = OBJECT_TYPES.POISON;
             if ((org.energy -= OConfig.orgPoisonValue) < 0) {org.destroy()}
             return ++line;

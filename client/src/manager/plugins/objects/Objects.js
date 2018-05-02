@@ -7,7 +7,6 @@
 const Dots         = require('./../../../share/Dots');
 const Helper       = require('./../../../../../common/src/Helper');
 const Config       = require('./Config');
-const Organism     = require('./../../plugins/organisms/Organism').Organism;
 const OBJECT_TYPES = require('./../../../view/World').OBJECT_TYPES;
 //
 // We have to add object types to global types storage
@@ -18,7 +17,7 @@ OBJECT_TYPES.TYPE_ENERGY2 = -(Object.keys(OBJECT_TYPES).length + 1);
 OBJECT_TYPES.TYPE_ENERGY3 = -(Object.keys(OBJECT_TYPES).length + 1);
 OBJECT_TYPES.TYPE_ENERGY4 = -(Object.keys(OBJECT_TYPES).length + 1);
 
-const GET_COLOR   = (index) => Organism.getColor(8500 + (Math.abs(index) + OBJECT_TYPES.TYPE_ENERGY0) * 500);
+const GET_COLOR   = (index) => Helper.getColor(8500 + (Math.abs(index) + OBJECT_TYPES.TYPE_ENERGY0) * 500);
 const COLOR_INDEX = OBJECT_TYPES.TYPE_ENERGY0;
 const COLOR_RGB   = GET_COLOR(COLOR_INDEX);
 

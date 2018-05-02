@@ -3,6 +3,8 @@
  *
  * @author flatline
  */
+const Helper = require('./../../../../../common/src/Helper');
+
 const Config = {
     /**
      * {Number} An amount of iteration, after which we have to check world energy
@@ -14,17 +16,13 @@ const Config = {
      */
     blockSize: 10,
     /**
-     * {Number} Percent from all energy objects in a world until clever energy will
-     * be added. After this value energy objects will be stopped to add until it's
-     * amount will be less then minPercent. These two configs create cyclical
-     * energy objects adding to the world.
+     * {Number} Maximum amount of object dots
      */
-    maxPercent: .3,
+    maxValue: 100 * Helper.getColor(8500 + 2 * 500),
     /**
-     * {Number} Opposite to maxPercent. Sets minimum percent from all energy objects
-     * in a world after which energy objects will turn on (be added to the world again).
+     * {Number} Opposite to maxValue. Minimum amount of object dots
      */
-    minPercent: .1
+    minValue: 50 * Helper.getColor(8500 + 2 * 500)
 };
 
 module.exports = Config;

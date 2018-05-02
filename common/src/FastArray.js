@@ -1,12 +1,18 @@
 /**
- * Implementation of fast array. This class uses fixed array size. Second that
- * get() method will be called must of the time, then set() or del() or resize().
- * Resize is possible, but should be rare to keep it fast. Is used for storing
- * organisms population. Removing element means setting null to specified index.
+ * Implementation of fast array. Meaning of this class is in fast access to custom
+ * element of array, ability to add/remove elements. First, this class uses fixed
+ * array size. Second, get() method will be called must of the time, then set() or
+ * del() or resize(). Resize is possible, but should be rare to keep it fast. Is
+ * used for storing organisms population. Removing element means setting null to
+ * specified index.
  *
  * @author flatline
  */
 class FastArray {
+    /**
+     * Creates fast array instance. Size is maximum amount of elements you may access to
+     * @param {Number} size Max elements in a array
+     */
     constructor(size) {
         /**
          * {Array} Source container for custom objects
@@ -38,12 +44,14 @@ class FastArray {
         this._arr         = null;
         this._freeIndexes = null;
         this._size        = null;
+        this._index       = -1;
     }
 
     /**
      * Analog of Array.length
-     * @returns {Number} Amount of not empty elements in  FastArray.
-     * Not all cells in an array may be filled by values.
+     * @returns {Number} Amount of not empty elements in FastArray.
+     * Not all cells in an array may be filled by values. 0 or less
+     * then zero means no items in an array.
      */
     get length() {return this._size - this._index - 1}
 
@@ -54,8 +62,8 @@ class FastArray {
     get size() {return this._size}
 
     /**
-     * Returns next free index in FastArray
-     * @returns {Number}
+     * Returns next free index in FastArray or undefined if there is no free index
+     * @returns {Number|undefined}
      */
     get freeIndex() {
         return this._freeIndexes[this._index];
@@ -64,7 +72,7 @@ class FastArray {
     /**
      * Sets value to FastArray. You can't set value index due to
      * optimization reason. Only a value
-     * @param {*} v Any value except number
+     * @param {*|false} v Any value or false if value hasn't added
      */
     add(v) {this._index > -1 && (this._arr[this._freeIndexes[this._index--]] = v)}
 
@@ -76,7 +84,7 @@ class FastArray {
     get(i) {return this._arr[i]}
 
     /**
-     * Removes a value by index
+     * Removes(sets it to null) a value by index.
      * @param {Number} i Value index
      */
     del(i) {
@@ -88,25 +96,25 @@ class FastArray {
 
     /**
      * Returns last added value by set() method
-     * @returns {*} Value
+     * @returns {*|undefined} Value or undefined if there is no value
      */
-    last() {
+    added() {
         return this._arr[this._freeIndexes[this._index + 1]];
     }
 
     /**
-     * Resizes an array. Values will not be removed during resize.
+     * Resize an array. Values will not be removed during resize.
      * This method is very slow and should be called not often.
      * @param {Number} size New array size
      */
     resize(size) {
-        const indexes = this._freeIndexes;
-        const arr     = this._arr;
-        this._index   = -1;
-        arr.length    = indexes.length = (this._size = size);
-        for (let i = 0; i < size; i++) {
-            typeof arr[i] === 'undefined' && (arr[i] = null);
-            arr[i] === null && (indexes[++this._index] = i);
+        if (size <= 0) {return}
+        const oldArr      = this._arr.slice();
+        const oldSize     = Math.min(this._size, size);
+
+        this.constructor(size);
+        for (let i = 0; i < oldSize; i++) {
+            oldArr[i] !== null && this.add(oldArr[i]);
         }
     }
 }

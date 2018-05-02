@@ -1,9 +1,10 @@
 {
   "spec_dir": "./",
   "spec_files": [
-    "client/src/**/*[sS]pec.js",
-    "common/src/**/*[sS]pec.js",
-    "server/src/**/*[sS]pec.js"
+    "1client/src/**/*[sS]pec.js",
+    "1common/src/**/*[sS]pec.js",
+    "1server/src/**/*[sS]pec.js",
+    "common/src/FastArraySpec.js"
   ],
   "stopSpecOnExpectationFailure": false,
   "random": false

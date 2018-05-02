@@ -64,6 +64,8 @@ class Organisms extends Configurable {
         this._mutator        = new Mutator(manager, this);
         this._oldOrg         = null;
         this._curOldOrg      = null;
+        this._energy         = 0;
+        this._curEnergy      = 0;
         this._onIterationCb  = this._onIteration.bind(this);
         this._onLoopCb       = this._onLoop.bind(this);
         this._onConfigChange = this._onConfigChange.bind(this);
@@ -82,6 +84,10 @@ class Organisms extends Configurable {
         Helper.unoverride(this.parent, 'onIteration', this._onIterationCb);
         Helper.unoverride(this.parent, 'onLoop', this._onLoopCb);
         this.parent.off(EVENTS.CONFIG_CHANGE, this._onConfigChange);
+        this._energy         = 0;
+        this._curEnergy      = 0;
+        this._curOldOrg      = null;
+        this._oldOrg         = null;
         this._mutator.destroy();
         this._mutator        = null;
         this.world           = null;
@@ -95,16 +101,15 @@ class Organisms extends Configurable {
     }
 
     /**
-     * Is called at the end of run() method
+     * Is called at the end of run() method. Found oldest organism and calculates
+     * energy of all organisms
      * @param {Organism} org Current organism
-     * @param {Number} i Current organism index/id
      */
-    onOrganism(org, i) {
-        if (i === 0) {
-            this._oldOrg    = this._curOldOrg;
-            this._curOldOrg = org;
-        }
+    onOrganism(org) {
+        if (org.vm === null) {return}
+        if (this._curOldOrg === null) {this._curOldOrg = org}
         if (this._curOldOrg.iterations < org.iterations) {this._curOldOrg = org}
+        this._curEnergy += org.energy;
     }
 
     addOrgHandlers(org) {
@@ -117,6 +122,7 @@ class Organisms extends Configurable {
 
     reset() {
         this._orgId = 0;
+        this.parent.sharedObj.orgEnergy = 0;
     }
 
     move(x1, y1, x2, y2, org) {
@@ -173,15 +179,16 @@ class Organisms extends Configurable {
         for (let i = 0, len = orgs.size; i < len; i++) {
             if ((org = orgs.get(i)) === null) {continue}
             org.run();
-            this.onOrganism(org, i);
+            this.onOrganism(org);
         }
 
+        this._onAfterIteration();
         this._updateTournament(counter);
         this._updateRandomOrgs(counter);
         this._updateCrossover(counter);
     }
 
-    _onLoop() {
+    _onLoop(counter, stamp, sharedObj) {
         this._updateCreate();
     }
 
@@ -223,7 +230,7 @@ class Organisms extends Configurable {
 
         [x, y] = this.world.getNearFreePos(org.x, org.y);
         if (x === -1 || this.createOrg(x, y, org) === false) {return false}
-        let child = this.organisms.last();
+        let child = this.organisms.added();
         if (!child) {return false}
 
         this.onClone(org, child);
@@ -235,7 +242,7 @@ class Organisms extends Configurable {
 
     _crossover(org1, org2) {
         if (!this._clone(org1, true)) {return false}
-        let child = this.organisms.last();
+        let child = this.organisms.added();
 
         if (child.energy > 0 && org2.energy > 0) {
             child.changes += (Math.abs(child.vm.crossover(org2.vm)) * Num.MAX_BITS);
@@ -250,7 +257,10 @@ class Organisms extends Configurable {
 
         this.reset();
         for (let i = 0, len = OConfig.orgStartAmount; i < len; i++) {
-            this.createOrg(...world.getFreePos());
+            //this.createOrg(...world.getFreePos());
+            const x = Helper.rand(500) + 1920 * 2 - 250;
+            const y = Helper.rand(500) + 1080 * 2 - 250;
+            if (world.isFree(x, y)) {this.createOrg(x, y)}
         }
         Console.info('Population has created');
     }
@@ -329,6 +339,14 @@ class Organisms extends Configurable {
         org2.destroy();
 
         return true;
+    }
+
+    _onAfterIteration() {
+        this.parent.sharedObj.orgEnergy = this._curEnergy;
+        this._oldOrg    = this._curOldOrg;
+        this._energy    = this._curEnergy;
+        this._curOldOrg = null;
+        this._curEnergy = 0;
     }
 
     /**

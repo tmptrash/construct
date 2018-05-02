@@ -71,6 +71,7 @@ class Manager extends Observer {
          */
         this._codeRuns     = 0;
 
+        this._sharedObj    = {};
         this._world        = new World(Config.worldWidth, Config.worldHeight);
         this._canvas       = hasView && new Canvas(Config.worldWidth, Config.worldHeight) || null;
         this._visualized   = true;
@@ -101,6 +102,7 @@ class Manager extends Observer {
         });
     }
 
+    get sharedObj()    {return this._sharedObj}
     get world()        {return this._world}
     get canvas()       {return this._canvas}
     get clientId()     {return this._clientId}
@@ -152,8 +154,9 @@ class Manager extends Observer {
      * Is called after all iterations
      * @param {Number} counter Global counter as an analog of time
      * @param {Number} stamp UNIX time stamp
+     * @param {Object} sharedObj Shared manager's object
      */
-    onLoop(counter, stamp) {
+    onLoop(counter, stamp, sharedObj) {
         this.fire(EVENTS.LOOP);
     }
 
@@ -269,8 +272,8 @@ class Manager extends Observer {
         for (i = counter, amount = counter + amount; i < amount; i++) {
             this.onIteration(i, TIMER());
         }
-        this.onLoop(this._counter = i, TIMER());
-        Helper.delay((1 - Config.worldSpeed) * 60);
+        this.onLoop(this._counter = i, TIMER(), this._sharedObj);
+        Helper.delay((1 - Config.worldSpeed) * 100);
         this.zeroTimeout(this._onLoopCb);
     }
 
