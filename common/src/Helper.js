@@ -267,6 +267,27 @@ class Helper {
         return typeof v === 'function';
     }
 
+
+    /**
+     * Converts string BIN number representation into number. Removes spaces.
+     * @param {String} s BIN string. e.g.: 'aa bb cc' -> 0xaabbcc
+     * @param {Number} width Amount of digits in binary number
+     * @returns {Number}
+     */
+    static toHexNum(s, width = 0) {
+        return parseInt(s.split(' ').join('').padStart(width, '0'), 2)
+    }
+
+    /**
+     * Converts number to binary string
+     * @param {Number} n Number to convert
+     * @param {Number} width Amount of digits in binary number
+     * @return {String} Binary string
+     */
+    static toBinStr(n, width = 0) {
+        return n.toString(2).padStart(width, '0');
+    }
+
     /**
      * Generates unique numeric ids
      * @returns {Number}

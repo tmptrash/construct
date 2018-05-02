@@ -6,6 +6,7 @@
  */
 const OConfig         = require('./../manager/plugins/organisms/Config');
 const Num             = require('./Num');
+const Helper          = require('./../../../common/src/Helper');
 
 const OPERATOR_AMOUNT = 11;
 const MAX_STACK_SIZE  = 10000;
@@ -96,26 +97,6 @@ class Operators {
     }
 
     /**
-     * Converts string BIN number representation into number. Removes spaces.
-     * @param {String} s BIN string. e.g.: 'aa bb cc' -> 0xaabbcc
-     * @param {Number} width Amount of digits in binary number
-     * @returns {Number}
-     */
-    static _toHexNum(s, width = 0) {
-        return parseInt(s.split(' ').join('').padStart(width, '0'), 2)
-    }
-
-    /**
-     * Converts number to binary string
-     * @param {Number} n Number to convert
-     * @param {Number} width Amount of digits in binary number
-     * @return {String} Binary string
-     */
-    static _toBinStr(n, width = 0) {
-        return n.toString(2).padStart(width, '0');
-    }
-
-    /**
      * Compiles all variants of var operator and stores they in
      * this._compiledOperators map. 'xx' means, that amount of bits
      * depends on configuration. '...' means, that all other bits are
@@ -128,8 +109,8 @@ class Operators {
     static _compileVar() {
         const bpv    = OConfig.codeBitsPerVar;
         const ops    = this._compiledOperators;
-        const h      = this._toHexNum;
-        const b      = this._toBinStr;
+        const h      = Helper.toHexNum;
+        const b      = Helper.toBinStr;
         const vars   = Math.pow(2, bpv);
 
         for (let v0 = 0; v0 < vars; v0++) {
@@ -156,10 +137,10 @@ class Operators {
     static _compileConst() {
         const bpv      = OConfig.codeBitsPerVar;
         const ops      = this._compiledOperators;
-        const h        = this._toHexNum;
-        const b        = this._toBinStr;
+        const h        = Helper.toHexNum;
+        const b        = Helper.toBinStr;
         const bits     = Num.MAX_BITS - OConfig.codeConstBits;
-        const bits1var = Num.BITS_OF_VAR0;
+        const bits1var = Num.BITS_OF_VAR1;
         const vars     = Math.pow(2, bpv);
 
         for (let v0 = 0; v0 < vars; v0++) {
@@ -184,8 +165,8 @@ class Operators {
     static _compileIf() {
         const bpv    = OConfig.codeBitsPerVar;
         const ops    = this._compiledOperators;
-        const h      = this._toHexNum;
-        const b      = this._toBinStr;
+        const h      = Helper.toHexNum;
+        const b      = Helper.toBinStr;
         const vars   = Math.pow(2, bpv);
 
         for (let c = 0; c < Math.pow(2, this.CONDITION_BITS); c++) {
@@ -214,8 +195,8 @@ class Operators {
     static _compileLoop() {
         const bpv    = OConfig.codeBitsPerVar;
         const ops    = this._compiledOperators;
-        const h      = this._toHexNum;
-        const b      = this._toBinStr;
+        const h      = Helper.toHexNum;
+        const b      = Helper.toBinStr;
         const vars   = Math.pow(2, bpv);
 
         for (let c = 0; c < Math.pow(2, this.CONDITION_BITS); c++) {
@@ -244,8 +225,8 @@ class Operators {
     static _compileOperator() {
         const bpv    = OConfig.codeBitsPerVar;
         const ops    = this._compiledOperators;
-        const h      = this._toHexNum;
-        const b      = this._toBinStr;
+        const h      = Helper.toHexNum;
+        const b      = Helper.toBinStr;
         const vars   = Math.pow(2, bpv);
         const opsLen = Math.pow(2, this.FOUR_BITS);
 
@@ -276,7 +257,7 @@ class Operators {
      */
     static _compileFunc() {
         const ops    = this._compiledOperators;
-        const h      = this._toHexNum;
+        const h      = Helper.toHexNum;
 
         eval(`Operators.global.fn = function func(line) {return this.offs[line] === line ? ++line : this.offs[line]}`);
         ops[h(`${'100101'}`)] = this.global.fn;
@@ -296,7 +277,7 @@ class Operators {
      */
     static _compileFuncCall() {
         const ops     = this._compiledOperators;
-        const h       = this._toHexNum;
+        const h       = Helper.toHexNum;
         const ifBit   = Num.MAX_BITS - 1;
         const fnBits  = Num.MAX_BITS - this.FUNC_NAME_BITS;
         const funcs   = Math.pow(2, this.FUNC_NAME_BITS);
@@ -307,7 +288,7 @@ class Operators {
             const data = num << ${opBits};
             const offs = this.funcs[(data >>> ${ifBit}) & 1 === 0 ? ((this.vars[data >>> ${varBits}] + .5) << 0 >>> 0) % ${funcs} : data >>> ${fnBits}];
             if (typeof offs !== 'undefined') {
-                if (this.stack.length > MAX_STACK_SIZE * 3) {
+                if (this.stack.length > ${MAX_STACK_SIZE} * 3) {
                     org.energy -= org.vm.size;
                     return ++line;
                 }
@@ -331,7 +312,7 @@ class Operators {
      */
     static _compileReturn() {
         const ops     = this._compiledOperators;
-        const h       = this._toHexNum;
+        const h       = Helper.toHexNum;
         const vars    = Math.pow(2, OConfig.codeBitsPerVar);
 
         eval(`Operators.global.fn = function ret(line) {
@@ -359,7 +340,7 @@ class Operators {
      */
     static _compileBracket() {
         const ops     = this._compiledOperators;
-        const h       = this._toHexNum;
+        const h       = Helper.toHexNum;
         const vars    = Math.pow(2, OConfig.codeBitsPerVar);
         const opMask  = Num.OPERATOR_MASK_OFF;
 
@@ -395,8 +376,8 @@ class Operators {
     static _compileToMem() {
         const bpv    = OConfig.codeBitsPerVar;
         const ops    = this._compiledOperators;
-        const h      = this._toHexNum;
-        const b      = this._toBinStr;
+        const h      = Helper.toHexNum;
+        const b      = Helper.toBinStr;
         const vars   = Math.pow(2, bpv);
         const memLen = Math.pow(2, OConfig.orgMemBits) - 1;
 
@@ -425,8 +406,8 @@ class Operators {
     static _compileFromMem() {
         const bpv    = OConfig.codeBitsPerVar;
         const ops    = this._compiledOperators;
-        const h      = this._toHexNum;
-        const b      = this._toBinStr;
+        const h      = Helper.toHexNum;
+        const b      = Helper.toBinStr;
         const vars   = Math.pow(2, bpv);
         const memLen = Math.pow(2, OConfig.orgMemBits) - 1;
 
