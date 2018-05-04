@@ -219,6 +219,42 @@ describe("client/src/vm/Operators", () => {
                 expect(ops.operators[h('100001 011')].call(ops, 1, h('100001 011 001 00000000000000000000'))).toEqual(2);
                 expect(ops.operators[h('100001 001')].call(ops, 100, h('100001 001 011 00000000000000000000'))).toEqual(101);
             });
+            it('Garbage in a tail should not affect vars', () => {
+                expect(ops.operators[h('100001 000')].call(ops, 0, h('100001 000 001 11111111111111111111'))).toEqual(1);
+                expect(ops.vars).toEqual([1,1,2,3,4,5,6,7]);
+                expect(ops.operators[h('100001 000')].call(ops, 1, h('100001 000 000 11111111111111111111'))).toEqual(2);
+                expect(ops.vars).toEqual([0,1,2,3,4,5,6,7]);
+            });
+        });
+    });
+
+    describe('conditions 2bits per var', () => {
+        it('if(v3!==v3) should be false', () => {
+            const code = [
+                h('100010 11 11 1110 000000000000000000'), // if (v3!==v3) {
+                h('100000 00 01 1111111111111111111111'),  //     v0 = v1
+                h('101000 00000000000000000000000000')     // }
+            ];
+            ops.updateIndexes(code);
+            expect(ops.operators[h('100010 11 11 1110')].call(ops, 0)).toEqual(3);
+        });
+        it('if(v0+v1) should be true', () => {
+            const code = [
+                h('100010 00 01 0000 000000000000000000'), // if (v0+v1) {
+                h('100000 00 01 1111111111111111111111'),  //     v0 = v1
+                h('101000 00000000000000000000000000')     // }
+            ];
+            ops.updateIndexes(code);
+            expect(ops.operators[h('100010 11 11 0000')].call(ops, 0)).toEqual(1);
+        });
+        it('if(v3===v3) should be false', () => {
+            const code = [
+                h('100010 11 11 1101 000000000000000000'), // if (v3===v3) {
+                h('100000 00 01 1111111111111111111111'),  //     v0 = v1
+                h('101000 00000000000000000000000000')     // }
+            ];
+            ops.updateIndexes(code);
+            expect(ops.operators[h('100010 11 11 1101')].call(ops, 0)).toEqual(1);
         });
     });
 });
