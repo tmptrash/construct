@@ -62,7 +62,7 @@ describe("client/src/vm/Operators", () => {
         });
     });
 
-    describe('var', () => {
+    describe('vars 2bits per var', () => {
         it('Checks v0=v1', () => {
             expect(ops.operators[h('100000 00 01')].call(ops, 0)).toEqual(1);
             expect(ops.vars).toEqual([1,1,2,3]);
@@ -84,7 +84,14 @@ describe("client/src/vm/Operators", () => {
             expect(ops.operators[h('100000 11 01')].call(ops, 1)).toEqual(2);
             expect(ops.operators[h('100000 01 11')].call(ops, 100)).toEqual(101);
         });
-        describe('var', () => {
+        it('Garbage in a tail should not affect vars', () => {
+            expect(ops.operators[h('100000 00 01')].call(ops, 0, h('100000 00 01 111111111111111111111'))).toEqual(1);
+            expect(ops.vars).toEqual([1,1,2,3]);
+            expect(ops.operators[h('100000 00 00')].call(ops, 0, h('100000 00 00 111111111111111111111'))).toEqual(1);
+            expect(ops.vars).toEqual([1,1,2,3]);
+        });
+
+        describe('vars 3bits per var', () => {
             let bpv;
             let ops;
             let vars;
@@ -129,10 +136,16 @@ describe("client/src/vm/Operators", () => {
                 expect(ops.operators[h('100000 011 001')].call(ops, 1)).toEqual(2);
                 expect(ops.operators[h('100000 001 011')].call(ops, 100)).toEqual(101);
             });
+            it('Garbage in a tail should not affect vars', () => {
+                expect(ops.operators[h('100000 000 001')].call(ops, 0, h('100000 000 001 11111111111111111111'))).toEqual(1);
+                expect(ops.vars).toEqual([1,1,2,3,4,5,6,7]);
+                expect(ops.operators[h('100000 000 000')].call(ops, 0, h('100000 000 000 11111111111111111111'))).toEqual(1);
+                expect(ops.vars).toEqual([1,1,2,3,4,5,6,7]);
+            });
         });
     });
 
-    describe('const', () => {
+    describe('consts 2bits per var', () => {
         it('Checks v0=1', () => {
             expect(ops.operators[h('100001 00')].call(ops, 0, h('100001 00 001 000000000000000000000'))).toEqual(1);
             expect(ops.vars).toEqual([1,1,2,3]);
@@ -154,7 +167,14 @@ describe("client/src/vm/Operators", () => {
             expect(ops.operators[h('100001 11')].call(ops, 1, h('100001 11 001 000000000000000000000'))).toEqual(2);
             expect(ops.operators[h('100001 01')].call(ops, 100, h('100001 01 011 000000000000000000000'))).toEqual(101);
         });
-        describe('var', () => {
+        it('Garbage in a tail should not affect vars', () => {
+            expect(ops.operators[h('100001 00')].call(ops, 0, h('100001 00 001 111111111111111111111'))).toEqual(1);
+            expect(ops.vars).toEqual([1,1,2,3]);
+            expect(ops.operators[h('100001 00')].call(ops, 1, h('100001 00 000 111111111111111111111'))).toEqual(2);
+            expect(ops.vars).toEqual([0,1,2,3]);
+        });
+
+        describe('consts 3bits per var', () => {
             let bpv;
             let ops;
             let vars;
