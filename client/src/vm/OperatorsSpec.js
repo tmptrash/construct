@@ -247,14 +247,67 @@ describe("client/src/vm/Operators", () => {
             ops.updateIndexes(code);
             expect(ops.operators[h('100010 11 11 0000')].call(ops, 0)).toEqual(1);
         });
-        it('if(v3===v3) should be false', () => {
+        it('if(v0<=v0) should be false', () => {
             const code = [
-                h('100010 11 11 1101 000000000000000000'), // if (v3===v3) {
+                h('100010 00 00 1111 000000000000000000'), // if (v0<=v0) {
                 h('100000 00 01 1111111111111111111111'),  //     v0 = v1
                 h('101000 00000000000000000000000000')     // }
             ];
             ops.updateIndexes(code);
-            expect(ops.operators[h('100010 11 11 1101')].call(ops, 0)).toEqual(1);
+            expect(ops.operators[h('100010 00 00 1111')].call(ops, 0)).toEqual(1);
         });
+
+        // describe('ifs 3bits per var', () => {
+        //     let bpv;
+        //     let ops;
+        //     let vars;
+        //     let offs;
+        //     beforeAll (() => {
+        //         bpv  = OConfig.codeBitsPerVar;
+        //         OConfig.codeBitsPerVar = 3;
+        //         Operators.compile();
+        //     });
+        //     afterAll  (() => Operators.compile());
+        //     beforeEach(() => {
+        //         vars = [0,1,2,3,4,5,6,7];
+        //         offs = new Array(10);
+        //         ops  = new Operators(offs, vars);
+        //     });
+        //     afterEach (() => {
+        //         ops.destroy();
+        //         ops  = null;
+        //         offs = null;
+        //         vars = null;
+        //         OConfig.codeBitsPerVar = bpv;
+        //     });
+        //
+        //     it('Checks v0=1', () => {
+        //         expect(ops.operators[h('100001 000')].call(ops, 0, h('100001 000 001 00000000000000000000'))).toEqual(1);
+        //         expect(ops.vars).toEqual([1,1,2,3,4,5,6,7]);
+        //     });
+        //     it('Checks v0=0', () => {
+        //         expect(ops.operators[h('100001 000')].call(ops, 0, h('100001 000 000 00000000000000000000'))).toEqual(1);
+        //         expect(ops.vars).toEqual([0,1,2,3,4,5,6,7]);
+        //     });
+        //     it('Checks v0=3', () => {
+        //         expect(ops.operators[h('100001 000')].call(ops, 0, h('100001 000 011 00000000000000000000'))).toEqual(1);
+        //         expect(ops.vars).toEqual([3,1,2,3,4,5,6,7]);
+        //     });
+        //     it('Checks v7=7', () => {
+        //         expect(ops.operators[h('100001 111')].call(ops, 0, h('100001 000 111 00000000000000000000'))).toEqual(1);
+        //         expect(ops.vars).toEqual([0,1,2,3,4,5,6,7]);
+        //     });
+        //     it('Checks correct line return', () => {
+        //         expect(ops.operators[h('100001 011')].call(ops, 0, h('100001 011 011 00000000000000000000'))).toEqual(1);
+        //         expect(ops.operators[h('100001 011')].call(ops, 1, h('100001 011 001 00000000000000000000'))).toEqual(2);
+        //         expect(ops.operators[h('100001 001')].call(ops, 100, h('100001 001 011 00000000000000000000'))).toEqual(101);
+        //     });
+        //     it('Garbage in a tail should not affect vars', () => {
+        //         expect(ops.operators[h('100001 000')].call(ops, 0, h('100001 000 001 11111111111111111111'))).toEqual(1);
+        //         expect(ops.vars).toEqual([1,1,2,3,4,5,6,7]);
+        //         expect(ops.operators[h('100001 000')].call(ops, 1, h('100001 000 000 11111111111111111111'))).toEqual(2);
+        //         expect(ops.vars).toEqual([0,1,2,3,4,5,6,7]);
+        //     });
+        // });
     });
 });
