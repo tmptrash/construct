@@ -33,7 +33,7 @@ describe("client/src/vm/Operators", () => {
         vars = null;
     });
 
-    xdescribe('Creation and destroy', () => {
+    describe('Creation and destroy', () => {
         it('Checks creation', () => {
             expect(ops.offs).toEqual(offs);
             expect(ops.vars).toEqual(vars);
@@ -62,7 +62,7 @@ describe("client/src/vm/Operators", () => {
         });
     });
 
-    xdescribe('vars 2bits per var', () => {
+    describe('vars 2bits per var', () => {
         it('Checks v0=v1', () => {
             expect(ops.operators[h('100000 00 01')].call(ops, 0)).toEqual(1);
             expect(ops.vars).toEqual([1,1,2,3]);
@@ -145,7 +145,7 @@ describe("client/src/vm/Operators", () => {
         });
     });
 
-    xdescribe('consts 2bits per var', () => {
+    describe('consts 2bits per var', () => {
         it('Checks v0=1', () => {
             expect(ops.operators[h('100001 00')].call(ops, 0, h('100001 00 001 000000000000000000000'))).toEqual(1);
             expect(ops.vars).toEqual([1,1,2,3]);
@@ -228,7 +228,7 @@ describe("client/src/vm/Operators", () => {
         });
     });
 
-    xdescribe('ifs 2bits per var', () => {
+    describe('ifs 2bits per var', () => {
         it('if(v3!==v3) should be false', () => {
             const code = [
                 h('100010 11 11 1110 000000000000000000'), // if (v3!==v3) {
@@ -300,6 +300,14 @@ describe("client/src/vm/Operators", () => {
             ];
             ops.updateIndexes(code);
             expect(ops.operators[h('100010 11 11 1101')].call(ops, 0)).toEqual(1);
+        });
+        it('Garbage in a tail should not affect if', () => {
+            const code = [
+                h('100010 00 00 1101 111111111111111111'), // if (v0===v0) {
+                h('100000 00 01 1111111111111111111111')   //     v0 = v1
+            ];
+            ops.updateIndexes(code);
+            expect(ops.operators[h('100010 00 00 1101')].call(ops, 0)).toEqual(1);
         });
 
         describe('ifs 3bits per var', () => {
@@ -399,6 +407,14 @@ describe("client/src/vm/Operators", () => {
                 ops.updateIndexes(code);
                 expect(ops.operators[h('100010 011 011 1101')].call(ops, 0)).toEqual(1);
             });
+            it('Garbage in a tail should not affect if', () => {
+                const code = [
+                    h('100010 000 000 1101 1111111111111111'), // if (v0===v0) {
+                    h('100000 000 001 11111111111111111111')   //     v0 = v1
+                ];
+                ops.updateIndexes(code);
+                expect(ops.operators[h('100010 000 000 1101')].call(ops, 0)).toEqual(1);
+            });
         });
     });
 
@@ -432,6 +448,62 @@ describe("client/src/vm/Operators", () => {
             expect(ops.operators[h('100000 00 01')].call(ops, 1)).toEqual(2);
             expect(ops.operators[h('101000')].call(ops, 2, code[2], {}, code)).toEqual(0);
             expect(ops.operators[h('100011 00 01 1110')].call(ops, 0)).toEqual(3);
+        });
+
+        describe('loops 3bits per var', () => {
+            let bpv;
+            let ops;
+            let vars;
+            let offs;
+            beforeAll (() => {
+                bpv  = OConfig.codeBitsPerVar;
+                OConfig.codeBitsPerVar = 3;
+                Operators.compile();
+            });
+            afterAll  (() => Operators.compile());
+            beforeEach(() => {
+                vars = [0,1,2,3,4,5,6,7];
+                offs = new Array(10);
+                ops  = new Operators(offs, vars);
+            });
+            afterEach (() => {
+                ops.destroy();
+                ops  = null;
+                offs = null;
+                vars = null;
+                OConfig.codeBitsPerVar = bpv;
+            });
+
+            it('while() with false condition should go outside the closed bracket', () => {
+                const code = [
+                    h('100011 011 011 1110 0000000000000000'), // while (v3!==v3) {
+                    h('100000 000 001 11111111111111111111'),  //     v0 = v1
+                    h('101000 00000000000000000000000000')     // }
+                ];
+                ops.updateIndexes(code);
+                expect(ops.operators[h('100011 011 011 1110')].call(ops, 0)).toEqual(3);
+            });
+            it('while() with true condition should go to the next line', () => {
+                const code = [
+                    h('100011 011 011 1101 0000000000000000'), // while (v3===v3) {
+                    h('100000 000 001 11111111111111111111'),  //     v0 = v1
+                    h('101000 00000000000000000000000000')     // }
+                ];
+                ops.updateIndexes(code);
+                expect(ops.operators[h('100011 011 011 1101')].call(ops, 0)).toEqual(1);
+            });
+            it('while() with true at the beginning and false after', () => {
+                const code = [
+                    h('100011 000 001 1110 0000000000000000'), // while (v0!==v1) {
+                    h('100000 000 001 11111111111111111111'),  //     v0 = v1
+                    h('101000 00000000000000000000000000')     // }
+                ];
+                ops.updateIndexes(code);
+                expect(ops.operators[h('100011 000 001 1110')].call(ops, 0)).toEqual(1);
+                expect(ops.operators[h('100000 000 001')].call(ops, 1)).toEqual(2);
+                expect(ops.operators[h('101000')].call(ops, 2, code[2], {}, code)).toEqual(0);
+                expect(ops.operators[h('100011 000 001 1110')].call(ops, 0)).toEqual(3);
+            });
         });
     });
 });
