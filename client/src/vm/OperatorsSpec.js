@@ -449,6 +449,24 @@ describe("client/src/vm/Operators", () => {
             expect(ops.operators[h('101000')].call(ops, 2, code[2], {}, code)).toEqual(0);
             expect(ops.operators[h('100011 00 01 1110')].call(ops, 0)).toEqual(3);
         });
+        it('Garbage in a tail of command should not affect values', () => {
+            const code = [
+                h('100011 11 11 1110 111111111111111111'), // while (v3!==v3) {
+                h('100000 00 01 1111111111111111111111'),  //     v0 = v1
+                h('101000 11111111111111111111111111')     // }
+            ];
+            ops.updateIndexes(code);
+            expect(ops.operators[h('100011 11 11 1110')].call(ops, 0)).toEqual(3);
+        });
+        it('Garbage in a tail of command should not affect values 2', () => {
+            const code = [
+                h('100011 11 11 1101 111111111111111111'), // while (v3===v3) {
+                h('100000 00 01 1111111111111111111111'),  //     v0 = v1
+                h('101000 11111111111111111111111111')     // }
+            ];
+            ops.updateIndexes(code);
+            expect(ops.operators[h('100011 11 11 1101')].call(ops, 0)).toEqual(1);
+        });
 
         describe('loops 3bits per var', () => {
             let bpv;
@@ -503,6 +521,24 @@ describe("client/src/vm/Operators", () => {
                 expect(ops.operators[h('100000 000 001')].call(ops, 1)).toEqual(2);
                 expect(ops.operators[h('101000')].call(ops, 2, code[2], {}, code)).toEqual(0);
                 expect(ops.operators[h('100011 000 001 1110')].call(ops, 0)).toEqual(3);
+            });
+            it('Garbage in a tail of command should not affect values', () => {
+                const code = [
+                    h('100011 011 011 1110 1111111111111111'), // while (v3!==v3) {
+                    h('100000 000 001 11111111111111111111'),  //     v0 = v1
+                    h('101000 11111111111111111111111111')     // }
+                ];
+                ops.updateIndexes(code);
+                expect(ops.operators[h('100011 011 011 1110')].call(ops, 0)).toEqual(3);
+            });
+            it('Garbage in a tail of command should not affect values 2', () => {
+                const code = [
+                    h('100011 011 011 1101 1111111111111111'), // while (v3===v3) {
+                    h('100000 000 001 11111111111111111111'),  //     v0 = v1
+                    h('101000 11111111111111111111111111')     // }
+                ];
+                ops.updateIndexes(code);
+                expect(ops.operators[h('100011 011 011 1101')].call(ops, 0)).toEqual(1);
             });
         });
     });
