@@ -188,7 +188,7 @@ class Operators {
      * depends on configuration. '...' means, that all other bits are
      * ignored. Example:
      *
-     * bits  :      6 xx xx  2
+     * bits  :      6 xx xx  4
      * number: 100011 00 01 00...
      * string: while (v0 < v1) {
      */
@@ -346,7 +346,7 @@ class Operators {
 
         eval(`Operators.global.fn = function bracket(line, num, org, lines) {
             const startLine = this.offs[line];
-            const operator  = (lines[startLine] & ${opMask}) >>> Num.VAR_BITS_OFFS;
+            const operator  = typeof startLine === 'undefined' ? -1 : (lines[startLine] & ${opMask}) >>> Num.VAR_BITS_OFFS;
             if (operator === 0x3) {return this.offs[line]} // loop
             if (operator === 0x5) {                        // func
                 const stack = this.stack;
