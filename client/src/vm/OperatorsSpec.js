@@ -3,7 +3,8 @@ const OConfig   = require('./../manager/plugins/organisms/Config');
 const Helper    = require('./../../../common/src/Helper');
 
 describe("client/src/vm/Operators", () => {
-    const h = Helper.toHexNum;
+    const h       = Helper.toHexNum;
+    const MAX_NUM = Number.MAX_VALUE;
     let   cbpv;
     let   ccb;
     let   ops;
@@ -540,6 +541,94 @@ describe("client/src/vm/Operators", () => {
                 ops.updateIndexes(code);
                 expect(ops.operators[h('100011 011 011 1101')].call(ops, 0)).toEqual(1);
             });
+        });
+    });
+
+    describe('operators 2bits per var', () => {
+        it('Checks + operator', () => {
+            expect(ops.operators[h('100100 00 01 10 0000')].call(ops, 0)).toEqual(1); // v0 = v1 + v2
+            expect(ops.vars).toEqual([3,1,2,3]);
+        });
+        it('Checks + operator', () => {
+            ops.vars[1] = ops.vars[2] = MAX_NUM;
+            expect(ops.operators[h('100100 00 01 10 0000')].call(ops, 0)).toEqual(1); // v0 = v1 + v2
+            expect(ops.vars).toEqual([MAX_NUM,MAX_NUM,MAX_NUM,3]);
+        });
+        it('Checks + operator', () => {
+            ops.vars[1] = ops.vars[2] = 0;
+            expect(ops.operators[h('100100 00 01 10 0000')].call(ops, 0)).toEqual(1); // v0 = v1 + v2
+            expect(ops.vars).toEqual([0,0,0,3]);
+        });
+        it('Checks + operator', () => {
+            ops.vars[1] = ops.vars[2] = -1;
+            expect(ops.operators[h('100100 00 01 10 0000')].call(ops, 0)).toEqual(1); // v0 = v1 + v2
+            expect(ops.vars).toEqual([-2,-1,-1,3]);
+        });
+        it('Checks - operator', () => {
+            expect(ops.operators[h('100100 00 01 10 0001')].call(ops, 0)).toEqual(1); // v0 = v1 - v2
+            expect(ops.vars).toEqual([-1,1,2,3]);
+        });
+        it('Checks - operator', () => {
+            ops.vars[1] = ops.vars[2] = -1;
+            expect(ops.operators[h('100100 00 01 10 0001')].call(ops, 0)).toEqual(1); // v0 = v1 - v2
+            expect(ops.vars).toEqual([0,-1,-1,3]);
+        });
+        it('Checks - operator', () => {
+            ops.vars[1] = -MAX_NUM;
+            ops.vars[2] =  MAX_NUM;
+            expect(ops.operators[h('100100 00 01 10 0001')].call(ops, 0)).toEqual(1); // v0 = v1 - v2
+            expect(ops.vars).toEqual([-MAX_NUM,-MAX_NUM,MAX_NUM,3]);
+        });
+        it('Checks * operator', () => {
+            expect(ops.operators[h('100100 00 01 10 0010')].call(ops, 0)).toEqual(1); // v0 = v1 * v2
+            expect(ops.vars).toEqual([2,1,2,3]);
+        });
+        it('Checks * operator', () => {
+            ops.vars[1] = ops.vars[2] = -1;
+            expect(ops.operators[h('100100 00 01 10 0010')].call(ops, 0)).toEqual(1); // v0 = v1 * v2
+            expect(ops.vars).toEqual([1,-1,-1,3]);
+        });
+        it('Checks * operator', () => {
+            ops.vars[1] = -1;
+            expect(ops.operators[h('100100 00 01 10 0010')].call(ops, 0)).toEqual(1); // v0 = v1 * v2
+            expect(ops.vars).toEqual([-2,-1,2,3]);
+        });
+        it('Checks * operator', () => {
+            ops.vars[1] = ops.vars[2] = MAX_NUM;
+            expect(ops.operators[h('100100 00 01 10 0010')].call(ops, 0)).toEqual(1); // v0 = v1 * v2
+            expect(ops.vars).toEqual([MAX_NUM,MAX_NUM,MAX_NUM,3]);
+        });
+        it('Checks * operator', () => {
+            ops.vars[1] =  MAX_NUM;
+            ops.vars[2] = -MAX_NUM;
+            expect(ops.operators[h('100100 00 01 10 0010')].call(ops, 0)).toEqual(1); // v0 = v1 * v2
+            expect(ops.vars).toEqual([MAX_NUM,MAX_NUM,-MAX_NUM,3]);
+        });
+        it('Checks / operator', () => {
+            expect(ops.operators[h('100100 00 01 10 0011')].call(ops, 0)).toEqual(1); // v0 = v1 / v2
+            expect(ops.vars).toEqual([.5,1,2,3]);
+        });
+        it('Checks / operator', () => {
+            ops.vars[1] =  1;
+            ops.vars[2] = -1;
+            expect(ops.operators[h('100100 00 01 10 0011')].call(ops, 0)).toEqual(1); // v0 = v1 / v2
+            expect(ops.vars).toEqual([-1,1,-1,3]);
+        });
+        it('Checks / operator', () => {
+            ops.vars[1] = -1;
+            ops.vars[2] = -1;
+            expect(ops.operators[h('100100 00 01 10 0011')].call(ops, 0)).toEqual(1); // v0 = v1 / v2
+            expect(ops.vars).toEqual([1,-1,-1,3]);
+        });
+        it('Checks / operator', () => {
+            ops.vars[1] = -MAX_NUM;
+            ops.vars[2] =  MAX_NUM;
+            expect(ops.operators[h('100100 00 01 10 0011')].call(ops, 0)).toEqual(1); // v0 = v1 / v2
+            expect(ops.vars).toEqual([-1,-MAX_NUM,MAX_NUM,3]);
+        });
+        it('Checks / operator', () => {
+            expect(ops.operators[h('100100 01 10 00 0011')].call(ops, 0)).toEqual(1); // v1 = v2 / v0
+            expect(ops.vars).toEqual([0,MAX_NUM,2,3]);
         });
     });
 });
