@@ -630,5 +630,40 @@ describe("client/src/vm/Operators", () => {
             expect(ops.operators[h('100100 01 10 00 0011')].call(ops, 0)).toEqual(1); // v1 = v2 / v0
             expect(ops.vars).toEqual([0,MAX_NUM,2,3]);
         });
+        it('Checks % operator', () => {
+            expect(ops.operators[h('100100 00 01 10 0100')].call(ops, 0)).toEqual(1); // v0 = v1 % v2
+            expect(ops.vars).toEqual([1,1,2,3]);
+        });
+        it('Checks % operator', () => {
+            ops.vars[2] = 0;
+            expect(ops.operators[h('100100 00 01 10 0100')].call(ops, 0)).toEqual(1); // v0 = v1 % v2
+            expect(ops.vars).toEqual([0,1,0,3]);
+        });
+        it('Checks & operator', () => {
+            expect(ops.operators[h('100100 00 01 10 0101')].call(ops, 0)).toEqual(1); // v0 = v1 & v2
+            expect(ops.vars).toEqual([0,1,2,3]);
+        });
+        it('Checks & operator', () => {
+            expect(ops.operators[h('100100 10 01 00 0101')].call(ops, 0)).toEqual(1); // v2 = v1 & v0
+            expect(ops.vars).toEqual([0,1,0,3]);
+        });
+        it('Checks & operator', () => {
+            expect(ops.operators[h('100100 10 01 01 0101')].call(ops, 0)).toEqual(1); // v2 = v1 & v1
+            expect(ops.vars).toEqual([0,1,1,3]);
+        });
+        it('Checks < operator', () => {
+            expect(ops.operators[h('100100 10 01 01 1011')].call(ops, 0)).toEqual(1); // v2 = v1 < v1
+            expect(ops.vars).toEqual([0,1,0,3]);
+        });
+        it('Checks < operator', () => {
+            expect(ops.operators[h('100100 00 01 10 1011')].call(ops, 0)).toEqual(1); // v0 = v1 < v2
+            expect(ops.vars).toEqual([1,1,2,3]);
+        });
+        it('Checks < operator', () => {
+            ops.vars[1] = -1;
+            ops.vars[2] = -2;
+            expect(ops.operators[h('100100 00 01 10 1011')].call(ops, 0)).toEqual(1); // v0 = v1 < v2
+            expect(ops.vars).toEqual([0,-1,-2,3]);
+        });
     });
 });
