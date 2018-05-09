@@ -28,7 +28,7 @@ class Operators {
          */
         this.FOUR_BITS          = 4;
         this.CONDITION_BITS     = 4;
-        this.FUNC_NAME_BITS     = 10;
+        this.FUNC_NAME_BITS     = 8;
         /**
          * {Array} Available conditions for if operator
          */
@@ -249,11 +249,11 @@ class Operators {
      * Compiles all variants of function operator and stores they in
      * this._compiledOperators map. 'xx' means, that amount of bits
      * depends on configuration. '...' means, that all other bits are
-     * ignored. Function name consists of 10 bits. Example:
+     * ignored. Function name(index) consists of 8 bits. Example:
      *
-     * bits  :      6         10
-     * number: 100101 0000000001...
-     * string: func n
+     * bits  :      6
+     * number: 100101...
+     * string: func
      */
     static _compileFunc() {
         const ops    = this._compiledOperators;
@@ -271,8 +271,8 @@ class Operators {
      * used as function name. If 1 then hard coded functions name will be
      * get from byte-code. Function name consists of 10 bits. Example:
      *
-     * bits  :      6 1         10
-     * number: 100110 0 0000000001...
+     * bits  :      6 1        8
+     * number: 100110 1 00000001...
      * string: call v1
      */
     static _compileFuncCall() {
@@ -286,7 +286,7 @@ class Operators {
 
         eval(`Operators.global.fn = function call(line, num, org) {
             const data = num << ${opBits};
-            const offs = this.funcs[(data >>> ${ifBit}) & 1 === 0 ? ((this.vars[data >>> ${varBits}] + .5) << 0 >>> 0) % ${funcs} : data >>> ${fnBits}];
+            const offs = this.funcs[(data >>> ${ifBit}) & 1 === 0 ? ((this.vars[data << 1 >>> ${varBits}] + .5) << 0 >>> 0) % ${funcs} : data << 1 >>> ${fnBits}];
             if (typeof offs !== 'undefined') {
                 if (this.stack.length > ${MAX_STACK_SIZE} * 3) {
                     org.energy -= org.vm.size;
@@ -453,6 +453,7 @@ class Operators {
         const offs    = this.offs;
         const funcs   = this.funcs = new Array(this._MAX_FUNC_AMOUNT);
         const blocks  = [];
+        let   func    = 0;
 
         this.stack = [];
         for (let i = 0; i < len; i++) {
@@ -464,7 +465,7 @@ class Operators {
             }
             if (operator === 0x5) {                     // func
                 offs[i] = i;
-                funcs.push(i + 1);
+                funcs[func++] = i + 1;
                 blocks.push(i);
                 continue;
             }
