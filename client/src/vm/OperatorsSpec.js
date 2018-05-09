@@ -1001,5 +1001,17 @@ describe("client/src/vm/Operators", () => {
             expect(ops.operators[h('101000')].call(ops, 2, code[2], {}, code)).toEqual(4);
             expect(ops.vars).toEqual([0,1,2,3]);
         });
+        it('func inside func should be callable', () => {
+            const code = [
+                h('100101 00000000000000000000000000'),    // func 0 {
+                h('100101 00000000000000000000000000'),    //   func 1 {
+                h('101000 00000000000000000000000000'),    //   }
+                h('101000 00000000000000000000000000'),    // }
+                h('100110 1 00000001 00000000000000000')   // call 1()
+            ];
+            ops.updateIndexes(code);
+            expect(ops.operators[h('100110')].call(ops, 4, code[4], {}, code)).toEqual(2);
+            expect(ops.operators[h('101000')].call(ops, 2, code[2], {}, code)).toEqual(5);
+        });
     });
 });
