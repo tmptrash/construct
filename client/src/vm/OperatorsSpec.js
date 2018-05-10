@@ -1025,6 +1025,17 @@ describe("client/src/vm/Operators", () => {
             expect(ops.operators[h('100110')].call(ops, 4, code[4], {}, code)).toEqual(2);
             expect(ops.operators[h('101000')].call(ops, 2, code[2], {}, code)).toEqual(5);
         });
+        it('undefined func should not be callable through var', () => {
+            const code = [
+                h('100101 00000000000000000000000000'),    // func 0 {
+                h('100101 00000000000000000000000000'),    //   func 1 {
+                h('101000 00000000000000000000000000'),    //   }
+                h('101000 00000000000000000000000000'),    // }
+                h('100110 0 10 00000000000000000000000')   // call v1()
+            ];
+            ops.updateIndexes(code);
+            expect(ops.operators[h('100110')].call(ops, 4, code[4], {}, code)).toEqual(5);
+        });
     });
 
     describe('return', () => {
@@ -1082,6 +1093,19 @@ describe("client/src/vm/Operators", () => {
             ops.updateIndexes(code);
             expect(ops.operators[h('100110')].call(ops, 5, code[5], {}, code)).toEqual(2);
             expect(ops.operators[h('100111')].call(ops, 2, code[2], {}, code)).toEqual(6);
+        });
+        it('Two return inside func should jump outside of it', () => {
+            const code = [
+                h('100101 00000000000000000000000000'),    // func 0() {
+                h('100111 00000000000000000000000000'),    //   return
+                h('100111 00000000000000000000000000'),    //   return
+                h('101000 00000000000000000000000000'),    // }
+                h('100110 1 00000000 00000000000000000')   // call 0()
+            ];
+            ops.updateIndexes(code);
+            expect(ops.operators[h('100101')].call(ops, 0)).toEqual(4);
+            expect(ops.operators[h('100110')].call(ops, 4, code[4], {}, code)).toEqual(1);
+            expect(ops.operators[h('100111')].call(ops, 1, code[1], {}, code)).toEqual(5);
         });
     });
 });
