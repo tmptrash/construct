@@ -1028,5 +1028,12 @@ describe("client/src/vm/Operators", () => {
             expect(ops.operators[h('100110')].call(ops, 3, code[3], {}, code)).toEqual(1);
             expect(ops.operators[h('100111')].call(ops, 1, code[1], {}, code)).toEqual(4);
         });
+        it('Func call should work', () => {
+            const code = [
+                h('100111 00000000000000000000000000')     // return
+            ];
+            ops.updateIndexes(code);
+            expect(ops.operators[h('100111')].call(ops, 0)).toEqual(0);
+        });
     });
 });
