@@ -281,12 +281,12 @@ class Operators {
         const ifBit   = Num.MAX_BITS - 1;
         const fnBits  = Num.MAX_BITS - this.FUNC_NAME_BITS;
         const funcs   = Math.pow(2, this.FUNC_NAME_BITS);
-        const varBits = Num.MAX_BITS - OConfig.codeBitsPerVar - 1;
+        const varBits = Num.MAX_BITS - OConfig.codeBitsPerVar;
         const opBits  = Num.BITS_PER_OPERATOR;
 
         eval(`Operators.global.fn = function call(line, num, org) {
             const data = num << ${opBits};
-            const offs = this.funcs[(data >>> ${ifBit}) & 1 === 0 ? ((this.vars[data << 1 >>> ${varBits}] + .5) << 0 >>> 0) % ${funcs} : data << 1 >>> ${fnBits}];
+            const offs = this.funcs[data >>> ${ifBit} === 0 ? Math.round(this.vars[data << 1 >>> ${varBits}]) % ${funcs} : data << 1 >>> ${fnBits}];
             if (typeof offs !== 'undefined') {
                 if (this.stack.length > ${MAX_STACK_SIZE}) {
                     org.energy -= org.vm.size;
