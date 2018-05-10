@@ -34,7 +34,7 @@ describe("client/src/vm/Operators", () => {
         vars = null;
     });
 
-    xdescribe('Creation and destroy', () => {
+    describe('Creation and destroy', () => {
         it('Checks creation', () => {
             expect(ops.offs).toEqual(offs);
             expect(ops.vars).toEqual(vars);
@@ -63,7 +63,7 @@ describe("client/src/vm/Operators", () => {
         });
     });
 
-    xdescribe('vars 2bits per var', () => {
+    describe('vars 2bits per var', () => {
         it('Checks v0=v1', () => {
             expect(ops.operators[h('100000 00 01')].call(ops, 0)).toEqual(1);
             expect(ops.vars).toEqual([1,1,2,3]);
@@ -146,7 +146,7 @@ describe("client/src/vm/Operators", () => {
         });
     });
 
-    xdescribe('consts 2bits per var', () => {
+    describe('consts 2bits per var', () => {
         it('Checks v0=1', () => {
             expect(ops.operators[h('100001 00')].call(ops, 0, h('100001 00 001 000000000000000000000'))).toEqual(1);
             expect(ops.vars).toEqual([1,1,2,3]);
@@ -229,7 +229,7 @@ describe("client/src/vm/Operators", () => {
         });
     });
 
-    xdescribe('ifs 2bits per var', () => {
+    describe('ifs 2bits per var', () => {
         it('if(v3!==v3) should be false', () => {
             const code = [
                 h('100010 11 11 1110 000000000000000000'), // if (v3!==v3) {
@@ -419,7 +419,7 @@ describe("client/src/vm/Operators", () => {
         });
     });
 
-    xdescribe('loops 2bits per var', () => {
+    describe('loops 2bits per var', () => {
         it('while() with false condition should go outside the closed bracket', () => {
             const code = [
                 h('100011 11 11 1110 000000000000000000'), // while (v3!==v3) {
@@ -544,7 +544,7 @@ describe("client/src/vm/Operators", () => {
         });
     });
 
-    xdescribe('operators 2bits per var', () => {
+    describe('operators 2bits per var', () => {
         it('Checks + operator', () => {
             expect(ops.operators[h('100100 00 01 10 0000')].call(ops, 0)).toEqual(1); // v0 = v1 + v2
             expect(ops.vars).toEqual([3,1,2,3]);
@@ -813,7 +813,7 @@ describe("client/src/vm/Operators", () => {
         });
     });
 
-    xdescribe('function declaration 2bits per var', () => {
+    describe('function declaration 2bits per var', () => {
         it('Func declaration should be skipped during run', () => {
             const code = [
                 h('100101 00000001 000000000000000000'),   // func 1() {
@@ -974,7 +974,7 @@ describe("client/src/vm/Operators", () => {
         });
     });
 
-    xdescribe('function call', () => {
+    describe('function call', () => {
         it('Func call should work', () => {
             const code = [
                 h('100101 00000000000000000000000000'),    // func 0() {
@@ -1016,7 +1016,7 @@ describe("client/src/vm/Operators", () => {
     });
 
     describe('return', () => {
-        it('Func call should work', () => {
+        it('return inside func should jump outside of it', () => {
             const code = [
                 h('100101 00000000000000000000000000'),    // func 0() {
                 h('100111 00000000000000000000000000'),    //   return
@@ -1028,12 +1028,20 @@ describe("client/src/vm/Operators", () => {
             expect(ops.operators[h('100110')].call(ops, 3, code[3], {}, code)).toEqual(1);
             expect(ops.operators[h('100111')].call(ops, 1, code[1], {}, code)).toEqual(4);
         });
-        it('Func call should work', () => {
+        it('One return should create infinite loop', () => {
             const code = [
                 h('100111 00000000000000000000000000')     // return
             ];
             ops.updateIndexes(code);
             expect(ops.operators[h('100111')].call(ops, 0)).toEqual(0);
+        });
+        it('return outside the func should jump to zero line', () => {
+            const code = [
+                h('100000 00 01 1111111111111111111111'),  // v0 = v1
+                h('100111 11111111111111111111111111')     // return
+            ];
+            ops.updateIndexes(code);
+            expect(ops.operators[h('100111')].call(ops, 1)).toEqual(0);
         });
     });
 });
