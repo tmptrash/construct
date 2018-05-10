@@ -880,101 +880,101 @@ describe("client/src/vm/Operators", () => {
             ops.updateIndexes(code);
             expect(ops.operators[h('100101')].call(ops, 1)).toEqual(3);
         });
+
+        xdescribe('function declaration 3bits per var', () => {
+            let bpv;
+            let ops;
+            let vars;
+            let offs;
+            beforeAll (() => {
+                bpv  = OConfig.codeBitsPerVar;
+                OConfig.codeBitsPerVar = 3;
+                Operators.compile();
+            });
+            afterAll  (() => Operators.compile());
+            beforeEach(() => {
+                vars = [0,1,2,3,4,5,6,7];
+                offs = new Array(10);
+                ops  = new Operators(offs, vars);
+            });
+            afterEach (() => {
+                ops.destroy();
+                ops  = null;
+                offs = null;
+                vars = null;
+                OConfig.codeBitsPerVar = bpv;
+            });
+
+            it('Func declaration should be skipped during run', () => {
+                const code = [
+                    h('100101 00000001 000000000000000000'),   // func 1() {
+                    h('100000 000 001 11111111111111111111'),  //     v0 = v1
+                    h('101000 00000000000000000000000000')     // }
+                ];
+                ops.updateIndexes(code);
+                expect(ops.operators[h('100101')].call(ops, 0)).toEqual(3);
+            });
+            it('Two func declaration should be skipped during run', () => {
+                const code = [
+                    h('100101 00000001 000000000000000000'),   // func 1 {
+                    h('100000 000 001 11111111111111111111'),  //     v0 = v1
+                    h('101000 00000000000000000000000000'),    // }
+                    h('100101 00000001 000000000000000000'),   // func 2() {
+                    h('100000 000 001 11111111111111111111'),  //     v0 = v1
+                    h('101000 00000000000000000000000000')     // }
+                ];
+                ops.updateIndexes(code);
+                expect(ops.operators[h('100101')].call(ops, 0)).toEqual(3);
+                expect(ops.operators[h('100101')].call(ops, 3)).toEqual(6);
+            });
+            it('func inside func should work', () => {
+                const code = [
+                    h('100101 00000001 000000000000000000'),   // func 1 {
+                    h('100101 00000001 000000000000000000'),   //   func 2 {
+                    h('101000 00000000000000000000000000'),    //   }
+                    h('101000 00000000000000000000000000')     // }
+                ];
+                ops.updateIndexes(code);
+                expect(ops.operators[h('100101')].call(ops, 1)).toEqual(3);
+                expect(ops.operators[h('100101')].call(ops, 0)).toEqual(4);
+            });
+            it('func without closed bracket should work', () => {
+                const code = [
+                    h('100101 00000001 000000000000000000'),   // func 1 {
+                    h('100000 000 001 11111111111111111111')   // v0 = v1
+                ];
+                ops.updateIndexes(code);
+                expect(ops.operators[h('100101')].call(ops, 0)).toEqual(1);
+            });
+            it('one line func should work', () => {
+                const code = [
+                    h('100101 00000001 000000000000000000')    // func 1 {
+                ];
+                ops.updateIndexes(code);
+                expect(ops.operators[h('100101')].call(ops, 0)).toEqual(1);
+            });
+            it('func with two closed brackets should work', () => {
+                const code = [
+                    h('100101 00000001 000000000000000000'),   // func 1 {
+                    h('101000 00000000000000000000000000'),    // }
+                    h('101000 00000000000000000000000000')     // }
+                ];
+                ops.updateIndexes(code);
+                expect(ops.operators[h('100101')].call(ops, 0)).toEqual(2);
+            });
+            it('func with two closed brackets should work', () => {
+                const code = [
+                    h('101000 00000000000000000000000000'),    // }
+                    h('100101 00000001 000000000000000000'),   // func 1 {
+                    h('101000 00000000000000000000000000')     // }
+                ];
+                ops.updateIndexes(code);
+                expect(ops.operators[h('100101')].call(ops, 1)).toEqual(3);
+            });
+        });
     });
 
-    xdescribe('function declaration 3bits per var', () => {
-        let bpv;
-        let ops;
-        let vars;
-        let offs;
-        beforeAll (() => {
-            bpv  = OConfig.codeBitsPerVar;
-            OConfig.codeBitsPerVar = 3;
-            Operators.compile();
-        });
-        afterAll  (() => Operators.compile());
-        beforeEach(() => {
-            vars = [0,1,2,3,4,5,6,7];
-            offs = new Array(10);
-            ops  = new Operators(offs, vars);
-        });
-        afterEach (() => {
-            ops.destroy();
-            ops  = null;
-            offs = null;
-            vars = null;
-            OConfig.codeBitsPerVar = bpv;
-        });
-
-        it('Func declaration should be skipped during run', () => {
-            const code = [
-                h('100101 00000001 000000000000000000'),   // func 1() {
-                h('100000 000 001 11111111111111111111'),  //     v0 = v1
-                h('101000 00000000000000000000000000')     // }
-            ];
-            ops.updateIndexes(code);
-            expect(ops.operators[h('100101')].call(ops, 0)).toEqual(3);
-        });
-        it('Two func declaration should be skipped during run', () => {
-            const code = [
-                h('100101 00000001 000000000000000000'),   // func 1 {
-                h('100000 000 001 11111111111111111111'),  //     v0 = v1
-                h('101000 00000000000000000000000000'),    // }
-                h('100101 00000001 000000000000000000'),   // func 2() {
-                h('100000 000 001 11111111111111111111'),  //     v0 = v1
-                h('101000 00000000000000000000000000')     // }
-            ];
-            ops.updateIndexes(code);
-            expect(ops.operators[h('100101')].call(ops, 0)).toEqual(3);
-            expect(ops.operators[h('100101')].call(ops, 3)).toEqual(6);
-        });
-        it('func inside func should work', () => {
-            const code = [
-                h('100101 00000001 000000000000000000'),   // func 1 {
-                h('100101 00000001 000000000000000000'),   //   func 2 {
-                h('101000 00000000000000000000000000'),    //   }
-                h('101000 00000000000000000000000000')     // }
-            ];
-            ops.updateIndexes(code);
-            expect(ops.operators[h('100101')].call(ops, 1)).toEqual(3);
-            expect(ops.operators[h('100101')].call(ops, 0)).toEqual(4);
-        });
-        it('func without closed bracket should work', () => {
-            const code = [
-                h('100101 00000001 000000000000000000'),   // func 1 {
-                h('100000 000 001 11111111111111111111')   // v0 = v1
-            ];
-            ops.updateIndexes(code);
-            expect(ops.operators[h('100101')].call(ops, 0)).toEqual(1);
-        });
-        it('one line func should work', () => {
-            const code = [
-                h('100101 00000001 000000000000000000')    // func 1 {
-            ];
-            ops.updateIndexes(code);
-            expect(ops.operators[h('100101')].call(ops, 0)).toEqual(1);
-        });
-        it('func with two closed brackets should work', () => {
-            const code = [
-                h('100101 00000001 000000000000000000'),   // func 1 {
-                h('101000 00000000000000000000000000'),    // }
-                h('101000 00000000000000000000000000')     // }
-            ];
-            ops.updateIndexes(code);
-            expect(ops.operators[h('100101')].call(ops, 0)).toEqual(2);
-        });
-        it('func with two closed brackets should work', () => {
-            const code = [
-                h('101000 00000000000000000000000000'),    // }
-                h('100101 00000001 000000000000000000'),   // func 1 {
-                h('101000 00000000000000000000000000')     // }
-            ];
-            ops.updateIndexes(code);
-            expect(ops.operators[h('100101')].call(ops, 1)).toEqual(3);
-        });
-    });
-
-    describe('function call 2bits per var', () => {
+    xdescribe('function call', () => {
         it('Func call should work', () => {
             const code = [
                 h('100101 00000000000000000000000000'),    // func 0() {
@@ -1012,6 +1012,21 @@ describe("client/src/vm/Operators", () => {
             ops.updateIndexes(code);
             expect(ops.operators[h('100110')].call(ops, 4, code[4], {}, code)).toEqual(2);
             expect(ops.operators[h('101000')].call(ops, 2, code[2], {}, code)).toEqual(5);
+        });
+    });
+
+    describe('return', () => {
+        it('Func call should work', () => {
+            const code = [
+                h('100101 00000000000000000000000000'),    // func 0() {
+                h('100111 00000000000000000000000000'),    //   return
+                h('101000 00000000000000000000000000'),    // }
+                h('100110 1 00000000 00000000000000000')   // call 0()
+            ];
+            ops.updateIndexes(code);
+            expect(ops.operators[h('100101')].call(ops, 0)).toEqual(3);
+            expect(ops.operators[h('100110')].call(ops, 3, code[3], {}, code)).toEqual(1);
+            expect(ops.operators[h('100111')].call(ops, 1, code[1], {}, code)).toEqual(4);
         });
     });
 });

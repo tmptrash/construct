@@ -9,7 +9,7 @@ const Num             = require('./Num');
 const Helper          = require('./../../../common/src/Helper');
 
 const OPERATOR_AMOUNT = 11;
-const MAX_STACK_SIZE  = 10000;
+const MAX_STACK_SIZE  = 30000;
 
 class Operators {
     /**
@@ -288,7 +288,7 @@ class Operators {
             const data = num << ${opBits};
             const offs = this.funcs[(data >>> ${ifBit}) & 1 === 0 ? ((this.vars[data << 1 >>> ${varBits}] + .5) << 0 >>> 0) % ${funcs} : data << 1 >>> ${fnBits}];
             if (typeof offs !== 'undefined') {
-                if (this.stack.length > ${MAX_STACK_SIZE} * 3) {
+                if (this.stack.length > ${MAX_STACK_SIZE}) {
                     org.energy -= org.vm.size;
                     return ++line;
                 }
@@ -304,7 +304,8 @@ class Operators {
      * Compiles all variants of return operator and stores they in
      * this._compiledOperators map. 'xx' means, that amount of bits
      * depends on configuration. '...' means, that all other bits are
-     * ignored. Example:
+     * ignored. Returns fro custom function. If returns appears outside
+     * the function, then interpreter jumps into zero line. Example:
      *
      * bits  :      6
      * number: 100111 ...
@@ -316,12 +317,13 @@ class Operators {
         const vars    = Math.pow(2, OConfig.codeBitsPerVar);
 
         eval(`Operators.global.fn = function ret(line) {
-            if (this.stack.length > 0) {
-                const stackVars = this.stack.pop();
+            const stack = this.stack;
+            if (stack.length > 0) {
+                const stackVars = stack.pop();
                 const vars      = this.vars;
                 for (let i = 0; i < ${vars}; i++) {vars[i] = stackVars[i]}
                 stack.pop();
-                return this.stack.pop();
+                return stack.pop();
             }
             return 0;
         }`);
