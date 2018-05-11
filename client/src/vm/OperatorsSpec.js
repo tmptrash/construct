@@ -1039,18 +1039,6 @@ describe("client/src/vm/Operators", () => {
     });
 
     describe('return', () => {
-        it('return inside func should jump outside of it', () => {
-            const code = [
-                h('100101 00000000000000000000000000'),    // func 0() {
-                h('100111 00000000000000000000000000'),    //   return
-                h('101000 00000000000000000000000000'),    // }
-                h('100110 1 00000000 00000000000000000')   // call 0()
-            ];
-            ops.updateIndexes(code);
-            expect(ops.operators[h('100101')].call(ops, 0)).toEqual(3);
-            expect(ops.operators[h('100110')].call(ops, 3, code[3], {}, code)).toEqual(1);
-            expect(ops.operators[h('100111')].call(ops, 1, code[1], {}, code)).toEqual(4);
-        });
         it('One return should create infinite loop', () => {
             const code = [
                 h('100111 00000000000000000000000000')     // return
@@ -1066,9 +1054,6 @@ describe("client/src/vm/Operators", () => {
             ops.updateIndexes(code);
             expect(ops.operators[h('100111')].call(ops, 1)).toEqual(0);
         });
-    });
-
-    describe('return', () => {
         it('return inside func should jump outside of it', () => {
             const code = [
                 h('100101 00000000000000000000000000'),    // func 0() {
@@ -1106,6 +1091,48 @@ describe("client/src/vm/Operators", () => {
             expect(ops.operators[h('100101')].call(ops, 0)).toEqual(4);
             expect(ops.operators[h('100110')].call(ops, 4, code[4], {}, code)).toEqual(1);
             expect(ops.operators[h('100111')].call(ops, 1, code[1], {}, code)).toEqual(5);
+        });
+    });
+
+    describe('bracket', () => {
+        it('Script of one bracket should work', () => {
+            const code = [
+                h('101000 00000000000000000000000000')     // }
+            ];
+            ops.updateIndexes(code);
+            expect(ops.operators[h('101000')].call(ops, 0)).toEqual(1);
+        });
+        it('Script of two brackets should work', () => {
+            const code = [
+                h('101000 00000000000000000000000000'),    // }
+                h('101000 00000000000000000000000000')     // }
+            ];
+            ops.updateIndexes(code);
+            expect(ops.operators[h('101000')].call(ops, 0)).toEqual(1);
+            expect(ops.operators[h('101000')].call(ops, 1)).toEqual(2);
+        });
+        it('if(v3!==v3) should be false', () => {
+            const code = [
+                h('100010 11 11 1110 000000000000000000'), // if (v3!==v3) {
+                h('100000 00 01 1111111111111111111111'),  //     v0 = v1
+                h('101000 00000000000000000000000000'),    // }
+                h('101000 00000000000000000000000000')     // }
+            ];
+            ops.updateIndexes(code);
+            expect(ops.operators[h('100010 11 11 1110')].call(ops, 0)).toEqual(3);
+            expect(ops.operators[h('101000')].call(ops, 3)).toEqual(4);
+        });
+    });
+
+    describe('toMem 2bits per var', () => {
+        it('Script of one bracket should work', () => {
+            const code = [
+                h('101001 00 01 0000000000000000000000')   // toMem(v0, v1)
+            ];
+            const org = {mem: [0,1,2,3]};
+            ops.updateIndexes(code);
+            expect(ops.operators[h('101001 00 01')].call(ops, 0, code[0], org)).toEqual(1);
+            expect(org.mem).toEqual([1,1,2,3]);
         });
     });
 });
