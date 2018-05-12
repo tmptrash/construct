@@ -89,8 +89,8 @@ class OperatorsDos extends Operators {
     static _compileLookAt() {
         const bpv    = OConfig.codeBitsPerVar;
         const ops    = this._compiledOperators;
-        const h      = this._toHexNum;
-        const b      = this._toBinStr;
+        const h      = Helper.toHexNum;
+        const b      = Helper.toBinStr;
         const vars   = Math.pow(2, bpv);
 
         for (let v0 = 0; v0 < vars; v0++) {
@@ -124,7 +124,7 @@ class OperatorsDos extends Operators {
             this._obs.fire(${EVENTS.STEP}, org, org.x, org.y, org.dirX, org.dirY);
             return ++line;
         }`);
-        this._compiledOperators[this._toHexNum(`${'101100'}`)] = this.global.fn;
+        this._compiledOperators[Helper.toHexNum(`${'101100'}`)] = this.global.fn;
     }
 
     /**
@@ -140,8 +140,8 @@ class OperatorsDos extends Operators {
     static _compileDir() {
         const bpv      = OConfig.codeBitsPerVar;
         const ops      = this._compiledOperators;
-        const h        = this._toHexNum;
-        const b        = this._toBinStr;
+        const h        = Helper.toHexNum;
+        const b        = Helper.toBinStr;
         const vars     = Math.pow(2, bpv);
         const dirs     = OFFSX.length;
 
@@ -167,8 +167,8 @@ class OperatorsDos extends Operators {
     static _compileMyX() {
         const bpv      = OConfig.codeBitsPerVar;
         const ops      = this._compiledOperators;
-        const h        = this._toHexNum;
-        const b        = this._toBinStr;
+        const h        = Helper.toHexNum;
+        const b        = Helper.toBinStr;
         const vars     = Math.pow(2, bpv);
 
         for (let v0 = 0; v0 < vars; v0++) {
@@ -193,8 +193,8 @@ class OperatorsDos extends Operators {
     static _compileMyY() {
         const bpv      = OConfig.codeBitsPerVar;
         const ops      = this._compiledOperators;
-        const h        = this._toHexNum;
-        const b        = this._toBinStr;
+        const h        = Helper.toHexNum;
+        const b        = Helper.toBinStr;
         const vars     = Math.pow(2, bpv);
 
         for (let v0 = 0; v0 < vars; v0++) {
@@ -219,8 +219,8 @@ class OperatorsDos extends Operators {
     static _compileEat() {
         const bpv      = OConfig.codeBitsPerVar;
         const ops      = this._compiledOperators;
-        const h        = this._toHexNum;
-        const b        = this._toBinStr;
+        const h        = Helper.toHexNum;
+        const b        = Helper.toBinStr;
         const vars     = Math.pow(2, bpv);
 
         for (let v0 = 0; v0 < vars; v0++) {
@@ -285,8 +285,8 @@ class OperatorsDos extends Operators {
     static _compilePut() {
         const bpv      = OConfig.codeBitsPerVar;
         const ops      = this._compiledOperators;
-        const h        = this._toHexNum;
-        const b        = this._toBinStr;
+        const h        = Helper.toHexNum;
+        const b        = Helper.toBinStr;
         const vars     = Math.pow(2, bpv);
         const event    = EVENTS.PUT_ENERGY;
 
@@ -331,7 +331,7 @@ class OperatorsDos extends Operators {
      */
     static _compileEnergy() {
         const ops      = this._compiledOperators;
-        const h        = this._toHexNum;
+        const h        = Helper.toHexNum;
 
         eval(`Operators.global.fn = function energy(line, num, org) {
             const poses  = this._positions;
@@ -392,8 +392,8 @@ class OperatorsDos extends Operators {
     static _compilePick() {
         const bpv      = OConfig.codeBitsPerVar;
         const ops      = this._compiledOperators;
-        const h        = this._toHexNum;
-        const b        = this._toBinStr;
+        const h        = Helper.toHexNum;
+        const b        = Helper.toBinStr;
         const vars     = Math.pow(2, bpv);
         const dirs     = OFFSX.length;
 
@@ -433,8 +433,8 @@ class OperatorsDos extends Operators {
     static _compileRand() {
         const bpv      = OConfig.codeBitsPerVar;
         const ops      = this._compiledOperators;
-        const h        = this._toHexNum;
-        const b        = this._toBinStr;
+        const h        = Helper.toHexNum;
+        const b        = Helper.toBinStr;
         const vars     = Math.pow(2, bpv);
 
         for (let v0 = 0; v0 < vars; v0++) {
@@ -461,8 +461,8 @@ class OperatorsDos extends Operators {
     static _compileSay() {
         const bpv      = OConfig.codeBitsPerVar;
         const ops      = this._compiledOperators;
-        const h        = this._toHexNum;
-        const b        = this._toBinStr;
+        const h        = Helper.toHexNum;
+        const b        = Helper.toBinStr;
         const vars     = Math.pow(2, bpv);
 
         for (let v0 = 0; v0 < vars; v0++) {
@@ -489,8 +489,8 @@ class OperatorsDos extends Operators {
     static _compileListen() {
         const bpv      = OConfig.codeBitsPerVar;
         const ops      = this._compiledOperators;
-        const h        = this._toHexNum;
-        const b        = this._toBinStr;
+        const h        = Helper.toHexNum;
+        const b        = Helper.toBinStr;
         const vars     = Math.pow(2, bpv);
 
         for (let v0 = 0; v0 < vars; v0++) {
@@ -515,8 +515,8 @@ class OperatorsDos extends Operators {
     static _compileCheck() {
         const bpv      = OConfig.codeBitsPerVar;
         const ops      = this._compiledOperators;
-        const h        = this._toHexNum;
-        const b        = this._toBinStr;
+        const h        = Helper.toHexNum;
+        const b        = Helper.toBinStr;
         const vars     = Math.pow(2, bpv);
 
         for (let v0 = 0; v0 < vars; v0++) {
@@ -552,8 +552,8 @@ class OperatorsDos extends Operators {
     static _compileMyEnergy() {
         const bpv      = OConfig.codeBitsPerVar;
         const ops      = this._compiledOperators;
-        const h        = this._toHexNum;
-        const b        = this._toBinStr;
+        const h        = Helper.toHexNum;
+        const b        = Helper.toBinStr;
         const vars     = Math.pow(2, bpv);
 
         for (let v0 = 0; v0 < vars; v0++) {
@@ -577,7 +577,7 @@ class OperatorsDos extends Operators {
      */
     static _compilePoison() {
         const ops      = this._compiledOperators;
-        const h        = this._toHexNum;
+        const h        = Helper.toHexNum;
 
         eval(`Operators.global.fn = function poison(line, num, org) {
             let   x = org.dirX;
