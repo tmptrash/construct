@@ -881,7 +881,7 @@ describe("client/src/vm/Operators", () => {
             expect(ops.operators[h('100101')].call(ops, 1)).toEqual(3);
         });
 
-        xdescribe('function declaration 3bits per var', () => {
+        describe('function declaration 3bits per var', () => {
             let bpv;
             let ops;
             let vars;
@@ -1125,7 +1125,17 @@ describe("client/src/vm/Operators", () => {
     });
 
     describe('toMem 2bits per var', () => {
-        it('Script of one bracket should work', () => {
+        const memBits = OConfig.orgMemBits;
+        beforeAll(() => {
+            OConfig.orgMemBits = 2;
+            Operators.compile();
+        });
+        afterAll (() => {
+            OConfig.orgMemBits = memBits;
+            Operators.compile();
+        });
+
+        it('toMem operator should work', () => {
             const code = [
                 h('101001 00 01 0000000000000000000000')   // toMem(v0, v1)
             ];
@@ -1133,6 +1143,167 @@ describe("client/src/vm/Operators", () => {
             ops.updateIndexes(code);
             expect(ops.operators[h('101001 00 01')].call(ops, 0, code[0], org)).toEqual(1);
             expect(org.mem).toEqual([1,1,2,3]);
+        });
+        it('toMem operator should work 2', () => {
+            const code = [
+                h('101001 00 00 0000000000000000000000')   // toMem(v0, v0)
+            ];
+            const org = {mem: [0,1,2,3]};
+            ops.updateIndexes(code);
+            expect(ops.operators[h('101001 00 00')].call(ops, 0, code[0], org)).toEqual(1);
+            expect(org.mem).toEqual([0,1,2,3]);
+        });
+        it('Garbage in a tail should not affect toMem operator', () => {
+            const code = [
+                h('101001 00 00 1111111111111111111111')   // toMem(v0, v0)
+            ];
+            const org = {mem: [0,1,2,3]};
+            ops.updateIndexes(code);
+            expect(ops.operators[h('101001 00 00')].call(ops, 0, code[0], org)).toEqual(1);
+            expect(org.mem).toEqual([0,1,2,3]);
+        });
+        it('toMem operator should have offset limit', () => {
+            const code = [
+                h('101001 00 01 0000000000000000000000')   // toMem(v0, v1)
+            ];
+            const org = {mem: [0,1,2,3]};
+            ops.vars[0] = 100;
+            ops.updateIndexes(code);
+            expect(ops.operators[h('101001 00 01')].call(ops, 0, code[0], org)).toEqual(1);
+            expect(org.mem).toEqual([0,1,2,1]);
+        });
+        it('toMem operator should have offset limit (minus value)', () => {
+            const code = [
+                h('101001 00 01 0000000000000000000000')   // toMem(v0, v1)
+            ];
+            const org = {mem: [0,1,2,3]};
+            ops.vars[0] = -10;
+            ops.vars[1] = -1;
+            ops.updateIndexes(code);
+            expect(ops.operators[h('101001 00 01')].call(ops, 0, code[0], org)).toEqual(1);
+            expect(org.mem).toEqual([0,1,2,-1]);
+        });
+
+        describe('toMem 3bits per var', () => {
+            let memBits;
+            let bpv;
+            let ops;
+            let vars;
+            let offs;
+
+            beforeEach(() => {
+                vars = [0,1,2,3,4,5,6,7];
+                offs = new Array(10);
+                ops  = new Operators(offs, vars);
+            });
+            afterEach (() => {
+                ops.destroy();
+                ops  = null;
+                offs = null;
+                vars = null;
+                OConfig.codeBitsPerVar = bpv;
+            });
+            beforeAll (() => {
+                bpv  = OConfig.codeBitsPerVar;
+                memBits = OConfig.orgMemBits;
+                OConfig.codeBitsPerVar = 3;
+                OConfig.orgMemBits = 2;
+                Operators.compile();
+            });
+            afterAll  (() => {
+                OConfig.orgMemBits = memBits;
+                Operators.compile();
+            });
+
+            it('toMem operator should work', () => {
+                const code = [
+                    h('101001 000 001 00000000000000000000')   // toMem(v0, v1)
+                ];
+                const org = {mem: [0,1,2,3]};
+                ops.updateIndexes(code);
+                expect(ops.operators[h('101001 000 001')].call(ops, 0, code[0], org)).toEqual(1);
+                expect(org.mem).toEqual([1,1,2,3]);
+            });
+            it('toMem operator should work 2', () => {
+                const code = [
+                    h('101001 000 000 00000000000000000000')   // toMem(v0, v0)
+                ];
+                const org = {mem: [0,1,2,3]};
+                ops.updateIndexes(code);
+                expect(ops.operators[h('101001 000 000')].call(ops, 0, code[0], org)).toEqual(1);
+                expect(org.mem).toEqual([0,1,2,3]);
+            });
+            it('Garbage in a tail should not affect toMem operator', () => {
+                const code = [
+                    h('101001 000 000 11111111111111111111')   // toMem(v0, v0)
+                ];
+                const org = {mem: [0,1,2,3]};
+                ops.updateIndexes(code);
+                expect(ops.operators[h('101001 000 000')].call(ops, 0, code[0], org)).toEqual(1);
+                expect(org.mem).toEqual([0,1,2,3]);
+            });
+            it('toMem operator should have offset limit', () => {
+                const code = [
+                    h('101001 000 001 00000000000000000000')   // toMem(v0, v1)
+                ];
+                const org = {mem: [0,1,2,3]};
+                ops.vars[0] = 100;
+                ops.updateIndexes(code);
+                expect(ops.operators[h('101001 000 001')].call(ops, 0, code[0], org)).toEqual(1);
+                expect(org.mem).toEqual([0,1,2,1]);
+            });
+            it('toMem operator should have offset limit (minus value)', () => {
+                const code = [
+                    h('101001 000 001 00000000000000000000')   // toMem(v0, v1)
+                ];
+                const org = {mem: [0,1,2,3]};
+                ops.vars[0] = -10;
+                ops.vars[1] = -1;
+                ops.updateIndexes(code);
+                expect(ops.operators[h('101001 000 001')].call(ops, 0, code[0], org)).toEqual(1);
+                expect(org.mem).toEqual([0,1,2,-1]);
+            });
+        });
+    });
+
+    describe('fromMem 2bits per var', () => {
+        const memBits = OConfig.orgMemBits;
+        beforeAll(() => {
+            OConfig.orgMemBits = 2;
+            Operators.compile();
+        });
+        afterAll (() => {
+            OConfig.orgMemBits = memBits;
+            Operators.compile();
+        });
+
+        it('fromMem operator should work', () => {
+            const code = [
+                h('101010 00 01 0000000000000000000000')   // v0 = fromMem(v1)
+            ];
+            const org = {mem: [0, 1, 2, 3]};
+            ops.updateIndexes(code);
+            expect(ops.operators[h('101010 00 01')].call(ops, 0, code[0], org)).toEqual(1);
+            expect(ops.vars).toEqual([1, 1, 2, 3]);
+        });
+        it('fromMem operator should work', () => {
+            const code = [
+                h('101010 01 01 0000000000000000000000')   // v1 = fromMem(v1)
+            ];
+            const org = {mem: [0, 1, 2, 3]};
+            ops.updateIndexes(code);
+            expect(ops.operators[h('101010 01 01')].call(ops, 0, code[0], org)).toEqual(1);
+            expect(ops.vars).toEqual([0, 1, 2, 3]);
+        });
+        it('fromMem operator should have offset limit', () => {
+            const code = [
+                h('101010 00 01 0000000000000000000000')   // v0 = fromMem(v1)
+            ];
+            const org = {mem: [0, 1, 2, 3]};
+            ops.vars[1] = 100;
+            ops.updateIndexes(code);
+            expect(ops.operators[h('101010 00 01')].call(ops, 0, code[0], org)).toEqual(1);
+            expect(ops.vars).toEqual([3, 100, 2, 3]);
         });
     });
 });
