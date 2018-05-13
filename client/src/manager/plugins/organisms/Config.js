@@ -15,12 +15,12 @@ const Config = {
      * implemented. See Operators.operators getter for details. Values may be float.
      */
     orgOperatorWeights: [
-        .01,    .01,    .01,    .01,    .01,    // var, const, if, loop, operator,
-        .001,   .001,   .001,   .001,           // func, funcCall, return, bracket
-        .01,    .01,                            // toMem, fromMem,
-        .0001,  .1,     .01,    .01,    .01,    // lookAt, step, dir, myX, myY,
-        .1,     .001,   .01,    .01,    .01,    // eat, put, energy, pick, poison,
-        .01,    .0001,  .0001,  .001,   .01     // rand, say, listen, check, myEnergy
+        .001,    .001,    .001,    .001,    .001,    // var, const, if, loop, operator,
+        .0001,   .0001,   .0001,   .0001,            // func, funcCall, return, bracket
+        .001,    .001,                               // toMem, fromMem,
+        .00001,  .1,      .001,    .001,    .001,    // lookAt, step, dir, myX, myY,
+        .1,      .0001,   .001,    .001,    .001,    // eat, put, energy, pick, poison,
+        .001,    .00001,  .00001,  .0001,   .001     // rand, say, listen, check, myEnergy
     ],
     /**
      * {Array} Probabilities which used, when mutator decides what to do:

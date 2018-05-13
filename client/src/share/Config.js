@@ -40,7 +40,7 @@ ClientConfig.init({
         'client/Client',
         'energy/Energy',
         'stones/Stones',
-        //'objects/Objects',
+        'objects/Objects',
         'status/console/Console',
         IS_NODE_JS ? '' : 'status/charts/Charts',
         'ips/Ips',

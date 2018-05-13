@@ -359,10 +359,10 @@ class OperatorsDos extends Operators {
                 }
             }
             
-            for (let e = 0; e < 5; e++) {
+            for (let e = 0, len = Math.abs(OBJECT_TYPES.TYPE_ENERGY4 - OBJECT_TYPES.TYPE_ENERGY0) + 1; e < len; e++) {
                 if (energy[e].length === 4) {
                     const xy  = energy[e];
-                    const eat = (2**e) * Helper.getColor(EConfig.colorIndex);
+                    const eat = (2**(e+1)) * Helper.getColor(EConfig.colorIndex);
                     
                     if (org.energy + eat <= OConfig.orgMaxEnergy) {
                         org.energy += eat;
