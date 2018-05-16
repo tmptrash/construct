@@ -104,13 +104,13 @@ const Config = {
     /**
      * {Number} Maximum energy organism may reach collecting energy
      */
-    orgMaxEnergy: 1 * 0x6d3b4,
+    orgMaxEnergy: 0x6d3b4,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created
      * by operator and not by evolution.
      */
-    orgStartEnergy: 1 * 0x6d3b4,
+    orgStartEnergy: 0x6d3b4,
     /**
      * {Number} Amount of energy, that grabs from organism in case of eating poison
      */
@@ -149,6 +149,13 @@ const Config = {
      * {Number} Amount of organisms we have to create on program start
      */
     orgStartAmount: 1000,
+    /**
+     * {Array} Array of four elements: x,y,width,height. These values means
+     * position (x,y) and square (width,height) of high density organisms area.
+     * You may set this value to empty array to create organisms randomly in
+     * whole world.
+     */
+    orgPosition: [1920 * 2, 1080 * 2, 2000, 2000],
     /**
      * {Number} If organism reach this limit of amount of vm lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,

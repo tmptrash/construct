@@ -3,8 +3,6 @@
  *
  * @author flatline
  */
-const Helper = require('./../../../../../common/src/Helper');
-
 const Config = {
     /**
      * {Number} An amount of iteration, after which we have to check world energy
@@ -18,11 +16,11 @@ const Config = {
     /**
      * {Number} Maximum amount of object dots
      */
-    maxValue: .1 * Helper.getColor(8500 + 2 * 500) * 4000,
+    maxValue: .2 * 0x6d3b4 * 4000,
     /**
      * {Number} Opposite to maxValue. Minimum amount of object dots
      */
-    minValue: .05 * Helper.getColor(8500 + 2 * 500) * 4000,
+    minValue: .1 * 0x6d3b4 * 4000,
     /**
      * {Array|null} In case of array you may set sequence of four values: x,y,w,h.
      * They means x,y coordinates, width, height of places with high objects concentration.
@@ -30,7 +28,7 @@ const Config = {
      * example all the screen will be filled by objects. As many values by four, you set as
      * many places with objects will be created. In case of null, grouping will be disabled.
      */
-    groups: [1920 * 2, 1080 * 2, 1000, 1000]
+    groups: [1920 * 2, 1080 * 2, 50, 50]
 };
 
 module.exports = Config;

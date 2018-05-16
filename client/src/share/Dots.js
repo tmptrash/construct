@@ -64,7 +64,7 @@ class Dots extends Configurable {
 
         const dotsValue = this._getDotsValue(cfg.compareCb);
         if (cfg.checkMin) {
-            const percent = cfg.checkMin.call(this, dotsValue);
+            const percent = cfg.checkMin(dotsValue);
             if (!percent) {return dotsValue}
         } else if (dotsValue > config.minValue) {return dotsValue}
         this._addDots();

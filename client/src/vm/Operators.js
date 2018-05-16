@@ -218,8 +218,8 @@ class Operators {
      * depends on configuration. '...' means, that all other bits are
      * ignored. Example:
      *
-     * bits  :      6 xx xx xx  4
-     * number: 100100 00 01 00 01...
+     * bits  :      6 xx xx xx    4
+     * number: 100100 00 01 00 0001...
      * string: v0 = v1 - v0
      */
     static _compileOperator() {

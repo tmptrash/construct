@@ -188,7 +188,7 @@ class Organisms extends Configurable {
         this._updateCrossover(counter);
     }
 
-    _onLoop(counter, stamp, sharedObj) {
+    _onLoop() {
         this._updateCreate();
     }
 
@@ -253,14 +253,19 @@ class Organisms extends Configurable {
     }
 
     _createPopulation() {
-        const world = this.world;
+        const world       = this.world;
+        const positions   = OConfig.orgPosition;
+        const hasPosition = positions.length > 3;
 
         this.reset();
         for (let i = 0, len = OConfig.orgStartAmount; i < len; i++) {
-            //this.createOrg(...world.getFreePos());
-            const x = Helper.rand(500) + 1920 * 2 - 250;
-            const y = Helper.rand(500) + 1080 * 2 - 250;
-            if (world.isFree(x, y)) {this.createOrg(x, y)}
+            if (hasPosition) {
+                const x = Helper.rand(positions[2]) + positions[0] - positions[2] / 2;
+                const y = Helper.rand(positions[3]) + positions[1] - positions[3] / 2;
+                if (world.isFree(x, y)) {this.createOrg(x, y)}
+            } else {
+                this.createOrg(...world.getFreePos());
+            }
         }
         Console.info('Population has created');
     }

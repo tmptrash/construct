@@ -6,7 +6,7 @@
  */
 const Dots         = require('./../../../share/Dots');
 const Helper       = require('./../../../../../common/src/Helper');
-const Config       = require('./Config');
+const OConfig      = require('./Config');
 const OBJECT_TYPES = require('./../../../view/World').OBJECT_TYPES;
 //
 // We have to add object types to global types storage
@@ -27,7 +27,7 @@ class Objects extends Dots {
     }
 
     constructor(manager) {
-        super(manager, Config, {
+        super(manager, OConfig, {
             addOnce    : false,
             compareCb  : (x, y) => manager.world.getDot(x, y) > 0 && manager.positions[x][y] >= OBJECT_TYPES.TYPE_ENERGY4 && manager.positions[x][y] <= OBJECT_TYPES.TYPE_ENERGY0,
             colorCb    : (    ) => COLOR_RGB,

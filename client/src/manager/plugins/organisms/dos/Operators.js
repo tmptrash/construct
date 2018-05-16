@@ -336,7 +336,7 @@ class OperatorsDos extends Operators {
         eval(`Operators.global.fn = function energy(line, num, org) {
             const poses  = this._positions;
             const world  = this._world;
-            const energy = {0:[], 1:[], 2:[], 3:[], 4:[]};
+            const energy = {1:[], 2:[], 3:[], 4:[], 5:[]};
             let   e      = 0;
             
             for (let x = org.x - 1, xlen = org.x + 2; x < xlen; x++) {
@@ -359,7 +359,7 @@ class OperatorsDos extends Operators {
                 }
             }
             
-            for (let e = 0, len = Math.abs(OBJECT_TYPES.TYPE_ENERGY4 - OBJECT_TYPES.TYPE_ENERGY0) + 1; e < len; e++) {
+            for (let e = 1, len = Math.abs(OBJECT_TYPES.TYPE_ENERGY4 - OBJECT_TYPES.TYPE_ENERGY0) + 1; e <= len; e++) {
                 if (energy[e].length === 4) {
                     const xy  = energy[e];
                     const eat = (2**(e+1)) * Helper.getColor(EConfig.colorIndex);

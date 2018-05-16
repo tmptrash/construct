@@ -5,7 +5,7 @@
  */
 const Helper       = require('./../../../../../common/src/Helper');
 
-const ENERGY_COLOR = 10000;
+const COLOR_INDEX  = 10000;
 const COLOR        = Helper.getColor;
 const Config       = {
     /**
@@ -21,15 +21,15 @@ const Config       = {
      * {Number} Index of energy color. Starts from 0. Ends with 4000. See Organism.MAX_COLORS
      * constant for details
      */
-    colorIndex: ENERGY_COLOR,
+    colorIndex: COLOR_INDEX,
     /**
      * {Number} Maximum amount of energy dots
      */
-    maxValue: .8 * COLOR(ENERGY_COLOR) * 4000,
+    maxValue: .8 * COLOR(COLOR_INDEX) * 4000,
     /**
      * {Number} Opposite to maxValue. Minimum amount of energy dots
      */
-    minValue: .6 * COLOR(ENERGY_COLOR) * 4000,
+    minValue: .6 * COLOR(COLOR_INDEX) * 4000,
     /**
      * {Array|null} In case of array you may set sequence of four values: x,y,w,h.
      * They means x,y coordinates, width, height of places with high energy concentration.
@@ -37,7 +37,7 @@ const Config       = {
      * example all the screen will be filled by energy. As many values by four, you set as
      * many places with energy will be created. In case of null, grouping will be disabled.
      */
-    groups: [1920 * 2, 1080 * 2, 1000, 1000]
+    groups: [1920 * 2, 1080 * 2, 2000, 2000]
 };
 
 module.exports = Config;
