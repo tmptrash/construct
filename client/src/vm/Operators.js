@@ -17,7 +17,7 @@ class Operators {
      * @param {Number} operators Amount of operators
      */
     static compile(operators = OPERATOR_AMOUNT) {
-        const bitsPerOp         = OConfig.codeBitsPerOperator;
+        const bitsPerOp         = OConfig.CODE_BITS_PER_OPERATOR;
         const MAX_BITS          = 32;
         /**
          * {Object} Container for storing of dynamic operator handlers
@@ -26,7 +26,6 @@ class Operators {
         /**
          * {Number} Bit related constants
          */
-        this.FOUR_BITS          = 4;
         this.CONDITION_BITS     = 4;
         this.FUNC_NAME_BITS     = 8;
         /**
@@ -65,7 +64,7 @@ class Operators {
             MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar),                            // const
             MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar * 2 + this.CONDITION_BITS),  // if
             MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar * 2 + this.CONDITION_BITS),  // loop
-            MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar * 3 + this.FOUR_BITS),       // math
+            MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar * 3 + this.CONDITION_BITS),       // math
             MAX_BITS - (bitsPerOp),                                                     // func
             MAX_BITS - (bitsPerOp),                                                     // func call
             MAX_BITS - (bitsPerOp),                                                     // return
@@ -228,7 +227,7 @@ class Operators {
         const h      = Helper.toHexNum;
         const b      = Helper.toBinStr;
         const vars   = Math.pow(2, bpv);
-        const opsLen = Math.pow(2, this.FOUR_BITS);
+        const opsLen = Math.pow(2, this.CONDITION_BITS);
 
         for (let op = 0; op < opsLen; op++) {
             for (let v0 = 0; v0 < vars; v0++) {
@@ -238,7 +237,7 @@ class Operators {
                             ${this._OPERATORS[op](v0, v1, v2)}
                             return ++line;
                         }`);
-                        ops[h(`${'100100'}${b(v0, bpv)}${b(v1, bpv)}${b(v2, bpv)}${b(op, this.FOUR_BITS)}`)] = this.global.fn;
+                        ops[h(`${'100100'}${b(v0, bpv)}${b(v1, bpv)}${b(v2, bpv)}${b(op, this.CONDITION_BITS)}`)] = this.global.fn;
                     }
                 }
             }
@@ -344,13 +343,12 @@ class Operators {
         const ops     = this._compiledOperators;
         const h       = Helper.toHexNum;
         const vars    = Math.pow(2, OConfig.codeBitsPerVar);
-        const opMask  = Num.OPERATOR_MASK_OFF;
 
         eval(`Operators.global.fn = function bracket(line, num, org, lines) {
             const startLine = this.offs[line];
-            const operator  = typeof startLine === 'undefined' ? -1 : (lines[startLine] & ${opMask}) >>> Num.VAR_BITS_OFFS;
-            if (operator === 0x3) {return this.offs[line]} // loop
-            if (operator === 0x5) {                        // func
+            const operator  = typeof startLine === 'undefined' ? -1 : lines[startLine] >>> Num.VAR_BITS_OFFS;
+            if (operator === 0b100011) {return this.offs[line]} // loop
+            if (operator === 0b100101) {                        // func
                 const stack = this.stack;
                 if (stack[stack.length - 2] === startLine) {
                     const stackVars = stack.pop();
@@ -451,7 +449,6 @@ class Operators {
     updateIndexes(code) {
         const len     = code.length;
         const varOffs = Num.VAR_BITS_OFFS;
-        const opMask  = Num.OPERATOR_MASK_OFF;
         const offs    = this.offs;
         const funcs   = this.funcs = new Array(this._MAX_FUNC_AMOUNT);
         const blocks  = [];
@@ -459,19 +456,19 @@ class Operators {
 
         this.stack = [];
         for (let i = 0; i < len; i++) {
-            const operator = (code[i] & opMask) >>> varOffs;
-            if (operator === 0x2 || operator === 0x3) { // if, while
+            const operator = code[i] >>> varOffs;
+            if (operator === 0b100010 || operator === 0b100011) { // if, while
                 offs[i] = i;
                 blocks.push(i);
                 continue;
             }
-            if (operator === 0x5) {                     // func
+            if (operator === 0b100101) {                         // func
                 offs[i] = i;
                 funcs[func++] = i + 1;
                 blocks.push(i);
                 continue;
             }
-            if (operator === 0x8) {                     // bracket
+            if (operator === 0b101000) {                         // bracket
                 if (blocks.length > 0) {
                     offs[i] = blocks.pop();
                     offs[offs[i]] = i + 1;

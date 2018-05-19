@@ -2,18 +2,17 @@ let Num     = require('./Num');
 let OConfig = require('./../manager/plugins/organisms/Config');
 
 describe("client/src/organism/Num", () => {
-    const bpo = OConfig.codeBitsPerOperator;
     const bpv = OConfig.codeBitsPerVar;
 
-    beforeEach(() => {OConfig.codeBitsPerOperator = 8;   OConfig.codeBitsPerVar = 2});
-    afterEach( () => {OConfig.codeBitsPerOperator = bpo; OConfig.codeBitsPerVar = bpv});
+    beforeEach(() => {OConfig.codeBitsPerVar = 2});
+    afterEach( () => {OConfig.codeBitsPerVar = bpv});
 
     describe('Checks initialization', () => {
         it ('Checks init() method', () => {
             Num.init(3);
             expect(Num.OPERATOR_AMOUNT).toBe(3);
             expect(Num.BITS_PER_VAR).toBe(OConfig.codeBitsPerVar);
-            expect(Num.BITS_PER_OPERATOR).toBe(OConfig.codeBitsPerOperator);
+            expect(Num.BITS_PER_OPERATOR).toBe(OConfig.CODE_BITS_PER_OPERATOR);
         });
     });
 

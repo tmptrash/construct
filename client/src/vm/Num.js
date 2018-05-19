@@ -17,7 +17,7 @@ class Num {
         this.MAX_BITS             = 32;
         this.OPERATOR_AMOUNT      = operatorAmount;
         this.BITS_PER_VAR         = OConfig.codeBitsPerVar;
-        this.BITS_PER_OPERATOR    = OConfig.codeBitsPerOperator;
+        this.BITS_PER_OPERATOR    = OConfig.CODE_BITS_PER_OPERATOR;
         this.NO_OPERATOR_MASK     = 0xffffffff >>> this.BITS_PER_OPERATOR;
         this.OPERATOR_MASK_ON     = 0x80000000;
         this.OPERATOR_MASK_OFF    = 0x7fffffff;
@@ -44,7 +44,7 @@ class Num {
     }
 
     static getOperator(num) {
-        return (num & this.OPERATOR_MASK_OFF) >>> this.VAR_BITS_OFFS;
+        return num >>> this.VAR_BITS_OFFS;
     }
 
     static setOperator(num, op) {

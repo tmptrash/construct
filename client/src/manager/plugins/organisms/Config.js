@@ -5,10 +5,17 @@
  */
 const Config = {
     /**
+     * @constant
      * {Number} Max value, which we may use in orgMutationProbs array. We may use
      * range: [0...ORG_MUTATION_PROBS_MAX_VAL] including these values
      */
     ORG_MUTATION_PROBS_MAX_VAL: 100,
+    /**
+     * @constant
+     * {Number} Amount of bits for storing operator. This is first XX bits
+     * in a number. Operator is a type of operation. e.g.: var, func, step, if,...
+     */
+    CODE_BITS_PER_OPERATOR: 6,
     /**
      * {Array} Array of operators weights in energy equivalent. Every value of this
      * array is bind to special operator run on VM. The same sequence should be
@@ -185,11 +192,6 @@ const Config = {
      * which this variable may contain. This value shouldn't be less then 2.
      */
     codeBitsPerVar: 3,
-    /**
-     * {Number} Amount of bits for storing operator. This is first XX bits
-     * in a number.
-     */
-    codeBitsPerOperator: 6,
     /**
      * {Number} Amount of bits, which stores maximum block length. Under block
      * length we mean maximum amount of lines in one block like if, for,...

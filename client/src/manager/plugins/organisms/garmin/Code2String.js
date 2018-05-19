@@ -16,7 +16,7 @@ const VAR2                  = (n) => Num.getVar(n, 2);
 const BITS_AFTER_THREE_VARS = Num.BITS_PER_OPERATOR + Num.BITS_PER_VAR * 3;
 const HALF_OF_VAR           = Num.MAX_VAR / 2;
 
-class Code2String {
+class Code2JS {
     constructor(manager) {
         this._manager = manager;
         /**
@@ -130,4 +130,4 @@ class Code2String {
     }
 }
 
-module.exports = Code2String;
+module.exports = Code2JS;

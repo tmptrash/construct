@@ -35,7 +35,7 @@ ClientConfig.init({
      */
     plugIncluded: [
         'organisms/dos/Organisms',
-        'organisms/dos/Code2String',
+        'organisms/dos/Code2JS',
         'Config',
         'client/Client',
         'energy/Energy',
