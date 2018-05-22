@@ -53,7 +53,7 @@ class Code2JS extends BaseCode2JS {
     _onPut(num)      {return `put(v${Num.getVar0(num)})`}
     _onEnergy(num)   {return `energy(v${Num.getVar0(num)})`}
     _onPick(num)     {return `pick(v${Num.getVar0(num)})`}
-    _onRand(num)     {return `rand(v${Num.getVar0(num)})`}
+    _onRand(num)     {return `v${Num.getVar0(num)}=rand(v${Num.getVar1(num)})`}
     _onSay(num)      {return `say(v${Num.getVar0(num)})`}
     _onListen(num)   {return `v${Num.getVar0(num)}=listen()`}
     _onCheck(num)    {return `v${Num.getVar0(num)}=check()`}

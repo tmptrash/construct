@@ -82,8 +82,8 @@ class OperatorsDos extends Operators {
      * depends on configuration. '...' means, that all other bits are
      * ignored. Example:
      *
-     * bits  :      6 xx xx xx  4
-     * number: 101011 00 01 00 01...
+     * bits  :      6 xx xx xx
+     * number: 101011 00 01 00...
      * string: v0 = lookAt(v1, v0)
      */
     static _compileLookAt() {

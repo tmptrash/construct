@@ -77,19 +77,19 @@ class Code2JS {
     }
 
     _onIf(num, line, ops) {
-        const cond    = Num.getBits(num, Num.BITS_OF_VAR2, ops.CONDITION_BITS);
+        const cond    = Num.getBits(num, Num.BITS_OF_VAR2, Operators.CONDITION_BITS);
         const bracket = ops.offs[line] === line ? '}' : '';
         return `if(v${Num.getVar0(num)}${this._CONDITIONS[cond]}v${Num.getVar1(num)}){${bracket}`;
     }
 
     _onLoop(num, line, ops) {
-        const cond    = Num.getBits(num, Num.BITS_OF_VAR2, ops.CONDITION_BITS);
+        const cond    = Num.getBits(num, Num.BITS_OF_VAR2, Operators.CONDITION_BITS);
         const bracket = ops.offs[line] === line ? '}' : '';
         return `while(v${Num.getVar0(num)}${this._CONDITIONS[cond]}v${Num.getVar1(num)}){${bracket}`;
     }
 
     _onOperator(num, line, ops) {
-        return `v${Num.getVar0(num)}=v${Num.getVar1(num)}${this._CONDITIONS[Num.getBits(num, Num.BITS_OF_VAR3, ops.CONDITION_BITS)]}v${Num.getVar2(num)}`;
+        return `v${Num.getVar0(num)}=v${Num.getVar1(num)}${this._CONDITIONS[Num.getBits(num, Num.BITS_OF_VAR3, Operators.CONDITION_BITS)]}v${Num.getVar2(num)}`;
     }
 
     _onFunc(num, line, ops) {

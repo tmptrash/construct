@@ -18,7 +18,7 @@ describe("client/src/vm/Operators", () => {
         OConfig.codeConstBits  = 3;
         Operators.compile();
     });
-    afterAll(() => {
+    afterAll  (() => {
         OConfig.codeBitsPerVar = cbpv;
         OConfig.codeConstBits  = ccb;
     });
