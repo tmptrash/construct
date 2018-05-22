@@ -37,7 +37,7 @@ const Config       = {
      * example all the screen will be filled by energy. As many values by four, you set as
      * many places with energy will be created. In case of null, grouping will be disabled.
      */
-    groups: [1920 + 1920/2, 1080 * 2, 1000, 1000, 1920 * 3 - 1920/2, 1080 * 2, 1000, 1000]
+    groups: [1920 + 1920/1.2, 1080 * 2, 500, 500, 1920 * 3 - 1920/1.2, 1080 * 2, 500, 500]
 };
 
 module.exports = Config;

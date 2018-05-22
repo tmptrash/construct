@@ -162,7 +162,7 @@ const Config = {
      * You may set this value to empty array to create organisms randomly in
      * whole world.
      */
-    orgPosition: [1920 + 1920/2, 1080 * 2, 1000, 1000, 1920 * 3 - 1920/2, 1080 * 2, 1000, 1000],
+    orgPosition: [1920 + 1920/1.2, 1080 * 2, 500, 500, 1920 * 3 - 1920/1.2, 1080 * 2, 500, 500],
     /**
      * {Number} If organism reach this limit of amount of vm lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,

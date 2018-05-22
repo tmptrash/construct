@@ -94,7 +94,7 @@ class Code2JS {
 
     _onFunc(num, line, ops) {
         const bracket = ops.offs[line] === line ? '}' : '';
-        return `func f${ops.funcs.indexOf(line + 1)}{${bracket}`;
+        return `function f${ops.funcs.indexOf(line + 1)}(){${bracket}`;
     }
 
     _onFuncCall(num, line, ops) {
@@ -103,9 +103,9 @@ class Code2JS {
         if (Num.getBits(num, Num.BITS_OF_VAR0, 1) === 1) {
             fn = `f${Num.getBits(num, Num.BITS_OF_VAR0 + 1, ops.FUNC_NAME_BITS)}`;
         } else {
-            fn = `v${Num.getBits(num, Num.BITS_OF_VAR0 + 1, OConfig.codeBitsPerVar)}`;
+            fn = `&v${Num.getBits(num, Num.BITS_OF_VAR0 + 1, OConfig.codeBitsPerVar)}`;
         }
-        return `call ${fn}()`;
+        return `${fn}()`;
     }
 
     _onReturn() {
@@ -117,11 +117,11 @@ class Code2JS {
     }
 
     _onToMem(num) {
-        return `toMem(v${Num.getVar0(num)},v${Num.getVar1(num)}`;
+        return `toMem(v${Num.getVar0(num)},v${Num.getVar1(num)})`;
     }
 
     _onFromMem(num) {
-        return `v${Num.getVar0(num)}=fromMem(v${Num.getVar1(num)}`;
+        return `v${Num.getVar0(num)}=fromMem(v${Num.getVar1(num)})`;
     }
 }
 

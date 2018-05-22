@@ -58,7 +58,7 @@ class Code2JS extends BaseCode2JS {
     _onListen(num)   {return `v${Num.getVar0(num)}=listen()`}
     _onCheck(num)    {return `v${Num.getVar0(num)}=check()`}
     _onMyEnergy(num) {return `v${Num.getVar0(num)}=myEnergy()`}
-    _onPoison(num)   {return `poison()`}
+    _onPoison()      {return `poison()`}
 }
 
 module.exports = Code2JS;
