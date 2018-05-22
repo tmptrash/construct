@@ -4,7 +4,6 @@
  *
  * @author flatline
  */
-// TODO: this config should be refactored/moved to manager folder as it's part
 const Config = require('./../../../common/src/Config');
 
 const QUIET_ALL               = 0;
@@ -67,7 +66,7 @@ ClientConfig.init({
      * coordinate (height). It actual only for one instance mode (no distributed
      * calculations).
      */
-    worldCyclical: false,
+    worldCyclical: true,
     /**
      * {Number} Speed coefficient. Between 0..1. 1 - max speed, 0 - min.
      */

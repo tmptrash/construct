@@ -97,12 +97,12 @@ const Config = {
      * {Number} Amount of iterations, after which crossover will be applied
      * to random organisms. May be set to 0 to turn crossover off
      */
-    orgCrossoverPeriod: 0,
+    orgCrossoverPeriod: 500,
     /**
      * {Number} Period of iterations for creation of random organisms. Set it to 0
      * to turn off this feature
      */
-    orgRandomOrgPeriod: 0,
+    orgRandomOrgPeriod: 600,
     /**
      * {Number} Amount of iterations when organism is alive. It will die after
      * this period. If 0, then will not be used and organism may leave forever
@@ -117,7 +117,7 @@ const Config = {
      * Eve. It means that these empty (without vm) organism were created
      * by operator and not by evolution.
      */
-    orgStartEnergy: 0x6d3b4,
+    orgStartEnergy: 10 * 0x6d3b4,
     /**
      * {Number} Amount of energy, that grabs from organism in case of eating poison
      */
@@ -155,14 +155,14 @@ const Config = {
     /**
      * {Number} Amount of organisms we have to create on program start
      */
-    orgStartAmount: 1000,
+    orgStartAmount: 4000,
     /**
      * {Array} Array of four elements: x,y,width,height. These values means
      * position (x,y) and square (width,height) of high density organisms area.
      * You may set this value to empty array to create organisms randomly in
      * whole world.
      */
-    orgPosition: [1920 * 2, 1080 * 2, 2000, 2000],
+    orgPosition: [1920 + 1920/2, 1080 * 2, 1000, 1000, 1920 * 3 - 1920/2, 1080 * 2, 1000, 1000],
     /**
      * {Number} If organism reach this limit of amount of vm lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
@@ -192,12 +192,6 @@ const Config = {
      * which this variable may contain. This value shouldn't be less then 2.
      */
     codeBitsPerVar: 3,
-    /**
-     * {Number} Amount of bits, which stores maximum block length. Under block
-     * length we mean maximum amount of lines in one block like if, for,...
-     * TODO: remove this config
-     */
-    codeBitsPerBlock: 10,
     /**
      * {Number} Amount of iterations between calls to V8 event loop. See
      * Manager._initLoop(), Manager.run() methods for details.

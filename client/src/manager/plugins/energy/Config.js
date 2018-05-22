@@ -29,7 +29,7 @@ const Config       = {
     /**
      * {Number} Opposite to maxValue. Minimum amount of energy dots
      */
-    minValue: .6 * COLOR(COLOR_INDEX) * 4000,
+    minValue: .7 * COLOR(COLOR_INDEX) * 4000,
     /**
      * {Array|null} In case of array you may set sequence of four values: x,y,w,h.
      * They means x,y coordinates, width, height of places with high energy concentration.
@@ -37,7 +37,7 @@ const Config       = {
      * example all the screen will be filled by energy. As many values by four, you set as
      * many places with energy will be created. In case of null, grouping will be disabled.
      */
-    groups: [1920 * 2, 1080 * 2, 2000, 2000]
+    groups: [1920 + 1920/2, 1080 * 2, 1000, 1000, 1920 * 3 - 1920/2, 1080 * 2, 1000, 1000]
 };
 
 module.exports = Config;

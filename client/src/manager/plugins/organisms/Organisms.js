@@ -255,14 +255,19 @@ class Organisms extends Configurable {
     _createPopulation() {
         const world       = this.world;
         const positions   = OConfig.orgPosition;
-        const hasPosition = positions.length > 3;
+        const posAmount   = positions.length / 4;
+        const hasPosition = posAmount >= 1;
 
         this.reset();
-        for (let i = 0, len = OConfig.orgStartAmount; i < len; i++) {
+        for (let i = 0, len = OConfig.orgStartAmount; i < len; i += posAmount) {
             if (hasPosition) {
-                const x = Helper.rand(positions[2]) + positions[0] - positions[2] / 2;
-                const y = Helper.rand(positions[3]) + positions[1] - positions[3] / 2;
-                if (world.isFree(x, y)) {this.createOrg(x, y)}
+                for (let j = 0; j < posAmount; j++) {
+                    const x = Helper.rand(positions[j * 4 + 2]) + positions[j * 4]     - positions[j * 4 + 2] / 2;
+                    const y = Helper.rand(positions[j * 4 + 3]) + positions[j * 4 + 1] - positions[j * 4 + 3] / 2;
+                    if (world.isFree(x, y)) {
+                        this.createOrg(x, y)
+                    }
+                }
             } else {
                 this.createOrg(...world.getFreePos());
             }

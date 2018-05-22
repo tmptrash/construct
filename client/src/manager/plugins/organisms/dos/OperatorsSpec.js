@@ -364,7 +364,6 @@ describe("client/src/manager/plugins/organisms/OperatorsDos", () => {
         beforeEach(() => {
             ocfg = new ConfigHelper(OConfig);
             ocfg.set('codeYieldPeriod',     2);
-            ocfg.set('codeBitsPerBlock',    8);
             ocfg.set('CODE_BITS_PER_OPERATOR', 8);
             ocfg.set('codeBitsPerVar',      2);
             ocfg.set('codeConstBits',       16);
