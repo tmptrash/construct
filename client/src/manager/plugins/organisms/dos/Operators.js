@@ -35,7 +35,8 @@ const IN_WORLD              = Helper.inWorld;
 class OperatorsDos extends Operators {
     static compile() {
         const bitsPerOp = OConfig.CODE_BITS_PER_OPERATOR;
-        this.OPERATOR_AMOUNT = 26;
+        // TODO: revert this
+        this.OPERATOR_AMOUNT = 25;
         //
         // IMPORTANT: don't use super here, because it breaks Operators
         // IMPORTANT: class internal logic. Operators.global will be point

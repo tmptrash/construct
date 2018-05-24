@@ -25,11 +25,11 @@ const Config       = {
     /**
      * {Number} Maximum amount of energy dots
      */
-    maxValue: .8 * COLOR(COLOR_INDEX) * 4000,
+    maxValue: .8 * COLOR(COLOR_INDEX) * 10000,
     /**
      * {Number} Opposite to maxValue. Minimum amount of energy dots
      */
-    minValue: .7 * COLOR(COLOR_INDEX) * 4000,
+    minValue: .7 * COLOR(COLOR_INDEX) * 10000,
     /**
      * {Array|null} In case of array you may set sequence of four values: x,y,w,h.
      * They means x,y coordinates, width, height of places with high energy concentration.

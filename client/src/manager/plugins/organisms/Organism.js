@@ -119,12 +119,14 @@ class Organism extends Observer {
         this._iterations++;
         if (this.onBeforeRun() === false) {return true}
         const lines = this._energy > 0 ? this.onRun() : 0;
-        this._updateEnergy();
-        if (this._energy > 0) {
-            this._updateClone();
+        this.fire(ITERATION, lines, this);
+        if (this._iterations % 10 === 0) {
+            this._updateEnergy();
             if (this._energy > 0) {
-                this.fire(ITERATION, lines, this);
-                this._energy > 0 && this._updateAge();
+                this._updateClone();
+                if (this._energy > 0) {
+                    this._energy > 0 && this._updateAge();
+                }
             }
         }
 
