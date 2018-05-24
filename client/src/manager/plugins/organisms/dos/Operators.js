@@ -363,9 +363,9 @@ class OperatorsDos extends Operators {
             for (let e = 1, len = Math.abs(OBJECT_TYPES.TYPE_ENERGY4 - OBJECT_TYPES.TYPE_ENERGY0) + 1; e <= len; e++) {
                 if (energy[e].length === 4) {
                     const xy  = energy[e];
-                    const eat = (2**(e+1)) * Helper.getColor(EConfig.colorIndex);
+                    let   eat = (2**(e+1)) * Helper.getColor(EConfig.colorIndex);
                     
-                    if (org.energy + eat > OConfig.orgMaxEnergy) {eat = org.energy + eat - OConfig.orgMaxEnergy}
+                    if (org.energy + eat > OConfig.orgMaxEnergy) {eat = OConfig.orgMaxEnergy - org.energy}
                     org.energy += eat;
                     world.setDot(xy[0], xy[1], 0);
                     poses[xy[0]][xy[1]] = 0;
