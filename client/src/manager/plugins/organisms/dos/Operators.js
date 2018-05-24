@@ -365,13 +365,12 @@ class OperatorsDos extends Operators {
                     const xy  = energy[e];
                     const eat = (2**(e+1)) * Helper.getColor(EConfig.colorIndex);
                     
-                    if (org.energy + eat <= OConfig.orgMaxEnergy) {
-                        org.energy += eat;
-                        world.setDot(xy[0], xy[1], 0);
-                        poses[xy[0]][xy[1]] = 0;
-                        world.setDot(xy[2], xy[3], 0);
-                        poses[xy[2]][xy[3]] = 0;
-                    }
+                    if (org.energy + eat > OConfig.orgMaxEnergy) {eat = org.energy + eat - OConfig.orgMaxEnergy}
+                    org.energy += eat;
+                    world.setDot(xy[0], xy[1], 0);
+                    poses[xy[0]][xy[1]] = 0;
+                    world.setDot(xy[2], xy[3], 0);
+                    poses[xy[2]][xy[3]] = 0;
                     return ++line;
                 }
             }
