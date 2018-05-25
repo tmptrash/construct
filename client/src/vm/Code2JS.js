@@ -103,7 +103,7 @@ class Code2JS {
         if (Num.getBits(num, Num.BITS_OF_VAR0, 1) === 1) {
             fn = `f${Num.getBits(num, Num.BITS_OF_VAR0 + 1, ops.FUNC_NAME_BITS)}`;
         } else {
-            fn = `&v${Num.getBits(num, Num.BITS_OF_VAR0 + 1, OConfig.codeBitsPerVar)}`;
+            fn = `v${Num.getBits(num, Num.BITS_OF_VAR0 + 1, OConfig.codeBitsPerVar)}`;
         }
         return `${fn}()`;
     }

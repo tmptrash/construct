@@ -117,7 +117,7 @@ const Config = {
      * Eve. It means that these empty (without vm) organism were created
      * by operator and not by evolution.
      */
-    orgStartEnergy: 10 * 0x6d3b4,
+    orgStartEnergy: 0x6d3b4,
     /**
      * {Number} Amount of energy, that grabs from organism in case of eating poison
      */
