@@ -106,10 +106,10 @@ class Organisms extends Configurable {
      * @param {Organism} org Current organism
      */
     onOrganism(org) {
+        this._curEnergy += org.energy;
         if (org.vm === null || !OConfig.orgKillOnClone) {return}
         if (this._curOldOrg === null) {this._curOldOrg = org}
         if (this._curOldOrg.iterations < org.iterations) {this._curOldOrg = org}
-        this._curEnergy += org.energy;
     }
 
     addOrgHandlers(org) {
