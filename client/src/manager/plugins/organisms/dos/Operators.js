@@ -6,17 +6,17 @@
  *
  * @author flatline
  */
-const Helper       = require('./../../../../../../common/src/Helper');
-const EVENTS       = require('./../../../../../src/share/Events').EVENTS;
-const OConfig      = require('./../Config');
-const EConfig      = require('./../../energy/Config');
-const Operators    = require('./../../../../vm/Operators');
-const Objects      = require('./../../objects/Objects');
-const Organism     = require('./../../../plugins/organisms/Organism').Organism;
-const Num          = require('./../../../../vm/Num');
-const OFFSX        = require('./../../../../../../common/src/Directions').OFFSX;
-const OFFSY        = require('./../../../../../../common/src/Directions').OFFSY;
-const OBJECT_TYPES = require('./../../../../view/World').OBJECT_TYPES;
+const Helper           = require('./../../../../../../common/src/Helper');
+const EVENTS           = require('./../../../../../src/share/Events').EVENTS;
+const OConfig          = require('./../Config');
+const EConfig          = require('./../../energy/Config');
+const Operators        = require('./../../../../vm/Operators');
+const Objects          = require('./../../objects/Objects');
+const Organism         = require('./../../../plugins/organisms/Organism').Organism;
+const Num              = require('./../../../../vm/Num');
+const OFFSX            = require('./../../../../../../common/src/Directions').OFFSX;
+const OFFSY            = require('./../../../../../../common/src/Directions').OFFSY;
+const OBJECT_TYPES     = require('./../../../../view/World').OBJECT_TYPES;
 
 const NORMALIZE_NO_DIR = Helper.normalizeNoDir;
 /**
@@ -30,12 +30,14 @@ const OBJECT           = 3;
  * {Function} Is created to speed up this function call. constants are run
  * much faster, then Helper.normalize()
  */
-const IN_WORLD              = Helper.inWorld;
+const IN_WORLD         = Helper.inWorld;
 
 class OperatorsDos extends Operators {
     static compile() {
         const bitsPerOp = OConfig.CODE_BITS_PER_OPERATOR;
-        // TODO: revert this
+        /**
+         * {Number} Total amount of operators. Base lang + custom
+         */
         this.OPERATOR_AMOUNT = 25;
         //
         // IMPORTANT: don't use super here, because it breaks Operators
@@ -74,7 +76,6 @@ class OperatorsDos extends Operators {
         this._compileListen();   // 22
         this._compileCheck();    // 23
         this._compileMyEnergy(); // 24
-        this._compilePoison();   // 25
     }
 
     /**
@@ -233,12 +234,6 @@ class OperatorsDos extends Operators {
                 [x, y]       = NORMALIZE_NO_DIR(org.dirX, org.dirY);
                 const victim = this._positions[x][y];
                 
-                if (victim === OBJECT_TYPES.POISON) {    // Poison found
-                    this._positions[x][y] = 0;
-                    this._world.setDot(x, y, 0);
-                    org.destroy();
-                    return ++line;
-                }
                 if (victim < 0) {return ++line}          // World object found. We can't eat objects
                 if (victim === 0) {                      // Energy found
                     if ((eat = this._world.grabDot(x, y, eat)) > 0) {
@@ -563,33 +558,6 @@ class OperatorsDos extends Operators {
             }`);
             ops[h(`${'111000'}${b(v0, bpv)}`)] = this.global.fn;
         }
-    }
-
-    /**
-     * Compiles all variants of 'poison' operator and stores they in
-     * this._compiledOperators map. '...' means, that all other bits are
-     * ignored. Poison direction depends on active organism's direction.
-     * See Organism.dir property. Example:
-     *
-     * bits  :      6
-     * number: 111001...
-     * string: poison
-     */
-    static _compilePoison() {
-        const ops      = this._compiledOperators;
-        const h        = Helper.toHexNum;
-
-        eval(`Operators.global.fn = function poison(line, num, org) {
-            let   x = org.dirX;
-            let   y = org.dirY;
-            if (!IN_WORLD(x, y) || this._world.data[x][y] !== 0 || org.energy <= OConfig.orgPoisonValue) {return ++line}
-            
-            this._world.setDot(x, y, Helper.getColor(OConfig.orgPoisonColor));
-            this._positions[x][y] = OBJECT_TYPES.POISON;
-            if ((org.energy -= OConfig.orgPoisonValue) < 0) {org.destroy()}
-            return ++line;
-        }`);
-        ops[h(`${'111001'}`)] = this.global.fn;
     }
 
     constructor(offs, vars, obs) {

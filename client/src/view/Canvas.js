@@ -3,12 +3,23 @@
  *
  * @author flatline
  */
-const Panzoom = require('panzoom');
-const Helper  = require('./../../../common/src/Helper');
-const Config  = require('./../share/Config').Config;
+const Panzoom  = require('panzoom');
+const Observer = require('./../../../common/src/Observer');
+const Helper   = require('./../../../common/src/Helper');
+const Config   = require('./../share/Config').Config;
 
-class Canvas {
+/**
+ * {Number} Amount of events in canvas
+ */
+const EVENT_AMOUNT    = 1;
+const EVENT_VISUALIZE = 0;
+const EVENTS          = {
+    VISUALIZE: EVENT_VISUALIZE
+};
+
+class Canvas extends Observer {
     constructor(width, height) {
+        super(EVENT_AMOUNT);
         const id  = 'world';
         const doc = document;
 
@@ -25,7 +36,9 @@ class Canvas {
         this._visualize     = true;
         this._panZoom       = null;
         this._zoomObserver  = null;
-        this._fullEl        = this._createFullScreen();
+        this._fullEl        = this._createFullScreenBtn();
+        this._visualizeEl   = this._createVisualizeBtn();
+        this._isVisualizeOn = true;
         this._xDataOffs     = 0;
         this._yDataOffs     = 0;
         this._visibleWidth  = Config.worldWidth;
@@ -44,11 +57,13 @@ class Canvas {
         this._panZoom.dispose();
         parentNode.removeChild(this._canvasEl);
         parentNode.removeChild(this._fullEl);
-        this._canvasEl = null;
-        this._fullEl   = null;
-        this._ctx      = null;
-        this._imgData  = null;
-        this._data     = null;
+        parentNode.removeChild(this._visualizeEl);
+        this._canvasEl    = null;
+        this._fullEl      = null;
+        this._visualizeEl = null;
+        this._ctx         = null;
+        this._imgData     = null;
+        this._data        = null;
     }
 
     visualize(visualize = true) {
@@ -91,7 +106,7 @@ class Canvas {
         data[offs + 2] = color & 0xff;
     }
 
-    _createFullScreen() {
+    _createFullScreenBtn() {
         const el = document.body.appendChild(Helper.setStyles('DIV', {
             position       : 'absolute',
             width          : '20px',
@@ -103,19 +118,57 @@ class Canvas {
             borderRadius   : '6px',
             cursor         : 'pointer'
         }));
+        //
+        // Inner div
+        //
+        const innerEl = document.body.appendChild(Helper.setStyles('DIV', {
+            position       : 'absolute',
+            width          : '10px',
+            height         : '10px',
+            top            : '12px',
+            left           : '12px',
+            border         : '1px #000 solid',
+            backgroundColor: '#f7ed0e',
+            borderRadius   : '3px',
+            cursor         : 'pointer'
+        }));
 
-        el.title   = 'fullscreen';
-        // TODO: use addEventListener().
-        el.onclick = this._onFullscreen.bind(this);
-        
+        el.title        = 'fullscreen';
+        el.onclick      = this._onFullscreen.bind(this);
+        innerEl.onclick = this._onFullscreen.bind(this);
+
+        return el;
+    }
+
+    _createVisualizeBtn() {
+        const el = document.body.appendChild(Helper.setStyles('DIV', {
+            position       : 'absolute',
+            width          : '20px',
+            height         : '20px',
+            top            : '7px',
+            left           : '34px',
+            border         : '1px #000 solid',
+            backgroundColor: '#b30729',
+            borderRadius   : '6px',
+            cursor         : 'pointer'
+        }));
+
+        el.title   = 'visualize';
+        el.onclick = this._onVisualize.bind(this);
+
         return el;
     }
 
     _onFullscreen() {
         this._panZoom.zoomAbs(0, 0, 1.0);
         this._panZoom.moveTo(0, 0);
-        this._canvasEl.style.width  = '100%';
+        this._canvasEl.style.width   = '100%';
         this._canvasEl.style .height = '100%';
+    }
+
+    _onVisualize() {
+        this.fire(EVENT_VISUALIZE, this._isVisualizeOn = !this._isVisualizeOn);
+        this._visualizeEl.style.backgroundColor = this._isVisualizeOn ? '#b30729' : '#ccc';
     }
 
     _onAnimate() {
@@ -201,4 +254,4 @@ class Canvas {
     }
 }
 
-module.exports = Canvas;
+module.exports = {Canvas, EVENTS};

@@ -90,7 +90,7 @@ class Charts extends Status {
         return document.body.appendChild(Helper.setStyles('DIV', {
             position  : 'absolute',
             top       : '7px',
-            left      : '35px',
+            left      : '60px',
             color     : '#fff',
             fontSize  : '18px',
             fontFamily: 'Consolas'

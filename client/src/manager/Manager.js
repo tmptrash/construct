@@ -23,7 +23,8 @@ const Console          = require('./../share/Console');
 const Helper           = require('./../../../common/src/Helper');
 const World            = require('./../view/World').World;
 const WEVENTS          = require('./../view/World').EVENTS;
-const Canvas           = require('./../view/Canvas');
+const Canvas           = require('./../view/Canvas').Canvas;
+const CEVENTS          = require('./../view/Canvas').EVENTS;
 /**
  * {Function} Shortcut to the datetime stamp getter
  */
@@ -278,7 +279,9 @@ class Manager extends Observer {
     }
 
     _addHandlers() {
-        this._hasView && this._world.on(WEVENTS.DOT, this._onDot.bind(this));
+        if (!this._hasView) {return}
+        this._world.on(WEVENTS.DOT, this._onDot.bind(this));
+        this._canvas.on(CEVENTS.VISUALIZE, this._visualize.bind(this));
     }
 
     _visualize(visualized = true) {
