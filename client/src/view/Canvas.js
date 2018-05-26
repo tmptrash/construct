@@ -147,9 +147,11 @@ class Canvas extends Observer {
             height         : '20px',
             top            : '7px',
             left           : '34px',
-            border         : '1px #000 solid',
-            backgroundColor: '#b30729',
+            border         : '1px #FFEB3B solid',
+            backgroundSize : '8px 8px',
             borderRadius   : '6px',
+            background     : 'radial-gradient(#F44336 15%, transparent 16%) 0 0, radial-gradient(#F44336 15%, transparent 16%) 4px 4px, radial-gradient(rgba(255,255,253,.1) 15%, transparent 20%) 0 1px, radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 8px',
+            backgroundColor: '#FFEB3B',
             cursor         : 'pointer'
         }));
 
@@ -168,7 +170,7 @@ class Canvas extends Observer {
 
     _onVisualize() {
         this.fire(EVENT_VISUALIZE, this._isVisualizeOn = !this._isVisualizeOn);
-        this._visualizeEl.style.backgroundColor = this._isVisualizeOn ? '#b30729' : '#ccc';
+        this._visualizeEl.style.backgroundColor = this._isVisualizeOn ? '#FFEB3B' : '#000';
     }
 
     _onAnimate() {
@@ -211,6 +213,22 @@ class Canvas extends Observer {
             childList      : false,
             attributeFilter: ['style']
         });
+        //
+        // Global keyup event handler
+        //
+        document.addEventListener('keydown', this._onKeyDown.bind(this));
+    }
+
+    _onKeyDown(event) {
+        if (event.ctrlKey && (event.key === 'V' || event.key === 'v')){
+            this._onVisualize();
+            event.preventDefault();
+            return false;
+        } else if (event.ctrlKey && (event.key === 'F' || event.key === 'f')) {
+            this._onFullscreen();
+            event.preventDefault();
+            return false;
+        }
     }
 
     /**
