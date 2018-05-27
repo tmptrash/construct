@@ -18,25 +18,24 @@ class Code2JS extends BaseCode2JS {
          * {Object} These operator handlers should return string representation
          * of numeric based byte vm.
          */
-        this.operators[0b101011] = this._onLookAt.bind(this);
-        this.operators[0b101100] = this._onStep.bind(this);
-        this.operators[0b101101] = this._onDir.bind(this);
-        this.operators[0b101110] = this._onMyX.bind(this);
-        this.operators[0b101111] = this._onMyY.bind(this);
-        this.operators[0b110000] = this._onEat.bind(this);
-        this.operators[0b110001] = this._onPut.bind(this);
-        this.operators[0b110010] = this._onEnergy.bind(this);
-        this.operators[0b110011] = this._onPick.bind(this);
-        this.operators[0b110100] = this._onRand.bind(this);
+        this.operators[0b101100] = this._onLookAt.bind(this);
+        this.operators[0b101101] = this._onStep.bind(this);
+        this.operators[0b101110] = this._onDir.bind(this);
+        this.operators[0b101111] = this._onMyX.bind(this);
+        this.operators[0b110000] = this._onMyY.bind(this);
+        this.operators[0b110001] = this._onEat.bind(this);
+        this.operators[0b110010] = this._onPut.bind(this);
+        this.operators[0b110011] = this._onEnergy.bind(this);
+        this.operators[0b110100] = this._onPick.bind(this);
         this.operators[0b110101] = this._onSay.bind(this);
         this.operators[0b110110] = this._onListen.bind(this);
         this.operators[0b110111] = this._onCheck.bind(this);
         this.operators[0b111000] = this._onMyEnergy.bind(this);
-        this.operators[0b111001] = this._onPoison.bind(this);
+        this.operators[0b111001] = this._onMyAge.bind(this);
         //
         // API of the Manager for accessing outside. (e.g. from Console)
         //
-        Helper.setApi(manager.api, 'formatCode', (code) => this.format(code), 'Converts byte code array into human readable JavaScript based code. This function is low level. For using it you have to get organism\'s virtual machine reference and then use it\'s code property. For example: man.api.formatCode(man.api.organisms.getOrganism(\'128\').vm.code). This example will find organism with id \'128\' and shows his byte code.');
+        Helper.setApi(manager.api, 'toJS', (code) => this.format(code), 'Converts byte code array into human readable JavaScript based code. This function is low level. For using it you have to get organism\'s virtual machine reference and then use it\'s code property. For example: man.api.toJS(man.api.organisms.getOrganism(\'128\').vm.code). This example will find organism with id \'128\' and shows his byte code.');
     }
 
     destroy() {
@@ -51,14 +50,13 @@ class Code2JS extends BaseCode2JS {
     _onMyY(num)      {return `v${Num.getVar0(num)}=myY()`}
     _onEat(num)      {return `eat(v${Num.getVar0(num)})`}
     _onPut(num)      {return `put(v${Num.getVar0(num)})`}
-    _onEnergy(num)   {return `energy(v${Num.getVar0(num)})`}
+    _onEnergy(num)   {return `energy()`}
     _onPick(num)     {return `pick(v${Num.getVar0(num)})`}
-    _onRand(num)     {return `v${Num.getVar0(num)}=rand(v${Num.getVar1(num)})`}
     _onSay(num)      {return `say(v${Num.getVar0(num)})`}
     _onListen(num)   {return `v${Num.getVar0(num)}=listen()`}
     _onCheck(num)    {return `v${Num.getVar0(num)}=check()`}
     _onMyEnergy(num) {return `v${Num.getVar0(num)}=myEnergy()`}
-    _onPoison()      {return `poison()`}
+    _onMyAge(num)    {return `v${Num.getVar0(num)}=myAge()`}
 }
 
 module.exports = Code2JS;

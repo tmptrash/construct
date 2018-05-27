@@ -33,7 +33,8 @@ class Code2JS {
             0b100111: this._onReturn.bind(this),
             0b101000: this._onBracket.bind(this),
             0b101001: this._onToMem.bind(this),
-            0b101010: this._onFromMem.bind(this)
+            0b101010: this._onFromMem.bind(this),
+            0b101011: this._onRand.bind(this)
         };
     }
 
@@ -122,6 +123,10 @@ class Code2JS {
 
     _onFromMem(num) {
         return `v${Num.getVar0(num)}=fromMem(v${Num.getVar1(num)})`;
+    }
+
+    _onRand(num) {
+        return `v${Num.getVar0(num)}=rand(v${Num.getVar1(num)})`;
     }
 }
 

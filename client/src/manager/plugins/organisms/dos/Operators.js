@@ -38,7 +38,7 @@ class OperatorsDos extends Operators {
         /**
          * {Number} Total amount of operators. Base lang + custom
          */
-        this.OPERATOR_AMOUNT = 25;
+        this.OPERATOR_AMOUNT = 26;
         //
         // IMPORTANT: don't use super here, because it breaks Operators
         // IMPORTANT: class internal logic. Operators.global will be point
@@ -61,21 +61,22 @@ class OperatorsDos extends Operators {
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
         this.LENS.push(Num.MAX_BITS -  bitsPerOp);
+        this.LENS.push(Num.MAX_BITS -  bitsPerOp);
 
-        this._compileLookAt();   // 11
-        this._compileStep();     // 12
-        this._compileDir();      // 13
-        this._compileMyX();      // 14
-        this._compileMyY();      // 15
-        this._compileEat();      // 16
-        this._compilePut();      // 17
-        this._compileEnergy();   // 18
-        this._compilePick();     // 19
-        this._compileRand();     // 20
+        this._compileLookAt();   // 12
+        this._compileStep();     // 13
+        this._compileDir();      // 14
+        this._compileMyX();      // 15
+        this._compileMyY();      // 16
+        this._compileEat();      // 17
+        this._compilePut();      // 18
+        this._compileEnergy();   // 19
+        this._compilePick();     // 20
         this._compileSay();      // 21
         this._compileListen();   // 22
         this._compileCheck();    // 23
         this._compileMyEnergy(); // 24
+        this._compileMyAge();    // 25
     }
 
     /**
@@ -85,7 +86,7 @@ class OperatorsDos extends Operators {
      * ignored. Example:
      *
      * bits  :      6 xx xx xx
-     * number: 101011 00 01 00...
+     * number: 101100 00 01 00...
      * string: v0 = lookAt(v1, v0)
      */
     static _compileLookAt() {
@@ -105,7 +106,7 @@ class OperatorsDos extends Operators {
                         vars[${v0}] = (IN_WORLD(x, y) ? (this._positions[x][y] <= 0 ? this._world.data[x][y] : this._positions[x][y].energy) : 0);
                         return ++line;
                     }`);
-                    ops[h(`${'101011'}${b(v0, bpv)}${b(v1, bpv)}${b(v2, bpv)}`)] = this.global.fn;
+                    ops[h(`${'101100'}${b(v0, bpv)}${b(v1, bpv)}${b(v2, bpv)}`)] = this.global.fn;
                 }
             }
         }
@@ -118,7 +119,7 @@ class OperatorsDos extends Operators {
      * See Organism.dir property. Example:
      *
      * bits  :      6
-     * number: 101100...
+     * number: 101101...
      * string: step
      */
     static _compileStep() {
@@ -126,7 +127,7 @@ class OperatorsDos extends Operators {
             this._obs.fire(${EVENTS.STEP}, org, org.x, org.y, org.dirX, org.dirY);
             return ++line;
         }`);
-        this._compiledOperators[Helper.toHexNum(`${'101100'}`)] = this.global.fn;
+        this._compiledOperators[Helper.toHexNum(`${'101101'}`)] = this.global.fn;
     }
 
     /**
@@ -136,7 +137,7 @@ class OperatorsDos extends Operators {
      * ignored. Example:
      *
      * bits  :      6 xx
-     * number: 101101 11...
+     * number: 101110 11...
      * string: dir(v3)
      */
     static _compileDir() {
@@ -152,7 +153,7 @@ class OperatorsDos extends Operators {
                 org.dir = ((this.vars[${v0}] + .5) << 0 >>> 0) % ${dirs};
                 return ++line;
             }`);
-            ops[h(`${'101101'}${b(v0, bpv)}`)] = this.global.fn;
+            ops[h(`${'101110'}${b(v0, bpv)}`)] = this.global.fn;
         }
     }
 
@@ -163,7 +164,7 @@ class OperatorsDos extends Operators {
      * ignored. Example:
      *
      * bits  :      6 xx
-     * number: 101110 00...
+     * number: 101111 00...
      * string: v0 = myX()
      */
     static _compileMyX() {
@@ -178,7 +179,7 @@ class OperatorsDos extends Operators {
                 this.vars[${v0}] = org.x;
                 return ++line;
             }`);
-            ops[h(`${'101110'}${b(v0, bpv)}`)] = this.global.fn;
+            ops[h(`${'101111'}${b(v0, bpv)}`)] = this.global.fn;
         }
     }
 
@@ -189,7 +190,7 @@ class OperatorsDos extends Operators {
      * ignored. Example:
      *
      * bits  :      6 xx
-     * number: 101111 00...
+     * number: 110000 00...
      * string: v0 = myY()
      */
     static _compileMyY() {
@@ -204,7 +205,7 @@ class OperatorsDos extends Operators {
                 this.vars[${v0}] = org.y;
                 return ++line;
             }`);
-            ops[h(`${'101111'}${b(v0, bpv)}`)] = this.global.fn;
+            ops[h(`${'110000'}${b(v0, bpv)}`)] = this.global.fn;
         }
     }
 
@@ -215,7 +216,7 @@ class OperatorsDos extends Operators {
      * See Organism.dir property. Example:
      *
      * bits  :      6 xx
-     * number: 110000 01...
+     * number: 110001 01...
      * string: eat(v1)
      */
     static _compileEat() {
@@ -264,7 +265,7 @@ class OperatorsDos extends Operators {
         
                 return ++line;
             }`);
-            ops[h(`${'110000'}${b(v0, bpv)}`)] = this.global.fn;
+            ops[h(`${'110001'}${b(v0, bpv)}`)] = this.global.fn;
         }
     }
 
@@ -275,7 +276,7 @@ class OperatorsDos extends Operators {
      * See Organism.dir property. Example:
      *
      * bits  :      6 xx
-     * number: 110001 01...
+     * number: 110010 01...
      * string: put(v1)
      */
     static _compilePut() {
@@ -309,7 +310,7 @@ class OperatorsDos extends Operators {
                 org.energy -= put;
                 return ++line;
             }`);
-            ops[h(`${'110001'}${b(v0, bpv)}`)] = this.global.fn;
+            ops[h(`${'110010'}${b(v0, bpv)}`)] = this.global.fn;
         }
     }
 
@@ -321,9 +322,9 @@ class OperatorsDos extends Operators {
      * only one energy object it will not be transformed to energy.
      * Example:
      *
-     * bits  :      6 xx
-     * number: 110010 01...
-     * string: energy(v1)
+     * bits  :      6
+     * number: 110011...
+     * string: energy()
      */
     static _compileEnergy() {
         const ops      = this._compiledOperators;
@@ -371,7 +372,7 @@ class OperatorsDos extends Operators {
             }
             return ++line;
         }`);
-        ops[h(`${'110010'}`)] = this.global.fn;
+        ops[h(`${'110011'}`)] = this.global.fn;
     }
 
     /**
@@ -381,7 +382,7 @@ class OperatorsDos extends Operators {
      * See Organism.dir property. Example:
      *
      * bits  :      6 xx
-     * number: 110011 01...
+     * number: 110100 01...
      * string: pick(v1)
      */
     static _compilePick() {
@@ -411,35 +412,7 @@ class OperatorsDos extends Operators {
                 }
                 return ++line;
             }`);
-            ops[h(`${'110011'}${b(v0, bpv)}`)] = this.global.fn;
-        }
-    }
-
-    /**
-     * Compiles all variants of 'rand' operator and stores they in
-     * this._compiledOperators map. '...' means, that all other bits are
-     * ignored. Step direction depends on active organism's direction.
-     * See Organism.dir property. Example:
-     *
-     * bits  :      6 xx xx
-     * number: 110100 01 11...
-     * string: v1 = rand(v3)
-     */
-    static _compileRand() {
-        const bpv      = OConfig.codeBitsPerVar;
-        const ops      = this._compiledOperators;
-        const h        = Helper.toHexNum;
-        const b        = Helper.toBinStr;
-        const vars     = Math.pow(2, bpv);
-
-        for (let v0 = 0; v0 < vars; v0++) {
-            for (let v1 = 0; v1 < vars; v1++) {
-                eval(`Operators.global.fn = function rand(line) {
-                    this.vars[${v0}] = Helper.rand(((this.vars[${v1}] + .5) << 0 >>> 0));
-                    return ++line;
-                }`);
-                ops[h(`${'110100'}${b(v0, bpv)}${b(v1, bpv)}`)] = this.global.fn;
-            }
+            ops[h(`${'110100'}${b(v0, bpv)}`)] = this.global.fn;
         }
     }
 
@@ -535,7 +508,7 @@ class OperatorsDos extends Operators {
     }
 
     /**
-     * Compiles all variants of 'check' operator and stores they in
+     * Compiles all variants of 'myEnergy' operator and stores they in
      * this._compiledOperators map. '...' means, that all other bits are
      * ignored. Step direction depends on active organism's direction.
      * See Organism.dir property. Example:
@@ -557,6 +530,32 @@ class OperatorsDos extends Operators {
                 return ++line;
             }`);
             ops[h(`${'111000'}${b(v0, bpv)}`)] = this.global.fn;
+        }
+    }
+
+    /**
+     * Compiles all variants of 'myAge' operator and stores they in
+     * this._compiledOperators map. '...' means, that all other bits are
+     * ignored. Step direction depends on active organism's direction.
+     * See Organism.dir property. Example:
+     *
+     * bits  :      6 xx
+     * number: 111001 00...
+     * string: v0 = myAge()
+     */
+    static _compileMyAge() {
+        const bpv      = OConfig.codeBitsPerVar;
+        const ops      = this._compiledOperators;
+        const h        = Helper.toHexNum;
+        const b        = Helper.toBinStr;
+        const vars     = Math.pow(2, bpv);
+
+        for (let v0 = 0; v0 < vars; v0++) {
+            eval(`Operators.global.fn = function myEnergy(line, num, org) {
+                this.vars[${v0}] = org.iterations;
+                return ++line;
+            }`);
+            ops[h(`${'111001'}${b(v0, bpv)}`)] = this.global.fn;
         }
     }
 

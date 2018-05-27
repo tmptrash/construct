@@ -8,7 +8,7 @@ const OConfig         = require('./../manager/plugins/organisms/Config');
 const Num             = require('./Num');
 const Helper          = require('./../../../common/src/Helper');
 
-const OPERATOR_AMOUNT = 11;
+const OPERATOR_AMOUNT = 12;
 const MAX_STACK_SIZE  = 30000;
 
 class Operators {
@@ -64,7 +64,7 @@ class Operators {
             MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar),                            // const
             MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar * 2 + this.CONDITION_BITS),  // if
             MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar * 2 + this.CONDITION_BITS),  // loop
-            MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar * 3 + this.CONDITION_BITS),       // math
+            MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar * 3 + this.CONDITION_BITS),  // math
             MAX_BITS - (bitsPerOp),                                                     // func
             MAX_BITS - (bitsPerOp),                                                     // func call
             MAX_BITS - (bitsPerOp),                                                     // return
@@ -93,6 +93,7 @@ class Operators {
         this._compileBracket();   // 8
         this._compileToMem();     // 9
         this._compileFromMem();   // 10
+        this._compileRand();      // 11
     }
 
     /**
@@ -419,6 +420,34 @@ class Operators {
                     return ++line;
                 }`);
                 ops[h(`${'101010'}${b(v0, bpv)}${b(v1, bpv)}`)] = this.global.fn;
+            }
+        }
+    }
+
+    /**
+     * Compiles all variants of 'rand' operator and stores they in
+     * this._compiledOperators map. '...' means, that all other bits are
+     * ignored. Step direction depends on active organism's direction.
+     * See Organism.dir property. Example:
+     *
+     * bits  :      6 xx xx
+     * number: 101011 01 11...
+     * string: v1 = rand(v3)
+     */
+    static _compileRand() {
+        const bpv      = OConfig.codeBitsPerVar;
+        const ops      = this._compiledOperators;
+        const h        = Helper.toHexNum;
+        const b        = Helper.toBinStr;
+        const vars     = Math.pow(2, bpv);
+
+        for (let v0 = 0; v0 < vars; v0++) {
+            for (let v1 = 0; v1 < vars; v1++) {
+                eval(`Operators.global.fn = function rand(line) {
+                    this.vars[${v0}] = Helper.rand(((this.vars[${v1}] + .5) << 0 >>> 0));
+                    return ++line;
+                }`);
+                ops[h(`${'101011'}${b(v0, bpv)}${b(v1, bpv)}`)] = this.global.fn;
             }
         }
     }

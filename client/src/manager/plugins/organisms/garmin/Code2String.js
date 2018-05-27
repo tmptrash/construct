@@ -53,7 +53,7 @@ class Code2JS {
         //
         // API of the Manager for accessing outside. (e.g. from Console)
         //
-        manager.api.formatCode = (code) => this.format(code);
+        manager.api.toJS = (code) => this.format(code);
     }
 
     destroy() {
