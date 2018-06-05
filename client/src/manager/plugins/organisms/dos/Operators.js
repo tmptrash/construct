@@ -55,13 +55,11 @@ class OperatorsDos extends Operators {
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
         this.LENS.push(Num.MAX_BITS -  bitsPerOp);
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
-        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar * 2));
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar)); // say
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
         this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
-        this.LENS.push(Num.MAX_BITS -  bitsPerOp);
-        this.LENS.push(Num.MAX_BITS -  bitsPerOp);
 
         this._compileLookAt();   // 12
         this._compileStep();     // 13
@@ -103,7 +101,11 @@ class OperatorsDos extends Operators {
                         const vars  = this.vars;
                         const x     = (vars[${v1}] + .5) << 0;
                         const y     = (vars[${v2}] + .5) << 0;
-                        vars[${v0}] = (IN_WORLD(x, y) ? (this._positions[x][y] <= 0 ? this._world.data[x][y] : this._positions[x][y].energy) : 0);
+                        if (!IN_WORLD(x, y)) {
+                            vars[${v0}] = 0; 
+                            return ++line;
+                        }
+                        vars[${v0}] = this._getDotType(x, y);
                         return ++line;
                     }`);
                     ops[h(`${'101100'}${b(v0, bpv)}${b(v1, bpv)}${b(v2, bpv)}`)] = this.global.fn;
@@ -492,14 +494,7 @@ class OperatorsDos extends Operators {
                 const x = org.dirX;
                 const y = org.dirY;
                 if (!IN_WORLD(x, y)) {return ++line}
-                
-                if (this._positions[x][y] < 0) {
-                    this.vars[${v0}] = this._positions[x][y];
-                } else if (this._positions[x][y] === 0) {
-                    this.vars[${v0}] = this._world.getDot(x, y) > 0 ? ENERGY : EMPTY;
-                } else {
-                    this.vars[${v0}] = ORGANISM;
-                }
+                this.vars[${v0}] = this._getDotType(x, y);
                 
                 return ++line;
             }`);
@@ -574,6 +569,23 @@ class OperatorsDos extends Operators {
      * @abstract
      */
     get length() {return OperatorsDos.OPERATOR_AMOUNT}
+
+    /**
+     * Returns type of the dot under x,y coordinates
+     * @param {Number} x X coordinate
+     * @param {Number} y Y coordinate
+     * @returns {Number} dot type
+     */
+    _getDotType(x, y) {
+        if (this._positions[x][y] < 0) {
+            return this._positions[x][y];
+        }
+        if (this._positions[x][y] === 0) {
+            return this._world.getDot(x, y) > 0 ? ENERGY : EMPTY;
+        }
+
+        return ORGANISM;
+    }
 
     destroy() {
         super.destroy();

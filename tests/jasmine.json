@@ -4,8 +4,9 @@
     "1client/src/**/*[sS]pec.js",
     "1common/src/**/*[sS]pec.js",
     "1server/src/**/*[sS]pec.js",
-    "common/src/FastArraySpec.js",
-    "client/src/vm/OperatorsSpec.js"
+    "1common/src/FastArraySpec.js",
+    "1client/src/vm/OperatorsSpec.js",
+    "client/src/manager/plugins/organisms/dos/OperatorsSpec.js"
   ],
   "stopSpecOnExpectationFailure": false,
   "random": false

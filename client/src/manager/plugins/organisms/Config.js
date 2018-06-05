@@ -3,7 +3,12 @@
  *
  * @author flatline
  */
-const Config = {
+const Helper       = require('./../../../../../common/src/Helper');
+const GConfig      = require('./../../../share/Config').Config;
+
+const ENERGY_VALUE = Helper.getColor(GConfig.worldEnergyColor);
+
+const Config       = {
     /**
      * @constant
      * {Number} Max value, which we may use in orgMutationProbs array. We may use
@@ -63,7 +68,7 @@ const Config = {
     /**
      * {Number} Minimum energy for cloning
      */
-    orgCloneMinEnergy: .8 * 0x6d3b4,
+    orgCloneMinEnergy: .8 * ENERGY_VALUE,
     /**
      * {Boolean} If true, then random organism will be killed after new one has
      * cloned and amount of organisms is greater then orgMaxOrgs config. false
@@ -111,21 +116,13 @@ const Config = {
     /**
      * {Number} Maximum energy organism may reach collecting energy
      */
-    orgMaxEnergy: 0x6d3b4,
+    orgMaxEnergy: ENERGY_VALUE,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created
      * by operator and not by evolution.
      */
-    orgStartEnergy: 0x6d3b4,
-    /**
-     * {Number} Amount of energy, that grabs from organism in case of eating poison
-     */
-    orgPoisonValue: .5 * 0x6d3b4,
-    /**
-     * {Number} Color index of poison dot
-     */
-    orgPoisonColor: 6645,
+    orgStartEnergy: ENERGY_VALUE,
     /**
      * {Number} Size of organism stack (internal memory) in bits. Real amount of
      * organism's internal memory will be 2^orgMemBits. Example: if orgMemBits=3,

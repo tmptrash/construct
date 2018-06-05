@@ -10,6 +10,7 @@ const QUIET_ALL               = 0;
 const QUIET_IMPORTANT         = 1;
 const QUIET_NO                = 2;
 
+const ENERGY_COLOR            = 10000;
 const IS_NODE_JS              = typeof window === 'undefined';
 
 class ClientConfig extends Config {}
@@ -58,6 +59,15 @@ ClientConfig.init({
      * {Number} World height
      */
     worldHeight: 1080 * 4,
+    /**
+     * {Number} Color index of one energy dot
+     */
+    worldEnergyColor: ENERGY_COLOR,
+    /**
+     * {Number} Amount of all energy in a world including organisms and all kinds
+     * of energy. Total energy should not be greater then this value.
+     */
+    worldEnergy: 0x6d3b4 * 10000, // Helper.getColor(ENERGY_COLOR) === 0x6d3b4
     /**
      * {Number} Turns on cyclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10

@@ -1,105 +1,232 @@
-const _fill     = require('lodash/fill');
-const Operators = require('./Operators');
-const OConfig   = require('./../../../plugins/organisms/Config');
-const Helper    = require('./../../../../../../common/src/Helper');
+const _fill        = require('lodash/fill');
+const OperatorsDos = require('./Operators');
+const OConfig      = require('./../../../plugins/organisms/Config');
+const Config       = require('./../../../../share/Config').Config;
+const Helper       = require('./../../../../../../common/src/Helper');
+const OrganismDos  = require('./Organism');
+const World        = require('./../../../../view/World').World;
 
-describe("client/src/manager/plugins/organisms/OperatorsDos", () => {
-    const h       = Helper.toHexNum;
-    const MAX_NUM = Number.MAX_VALUE;
+describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
+    const hex    = Helper.toHexNum;
+    const ww     = Config.worldWidth;
+    const wh     = Config.worldHeight;
+    const oldMan = global.man;
     let   cbpv;
     let   ccb;
     let   ops;
     let   offs;
     let   vars;
+    let   w;
+    let   h;
 
     beforeAll (() => {
         cbpv = OConfig.codeBitsPerVar;
         OConfig.codeBitsPerVar = 2;
         ccb = OConfig.codeConstBits;
         OConfig.codeConstBits  = 3;
-        Operators.compile();
+        global.man = {world: {}, positions: [
+                [0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0]
+            ]};
+        OperatorsDos.compile();
     });
     afterAll  (() => {
         OConfig.codeBitsPerVar = cbpv;
         OConfig.codeConstBits  = ccb;
+        global.man             = oldMan;
     });
     beforeEach(() => {
-        vars = [0,1,2,3];
-        offs = new Array(10);
-        ops  = new Operators(offs, vars);
+        w     = 10;
+        h     = 10;
+        Config.worldWidth  = w;
+        Config.worldHeight = h;
+        global.man.world = new World(w, h);
+        vars  = [0,1,2,3];
+        offs  = new Array(10);
+        ops   = new OperatorsDos(offs, vars);
     });
     afterEach (() => {
         ops.destroy();
-        ops  = null;
-        offs = null;
-        vars = null;
+        global.man.world.destroy();
+        ops        = null;
+        offs       = null;
+        vars       = null;
+        Config.worldWidth  = ww;
+        Config.worldHeight = wh;
     });
 
-    xdescribe('onLookAt() method', () => {
-        let   org;
-        let   ops;
-        const w = Config.worldWidth;
-        const h = Config.worldHeight;
-
-        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
-        afterEach (() => {ops.destroy(); org.destroy(); Config.worldHeight = h; Config.worldWidth = w});
-
+    describe('onLookAt() method', () => {
         it("Checking onLookAt() is found nothing", () => {
-            org.on(EVENTS.GET_ENERGY, (x, y, ret) => {
-                expect(x).toBe(2);
-                expect(y).toBe(3);
-                ret.ret = 0;
-            });
-            expect(ops.onLookAt(0x056fffff, 0, org)).toEqual(1); //v1=lookAt(v2,v3);
+            expect(ops.operators[hex('101100 01 00 11')].call(ops, 0)).toEqual(1);
             expect(ops.vars).toEqual([0,0,2,3]);
         });
 
-        it("Checking onLookAt() looking outside of the world", () => {
-            ops.vars = [0, 1, 20, 30];
-            expect(ops.onLookAt(0x056fffff, 0, org)).toEqual(1); //v1=lookAt(v2,v3);
-            expect(ops.vars).toEqual([0,0,20,30]);
+        it("Checking onLookAt() looking outside of the world - x", () => {
+            ops.vars[0] = 11;
+            expect(ops.operators[hex('101100 01 00 11')].call(ops, 0)).toEqual(1);
+            expect(ops.vars).toEqual([11,0,2,3]);
+        });
 
-            ops.vars = [0, 1, -20, -30];
-            expect(ops.onLookAt(0x056fffff, 0, org)).toEqual(1); //v1=lookAt(v2,v3);
-            expect(ops.vars).toEqual([0,0,-20,-30]);
+        it("Checking onLookAt() looking outside of the world - y", () => {
+            ops.vars[3] = 11;
+            expect(ops.operators[hex('101100 01 00 11')].call(ops, 0)).toEqual(1);
+            expect(ops.vars).toEqual([0,0,2,11]);
         });
 
         it('Checking onLookAt() found an energy', () => {
-            org.on(EVENTS.GET_ENERGY, (x, y, ret) => {
-                expect(x).toBe(2);
-                expect(y).toBe(3);
-                ret.ret = 13;
-            });
-            expect(ops.onLookAt(0x056fffff, 0, org)).toEqual(1); //v1=lookAt(v2,v3);
-            expect(ops.vars).toEqual([0,13,2,3]);
+            global.man.world.setDot(0,3,0xaabbcc);
+            expect(ops.operators[hex('101100 01 00 11')].call(ops, 0)).toEqual(1);
+            expect(ops.vars).toEqual([0,1,2,3]);
+            global.man.world.setDot(0,3,0);
         });
 
-        it('Checking onLookAt() with 4 bits per var', () => {
-            let bpv = OConfig.codeBitsPerVar;
-            OConfig.codeBitsPerVar = 4;
-            let ops1 = new OperatorsDos([1], [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,7], org);
+        it('Checking onLookAt() found an object', () => {
+            global.man.world.setDot(0,3,0xaabbcc);
+            global.man.positions[0][3] = -2;
+            expect(ops.operators[hex('101100 01 00 11')].call(ops, 0)).toEqual(1);
+            expect(ops.vars).toEqual([0,-2,2,3]);
+            global.man.world.setDot(0,3,0);
+            global.man.positions[0][3] = 0;
+        });
 
-            org.on(EVENTS.GET_ENERGY, (x, y, ret) => {
-                expect(x).toBe(7);
-                expect(y).toBe(7);
-                ret.ret = 13;
-            });
-            expect(ops1.onLookAt(0x056fffff, 0, org)).toEqual(1); //v6=lookAt(v15,v15);
-            expect(ops1.vars).toEqual([0,1,2,3,4,5,13,7,8,9,10,11,12,13,14,7]);
-
-            OConfig.codeBitsPerVar = bpv;
-            ops1.destroy();
+        it('Checking onLookAt() found an organism', () => {
+            global.man.world.setDot(0,3,0xaabbcc);
+            global.man.positions[0][3] = {energy: 123};
+            expect(ops.operators[hex('101100 01 00 11')].call(ops, 0)).toEqual(1);
+            expect(ops.vars).toEqual([0,2,2,3]);
+            global.man.world.setDot(0,3,0);
+            global.man.positions[0][3] = 0;
         });
 
         it('Checking onLookAt() with floating coordinates', () => {
-            org.on(EVENTS.GET_ENERGY, (x, y, ret) => {
-                expect(x).toBe(0);
-                expect(y).toBe(4);
-                ret.ret = 13;
+            ops.vars[0] = .1;
+            ops.vars[3] = .2;
+            expect(ops.operators[hex('101100 01 00 11')].call(ops, 0)).toEqual(1);
+            expect(ops.vars).toEqual([.1,0,2,.2]);
+        });
+
+        describe('onLookAt() method 3bits per var', () => {
+            let bpv;
+            let ops;
+            let vars;
+            let offs;
+            beforeAll (() => {
+                bpv  = OConfig.codeBitsPerVar;
+                OConfig.codeBitsPerVar = 3;
+                OperatorsDos.compile();
             });
-            ops.vars = [0, 1, .1, 3.6];
-            expect(ops.onLookAt(0x056fffff, 0, org)).toEqual(1); //v1=lookAt(v2,v3);
-            expect(ops.vars).toEqual([0,13,.1,3.6]);
+            afterAll  (() => OperatorsDos.compile());
+            beforeEach(() => {
+                vars = [0,1,2,3,4,5,6,7];
+                offs = new Array(10);
+                ops  = new OperatorsDos(offs, vars);
+            });
+            afterEach (() => {
+                ops.destroy();
+                ops  = null;
+                offs = null;
+                vars = null;
+                OConfig.codeBitsPerVar = bpv;
+            });
+
+            it("Checking onLookAt() is found nothing", () => {
+                expect(ops.operators[hex('101100 001 000 011')].call(ops, 0)).toEqual(1);
+                expect(ops.vars).toEqual([0,0,2,3,4,5,6,7]);
+            });
+
+            it("Checking onLookAt() looking outside of the world - x", () => {
+                ops.vars[0] = 11;
+                expect(ops.operators[hex('101100 001 000 011')].call(ops, 0)).toEqual(1);
+                expect(ops.vars).toEqual([11,0,2,3,4,5,6,7]);
+            });
+
+            it("Checking onLookAt() looking outside of the world - y", () => {
+                ops.vars[3] = 11;
+                expect(ops.operators[hex('101100 001 000 011')].call(ops, 0)).toEqual(1);
+                expect(ops.vars).toEqual([0,0,2,11,4,5,6,7]);
+            });
+
+            it('Checking onLookAt() found an energy', () => {
+                global.man.world.setDot(0,3,0xaabbcc);
+                expect(ops.operators[hex('101100 001 000 011')].call(ops, 0)).toEqual(1);
+                expect(ops.vars).toEqual([0,1,2,3,4,5,6,7]);
+                global.man.world.setDot(0,3,0);
+            });
+
+            it('Checking onLookAt() found an object', () => {
+                global.man.world.setDot(0,3,0xaabbcc);
+                global.man.positions[0][3] = -2;
+                expect(ops.operators[hex('101100 001 000 011')].call(ops, 0)).toEqual(1);
+                expect(ops.vars).toEqual([0,-2,2,3,4,5,6,7]);
+                global.man.world.setDot(0,3,0);
+                global.man.positions[0][3] = 0;
+            });
+
+            it('Checking onLookAt() found an organism', () => {
+                global.man.world.setDot(0,3,0xaabbcc);
+                global.man.positions[0][3] = {energy: 123};
+                expect(ops.operators[hex('101100 001 000 011')].call(ops, 0)).toEqual(1);
+                expect(ops.vars).toEqual([0,2,2,3,4,5,6,7]);
+                global.man.world.setDot(0,3,0);
+                global.man.positions[0][3] = 0;
+            });
+
+            it('Checking onLookAt() with floating coordinates', () => {
+                ops.vars[0] = .1;
+                ops.vars[3] = .2;
+                expect(ops.operators[hex('101100 001 000 011')].call(ops, 0)).toEqual(1);
+                expect(ops.vars).toEqual([.1,0,2,.2,4,5,6,7]);
+            });
+        });
+    });
+
+    describe('onStepLeft() method', () => {
+        it("Checking step left", () => {
+            ops.vars[3] = 11;
+            ops.
+            expect(ops.operators[hex('101101')].call(ops, 0)).toEqual(1);
+            expect(ops.vars).toEqual([0,0,2,11]);
+        });
+
+        xit("Checking step left with no free space on the left", () => {
+            org.x = 3;
+            org.y = 4;
+            org.on(EVENTS.STEP, (org, x1, y1, x2, y2) => {
+                expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toBe(true);
+            });
+            expect(ops.onStepLeft(0x0a1fffff, 0, org)).toEqual(1); // v0=stepLeft();
+            expect(ops.vars).toEqual([0,1,2,3]);
+            expect(org.x).toBe(3);
+            expect(org.y).toBe(4);
+        });
+
+        xit("Checking step left with 4 bits per var", () => {
+            let bpv = OConfig.codeBitsPerVar;
+            OConfig.codeBitsPerVar = 4;
+            let ops1 = new OperatorsDos([1], [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], org);
+
+            org.x = 3;
+            org.y = 4;
+            org.on(EVENTS.STEP, (org, x1, y1, x2, y2) => {
+                org.x = x2;
+                org.y = y2;
+                expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toBe(true);
+            });
+            expect(ops1.onStepLeft(0x0a1fffff, 0, org)).toEqual(1); // v1=stepLeft();
+            expect(ops1.vars).toEqual([0,2,2,3,4,5,6,7,8,9,10,11,12,13,14,15]);
+            expect(org.x).toBe(2);
+            expect(org.y).toBe(4);
+
+            OConfig.codeBitsPerVar = bpv;
+            ops1.destroy();
         });
     });
 
@@ -162,63 +289,6 @@ describe("client/src/manager/plugins/organisms/OperatorsDos", () => {
             OConfig.codeBitsPerVar = bpv;
             ops1.destroy();
         })
-    });
-
-    xdescribe('onStepLeft() method', () => {
-        let   org;
-        let   ops;
-        const w = Config.worldWidth;
-        const h = Config.worldHeight;
-
-        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
-        afterEach (() => {ops.destroy(); org.destroy(); Config.worldHeight = h; Config.worldWidth = w});
-
-        it("Checking step left", () => {
-            org.x = 3;
-            org.y = 4;
-            org.on(EVENTS.STEP, (org, x1, y1, x2, y2) => {
-                org.x = x2;
-                org.y = y2;
-                expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toBe(true);
-            });
-            expect(ops.onStepLeft(0x0a1fffff, 0, org)).toEqual(1); // v0=stepLeft();
-            expect(ops.vars).toEqual([2,1,2,3]);
-            expect(org.x).toBe(2);
-            expect(org.y).toBe(4);
-        });
-
-        it("Checking step left with no free space on the left", () => {
-            org.x = 3;
-            org.y = 4;
-            org.on(EVENTS.STEP, (org, x1, y1, x2, y2) => {
-                expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toBe(true);
-            });
-            expect(ops.onStepLeft(0x0a1fffff, 0, org)).toEqual(1); // v0=stepLeft();
-            expect(ops.vars).toEqual([0,1,2,3]);
-            expect(org.x).toBe(3);
-            expect(org.y).toBe(4);
-        });
-
-        it("Checking step left with 4 bits per var", () => {
-            let bpv = OConfig.codeBitsPerVar;
-            OConfig.codeBitsPerVar = 4;
-            let ops1 = new OperatorsDos([1], [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], org);
-
-            org.x = 3;
-            org.y = 4;
-            org.on(EVENTS.STEP, (org, x1, y1, x2, y2) => {
-                org.x = x2;
-                org.y = y2;
-                expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toBe(true);
-            });
-            expect(ops1.onStepLeft(0x0a1fffff, 0, org)).toEqual(1); // v1=stepLeft();
-            expect(ops1.vars).toEqual([0,2,2,3,4,5,6,7,8,9,10,11,12,13,14,15]);
-            expect(org.x).toBe(2);
-            expect(org.y).toBe(4);
-
-            OConfig.codeBitsPerVar = bpv;
-            ops1.destroy();
-        });
     });
 
     xdescribe('onMyX() method', () => {

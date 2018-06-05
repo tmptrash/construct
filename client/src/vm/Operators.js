@@ -70,7 +70,8 @@ class Operators {
             MAX_BITS - (bitsPerOp),                                                     // return
             MAX_BITS - (bitsPerOp),                                                     // bracket
             MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar * 2),                        // toMem
-            MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar * 2)                         // fromMem
+            MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar * 2),                        // fromMem
+            MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar * 2)                         // rand
         ];
         /**
          * {Object} Map for all available operator handlers

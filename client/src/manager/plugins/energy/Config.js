@@ -4,9 +4,8 @@
  * @author flatline
  */
 const Helper       = require('./../../../../../common/src/Helper');
+const GConfig      = require('./../../../share/Config').Config;
 
-const COLOR_INDEX  = 10000;
-const COLOR        = Helper.getColor;
 const Config       = {
     /**
      * {Number} An amount of iteration, after which we have to check world energy
@@ -21,15 +20,15 @@ const Config       = {
      * {Number} Index of energy color. Starts from 0. Ends with 4000. See Organism.MAX_COLORS
      * constant for details
      */
-    colorIndex: COLOR_INDEX,
+    colorIndex: GConfig.worldEnergyColor,
     /**
      * {Number} Maximum amount of energy dots
      */
-    maxValue: .8 * COLOR(COLOR_INDEX) * 10000,
+    maxValue: .8 * GConfig.worldEnergy,
     /**
      * {Number} Opposite to maxValue. Minimum amount of energy dots
      */
-    minValue: .7 * COLOR(COLOR_INDEX) * 10000,
+    minValue: .7 * GConfig.worldEnergy,
     /**
      * {Array|null} In case of array you may set sequence of four values: x,y,w,h.
      * They means x,y coordinates, width, height of places with high energy concentration.

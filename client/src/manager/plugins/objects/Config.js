@@ -3,7 +3,9 @@
  *
  * @author flatline
  */
-const Config = {
+const GConfig = require('./../../../share/Config').Config;
+
+const Config  = {
     /**
      * {Number} An amount of iteration, after which we have to check world energy
      * objects percent. May be 0 if you want to disable energy objects generation
@@ -16,11 +18,11 @@ const Config = {
     /**
      * {Number} Maximum amount of object dots
      */
-    maxValue: .2 * 0x6d3b4 * 10000,
+    maxValue: .8 * GConfig.worldEnergy,
     /**
      * {Number} Opposite to maxValue. Minimum amount of object dots
      */
-    minValue: .1 * 0x6d3b4 * 10000,
+    minValue: .7 * GConfig.worldEnergy,
     /**
      * {Array|null} In case of array you may set sequence of four values: x,y,w,h.
      * They means x,y coordinates, width, height of places with high objects concentration.
