@@ -68,7 +68,7 @@ const Config       = {
     /**
      * {Number} Minimum energy for cloning
      */
-    orgCloneMinEnergy: .8 * ENERGY_VALUE,
+    orgCloneMinEnergy: 8 * ENERGY_VALUE,
     /**
      * {Boolean} If true, then random organism will be killed after new one has
      * cloned and amount of organisms is greater then orgMaxOrgs config. false
@@ -116,13 +116,13 @@ const Config       = {
     /**
      * {Number} Maximum energy organism may reach collecting energy
      */
-    orgMaxEnergy: ENERGY_VALUE,
+    orgMaxEnergy: 10 * ENERGY_VALUE,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created
      * by operator and not by evolution.
      */
-    orgStartEnergy: ENERGY_VALUE,
+    orgStartEnergy: 10 * ENERGY_VALUE,
     /**
      * {Number} Size of organism stack (internal memory) in bits. Real amount of
      * organism's internal memory will be 2^orgMemBits. Example: if orgMemBits=3,

@@ -30,7 +30,7 @@ const Config  = {
      * example all the screen will be filled by objects. As many values by four, you set as
      * many places with objects will be created. In case of null, grouping will be disabled.
      */
-    groups: [1920 * 2, 1080 * 2, 50, 50]
+    groups: [1920 * 2, 1080 * 2, 300, 300]
 };
 
 module.exports = Config;
