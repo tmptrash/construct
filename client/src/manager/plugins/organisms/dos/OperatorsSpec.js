@@ -5,12 +5,15 @@ const Config       = require('./../../../../share/Config').Config;
 const Helper       = require('./../../../../../../common/src/Helper');
 const OrganismDos  = require('./Organism');
 const World        = require('./../../../../view/World').World;
+const EVENTS       = require('./../../../../share/Events').EVENTS;
+const DIRS         = require('./../../../../../../common/src/Directions').DIR;
 
 describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
     const hex    = Helper.toHexNum;
     const ww     = Config.worldWidth;
     const wh     = Config.worldHeight;
     const oldMan = global.man;
+    let   org;
     let   cbpv;
     let   ccb;
     let   ops;
@@ -51,11 +54,13 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
         global.man.world = new World(w, h);
         vars  = [0,1,2,3];
         offs  = new Array(10);
-        ops   = new OperatorsDos(offs, vars);
+        org   = new OrganismDos(0, 0, 0, {});
+        ops   = new OperatorsDos(offs, vars, org);
     });
     afterEach (() => {
         ops.destroy();
         global.man.world.destroy();
+        org.destroy();
         ops        = null;
         offs       = null;
         vars       = null;
@@ -190,10 +195,11 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
 
     describe('onStepLeft() method', () => {
         it("Checking step left", () => {
-            ops.vars[3] = 11;
-            ops.
-            expect(ops.operators[hex('101101')].call(ops, 0)).toEqual(1);
-            expect(ops.vars).toEqual([0,0,2,11]);
+            org.dir = DIRS.LEFT;
+            org.on(EVENTS.STEP, (o,x,y,x1,y1) => {
+                expect(x === 0 && y === 0 && x1 === -1 && y1 === 0).toBe(true);
+            });
+            expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
         });
 
         xit("Checking step left with no free space on the left", () => {
