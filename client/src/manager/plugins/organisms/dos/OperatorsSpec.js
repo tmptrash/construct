@@ -68,32 +68,32 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
         Config.worldHeight = wh;
     });
 
-    describe('onLookAt() method', () => {
-        it("Checking onLookAt() is found nothing", () => {
+    describe('lookAt() method', () => {
+        it("Checking lookAt() is found nothing", () => {
             expect(ops.operators[hex('101100 01 00 11')].call(ops, 0)).toEqual(1);
             expect(ops.vars).toEqual([0,0,2,3]);
         });
 
-        it("Checking onLookAt() looking outside of the world - x", () => {
+        it("Checking lookAt() looking outside of the world - x", () => {
             ops.vars[0] = 11;
             expect(ops.operators[hex('101100 01 00 11')].call(ops, 0)).toEqual(1);
             expect(ops.vars).toEqual([11,0,2,3]);
         });
 
-        it("Checking onLookAt() looking outside of the world - y", () => {
+        it("Checking lookAt() looking outside of the world - y", () => {
             ops.vars[3] = 11;
             expect(ops.operators[hex('101100 01 00 11')].call(ops, 0)).toEqual(1);
             expect(ops.vars).toEqual([0,0,2,11]);
         });
 
-        it('Checking onLookAt() found an energy', () => {
+        it('Checking lookAt() found an energy', () => {
             global.man.world.setDot(0,3,0xaabbcc);
             expect(ops.operators[hex('101100 01 00 11')].call(ops, 0)).toEqual(1);
             expect(ops.vars).toEqual([0,1,2,3]);
             global.man.world.setDot(0,3,0);
         });
 
-        it('Checking onLookAt() found an object', () => {
+        it('Checking lookAt() found an object', () => {
             global.man.world.setDot(0,3,0xaabbcc);
             global.man.positions[0][3] = -2;
             expect(ops.operators[hex('101100 01 00 11')].call(ops, 0)).toEqual(1);
@@ -102,7 +102,7 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             global.man.positions[0][3] = 0;
         });
 
-        it('Checking onLookAt() found an organism', () => {
+        it('Checking lookAt() found an organism', () => {
             global.man.world.setDot(0,3,0xaabbcc);
             global.man.positions[0][3] = {energy: 123};
             expect(ops.operators[hex('101100 01 00 11')].call(ops, 0)).toEqual(1);
@@ -111,14 +111,14 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             global.man.positions[0][3] = 0;
         });
 
-        it('Checking onLookAt() with floating coordinates', () => {
+        it('Checking lookAt() with floating coordinates', () => {
             ops.vars[0] = .1;
             ops.vars[3] = .2;
             expect(ops.operators[hex('101100 01 00 11')].call(ops, 0)).toEqual(1);
             expect(ops.vars).toEqual([.1,0,2,.2]);
         });
 
-        describe('onLookAt() method 3bits per var', () => {
+        describe('lookAt() method 3bits per var', () => {
             let bpv;
             let ops;
             let vars;
@@ -142,31 +142,31 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
                 OConfig.codeBitsPerVar = bpv;
             });
 
-            it("Checking onLookAt() is found nothing", () => {
+            it("Checking lookAt() is found nothing", () => {
                 expect(ops.operators[hex('101100 001 000 011')].call(ops, 0)).toEqual(1);
                 expect(ops.vars).toEqual([0,0,2,3,4,5,6,7]);
             });
 
-            it("Checking onLookAt() looking outside of the world - x", () => {
+            it("Checking lookAt() looking outside of the world - x", () => {
                 ops.vars[0] = 11;
                 expect(ops.operators[hex('101100 001 000 011')].call(ops, 0)).toEqual(1);
                 expect(ops.vars).toEqual([11,0,2,3,4,5,6,7]);
             });
 
-            it("Checking onLookAt() looking outside of the world - y", () => {
+            it("Checking lookAt() looking outside of the world - y", () => {
                 ops.vars[3] = 11;
                 expect(ops.operators[hex('101100 001 000 011')].call(ops, 0)).toEqual(1);
                 expect(ops.vars).toEqual([0,0,2,11,4,5,6,7]);
             });
 
-            it('Checking onLookAt() found an energy', () => {
+            it('Checking lookAt() found an energy', () => {
                 global.man.world.setDot(0,3,0xaabbcc);
                 expect(ops.operators[hex('101100 001 000 011')].call(ops, 0)).toEqual(1);
                 expect(ops.vars).toEqual([0,1,2,3,4,5,6,7]);
                 global.man.world.setDot(0,3,0);
             });
 
-            it('Checking onLookAt() found an object', () => {
+            it('Checking lookAt() found an object', () => {
                 global.man.world.setDot(0,3,0xaabbcc);
                 global.man.positions[0][3] = -2;
                 expect(ops.operators[hex('101100 001 000 011')].call(ops, 0)).toEqual(1);
@@ -175,7 +175,7 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
                 global.man.positions[0][3] = 0;
             });
 
-            it('Checking onLookAt() found an organism', () => {
+            it('Checking lookAt() found an organism', () => {
                 global.man.world.setDot(0,3,0xaabbcc);
                 global.man.positions[0][3] = {energy: 123};
                 expect(ops.operators[hex('101100 001 000 011')].call(ops, 0)).toEqual(1);
@@ -184,7 +184,7 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
                 global.man.positions[0][3] = 0;
             });
 
-            it('Checking onLookAt() with floating coordinates', () => {
+            it('Checking lookAt() with floating coordinates', () => {
                 ops.vars[0] = .1;
                 ops.vars[3] = .2;
                 expect(ops.operators[hex('101100 001 000 011')].call(ops, 0)).toEqual(1);
@@ -193,46 +193,82 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
         });
     });
 
-    describe('onStepLeft() method', () => {
+    describe('step() method', () => {
         it("Checking step left", () => {
+            org.x   = 1;
+            org.y   = 1;
+            org.dir = DIRS.LEFT;
+            org.on(EVENTS.STEP, (o,x,y,x1,y1) => {
+                expect(x === 1 && y === 1 && x1 === 0 && y1 === 1).toBe(true);
+                o.x = x1;
+                o.y = y1;
+            });
+            expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+            expect(org.x).toBe(0);
+            expect(org.y).toBe(1);
+        });
+
+        it("Checking step left with no free space on the left", () => {
             org.dir = DIRS.LEFT;
             org.on(EVENTS.STEP, (o,x,y,x1,y1) => {
                 expect(x === 0 && y === 0 && x1 === -1 && y1 === 0).toBe(true);
+                o.x = x;
+                o.y = y1;
             });
             expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+            expect(org.x).toBe(0);
+            expect(org.y).toBe(0);
         });
 
-        xit("Checking step left with no free space on the left", () => {
-            org.x = 3;
-            org.y = 4;
-            org.on(EVENTS.STEP, (org, x1, y1, x2, y2) => {
-                expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toBe(true);
+        describe('step() method with 3bits per var', () => {
+            let bpv;
+            let ops;
+            let vars;
+            let offs;
+            beforeAll (() => {
+                bpv  = OConfig.codeBitsPerVar;
+                OConfig.codeBitsPerVar = 3;
+                OperatorsDos.compile();
             });
-            expect(ops.onStepLeft(0x0a1fffff, 0, org)).toEqual(1); // v0=stepLeft();
-            expect(ops.vars).toEqual([0,1,2,3]);
-            expect(org.x).toBe(3);
-            expect(org.y).toBe(4);
-        });
-
-        xit("Checking step left with 4 bits per var", () => {
-            let bpv = OConfig.codeBitsPerVar;
-            OConfig.codeBitsPerVar = 4;
-            let ops1 = new OperatorsDos([1], [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], org);
-
-            org.x = 3;
-            org.y = 4;
-            org.on(EVENTS.STEP, (org, x1, y1, x2, y2) => {
-                org.x = x2;
-                org.y = y2;
-                expect(x1 === 3 && y1 === 4 && x2 === 2 && y2 === 4).toBe(true);
+            afterAll  (() => OperatorsDos.compile());
+            beforeEach(() => {
+                vars = [0,1,2,3,4,5,6,7];
+                offs = new Array(10);
+                ops  = new OperatorsDos(offs, vars, org);
             });
-            expect(ops1.onStepLeft(0x0a1fffff, 0, org)).toEqual(1); // v1=stepLeft();
-            expect(ops1.vars).toEqual([0,2,2,3,4,5,6,7,8,9,10,11,12,13,14,15]);
-            expect(org.x).toBe(2);
-            expect(org.y).toBe(4);
+            afterEach (() => {
+                ops.destroy();
+                ops  = null;
+                offs = null;
+                vars = null;
+                OConfig.codeBitsPerVar = bpv;
+            });
 
-            OConfig.codeBitsPerVar = bpv;
-            ops1.destroy();
+            it("Checking step left", () => {
+                org.x   = 1;
+                org.y   = 1;
+                org.dir = DIRS.LEFT;
+                org.on(EVENTS.STEP, (o,x,y,x1,y1) => {
+                    expect(x === 1 && y === 1 && x1 === 0 && y1 === 1).toBe(true);
+                    o.x = x1;
+                    o.y = y1;
+                });
+                expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+                expect(org.x).toBe(0);
+                expect(org.y).toBe(1);
+            });
+
+            it("Checking step left with no space", () => {
+                org.dir = DIRS.LEFT;
+                org.on(EVENTS.STEP, (o,x,y,x1,y1) => {
+                    expect(x === 0 && y === 0 && x1 === -1 && y1 === 0).toBe(true);
+                    o.x = x;
+                    o.y = y1;
+                });
+                expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+                expect(org.x).toBe(0);
+                expect(org.y).toBe(0);
+            });
         });
     });
 
