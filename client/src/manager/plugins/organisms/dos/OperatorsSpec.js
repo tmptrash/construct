@@ -68,7 +68,7 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
         Config.worldHeight = wh;
     });
 
-    describe('lookAt() method', () => {
+    describe('lookAt() operator', () => {
         it("Checking lookAt() is found nothing", () => {
             expect(ops.operators[hex('101100 01 00 11')].call(ops, 0)).toEqual(1);
             expect(ops.vars).toEqual([0,0,2,3]);
@@ -193,7 +193,7 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
         });
     });
 
-    describe('step() method', () => {
+    describe('step() operator', () => {
         it("Checking step left", () => {
             org.x   = 1;
             org.y   = 1;
@@ -220,7 +220,7 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             expect(org.y).toBe(0);
         });
 
-        describe('step() method with 3bits per var', () => {
+        describe('step() operator with 3bits per var', () => {
             let bpv;
             let ops;
             let vars;
@@ -272,34 +272,386 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
         });
     });
 
-    xdescribe('onEatLeft() method', () => {
-        let   org;
-        let   ops;
-        const w = Config.worldWidth;
-        const h = Config.worldHeight;
+    describe('dir() operator', () => {
+        it("Checking up direction 1", () => {
+            ops.vars[0] = DIRS.UP;
+            expect(ops.operators[hex('101110 00')].call(ops, 0, hex('101110 00'), org)).toEqual(1);
+            expect(org.dir).toBe(DIRS.UP);
+        });
+        it("Checking up direction 2", () => {
+            ops.vars[0] = DIRS.UP + 4;
+            expect(ops.operators[hex('101110 00')].call(ops, 0, hex('101110 00'), org)).toEqual(1);
+            expect(org.dir).toBe(DIRS.UP);
+        });
+        it("Checking up direction 3", () => {
+            ops.vars[0] = DIRS.UP + 4 + .1;
+            expect(ops.operators[hex('101110 00')].call(ops, 0, hex('101110 00'), org)).toEqual(1);
+            expect(org.dir).toBe(DIRS.UP);
+        });
 
-        beforeEach(() => {Config.worldHeight = Config.worldWidth = 10;org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([1], [0, 1, 2, 3], org)});
-        afterEach (() => {ops.destroy(); org.destroy(); Config.worldHeight = h; Config.worldWidth = w});
+        it("Checking right direction 1", () => {
+            ops.vars[0] = DIRS.RIGHT;
+            expect(ops.operators[hex('101110 00')].call(ops, 0, hex('101110 00'), org)).toEqual(1);
+            expect(org.dir).toBe(DIRS.RIGHT);
+        });
+        it("Checking right direction 2", () => {
+            ops.vars[0] = DIRS.RIGHT + 4;
+            expect(ops.operators[hex('101110 00')].call(ops, 0, hex('101110 00'), org)).toEqual(1);
+            expect(org.dir).toBe(DIRS.RIGHT);
+        });
+        it("Checking right direction 3", () => {
+            ops.vars[0] = DIRS.RIGHT + 4 + .1;
+            expect(ops.operators[hex('101110 00')].call(ops, 0, hex('101110 00'), org)).toEqual(1);
+            expect(org.dir).toBe(DIRS.RIGHT);
+        });
 
+        it("Checking down direction 1", () => {
+            ops.vars[0] = DIRS.DOWN;
+            expect(ops.operators[hex('101110 00')].call(ops, 0, hex('101110 00'), org)).toEqual(1);
+            expect(org.dir).toBe(DIRS.DOWN);
+        });
+        it("Checking down direction 2", () => {
+            ops.vars[0] = DIRS.DOWN + 4;
+            expect(ops.operators[hex('101110 00')].call(ops, 0, hex('101110 00'), org)).toEqual(1);
+            expect(org.dir).toBe(DIRS.DOWN);
+        });
+        it("Checking down direction 3", () => {
+            ops.vars[0] = DIRS.DOWN + 4 + .1;
+            expect(ops.operators[hex('101110 00')].call(ops, 0, hex('101110 00'), org)).toEqual(1);
+            expect(org.dir).toBe(DIRS.DOWN);
+        });
+
+        it("Checking left direction 1", () => {
+            ops.vars[0] = DIRS.LEFT;
+            expect(ops.operators[hex('101110 00')].call(ops, 0, hex('101110 00'), org)).toEqual(1);
+            expect(org.dir).toBe(DIRS.LEFT);
+        });
+        it("Checking left direction 2", () => {
+            ops.vars[0] = DIRS.LEFT + 4;
+            expect(ops.operators[hex('101110 00')].call(ops, 0, hex('101110 00'), org)).toEqual(1);
+            expect(org.dir).toBe(DIRS.LEFT);
+        });
+        it("Checking left direction 3", () => {
+            ops.vars[0] = DIRS.LEFT + 4 + .1;
+            expect(ops.operators[hex('101110 00')].call(ops, 0, hex('101110 00'), org)).toEqual(1);
+            expect(org.dir).toBe(DIRS.LEFT);
+        });
+
+        it("Checking left direction while moving", () => {
+            org.x = 1;
+            org.y = 1;
+            org.dir = DIRS.LEFT;
+            org.on(EVENTS.STEP, (o, x, y, x1, y1) => {
+                expect(x === 1 && y === 1 && x1 === 0 && y1 === 1).toBe(true);
+                o.x = x1;
+                o.y = y1;
+            });
+            expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+            expect(org.x).toBe(0);
+            expect(org.y).toBe(1);
+        });
+        it("Checking right direction while moving", () => {
+            org.x = 1;
+            org.y = 1;
+            org.dir = DIRS.RIGHT;
+            org.on(EVENTS.STEP, (o, x, y, x1, y1) => {
+                expect(x === 1 && y === 1 && x1 === 2 && y1 === 1).toBe(true);
+                o.x = x1;
+                o.y = y1;
+            });
+            expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+            expect(org.x).toBe(2);
+            expect(org.y).toBe(1);
+        });
+        it("Checking up direction while moving", () => {
+            org.x = 1;
+            org.y = 1;
+            org.dir = DIRS.UP;
+            org.on(EVENTS.STEP, (o, x, y, x1, y1) => {
+                expect(x === 1 && y === 1 && x1 === 1 && y1 === 0).toBe(true);
+                o.x = x1;
+                o.y = y1;
+            });
+            expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+            expect(org.x).toBe(1);
+            expect(org.y).toBe(0);
+        });
+        it("Checking down direction while moving", () => {
+            org.x = 1;
+            org.y = 1;
+            org.dir = DIRS.DOWN;
+            org.on(EVENTS.STEP, (o, x, y, x1, y1) => {
+                expect(x === 1 && y === 1 && x1 === 1 && y1 === 2).toBe(true);
+                o.x = x1;
+                o.y = y1;
+            });
+            expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+            expect(org.x).toBe(1);
+            expect(org.y).toBe(2);
+        });
+
+        describe('dir() operator with 3bits per var', () => {
+            let bpv;
+            let ops;
+            let vars;
+            let offs;
+            beforeAll(() => {
+                bpv = OConfig.codeBitsPerVar;
+                OConfig.codeBitsPerVar = 3;
+                OperatorsDos.compile();
+            });
+            afterAll(() => OperatorsDos.compile());
+            beforeEach(() => {
+                vars = [0, 1, 2, 3, 4, 5, 6, 7];
+                offs = new Array(10);
+                ops = new OperatorsDos(offs, vars, org);
+            });
+            afterEach(() => {
+                ops.destroy();
+                ops = null;
+                offs = null;
+                vars = null;
+                OConfig.codeBitsPerVar = bpv;
+            });
+
+            it("Checking up direction 1", () => {
+                ops.vars[0] = DIRS.UP;
+                expect(ops.operators[hex('101110 000')].call(ops, 0, hex('101110 000'), org)).toEqual(1);
+                expect(org.dir).toBe(DIRS.UP);
+            });
+            it("Checking up direction 2", () => {
+                ops.vars[0] = DIRS.UP + 4;
+                expect(ops.operators[hex('101110 000')].call(ops, 0, hex('101110 000'), org)).toEqual(1);
+                expect(org.dir).toBe(DIRS.UP);
+            });
+            it("Checking up direction 3", () => {
+                ops.vars[0] = DIRS.UP + 4 + .1;
+                expect(ops.operators[hex('101110 000')].call(ops, 0, hex('101110 000'), org)).toEqual(1);
+                expect(org.dir).toBe(DIRS.UP);
+            });
+
+            it("Checking right direction 1", () => {
+                ops.vars[0] = DIRS.RIGHT;
+                expect(ops.operators[hex('101110 000')].call(ops, 0, hex('101110 000'), org)).toEqual(1);
+                expect(org.dir).toBe(DIRS.RIGHT);
+            });
+            it("Checking right direction 2", () => {
+                ops.vars[0] = DIRS.RIGHT + 4;
+                expect(ops.operators[hex('101110 000')].call(ops, 0, hex('101110 000'), org)).toEqual(1);
+                expect(org.dir).toBe(DIRS.RIGHT);
+            });
+            it("Checking right direction 3", () => {
+                ops.vars[0] = DIRS.RIGHT + 4 + .1;
+                expect(ops.operators[hex('101110 000')].call(ops, 0, hex('101110 000'), org)).toEqual(1);
+                expect(org.dir).toBe(DIRS.RIGHT);
+            });
+
+            it("Checking down direction 1", () => {
+                ops.vars[0] = DIRS.DOWN;
+                expect(ops.operators[hex('101110 000')].call(ops, 0, hex('101110 000'), org)).toEqual(1);
+                expect(org.dir).toBe(DIRS.DOWN);
+            });
+            it("Checking down direction 2", () => {
+                ops.vars[0] = DIRS.DOWN + 4;
+                expect(ops.operators[hex('101110 000')].call(ops, 0, hex('101110 000'), org)).toEqual(1);
+                expect(org.dir).toBe(DIRS.DOWN);
+            });
+            it("Checking down direction 3", () => {
+                ops.vars[0] = DIRS.DOWN + 4 + .1;
+                expect(ops.operators[hex('101110 000')].call(ops, 0, hex('101110 000'), org)).toEqual(1);
+                expect(org.dir).toBe(DIRS.DOWN);
+            });
+
+            it("Checking left direction 1", () => {
+                ops.vars[0] = DIRS.LEFT;
+                expect(ops.operators[hex('101110 000')].call(ops, 0, hex('101110 000'), org)).toEqual(1);
+                expect(org.dir).toBe(DIRS.LEFT);
+            });
+            it("Checking left direction 2", () => {
+                ops.vars[0] = DIRS.LEFT + 4;
+                expect(ops.operators[hex('101110 000')].call(ops, 0, hex('101110 000'), org)).toEqual(1);
+                expect(org.dir).toBe(DIRS.LEFT);
+            });
+            it("Checking left direction 3", () => {
+                ops.vars[0] = DIRS.LEFT + 4 + .1;
+                expect(ops.operators[hex('101110 000')].call(ops, 0, hex('101110 000'), org)).toEqual(1);
+                expect(org.dir).toBe(DIRS.LEFT);
+            });
+
+            it("Checking left direction while moving", () => {
+                org.x = 1;
+                org.y = 1;
+                org.dir = DIRS.LEFT;
+                org.on(EVENTS.STEP, (o, x, y, x1, y1) => {
+                    expect(x === 1 && y === 1 && x1 === 0 && y1 === 1).toBe(true);
+                    o.x = x1;
+                    o.y = y1;
+                });
+                expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+                expect(org.x).toBe(0);
+                expect(org.y).toBe(1);
+            });
+            it("Checking right direction while moving", () => {
+                org.x = 1;
+                org.y = 1;
+                org.dir = DIRS.RIGHT;
+                org.on(EVENTS.STEP, (o, x, y, x1, y1) => {
+                    expect(x === 1 && y === 1 && x1 === 2 && y1 === 1).toBe(true);
+                    o.x = x1;
+                    o.y = y1;
+                });
+                expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+                expect(org.x).toBe(2);
+                expect(org.y).toBe(1);
+            });
+            it("Checking up direction while moving", () => {
+                org.x = 1;
+                org.y = 1;
+                org.dir = DIRS.UP;
+                org.on(EVENTS.STEP, (o, x, y, x1, y1) => {
+                    expect(x === 1 && y === 1 && x1 === 1 && y1 === 0).toBe(true);
+                    o.x = x1;
+                    o.y = y1;
+                });
+                expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+                expect(org.x).toBe(1);
+                expect(org.y).toBe(0);
+            });
+            it("Checking down direction while moving", () => {
+                org.x = 1;
+                org.y = 1;
+                org.dir = DIRS.DOWN;
+                org.on(EVENTS.STEP, (o, x, y, x1, y1) => {
+                    expect(x === 1 && y === 1 && x1 === 1 && y1 === 2).toBe(true);
+                    o.x = x1;
+                    o.y = y1;
+                });
+                expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+                expect(org.x).toBe(1);
+                expect(org.y).toBe(2);
+            });
+        });
+    });
+
+    describe('myX() method', () => {
+        it("Checking simple values", () => {
+            org.x = 1;
+            expect(ops.operators[hex('101111 00')].call(ops, 0, hex('101111 00'), org)).toEqual(1); // v0=myX()
+            expect(ops.vars).toEqual([1,1,2,3]);
+            org.x = 3;
+            expect(ops.operators[hex('101111 01')].call(ops, 0, hex('101111 01'), org)).toEqual(1); // v1=myX()
+            expect(ops.vars).toEqual([1,3,2,3]);
+            org.x = 0;
+            expect(ops.operators[hex('101111 11')].call(ops, 0, hex('101111 11'), org)).toEqual(1); // v3=myX()
+            expect(ops.vars).toEqual([1,3,2,0]);
+        });
+
+        describe('myX() operator with 3bits per var', () => {
+            let bpv;
+            let ops;
+            let vars;
+            let offs;
+            beforeAll(() => {
+                bpv = OConfig.codeBitsPerVar;
+                OConfig.codeBitsPerVar = 3;
+                OperatorsDos.compile();
+            });
+            afterAll(() => OperatorsDos.compile());
+            beforeEach(() => {
+                vars = [0, 1, 2, 3, 4, 5, 6, 7];
+                offs = new Array(10);
+                ops = new OperatorsDos(offs, vars, org);
+            });
+            afterEach(() => {
+                ops.destroy();
+                ops = null;
+                offs = null;
+                vars = null;
+                OConfig.codeBitsPerVar = bpv;
+            });
+
+            it("Checking simple values", () => {
+                org.x = 1;
+                expect(ops.operators[hex('101111 000')].call(ops, 0, hex('101111 000'), org)).toEqual(1); // v0=myX()
+                expect(ops.vars).toEqual([1,1,2,3,4,5,6,7]);
+                org.x = 3;
+                expect(ops.operators[hex('101111 001')].call(ops, 0, hex('101111 001'), org)).toEqual(1); // v1=myX()
+                expect(ops.vars).toEqual([1,3,2,3,4,5,6,7]);
+                org.x = 0;
+                expect(ops.operators[hex('101111 011')].call(ops, 0, hex('101111 011'), org)).toEqual(1); // v3=myX()
+                expect(ops.vars).toEqual([1,3,2,0,4,5,6,7]);
+            });
+        });
+    });
+
+    describe('myY() method', () => {
+        it("Checking simple values", () => {
+            org.y = 1;
+            expect(ops.operators[hex('110000 00')].call(ops, 0, hex('110000 00'), org)).toEqual(1); // v0=myY()
+            expect(ops.vars).toEqual([1,1,2,3]);
+            org.y = 3;
+            expect(ops.operators[hex('110000 01')].call(ops, 0, hex('110000 01'), org)).toEqual(1); // v1=myY()
+            expect(ops.vars).toEqual([1,3,2,3]);
+            org.y = 0;
+            expect(ops.operators[hex('110000 11')].call(ops, 0, hex('110000 11'), org)).toEqual(1); // v3=myY()
+            expect(ops.vars).toEqual([1,3,2,0]);
+        });
+
+        describe('myY() operator with 3bits per var', () => {
+            let bpv;
+            let ops;
+            let vars;
+            let offs;
+            beforeAll(() => {
+                bpv = OConfig.codeBitsPerVar;
+                OConfig.codeBitsPerVar = 3;
+                OperatorsDos.compile();
+            });
+            afterAll(() => OperatorsDos.compile());
+            beforeEach(() => {
+                vars = [0, 1, 2, 3, 4, 5, 6, 7];
+                offs = new Array(10);
+                ops = new OperatorsDos(offs, vars, org);
+            });
+            afterEach(() => {
+                ops.destroy();
+                ops = null;
+                offs = null;
+                vars = null;
+                OConfig.codeBitsPerVar = bpv;
+            });
+
+            it("Checking simple values", () => {
+                org.y = 1;
+                expect(ops.operators[hex('110000 000')].call(ops, 0, hex('110000 000'), org)).toEqual(1); // v0=myY()
+                expect(ops.vars).toEqual([1,1,2,3,4,5,6,7]);
+                org.y = 3;
+                expect(ops.operators[hex('110000 001')].call(ops, 0, hex('110000 001'), org)).toEqual(1); // v1=myY()
+                expect(ops.vars).toEqual([1,3,2,3,4,5,6,7]);
+                org.y = 0;
+                expect(ops.operators[hex('110000 011')].call(ops, 0, hex('110000 011'), org)).toEqual(1); // v3=myY()
+                expect(ops.vars).toEqual([1,3,2,0,4,5,6,7]);
+            });
+        });
+    });
+
+    describe('eat() operator', () => {
         it("Checking eating nothing", () => {
-            ops.vars = [1, 0, 1, 2];
-            expect(ops.onEatLeft(0x061fffff, 0, org)).toEqual(1); // v0=eatLeft(v1);
+            const energy = org.energy;
+            ops.vars = [0, 0, 1, 2];
+            expect(ops.operators[hex('110001 00')].call(ops, 0, hex('110001 00'), org)).toEqual(1);
             expect(ops.vars).toEqual([0, 0, 1, 2]);
+            expect(org.energy).toEqual(energy);
         });
         it("Checking eating nothing 2", () => {
-            org.on(EVENTS.EAT, (org, x, y, ret) => {
-                expect(ret.ret).toBe(1);
-                expect(x).toBe(1);
-                expect(y).toBe(3);
-                ret.ret = 0;
-            });
-            org.x = 2;
-            org.y = 3;
-            expect(ops.onEatLeft(0x061fffff, 0, org)).toEqual(1); // v0=eatLeft(v1);
-            expect(ops.vars).toEqual([0,1,2,3]);
+            const energy = org.energy;
+            ops.vars = [1, 0, 1, 2];
+            expect(ops.operators[hex('110001 00')].call(ops, 0, hex('110001 00'), org)).toEqual(1);
+            expect(ops.vars).toEqual([1, 0, 1, 2]);
+            expect(org.energy).toEqual(energy);
         });
 
-        it("Checking eating energy", () => {
+        xit("Checking eating energy", () => {
             org.on(EVENTS.EAT, (org, x, y, ret) => {
                 expect(ret.ret).toBe(1);
                 expect(x).toBe(1);
@@ -312,7 +664,7 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             expect(ops.vars).toEqual([5,1,2,3]);
         });
 
-        it('Checking eating with 3bits per var', () => {
+        xit('Checking eating with 3bits per var', () => {
             let bpv = OConfig.codeBitsPerVar;
             OConfig.codeBitsPerVar = 3;
             let ops1 = new OperatorsDos([1], [0,1,2,3,4,5,6,7], org);
@@ -331,84 +683,6 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             OConfig.codeBitsPerVar = bpv;
             ops1.destroy();
         })
-    });
-
-    xdescribe('onMyX() method', () => {
-        let org;
-        let ops;
-
-        beforeEach(() => {org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([], [0, 1, 2, 3], org)});
-        afterEach (() => {ops.destroy(); org.destroy()});
-
-        it("Checking simple values", () => {
-            org.x = 1;
-            expect(ops.onMyX(0x0c1fffff, 0, org)).toEqual(1); // v0=myX()
-            expect(ops.vars).toEqual([1,1,2,3]);
-            org.x = 3;
-            expect(ops.onMyX(0x0c6fffff, 0, org)).toEqual(1); // v1=myX()
-            expect(ops.vars).toEqual([1,3,2,3]);
-            org.x = 0;
-            expect(ops.onMyX(0x0cffffff, 0, org)).toEqual(1); // v3=myX()
-            expect(ops.vars).toEqual([1,3,2,0]);
-        });
-
-        it('Checking simple values with 4 bits per var', () => {
-            let bpv = OConfig.codeBitsPerVar;
-            OConfig.codeBitsPerVar = 4;
-            let ops1 = new OperatorsDos([1], [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], org);
-
-            org.x = 3;
-            expect(ops1.onMyX(0x0c1fffff, 0, org)).toEqual(1); // v1=myX()
-            expect(ops1.vars).toEqual([0,3,2,3,4,5,6,7,8,9,10,11,12,13,14,15]);
-            org.x = 3;
-            expect(ops1.onMyX(0x0c6fffff, 0, org)).toEqual(1); // v6=myX()
-            expect(ops1.vars).toEqual([0,3,2,3,4,5,3,7,8,9,10,11,12,13,14,15]);
-            org.x = 0;
-            expect(ops1.onMyX(0x0cffffff, 0, org)).toEqual(1); // v15=myX()
-            expect(ops1.vars).toEqual([0,3,2,3,4,5,3,7,8,9,10,11,12,13,14,0]);
-
-            OConfig.codeBitsPerVar = bpv;
-            ops1.destroy();
-        });
-    });
-
-    xdescribe('onMyY() method', () => {
-        let org;
-        let ops;
-
-        beforeEach(() => {org = new OrganismDos('0', 0, 0, {}); ops = new OperatorsDos([], [0, 1, 2, 3], org)});
-        afterEach (() => {ops.destroy(); org.destroy()});
-
-        it("Checking simple values", () => {
-            org.y = 1;
-            expect(ops.onMyY(0x0c1fffff, 0, org)).toEqual(1); // v0=myY()
-            expect(ops.vars).toEqual([1,1,2,3]);
-            org.y = 3;
-            expect(ops.onMyY(0x0c6fffff, 0, org)).toEqual(1); // v1=myY()
-            expect(ops.vars).toEqual([1,3,2,3]);
-            org.y = 0;
-            expect(ops.onMyY(0x0cffffff, 0, org)).toEqual(1); // v3=myY()
-            expect(ops.vars).toEqual([1,3,2,0]);
-        });
-
-        it('Checking simple values with 4 bits per var', () => {
-            let bpv = OConfig.codeBitsPerVar;
-            OConfig.codeBitsPerVar = 4;
-            let ops1 = new OperatorsDos([1], [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], org);
-
-            org.y = 3;
-            expect(ops1.onMyY(0x0c1fffff, 0, org)).toEqual(1); // v1=myX()
-            expect(ops1.vars).toEqual([0,3,2,3,4,5,6,7,8,9,10,11,12,13,14,15]);
-            org.y = 3;
-            expect(ops1.onMyY(0x0c6fffff, 0, org)).toEqual(1); // v6=myX()
-            expect(ops1.vars).toEqual([0,3,2,3,4,5,3,7,8,9,10,11,12,13,14,15]);
-            org.y = 0;
-            expect(ops1.onMyY(0x0cffffff, 0, org)).toEqual(1); // v15=myX()
-            expect(ops1.vars).toEqual([0,3,2,3,4,5,3,7,8,9,10,11,12,13,14,0]);
-
-            OConfig.codeBitsPerVar = bpv;
-            ops1.destroy();
-        });
     });
 
     xdescribe('onCheckLeft() method', () => {
