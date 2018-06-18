@@ -703,6 +703,26 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             global.man.positions[1][0] = 0;
             ops.world.setDot(1,0,0);
         });
+
+        it("Checking killing other organism", () => {
+            const org2   = new OrganismDos(1, 0, 0, {});
+            org2.energy = 1;
+            org.energy = 1;
+            ops.vars = [1, 0, 1, 2];
+            ops.world.setDot(1,0,10);
+            org.dir = DIRS.UP;
+            org.x = 1;
+            org.y = 1;
+            global.man.positions[1][0] = org2;
+            expect(ops.operators[hex('110001 00')].call(ops, 0, hex('110001 00'), org)).toEqual(1);
+            expect(ops.vars).toEqual([1, 0, 1, 2]);
+            expect(org.energy).toEqual(2);
+            expect(org2.energy).toEqual(0);
+            expect(org2.vm).toEqual(null);
+
+            global.man.positions[1][0] = 0;
+            ops.world.setDot(1,0,0);
+        });
     });
 
     xdescribe('onCheckLeft() method', () => {
