@@ -7,6 +7,7 @@ const OrganismDos  = require('./Organism');
 const World        = require('./../../../../view/World').World;
 const EVENTS       = require('./../../../../share/Events').EVENTS;
 const DIRS         = require('./../../../../../../common/src/Directions').DIR;
+const OBJECT_TYPES = require('./../../../../view/World').OBJECT_TYPES;
 
 describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
     const hex    = Helper.toHexNum;
@@ -636,7 +637,11 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
     });
 
     describe('eat() operator', () => {
-        it("Checking eating nothing", () => {
+        let maxEnergy = OConfig.orgMaxEnergy;
+        beforeEach(() => OConfig.orgMaxEnergy = 100);
+        afterEach (() => OConfig.orgMaxEnergy = maxEnergy);
+
+        it("Checking eating nothing 1", () => {
             const energy = org.energy;
             ops.vars = [0, 0, 1, 2];
             expect(ops.operators[hex('110001 00')].call(ops, 0, hex('110001 00'), org)).toEqual(1);
@@ -651,38 +656,53 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             expect(org.energy).toEqual(energy);
         });
 
-        xit("Checking eating energy", () => {
-            org.on(EVENTS.EAT, (org, x, y, ret) => {
-                expect(ret.ret).toBe(1);
-                expect(x).toBe(1);
-                expect(y).toBe(3);
-                ret.ret = 5;
-            });
-            org.x = 2;
-            org.y = 3;
-            expect(ops.onEatLeft(0x061fffff, 0, org)).toEqual(1); // v0=eatLeft(v1);
-            expect(ops.vars).toEqual([5,1,2,3]);
+        it("Checking eating energy", () => {
+            org.energy = 1;
+            ops.vars = [1, 0, 1, 2];
+            ops.world.setDot(1,0,10);
+            org.dir = DIRS.UP;
+            org.x = 1;
+            org.y = 1;
+            expect(ops.operators[hex('110001 00')].call(ops, 0, hex('110001 00'), org)).toEqual(1);
+            expect(ops.vars).toEqual([1, 0, 1, 2]);
+            expect(org.energy).toEqual(2);
         });
 
-        xit('Checking eating with 3bits per var', () => {
-            let bpv = OConfig.codeBitsPerVar;
-            OConfig.codeBitsPerVar = 3;
-            let ops1 = new OperatorsDos([1], [0,1,2,3,4,5,6,7], org);
+        it("Checking eating world object", () => {
+            org.energy = 1;
+            ops.vars = [1, 0, 1, 2];
+            ops.world.setDot(1,0,10);
+            org.dir = DIRS.UP;
+            org.x = 1;
+            org.y = 1;
+            global.man.positions[1][0] = OBJECT_TYPES.TYPE_ENERGY2;
+            expect(ops.operators[hex('110001 00')].call(ops, 0, hex('110001 00'), org)).toEqual(1);
+            expect(ops.vars).toEqual([1, 0, 1, 2]);
+            expect(org.energy).toEqual(1);
 
-            org.on(EVENTS.EAT, (org, x, y, ret) => {
-                expect(ret.ret).toBe(4);
-                expect(x).toBe(1);
-                expect(y).toBe(3);
-                ret.ret = 5;
-            });
-            org.x = 2;
-            org.y = 3;
-            expect(ops1.onEatLeft(0x0633ffff, 0, org)).toEqual(1); // v1=eatLeft(v4);
-            expect(ops1.vars).toEqual([0,5,2,3,4,5,6,7]);
+            global.man.positions[1][0] = 0;
+            ops.world.setDot(1,0,0);
+        });
 
-            OConfig.codeBitsPerVar = bpv;
-            ops1.destroy();
-        })
+        it("Checking eating other organism", () => {
+            const org2   = new OrganismDos(1, 0, 0, {});
+            const energy = org2.energy;
+            org.energy = 1;
+            ops.vars = [1, 0, 1, 2];
+            ops.world.setDot(1,0,10);
+            org.dir = DIRS.UP;
+            org.x = 1;
+            org.y = 1;
+            global.man.positions[1][0] = org2;
+            expect(ops.operators[hex('110001 00')].call(ops, 0, hex('110001 00'), org)).toEqual(1);
+            expect(ops.vars).toEqual([1, 0, 1, 2]);
+            expect(org.energy).toEqual(2);
+            expect(org2.energy).toEqual(energy - 1);
+
+
+            global.man.positions[1][0] = 0;
+            ops.world.setDot(1,0,0);
+        });
     });
 
     xdescribe('onCheckLeft() method', () => {

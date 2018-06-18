@@ -571,6 +571,20 @@ class OperatorsDos extends Operators {
     get length() {return OperatorsDos.OPERATOR_AMOUNT}
 
     /**
+     * Returns World instance reference
+     * @returns {World}
+     */
+    get world()  {return this._world}
+
+    destroy() {
+        super.destroy();
+
+        this._world        = null;
+        this._positions    = null;
+        this._obs          = null;
+    }
+
+    /**
      * Returns type of the dot under x,y coordinates
      * @param {Number} x X coordinate
      * @param {Number} y Y coordinate
@@ -585,14 +599,6 @@ class OperatorsDos extends Operators {
         }
 
         return ORGANISM;
-    }
-
-    destroy() {
-        super.destroy();
-
-        this._world        = null;
-        this._positions    = null;
-        this._obs          = null;
     }
 }
 
