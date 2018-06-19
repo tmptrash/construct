@@ -8,11 +8,11 @@
   },
   "dependencies": {
     "babel-cli": "^6.24.1",
-    "babel-preset-env": "^1.6.0",
-    "jasmine": "^2.6.0",
+    "babel-preset-env": "^1.7.0",
+    "jasmine": "^2.99.0",
     "js-beautify": "^1.6.14",
-    "panzoom": "^4.1.0",
-    "webpack": "^3.9.1",
+    "panzoom": "^4.5.0",
+    "webpack": "^3.12.0",
     "ws": "^3.3.2"
   },
   "scripts": {
@@ -41,7 +41,7 @@
   "homepage": "https://github.com/tmptrash/jevo.js#readme",
   "devDependencies": {
     "babel-register": "latest",
-    "clean-webpack-plugin": "^0.1.17",
+    "clean-webpack-plugin": "^0.1.19",
     "ignore-loader": "^0.1.2"
   }
 }

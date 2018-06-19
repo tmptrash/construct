@@ -291,7 +291,6 @@ class OperatorsDos extends Operators {
 
         for (let v0 = 0; v0 < vars; v0++) {
             eval(`Operators.global.fn = function put(line, num, org) {
-            return ++line;
                 let put      = this.vars[${v0}];
                 if (put <= 0) {return ++line}
                 if (put > 0xffffff) {put = 0xffffff}
