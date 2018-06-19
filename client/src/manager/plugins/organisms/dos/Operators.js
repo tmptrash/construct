@@ -295,8 +295,8 @@ class OperatorsDos extends Operators {
                 let put      = this.vars[${v0}];
                 if (put <= 0) {return ++line}
                 if (put > 0xffffff) {put = 0xffffff}
-                let   x      = org.dirX;
-                let   y      = org.dirY;
+                const x      = org.dirX;
+                const y      = org.dirY;
                 if (!IN_WORLD(x, y)) {return ++line}
                 if (this._world.data[x][y] !== 0) {return ++line}
                 if (org.energy <= put) {
