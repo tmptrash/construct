@@ -96,9 +96,9 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
 
         it('Checking lookAt() found an object', () => {
             global.man.world.setDot(0,3,0xaabbcc);
-            global.man.positions[0][3] = -2;
+            global.man.positions[0][3] = OBJECT_TYPES.TYPE_ENERGY2;
             expect(ops.operators[hex('101100 01 00 11')].call(ops, 0)).toEqual(1);
-            expect(ops.vars).toEqual([0,-2,2,3]);
+            expect(ops.vars).toEqual([0,OBJECT_TYPES.TYPE_ENERGY2,2,3]);
             global.man.world.setDot(0,3,0);
             global.man.positions[0][3] = 0;
         });
@@ -169,9 +169,9 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
 
             it('Checking lookAt() found an object', () => {
                 global.man.world.setDot(0,3,0xaabbcc);
-                global.man.positions[0][3] = -2;
+                global.man.positions[0][3] = OBJECT_TYPES.TYPE_ENERGY2;
                 expect(ops.operators[hex('101100 001 000 011')].call(ops, 0)).toEqual(1);
-                expect(ops.vars).toEqual([0,-2,2,3,4,5,6,7]);
+                expect(ops.vars).toEqual([0,OBJECT_TYPES.TYPE_ENERGY2,2,3,4,5,6,7]);
                 global.man.world.setDot(0,3,0);
                 global.man.positions[0][3] = 0;
             });
@@ -811,6 +811,16 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             expect(org.energy).toEqual(energy - 1);
         });
 
+        it("Checking put huge amount of energy", () => {
+            org.energy = 0xfffffff;
+            org.x = 1;
+            org.y = 1;
+            ops.vars = [0xfffffff, 1, 2, 3];
+            expect(ops.operators[hex('110010 00')].call(ops, 0, hex('110010 00'), org)).toEqual(1);
+            expect(ops.vars).toEqual([0xfffffff, 1, 2, 3]);
+            expect(org.energy).toEqual(0xfffffff - 0xffffff);
+        });
+
         it("Checking killing of organism while put energy", () => {
             org.energy = 1;
             org.x = 1;
@@ -819,6 +829,141 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             expect(ops.operators[hex('110010 00')].call(ops, 0, hex('110010 00'), org)).toEqual(1);
             expect(ops.vars).toEqual([1, 1, 2, 3]);
             expect(org.energy).toEqual(0);
+        });
+
+        it("Checking put if organism is out of bounds", () => {
+            org.energy = 1;
+            org.x = 0;
+            org.y = 0;
+            org.dir = DIRS.UP;
+            ops.vars = [1, 1, 2, 3];
+            expect(ops.operators[hex('110010 00')].call(ops, 0, hex('110010 00'), org)).toEqual(1);
+            expect(ops.vars).toEqual([1, 1, 2, 3]);
+            expect(org.energy).toEqual(1);
+        });
+
+        it("Checking negative put", () => {
+            org.energy = 1;
+            org.x = 1;
+            org.y = 1;
+            org.dir = DIRS.UP;
+            ops.vars = [-1, 1, 2, 3];
+            expect(ops.operators[hex('110010 00')].call(ops, 0, hex('110010 00'), org)).toEqual(1);
+            expect(ops.vars).toEqual([-1, 1, 2, 3]);
+            expect(org.energy).toEqual(1);
+        });
+
+        it("Checking put if something is there", () => {
+            org.energy = 1;
+            org.x = 1;
+            org.y = 1;
+            org.dir = DIRS.UP;
+            ops.vars = [1, 1, 2, 3];
+            global.man.world.setDot(1,0,0xaabbcc);
+            expect(ops.operators[hex('110010 00')].call(ops, 0, hex('110010 00'), org)).toEqual(1);
+            expect(ops.vars).toEqual([1, 1, 2, 3]);
+            expect(org.energy).toEqual(1);
+
+            global.man.world.setDot(1,0,0);
+        });
+
+        describe('eat() operator with 3bits per var', () => {
+            let bpv;
+            let ops;
+            let vars;
+            let offs;
+            beforeAll(() => {
+                bpv = OConfig.codeBitsPerVar;
+                OConfig.codeBitsPerVar = 3;
+                OperatorsDos.compile();
+            });
+            afterAll(() => OperatorsDos.compile());
+            beforeEach(() => {
+                vars = [0, 1, 2, 3, 4, 5, 6, 7];
+                offs = new Array(10);
+                ops = new OperatorsDos(offs, vars, org);
+            });
+            afterEach(() => {
+                ops.destroy();
+                ops = null;
+                offs = null;
+                vars = null;
+                OConfig.codeBitsPerVar = bpv;
+            });
+
+            it("Checking put nothing", () => {
+                const energy = org.energy;
+                ops.vars = [0, 1, 2, 3, 4, 5, 6, 7];
+                expect(ops.operators[hex('110010 000')].call(ops, 0, hex('110010 000'), org)).toEqual(1);
+                expect(ops.vars).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+                expect(org.energy).toEqual(energy);
+            });
+
+            it("Checking put of energy", () => {
+                const energy = org.energy = 10;
+                org.x = 1;
+                org.y = 1;
+                ops.vars = [1, 1, 2, 3, 4, 5, 6, 7];
+                expect(ops.operators[hex('110010 000')].call(ops, 0, hex('110010 000'), org)).toEqual(1);
+                expect(ops.vars).toEqual([1, 1, 2, 3, 4, 5, 6, 7]);
+                expect(org.energy).toEqual(energy - 1);
+            });
+
+            it("Checking put huge amount of energy", () => {
+                org.energy = 0xfffffff;
+                org.x = 1;
+                org.y = 1;
+                ops.vars = [0xfffffff, 1, 2, 3, 4, 5, 6, 7];
+                expect(ops.operators[hex('110010 000')].call(ops, 0, hex('110010 000'), org)).toEqual(1);
+                expect(ops.vars).toEqual([0xfffffff, 1, 2, 3, 4, 5, 6, 7]);
+                expect(org.energy).toEqual(0xfffffff - 0xffffff);
+            });
+
+            it("Checking killing of organism while put energy", () => {
+                org.energy = 1;
+                org.x = 1;
+                org.y = 1;
+                ops.vars = [1, 1, 2, 3, 4, 5, 6, 7];
+                expect(ops.operators[hex('110010 000')].call(ops, 0, hex('110010 000'), org)).toEqual(1);
+                expect(ops.vars).toEqual([1, 1, 2, 3, 4, 5, 6, 7]);
+                expect(org.energy).toEqual(0);
+            });
+
+            it("Checking put if organism is out of bounds", () => {
+                org.energy = 1;
+                org.x = 0;
+                org.y = 0;
+                org.dir = DIRS.UP;
+                ops.vars = [1, 1, 2, 3, 4, 5, 6, 7];
+                expect(ops.operators[hex('110010 000')].call(ops, 0, hex('110010 000'), org)).toEqual(1);
+                expect(ops.vars).toEqual([1, 1, 2, 3, 4, 5, 6, 7]);
+                expect(org.energy).toEqual(1);
+            });
+
+            it("Checking negative put", () => {
+                org.energy = 1;
+                org.x = 1;
+                org.y = 1;
+                org.dir = DIRS.UP;
+                ops.vars = [-1, 1, 2, 3, 4, 5, 6, 7];
+                expect(ops.operators[hex('110010 000')].call(ops, 0, hex('110010 000'), org)).toEqual(1);
+                expect(ops.vars).toEqual([-1, 1, 2, 3, 4, 5, 6, 7]);
+                expect(org.energy).toEqual(1);
+            });
+
+            it("Checking put if something is there", () => {
+                org.energy = 1;
+                org.x = 1;
+                org.y = 1;
+                org.dir = DIRS.UP;
+                ops.vars = [1, 1, 2, 3, 4, 5, 6, 7];
+                global.man.world.setDot(1,0,0xaabbcc);
+                expect(ops.operators[hex('110010 000')].call(ops, 0, hex('110010 000'), org)).toEqual(1);
+                expect(ops.vars).toEqual([1, 1, 2, 3, 4, 5, 6, 7]);
+                expect(org.energy).toEqual(1);
+
+                global.man.world.setDot(1,0,0);
+            });
         });
     });
 
