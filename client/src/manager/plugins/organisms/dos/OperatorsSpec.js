@@ -684,6 +684,17 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             ops.world.setDot(1,0,0);
         });
 
+        it("Checking eating out of the world", () => {
+            org.energy = 1;
+            ops.vars = [1, 0, 1, 2];
+            org.dir = DIRS.UP;
+            org.x = 0;
+            org.y = 0;
+            expect(ops.operators[hex('110001 00')].call(ops, 0, hex('110001 00'), org)).toEqual(1);
+            expect(ops.vars).toEqual([1, 0, 1, 2]);
+            expect(org.energy).toEqual(1);
+        });
+
         it("Checking eating other organism", () => {
             const org2   = new OrganismDos(1, 0, 0, {});
             const energy = org2.energy;
@@ -768,6 +779,17 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
 
                 global.man.positions[1][0] = 0;
                 ops.world.setDot(1,0,0);
+            });
+
+            it("Checking eating out of the world", () => {
+                org.energy = 1;
+                ops.vars = [1, 0, 1, 2, 3, 4, 5, 6];
+                org.dir = DIRS.UP;
+                org.x = 0;
+                org.y = 0;
+                expect(ops.operators[hex('110001 000')].call(ops, 0, hex('110001 000'), org)).toEqual(1);
+                expect(ops.vars).toEqual([1, 0, 1, 2, 3, 4, 5, 6]);
+                expect(org.energy).toEqual(1);
             });
 
             it("Checking eating other organism", () => {
