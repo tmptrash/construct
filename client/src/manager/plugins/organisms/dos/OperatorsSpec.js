@@ -704,24 +704,121 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             ops.world.setDot(1,0,0);
         });
 
-        it("Checking killing other organism", () => {
-            const org2   = new OrganismDos(1, 0, 0, {});
-            org2.energy = 1;
-            org.energy = 1;
-            ops.vars = [1, 0, 1, 2];
-            ops.world.setDot(1,0,10);
-            org.dir = DIRS.UP;
+        describe('eat() operator with 3bits per var', () => {
+            let bpv;
+            let ops;
+            let vars;
+            let offs;
+            beforeAll(() => {
+                bpv = OConfig.codeBitsPerVar;
+                OConfig.codeBitsPerVar = 3;
+                OperatorsDos.compile();
+            });
+            afterAll(() => OperatorsDos.compile());
+            beforeEach(() => {
+                vars = [0, 1, 2, 3, 4, 5, 6, 7];
+                offs = new Array(10);
+                ops = new OperatorsDos(offs, vars, org);
+            });
+            afterEach(() => {
+                ops.destroy();
+                ops = null;
+                offs = null;
+                vars = null;
+                OConfig.codeBitsPerVar = bpv;
+            });
+
+            it("Checking eating nothing 1", () => {
+                const energy = org.energy;
+                ops.vars = [0, 0, 1, 2, 3, 4, 5, 6, 7];
+                expect(ops.operators[hex('110001 000')].call(ops, 0, hex('110001 000'), org)).toEqual(1);
+                expect(ops.vars).toEqual([0, 0, 1, 2, 3, 4, 5, 6, 7]);
+                expect(org.energy).toEqual(energy);
+            });
+            it("Checking eating nothing 2", () => {
+                const energy = org.energy;
+                ops.vars = [1, 0, 1, 2, 3, 4, 5, 6, 7];
+                expect(ops.operators[hex('110001 000')].call(ops, 0, hex('110001 000'), org)).toEqual(1);
+                expect(ops.vars).toEqual([1, 0, 1, 2, 3, 4, 5, 6, 7]);
+                expect(org.energy).toEqual(energy);
+            });
+            it("Checking eating energy", () => {
+                org.energy = 1;
+                ops.vars = [1, 0, 1, 2, 3, 4, 5, 6, 7];
+                ops.world.setDot(1,0,10);
+                org.dir = DIRS.UP;
+                org.x = 1;
+                org.y = 1;
+                expect(ops.operators[hex('110001 000')].call(ops, 0, hex('110001 000'), org)).toEqual(1);
+                expect(ops.vars).toEqual([1, 0, 1, 2, 3, 4, 5, 6, 7]);
+                expect(org.energy).toEqual(2);
+            });
+
+            it("Checking eating world object", () => {
+                org.energy = 1;
+                ops.vars = [1, 0, 1, 2, 3, 4, 5, 6, 7];
+                ops.world.setDot(1,0,10);
+                org.dir = DIRS.UP;
+                org.x = 1;
+                org.y = 1;
+                global.man.positions[1][0] = OBJECT_TYPES.TYPE_ENERGY2;
+                expect(ops.operators[hex('110001 000')].call(ops, 0, hex('110001 000'), org)).toEqual(1);
+                expect(ops.vars).toEqual([1, 0, 1, 2, 3, 4, 5, 6, 7]);
+                expect(org.energy).toEqual(1);
+
+                global.man.positions[1][0] = 0;
+                ops.world.setDot(1,0,0);
+            });
+
+            it("Checking eating other organism", () => {
+                const org2   = new OrganismDos(1, 0, 0, {});
+                const energy = org2.energy;
+                org.energy = 1;
+                ops.vars = [1, 0, 1, 2, 3, 4, 5, 6, 7];
+                ops.world.setDot(1,0,10);
+                org.dir = DIRS.UP;
+                org.x = 1;
+                org.y = 1;
+                global.man.positions[1][0] = org2;
+                expect(ops.operators[hex('110001 000')].call(ops, 0, hex('110001 000'), org)).toEqual(1);
+                expect(ops.vars).toEqual([1, 0, 1, 2, 3, 4, 5, 6, 7]);
+                expect(org.energy).toEqual(2);
+                expect(org2.energy).toEqual(energy - 1);
+
+
+                global.man.positions[1][0] = 0;
+                ops.world.setDot(1,0,0);
+            });
+        });
+    });
+
+    describe('put() operator', () => {
+        it("Checking put nothing", () => {
+            const energy = org.energy;
+            ops.vars = [0, 1, 2, 3];
+            expect(ops.operators[hex('110010 00')].call(ops, 0, hex('110010 00'), org)).toEqual(1);
+            expect(ops.vars).toEqual([0, 1, 2, 3]);
+            expect(org.energy).toEqual(energy);
+        });
+
+        it("Checking put of energy", () => {
+            const energy = org.energy = 10;
             org.x = 1;
             org.y = 1;
-            global.man.positions[1][0] = org2;
-            expect(ops.operators[hex('110001 00')].call(ops, 0, hex('110001 00'), org)).toEqual(1);
-            expect(ops.vars).toEqual([1, 0, 1, 2]);
-            expect(org.energy).toEqual(2);
-            expect(org2.energy).toEqual(0);
-            expect(org2.vm).toEqual(null);
+            ops.vars = [1, 1, 2, 3];
+            expect(ops.operators[hex('110010 00')].call(ops, 0, hex('110010 00'), org)).toEqual(1);
+            expect(ops.vars).toEqual([1, 1, 2, 3]);
+            expect(org.energy).toEqual(energy - 1);
+        });
 
-            global.man.positions[1][0] = 0;
-            ops.world.setDot(1,0,0);
+        it("Checking killing of organism while put energy", () => {
+            org.energy = 1;
+            org.x = 1;
+            org.y = 1;
+            ops.vars = [1, 1, 2, 3];
+            expect(ops.operators[hex('110010 00')].call(ops, 0, hex('110010 00'), org)).toEqual(1);
+            expect(ops.vars).toEqual([1, 1, 2, 3]);
+            expect(org.energy).toEqual(0);
         });
     });
 
