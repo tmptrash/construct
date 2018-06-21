@@ -70,7 +70,7 @@ ClientConfig.init({
      * {Number} Amount of all energy in a world including organisms and all kinds
      * of energy. Total energy should not be greater then this value.
      */
-    worldEnergy: 0x6d3b4 * 10000 * 10, // Helper.getColor(ENERGY_COLOR) === 0x6d3b4
+    worldEnergy: 0x6d3b4 * 10000 * 20, // Helper.getColor(ENERGY_COLOR) === 0x6d3b4
     /**
      * {Number} Turns on cyclic world mode. It means that organisms may go outside
      * it's border, but still be inside. For example, if the world has 10x10

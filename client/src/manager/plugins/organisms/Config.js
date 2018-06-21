@@ -116,13 +116,13 @@ const Config       = {
     /**
      * {Number} Maximum energy organism may reach collecting energy
      */
-    orgMaxEnergy: 10 * ENERGY_VALUE,
+    orgMaxEnergy: 20 * ENERGY_VALUE,
     /**
      * {Number} Amount of energy for first organisms. They are like Adam and
      * Eve. It means that these empty (without vm) organism were created
      * by operator and not by evolution.
      */
-    orgStartEnergy: 10 * ENERGY_VALUE,
+    orgStartEnergy: 20 * ENERGY_VALUE,
     /**
      * {Number} Size of organism stack (internal memory) in bits. Real amount of
      * organism's internal memory will be 2^orgMemBits. Example: if orgMemBits=3,
