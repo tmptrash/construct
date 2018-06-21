@@ -846,6 +846,13 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             expect(ops.vars).toEqual([1, 0, 1, 2]);
             expect(org.energy).toEqual(energy);
         });
+        it("Checking eating negative value", () => {
+            const energy = org.energy;
+            ops.vars = [-1, 0, 1, 2];
+            expect(ops.operators[hex('110001 00')].call(ops, 0, hex('110001 00'), org)).toEqual(1);
+            expect(ops.vars).toEqual([-1, 0, 1, 2]);
+            expect(org.energy).toEqual(energy);
+        });
 
         it("Checking eating energy", () => {
             org.energy = 1;
@@ -857,6 +864,17 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             expect(ops.operators[hex('110001 00')].call(ops, 0, hex('110001 00'), org)).toEqual(1);
             expect(ops.vars).toEqual([1, 0, 1, 2]);
             expect(org.energy).toEqual(2);
+        });
+        it("Checking eating energy more then OConfig.orgMaxEnergy", () => {
+            org.energy = 1;
+            ops.vars = [100, 0, 1, 2];
+            ops.world.setDot(1,0,100);
+            org.dir = DIRS.UP;
+            org.x = 1;
+            org.y = 1;
+            expect(ops.operators[hex('110001 00')].call(ops, 0, hex('110001 00'), org)).toEqual(1);
+            expect(ops.vars).toEqual([100, 0, 1, 2]);
+            expect(org.energy).toEqual(100);
         });
 
         it("Checking eating world object", () => {
@@ -901,6 +919,24 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             expect(org.energy).toEqual(2);
             expect(org2.energy).toEqual(energy - 1);
 
+            global.man.positions[1][0] = 0;
+            ops.world.setDot(1,0,0);
+        });
+        it("Checking eating and kill other organism", () => {
+            const org2   = new OrganismDos(1, 0, 0, {});
+            const energy = org2.energy = 1;
+            org.energy = 1;
+            ops.vars = [energy, 0, 1, 2];
+            ops.world.setDot(1,0,10);
+            org.dir = DIRS.UP;
+            org.x = 1;
+            org.y = 1;
+            global.man.positions[1][0] = org2;
+            expect(ops.operators[hex('110001 00')].call(ops, 0, hex('110001 00'), org)).toEqual(1);
+            expect(ops.vars).toEqual([energy, 0, 1, 2]);
+            expect(org.energy).toEqual(2);
+            expect(org2.energy).toEqual(0);
+            expect(org2.vm).toEqual(null);
 
             global.man.positions[1][0] = 0;
             ops.world.setDot(1,0,0);
@@ -944,6 +980,14 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
                 expect(ops.vars).toEqual([1, 0, 1, 2, 3, 4, 5, 6, 7]);
                 expect(org.energy).toEqual(energy);
             });
+            it("Checking eating negative value", () => {
+                const energy = org.energy;
+                ops.vars = [-1, 0, 1, 2, 3, 4, 5, 6];
+                expect(ops.operators[hex('110001 000')].call(ops, 0, hex('110001 000'), org)).toEqual(1);
+                expect(ops.vars).toEqual([-1, 0, 1, 2, 3, 4, 5, 6]);
+                expect(org.energy).toEqual(energy);
+            });
+
             it("Checking eating energy", () => {
                 org.energy = 1;
                 ops.vars = [1, 0, 1, 2, 3, 4, 5, 6, 7];
@@ -954,6 +998,17 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
                 expect(ops.operators[hex('110001 000')].call(ops, 0, hex('110001 000'), org)).toEqual(1);
                 expect(ops.vars).toEqual([1, 0, 1, 2, 3, 4, 5, 6, 7]);
                 expect(org.energy).toEqual(2);
+            });
+            it("Checking eating energy more then OConfig.orgMaxEnergy", () => {
+                org.energy = 1;
+                ops.vars = [100, 0, 1, 2, 3, 4, 5, 6];
+                ops.world.setDot(1,0,100);
+                org.dir = DIRS.UP;
+                org.x = 1;
+                org.y = 1;
+                expect(ops.operators[hex('110001 000')].call(ops, 0, hex('110001 000'), org)).toEqual(1);
+                expect(ops.vars).toEqual([100, 0, 1, 2, 3, 4, 5, 6]);
+                expect(org.energy).toEqual(100);
             });
 
             it("Checking eating world object", () => {
@@ -998,6 +1053,24 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
                 expect(org.energy).toEqual(2);
                 expect(org2.energy).toEqual(energy - 1);
 
+                global.man.positions[1][0] = 0;
+                ops.world.setDot(1,0,0);
+            });
+            it("Checking eating and kill other organism", () => {
+                const org2   = new OrganismDos(1, 0, 0, {});
+                const energy = org2.energy = 1;
+                org.energy = 1;
+                ops.vars = [energy, 0, 1, 2, 3, 4, 5, 6];
+                ops.world.setDot(1,0,10);
+                org.dir = DIRS.UP;
+                org.x = 1;
+                org.y = 1;
+                global.man.positions[1][0] = org2;
+                expect(ops.operators[hex('110001 000')].call(ops, 0, hex('110001 000'), org)).toEqual(1);
+                expect(ops.vars).toEqual([energy, 0, 1, 2, 3, 4, 5, 6]);
+                expect(org.energy).toEqual(2);
+                expect(org2.energy).toEqual(0);
+                expect(org2.vm).toEqual(null);
 
                 global.man.positions[1][0] = 0;
                 ops.world.setDot(1,0,0);

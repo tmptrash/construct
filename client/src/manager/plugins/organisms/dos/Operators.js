@@ -241,14 +241,14 @@ class OperatorsDos extends Operators {
                     if ((eat = this._world.grabDot(x, y, eat)) > 0) {
                         if (org.energy + eat > OConfig.orgMaxEnergy) {eat = OConfig.orgMaxEnergy - org.energy}
                         org.energy += eat;
-                        this._obs.fire(EVENTS.EAT_ENERGY, eat);
+                        this._obs.fire(${EVENTS.EAT_ENERGY}, eat);
                     }
                     return ++line;
                 }
                 if (victim.energy <= eat) {              // Organism found
                     if (org.energy + victim.energy > OConfig.orgMaxEnergy) {return ++line}
-                    this._obs.fire(EVENTS.KILL_EAT, victim);
-                    org.energy += victim.energy;
+                    this._obs.fire(${EVENTS.KILL_EAT}, victim);
+                    org.energy += victim.energy;                    
                     //
                     // IMPORTANT:
                     // We have to do destroy here, to have a possibility for current
@@ -260,7 +260,7 @@ class OperatorsDos extends Operators {
                 }
                 
                 if (org.energy + eat > OConfig.orgMaxEnergy) {return ++line}
-                this._obs.fire(EVENTS.EAT_ORG, victim, eat);
+                this._obs.fire(${EVENTS.EAT_ORG}, victim, eat);
                 org.energy    += eat;
                 victim.energy -= eat;
         
@@ -286,7 +286,6 @@ class OperatorsDos extends Operators {
         const h        = Helper.toHexNum;
         const b        = Helper.toBinStr;
         const vars     = Math.pow(2, bpv);
-        const event    = EVENTS.PUT_ENERGY;
 
         for (let v0 = 0; v0 < vars; v0++) {
             eval(`Operators.global.fn = function put(line, num, org) {
@@ -300,13 +299,13 @@ class OperatorsDos extends Operators {
                 if (org.energy <= put) {
                     put = org.energy;
                     this._world.setDot(x, y, put);
-                    this._obs.fire(${event}, put);
+                    this._obs.fire(${EVENTS.PUT_ENERGY}, put);
                     org.destroy();
                     return ++line;
                 }
                 
                 this._world.setDot(x, y, put);
-                this._obs.fire(${event}, put);
+                this._obs.fire(${EVENTS.PUT_ENERGY}, put);
                 org.energy -= put;
                 return ++line;
             }`);

@@ -182,7 +182,7 @@ const Config       = {
      * default value, while organism is delivering. So, if the value is
      * 1000, then range will be: -500..500
      */
-    codeVarInitRange: 10000000,
+    codeVarInitRange: 1000,
     /**
      * {Number} This value is amount of code lines, which will be run for one
      * organism without interruption by one VM. Set this value to value bigger
