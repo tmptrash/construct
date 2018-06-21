@@ -161,13 +161,18 @@ const Config       = {
      */
     orgPosition: [1920 + 1920/1.5, 1080 * 2, 500, 500, 1920 * 3 - 1920/1.5, 1080 * 2, 500, 500],
     /**
+     * {Boolean} true means, that code size affects amount of grabbed energy from
+     * organism by the system on every code line run
+     */
+    orgSizeAffectsEnergy: false,
+    /**
      * {Number} If organism reach this limit of amount of vm lines, then codeSizeCoef
      * will be used during it's energy grabbing by system. We use this approach,
      * because our CPU's are slow and organisms with big codes are very slow. But
      * it's possible for organisms to go outside the limit by inventing new
      * effective mechanisms of energy obtaining.
      */
-    codeMaxSize: 300,
+    codeMaxSize: 100,
     /**
      * {Number} Amount of bits for storing a numeric constant inside byte code
      */

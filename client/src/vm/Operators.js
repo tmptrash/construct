@@ -288,7 +288,7 @@ class Operators {
         eval(`Operators.global.fn = function call(line, num, org) {
             const data = num << ${opBits};
             const offs = this.funcs[data >>> ${ifBit} === 0 ? Math.round(this.vars[data << 1 >>> ${varBits}]) % ${funcs} : data << 1 >>> ${fnBits}];
-            if (typeof offs !== 'undefined') {
+            if (offs !== undefined) {
                 if (this.stack.length > ${MAX_STACK_SIZE}) {
                     org.energy -= org.vm.size;
                     return ++line;
@@ -348,7 +348,7 @@ class Operators {
 
         eval(`Operators.global.fn = function bracket(line, num, org, lines) {
             const startLine = this.offs[line];
-            const operator  = typeof startLine === 'undefined' ? -1 : lines[startLine] >>> Num.VAR_BITS_OFFS;
+            const operator  = startLine === undefined ? -1 : lines[startLine] >>> Num.VAR_BITS_OFFS;
             if (operator === 0b100011) {return this.offs[line]} // loop
             if (operator === 0b100101) {                        // func
                 const stack = this.stack;

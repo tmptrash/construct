@@ -111,7 +111,7 @@ class Request {
      * @param {String} error Error message
      */
     _onSendErr(error) {
-        if (typeof error !== 'undefined') {
+        if (error !== undefined) {
             Console.error(`Request.send() error: ${error}`);
         }
     }

@@ -11,6 +11,9 @@ const QUIET_IMPORTANT         = 1;
 const QUIET_NO                = 2;
 
 const ENERGY_COLOR            = 10000;
+//
+// Don't change it to window === undefined, it will trigger an error
+//
 const IS_NODE_JS              = typeof window === 'undefined';
 
 class ClientConfig extends Config {}

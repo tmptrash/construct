@@ -64,7 +64,7 @@ class Configurable {
         const config = cfg.Config;
         const cls    = Helper.loverCase(this.constructor.name);
 
-        if (typeof config[cls] !== 'undefined') {
+        if (config[cls] !== undefined) {
             throw `Looks like there are two plugins with the same name try to set their configuration. Name: ${cls}`;
         }
 
@@ -83,7 +83,7 @@ class Configurable {
         const api = this._parent.api;
         const cls = Helper.loverCase(this.constructor.name);
 
-        if (typeof api[cls] !== 'undefined') {
+        if (api[cls] !== undefined) {
             throw `Looks like there are two plugins with the same name try to set their configuration. Name: ${cls}`;
         }
 

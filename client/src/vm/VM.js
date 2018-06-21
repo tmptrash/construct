@@ -100,6 +100,7 @@ class VM extends Observer {
         const opMask      = Num.OPERATOR_MASK_OFF;
         const weights     = this._weights;
         const lens        = Operators.LENS;
+        const sizeEnergy  = OConfig.orgSizeAffectsEnergy;
         let   linesRun    = yieldPeriod;
         let   line        = this._line;
 
@@ -110,7 +111,7 @@ class VM extends Observer {
             //
             // Every operator has it's own weight
             //
-            org.vm && (org.energy -= (weights[op] * org.vm.size));
+            org.vm && (org.energy -= (weights[op] * (sizeEnergy ? org.vm.size : 1)));
             //
             // We reach the end of the script and have to run it from the beginning
             //

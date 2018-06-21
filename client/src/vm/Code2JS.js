@@ -114,7 +114,7 @@ class Code2JS {
     }
 
     _onBracket(num, line, ops) {
-        return typeof ops.offs[line] === 'undefined' ? '// }' : '}';
+        return ops.offs[line] === undefined ? '// }' : '}';
     }
 
     _onToMem(num) {

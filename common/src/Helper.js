@@ -61,7 +61,7 @@ class Helper {
         // reference to fn.fn and this code crashes on line `fn.fn.apply(obj, args)`
         //
         const oldFn = fn.fn = obj[fnName];
-        if (typeof oldFn === 'undefined') {throw `Helper.override: Parent object doesn't contain method '${fnName}'`}
+        if (oldFn === undefined) {throw `Helper.override: Parent object doesn't contain method '${fnName}'`}
         if (!hard) {
             obj[fnName] = (...args) => {
                 const ret = fn(...args);
@@ -234,7 +234,7 @@ class Helper {
         const xMap = {0: Config.worldWidth  - 1, [Config.worldWidth  - 1]: 0};
         const yMap = {0: Config.worldHeight - 1, [Config.worldHeight - 1]: 0};
 
-        return [(dir === DIR.LEFT || dir === DIR.RIGHT) && typeof(xMap[x]) !== 'undefined' ? xMap[x] : x, (dir === DIR.UP || dir === DIR.DOWN) && typeof(yMap[y]) !== 'undefined' ? yMap[y] : y];
+        return [(dir === DIR.LEFT || dir === DIR.RIGHT) && xMap[x] !== undefined ? xMap[x] : x, (dir === DIR.UP || dir === DIR.DOWN) && yMap[y] !== undefined ? yMap[y] : y];
     }
 
     /**

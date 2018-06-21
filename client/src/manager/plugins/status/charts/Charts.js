@@ -184,7 +184,7 @@ class Charts extends Status {
      * @api
      */
     _transparent(chart, t) {
-        if (typeof t === 'undefined') {
+        if (t === undefined) {
             _each(this._charts, (c, k) => this._setProperty(k, 'transparent', chart));
         } else {
             this._setProperty(chart, 'transparent', t);
@@ -234,8 +234,8 @@ class Charts extends Status {
      * @api
      */
     _active(chart, a) {
-        const noA     = typeof a === 'undefined';
-        const noChart = typeof chart === 'undefined';
+        const noA     = a === undefined;
+        const noChart = chart === undefined;
         const bChart  = typeof chart === 'boolean';
 
         a     = noA     ? (bChart ? chart : true) : a;
@@ -275,7 +275,7 @@ class Charts extends Status {
      * @api
      */
     _reset(chart) {
-        if (typeof chart === 'undefined') {
+        if (chart === undefined) {
             _each(this._charts, c => {c.reset(); return true});
         } else {
             _get(this, `_charts.${chart}`, {}).reset && this._charts[chart].reset();
@@ -283,7 +283,7 @@ class Charts extends Status {
     }
 
     _preset(name) {
-        if (typeof(PRESETS[name]) === 'undefined') {return}
+        if (PRESETS[name] === undefined) {return}
 
         _each(this._charts, (inst, chart) => this._off(chart));
         _each(PRESETS[name], (pos, chart) => {
@@ -293,7 +293,7 @@ class Charts extends Status {
     }
 
     _setProperty(chart, prop, val) {
-        if (typeof(this._charts[chart]) === 'undefined') {return}
+        if (this._charts[chart] === undefined) {return}
         _has(this.cfg, `charts.${chart}.${prop}`) && (this.cfg.charts[chart][prop] = val);
         this._charts[chart][prop] = val;
     }

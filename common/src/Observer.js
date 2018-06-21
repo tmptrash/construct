@@ -28,7 +28,7 @@ class Observer {
 
     on(event, handler) {
         const eventObj = this._handlers[event];
-        if (typeof(eventObj) === 'undefined') {return false}
+        if (eventObj === undefined) {return false}
         eventObj[eventObj.amount++] = handler;
 
         return true;

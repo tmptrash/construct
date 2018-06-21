@@ -9,6 +9,10 @@ const EVENTS       = require('./../../../../share/Events').EVENTS;
 const DIRS         = require('./../../../../../../common/src/Directions').DIR;
 const OBJECT_TYPES = require('./../../../../view/World').OBJECT_TYPES;
 
+const EMPTY        = 0;
+const ENERGY       = 1;
+const ORGANISM     = 2;
+
 describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
     const hex    = Helper.toHexNum;
     const ww     = Config.worldWidth;
@@ -72,25 +76,25 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
     describe('lookAt() operator', () => {
         it("Checking lookAt() is found nothing", () => {
             expect(ops.operators[hex('101100 01 00 11')].call(ops, 0)).toEqual(1);
-            expect(ops.vars).toEqual([0,0,2,3]);
+            expect(ops.vars).toEqual([0,EMPTY,2,3]);
         });
 
         it("Checking lookAt() looking outside of the world - x", () => {
-            ops.vars[0] = 11;
+            ops.vars[0] = w + 1;
             expect(ops.operators[hex('101100 01 00 11')].call(ops, 0)).toEqual(1);
-            expect(ops.vars).toEqual([11,0,2,3]);
+            expect(ops.vars).toEqual([w + 1,EMPTY,2,3]);
         });
 
         it("Checking lookAt() looking outside of the world - y", () => {
-            ops.vars[3] = 11;
+            ops.vars[3] = h + 1;
             expect(ops.operators[hex('101100 01 00 11')].call(ops, 0)).toEqual(1);
-            expect(ops.vars).toEqual([0,0,2,11]);
+            expect(ops.vars).toEqual([0,EMPTY,2,h + 1]);
         });
 
         it('Checking lookAt() found an energy', () => {
             global.man.world.setDot(0,3,0xaabbcc);
             expect(ops.operators[hex('101100 01 00 11')].call(ops, 0)).toEqual(1);
-            expect(ops.vars).toEqual([0,1,2,3]);
+            expect(ops.vars).toEqual([0,ENERGY,2,3]);
             global.man.world.setDot(0,3,0);
         });
 
@@ -107,7 +111,7 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             global.man.world.setDot(0,3,0xaabbcc);
             global.man.positions[0][3] = {energy: 123};
             expect(ops.operators[hex('101100 01 00 11')].call(ops, 0)).toEqual(1);
-            expect(ops.vars).toEqual([0,2,2,3]);
+            expect(ops.vars).toEqual([0,ORGANISM,2,3]);
             global.man.world.setDot(0,3,0);
             global.man.positions[0][3] = 0;
         });
@@ -116,7 +120,7 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             ops.vars[0] = .1;
             ops.vars[3] = .2;
             expect(ops.operators[hex('101100 01 00 11')].call(ops, 0)).toEqual(1);
-            expect(ops.vars).toEqual([.1,0,2,.2]);
+            expect(ops.vars).toEqual([.1,EMPTY,2,.2]);
         });
 
         describe('lookAt() method 3bits per var', () => {
@@ -145,25 +149,25 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
 
             it("Checking lookAt() is found nothing", () => {
                 expect(ops.operators[hex('101100 001 000 011')].call(ops, 0)).toEqual(1);
-                expect(ops.vars).toEqual([0,0,2,3,4,5,6,7]);
+                expect(ops.vars).toEqual([0,EMPTY,2,3,4,5,6,7]);
             });
 
             it("Checking lookAt() looking outside of the world - x", () => {
-                ops.vars[0] = 11;
+                ops.vars[0] = w + 1;
                 expect(ops.operators[hex('101100 001 000 011')].call(ops, 0)).toEqual(1);
-                expect(ops.vars).toEqual([11,0,2,3,4,5,6,7]);
+                expect(ops.vars).toEqual([w + 1,EMPTY,2,3,4,5,6,7]);
             });
 
             it("Checking lookAt() looking outside of the world - y", () => {
-                ops.vars[3] = 11;
+                ops.vars[3] = h + 1;
                 expect(ops.operators[hex('101100 001 000 011')].call(ops, 0)).toEqual(1);
-                expect(ops.vars).toEqual([0,0,2,11,4,5,6,7]);
+                expect(ops.vars).toEqual([0,EMPTY,2,h + 1,4,5,6,7]);
             });
 
             it('Checking lookAt() found an energy', () => {
                 global.man.world.setDot(0,3,0xaabbcc);
                 expect(ops.operators[hex('101100 001 000 011')].call(ops, 0)).toEqual(1);
-                expect(ops.vars).toEqual([0,1,2,3,4,5,6,7]);
+                expect(ops.vars).toEqual([0,ENERGY,2,3,4,5,6,7]);
                 global.man.world.setDot(0,3,0);
             });
 
@@ -180,7 +184,7 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
                 global.man.world.setDot(0,3,0xaabbcc);
                 global.man.positions[0][3] = {energy: 123};
                 expect(ops.operators[hex('101100 001 000 011')].call(ops, 0)).toEqual(1);
-                expect(ops.vars).toEqual([0,2,2,3,4,5,6,7]);
+                expect(ops.vars).toEqual([0,ORGANISM,2,3,4,5,6,7]);
                 global.man.world.setDot(0,3,0);
                 global.man.positions[0][3] = 0;
             });
@@ -189,7 +193,7 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
                 ops.vars[0] = .1;
                 ops.vars[3] = .2;
                 expect(ops.operators[hex('101100 001 000 011')].call(ops, 0)).toEqual(1);
-                expect(ops.vars).toEqual([.1,0,2,.2,4,5,6,7]);
+                expect(ops.vars).toEqual([.1,EMPTY,2,.2,4,5,6,7]);
             });
         });
     });
@@ -208,13 +212,66 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             expect(org.x).toBe(0);
             expect(org.y).toBe(1);
         });
-
         it("Checking step left with no free space on the left", () => {
             org.dir = DIRS.LEFT;
             org.on(EVENTS.STEP, (o,x,y,x1,y1) => {
                 expect(x === 0 && y === 0 && x1 === -1 && y1 === 0).toBe(true);
                 o.x = x;
                 o.y = y1;
+            });
+            expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+            expect(org.x).toBe(0);
+            expect(org.y).toBe(0);
+        });
+
+        it("Checking step right", () => {
+            org.x   = 1;
+            org.y   = 1;
+            org.dir = DIRS.RIGHT;
+            org.on(EVENTS.STEP, (o,x,y,x1,y1) => {
+                expect(x === 1 && y === 1 && x1 === 2 && y1 === 1).toBe(true);
+                o.x = x1;
+                o.y = y1;
+            });
+            expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+            expect(org.x).toBe(2);
+            expect(org.y).toBe(1);
+        });
+        it("Checking step right with no free space on the right", () => {
+            org.x   = w - 1;
+            org.y   = 0;
+            org.dir = DIRS.RIGHT;
+            org.on(EVENTS.STEP, (o,x,y,x1,y1) => {
+                expect(x === w - 1 && y === 0 && x1 === w && y1 === 0).toBe(true);
+                o.x = x;
+                o.y = y1;
+            });
+            expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+            expect(org.x).toBe(w - 1);
+            expect(org.y).toBe(0);
+        });
+
+        it("Checking step up", () => {
+            org.x   = 1;
+            org.y   = 1;
+            org.dir = DIRS.UP;
+            org.on(EVENTS.STEP, (o,x,y,x1,y1) => {
+                expect(x === 1 && y === 1 && x1 === 1 && y1 === 0).toBe(true);
+                o.x = x1;
+                o.y = y1;
+            });
+            expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+            expect(org.x).toBe(1);
+            expect(org.y).toBe(0);
+        });
+        it("Checking step up with no free space on the up", () => {
+            org.x   = 0;
+            org.y   = 0;
+            org.dir = DIRS.UP;
+            org.on(EVENTS.STEP, (o,x,y,x1,y1) => {
+                expect(x === 0 && y === 0 && x1 === 0 && y1 === -1).toBe(true);
+                o.x = x1;
+                o.y = y;
             });
             expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
             expect(org.x).toBe(0);
@@ -258,7 +315,6 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
                 expect(org.x).toBe(0);
                 expect(org.y).toBe(1);
             });
-
             it("Checking step left with no space", () => {
                 org.dir = DIRS.LEFT;
                 org.on(EVENTS.STEP, (o,x,y,x1,y1) => {
@@ -270,6 +326,141 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
                 expect(org.x).toBe(0);
                 expect(org.y).toBe(0);
             });
+
+            it("Checking step right", () => {
+                org.x   = 1;
+                org.y   = 1;
+                org.dir = DIRS.RIGHT;
+                org.on(EVENTS.STEP, (o,x,y,x1,y1) => {
+                    expect(x === 1 && y === 1 && x1 === 2 && y1 === 1).toBe(true);
+                    o.x = x1;
+                    o.y = y1;
+                });
+                expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+                expect(org.x).toBe(2);
+                expect(org.y).toBe(1);
+            });
+            it("Checking step right with no free space on the right", () => {
+                org.x   = w - 1;
+                org.y   = 0;
+                org.dir = DIRS.RIGHT;
+                org.on(EVENTS.STEP, (o,x,y,x1,y1) => {
+                    expect(x === w - 1 && y === 0 && x1 === w && y1 === 0).toBe(true);
+                    o.x = x;
+                    o.y = y1;
+                });
+                expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+                expect(org.x).toBe(w - 1);
+                expect(org.y).toBe(0);
+            });
+
+            it("Checking step up", () => {
+                org.x   = 1;
+                org.y   = 1;
+                org.dir = DIRS.UP;
+                org.on(EVENTS.STEP, (o,x,y,x1,y1) => {
+                    expect(x === 1 && y === 1 && x1 === 1 && y1 === 0).toBe(true);
+                    o.x = x1;
+                    o.y = y1;
+                });
+                expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+                expect(org.x).toBe(1);
+                expect(org.y).toBe(0);
+            });
+            it("Checking step up with no free space on the up", () => {
+                org.x   = 0;
+                org.y   = 0;
+                org.dir = DIRS.UP;
+                org.on(EVENTS.STEP, (o,x,y,x1,y1) => {
+                    expect(x === 0 && y === 0 && x1 === 0 && y1 === -1).toBe(true);
+                    o.x = x1;
+                    o.y = y;
+                });
+                expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+                expect(org.x).toBe(0);
+                expect(org.y).toBe(0);
+            });
+
+            it("Checking step down", () => {
+                org.x   = 1;
+                org.y   = 1;
+                org.dir = DIRS.DOWN;
+                org.on(EVENTS.STEP, (o,x,y,x1,y1) => {
+                    expect(x === 1 && y === 1 && x1 === 1 && y1 === 2).toBe(true);
+                    o.x = x1;
+                    o.y = y1;
+                });
+                expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+                expect(org.x).toBe(1);
+                expect(org.y).toBe(2);
+            });
+            it("Checking step down with no free space on the down", () => {
+                org.x   = 0;
+                org.y   = h - 1;
+                org.dir = DIRS.DOWN;
+                org.on(EVENTS.STEP, (o,x,y,x1,y1) => {
+                    expect(x === 0 && y === h - 1 && x1 === 0 && y1 === h).toBe(true);
+                    o.x = x1;
+                    o.y = y;
+                });
+                expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+                expect(org.x).toBe(0);
+                expect(org.y).toBe(h - 1);
+            });
+        });
+
+        it("Checking step up", () => {
+            org.x   = 1;
+            org.y   = 1;
+            org.dir = DIRS.UP;
+            org.on(EVENTS.STEP, (o,x,y,x1,y1) => {
+                expect(x === 1 && y === 1 && x1 === 1 && y1 === 0).toBe(true);
+                o.x = x1;
+                o.y = y1;
+            });
+            expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+            expect(org.x).toBe(1);
+            expect(org.y).toBe(0);
+        });
+        it("Checking step up with no free space on the up", () => {
+            org.x   = 0;
+            org.y   = 0;
+            org.dir = DIRS.UP;
+            org.on(EVENTS.STEP, (o,x,y,x1,y1) => {
+                expect(x === 0 && y === 0 && x1 === 0 && y1 === -1).toBe(true);
+                o.x = x1;
+                o.y = y;
+            });
+            expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+            expect(org.x).toBe(0);
+            expect(org.y).toBe(0);
+        });
+
+        it("Checking step down", () => {
+            org.x   = 1;
+            org.y   = 1;
+            org.dir = DIRS.DOWN;
+            org.on(EVENTS.STEP, (o,x,y,x1,y1) => {
+                expect(x === 1 && y === 1 && x1 === 1 && y1 === 2).toBe(true);
+                o.x = x1;
+                o.y = y1;
+            });
+            expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+            expect(org.x).toBe(1);
+            expect(org.y).toBe(2);
+        });
+        it("Checking step down with no free space on the down", () => {
+            org.x   = 0;
+            org.y   = h - 1;
+            org.dir = DIRS.DOWN;
+            org.on(EVENTS.STEP, (o,x,y,x1,y1) => {
+                expect(x === 0 && y === h - 1 && x1 === 0 && y1 === h).toBe(true);
+                o.x = x1;
+                o.y = y;
+            });
+            expect(ops.operators[hex('101101')].call(ops, 0, hex('101101'), org)).toEqual(1);
+            expect(org.x).toBe(0);
+            expect(org.y).toBe(h - 1);
         });
     });
 

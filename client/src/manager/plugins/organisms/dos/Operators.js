@@ -25,7 +25,6 @@ const NORMALIZE_NO_DIR = Helper.normalizeNoDir;
 const EMPTY            = 0;
 const ENERGY           = 1;
 const ORGANISM         = 2;
-const OBJECT           = 3;
 /**
  * {Function} Is created to speed up this function call. constants are run
  * much faster, then Helper.normalize()
@@ -102,7 +101,7 @@ class OperatorsDos extends Operators {
                         const x     = (vars[${v1}] + .5) << 0;
                         const y     = (vars[${v2}] + .5) << 0;
                         if (!IN_WORLD(x, y)) {
-                            vars[${v0}] = 0; 
+                            vars[${v0}] = ${EMPTY}; 
                             return ++line;
                         }
                         vars[${v0}] = this._getDotType(x, y);
@@ -492,7 +491,10 @@ class OperatorsDos extends Operators {
             eval(`Operators.global.fn = function check(line, num, org) {
                 const x = org.dirX;
                 const y = org.dirY;
-                if (!IN_WORLD(x, y)) {return ++line}
+                if (!IN_WORLD(x, y)) {
+                    this.vars[${v0}] = ${EMPTY};
+                    return ++line;
+                }
                 this.vars[${v0}] = this._getDotType(x, y);
                 
                 return ++line;
