@@ -1475,7 +1475,7 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             global.man.world.setDot(2,0,EMPTY);
         });
 
-        describe("Three dots should create new energy element - e1", () => {
+        describe("e1 relates tests", () => {
             it("Two e0 should create one e1", () => {
                 const energy = org.energy = 1;
                 org.x = 1;
@@ -1522,6 +1522,26 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
                 expect(global.man.world.getDot(1,0)).toEqual(EMPTY);
                 expect(global.man.world.getDot(2,0)).toEqual(0xeeeeee);
                 expect(global.man.world.getDot(0,1)).toEqual(EMPTY);
+
+                global.man.positions[0][0] = EMPTY;
+                global.man.world.setDot(0,0,EMPTY);
+            });
+
+            it("Two e1 should give 4x energy increase", () => {
+                const energy = org.energy = 1;
+                org.x = 1;
+                org.y = 1;
+                global.man.positions[0][0] = OBJECT_TYPES.TYPE_ENERGY1;
+                global.man.positions[1][0] = OBJECT_TYPES.TYPE_ENERGY1;
+                global.man.world.setDot(0,0,0xeeeeee);
+                global.man.world.setDot(1,0,0xeeeeee);
+                expect(ops.operators[hex('110011')].call(ops, 0, hex('110011'), org)).toEqual(1);
+
+                expect(org.energy).toEqual(energy + Helper.getColor(EConfig.colorIndex) * 4);
+                expect(global.man.positions[0][0]).toEqual(EMPTY);
+                expect(global.man.positions[1][0]).toEqual(EMPTY);
+                expect(global.man.world.getDot(0,0)).toEqual(EMPTY);
+                expect(global.man.world.getDot(1,0)).toEqual(EMPTY);
 
                 global.man.positions[0][0] = EMPTY;
                 global.man.world.setDot(0,0,EMPTY);
