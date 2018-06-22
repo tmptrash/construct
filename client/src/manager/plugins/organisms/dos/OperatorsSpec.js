@@ -1452,6 +1452,81 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             global.man.world.setDot(0,0,EMPTY);
             global.man.world.setDot(0,3,EMPTY);
         });
+
+        it("One e0 and one e1 should not give 2x energy", () => {
+            const energy = org.energy = 1;
+            org.x = 1;
+            org.y = 1;
+            global.man.positions[0][2] = OBJECT_TYPES.TYPE_ENERGY0;
+            global.man.positions[2][0] = OBJECT_TYPES.TYPE_ENERGY1;
+            global.man.world.setDot(0,2,0xeeeee0);
+            global.man.world.setDot(2,0,0xeeeee1);
+            expect(ops.operators[hex('110011')].call(ops, 0, hex('110011'), org)).toEqual(1);
+
+            expect(org.energy).toEqual(energy);
+            expect(global.man.positions[0][2]).toEqual(OBJECT_TYPES.TYPE_ENERGY0);
+            expect(global.man.positions[2][0]).toEqual(OBJECT_TYPES.TYPE_ENERGY1);
+            expect(global.man.world.getDot(0,2)).toEqual(0xeeeee0);
+            expect(global.man.world.getDot(2,0)).toEqual(0xeeeee1);
+
+            global.man.positions[0][2] = EMPTY;
+            global.man.positions[2][0] = EMPTY;
+            global.man.world.setDot(0,2,EMPTY);
+            global.man.world.setDot(2,0,EMPTY);
+        });
+
+        describe("Three dots should create new energy element - e1", () => {
+            it("Two e0 should create one e1", () => {
+                const energy = org.energy = 1;
+                org.x = 1;
+                org.y = 1;
+                global.man.positions[0][0] = OBJECT_TYPES.TYPE_ENERGY0;
+                global.man.positions[1][0] = OBJECT_TYPES.TYPE_ENERGY0;
+                global.man.positions[2][0] = OBJECT_TYPES.TYPE_ENERGY0;
+                global.man.world.setDot(0,0,0xeeeeee);
+                global.man.world.setDot(1,0,0xeeeeee);
+                global.man.world.setDot(2,0,0xeeeeee);
+                expect(ops.operators[hex('110011')].call(ops, 0, hex('110011'), org)).toEqual(1);
+
+                expect(org.energy).toEqual(energy);
+                expect(global.man.positions[0][0]).toEqual(OBJECT_TYPES.TYPE_ENERGY1);
+                expect(global.man.positions[1][0]).toEqual(EMPTY);
+                expect(global.man.positions[2][0]).toEqual(EMPTY);
+                expect(global.man.world.getDot(0,0) > 0).toEqual(true);
+                expect(global.man.world.getDot(1,0)).toEqual(EMPTY);
+                expect(global.man.world.getDot(2,0)).toEqual(EMPTY);
+
+                global.man.positions[0][0] = EMPTY;
+                global.man.world.setDot(0,0,EMPTY);
+            });
+            it("Four e0 should create one e1 and one e0", () => {
+                const energy = org.energy = 1;
+                org.x = 1;
+                org.y = 1;
+                global.man.positions[0][0] = OBJECT_TYPES.TYPE_ENERGY0;
+                global.man.positions[1][0] = OBJECT_TYPES.TYPE_ENERGY0;
+                global.man.positions[2][0] = OBJECT_TYPES.TYPE_ENERGY0;
+                global.man.positions[0][1] = OBJECT_TYPES.TYPE_ENERGY0;
+                global.man.world.setDot(0,0,0xeeeeee);
+                global.man.world.setDot(1,0,0xeeeeee);
+                global.man.world.setDot(2,0,0xeeeeee);
+                global.man.world.setDot(0,1,0xeeeeee);
+                expect(ops.operators[hex('110011')].call(ops, 0, hex('110011'), org)).toEqual(1);
+
+                expect(org.energy).toEqual(energy);
+                expect(global.man.positions[0][0]).toEqual(OBJECT_TYPES.TYPE_ENERGY1);
+                expect(global.man.positions[1][0]).toEqual(EMPTY);
+                expect(global.man.positions[2][0]).toEqual(OBJECT_TYPES.TYPE_ENERGY0);
+                expect(global.man.positions[0][1]).toEqual(EMPTY);
+                expect(global.man.world.getDot(0,0) > 0).toEqual(true);
+                expect(global.man.world.getDot(1,0)).toEqual(EMPTY);
+                expect(global.man.world.getDot(2,0)).toEqual(0xeeeeee);
+                expect(global.man.world.getDot(0,1)).toEqual(EMPTY);
+
+                global.man.positions[0][0] = EMPTY;
+                global.man.world.setDot(0,0,EMPTY);
+            });
+        });
     });
 
     xdescribe('onCheckLeft() method', () => {
