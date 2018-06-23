@@ -37,7 +37,7 @@ class OperatorsDos extends Operators {
         /**
          * {Number} Total amount of operators. Base lang + custom
          */
-        this.OPERATOR_AMOUNT = 26;
+        this.OPERATOR_AMOUNT = 27;
         //
         // IMPORTANT: don't use super here, because it breaks Operators
         // IMPORTANT: class internal logic. Operators.global will be point
@@ -45,20 +45,21 @@ class OperatorsDos extends Operators {
         //
         Operators.compile(this.OPERATOR_AMOUNT);
 
-        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar * 3));
-        this.LENS.push(Num.MAX_BITS -  bitsPerOp);
-        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
-        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
-        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
-        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
-        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
-        this.LENS.push(Num.MAX_BITS -  bitsPerOp);
-        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
-        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar)); // say
-        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
-        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
-        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
-        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar * 3)); // lookAt
+        this.LENS.push(Num.MAX_BITS -  bitsPerOp);                               // step
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));     // dir
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));     // myX
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));     // myY
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));     // eat
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));     // put
+        this.LENS.push(Num.MAX_BITS -  bitsPerOp);                               // energy
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));     // pick
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));     // say
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));     // listen
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));     // check
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));     // myEnergy
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));     // myAge
+        this.LENS.push(Num.MAX_BITS - (bitsPerOp + OConfig.codeBitsPerVar));     // myDir
 
         this._compileLookAt();   // 12
         this._compileStep();     // 13
@@ -74,6 +75,7 @@ class OperatorsDos extends Operators {
         this._compileCheck();    // 23
         this._compileMyEnergy(); // 24
         this._compileMyAge();    // 25
+        this._compileMyDir();    // 26
     }
 
     /**
@@ -555,6 +557,32 @@ class OperatorsDos extends Operators {
                 return ++line;
             }`);
             ops[h(`${'111001'}${b(v0, bpv)}`)] = this.global.fn;
+        }
+    }
+
+    /**
+     * Compiles all variants of 'myDir' operator and stores they in
+     * this._compiledOperators map. '...' means, that all other bits are
+     * ignored. Step direction depends on active organism's direction.
+     * See Organism.dir property. Example:
+     *
+     * bits  :      6 xx
+     * number: 111010 00...
+     * string: v0 = myDir()
+     */
+    static _compileMyDir() {
+        const bpv      = OConfig.codeBitsPerVar;
+        const ops      = this._compiledOperators;
+        const h        = Helper.toHexNum;
+        const b        = Helper.toBinStr;
+        const vars     = Math.pow(2, bpv);
+
+        for (let v0 = 0; v0 < vars; v0++) {
+            eval(`Operators.global.fn = function myDir(line, num, org) {
+                this.vars[${v0}] = org.dir;
+                return ++line;
+            }`);
+            ops[h(`${'111010'}${b(v0, bpv)}`)] = this.global.fn;
         }
     }
 
