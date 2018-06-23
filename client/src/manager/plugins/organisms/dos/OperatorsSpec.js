@@ -1990,6 +1990,188 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             global.man.positions[2][1] = EMPTY;
             global.man.world.setDot(2,1,EMPTY);
         });
+
+        describe('pick() operator with 3bits per var', () => {
+            let bpv;
+            let ops;
+            let vars;
+            let offs;
+            beforeAll(() => {
+                bpv = OConfig.codeBitsPerVar;
+                OConfig.codeBitsPerVar = 3;
+                OperatorsDos.compile();
+            });
+            afterAll(() => OperatorsDos.compile());
+            beforeEach(() => {
+                vars = [0, 1, 2, 3, 4, 5, 6, 7];
+                offs = new Array(10);
+                ops = new OperatorsDos(offs, vars, org);
+            });
+            afterEach(() => {
+                ops.destroy();
+                ops = null;
+                offs = null;
+                vars = null;
+                OConfig.codeBitsPerVar = bpv;
+            });
+
+            it("Checking picking from up to right 1", () => {
+                org.x       = 1;
+                org.y       = 1;
+                ops.vars[0] = DIRS.RIGHT;
+                org.dir     = DIRS.UP;
+                global.man.positions[1][0] = OBJECT_TYPES.TYPE_ENERGY0;
+                global.man.world.setDot(1,0,0xeeeee0);
+                expect(global.man.positions[2][1]).toEqual(EMPTY);
+                expect(global.man.world.getDot(2,1)).toEqual(EMPTY);
+                expect(ops.operators[hex('110100 000')].call(ops, 0, hex('110100 000'), org)).toEqual(1);
+
+                expect(global.man.positions[1][0]).toEqual(EMPTY);
+                expect(global.man.world.getDot(1,0)).toEqual(EMPTY);
+                expect(global.man.positions[2][1]).toEqual(OBJECT_TYPES.TYPE_ENERGY0);
+                expect(global.man.world.getDot(2,1)).toEqual(0xeeeee0);
+
+                global.man.positions[2][1] = EMPTY;
+                global.man.world.setDot(2,1,EMPTY);
+            });
+            it("Checking picking from up to right 2", () => {
+                org.x       = 1;
+                org.y       = 1;
+                ops.vars[0] = DIRS.RIGHT + OFFSX.length;
+                org.dir     = DIRS.UP;
+                global.man.positions[1][0] = OBJECT_TYPES.TYPE_ENERGY0;
+                global.man.world.setDot(1,0,0xeeeee0);
+                expect(global.man.positions[2][1]).toEqual(EMPTY);
+                expect(global.man.world.getDot(2,1)).toEqual(EMPTY);
+                expect(ops.operators[hex('110100 000')].call(ops, 0, hex('110100 000'), org)).toEqual(1);
+
+                expect(global.man.positions[1][0]).toEqual(EMPTY);
+                expect(global.man.world.getDot(1,0)).toEqual(EMPTY);
+                expect(global.man.positions[2][1]).toEqual(OBJECT_TYPES.TYPE_ENERGY0);
+                expect(global.man.world.getDot(2,1)).toEqual(0xeeeee0);
+
+                global.man.positions[2][1] = EMPTY;
+                global.man.world.setDot(2,1,EMPTY);
+            });
+            it("Checking picking from up to down", () => {
+                org.x       = 1;
+                org.y       = 1;
+                ops.vars[0] = DIRS.DOWN;
+                org.dir     = DIRS.UP;
+                global.man.positions[1][0] = OBJECT_TYPES.TYPE_ENERGY0;
+                global.man.world.setDot(1,0,0xeeeee0);
+                expect(global.man.positions[1][2]).toEqual(EMPTY);
+                expect(global.man.world.getDot(1,2)).toEqual(EMPTY);
+                expect(ops.operators[hex('110100 000')].call(ops, 0, hex('110100 000'), org)).toEqual(1);
+
+                expect(global.man.positions[1][0]).toEqual(EMPTY);
+                expect(global.man.world.getDot(1,0)).toEqual(EMPTY);
+                expect(global.man.positions[1][2]).toEqual(OBJECT_TYPES.TYPE_ENERGY0);
+                expect(global.man.world.getDot(1,2)).toEqual(0xeeeee0);
+
+                global.man.positions[1][2] = EMPTY;
+                global.man.world.setDot(1,2,EMPTY);
+            });
+
+            it("Checking picking out of the world", () => {
+                org.x       = 1;
+                org.y       = 0;
+                ops.vars[0] = DIRS.RIGHT;
+                org.dir     = DIRS.UP;
+                global.man.positions[0][0] = OBJECT_TYPES.TYPE_ENERGY0;
+                global.man.world.setDot(0,0,0xeeeee0);
+                global.man.positions[2][0] = OBJECT_TYPES.TYPE_ENERGY0;
+                global.man.world.setDot(2,0,0xeeeee0);
+                expect(ops.operators[hex('110100 000')].call(ops, 0, hex('110100 000'), org)).toEqual(1);
+
+                expect(global.man.positions[0][0]).toEqual(OBJECT_TYPES.TYPE_ENERGY0);
+                expect(global.man.positions[2][0]).toEqual(OBJECT_TYPES.TYPE_ENERGY0);
+                expect(global.man.world.getDot(0,0)).toEqual(0xeeeee0);
+                expect(global.man.world.getDot(2,0)).toEqual(0xeeeee0);
+
+                global.man.positions[0][0] = EMPTY;
+                global.man.world.setDot(0,0,EMPTY);
+                global.man.positions[2][0] = EMPTY;
+                global.man.world.setDot(2,0,EMPTY);
+            });
+
+            it("Checking picking other organism", () => {
+                const org2  = new OrganismDos(1, 0, 0, {});
+                org.x       = 1;
+                org.y       = 1;
+                ops.vars[0] = DIRS.RIGHT;
+                org.dir     = DIRS.UP;
+                global.man.positions[1][0] = org2;
+                global.man.world.setDot(1,0,0xeeeee0);
+                expect(ops.operators[hex('110100 000')].call(ops, 0, hex('110100 000'), org)).toEqual(1);
+
+                expect(global.man.positions[1][0]).toEqual(org2);
+                expect(global.man.world.getDot(1,0)).toEqual(0xeeeee0);
+                expect(global.man.positions[2][1]).toEqual(EMPTY);
+                expect(global.man.world.getDot(2,1)).toEqual(EMPTY);
+
+                global.man.positions[1][0] = EMPTY;
+                global.man.world.setDot(1,0,EMPTY);
+                org2.destroy();
+            });
+
+            it("Checking picking simple energy", () => {
+                org.x       = 1;
+                org.y       = 1;
+                ops.vars[0] = DIRS.RIGHT;
+                org.dir     = DIRS.UP;
+                global.man.world.setDot(1,0,0xeeeeee);
+                expect(ops.operators[hex('110100 000')].call(ops, 0, hex('110100 000'), org)).toEqual(1);
+
+                expect(global.man.positions[1][0]).toEqual(EMPTY);
+                expect(global.man.world.getDot(1,0)).toEqual(EMPTY);
+                expect(global.man.positions[2][1]).toEqual(EMPTY);
+                expect(global.man.world.getDot(2,1)).toEqual(0xeeeeee);
+
+                global.man.positions[2][1] = EMPTY;
+                global.man.world.setDot(2,1,EMPTY);
+            });
+
+            it("Checking impossible picking simple energy", () => {
+                org.x       = 1;
+                org.y       = 1;
+                ops.vars[0] = DIRS.RIGHT;
+                org.dir     = DIRS.UP;
+                global.man.world.setDot(1,0,0xeeeee0);
+                global.man.world.setDot(2,1,0xeeeee1);
+                expect(ops.operators[hex('110100 000')].call(ops, 0, hex('110100 000'), org)).toEqual(1);
+
+                expect(global.man.positions[1][0]).toEqual(EMPTY);
+                expect(global.man.world.getDot(1,0)).toEqual(0xeeeee0);
+                expect(global.man.positions[2][1]).toEqual(EMPTY);
+                expect(global.man.world.getDot(2,1)).toEqual(0xeeeee1);
+
+                global.man.positions[1][0] = EMPTY;
+                global.man.world.setDot(1,0,EMPTY);
+                global.man.positions[2][1] = EMPTY;
+                global.man.world.setDot(2,1,EMPTY);
+            });
+
+            it("Checking picking from up to up", () => {
+                org.x       = 1;
+                org.y       = 1;
+                ops.vars[0] = DIRS.UP;
+                org.dir     = DIRS.UP;
+                global.man.positions[1][0] = OBJECT_TYPES.TYPE_ENERGY0;
+                global.man.world.setDot(1,0,0xeeeee0);
+                expect(global.man.positions[2][1]).toEqual(EMPTY);
+                expect(global.man.world.getDot(2,1)).toEqual(EMPTY);
+                expect(ops.operators[hex('110100 000')].call(ops, 0, hex('110100 000'), org)).toEqual(1);
+
+                expect(global.man.positions[1][0]).toEqual(OBJECT_TYPES.TYPE_ENERGY0);
+                expect(global.man.world.getDot(1,0)).toEqual(0xeeeee0);
+                expect(global.man.positions[2][1]).toEqual(EMPTY);
+                expect(global.man.world.getDot(2,1)).toEqual(EMPTY);
+
+                global.man.positions[2][1] = EMPTY;
+                global.man.world.setDot(2,1,EMPTY);
+            });
+        });
     });
 
     xdescribe('onCheckLeft() method', () => {
