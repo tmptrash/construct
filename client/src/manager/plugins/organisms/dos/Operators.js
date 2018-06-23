@@ -339,7 +339,7 @@ class OperatorsDos extends Operators {
             //
             for (let x = org.x - 1, xlen = org.x + 2; x < xlen; x++) {
                 for (let y = org.y - 1, ylen = org.y + 2; y < ylen; y++) {
-                    if (IN_WORLD(x, y) && poses[x][y] <= OBJECT_TYPES.TYPE_ENERGY0 && poses[x][y] >= OBJECT_TYPES.TYPE_ENERGY4) {
+                    if (IN_WORLD(x, y) && poses[x][y] <= ${OBJECT_TYPES.TYPE_ENERGY0} && poses[x][y] >= ${OBJECT_TYPES.TYPE_ENERGY4}) {
                         e = -poses[x][y];
                         energy[e].push(x, y);
                         if (energy[e].length === 6) {
@@ -359,7 +359,7 @@ class OperatorsDos extends Operators {
             //
             // this block changes two energy objects into organism energy 
             //            
-            for (let e = 1, len = Math.abs(OBJECT_TYPES.TYPE_ENERGY4 - OBJECT_TYPES.TYPE_ENERGY0) + 1; e <= len; e++) {
+            for (let e = 1, len = Math.abs(${OBJECT_TYPES.TYPE_ENERGY4} - ${OBJECT_TYPES.TYPE_ENERGY0}) + 1; e <= len; e++) {
                 if (energy[e].length === 4) {
                     const xy  = energy[e];
                     let   eat = (2**e) * Helper.getColor(EConfig.colorIndex);
@@ -402,7 +402,7 @@ class OperatorsDos extends Operators {
                 const world = this._world;
                 const x     = org.dirX;
                 const y     = org.dirY;
-                if (IN_WORLD(x, y) && (poses[x][y] <= OBJECT_TYPES.TYPE_ENERGY0 && poses[x][y] >= OBJECT_TYPES.TYPE_ENERGY4 || poses[x][y] === 0 && world.data[x][y] > 0)) {
+                if (IN_WORLD(x, y) && (poses[x][y] <= ${OBJECT_TYPES.TYPE_ENERGY0} && poses[x][y] >= ${OBJECT_TYPES.TYPE_ENERGY4} || poses[x][y] === 0 && world.data[x][y] > 0)) {
                     const dir = ((this.vars[${v0}] + .5) << 0 >>> 0) % ${dirs};
                     const dx  = org.x + OFFSX[dir];
                     const dy  = org.y + OFFSY[dir];

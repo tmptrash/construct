@@ -1656,7 +1656,118 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
                 global.man.positions[0][0] = EMPTY;
                 global.man.world.setDot(0,0,EMPTY);
             });
-            xit("Four e0 should create one e1 and one e0", () => {
+            it("Four e3 should create one e4 and one e3", () => {
+                const energy = org.energy = 1;
+                org.x = 1;
+                org.y = 1;
+                global.man.positions[0][0] = OBJECT_TYPES.TYPE_ENERGY3;
+                global.man.positions[1][0] = OBJECT_TYPES.TYPE_ENERGY3;
+                global.man.positions[2][0] = OBJECT_TYPES.TYPE_ENERGY3;
+                global.man.positions[0][1] = OBJECT_TYPES.TYPE_ENERGY3;
+                global.man.world.setDot(0,0,0xeeeee3);
+                global.man.world.setDot(1,0,0xeeeee3);
+                global.man.world.setDot(2,0,0xeeeee3);
+                global.man.world.setDot(0,1,0xeeeee3);
+                expect(ops.operators[hex('110011')].call(ops, 0, hex('110011'), org)).toEqual(1);
+
+                expect(org.energy).toEqual(energy);
+                expect(global.man.positions[0][0]).toEqual(OBJECT_TYPES.TYPE_ENERGY4);
+                expect(global.man.positions[1][0]).toEqual(EMPTY);
+                expect(global.man.positions[2][0]).toEqual(OBJECT_TYPES.TYPE_ENERGY3);
+                expect(global.man.positions[0][1]).toEqual(EMPTY);
+                expect(global.man.world.getDot(0,0) > 0).toEqual(true);
+                expect(global.man.world.getDot(1,0)).toEqual(EMPTY);
+                expect(global.man.world.getDot(2,0)).toEqual(0xeeeee3);
+                expect(global.man.world.getDot(0,1)).toEqual(EMPTY);
+
+                global.man.positions[0][0] = EMPTY;
+                global.man.world.setDot(0,0,EMPTY);
+            });
+
+            it("Two e4 should give 32x energy increase 1", () => {
+                const energy = org.energy = 0; // shouldn't be more then 0
+                org.x = 1;
+                org.y = 1;
+                global.man.positions[0][0] = OBJECT_TYPES.TYPE_ENERGY4;
+                global.man.positions[1][0] = OBJECT_TYPES.TYPE_ENERGY4;
+                global.man.world.setDot(0,0,0xeeeee4);
+                global.man.world.setDot(1,0,0xeeeee4);
+                expect(ops.operators[hex('110011')].call(ops, 0, hex('110011'), org)).toEqual(1);
+
+                expect(org.energy).toEqual(energy + Helper.getColor(EConfig.colorIndex) * 32);
+                expect(global.man.positions[0][0]).toEqual(EMPTY);
+                expect(global.man.positions[1][0]).toEqual(EMPTY);
+                expect(global.man.world.getDot(0,0)).toEqual(EMPTY);
+                expect(global.man.world.getDot(1,0)).toEqual(EMPTY);
+            });
+            it("Two e4 should give 32x energy increase 2", () => {
+                const energy = org.energy = 0;
+                org.x = 1;
+                org.y = 1;
+                global.man.positions[0][0] = OBJECT_TYPES.TYPE_ENERGY4;
+                global.man.positions[2][0] = OBJECT_TYPES.TYPE_ENERGY4;
+                global.man.world.setDot(0,0,0xeeeee4);
+                global.man.world.setDot(2,0,0xeeeee4);
+                expect(ops.operators[hex('110011')].call(ops, 0, hex('110011'), org)).toEqual(1);
+
+                expect(org.energy).toEqual(energy + Helper.getColor(EConfig.colorIndex) * 32);
+                expect(global.man.positions[0][0]).toEqual(EMPTY);
+                expect(global.man.positions[2][0]).toEqual(EMPTY);
+                expect(global.man.world.getDot(0,0)).toEqual(EMPTY);
+                expect(global.man.world.getDot(2,0)).toEqual(EMPTY);
+            });
+            it("Two e4 should give 32x energy increase 3", () => {
+                const energy = org.energy = 0;
+                org.x = 1;
+                org.y = 1;
+                global.man.positions[0][0] = OBJECT_TYPES.TYPE_ENERGY4;
+                global.man.positions[0][1] = OBJECT_TYPES.TYPE_ENERGY4;
+                global.man.world.setDot(0,0,0xeeeee4);
+                global.man.world.setDot(0,1,0xeeeee4);
+                expect(ops.operators[hex('110011')].call(ops, 0, hex('110011'), org)).toEqual(1);
+
+                expect(org.energy).toEqual(energy + Helper.getColor(EConfig.colorIndex) * 32);
+                expect(global.man.positions[0][0]).toEqual(EMPTY);
+                expect(global.man.positions[0][1]).toEqual(EMPTY);
+                expect(global.man.world.getDot(0,0)).toEqual(EMPTY);
+                expect(global.man.world.getDot(0,1)).toEqual(EMPTY);
+            });
+            it("Two e4 should give 32x energy increase 4", () => {
+                const energy = org.energy = 0;
+                org.x = 1;
+                org.y = 1;
+                global.man.positions[0][0] = OBJECT_TYPES.TYPE_ENERGY4;
+                global.man.positions[0][2] = OBJECT_TYPES.TYPE_ENERGY4;
+                global.man.world.setDot(0,0,0xeeeee4);
+                global.man.world.setDot(0,2,0xeeeee4);
+                expect(ops.operators[hex('110011')].call(ops, 0, hex('110011'), org)).toEqual(1);
+
+                expect(org.energy).toEqual(energy + Helper.getColor(EConfig.colorIndex) * 32);
+                expect(global.man.positions[0][0]).toEqual(EMPTY);
+                expect(global.man.positions[0][2]).toEqual(EMPTY);
+                expect(global.man.world.getDot(0,0)).toEqual(EMPTY);
+                expect(global.man.world.getDot(0,2)).toEqual(EMPTY);
+            });
+            it("Two e4 should give 32x energy increase 5", () => {
+                const energy = org.energy = 0;
+                org.x = 1;
+                org.y = 1;
+                global.man.positions[0][0] = OBJECT_TYPES.TYPE_ENERGY4;
+                global.man.positions[2][2] = OBJECT_TYPES.TYPE_ENERGY4;
+                global.man.world.setDot(0,0,0xeeeee4);
+                global.man.world.setDot(2,2,0xeeeee4);
+                expect(ops.operators[hex('110011')].call(ops, 0, hex('110011'), org)).toEqual(1);
+
+                expect(org.energy).toEqual(energy + Helper.getColor(EConfig.colorIndex) * 32);
+                expect(global.man.positions[0][0]).toEqual(EMPTY);
+                expect(global.man.positions[2][2]).toEqual(EMPTY);
+                expect(global.man.world.getDot(0,0)).toEqual(EMPTY);
+                expect(global.man.world.getDot(2,2)).toEqual(EMPTY);
+            });
+        });
+
+        describe("Complex energy objects scenarios", () => {
+            it("Six e0 should give two e1", () => {
                 const energy = org.energy = 1;
                 org.x = 1;
                 org.y = 1;
@@ -1664,105 +1775,59 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
                 global.man.positions[1][0] = OBJECT_TYPES.TYPE_ENERGY0;
                 global.man.positions[2][0] = OBJECT_TYPES.TYPE_ENERGY0;
                 global.man.positions[0][1] = OBJECT_TYPES.TYPE_ENERGY0;
-                global.man.world.setDot(0,0,0xeeeeee);
-                global.man.world.setDot(1,0,0xeeeeee);
-                global.man.world.setDot(2,0,0xeeeeee);
-                global.man.world.setDot(0,1,0xeeeeee);
+                global.man.positions[0][2] = OBJECT_TYPES.TYPE_ENERGY0;
+                global.man.positions[2][1] = OBJECT_TYPES.TYPE_ENERGY0;
+                global.man.world.setDot(0,0,0xeeeee0);
+                global.man.world.setDot(1,0,0xeeeee0);
+                global.man.world.setDot(2,0,0xeeeee0);
+                global.man.world.setDot(0,1,0xeeeee0);
+                global.man.world.setDot(0,2,0xeeeee0);
+                global.man.world.setDot(2,1,0xeeeee0);
                 expect(ops.operators[hex('110011')].call(ops, 0, hex('110011'), org)).toEqual(1);
 
                 expect(org.energy).toEqual(energy);
                 expect(global.man.positions[0][0]).toEqual(OBJECT_TYPES.TYPE_ENERGY1);
-                expect(global.man.positions[1][0]).toEqual(EMPTY);
+                expect(global.man.positions[1][0]).toEqual(OBJECT_TYPES.TYPE_ENERGY0);
                 expect(global.man.positions[2][0]).toEqual(OBJECT_TYPES.TYPE_ENERGY0);
                 expect(global.man.positions[0][1]).toEqual(EMPTY);
+                expect(global.man.positions[0][2]).toEqual(EMPTY);
+                expect(global.man.positions[2][1]).toEqual(OBJECT_TYPES.TYPE_ENERGY0);
                 expect(global.man.world.getDot(0,0) > 0).toEqual(true);
-                expect(global.man.world.getDot(1,0)).toEqual(EMPTY);
-                expect(global.man.world.getDot(2,0)).toEqual(0xeeeeee);
+                expect(global.man.world.getDot(1,0)).toEqual(0xeeeee0);
+                expect(global.man.world.getDot(2,0)).toEqual(0xeeeee0);
                 expect(global.man.world.getDot(0,1)).toEqual(EMPTY);
+                expect(global.man.world.getDot(0,2)).toEqual(EMPTY);
+                expect(global.man.world.getDot(2,1)).toEqual(0xeeeee0);
+                expect(ops.operators[hex('110011')].call(ops, 0, hex('110011'), org)).toEqual(1);
 
-                global.man.positions[0][0] = EMPTY;
-                global.man.world.setDot(0,0,EMPTY);
-            });
-
-            xit("Two e1 should give 4x energy increase 1", () => {
-                const energy = org.energy = 1;
-                org.x = 1;
-                org.y = 1;
-                global.man.positions[0][0] = OBJECT_TYPES.TYPE_ENERGY1;
-                global.man.positions[1][0] = OBJECT_TYPES.TYPE_ENERGY1;
-                global.man.world.setDot(0,0,0xeeeee1);
-                global.man.world.setDot(1,0,0xeeeee1);
+                expect(org.energy).toEqual(energy);
+                expect(global.man.positions[0][0]).toEqual(OBJECT_TYPES.TYPE_ENERGY1);
+                expect(global.man.positions[1][0]).toEqual(OBJECT_TYPES.TYPE_ENERGY1);
+                expect(global.man.positions[2][0]).toEqual(EMPTY);
+                expect(global.man.positions[0][1]).toEqual(EMPTY);
+                expect(global.man.positions[0][2]).toEqual(EMPTY);
+                expect(global.man.positions[2][1]).toEqual(EMPTY);
+                expect(global.man.world.getDot(0,0) > 0).toEqual(true);
+                expect(global.man.world.getDot(1,0) > 0).toEqual(true);
+                expect(global.man.world.getDot(2,0)).toEqual(EMPTY);
+                expect(global.man.world.getDot(0,1)).toEqual(EMPTY);
+                expect(global.man.world.getDot(0,2)).toEqual(EMPTY);
+                expect(global.man.world.getDot(2,1)).toEqual(EMPTY);
                 expect(ops.operators[hex('110011')].call(ops, 0, hex('110011'), org)).toEqual(1);
 
                 expect(org.energy).toEqual(energy + Helper.getColor(EConfig.colorIndex) * 4);
                 expect(global.man.positions[0][0]).toEqual(EMPTY);
                 expect(global.man.positions[1][0]).toEqual(EMPTY);
+                expect(global.man.positions[2][0]).toEqual(EMPTY);
+                expect(global.man.positions[0][1]).toEqual(EMPTY);
+                expect(global.man.positions[0][2]).toEqual(EMPTY);
+                expect(global.man.positions[2][1]).toEqual(EMPTY);
                 expect(global.man.world.getDot(0,0)).toEqual(EMPTY);
                 expect(global.man.world.getDot(1,0)).toEqual(EMPTY);
-            });
-            xit("Two e1 should give 4x energy increase 2", () => {
-                const energy = org.energy = 1;
-                org.x = 1;
-                org.y = 1;
-                global.man.positions[0][0] = OBJECT_TYPES.TYPE_ENERGY1;
-                global.man.positions[2][0] = OBJECT_TYPES.TYPE_ENERGY1;
-                global.man.world.setDot(0,0,0xeeeee1);
-                global.man.world.setDot(2,0,0xeeeee1);
-                expect(ops.operators[hex('110011')].call(ops, 0, hex('110011'), org)).toEqual(1);
-
-                expect(org.energy).toEqual(energy + Helper.getColor(EConfig.colorIndex) * 4);
-                expect(global.man.positions[0][0]).toEqual(EMPTY);
-                expect(global.man.positions[2][0]).toEqual(EMPTY);
-                expect(global.man.world.getDot(0,0)).toEqual(EMPTY);
                 expect(global.man.world.getDot(2,0)).toEqual(EMPTY);
-            });
-            xit("Two e1 should give 4x energy increase 3", () => {
-                const energy = org.energy = 1;
-                org.x = 1;
-                org.y = 1;
-                global.man.positions[0][0] = OBJECT_TYPES.TYPE_ENERGY1;
-                global.man.positions[0][1] = OBJECT_TYPES.TYPE_ENERGY1;
-                global.man.world.setDot(0,0,0xeeeee1);
-                global.man.world.setDot(0,1,0xeeeee1);
-                expect(ops.operators[hex('110011')].call(ops, 0, hex('110011'), org)).toEqual(1);
-
-                expect(org.energy).toEqual(energy + Helper.getColor(EConfig.colorIndex) * 4);
-                expect(global.man.positions[0][0]).toEqual(EMPTY);
-                expect(global.man.positions[0][1]).toEqual(EMPTY);
-                expect(global.man.world.getDot(0,0)).toEqual(EMPTY);
                 expect(global.man.world.getDot(0,1)).toEqual(EMPTY);
-            });
-            xit("Two e1 should give 4x energy increase 4", () => {
-                const energy = org.energy = 1;
-                org.x = 1;
-                org.y = 1;
-                global.man.positions[0][0] = OBJECT_TYPES.TYPE_ENERGY1;
-                global.man.positions[0][2] = OBJECT_TYPES.TYPE_ENERGY1;
-                global.man.world.setDot(0,0,0xeeeee1);
-                global.man.world.setDot(0,2,0xeeeee1);
-                expect(ops.operators[hex('110011')].call(ops, 0, hex('110011'), org)).toEqual(1);
-
-                expect(org.energy).toEqual(energy + Helper.getColor(EConfig.colorIndex) * 4);
-                expect(global.man.positions[0][0]).toEqual(EMPTY);
-                expect(global.man.positions[0][2]).toEqual(EMPTY);
-                expect(global.man.world.getDot(0,0)).toEqual(EMPTY);
                 expect(global.man.world.getDot(0,2)).toEqual(EMPTY);
-            });
-            xit("Two e1 should give 4x energy increase 4", () => {
-                const energy = org.energy = 1;
-                org.x = 1;
-                org.y = 1;
-                global.man.positions[0][0] = OBJECT_TYPES.TYPE_ENERGY1;
-                global.man.positions[2][2] = OBJECT_TYPES.TYPE_ENERGY1;
-                global.man.world.setDot(0,0,0xeeeee1);
-                global.man.world.setDot(2,2,0xeeeee1);
-                expect(ops.operators[hex('110011')].call(ops, 0, hex('110011'), org)).toEqual(1);
-
-                expect(org.energy).toEqual(energy + Helper.getColor(EConfig.colorIndex) * 4);
-                expect(global.man.positions[0][0]).toEqual(EMPTY);
-                expect(global.man.positions[2][2]).toEqual(EMPTY);
-                expect(global.man.world.getDot(0,0)).toEqual(EMPTY);
-                expect(global.man.world.getDot(2,2)).toEqual(EMPTY);
+                expect(global.man.world.getDot(2,1)).toEqual(EMPTY);
             });
         });
     });
