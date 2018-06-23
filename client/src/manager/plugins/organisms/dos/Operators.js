@@ -334,7 +334,9 @@ class OperatorsDos extends Operators {
             const world  = this._world;
             const energy = {1:[], 2:[], 3:[], 4:[], 5:[]};
             let   e      = 0;
-            
+            //
+            // this block creates new energy object
+            //
             for (let x = org.x - 1, xlen = org.x + 2; x < xlen; x++) {
                 for (let y = org.y - 1, ylen = org.y + 2; y < ylen; y++) {
                     if (IN_WORLD(x, y) && poses[x][y] <= OBJECT_TYPES.TYPE_ENERGY0 && poses[x][y] >= OBJECT_TYPES.TYPE_ENERGY4) {
@@ -354,7 +356,9 @@ class OperatorsDos extends Operators {
                     }
                 }
             }
-            
+            //
+            // this block changes two energy objects into organism energy 
+            //            
             for (let e = 1, len = Math.abs(OBJECT_TYPES.TYPE_ENERGY4 - OBJECT_TYPES.TYPE_ENERGY0) + 1; e <= len; e++) {
                 if (energy[e].length === 4) {
                     const xy  = energy[e];
