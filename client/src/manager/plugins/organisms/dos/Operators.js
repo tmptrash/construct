@@ -149,11 +149,10 @@ class OperatorsDos extends Operators {
         const h        = Helper.toHexNum;
         const b        = Helper.toBinStr;
         const vars     = Math.pow(2, bpv);
-        const dirs     = OFFSX.length;
 
         for (let v0 = 0; v0 < vars; v0++) {
             eval(`Operators.global.fn = function dir(line, num, org) {
-                org.dir = ((this.vars[${v0}] + .5) << 0 >>> 0) % ${dirs};
+                org.dir = ((this.vars[${v0}] + .5) << 0 >>> 0) % ${OFFSX.length};
                 return ++line;
             }`);
             ops[h(`${'101110'}${b(v0, bpv)}`)] = this.global.fn;
@@ -396,7 +395,6 @@ class OperatorsDos extends Operators {
         const h        = Helper.toHexNum;
         const b        = Helper.toBinStr;
         const vars     = Math.pow(2, bpv);
-        const dirs     = OFFSX.length;
 
         for (let v0 = 0; v0 < vars; v0++) {
             eval(`Operators.global.fn = function pick(line, num, org) {
@@ -405,7 +403,7 @@ class OperatorsDos extends Operators {
                 const x     = org.dirX;
                 const y     = org.dirY;
                 if (IN_WORLD(x, y) && (poses[x][y] <= ${OBJECT_TYPES.TYPE_ENERGY0} && poses[x][y] >= ${OBJECT_TYPES.TYPE_ENERGY4} || poses[x][y] === 0 && world.data[x][y] > 0)) {
-                    const dir = ((this.vars[${v0}] + .5) << 0 >>> 0) % ${dirs};
+                    const dir = ((this.vars[${v0}] + .5) << 0 >>> 0) % ${OFFSX.length};
                     const dx  = org.x + OFFSX[dir];
                     const dy  = org.y + OFFSY[dir];
                     if (IN_WORLD(dx, dy) && world.data[dx][dy] === 0) {

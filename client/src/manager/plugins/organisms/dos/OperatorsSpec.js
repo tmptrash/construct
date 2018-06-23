@@ -1832,6 +1832,67 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
         });
     });
 
+    describe('pick() operator', () => {
+        it("Checking picking from up to right", () => {
+            org.x       = 1;
+            org.y       = 1;
+            ops.vars[0] = DIRS.RIGHT;
+            org.dir     = DIRS.UP;
+            global.man.positions[1][0] = OBJECT_TYPES.TYPE_ENERGY0;
+            global.man.world.setDot(1,0,0xeeeee0);
+            expect(global.man.positions[2][1]).toEqual(EMPTY);
+            expect(global.man.world.getDot(2,1)).toEqual(EMPTY);
+            expect(ops.operators[hex('110100 00')].call(ops, 0, hex('110100 00'), org)).toEqual(1);
+
+            expect(global.man.positions[2][1]).toEqual(OBJECT_TYPES.TYPE_ENERGY0);
+            expect(global.man.world.getDot(2,1)).toEqual(0xeeeee0);
+
+            global.man.positions[2][1] = EMPTY;
+            global.man.world.setDot(2,1,EMPTY);
+        });
+        it("Checking picking out of the world", () => {
+            org.x       = 1;
+            org.y       = 0;
+            ops.vars[0] = DIRS.RIGHT;
+            org.dir     = DIRS.UP;
+            global.man.positions[0][0] = OBJECT_TYPES.TYPE_ENERGY0;
+            global.man.world.setDot(0,0,0xeeeee0);
+            global.man.positions[2][0] = OBJECT_TYPES.TYPE_ENERGY0;
+            global.man.world.setDot(2,0,0xeeeee0);
+            expect(ops.operators[hex('110100 00')].call(ops, 0, hex('110100 00'), org)).toEqual(1);
+
+            expect(global.man.positions[0][0]).toEqual(OBJECT_TYPES.TYPE_ENERGY0);
+            expect(global.man.positions[2][0]).toEqual(OBJECT_TYPES.TYPE_ENERGY0);
+            expect(global.man.world.getDot(0,0)).toEqual(0xeeeee0);
+            expect(global.man.world.getDot(2,0)).toEqual(0xeeeee0);
+
+            global.man.positions[0][0] = EMPTY;
+            global.man.world.setDot(0,0,EMPTY);
+            global.man.positions[2][0] = EMPTY;
+            global.man.world.setDot(2,0,EMPTY);
+        });
+
+        it("Checking picking other organism", () => {
+            const org2  = new OrganismDos(1, 0, 0, {});
+            org.x       = 1;
+            org.y       = 1;
+            ops.vars[0] = DIRS.RIGHT;
+            org.dir     = DIRS.UP;
+            global.man.positions[1][0] = org2;
+            global.man.world.setDot(1,0,0xeeeee0);
+            expect(ops.operators[hex('110100 00')].call(ops, 0, hex('110100 00'), org)).toEqual(1);
+
+            expect(global.man.positions[1][0]).toEqual(org2);
+            expect(global.man.world.getDot(1,0)).toEqual(0xeeeee0);
+            expect(global.man.positions[2][1]).toEqual(EMPTY);
+            expect(global.man.world.getDot(2,1)).toEqual(EMPTY);
+
+            global.man.positions[1][0] = EMPTY;
+            global.man.world.setDot(1,0,EMPTY);
+            org2.destroy();
+        });
+    });
+
     xdescribe('onCheckLeft() method', () => {
         let org;
         let ops;
