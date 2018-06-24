@@ -102,9 +102,9 @@ class Code2JS {
         let fn;
 
         if (Num.getBits(num, Num.BITS_OF_VAR0, 1) === 1) {
-            fn = `f${Num.getBits(num, Num.BITS_OF_VAR0 + 1, ops.FUNC_NAME_BITS) % ops.funcAmount}`;
+            fn = `f${Num.getBits(num, Num.BITS_OF_VAR0 + 1, Operators.FUNC_NAME_BITS) % (ops.funcAmount || 1)}`;
         } else {
-            fn = `v${Num.getBits(num, Num.BITS_OF_VAR0 + 1, OConfig.codeBitsPerVar) % ops.funcAmount}`;
+            fn = `v${Num.getBits(num, Num.BITS_OF_VAR0 + 1, OConfig.codeBitsPerVar) % (ops.funcAmount || 1)}`;
         }
         return `${fn}()`;
     }
