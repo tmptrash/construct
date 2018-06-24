@@ -1987,8 +1987,8 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             expect(global.man.positions[2][1]).toEqual(EMPTY);
             expect(global.man.world.getDot(2,1)).toEqual(EMPTY);
 
-            global.man.positions[2][1] = EMPTY;
-            global.man.world.setDot(2,1,EMPTY);
+            global.man.positions[1][0] = EMPTY;
+            global.man.world.setDot(1,0,EMPTY);
         });
 
         describe('pick() operator with 3bits per var', () => {
@@ -2168,9 +2168,75 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
                 expect(global.man.positions[2][1]).toEqual(EMPTY);
                 expect(global.man.world.getDot(2,1)).toEqual(EMPTY);
 
-                global.man.positions[2][1] = EMPTY;
-                global.man.world.setDot(2,1,EMPTY);
+                global.man.positions[1][0] = EMPTY;
+                global.man.world.setDot(1,0,EMPTY);
             });
+        });
+    });
+
+    describe('say() operator', () => {
+        it("Checking say to nothing", () => {
+            ops.vars[0] = 1;
+            expect(ops.operators[hex('110101 00')].call(ops, 0, hex('110101 00'), org)).toEqual(1);
+
+            expect(org.msg).toEqual(0);
+            expect(global.man.positions[1][0]).toEqual(EMPTY);
+            expect(global.man.world.getDot(1, 0)).toEqual(EMPTY);
+        });
+
+        it("Checking say to other organism 1", () => {
+            const org2  = new OrganismDos(1, 1, 0, {});
+            ops.vars[0] = 11;
+            org.x       = 0;
+            org.y       = 0;
+            global.man.positions[1][0] = org2;
+            expect(ops.operators[hex('110101 00')].call(ops, 0, hex('110101 00'), org)).toEqual(1);
+
+            expect(org2.msg).toEqual(11);
+            expect(ops.vars).toEqual([11, 1, 2, 3]);
+            global.man.positions[1][0] = EMPTY;
+        });
+        it("Checking say to other organism 2", () => {
+            const org2  = new OrganismDos(1, 1, 1, {});
+            ops.vars[0] = 11;
+            org.x       = 0;
+            org.y       = 0;
+            global.man.positions[1][1] = org2;
+            expect(ops.operators[hex('110101 00')].call(ops, 0, hex('110101 00'), org)).toEqual(1);
+
+            expect(org2.msg).toEqual(11);
+            expect(ops.vars).toEqual([11, 1, 2, 3]);
+            global.man.positions[1][1] = EMPTY;
+        });
+        it("Checking say to other organism 3", () => {
+            const org2  = new OrganismDos(1, 0, 1, {});
+            ops.vars[0] = 11;
+            org.x       = 0;
+            org.y       = 0;
+            global.man.positions[0][1] = org2;
+            expect(ops.operators[hex('110101 00')].call(ops, 0, hex('110101 00'), org)).toEqual(1);
+
+            expect(org2.msg).toEqual(11);
+            expect(ops.vars).toEqual([11, 1, 2, 3]);
+            global.man.positions[0][1] = EMPTY;
+        });
+
+        it("Checking say to many organisms", () => {
+            const org2  = new OrganismDos(1, 1, 0, {});
+            const org3  = new OrganismDos(1, 1, 1, {});
+
+            ops.vars[0] = 11;
+            org.x       = 0;
+            org.y       = 0;
+            global.man.positions[1][0] = org2;
+            global.man.positions[1][1] = org3;
+            expect(ops.operators[hex('110101 00')].call(ops, 0, hex('110101 00'), org)).toEqual(1);
+
+            expect(org2.msg).toEqual(11);
+            expect(org3.msg).toEqual(11);
+            expect(ops.vars).toEqual([11, 1, 2, 3]);
+            global.man.positions[1][0] = EMPTY;
+            global.man.positions[1][1] = EMPTY;
         });
     });
 

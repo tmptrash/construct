@@ -438,9 +438,13 @@ class OperatorsDos extends Operators {
 
         for (let v0 = 0; v0 < vars; v0++) {
             eval(`Operators.global.fn = function say(line, num, org) {
-                let x = org.dirX;
-                let y = org.dirY;
-                IN_WORLD(x, y) && !(this._positions[x][y] <= 0) && (this._positions[x][y].msg = this.vars[${v0}]);
+                const poses = this._positions;
+                
+                for (let x = org.x - 1, xlen = org.x + 2; x < xlen; x++) {
+                    for (let y = org.y - 1, ylen = org.y + 2; y < ylen; y++) {
+                        IN_WORLD(x, y) && !(poses[x][y] <= 0) && (poses[x][y].msg = this.vars[${v0}]);
+                    }
+                }
                 return ++line;
             }`);
             ops[h(`${'110101'}${b(v0, bpv)}`)] = this.global.fn;
