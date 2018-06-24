@@ -1767,7 +1767,7 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
         });
 
         describe("Complex energy objects scenarios", () => {
-            it("Six e0 should give two e1", () => {
+            it("Six e0 should give two e1 and 4x energy", () => {
                 const energy = org.energy = 1;
                 org.x = 1;
                 org.y = 1;
