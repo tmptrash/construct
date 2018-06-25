@@ -2573,7 +2573,7 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             expect(ops.operators[hex('110111 01')].call(ops, 0, hex('110111 01'), org)).toEqual(1);
             expect(ops.vars).toEqual([0, EMPTY, 2, 3]);
         });
-        it('Check object', () => {
+        it('Check object 1', () => {
             org.x   = 1;
             org.y   = 1;
             org.dir = DIRS.UP;
@@ -2582,6 +2582,16 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             expect(ops.operators[hex('110111 01')].call(ops, 0, hex('110111 01'), org)).toEqual(1);
             expect(ops.vars).toEqual([0, OBJECT_TYPES.TYPE_ENERGY0, 2, 3]);
             global.man.positions[1][0] = EMPTY;
+        });
+        it('Check object 2', () => {
+            org.x   = 1;
+            org.y   = 1;
+            org.dir = DIRS.RIGHT;
+            global.man.positions[2][1] = OBJECT_TYPES.TYPE_ENERGY1;
+            expect(ops.vars).toEqual([0, 1, 2, 3]);
+            expect(ops.operators[hex('110111 01')].call(ops, 0, hex('110111 01'), org)).toEqual(1);
+            expect(ops.vars).toEqual([0, OBJECT_TYPES.TYPE_ENERGY1, 2, 3]);
+            global.man.positions[2][1] = EMPTY;
         });
     });
 
