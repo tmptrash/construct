@@ -281,18 +281,24 @@ class Operators {
         const h       = Helper.toHexNum;
         const ifBit   = Num.MAX_BITS - 1;
         const fnBits  = Num.MAX_BITS - this.FUNC_NAME_BITS;
-        const funcs   = Math.pow(2, this.FUNC_NAME_BITS);
         const varBits = Num.MAX_BITS - OConfig.codeBitsPerVar;
         const opBits  = Num.BITS_PER_OPERATOR;
 
         eval(`Operators.global.fn = function call(line, num, org) {
             const data = num << ${opBits};
-            const offs = this.funcs[data >>> ${ifBit} === 0 ? Math.round(this.vars[data << 1 >>> ${varBits}]) % ${funcs} : data << 1 >>> ${fnBits}];
+            const offs = this.funcs[data >>> ${ifBit} === 0 ? Math.round(this.vars[data << 1 >>> ${varBits}]) % this.funcAmount : (data << 1 >>> ${fnBits}) % this.funcAmount];
             if (offs !== undefined) {
+                //
+                // Maximum amount of functions were created
+                //
                 if (this.stack.length > ${MAX_STACK_SIZE}) {
                     org.energy -= org.vm.size;
                     return ++line;
                 }
+                //
+                // Function has no body, so we don't need to jump into it
+                //
+                if (this.offs[offs - 1] === offs - 1) {return ++line}
                 this.stack.push(line + 1, offs - 1, this.vars.slice());
                 return offs;
             }
@@ -470,6 +476,7 @@ class Operators {
         this._OPERATORS_CB = Operators._compiledOperators;
         this.stack         = [];
         this.funcs         = new Array(this._MAX_FUNC_AMOUNT);
+        this.funcAmount    = 0;
     }
 
     /**
@@ -482,9 +489,9 @@ class Operators {
         const offs    = this.offs;
         const funcs   = this.funcs = new Array(this._MAX_FUNC_AMOUNT);
         const blocks  = [];
-        let   func    = 0;
 
-        this.stack = [];
+        this.funcAmount = 0;
+        this.stack      = [];
         for (let i = 0; i < len; i++) {
             const operator = code[i] >>> varOffs;
             if (operator === 0b100010 || operator === 0b100011) { // if, while
@@ -494,7 +501,7 @@ class Operators {
             }
             if (operator === 0b100101) {                         // func
                 offs[i] = i;
-                funcs[func++] = i + 1;
+                funcs[this.funcAmount++] = i + 1;
                 blocks.push(i);
                 continue;
             }

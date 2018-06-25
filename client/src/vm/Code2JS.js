@@ -89,7 +89,7 @@ class Code2JS {
         return `while(v${Num.getVar0(num)}${this._CONDITIONS[cond]}v${Num.getVar1(num)}){${bracket}`;
     }
 
-    _onOperator(num, line, ops) {
+    _onOperator(num) {
         return `v${Num.getVar0(num)}=v${Num.getVar1(num)}${this._CONDITIONS[Num.getBits(num, Num.BITS_OF_VAR3, Operators.CONDITION_BITS)]}v${Num.getVar2(num)}`;
     }
 
@@ -102,9 +102,9 @@ class Code2JS {
         let fn;
 
         if (Num.getBits(num, Num.BITS_OF_VAR0, 1) === 1) {
-            fn = `f${Num.getBits(num, Num.BITS_OF_VAR0 + 1, ops.FUNC_NAME_BITS)}`;
+            fn = `f${Num.getBits(num, Num.BITS_OF_VAR0 + 1, Operators.FUNC_NAME_BITS) % (ops.funcAmount || 1)}`;
         } else {
-            fn = `v${Num.getBits(num, Num.BITS_OF_VAR0 + 1, OConfig.codeBitsPerVar)}`;
+            fn = `v${Num.getBits(num, Num.BITS_OF_VAR0 + 1, OConfig.codeBitsPerVar) % (ops.funcAmount || 1)}`;
         }
         return `${fn}()`;
     }

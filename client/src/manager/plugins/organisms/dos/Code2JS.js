@@ -32,6 +32,7 @@ class Code2JS extends BaseCode2JS {
         this.operators[0b110111] = this._onCheck.bind(this);
         this.operators[0b111000] = this._onMyEnergy.bind(this);
         this.operators[0b111001] = this._onMyAge.bind(this);
+        this.operators[0b111010] = this._onMyDir.bind(this);
         //
         // API of the Manager for accessing outside. (e.g. from Console)
         //
@@ -50,13 +51,14 @@ class Code2JS extends BaseCode2JS {
     _onMyY(num)      {return `v${Num.getVar0(num)}=myY()`}
     _onEat(num)      {return `eat(v${Num.getVar0(num)})`}
     _onPut(num)      {return `put(v${Num.getVar0(num)})`}
-    _onEnergy(num)   {return `energy()`}
+    _onEnergy()      {return `energy()`}
     _onPick(num)     {return `pick(v${Num.getVar0(num)})`}
     _onSay(num)      {return `say(v${Num.getVar0(num)})`}
     _onListen(num)   {return `v${Num.getVar0(num)}=listen()`}
     _onCheck(num)    {return `v${Num.getVar0(num)}=check()`}
     _onMyEnergy(num) {return `v${Num.getVar0(num)}=myEnergy()`}
     _onMyAge(num)    {return `v${Num.getVar0(num)}=myAge()`}
+    _onMyDir(num)    {return `v${Num.getVar0(num)}=myDir()`}
 }
 
 module.exports = Code2JS;
