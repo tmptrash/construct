@@ -2509,6 +2509,82 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
         })
     });
 
+    describe('listen() operator', () => {
+        it("Checking listen command 1", () => {
+            org.msg = 11;
+            expect(ops.vars).toEqual([0, 1, 2, 3]);
+            expect(ops.operators[hex('110110 00')].call(ops, 0, hex('110110 00'), org)).toEqual(1);
+            expect(org.msg).toEqual(11);
+            expect(ops.vars).toEqual([11, 1, 2, 3]);
+        });
+        it("Checking listen command 2", () => {
+            org.msg = 0;
+            expect(ops.vars).toEqual([0, 1, 2, 3]);
+            expect(ops.operators[hex('110110 01')].call(ops, 0, hex('110110 01'), org)).toEqual(1);
+            expect(org.msg).toEqual(0);
+            expect(ops.vars).toEqual([0, 0, 2, 3]);
+        });
+
+        describe('listen() operator with 3bits per var', () => {
+            let bpv;
+            let ops;
+            let vars;
+            let offs;
+            beforeAll(() => {
+                bpv = OConfig.codeBitsPerVar;
+                OConfig.codeBitsPerVar = 3;
+                OperatorsDos.compile();
+            });
+            afterAll(() => OperatorsDos.compile());
+            beforeEach(() => {
+                vars = [0, 1, 2, 3, 4, 5, 6, 7];
+                offs = new Array(10);
+                ops = new OperatorsDos(offs, vars, org);
+            });
+            afterEach(() => {
+                ops.destroy();
+                ops = null;
+                offs = null;
+                vars = null;
+                OConfig.codeBitsPerVar = bpv;
+            });
+
+            it("Checking listen command 1", () => {
+                org.msg = 11;
+                expect(ops.vars).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+                expect(ops.operators[hex('110110 000')].call(ops, 0, hex('110110 000'), org)).toEqual(1);
+                expect(org.msg).toEqual(11);
+                expect(ops.vars).toEqual([11, 1, 2, 3, 4, 5, 6, 7]);
+            });
+            it("Checking listen command 2", () => {
+                org.msg = 0;
+                expect(ops.vars).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+                expect(ops.operators[hex('110111 001')].call(ops, 0, hex('110111 001'), org)).toEqual(1);
+                expect(org.msg).toEqual(0);
+                expect(ops.vars).toEqual([0, 0, 2, 3, 4, 5, 6, 7]);
+            });
+        });
+    });
+
+    describe('check() operator', () => {
+        it('Check out of the world ', () => {
+            org.dir = DIRS.UP;
+            expect(ops.vars).toEqual([0, 1, 2, 3]);
+            expect(ops.operators[hex('110111 01')].call(ops, 0, hex('110111 01'), org)).toEqual(1);
+            expect(ops.vars).toEqual([0, EMPTY, 2, 3]);
+        });
+        it('Check object', () => {
+            org.x   = 1;
+            org.y   = 1;
+            org.dir = DIRS.UP;
+            global.man.positions[1][0] = OBJECT_TYPES.TYPE_ENERGY0;
+            expect(ops.vars).toEqual([0, 1, 2, 3]);
+            expect(ops.operators[hex('110111 01')].call(ops, 0, hex('110111 01'), org)).toEqual(1);
+            expect(ops.vars).toEqual([0, OBJECT_TYPES.TYPE_ENERGY0, 2, 3]);
+            global.man.positions[1][0] = EMPTY;
+        });
+    });
+
     xdescribe('onCheckLeft() method', () => {
         let org;
         let ops;
