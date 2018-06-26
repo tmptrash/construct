@@ -2883,6 +2883,59 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
         });
     });
 
+    describe('myEnergy() operator', () => {
+        it('Check energy of organism ', () => {
+            org.energy = 1;
+            expect(ops.vars).toEqual([0, 1, 2, 3]);
+            expect(ops.operators[hex('111000 01')].call(ops, 0, hex('111000 01'), org)).toEqual(1);
+            expect(ops.vars).toEqual([0, 1, 2, 3]);
+        });
+        it('Check zero energy of organism ', () => {
+            org.energy = 0;
+            expect(ops.vars).toEqual([0, 1, 2, 3]);
+            expect(ops.operators[hex('111000 01')].call(ops, 0, hex('111000 01'), org)).toEqual(1);
+            expect(ops.vars).toEqual([0, 0, 2, 3]);
+        });
+
+        describe('myEnergy() operator with 3bits per var', () => {
+            let bpv;
+            let ops;
+            let vars;
+            let offs;
+            beforeAll(() => {
+                bpv = OConfig.codeBitsPerVar;
+                OConfig.codeBitsPerVar = 3;
+                OperatorsDos.compile();
+            });
+            afterAll(() => OperatorsDos.compile());
+            beforeEach(() => {
+                vars = [0, 1, 2, 3, 4, 5, 6, 7];
+                offs = new Array(10);
+                ops = new OperatorsDos(offs, vars, org);
+            });
+            afterEach(() => {
+                ops.destroy();
+                ops = null;
+                offs = null;
+                vars = null;
+                OConfig.codeBitsPerVar = bpv;
+            });
+
+            it('Check energy of organism ', () => {
+                org.energy = 1;
+                expect(ops.vars).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+                expect(ops.operators[hex('111000 001')].call(ops, 0, hex('111000 001'), org)).toEqual(1);
+                expect(ops.vars).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+            });
+            it('Check zero energy of organism ', () => {
+                org.energy = 0;
+                expect(ops.vars).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+                expect(ops.operators[hex('111000 001')].call(ops, 0, hex('111000 001'), org)).toEqual(1);
+                expect(ops.vars).toEqual([0, 0, 2, 3, 4, 5, 6, 7]);
+            });
+        });
+    });
+
     xdescribe('onCheckLeft() method', () => {
         let org;
         let ops;
