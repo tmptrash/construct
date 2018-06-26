@@ -619,7 +619,7 @@ class OperatorsDos extends Operators {
     }
 
     /**
-     * Returns type of the dot under x,y coordinates
+     * Returns type of the dot under x,y coordinat3s
      * @param {Number} x X coordinate
      * @param {Number} y Y coordinate
      * @returns {Number} dot type

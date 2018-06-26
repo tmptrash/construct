@@ -2655,7 +2655,64 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             global.man.world.setDot(0,1,EMPTY);
         });
 
-        describe('listen() operator with 3bits per var', () => {
+        it('Check organism 1', () => {
+            const org2 = new OrganismDos('0', 1, 0, {});
+            org.x      = 1;
+            org.y      = 1;
+            org.dir    = DIRS.UP;
+            global.man.world.setDot(1,0,0xaabbcc);
+            global.man.positions[1][0] = org2;
+            expect(ops.vars).toEqual([0, 1, 2, 3]);
+            expect(ops.operators[hex('110111 00')].call(ops, 0, hex('110111 00'), org)).toEqual(1);
+            expect(ops.vars).toEqual([ORGANISM, 1, 2, 3]);
+            global.man.world.setDot(1,0,EMPTY);
+            global.man.positions[1][0] = EMPTY;
+            org2.destroy();
+        });
+        it('Check organism 2', () => {
+            const org2 = new OrganismDos('0', 2, 1, {});
+            org.x      = 1;
+            org.y      = 1;
+            org.dir    = DIRS.RIGHT;
+            global.man.world.setDot(2,1,0xaabbcc);
+            global.man.positions[2][1] = org2;
+            expect(ops.vars).toEqual([0, 1, 2, 3]);
+            expect(ops.operators[hex('110111 00')].call(ops, 0, hex('110111 00'), org)).toEqual(1);
+            expect(ops.vars).toEqual([ORGANISM, 1, 2, 3]);
+            global.man.world.setDot(2,1,EMPTY);
+            global.man.positions[2][1] = EMPTY;
+            org2.destroy();
+        });
+        it('Check organism 3', () => {
+            const org2 = new OrganismDos('0', 1, 2, {});
+            org.x      = 1;
+            org.y      = 1;
+            org.dir    = DIRS.DOWN;
+            global.man.world.setDot(1,2,0xaabbcc);
+            global.man.positions[1][2] = org2;
+            expect(ops.vars).toEqual([0, 1, 2, 3]);
+            expect(ops.operators[hex('110111 00')].call(ops, 0, hex('110111 00'), org)).toEqual(1);
+            expect(ops.vars).toEqual([ORGANISM, 1, 2, 3]);
+            global.man.world.setDot(1,2,EMPTY);
+            global.man.positions[1][2] = EMPTY;
+            org2.destroy();
+        });
+        it('Check organism 4', () => {
+            const org2 = new OrganismDos('0', 0, 1, {});
+            org.x      = 1;
+            org.y      = 1;
+            org.dir    = DIRS.LEFT;
+            global.man.world.setDot(0,1,0xaabbcc);
+            global.man.positions[0][1] = org2;
+            expect(ops.vars).toEqual([0, 1, 2, 3]);
+            expect(ops.operators[hex('110111 00')].call(ops, 0, hex('110111 00'), org)).toEqual(1);
+            expect(ops.vars).toEqual([ORGANISM, 1, 2, 3]);
+            global.man.world.setDot(0,1,EMPTY);
+            global.man.positions[0][1] = EMPTY;
+            org2.destroy();
+        });
+
+        describe('check() operator with 3bits per var', () => {
             let bpv;
             let ops;
             let vars;
@@ -2765,6 +2822,63 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
                 expect(ops.operators[hex('110111 000')].call(ops, 0, hex('110111 000'), org)).toEqual(1);
                 expect(ops.vars).toEqual([ENERGY, 1, 2, 3, 4, 5, 6, 7]);
                 global.man.world.setDot(0,1,EMPTY);
+            });
+
+            it('Check organism 1', () => {
+                const org2 = new OrganismDos('0', 1, 0, {});
+                org.x      = 1;
+                org.y      = 1;
+                org.dir    = DIRS.UP;
+                global.man.world.setDot(1,0,0xaabbcc);
+                global.man.positions[1][0] = org2;
+                expect(ops.vars).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+                expect(ops.operators[hex('110111 000')].call(ops, 0, hex('110111 000'), org)).toEqual(1);
+                expect(ops.vars).toEqual([ORGANISM, 1, 2, 3, 4, 5, 6, 7]);
+                global.man.world.setDot(1,0,EMPTY);
+                global.man.positions[1][0] = EMPTY;
+                org2.destroy();
+            });
+            it('Check organism 2', () => {
+                const org2 = new OrganismDos('0', 2, 1, {});
+                org.x      = 1;
+                org.y      = 1;
+                org.dir    = DIRS.RIGHT;
+                global.man.world.setDot(2,1,0xaabbcc);
+                global.man.positions[2][1] = org2;
+                expect(ops.vars).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+                expect(ops.operators[hex('110111 000')].call(ops, 0, hex('110111 000'), org)).toEqual(1);
+                expect(ops.vars).toEqual([ORGANISM, 1, 2, 3, 4, 5, 6, 7]);
+                global.man.world.setDot(2,1,EMPTY);
+                global.man.positions[2][1] = EMPTY;
+                org2.destroy();
+            });
+            it('Check organism 3', () => {
+                const org2 = new OrganismDos('0', 1, 2, {});
+                org.x      = 1;
+                org.y      = 1;
+                org.dir    = DIRS.DOWN;
+                global.man.world.setDot(1,2,0xaabbcc);
+                global.man.positions[1][2] = org2;
+                expect(ops.vars).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+                expect(ops.operators[hex('110111 000')].call(ops, 0, hex('110111 000'), org)).toEqual(1);
+                expect(ops.vars).toEqual([ORGANISM, 1, 2, 3, 4, 5, 6, 7]);
+                global.man.world.setDot(1,2,EMPTY);
+                global.man.positions[1][2] = EMPTY;
+                org2.destroy();
+            });
+            it('Check organism 4', () => {
+                const org2 = new OrganismDos('0', 0, 1, {});
+                org.x      = 1;
+                org.y      = 1;
+                org.dir    = DIRS.LEFT;
+                global.man.world.setDot(0,1,0xaabbcc);
+                global.man.positions[0][1] = org2;
+                expect(ops.vars).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+                expect(ops.operators[hex('110111 000')].call(ops, 0, hex('110111 000'), org)).toEqual(1);
+                expect(ops.vars).toEqual([ORGANISM, 1, 2, 3, 4, 5, 6, 7]);
+                global.man.world.setDot(0,1,EMPTY);
+                global.man.positions[0][1] = EMPTY;
+                org2.destroy();
             });
         });
     });
