@@ -2593,6 +2593,180 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
             expect(ops.vars).toEqual([0, OBJECT_TYPES.TYPE_ENERGY1, 2, 3]);
             global.man.positions[2][1] = EMPTY;
         });
+        it('Check object 3', () => {
+            org.x   = 1;
+            org.y   = 1;
+            org.dir = DIRS.DOWN;
+            global.man.positions[1][2] = OBJECT_TYPES.TYPE_ENERGY3;
+            expect(ops.vars).toEqual([0, 1, 2, 3]);
+            expect(ops.operators[hex('110111 01')].call(ops, 0, hex('110111 01'), org)).toEqual(1);
+            expect(ops.vars).toEqual([0, OBJECT_TYPES.TYPE_ENERGY3, 2, 3]);
+            global.man.positions[1][2] = EMPTY;
+        });
+        it('Check object 4', () => {
+            org.x   = 1;
+            org.y   = 1;
+            org.dir = DIRS.LEFT;
+            global.man.positions[0][1] = OBJECT_TYPES.TYPE_ENERGY4;
+            expect(ops.vars).toEqual([0, 1, 2, 3]);
+            expect(ops.operators[hex('110111 01')].call(ops, 0, hex('110111 01'), org)).toEqual(1);
+            expect(ops.vars).toEqual([0, OBJECT_TYPES.TYPE_ENERGY4, 2, 3]);
+            global.man.positions[0][1] = EMPTY;
+        });
+
+        it('Check energy 1', () => {
+            org.x   = 1;
+            org.y   = 1;
+            org.dir = DIRS.UP;
+            global.man.world.setDot(1,0,0xaabbcc);
+            expect(ops.vars).toEqual([0, 1, 2, 3]);
+            expect(ops.operators[hex('110111 01')].call(ops, 0, hex('110111 01'), org)).toEqual(1);
+            expect(ops.vars).toEqual([0, ENERGY, 2, 3]);
+            global.man.world.setDot(1,0,EMPTY);
+        });
+        it('Check energy 2', () => {
+            org.x   = 1;
+            org.y   = 1;
+            org.dir = DIRS.RIGHT;
+            global.man.world.setDot(2,1,0xaabbcc);
+            expect(ops.vars).toEqual([0, 1, 2, 3]);
+            expect(ops.operators[hex('110111 01')].call(ops, 0, hex('110111 01'), org)).toEqual(1);
+            expect(ops.vars).toEqual([0, ENERGY, 2, 3]);
+            global.man.world.setDot(2,1,EMPTY);
+        });
+        it('Check energy 3', () => {
+            org.x   = 1;
+            org.y   = 1;
+            org.dir = DIRS.DOWN;
+            global.man.world.setDot(1,2,0xaabbcc);
+            expect(ops.vars).toEqual([0, 1, 2, 3]);
+            expect(ops.operators[hex('110111 11')].call(ops, 0, hex('110111 11'), org)).toEqual(1);
+            expect(ops.vars).toEqual([0, 1, 2, ENERGY]);
+            global.man.world.setDot(1,2,EMPTY);
+        });
+        it('Check energy 4', () => {
+            org.x   = 1;
+            org.y   = 1;
+            org.dir = DIRS.LEFT;
+            global.man.world.setDot(0,1,0xaabbcc);
+            expect(ops.vars).toEqual([0, 1, 2, 3]);
+            expect(ops.operators[hex('110111 00')].call(ops, 0, hex('110111 00'), org)).toEqual(1);
+            expect(ops.vars).toEqual([ENERGY, 1, 2, 3]);
+            global.man.world.setDot(0,1,EMPTY);
+        });
+
+        describe('listen() operator with 3bits per var', () => {
+            let bpv;
+            let ops;
+            let vars;
+            let offs;
+            beforeAll(() => {
+                bpv = OConfig.codeBitsPerVar;
+                OConfig.codeBitsPerVar = 3;
+                OperatorsDos.compile();
+            });
+            afterAll(() => OperatorsDos.compile());
+            beforeEach(() => {
+                vars = [0, 1, 2, 3, 4, 5, 6, 7];
+                offs = new Array(10);
+                ops = new OperatorsDos(offs, vars, org);
+            });
+            afterEach(() => {
+                ops.destroy();
+                ops = null;
+                offs = null;
+                vars = null;
+                OConfig.codeBitsPerVar = bpv;
+            });
+
+            it('Check out of the world ', () => {
+                org.dir = DIRS.UP;
+                expect(ops.vars).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+                expect(ops.operators[hex('110111 001')].call(ops, 0, hex('110111 001'), org)).toEqual(1);
+                expect(ops.vars).toEqual([0, EMPTY, 2, 3, 4, 5, 6, 7]);
+            });
+            it('Check object 1', () => {
+                org.x   = 1;
+                org.y   = 1;
+                org.dir = DIRS.UP;
+                global.man.positions[1][0] = OBJECT_TYPES.TYPE_ENERGY0;
+                expect(ops.vars).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+                expect(ops.operators[hex('110111 001')].call(ops, 0, hex('110111 001'), org)).toEqual(1);
+                expect(ops.vars).toEqual([0, OBJECT_TYPES.TYPE_ENERGY0, 2, 3, 4, 5, 6, 7]);
+                global.man.positions[1][0] = EMPTY;
+            });
+            it('Check object 2', () => {
+                org.x   = 1;
+                org.y   = 1;
+                org.dir = DIRS.RIGHT;
+                global.man.positions[2][1] = OBJECT_TYPES.TYPE_ENERGY1;
+                expect(ops.vars).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+                expect(ops.operators[hex('110111 001')].call(ops, 0, hex('110111 001'), org)).toEqual(1);
+                expect(ops.vars).toEqual([0, OBJECT_TYPES.TYPE_ENERGY1, 2, 3, 4, 5, 6, 7]);
+                global.man.positions[2][1] = EMPTY;
+            });
+            it('Check object 3', () => {
+                org.x   = 1;
+                org.y   = 1;
+                org.dir = DIRS.DOWN;
+                global.man.positions[1][2] = OBJECT_TYPES.TYPE_ENERGY3;
+                expect(ops.vars).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+                expect(ops.operators[hex('110111 001')].call(ops, 0, hex('110111 001'), org)).toEqual(1);
+                expect(ops.vars).toEqual([0, OBJECT_TYPES.TYPE_ENERGY3, 2, 3, 4, 5, 6, 7]);
+                global.man.positions[1][2] = EMPTY;
+            });
+            it('Check object 4', () => {
+                org.x   = 1;
+                org.y   = 1;
+                org.dir = DIRS.LEFT;
+                global.man.positions[0][1] = OBJECT_TYPES.TYPE_ENERGY4;
+                expect(ops.vars).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+                expect(ops.operators[hex('110111 001')].call(ops, 0, hex('110111 001'), org)).toEqual(1);
+                expect(ops.vars).toEqual([0, OBJECT_TYPES.TYPE_ENERGY4, 2, 3, 4, 5, 6, 7]);
+                global.man.positions[0][1] = EMPTY;
+            });
+
+            it('Check energy 1', () => {
+                org.x   = 1;
+                org.y   = 1;
+                org.dir = DIRS.UP;
+                global.man.world.setDot(1,0,0xaabbcc);
+                expect(ops.vars).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+                expect(ops.operators[hex('110111 001')].call(ops, 0, hex('110111 001'), org)).toEqual(1);
+                expect(ops.vars).toEqual([0, ENERGY, 2, 3, 4, 5, 6, 7]);
+                global.man.world.setDot(1,0,EMPTY);
+            });
+            it('Check energy 2', () => {
+                org.x   = 1;
+                org.y   = 1;
+                org.dir = DIRS.RIGHT;
+                global.man.world.setDot(2,1,0xaabbcc);
+                expect(ops.vars).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+                expect(ops.operators[hex('110111 001')].call(ops, 0, hex('110111 001'), org)).toEqual(1);
+                expect(ops.vars).toEqual([0, ENERGY, 2, 3, 4, 5, 6, 7]);
+                global.man.world.setDot(2,1,EMPTY);
+            });
+            it('Check energy 3', () => {
+                org.x   = 1;
+                org.y   = 1;
+                org.dir = DIRS.DOWN;
+                global.man.world.setDot(1,2,0xaabbcc);
+                expect(ops.vars).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+                expect(ops.operators[hex('110111 011')].call(ops, 0, hex('110111 011'), org)).toEqual(1);
+                expect(ops.vars).toEqual([0, 1, 2, ENERGY, 4, 5, 6, 7]);
+                global.man.world.setDot(1,2,EMPTY);
+            });
+            it('Check energy 4', () => {
+                org.x   = 1;
+                org.y   = 1;
+                org.dir = DIRS.LEFT;
+                global.man.world.setDot(0,1,0xaabbcc);
+                expect(ops.vars).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+                expect(ops.operators[hex('110111 000')].call(ops, 0, hex('110111 000'), org)).toEqual(1);
+                expect(ops.vars).toEqual([ENERGY, 1, 2, 3, 4, 5, 6, 7]);
+                global.man.world.setDot(0,1,EMPTY);
+            });
+        });
     });
 
     xdescribe('onCheckLeft() method', () => {
