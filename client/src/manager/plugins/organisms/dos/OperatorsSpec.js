@@ -2936,6 +2936,128 @@ describe("client/src/manager/plugins/organisms/dos/OperatorsDos", () => {
         });
     });
 
+    describe('myAge() operator', () => {
+        it('Check default age of organism ', () => {
+            expect(org.iterations).toEqual(-1);
+            expect(ops.operators[hex('111001 01')].call(ops, 0, hex('111001 01'), org)).toEqual(1);
+            expect(ops.vars).toEqual([0, -1, 2, 3]);
+        });
+        it('Check age increase', () => {
+            expect(org.iterations).toEqual(-1);
+            expect(ops.operators[hex('111001 01')].call(ops, 0, hex('111001 01'), org)).toEqual(1);
+            expect(ops.vars).toEqual([0, -1, 2, 3]);
+            org.run();
+            expect(ops.operators[hex('111001 01')].call(ops, 0, hex('111001 01'), org)).toEqual(1);
+            expect(ops.vars).toEqual([0, 0, 2, 3]);
+            org.run();
+            org.run();
+            org.run();
+            expect(ops.operators[hex('111001 01')].call(ops, 0, hex('111001 01'), org)).toEqual(1);
+            expect(ops.vars).toEqual([0, 3, 2, 3]);
+        });
+
+        describe('myAge() operator with 3bits per var', () => {
+            let bpv;
+            let ops;
+            let vars;
+            let offs;
+            beforeAll(() => {
+                bpv = OConfig.codeBitsPerVar;
+                OConfig.codeBitsPerVar = 3;
+                OperatorsDos.compile();
+            });
+            afterAll(() => OperatorsDos.compile());
+            beforeEach(() => {
+                vars = [0, 1, 2, 3, 4, 5, 6, 7];
+                offs = new Array(10);
+                ops = new OperatorsDos(offs, vars, org);
+            });
+            afterEach(() => {
+                ops.destroy();
+                ops = null;
+                offs = null;
+                vars = null;
+                OConfig.codeBitsPerVar = bpv;
+            });
+
+            it('Check default age of organism ', () => {
+                expect(org.iterations).toEqual(-1);
+                expect(ops.operators[hex('111001 001')].call(ops, 0, hex('111001 001'), org)).toEqual(1);
+                expect(ops.vars).toEqual([0, -1, 2, 3, 4, 5, 6, 7]);
+            });
+            it('Check age increase', () => {
+                expect(org.iterations).toEqual(-1);
+                expect(ops.operators[hex('111001 001')].call(ops, 0, hex('111001 001'), org)).toEqual(1);
+                expect(ops.vars).toEqual([0, -1, 2, 3, 4, 5, 6, 7]);
+                org.run();
+                expect(ops.operators[hex('111001 001')].call(ops, 0, hex('111001 001'), org)).toEqual(1);
+                expect(ops.vars).toEqual([0, 0, 2, 3, 4, 5, 6, 7]);
+                org.run();
+                org.run();
+                org.run();
+                expect(ops.operators[hex('111001 001')].call(ops, 0, hex('111001 001'), org)).toEqual(1);
+                expect(ops.vars).toEqual([0, 3, 2, 3, 4, 5, 6, 7]);
+            });
+        });
+    });
+
+    describe('myDir() operator', () => {
+        it('Check default direction of organism ', () => {
+            org.dir = DIRS.UP;
+            expect(ops.operators[hex('111010 11')].call(ops, 0, hex('111010 11'), org)).toEqual(1);
+            expect(ops.vars).toEqual([0, 1, 2, 0]);
+            org.dir = DIRS.RIGHT;
+            expect(ops.operators[hex('111010 10')].call(ops, 0, hex('111010 10'), org)).toEqual(1);
+            expect(ops.vars).toEqual([0, 1, 1, 0]);
+            org.dir = DIRS.DOWN;
+            expect(ops.operators[hex('111010 01')].call(ops, 0, hex('111010 01'), org)).toEqual(1);
+            expect(ops.vars).toEqual([0, 2, 1, 0]);
+            org.dir = DIRS.LEFT;
+            expect(ops.operators[hex('111010 00')].call(ops, 0, hex('111010 00'), org)).toEqual(1);
+            expect(ops.vars).toEqual([3, 2, 1, 0]);
+        });
+
+        describe('myDir() operator with 3bits per var', () => {
+            let bpv;
+            let ops;
+            let vars;
+            let offs;
+            beforeAll(() => {
+                bpv = OConfig.codeBitsPerVar;
+                OConfig.codeBitsPerVar = 3;
+                OperatorsDos.compile();
+            });
+            afterAll(() => OperatorsDos.compile());
+            beforeEach(() => {
+                vars = [0, 1, 2, 3, 4, 5, 6, 7];
+                offs = new Array(10);
+                ops = new OperatorsDos(offs, vars, org);
+            });
+            afterEach(() => {
+                ops.destroy();
+                ops = null;
+                offs = null;
+                vars = null;
+                OConfig.codeBitsPerVar = bpv;
+            });
+
+            it('Check default direction of organism ', () => {
+                org.dir = DIRS.UP;
+                expect(ops.operators[hex('111010 011')].call(ops, 0, hex('111010 011'), org)).toEqual(1);
+                expect(ops.vars).toEqual([0, 1, 2, 0, 4, 5, 6, 7]);
+                org.dir = DIRS.RIGHT;
+                expect(ops.operators[hex('111010 010')].call(ops, 0, hex('111010 010'), org)).toEqual(1);
+                expect(ops.vars).toEqual([0, 1, 1, 0, 4, 5, 6, 7]);
+                org.dir = DIRS.DOWN;
+                expect(ops.operators[hex('111010 001')].call(ops, 0, hex('111010 001'), org)).toEqual(1);
+                expect(ops.vars).toEqual([0, 2, 1, 0, 4, 5, 6, 7]);
+                org.dir = DIRS.LEFT;
+                expect(ops.operators[hex('111010 000')].call(ops, 0, hex('111010 000'), org)).toEqual(1);
+                expect(ops.vars).toEqual([3, 2, 1, 0, 4, 5, 6, 7]);
+            });
+        });
+    });
+
     xdescribe('onCheckLeft() method', () => {
         let org;
         let ops;
