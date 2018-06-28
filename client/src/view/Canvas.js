@@ -133,7 +133,7 @@ class Canvas extends Observer {
             cursor         : 'pointer'
         }));
 
-        el.title        = 'fullscreen';
+        el.title        = 'fullscreen (Ctrl-F)';
         el.onclick      = this._onFullscreen.bind(this);
         innerEl.onclick = this._onFullscreen.bind(this);
 
@@ -155,7 +155,7 @@ class Canvas extends Observer {
             cursor         : 'pointer'
         }));
 
-        el.title   = 'visualize';
+        el.title   = 'visualize (Ctrl-V)';
         el.onclick = this._onVisualize.bind(this);
 
         return el;
