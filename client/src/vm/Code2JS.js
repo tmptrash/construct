@@ -42,7 +42,7 @@ class Code2JS {
         return this._operators;
     }
 
-    format(code, separator = '\n') {
+    format(code, separator = '\n', raw = false) {
         const len       = code.length;
         const operators = this._operators;
         let   jsCode    = new Array(len);
@@ -56,7 +56,7 @@ class Code2JS {
         }
         ops.destroy();
 
-        return js_beautify(jsCode.join(separator), {indent_size: 4});
+        return raw ? jsCode.join(separator) : js_beautify(jsCode.join(separator), {indent_size: 4});
     }
 
     destroy() {
